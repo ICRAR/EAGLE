@@ -1,17 +1,14 @@
 {
     "compilerOptions": {
+        "strict": true,
         "allowUnreachableCode": false,
         "allowUnusedLabels": false,
         "outDir": "./static/built",
         "sourceMap": true,
-        "noImplicitAny": true,
         "noImplicitReturns": true,
-        "noImplicitThis": false,  // TODO: make true when possible
         "noFallthroughCasesInSwitch": true,
         "noUnusedLocals": false, // NOTE: would like to set this to true, but sometimes functions are only used within knockout html
         "noUnusedParameters": false,
-        "strictNullChecks" : false,
-        "strictFunctionTypes": false,
         "strictPropertyInitialization": false,
         "module": "umd",
         "moduleResolution": "node",

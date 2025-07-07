@@ -68,7 +68,7 @@ export class Eagle {
     static _instance : Eagle;
 
     palettes : ko.ObservableArray<Palette>;
-    logicalGraph : ko.Observable<LogicalGraph>;
+    logicalGraph : ko.Observable<LogicalGraph | null>;
     tutorial : ko.Observable<Tutorial>;
 
     eagleIsReady : ko.Observable<boolean>;
@@ -79,7 +79,7 @@ export class Eagle {
 
     selectedObjects : ko.ObservableArray<Node|Edge>;
     static selectedLocation : ko.Observable<Eagle.FileType>;
-    currentField :ko.Observable<Field>;
+    currentField :ko.Observable<Field | null>;
 
     static selectedRightClickObject : ko.Observable<any>;
     static selectedRightClickLocation : ko.Observable<Eagle.FileType>;
@@ -101,12 +101,11 @@ export class Eagle {
     graphErrors : ko.ObservableArray<Errors.Issue>;
     loadingWarnings : ko.ObservableArray<Errors.Issue>;
     loadingErrors : ko.ObservableArray<Errors.Issue>;
-    currentFileInfo : ko.Observable<FileInfo>;
+    currentFileInfo : ko.Observable<FileInfo | null>;
     currentFileInfoTitle : ko.Observable<string>;
 
     showDataNodes : ko.Observable<boolean>;
     snapToGrid : ko.Observable<boolean>;
-    dropdownMenuHoverTimeout : number = 0;
 
     static paletteComponentSearchString : ko.Observable<string>;
     static componentParamsSearchString : ko.Observable<string>;
@@ -121,9 +120,10 @@ export class Eagle {
     static lastClickTime : number = 0;
 
     static nodeDropLocation : {x: number, y: number} = {x:0, y:0}; // if this remains x=0,y=0, the button has been pressed and the getNodePosition function will be used to determine a location on the canvas. if not x:0, y:0, it has been over written by the nodeDrop function as the node has been dragged into the canvas. The node will then be placed into the canvas using these co-ordinates.
-    static nodeDragPaletteIndex : number;
-    static nodeDragComponentId : NodeId;
-    static shortcutModalCooldown : number;
+    static nodeDragPaletteIndex: number | null = null;
+    static nodeDragComponentId: NodeId | null = null;
+    static shortcutModalCooldown: number;
+    static dropdownMenuHoverTimeout: number | undefined;
 
     constructor(){
         Eagle._instance = this;
@@ -138,12 +138,12 @@ export class Eagle {
         this.rightWindow = ko.observable(new SideWindow(Utils.getRightWindowWidth()));
         this.bottomWindow = ko.observable(new SideWindow(Utils.getBottomWindowHeight()));
 
-        this.selectedObjects = ko.observableArray([]).extend({ deferred: true });
-        Eagle.selectedLocation = ko.observable(Eagle.FileType.Unknown);
+        this.selectedObjects = ko.observableArray<Node | Edge>([]).extend({ deferred: true });
+        Eagle.selectedLocation = ko.observable<Eagle.FileType>(Eagle.FileType.Unknown);
         this.currentField = ko.observable(null);
 
         Eagle.selectedRightClickObject = ko.observable();
-        Eagle.selectedRightClickLocation = ko.observable(Eagle.FileType.Unknown);
+        Eagle.selectedRightClickLocation = ko.observable<Eagle.FileType>(Eagle.FileType.Unknown);
 
         this.repositories = ko.observable(new Repositories());
         this.translator = ko.observable(new Translator());
@@ -164,6 +164,7 @@ export class Eagle {
 
         Eagle.nodeDragPaletteIndex = null;
         Eagle.nodeDragComponentId = null;
+        Eagle.dropdownMenuHoverTimeout = undefined;
 
         this.globalOffsetX = ko.observable(0);
         this.globalOffsetY = ko.observable(0);
@@ -172,22 +173,28 @@ export class Eagle {
         this.explorePalettes = ko.observable(new ExplorePalettes());
         this.dockerHubBrowser = ko.observable(new DockerHubBrowser());
 
-        this.errorsMode = ko.observable(Errors.Mode.Loading);
-        this.graphWarnings = ko.observableArray([]);
-        this.graphErrors = ko.observableArray([]);
-        this.loadingWarnings = ko.observableArray([]);
-        this.loadingErrors = ko.observableArray([]);
+        this.errorsMode = ko.observable<Errors.Mode>(Errors.Mode.Loading);
+        this.graphWarnings = ko.observableArray<Errors.Issue>([]);
+        this.graphErrors = ko.observableArray<Errors.Issue>([]);
+        this.loadingWarnings = ko.observableArray<Errors.Issue>([]);
+        this.loadingErrors = ko.observableArray<Errors.Issue>([]);
 
         this.currentFileInfo = ko.observable(null);
         this.currentFileInfoTitle = ko.observable("");
 
         this.showDataNodes = ko.observable(true);
         this.snapToGrid = ko.observable(false);
-        this.dropdownMenuHoverTimeout = null;
 
         this.selectedObjects.subscribe(function(){
+            const lg = this.logicalGraph();
+
+            // if no logical graph is available, skip update
+            if (lg === null){
+                return;
+            }
+
             //TODO check if the selectedObjects array has changed, if not, abort
-            GraphRenderer.nodeData = GraphRenderer.depthFirstTraversalOfNodes(this.logicalGraph(), this.showDataNodes());
+            GraphRenderer.nodeData = GraphRenderer.depthFirstTraversalOfNodes(lg, this.showDataNodes());
             Hierarchy.updateDisplay()
             Hierarchy.scrollToNode()
         }, this)
@@ -198,9 +205,14 @@ export class Eagle {
     }
 
     areAnyFilesModified = () : boolean => {
-        // check the logical graph
-        if (this.logicalGraph().fileInfo().modified){
-            return true;
+        const lg = this.logicalGraph();
+
+        // if no logical graph is available, skip check
+        if (lg !== null){
+            // check the logical graph
+            if (lg.fileInfo().modified){
+                return true;
+            }
         }
 
         // check all the open palettes
@@ -212,7 +224,7 @@ export class Eagle {
         return false;
     }
 
-    static selectedNodePalette() : Palette {
+    static selectedNodePalette() : Palette | undefined {
         const eagle : Eagle = Eagle.getInstance();
 
         for (const palette of eagle.palettes()){
@@ -223,7 +235,7 @@ export class Eagle {
             }
         }
 
-        return null;
+        return undefined;
     }
 
     types : ko.PureComputed<string[]> = ko.pureComputed(() => {
@@ -255,8 +267,15 @@ export class Eagle {
                 break;
             case Eagle.FileType.Graph:
             default:
+                const lg = this.logicalGraph();
+
+                // abort if no logical graph is available
+                if (lg === null){
+                    break;
+                }
+
                 // build a list from all nodes in the current logical graph
-                for (const node of this.logicalGraph().getNodes()){
+                for (const node of lg.getNodes()){
                     for (const field of node.getFields()) {
                         Utils.addTypeIfUnique(result, field.getType());
                     }
@@ -300,12 +319,24 @@ export class Eagle {
     }
 
     deployDefaultTranslationAlgorithm = async () => {
-        const defaultTranslatorAlgorithmMethod : string = $('#'+Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT)+ ' .generatePgt').val().toString()
+        const defaultTranslatorAlgorithmValue = $('#'+Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT)+ ' .generatePgt').val();
+
+        // if no algorithm is selected, abort
+        if (defaultTranslatorAlgorithmValue === null || defaultTranslatorAlgorithmValue === undefined || defaultTranslatorAlgorithmValue === ""){
+            Utils.showNotification("Error", "No translation algorithm selected.", "danger");
+            return;
+        }
+
+        const defaultTranslatorAlgorithmMethod: string = defaultTranslatorAlgorithmValue.toString()
         try {
             await this.translator().genPGT(defaultTranslatorAlgorithmMethod, false);
         } catch (error){
-            console.error("deployDefaultTranslationAlgorithm()", error);
-            Utils.showNotification("Error", error, "danger");
+            if (error instanceof Error){
+                console.error("deployDefaultTranslationAlgorithm()", error.message);
+                Utils.showNotification("Error", error.message, "danger");
+            } else {
+                console.error("deployDefaultTranslationAlgorithm(): Unexpected error", error);
+            }
         }
     }
 
@@ -313,27 +344,33 @@ export class Eagle {
         try {
             await this.translator().genPGT(algorithm, test);
         } catch (error){
-            console.error("deployDefaultTranslationAlgorithm()", error);
-            Utils.showNotification("Error", error, "danger");
+            if (error instanceof Error){
+                console.error("deployTranslationAlgorithm()", error.message);
+                Utils.showNotification("Error", error.message, "danger");
+            } else {
+                console.error("deployTranslationAlgorithm(): Unexpected error", error);
+            }
         }
     }
 
     // TODO: remove?
     flagActiveFileModified = () : void => {
-        if (this.logicalGraph()){
-            this.logicalGraph().fileInfo().modified = true;
+        const lg = this.logicalGraph();
+        if (lg !== null){
+            lg.fileInfo().modified = true;
         }
     }
 
     getTabTitle : ko.PureComputed<string> = ko.pureComputed(() => {
         // Adding a star symbol in front of the title if file is modified.
         let mod = '';
+        const lg = this.logicalGraph();
 
-        if (this.logicalGraph() === null){
+        if (lg === null){
             return "";
         }
 
-        const fileInfo : FileInfo = this.logicalGraph().fileInfo();
+        const fileInfo: FileInfo = lg.fileInfo();
 
         if (fileInfo === null){
             return "";
@@ -373,11 +410,13 @@ export class Eagle {
     }
 
     repositoryFileName : ko.PureComputed<string> = ko.pureComputed(() => {
-        if (this.logicalGraph() === null){
+        const lg = this.logicalGraph();
+
+        if (lg === null){
             return "";
         }
 
-        const fileInfo : FileInfo = this.logicalGraph().fileInfo();
+        const fileInfo : FileInfo = lg.fileInfo();
 
         // if no FileInfo is available, return empty string
         if (fileInfo === null){
@@ -388,11 +427,21 @@ export class Eagle {
     }, this);
 
     activeConfigHtml : ko.PureComputed<string> = ko.pureComputed(() => {
-        if (typeof this.logicalGraph().getActiveGraphConfig() === 'undefined'){
+        const lg = this.logicalGraph();
+
+        // if no logical graph is available, return empty string
+        if (lg === null){
             return "";
         }
 
-        return  "<strong>Config:</strong> " +this.logicalGraph().getActiveGraphConfig().getName()
+        const activeGraphConfig = lg.getActiveGraphConfig();
+
+        // if no active graph config is available
+        if (typeof activeGraphConfig === 'undefined'){
+            return "<strong>Config:</strong> <em>None</em>";
+        }
+
+        return  "<strong>Config:</strong> " + activeGraphConfig.getName()
     }, this);
 
     // TODO: move to SideWindow.ts?
@@ -462,10 +511,10 @@ export class Eagle {
     }
 
     centerGraph = () : void => {
-        const that = this
+        const lg = this.logicalGraph();
 
         // if there are no nodes in the logical graph, abort
-        if (that.logicalGraph().getNumNodes() === 0){
+        if (lg === null || lg.getNumNodes() === 0){
             return;
         }
 
@@ -474,7 +523,7 @@ export class Eagle {
         let minY : number = Number.MAX_VALUE;
         let maxX : number = -Number.MAX_VALUE;
         let maxY : number = -Number.MAX_VALUE;
-        for (const node of that.logicalGraph().getNodes()){
+        for (const node of lg.getNodes()){
             if (node.getPosition().x - node.getRadius() < minX){
                 minX = node.getPosition().x - node.getRadius();
             }
@@ -514,42 +563,42 @@ export class Eagle {
         const graphXScale = containerWidth/graphWidth
 
         // reset scale to center the graph correctly
-        that.globalScale(1)
+        this.globalScale(1)
 
         //determine center of the display area
-        const displayCenterX : number = (containerWidth / that.globalScale() / 2);
-        const displayCenterY : number = (containerHeight / that.globalScale() / 2);
+        const displayCenterX : number = (containerWidth / this.globalScale() / 2);
+        const displayCenterY : number = (containerHeight / this.globalScale() / 2);
 
         // translate display to center the graph centroid
-        that.globalOffsetX(Math.round(displayCenterX - centroidX + leftWindow));
-        that.globalOffsetY(Math.round(displayCenterY - centroidY));
+        this.globalOffsetX(Math.round(displayCenterX - centroidX + leftWindow));
+        this.globalOffsetY(Math.round(displayCenterY - centroidY));
 
         //taking note of the screen center in graph space before zooming
         const midPointX = GraphRenderer.GRAPH_TO_SCREEN_POSITION_X(centroidX)
 
         const xpb = centroidX
-        const ypb = displayCenterY/that.globalScale() - that.globalOffsetY(); 
+        const ypb = displayCenterY/this.globalScale() - this.globalOffsetY(); 
 
         //applying the correct zoom
         if(graphYScale>graphXScale){
-            that.globalScale(graphXScale);
+            this.globalScale(graphXScale);
         }else if(graphYScale<graphXScale){
-            that.globalScale(graphYScale)
+            this.globalScale(graphYScale)
         }else{
-            that.globalScale(1)
+            this.globalScale(1)
         }
         
         //checking the screen center in graph space after zoom
         const xpa = GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(midPointX)
-        const ypa = displayCenterY/that.globalScale() - that.globalOffsetY();
+        const ypa = displayCenterY/this.globalScale() - this.globalOffsetY();
 
         //checking how far the center has moved
         const moveX = xpa-xpb
         const moveY = ypa-ypb
 
         //correcting for the movement
-        that.globalOffsetX(that.globalOffsetX()+moveX)
-        that.globalOffsetY(that.globalOffsetY()+moveY)
+        this.globalOffsetX(this.globalOffsetX()+moveX)
+        this.globalOffsetY(this.globalOffsetY()+moveY)
     }
 
     getSelectedText = () : string => {
@@ -569,11 +618,14 @@ export class Eagle {
     }
 
     getTotalText = () : string => {
-        const nodeCount = this.logicalGraph().getNumNodes()
-        const edgeCount = this.logicalGraph().getNumEdges()
-        const text =  nodeCount + " nodes and " + edgeCount + " edges."
+        const lg = this.logicalGraph();
 
-        return text
+        // if no logical graph is available, return empty string
+        if (lg === null){
+            return "";
+        }
+
+        return lg.getNumNodes() + " nodes and " + lg.getNumEdges() + " edges.";
     }
 
     getNumSelectedNodes = () : number => {
@@ -623,7 +675,7 @@ export class Eagle {
     }, this);
 
     // if selectedObjects contains nothing but one edge, return the edge, else null
-    selectedEdge : ko.PureComputed<Edge> = ko.pureComputed(() : Edge => {
+    selectedEdge : ko.PureComputed<Edge | null> = ko.pureComputed(() : Edge | null => {
         if (this.selectedObjects().length !== 1){
             return null;
         }
@@ -638,21 +690,28 @@ export class Eagle {
 
     
     getTranslatorColor : ko.PureComputed<string> = ko.pureComputed(() : string => {
-        // check if current graph comes from a supported git service
-        const serviceIsGit: boolean = [Repository.Service.GitHub, Repository.Service.GitLab].includes(this.logicalGraph().fileInfo().repositoryService);
+        const lg = this.logicalGraph();
 
+        if (lg === null){
+            return 'green'; // default color
+        }
+
+        // check if current graph comes from a supported git service
+        const serviceIsGit: boolean = [Repository.Service.GitHub, Repository.Service.GitLab].includes(lg.fileInfo().repositoryService);
+
+        // TODO: get these returned color values from EagleConfig
         if(!serviceIsGit){
             return 'dodgerblue'
         }else if(Setting.findValue(Setting.TEST_TRANSLATE_MODE)){
             return 'orange'
-        }else if (this.logicalGraph().fileInfo().modified){
+        }else if (lg.fileInfo().modified){
             return 'red'
         }else{
             return 'green'
         }
     }, this);
 
-    setSelection = (selection : Node | Edge, selectedLocation: Eagle.FileType) : void => {
+    setSelection = (selection : Node | Edge | null, selectedLocation: Eagle.FileType) : void => {
         Eagle.selectedLocation(selectedLocation);
         GraphRenderer.clearPortPeek()
 
@@ -723,7 +782,14 @@ export class Eagle {
     };
 
     getGraphModifiedDateText = () : string => {
-        return this.logicalGraph().fileInfo().lastModifiedDatetimeText().split(',')[0]
+        const lg = this.logicalGraph();
+
+        // if no logical graph is available, return empty string
+        if (lg === null){
+            return "";
+        }
+
+        return lg.fileInfo().lastModifiedDatetimeText().split(',')[0]
     }
 
     changeRightWindowMode(requestedMode:Eagle.RightWindowMode) : void {
@@ -823,37 +889,38 @@ export class Eagle {
         return outermostNodes
     }
 
-    /**
-     * Uploads a file from a local file location.
-     */
-    loadLocalGraphFile = () : void => {
-        const graphFileToLoadInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("graphFileToLoad");
-        const fileFullPath : string = graphFileToLoadInputElement.value;
-        const eagle: Eagle = this;
+
+    private _processFile = (fileInputElement: HTMLInputElement, loadFunc: (data: string, fileFullPath: string) => void) : void => {
+        const fileFullPath : string = fileInputElement.value;
 
         // abort if value is empty string
         if (fileFullPath === ""){
             return;
         }
 
+        // abort if no file is selected
+        if (fileInputElement.files === null || fileInputElement.files.length === 0){
+            Utils.showNotification("Error", "No file selected.", "danger");
+            return;
+        }
+
         // get reference to file from the html element
-        const file = graphFileToLoadInputElement.files[0];
+        const file = fileInputElement.files[0];
 
         // read the file
         if (file) {
             const reader = new FileReader();
             reader.readAsText(file, "UTF-8");
             reader.onload = function (evt) {
+                if (evt.target === null || evt.target.result === null){
+                    Utils.showNotification("Error", "Error reading file: " + fileFullPath, "danger");
+                    return;
+                }
+
                 const data: string = evt.target.result.toString();
 
-                eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
-                    eagle.logicalGraph(lg);
-    
-                    // center graph
-                    GraphRenderer.translateLegacyGraph()
-
-                    eagle._postLoadGraph(new RepositoryFile(new Repository(Repository.Service.File, "", "", false), Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath)));
-                });
+                // call the load function with the data and file path
+                loadFunc(data, fileFullPath);
             }
             reader.onerror = function (evt) {
                 console.error("error reading file", evt);
@@ -861,52 +928,47 @@ export class Eagle {
         }
 
         // reset file selection element
-        graphFileToLoadInputElement.value = "";
+        fileInputElement.value = "";        
+    }
+
+    /**
+     * Uploads a file from a local file location.
+     */
+    loadLocalGraphFile = () : void => {
+        this._processFile(<HTMLInputElement> document.getElementById("graphFileToLoad"), (data: string, fileFullPath: string) : void => {
+            const eagle: Eagle = this;
+
+            eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
+                eagle.logicalGraph(lg);
+
+                // center graph
+                GraphRenderer.translateLegacyGraph()
+
+                eagle._postLoadGraph(new RepositoryFile(new Repository(Repository.Service.File, "", "", false), Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath)));
+            });
+        });
     }
 
     /**
      * Uploads a file from a local file location. File will be "insert"ed into the current graph
      */
     insertLocalGraphFile = () : void => {
-        const graphFileToInsertInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("graphFileToInsert");
-        const fileFullPath : string = graphFileToInsertInputElement.value;
-        const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
-        const eagle: Eagle = this;
+        this._processFile(<HTMLInputElement> document.getElementById("graphFileToInsert"), (data: string, fileFullPath: string) : void => {
+            const eagle: Eagle = this;
 
-        // abort if value is empty string
-        if (fileFullPath === ""){
-            return;
-        }
+            eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
+                const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
 
-        // get reference to file from the html element
-        const file = graphFileToInsertInputElement.files[0];
+                // insert the graph into the current logical graph
+                eagle.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges()), parentNode, {"errors":[], "warnings":[]});
 
-        // read the file
-        if (file) {
-            const reader = new FileReader();
-            reader.readAsText(file, "UTF-8");
-            reader.onload = function (evt) {
-                const data: string = evt.target.result.toString();
+                // TODO: handle errors and warnings
 
-                eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
-                    const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
-    
-                    eagle.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges()), parentNode, errorsWarnings);
-    
-                    // TODO: handle errors and warnings
-    
-                    eagle.checkGraph();
-                    eagle.undo().pushSnapshot(eagle, "Insert Logical Graph");
-                    eagle.logicalGraph.valueHasMutated();
-                });
-            }
-            reader.onerror = function (evt) {
-                console.error("error reading file", evt);
-            }
-        }
-
-        // reset file selection element
-        graphFileToInsertInputElement.value = "";
+                eagle.checkGraph();
+                eagle.undo().pushSnapshot(eagle, "Insert Logical Graph");
+                eagle.logicalGraph.valueHasMutated();
+            });
+        });
     }
 
     private _handleLoadingErrors = (errorsWarnings: Errors.ErrorsWarnings, fileName: string, service: Repository.Service) : void => {
@@ -1240,37 +1302,16 @@ export class Eagle {
      * Loads a custom palette from a file.
      */
     loadLocalPaletteFile = () : void => {
-        const paletteFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("paletteFileToLoad");
-        const fileFullPath : string = paletteFileInputElement.value;
-        const eagle: Eagle = this;
+        this._processFile(<HTMLInputElement> document.getElementById("paletteFileToLoad"), (data: string, fileFullPath: string) : void => {
+            const eagle: Eagle = this;
 
-        // abort if value is empty string
-        if (fileFullPath === ""){
-            return;
-        }
+            // load the palette, handle errors and add palettes list
+            eagle._loadPaletteJSON(data, fileFullPath);
 
-        // get a reference to the file in the html element
-        const file = paletteFileInputElement.files[0];
-        
-        // read the file
-        if (file) {
-            const reader = new FileReader();
-            reader.readAsText(file, "UTF-8");
-            reader.onload = function (evt) {
-                const data: string = evt.target.result.toString();
-
-                eagle._loadPaletteJSON(data, fileFullPath);
-
-                eagle.palettes()[0].fileInfo().repositoryService = Repository.Service.File;
-                eagle.palettes()[0].fileInfo.valueHasMutated();
-            }
-            reader.onerror = function (evt) {
-                console.error("error reading file", evt);
-            }
-        }
-        
-        // reset file selection element
-        paletteFileInputElement.value = "";
+            // set repository service to File
+            eagle.palettes()[0].fileInfo().repositoryService = Repository.Service.File;
+            eagle.palettes()[0].fileInfo.valueHasMutated();
+        });
     }
 
     private _loadPaletteJSON = (data: string, fileFullPath: string) => {
@@ -1281,8 +1322,13 @@ export class Eagle {
             dataObject = JSON.parse(data);
         }
         catch(err){
-            Utils.showUserMessage("Error parsing file JSON", err.message);
-            return;
+            if (err instanceof Error){
+                Utils.showUserMessage("Error parsing file JSON", err.message);
+                return;
+            } else {
+                Utils.showUserMessage("Error parsing file JSON", "Unknown error: " + err);
+                return;
+            }
         }
 
         // determine file type
@@ -1296,51 +1342,6 @@ export class Eagle {
 
         // load the palette, handle errors and add palettes list
         this._reloadPalette(new RepositoryFile(Repository.dummy(), "", Utils.getFileNameFromFullPath(fileFullPath)), data, null);
-    }
-
-    /**
-     * Loads a custom daliuge "project" from a file.
-     */
-    loadLocalDaliugeFile = () : void => {
-        const daliugeFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("daliugeFileToLoad");
-        const fileFullPath : string = daliugeFileInputElement.value;
-        const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
-        const eagle: Eagle = this;
-
-        // abort if value is empty string
-        if (fileFullPath === ""){
-            return;
-        }
-
-        // get a reference to the file in the html element
-        const file = daliugeFileInputElement.files[0];
-        
-        // read the file
-        if (file) {
-            const reader = new FileReader();
-            reader.readAsText(file, "UTF-8");
-            reader.onload = function (evt) {
-                const data: string = evt.target.result.toString();
-
-                eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
-                    const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
-    
-                    eagle.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges()), parentNode, errorsWarnings);
-    
-                    // TODO: handle errors and warnings
-    
-                    eagle.checkGraph();
-                    eagle.undo().pushSnapshot(eagle, "Insert Logical Graph");
-                    eagle.logicalGraph.valueHasMutated();
-                });
-            }
-            reader.onerror = function (evt) {
-                console.error("error reading file", evt);
-            }
-        }
-        
-        // reset file selection element
-        daliugeFileInputElement.value = "";
     }
 
     /**
@@ -1388,7 +1389,11 @@ export class Eagle {
         try {
             filename = await Utils.requestDiagramFilename(Eagle.FileType.Graph);
         } catch (error) {
-            Utils.showNotification("Error", error, "danger");
+            if (error instanceof Error){
+                Utils.showNotification("Error", error.message, "danger");
+            } else {
+                Utils.showNotification("Error", "Unknown error: " + error, "danger");
+            }
             return;
         }
 
@@ -4775,9 +4780,9 @@ $( document ).ready(function() {
         const targetElement = this
         //we are using a timeout stored in a global variable so we have only one timeout that resets when another mouseout is called.
         //if we don't do this we end up with several timeouts conflicting.
-        clearTimeout(Eagle.getInstance().dropdownMenuHoverTimeout)
+        clearTimeout(Eagle.dropdownMenuHoverTimeout)
 
-        Eagle.getInstance().dropdownMenuHoverTimeout = setTimeout(function() {
+        Eagle.dropdownMenuHoverTimeout = setTimeout(function() {
             if($(".dropdown-menu:hover").length === 0){
                 $(targetElement).removeClass("show")
                 $(targetElement).parent().find('.dropdown-control').removeClass('show')

@@ -45,13 +45,13 @@ class Snapshot {
 export class Undo {
     static readonly MEMORY_SIZE : number = 10;
 
-    memory: ko.ObservableArray<Snapshot>;
+    memory: ko.ObservableArray<Snapshot | null>;
     front: ko.Observable<number>; // place where next snapshot will go
     rear: ko.Observable<number>;
     current: ko.Observable<number>; // snapshot currently in use, normally equal to front
 
     constructor(){
-        this.memory = ko.observableArray([]);
+        this.memory = ko.observableArray<Snapshot | null>([]);
         for (let i = 0 ; i < Undo.MEMORY_SIZE ; i++){
             this.memory.push(null);
         }
@@ -73,8 +73,8 @@ export class Undo {
 
     pushSnapshot = (eagle: Eagle, description: string) : void => {
         const previousIndex = (this.current() + Undo.MEMORY_SIZE - 1) % Undo.MEMORY_SIZE;
-        const previousSnapshot : Snapshot = this.memory()[previousIndex];
-        const newContent : LogicalGraph = eagle.logicalGraph().clone();
+        const previousSnapshot: Snapshot | null = this.memory()[previousIndex];
+        const newContent: LogicalGraph = eagle.logicalGraph().clone();
 
         // check if newContent matches old content, if so, no need to push
         // TODO: maybe speed this up with checksums? or maybe not required
@@ -186,7 +186,7 @@ export class Undo {
     }
 
     _loadFromIndex = (index: number, eagle: Eagle) : void => {
-        const snapshot : Snapshot = this.memory()[index];
+        const snapshot: Snapshot | null = this.memory()[index];
 
         if (snapshot === null){
             console.warn("Undo memory at index", index, "is null");
@@ -215,15 +215,18 @@ export class Undo {
         // find the objects in the ids list, and add them to the selection
         for (const id of objectIds){
             const node = eagle.logicalGraph().getNodeById(id as NodeId);
-            const edge = eagle.logicalGraph().getEdgeById(id as EdgeId);
-            const object = node || edge;
-
-            // abort if no edge or node exists fot that id
-            if (typeof node === 'undefined' && typeof edge === 'undefined'){
+            if (typeof node !== 'undefined'){
+                eagle.editSelection(node, Eagle.selectedLocation());
                 continue;
             }
 
-            eagle.editSelection(object, Eagle.selectedLocation());
+            const edge = eagle.logicalGraph().getEdgeById(id as EdgeId);
+            if (typeof edge !== 'undefined'){
+                eagle.editSelection(edge, Eagle.selectedLocation());
+                continue;
+            }
+
+            console.warn("Undo._updateSelection() : could not find object with id", id, "in the new snapshot");
         }
     }
 

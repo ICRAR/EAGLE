@@ -166,13 +166,13 @@ export class Translator {
 
         // temporary fix to apply graph config to graph (if developer setting is enabled)
         if (Setting.findValue(Setting.APPLY_ACTIVE_GRAPH_CONFIG_BEFORE_TRANSLATION)){
-            const activeConfig: GraphConfig = eagle.logicalGraph().getActiveGraphConfig();
+            const activeConfig: GraphConfig | undefined = eagle.logicalGraph().getActiveGraphConfig();
 
             // create a errors object to collect any errors
             const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
             // if there is a GraphConfig, apply GraphConfig to logicalGraph
-            if (activeConfig !== null){
+            if (typeof activeConfig !== 'undefined'){
                 GraphConfig.apply(lgClone, activeConfig, errorsWarnings);
             }
 

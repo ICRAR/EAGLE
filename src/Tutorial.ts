@@ -1,15 +1,15 @@
-import {Eagle} from './Eagle';
+import { Eagle } from './Eagle';
 import { Utils } from './Utils';
 
 export class TutorialSystem {
 
-    static activeTut: Tutorial = null //current active tutorial
+    static activeTut: Tutorial | null = null //current active tutorial
     static activeTutCurrentStep: TutorialStep //current active tutorial step
     static activeTutNumSteps: number = 0;  //total number of steps in the active tutorial
     static activeTutCurrentStepIndex: number = 0;  //index of the current step in the active tutorial
-    static waitForElementTimer: number = null    //this houses the time out timer when waiting for a target element to appear
+    static waitForElementTimer: number | undefined    //this houses the time out timer when waiting for a target element to appear
     static onCoolDown: boolean = false //boolean if the tutorial system is currently on cool down
-    static conditionCheck:number = null //this stores the condition interval function
+    static conditionCheck: number | undefined //this stores the condition interval function
 
     static initiateTutorial(tutorialName: string): void {
         for (const tut of Eagle.tutorials){
@@ -148,7 +148,7 @@ export class Tutorial {
     }
 
     newTutStep = (title:string, description:string, selector:() => JQuery<HTMLElement>) : TutorialStep =>{
-        const x = new TutorialStep(title, description, TutorialStep.Type.Info, TutorialStep.Wait.None,null, selector, null, null,false,null,null,null)
+        const x = new TutorialStep(title, description, TutorialStep.Type.Info, TutorialStep.Wait.None, TutorialStep.DEFAULT_DELAY_AMOUNT, selector, null, null, false, "", null, null)
         this.tutorialSteps.push(x)
         return x
     }
@@ -163,7 +163,7 @@ export class Tutorial {
         const tutStep = TutorialSystem.activeTutCurrentStep
         
         clearTimeout(TutorialSystem.conditionCheck);
-        TutorialSystem.conditionCheck = null;
+        TutorialSystem.conditionCheck = undefined;
         
         $('body').off('keydown.tutEventListener');
         TutorialSystem.addTutKeyboardShortcuts()
@@ -186,21 +186,17 @@ export class Tutorial {
         if (tutStep.getWaitType() === TutorialStep.Wait.None) {
             this.initiateStep(TutorialSystem.activeTutCurrentStep, null)
         } else if (tutStep.getWaitType() === TutorialStep.Wait.Delay) {
-            //if a delay amount is not specified we will default to 4ms
-            let delay:number = 400
-            if(TutorialSystem.activeTutCurrentStep.getDelayAmount()!=null){
-                delay = TutorialSystem.activeTutCurrentStep.getDelayAmount()
-            }
+            //in case of a delay we just wait for the delay amount, then we initiate the step
             setTimeout(function () {
                 that.initiateStep(TutorialSystem.activeTutCurrentStep, null)
-            }, delay)
+            }, TutorialSystem.activeTutCurrentStep.getDelayAmount())
         }else {
             //we set a two second timer, the wait will check every .1 seconds for two seconds at which point it is timed out and we abort the tut
             TutorialSystem.waitForElementTimer = setInterval(function () { TutorialSystem.activeTut.waitForElementThenRun(tutStep.getWaitType()) }, 100);
             setTimeout(function () {
-                if (TutorialSystem.waitForElementTimer != null) {
+                if (typeof TutorialSystem.waitForElementTimer !== 'undefined') {
                     clearTimeout(TutorialSystem.waitForElementTimer);
-                    TutorialSystem.waitForElementTimer = null;
+                    TutorialSystem.waitForElementTimer = undefined;
                     console.warn('waiting for next tutorial step element timed out')
                     TutorialSystem.onCoolDown = false
                     that.tutButtonPrev()
@@ -213,7 +209,7 @@ export class Tutorial {
         const tutStep = TutorialSystem.activeTutCurrentStep
         let elementAvailable: boolean = false
         let targetElement: JQuery<HTMLElement> = tutStep.getTargetFunc()()
-        let alternateHighlightTarget: JQuery<HTMLElement> = null
+        let alternateHighlightTarget: JQuery<HTMLElement> | null = null
 
         if (waitType === TutorialStep.Wait.Modal) {
             //in  case of a modal we make sure the selector is for the modal, we then check if it has the class 'show'
@@ -250,13 +246,13 @@ export class Tutorial {
         if (elementAvailable) {
             this.initiateStep(tutStep, alternateHighlightTarget)
             clearTimeout(TutorialSystem.waitForElementTimer);
-            TutorialSystem.waitForElementTimer = null;
+            TutorialSystem.waitForElementTimer = undefined;
         } else {
             return
         }
     }
 
-    initiateStep = (tutStep: TutorialStep, alternateHighlightTarget: JQuery<HTMLElement>): void => {
+    initiateStep = (tutStep: TutorialStep, alternateHighlightTarget: JQuery<HTMLElement> | null): void => {
         const that = this;
         $(':focus').trigger("blur");
         tutStep.getTargetFunc()().trigger("focus");
@@ -274,9 +270,9 @@ export class Tutorial {
     }
 
     //normal info step
-    initiateInfoStep = (tutStep: TutorialStep, alternateHighlightTarget: JQuery<HTMLElement>): void => {
+    initiateInfoStep = (tutStep: TutorialStep, alternateHighlightTarget: JQuery<HTMLElement> | null): void => {
         //the alternate highlight selector is for modals in which case we highlight the whole modal while the arrow points at a specific child
-        if (alternateHighlightTarget != null) {
+        if (alternateHighlightTarget !== null) {
             this.highlightStepTarget(alternateHighlightTarget)
         } else {
             this.highlightStepTarget(tutStep.getTargetFunc()())
@@ -290,9 +286,9 @@ export class Tutorial {
     }
 
     //a selector press step
-    initiatePressStep = (tutStep: TutorialStep, alternateHighlightTarget: JQuery<HTMLElement>): void => {
+    initiatePressStep = (tutStep: TutorialStep, alternateHighlightTarget: JQuery<HTMLElement> | null): void => {
         const targetElement = tutStep.getTargetFunc()()
-        if (alternateHighlightTarget != null) {
+        if (alternateHighlightTarget !== null) {
             this.highlightStepTarget(alternateHighlightTarget)
         } else {
             this.highlightStepTarget(targetElement)
@@ -309,8 +305,8 @@ export class Tutorial {
     }
 
     //these are ground work for future tutorial system functionality
-    initiateInputStep = (tutStep: TutorialStep, alternateHighlightTarget: JQuery<HTMLElement>): void => {
-        if (alternateHighlightTarget != null) {
+    initiateInputStep = (tutStep: TutorialStep, alternateHighlightTarget: JQuery<HTMLElement> | null): void => {
+        if (alternateHighlightTarget !== null) {
             this.highlightStepTarget(alternateHighlightTarget)
         } else {
             this.highlightStepTarget(tutStep.getTargetFunc()())
@@ -329,8 +325,8 @@ export class Tutorial {
         })
     }
 
-    initiateConditionStep = (tutStep: TutorialStep, alternateHighlightTarget: JQuery<HTMLElement>): void => {
-        if (alternateHighlightTarget != null) {
+    initiateConditionStep = (tutStep: TutorialStep, alternateHighlightTarget: JQuery<HTMLElement> | null): void => {
+        if (alternateHighlightTarget !== null) {
             this.highlightStepTarget(alternateHighlightTarget)
         } else {
             this.highlightStepTarget(tutStep.getTargetFunc()())
@@ -509,9 +505,9 @@ export class Tutorial {
         $('.forceShow').removeClass('forceShow')
         TutorialSystem.activeTut = null
         clearTimeout(TutorialSystem.conditionCheck);
-        TutorialSystem.conditionCheck = null;
+        TutorialSystem.conditionCheck = undefined;
         clearTimeout(TutorialSystem.waitForElementTimer);
-        TutorialSystem.waitForElementTimer = null;
+        TutorialSystem.waitForElementTimer = undefined;
     }
 
     tutPressStepListener = (): void => {
@@ -557,7 +553,7 @@ export class Tutorial {
 
         if(conditionReturn){
             clearTimeout(TutorialSystem.conditionCheck);
-            TutorialSystem.conditionCheck = null;
+            TutorialSystem.conditionCheck = undefined;
             this.tutButtonNext()
         }
     }
@@ -570,16 +566,18 @@ export class TutorialStep {
     private waitType: TutorialStep.Wait;
     private delayAmount : number;
     
-    private targetFunc: () => JQuery<HTMLElement>;
-    private alternateHighlightTargetFunc: () => JQuery<HTMLElement>;
-    private preFunc: (eagle: Eagle) => void;
-    private backPreFunc: (eagle: Eagle) => void;
-    private conditionFunc : (eagle: Eagle) => boolean;
+    private targetFunc: (() => JQuery<HTMLElement>) | null;
+    private alternateHighlightTargetFunc: (() => JQuery<HTMLElement>) | null;
+    private preFunc: ((eagle: Eagle) => void) | null;
+    private backPreFunc: ((eagle: Eagle) => void) | null;
+    private conditionFunc : ((eagle: Eagle) => boolean) | null;
 
     private backSkip : boolean;
     private expectedInput : string;
 
-    constructor(title: string, text: string, type: TutorialStep.Type, waitType: TutorialStep.Wait, delayAmount:number, targetFunc: () => JQuery<HTMLElement>, preFunc: (eagle: Eagle) => void, backPreFunc: (eagle: Eagle) => void, backSkip:boolean, expectedInput:string, conditionFunc:(eagle: Eagle) => boolean, alternateHighlightTargetFunc: () => JQuery<HTMLElement>) {
+    static readonly DEFAULT_DELAY_AMOUNT: number = 400 //default delay amount for the delay wait type
+    
+    constructor(title: string, text: string, type: TutorialStep.Type, waitType: TutorialStep.Wait, delayAmount: number, targetFunc: () => JQuery<HTMLElement>, preFunc: ((eagle: Eagle) => void) | null, backPreFunc: ((eagle: Eagle) => void) | null, backSkip: boolean, expectedInput: string, conditionFunc: ((eagle: Eagle) => boolean) | null, alternateHighlightTargetFunc: (() => JQuery<HTMLElement>) | null) {
         this.title = title;
         this.text = text;
         this.type = type;
@@ -616,15 +614,15 @@ export class TutorialStep {
         return this.delayAmount;
     }
 
-    getTargetFunc = (): () => JQuery<HTMLElement> => {
+    getTargetFunc = (): (() => JQuery<HTMLElement>) | null => {
         return this.targetFunc;
     }
 
-    getPreFunc = (): (eagle: Eagle) => void => {
+    getPreFunc = (): ((eagle: Eagle) => void) | null => {
         return this.preFunc;
     }
 
-    getBackPreFunc = (): (eagle: Eagle) => void => {
+    getBackPreFunc = (): ((eagle: Eagle) => void) | null => {
         return this.backPreFunc;
     }
 
@@ -636,11 +634,11 @@ export class TutorialStep {
         return this.expectedInput;
     }
 
-    getConditionFunction = (): (eagle: Eagle) => boolean => {
+    getConditionFunction = (): ((eagle: Eagle) => boolean) | null => {
         return this.conditionFunc;
     }
 
-    getAlternateHighlightTargetFunc = () : () => JQuery<HTMLElement> => {
+    getAlternateHighlightTargetFunc = () : (() => JQuery<HTMLElement>) | null => {
         return this.alternateHighlightTargetFunc;
     }
 

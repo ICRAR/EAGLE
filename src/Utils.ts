@@ -998,8 +998,8 @@ export class Utils {
     }
 
     static updateEditEdgeModal(edge: Edge, logicalGraph: LogicalGraph): void {
-        let srcNode: Node = undefined;
-        let destNode: Node = undefined;
+        let srcNode: Node | undefined = undefined;
+        let destNode: Node | undefined = undefined;
 
         // TODO: make local copy of edge, so that original is not changed! original might come from inside the active graph
 
@@ -1483,14 +1483,14 @@ export class Utils {
         return this.getBottomWindowHeight() + statusBarAndOffsetHeightVH
     }
 
-    static getLocalStorageKey(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string) : string {
+    static getLocalStorageKey(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string) : string | undefined {
         switch (repositoryService){
             case Repository.Service.GitHub:
                 return repositoryName + "|" + repositoryBranch + ".github_repository_and_branch";
             case Repository.Service.GitLab:
                 return repositoryName + "|" + repositoryBranch + ".gitlab_repository_and_branch";
             default:
-                return null;
+                return undefined;
         }
     }
 
@@ -2038,10 +2038,10 @@ export class Utils {
     }
 
     static fixFieldValue(eagle: Eagle, node: Node, exampleField: Field, value: string){
-        let field : Field = node.getFieldByDisplayText(exampleField.getDisplayText());
+        let field: Field | undefined = node.getFieldByDisplayText(exampleField.getDisplayText());
 
         // if a field was not found, clone one from the example and add to node
-        if (field === null){
+        if (typeof field === 'undefined'){
             field = exampleField
                 .clone()
                 .setId(Utils.generateFieldId());
@@ -2202,11 +2202,10 @@ export class Utils {
     static addMissingRequiredField(eagle: Eagle, node: Node, requiredField: Field){
         // if requiredField is "dropclass", and node already contains an "appclass" field, then just rename it
         if (requiredField.getDisplayText() === Daliuge.FieldName.DROP_CLASS){
-            const appClassField = node.getFieldByDisplayText("appclass");
+            const appClassField: Field | undefined = node.getFieldByDisplayText("appclass");
 
-            if (appClassField !== null){
+            if (typeof appClassField !== 'undefined'){
                 appClassField.setDisplayText(Daliuge.FieldName.DROP_CLASS);
-
                 return;
             }
         }
@@ -2215,14 +2214,14 @@ export class Utils {
         const categoryData: Category.CategoryData = CategoryData.getCategoryData(node.getCategory());
 
         // the new (or existing) field that will be used for the required field
-        let field: Field;
+        let field: Field | null = null;
 
         // if adding a field would exceed the maximum allowed fields, then replace an existing field
         if (requiredField.isInputPort() && node.getInputPorts().length >= categoryData.maxInputs ||
             requiredField.isOutputPort() && node.getOutputPorts().length >= categoryData.maxOutputs){
             // check if the node has a dummy field (we'll replace that)
             const dummyField = Utils.findDummyField(node, requiredField.isInputPort());
-            if (dummyField){
+            if (typeof dummyField !== 'undefined'){
                 field = dummyField;
                 field.copyWithIds(requiredField, field.getNode(), field.getId());
             }
@@ -2241,20 +2240,22 @@ export class Utils {
             case Daliuge.FieldName.DROP_CLASS:
 
                 // look up component in palette
-                const paletteComponent: Node = Utils.getPaletteComponentByName(node.getCategory());
+                const paletteComponent: Node | undefined = Utils.getPaletteComponentByName(node.getCategory());
 
-                if (paletteComponent !== null){
-                    const dropClassField: Field = paletteComponent.findFieldByDisplayText(Daliuge.FieldName.DROP_CLASS, field.getParameterType());
+                if (typeof paletteComponent !== 'undefined'){
+                    const dropClassField: Field | undefined = paletteComponent.findFieldByDisplayText(Daliuge.FieldName.DROP_CLASS, field.getParameterType());
 
-                    field.setValue(dropClassField.getDefaultValue());
-                    field.setDefaultValue(dropClassField.getDefaultValue());
+                    if (typeof dropClassField !== 'undefined'){
+                        field.setValue(dropClassField.getDefaultValue());
+                        field.setDefaultValue(dropClassField.getDefaultValue());
+                    }
                 }
 
                 break;
         }
     }
 
-    static findDummyField(node: Node, isInput: boolean): Field {
+    static findDummyField(node: Node, isInput: boolean): Field | undefined {
         const dummyFieldNames = ["dummy", "dummy0", "dummy1"];
 
         for (const dummyFieldName of dummyFieldNames){
@@ -2264,7 +2265,7 @@ export class Utils {
             }
         }
 
-        return null;
+        return undefined;
     }
 
     static callFixFunc(eagle: Eagle, fixFunc: () => void){
@@ -2311,9 +2312,9 @@ export class Utils {
         // close errors modal if visible
         $('#issuesDisplay').modal("hide");
 
-        // check that we found the node
+        // check that node is not null
         if (node === null){
-            console.warn("Could not show node with id", node.getId());
+            console.warn("Could not show null node");
             return;
         }
         
@@ -2333,7 +2334,13 @@ export class Utils {
         // open the graph configs table
         GraphConfigurationsTable.openTable();
 
-        const graphConfig: GraphConfig = eagle.logicalGraph().getGraphConfigById(graphConfigId);
+        const graphConfig: GraphConfig | undefined = eagle.logicalGraph().getGraphConfigById(graphConfigId);
+
+        // check that we found the graph config
+        if (typeof graphConfig === 'undefined'){
+            console.warn("Could not find graph config with id", graphConfigId);
+            return;
+        }
 
         // highlight the name of the graph config
         setTimeout(() => {
@@ -2484,14 +2491,16 @@ export class Utils {
         const tableData : any[] = [];
         const eagle : Eagle = Eagle.getInstance();
 
-        // check that node at nodeIndex exists
-        if (!eagle.logicalGraph().hasNode(nodeId)){
-            console.warn("Unable to print node fields table, node", nodeId, "does not exist.");
+        // get the node by id
+        const node: Node | undefined = eagle.logicalGraph().getNodeById(nodeId);
+
+        if (typeof node === 'undefined'){
+            console.warn("Unable to print node fields table, node", nodeId, "is undefined.");
             return;
         }
 
         // add logical graph nodes to table
-        for (const field of eagle.logicalGraph().getNodeById(nodeId).getFields()){
+        for (const field of node.getFields()){
             tableData.push({
                 "id":field.getId(),
                 "displayText":field.getDisplayText(),
@@ -2512,11 +2521,17 @@ export class Utils {
     static printGraphConfigurationTable() : void {
         const tableData : any[] = [];
         const eagle : Eagle = Eagle.getInstance();
-        const activeConfig: GraphConfig = eagle.logicalGraph().getActiveGraphConfig();
+        const activeConfig: GraphConfig | undefined = eagle.logicalGraph().getActiveGraphConfig();
+
+        // check that activeConfig is defined
+        if (typeof activeConfig === 'undefined'){
+            console.warn("No active graph configuration found, cannot print graph configuration table.");
+            return;
+        }
 
         // add logical graph nodes to table
         for (const graphConfigNode of activeConfig.getNodes()){
-            const graphNode: Node = eagle.logicalGraph().getNodeById(graphConfigNode.getNode().getId());
+            const graphNode: Node | undefined = eagle.logicalGraph().getNodeById(graphConfigNode.getNode().getId());
 
             if (typeof graphNode === 'undefined'){
                 // TODO: what to do here? blank row, console warning?
@@ -2524,7 +2539,7 @@ export class Utils {
             }
 
             for (const graphConfigField of graphConfigNode.getFields()){
-                const graphField: Field = graphNode.getFieldById(graphConfigField.getField().getId());
+                const graphField: Field | undefined = graphNode.getFieldById(graphConfigField.getField().getId());
 
                 if (typeof graphField === 'undefined'){
                     // TODO: what to do here? blank row, console warning?
@@ -2573,7 +2588,14 @@ export class Utils {
 
 
     static copyInputTextModalInput(): void {
-        navigator.clipboard.writeText($('#inputTextModalInput').val().toString());
+        const inputValue = $('#inputTextModalInput').val();
+
+        if (inputValue === null || inputValue === undefined) {
+            console.error("Input value is null or undefined");
+            return;
+        }
+
+        navigator.clipboard.writeText(inputValue.toString());
     }
 
     static copyInputCodeModalInput(): void {
@@ -2632,7 +2654,7 @@ export class Utils {
         }
 
         const _fetchSchema = async function(url: string, localStorageKey: string, setFunc: (schema: object) => void){
-            let data;
+            let data: string = "";
             let dataObject;
 
             try {
@@ -2732,7 +2754,7 @@ export class Utils {
             let destField = node.findFieldByDisplayText(field.getDisplayText(), field.getParameterType());
 
             // if dest field could not be found, then go ahead and add a NEW field to the dest node
-            if (destField === null){
+            if (typeof destField === 'undefined'){
                 destField = field.clone();
                 node.addField(destField);
             }
@@ -2830,7 +2852,7 @@ export class Utils {
             let destField = node.findFieldByDisplayText(field.getDisplayText(), field.getParameterType());
 
             // if dest field could not be found, then go ahead and add a NEW field to the node
-            if (destField === null){
+            if (typeof destField === 'undefined'){
                 destField = field.clone();
                 node.addField(destField);
             }
@@ -2859,9 +2881,21 @@ export class Utils {
 
         // search for custom repositories, and add them into the list.
         for (let i = 0; i < localStorage.length; i++) {
-            const key : string = localStorage.key(i);
-            const value : string = localStorage.getItem(key);
-            const keyExtension : string = key.substring(key.lastIndexOf('.') + 1);
+            const key: string | null = localStorage.key(i);
+
+            // if key is null, continue to next iteration
+            if (key === null) {
+                continue;
+            }
+
+            const value: string | null = localStorage.getItem(key);
+
+            // if value is null, continue to next iteration
+            if (value === null) {
+                continue;
+            }
+
+            const keyExtension: string = key.substring(key.lastIndexOf('.') + 1);
 
             // handle legacy repositories where the branch is not specified (assume master)
             if (keyExtension === "github_repository"){

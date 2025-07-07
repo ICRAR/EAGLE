@@ -43,19 +43,19 @@ export class Node {
     private x : ko.Observable<number>;
     private y : ko.Observable<number>;
 
-    private parent : ko.Observable<Node>;     // link to the node of which this node is a child
-    private embed : ko.Observable<Node>;      // link to the node in which this node is embedded as an input or output application
+    private parent : ko.Observable<Node | null>;     // link to the node of which this node is a child
+    private embed : ko.Observable<Node | null>;      // link to the node in which this node is embedded as an input or output application
     private children : ko.Observable<Map<NodeId, Node>>;
 
-    private inputApplication : ko.Observable<Node>;
-    private outputApplication : ko.Observable<Node>;
+    private inputApplication : ko.Observable<Node | null>;
+    private outputApplication : ko.Observable<Node | null>;
 
     private fields : ko.Observable<Map<FieldId, Field>>;
 
     private category : ko.Observable<Category>;
     private categoryType : ko.Observable<Category.Type>;
 
-    private subject : ko.Observable<Node>;       // the node that is the subject of this node. used by comment nodes only.
+    private subject : ko.Observable<Node | null>;       // the node that is the subject of this node. used by comment nodes only.
 
     private repositoryUrl : ko.Observable<string>;
     private commitHash : ko.Observable<string>;
@@ -103,7 +103,7 @@ export class Node {
         this.paletteDownloadUrl = ko.observable("");
         this.dataHash = ko.observable("");
 
-        this.issues = ko.observableArray([]);
+        this.issues = ko.observableArray<{issue:Errors.Issue, validity:Errors.Validity}>([]);
 
         //graph related things
         this.expanded = ko.observable(true);
@@ -274,7 +274,7 @@ export class Node {
         return this.embed();
     }
 
-    setEmbed = (node: Node) : Node => {
+    setEmbed = (node: Node | null) : Node => {
         this.embed(node);
         return this;
     }
@@ -446,14 +446,14 @@ export class Node {
         return this.fields().get(id);
     }
 
-    getFieldByDisplayText = (displayText : string) : Field | null => {
+    getFieldByDisplayText = (displayText : string) : Field | undefined => {
         for (const field of this.fields().values()){
             if (field.getDisplayText() === displayText){
                 return field;
             }
         }
 
-        return null;
+        return undefined;
     }
 
     // TODO: this looks similar to the function above (I think I prefer the name above)
@@ -870,27 +870,7 @@ export class Node {
         return {node: null, port: null};
     }
 
-    findPortIndexById = (portId: FieldId) : number => {
-        // check input ports
-        for (let i = 0; i < this.getInputPorts().length; i++){
-            const port = this.getInputPorts()[i];
-            if (port.getId() === portId){
-                return i;
-            }
-        }
-
-        // check output ports
-        for (let i = 0; i < this.getOutputPorts().length; i++){
-            const port = this.getOutputPorts()[i];
-            if (port.getId() === portId){
-                return i;
-            }
-        }
-
-        return -1;
-    }
-
-    findPortByDisplayText = (displayText : string, input : boolean, local : boolean) : Field | null => {
+    findPortByDisplayText = (displayText : string, input : boolean, local : boolean) : Field | undefined => {
         console.assert(!local);
 
         for (const field of this.fields().values()){
@@ -904,21 +884,21 @@ export class Node {
             }
         }
 
-        return null;
+        return undefined;
     }
 
-    findFieldByDisplayText = (displayText: string, fieldType: Daliuge.FieldType) : Field | null => {
+    findFieldByDisplayText = (displayText: string, fieldType: Daliuge.FieldType) : Field | undefined => {
         for (const field of this.fields().values()){
             if (field.getParameterType() === fieldType && field.getDisplayText() === displayText){
                 return field;
             }
         }
 
-        return null;
+        return undefined;
     }
 
 
-    findPortByMatchingType = (type: string, input: boolean) : Field | null => {
+    findPortByMatchingType = (type: string, input: boolean) : Field | undefined => {
         if (input){
             // check input ports
             for (const inputPort of this.getInputPorts()){
@@ -934,10 +914,10 @@ export class Node {
                 }
             }
         }
-        return null;
+        return undefined;
     }
 
-    findPortOfAnyType = (input: boolean) : Field | null => {
+    findPortOfAnyType = (input: boolean) : Field | undefined => {
         if (input){
             const inputPorts = this.getInputPorts();
             if (inputPorts.length > 0){
@@ -949,7 +929,7 @@ export class Node {
                 return outputPorts[0];
             }
         }
-        return null;
+        return undefined;
     }
 
     // TODO: this seems similar to findPortTypeById(), maybe we can just use this one!

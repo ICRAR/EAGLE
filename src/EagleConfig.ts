@@ -1,3 +1,4 @@
+// TODO: remove this definition of the ColorMap type, can we just use a Record<string, string>?
 type ColorMap = {[name: string]: string};
 
 const colors: ColorMap = {

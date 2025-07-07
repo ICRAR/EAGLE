@@ -146,8 +146,8 @@ ko.bindingHandlers.graphRendererPortPosition = {
         const f: Field = ko.utils.unwrapObservable(valueAccessor()).f;
         const dataType: string = ko.utils.unwrapObservable(valueAccessor()).type;
         // determine the 'node' and 'field' attributes (for this way of using this binding)
-        let node : Node 
-        let field : Field
+        let node: Node | null = null; 
+        let field: Field | null = null;
 
         switch(dataType){
             case 'inputPort':
@@ -1948,6 +1948,10 @@ export class GraphRenderer {
         // TODO: think about changing this to idPlusDepths (as above, re-use possible?)
         const indexPlusDepths : {index:number, depth:number}[] = [];
         const result : Node[] = [];
+
+        if (graph === null || graph.getNumNodes() === 0){
+            return result;
+        }
 
         // populate key plus depths
         for (let i = 0 ; i < graph.getNumNodes() ; i++){

@@ -36,7 +36,7 @@ export class UiModeSystem {
         return uiModeNamesList
     }
 
-    static getUiModeByName(name:string) : UiMode {
+    static getUiModeByName(name:string) : UiMode | null{
         let result = null
         UiModeSystem.getUiModes().forEach(function(uiMode){
             if(name === uiMode.getName()){
@@ -132,14 +132,20 @@ export class UiModeSystem {
     }
 
     static loadFromLocalStorage() : void {
-        const uiModesObj : any[] = JSON.parse(localStorage.getItem('UiModes'))
+        const uiModesData: string | null = localStorage.getItem('UiModes');
+        if (uiModesData === null){
+            console.warn('UiModes data not found in local storage, using default UiModes');
+            return;
+        }
 
+        const uiModesObj: any[] = JSON.parse(uiModesData)
         if(uiModesObj === null){
+            console.warn('UiModes data in local storage is null, using default UiModes');
             return
         }
 
         uiModesObj.forEach(function(uiModeObj){
-            let destUiMode : UiMode = UiModeSystem.getUiModeByName(uiModeObj.name)
+            let destUiMode: UiMode | null = UiModeSystem.getUiModeByName(uiModeObj.name)
             if(destUiMode===null){
                 const settings : SettingData[] = []
                 
@@ -153,24 +159,24 @@ export class UiModeSystem {
             }
             uiModeObj.settingValues.forEach(function(settingObj:any){
                 destUiMode.setSettingByKey(settingObj.key,settingObj.value)
-            } )
-
+            })
         })
     }
 
     static setActiveSetting(settingName:string,newValue:any) : void {
-        let activeSetting: SettingData = null
+        let activeSetting: SettingData | null = null;
 
-        //if a setting is marked perpetual we will write the value to all ui modes, this means it stays the same regardless of which ui mode is active
-        UiModeSystem.getActiveUiMode().getSettings().forEach(function(setting){
-            if(setting.getKey() === settingName){
-                activeSetting = setting
+        // find the active setting by its key in the active UI mode
+        for (const settingData of UiModeSystem.getActiveUiMode().getSettings()) {
+            if (settingData.getKey() === settingName) {
+                activeSetting = settingData;
+                break;
             }
-        })
+        }
         
         if(activeSetting === null){
-            console.warn('Requested setting key to change: "'+ settingName+'" can not be found')
-            return
+            console.warn('Requested setting key to change: "'+ settingName +'" can not be found')
+            return;
         }
 
         if(activeSetting.isPerpetual()){
