@@ -3939,6 +3939,18 @@ export class Eagle {
         this.checkGraph();
     }
 
+    graphEditNodeComment = (): void => {
+        const nodeId = $(event.target).closest('.container').attr('id')
+        const node = this.logicalGraph().findNodeById(nodeId as NodeId)
+        
+        this.setSelection(node, Eagle.FileType.Graph)
+        setTimeout(() => {
+            this.editNodeComment()
+        }, 100);
+
+        console.log(event.target, nodeId, node)
+    };
+
     changeNodeParent = async () => {
         // build list of node name + ids (exclude self)
         const selectedNode: Node = this.selectedNode();

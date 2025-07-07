@@ -386,6 +386,7 @@
     line-height: 14px;
     font-size: 15px;
     color: rgb(46 49 146);
+    cursor:text;
     
     /* white outer border, a bit ugly but the only way i found to do it */
     text-shadow:
@@ -410,8 +411,9 @@
     top: -4px;
     right: -10px;
     font-size: 15px;
-    color: rgb(235 255 0);
+    color: rgb(255 249 0);
     text-shadow: 0 0 3px black;
+    cursor:pointer;
 }
 
 .node .header.graphDataNode i{
