@@ -3039,7 +3039,7 @@ export class Eagle {
         this.logicalGraph.valueHasMutated();
     }
 
-    duplicateSelection = (mode: "normal"|"contextMenuRequest") : void => {
+    duplicateSelection = async (mode: "normal"|"contextMenuRequest") => {
         if(mode === 'normal' && this.selectedObjects().length === 0){
             Utils.showNotification('Unable to duplicate selection','No nodes are selected','warning')
             return
@@ -3080,14 +3080,13 @@ export class Eagle {
                         }
                     }
 
-                    this.insertGraph(nodes, edges, null, errorsWarnings);
+                    // duplicate nodes and edges
+                    await this.insertGraph(nodes, edges, null, errorsWarnings);
 
-                    //TODO make duplicate selection async so we can use await on insertGraph.
-                    setTimeout(() => {
-                        this.checkGraph();
-                        this.undo().pushSnapshot(this, "Duplicate selection");
-                        this.logicalGraph.valueHasMutated();
-                    }, 100);
+                    // re-check graph, set undo snapshot and trigger re-render
+                    this.checkGraph();
+                    this.undo().pushSnapshot(this, "Duplicate selection");
+                    this.logicalGraph.valueHasMutated();
                 }
                 break;
             case Eagle.FileType.Palette:
