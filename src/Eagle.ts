@@ -4082,7 +4082,7 @@ export class Eagle {
             nodeList.push(node.getName() + " : " + node.getId());
 
             // if this node is already the subject, note its index, so that we can preselect this subject node in the modal dialog
-            if (node.getId() === selectedNode.getSubject().getId()){
+            if (selectedNode.getSubject() !== null && selectedNode.getSubject().getId() === node.getId()){
                 selectedChoiceIndex = nodeList.length - 1;
             }
         }
