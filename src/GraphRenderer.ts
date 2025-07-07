@@ -1391,7 +1391,7 @@ export class GraphRenderer {
         while(constructs.length > i){
             const construct = constructs[i]
             for (const node of eagle.logicalGraph().getNodes()){
-                if(node.getParent().getId() === construct.getId()){
+                if(node.getParent()?.getId() === construct.getId()){
                     eagle.editSelection(node, Eagle.FileType.Graph);
 
                     if(node.isGroup()){
@@ -1403,6 +1403,7 @@ export class GraphRenderer {
         }
     }
 
+    // TODO: change input parameters to iterators
     static findEdgesContainedByNodes(edges: Edge[], nodes: Node[]): Edge[]{
         const result: Edge[] = [];
 
