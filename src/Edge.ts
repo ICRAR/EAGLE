@@ -34,7 +34,8 @@ import * as ko from "knockout";
 import { EagleConfig } from './EagleConfig';
 
 export class Edge {
-    private id: EdgeId;
+    private id: EdgeId;    
+    private comment : ko.Observable<string>;
     private srcNodeId: NodeId;
     private srcPortId: FieldId;
     private destNodeId: NodeId;
@@ -45,8 +46,9 @@ export class Edge {
     private isShortEdge : ko.Observable<boolean>;
     private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}> //keeps track of edge errors
 
-    constructor(srcNodeId: NodeId, srcPortId: FieldId, destNodeId: NodeId, destPortId: FieldId, loopAware: boolean, closesLoop: boolean, selectionRelative : boolean){
+    constructor(comment:string ,srcNodeId: NodeId, srcPortId: FieldId, destNodeId: NodeId, destPortId: FieldId, loopAware: boolean, closesLoop: boolean, selectionRelative : boolean){
         this.id = Utils.generateEdgeId();
+        this.comment = ko.observable(comment);
 
         this.srcNodeId = srcNodeId;
         this.srcPortId = srcPortId;
@@ -66,6 +68,14 @@ export class Edge {
 
     setId = (id: EdgeId) : void => {
         this.id = id;
+    }
+
+    getComment = () : string => {
+        return this.comment();
+    }
+
+    setComment = (comment: string) : void => {
+        this.comment(comment);
     }
 
     getSrcNodeId = () : NodeId => {
@@ -177,12 +187,20 @@ export class Edge {
     }
 
     clone = () : Edge => {
-        const result : Edge = new Edge(this.srcNodeId, this.srcPortId, this.destNodeId, this.destPortId, this.loopAware(), this.closesLoop(), this.selectionRelative);
+        const result : Edge = new Edge(this.comment(), this.srcNodeId, this.srcPortId, this.destNodeId, this.destPortId, this.loopAware(), this.closesLoop(), this.selectionRelative);
 
         result.id = this.id;
 
         return result;
     }
+    
+    getCommentHTML : ko.PureComputed<string> = ko.pureComputed(() => {
+        return Utils.markdown2html(this.comment());
+    }, this);
+
+    getInspectorCommentHTML : ko.PureComputed<string> = ko.pureComputed(() => {
+        return 'Edit Edge Comment: </br>' + Utils.markdown2html(this.comment());
+    }, this);
 
     getErrorsWarnings = (): Errors.ErrorsWarnings => {
         const errorsWarnings : Errors.ErrorsWarnings = {warnings: [], errors: []};
@@ -221,6 +239,7 @@ export class Edge {
 
     static toOJSJson(edge : Edge) : object {
         return {
+            comment: edge.comment(),
             from: edge.srcNodeId,
             fromPort: edge.srcPortId,
             to: edge.destNodeId,
@@ -231,6 +250,12 @@ export class Edge {
     }
 
     static fromOJSJson(linkData: any, errorsWarnings: Errors.ErrorsWarnings) : Edge {
+        let comment = ''
+        // get comment (if exists)
+        if (typeof linkData.comment !== 'undefined'){
+            comment = linkData.comment;
+        }
+
         // try to read source and destination nodes and ports
         let srcNodeId: NodeId = null;
         let srcPortId: FieldId = null;
@@ -274,7 +299,7 @@ export class Edge {
         }
 
         // TODO: validate ids
-        return new Edge(srcNodeId, srcPortId, destNodeId, destPortId, loopAware, closesLoop, false);
+        return new Edge(comment, srcNodeId, srcPortId, destNodeId, destPortId, loopAware, closesLoop, false);
     }
 
     static isValid(eagle: Eagle, draggingPortMode: boolean, edgeId: EdgeId, sourceNodeId: NodeId, sourcePortId: FieldId, destinationNodeId: NodeId, destinationPortId: FieldId, loopAware: boolean, closesLoop: boolean, showNotification: boolean, showConsole: boolean, errorsWarnings: Errors.ErrorsWarnings) : Errors.Validity {

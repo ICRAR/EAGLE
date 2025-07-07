@@ -3081,9 +3081,13 @@ export class Eagle {
                     }
 
                     this.insertGraph(nodes, edges, null, errorsWarnings);
-                    this.checkGraph();
-                    this.undo().pushSnapshot(this, "Duplicate selection");
-                    this.logicalGraph.valueHasMutated();
+
+                    //TODO make duplicate selection async so we can use await on insertGraph.
+                    setTimeout(() => {
+                        this.checkGraph();
+                        this.undo().pushSnapshot(this, "Duplicate selection");
+                        this.logicalGraph.valueHasMutated();
+                    }, 100);
                 }
                 break;
             case Eagle.FileType.Palette:
@@ -3939,16 +3943,12 @@ export class Eagle {
         this.checkGraph();
     }
 
-    graphEditNodeComment = (): void => {
-        const nodeId = $(event.target).closest('.container').attr('id')
-        const node = this.logicalGraph().findNodeById(nodeId as NodeId)
-        
+    graphEditNodeComment = (node:Node): void => {
         this.setSelection(node, Eagle.FileType.Graph)
+        
         setTimeout(() => {
             this.editNodeComment()
         }, 100);
-
-        console.log(event.target, nodeId, node)
     };
 
     changeNodeParent = async () => {
@@ -4377,7 +4377,7 @@ export class Eagle {
             // if edge connects two event ports, process normally
             // if the definition of the intermediaryComponent cannot be found, process normally
             if (!edgeConnectsTwoApplications || twoEventPorts || (edgeConnectsTwoApplications && intermediaryComponent === null)){
-                const edge : Edge = new Edge(srcNode.getId(), srcPort.getId(), destNode.getId(), destPort.getId(), loopAware, closesLoop, false);
+                const edge : Edge = new Edge('', srcNode.getId(), srcPort.getId(), destNode.getId(), destPort.getId(), loopAware, closesLoop, false);
                 this.logicalGraph().addEdgeComplete(edge);
 
                 // re-name node and port according to the port name of the Application node
@@ -4453,8 +4453,8 @@ export class Eagle {
             }
 
             // create TWO edges, one from src to data component, one from data component to dest
-            const firstEdge : Edge = new Edge(srcNode.getId(), srcPort.getId(), newNode.getId(), newInputOutputPort.getId(), loopAware, closesLoop, false);
-            const secondEdge : Edge = new Edge(newNode.getId(), newInputOutputPort.getId(), destNode.getId(), destPort.getId(), loopAware, closesLoop, false);
+            const firstEdge : Edge = new Edge('', srcNode.getId(), srcPort.getId(), newNode.getId(), newInputOutputPort.getId(), loopAware, closesLoop, false);
+            const secondEdge : Edge = new Edge('', newNode.getId(), newInputOutputPort.getId(), destNode.getId(), destPort.getId(), loopAware, closesLoop, false);
 
             this.logicalGraph().addEdgeComplete(firstEdge);
             this.logicalGraph().addEdgeComplete(secondEdge);
@@ -4520,6 +4520,20 @@ export class Eagle {
         }
 
         this.selectedNode().setComment(nodeComment);
+    }
+
+    editEdgeComment = async (): Promise<void> => {
+        const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
+
+        let edgeComment: string;
+        try {
+            edgeComment = await Utils.requestUserMarkdown("Edge Comment", this.selectedEdge().getComment(), markdownEditingEnabled);
+        } catch (error) {
+            console.error(error);
+            return;
+        }
+
+        this.selectedEdge().setComment(edgeComment);
     }
 
     getEligibleNodeCategories : ko.PureComputed<Category[]> = ko.pureComputed(() => {
