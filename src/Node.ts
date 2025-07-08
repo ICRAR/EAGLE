@@ -1574,13 +1574,6 @@ export class Node {
             node.addField(streamingField);
         }
 
-        // subject (for comment nodes)
-        if (typeof nodeData.subject !== 'undefined'){
-            node.subject(nodeData.subject);
-        } else {
-            node.subject(null);
-        }
-
         // add fields
         if (typeof nodeData.fields !== 'undefined'){
             for (const fieldData of nodeData.fields){
@@ -2231,6 +2224,16 @@ export class Node {
         }
         if (typeof nodeData.group !== 'undefined'){
             return nodeData.group;
+        }
+        return null;
+    }
+
+    static determineNodeSubjectId(nodeData: any): NodeId | null {
+        if (typeof nodeData.subjectId !== 'undefined'){
+            return nodeData.subjectId;
+        }
+        if (typeof nodeData.subject !== 'undefined'){
+            return nodeData.subject;
         }
         return null;
     }

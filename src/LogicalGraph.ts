@@ -296,7 +296,6 @@ export class LogicalGraph {
             const nodeData = dataObject.nodeDataArray[i];
             const parentDataId = Node.determineNodeParentId(nodeData);
 
-
             // if parentId cannot be found, skip this node
             if (parentDataId === null){
                 continue;
@@ -310,6 +309,26 @@ export class LogicalGraph {
             const parent = result.nodes().get(parentId);
 
             node.setParent(parent);
+        }
+
+        // make sure to set subject for all nodes
+        for (let i = 0 ; i < dataObject.nodeDataArray.length ; i++){
+            const nodeData = dataObject.nodeDataArray[i];
+            const subjectDataId = Node.determineNodeSubjectId(nodeData);
+
+            // if parentId cannot be found, skip this node
+            if (subjectDataId === null){
+                continue;
+            }
+
+            const nodeDataId = Node.determineNodeId(nodeData);
+            const nodeId = nodeDataIdToNodeId.get(nodeDataId);
+            const subjectId = nodeDataIdToNodeId.get(subjectDataId);
+
+            const node = result.nodes().get(nodeId);
+            const subject = result.nodes().get(subjectId);
+
+            node.setSubject(subject);
         }
 
         // add edges
