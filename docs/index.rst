@@ -60,14 +60,23 @@ The final step is execution. This occurs on a selected facility, where the Physi
 
 .. toctree::
    :maxdepth: 2
+   :caption: Getting started
+   :hidden:
 
    Installation <installation>
    Quick Start <quickStart2>
    Settings <settings>
    Hello World Example <helloWorld>
+
+.. toctree::
+   :maxdepth: 2
+   :caption: EAGLE Concepts
+   :hidden:
+
    Components <components>
    Palettes <palettes>
    Templates and Graphs <graphs>
+
 
 .. Indices and tables
 .. ==================
