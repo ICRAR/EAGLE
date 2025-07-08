@@ -882,6 +882,11 @@ export class GraphRenderer {
             }
         }
 
+        const edgeCenterX = (x1+x2)/2
+        const edgeCenterY = (y1+y2)/2
+
+        edge.setPosition(edgeCenterX,edgeCenterY)
+
         // if edge is short, use simplified rendering
         if (isShortEdge || straightEdgeForce){
             return "M " + x1 + " " + y1 + " L " + x2 + " " + y2;

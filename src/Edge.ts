@@ -46,6 +46,9 @@ export class Edge {
     private isShortEdge : ko.Observable<boolean>;
     private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}> //keeps track of edge errors
 
+    private x : ko.Observable<number>; //saving the center of the edge for placing edge comment icons
+    private y : ko.Observable<number>;
+
     constructor(comment:string ,srcNodeId: NodeId, srcPortId: FieldId, destNodeId: NodeId, destPortId: FieldId, loopAware: boolean, closesLoop: boolean, selectionRelative : boolean){
         this.id = Utils.generateEdgeId();
         this.comment = ko.observable(comment);
@@ -60,6 +63,9 @@ export class Edge {
         this.selectionRelative = selectionRelative;
         this.isShortEdge = ko.observable(false)
         this.issues = ko.observableArray([]);
+        
+        this.x = ko.observable(0);
+        this.y = ko.observable(0);
     }
 
     getId = () : EdgeId => {
@@ -76,6 +82,15 @@ export class Edge {
 
     setComment = (comment: string) : void => {
         this.comment(comment);
+    }
+
+    getPosition = () : {x:number, y:number} => {
+        return {x: this.x(), y: this.y()};
+    }
+
+    setPosition = (x: number, y: number) : void => {
+        this.x(x)
+        this.y(y)
     }
 
     getSrcNodeId = () : NodeId => {
