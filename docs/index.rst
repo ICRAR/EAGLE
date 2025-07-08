@@ -1,25 +1,17 @@
-Introduction to Eagle
-=====================
-
-.. toctree::
-   :maxdepth: 2
-
-   Installation <installation>
-   Quick Start <quickStart2>
-   Settings <settings>
-   Hello World Example <helloWorld>
-   Components <components>
-   Palettes <palettes>
-   Templates and Graphs <graphs>
-
-.. Indices and tables
-.. ==================
-.. * :ref:`genindex`
-.. * :ref:`modindex`
-.. * :ref:`search`
+EAGLE :sup:`π`
+==============
 
 
-EAGLE the UI of the `DALiuGE <https://daliuge.readthedocs.io>`_ workflow development and execution framework. It is an interface designed to streamline and simplify workflow development, while creating a clear separation of different concerns and operational constraints. A major aim of EAGLE and its larger workflow creation model is to allow code to be as re-usable as possible, while still enabling highly optimised and integrated ways of implementing or migrating algorithms. It is also concerned with optimising the granularity and potential parallelism of workflows.
+Welcome to the documentation for the Editor for the Astronomical Graph Language Environment (EAGLE). 
+
+.. figure:: _static/images/eagle_eagle.png
+  :width: 400px
+  :align: center
+  :alt: An example of components in EAGLE
+  :figclass: align-center
+
+
+EAGLE is the UI of the `DALiuGE <https://daliuge.readthedocs.io>`_ workflow development and execution framework. It is an interface designed to streamline and simplify workflow development, while creating a clear separation of different concerns and operational constraints. A major aim of EAGLE and its larger workflow creation model is to allow code to be as re-usable as possible, while still enabling highly optimised and integrated ways of implementing or migrating algorithms. It is also concerned with optimising the granularity and potential parallelism of workflows.
 
 .. raw:: html
     :file: _static/intro_map.html
@@ -65,3 +57,21 @@ Execution
 =========
 
 The final step is execution. This occurs on a selected facility, where the Physical Graph Template is mapped to specific computer nodes. At this stage it is a :doc:`Physical Graph <graphs>`.
+
+.. toctree::
+   :maxdepth: 2
+
+   Installation <installation>
+   Quick Start <quickStart2>
+   Settings <settings>
+   Hello World Example <helloWorld>
+   Components <components>
+   Palettes <palettes>
+   Templates and Graphs <graphs>
+
+.. Indices and tables
+.. ==================
+.. * :ref:`genindex`
+.. * :ref:`modindex`
+.. * :ref:`search`
+
