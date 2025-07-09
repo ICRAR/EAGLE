@@ -24,7 +24,7 @@ sys.path.insert(0, os.path.abspath("../"))
 
 # -- Project information -----------------------------------------------------
 
-project = "EAGLE - Documentation"
+project = "EAGLE<sup>π"
 copyright = "2023, James Strauss, Vitaliy Ogarko, Andreas Wicenec, Lisa Evans, Moritz Wicenec"
 author = "James Strauss, Vitaliy Ogarko, Andreas Wicenec, Lisa Evans, Moritz Wicenec"
 
@@ -94,7 +94,7 @@ html_theme_options = {}
 # Adding this so we can increase the width of the central column of text.
 # The custom.css file is in the _static directory.
 html_css_files = [
-    "css/custom.css",
+    "css/eagle.css",
 ]
 
 # Theme options are theme-specific and customize the look and feel of a theme
