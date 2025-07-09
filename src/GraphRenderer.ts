@@ -893,7 +893,7 @@ export class GraphRenderer {
         const edgeCenterX = (x1+x2)/2 - svgTranslationCorrection
         const edgeCenterY = (y1+y2)/2 - svgTranslationCorrection
 
-        edge.setPosition(edgeCenterX,edgeCenterY)
+        edge?.setPosition(edgeCenterX,edgeCenterY)
 
         // if edge is short, use simplified rendering
         if (isShortEdge || straightEdgeForce){
