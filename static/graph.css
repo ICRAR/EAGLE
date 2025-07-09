@@ -325,7 +325,7 @@
 .graphComment{
     position: absolute;
     font-size: 15px !important;
-    color: rgb(255 249 0);
+    color: white;
     text-shadow: 0 0 3px black;
     cursor: pointer;
     z-index: 15;
