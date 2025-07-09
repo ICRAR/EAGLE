@@ -5,7 +5,7 @@
                 <div class="header-name" data-bind="html: $data.name,event: {click: GraphRenderer.editNodeTitleInGraph}"></div>
                 <input type="text" onmousedown="GraphRenderer.preventBubbling()" onmousemove="GraphRenderer.preventBubbling()" onmouseup="GraphRenderer.preventBubbling()" data-bind="value:$data.name, readonly: $data.isLocked, style:{display:'none'},event:{keyup:GraphRenderer.nodeNameEditorKeybinds}" class="header-input">
                 <!-- ko if: $data.getComment() != '' -->
-                    <i class="material-icons interactive clickable graphComment" data-bs-placement="right" data-bind="eagleTooltip: $data.getComment(), click: $root.graphEditComment">chat</i>
+                    <i class="material-icons interactive clickable iconHoverEffect graphComment" data-bs-placement="right" data-bind="eagleTooltip: $data.getComment(), click: $root.graphEditComment">chat</i>
                 <!-- /ko -->
             </div>
         </div>
