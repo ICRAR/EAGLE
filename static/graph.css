@@ -314,6 +314,23 @@
     display: block;
 }
 
+.edgeComments{
+    position: relative;
+}
+
+.edgeComments i{
+
+}
+
+.graphComment{
+    position: absolute;
+    font-size: 15px !important;
+    color: rgb(255 249 0);
+    text-shadow: 0 0 3px black;
+    cursor: pointer;
+    z-index: 15;
+}
+
 .node .container.selected .body {
     outline: solid 3px var(--nodeBorder);
     outline-offset: 0px;
@@ -407,13 +424,8 @@
 }
 
 .node .header i{
-    position: absolute;
     top: -4px;
     right: -10px;
-    font-size: 15px;
-    color: rgb(255 249 0);
-    text-shadow: 0 0 3px black;
-    cursor:pointer;
 }
 
 .node .header.graphDataNode i{

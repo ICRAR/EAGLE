@@ -3942,11 +3942,15 @@ export class Eagle {
         this.checkGraph();
     }
 
-    graphEditNodeComment = (node:Node): void => {
-        this.setSelection(node, Eagle.FileType.Graph)
+    graphEditComment = (object:Node | Edge): void => {
+        this.setSelection(object, Eagle.FileType.Graph)
         
         setTimeout(() => {
-            this.editNodeComment()
+            if (object instanceof Node){
+                this.editNodeComment()
+            }else {
+                this.editEdgeComment()
+            }
         }, 100);
     };
 
@@ -4512,7 +4516,7 @@ export class Eagle {
 
         let nodeComment: string;
         try {
-            nodeComment = await Utils.requestUserMarkdown("Node Comment", this.selectedNode().getComment(), markdownEditingEnabled);
+            nodeComment = await Utils.requestUserMarkdown("Node Comment", this.selectedNode()?.getComment(), markdownEditingEnabled);
         } catch (error) {
             console.error(error);
             return;
@@ -4526,7 +4530,7 @@ export class Eagle {
 
         let edgeComment: string;
         try {
-            edgeComment = await Utils.requestUserMarkdown("Edge Comment", this.selectedEdge().getComment(), markdownEditingEnabled);
+            edgeComment = await Utils.requestUserMarkdown("Edge Comment", this.selectedEdge()?.getComment(), markdownEditingEnabled);
         } catch (error) {
             console.error(error);
             return;

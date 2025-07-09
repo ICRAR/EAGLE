@@ -71,6 +71,8 @@ export class EagleConfig {
     public static readonly EDGE_DISTANCE_ARROW_VISIBILITY : number = 100; //how long does an edge have to be to show the direction arrows
     public static readonly STRAIGHT_EDGE_SWITCH_DISTANCE : number = 120 //the length of the edge at which it will switch between bezier and straight
     public static readonly EDGE_BEZIER_CURVE_MULT : number = 0.4 //this affects how far away from the start and end of the edge the curve transform handles are
+    public static readonly EDGE_COMMENT_OFFSET_X : number = 2 //how far is the edge comment offset from the center
+    public static readonly EDGE_COMMENT_OFFSET_Y : number = 10 //how far is the edge comment offset from the center
 
     // when creating a new construct to enclose a selection, or shrinking a node to enclose its children,
     // this is the default margin that should be left on each side

@@ -112,7 +112,7 @@
                         <div class="edgeComments">
                             <!-- ko foreach: $root.logicalGraph().getEdges() -->
                                 <!-- ko if: $data.getComment() != '' -->
-                                    <i class="material-icons interactive clickable" data-bs-placement="right" data-bind="eagleTooltip: $data.getComment(), click: $root.graphEditNodeComment, style:{'left': $data.getPosition().x, 'top':$data.getPosition().y}">chat</i>
+                                    <i class="material-icons interactive clickable graphComment" data-bs-placement="right" data-bind="eagleTooltip: $data.getComment(), click: $root.graphEditComment, style:{'left': GraphRenderer.calculateEdgeCommentPosX($data), 'top':GraphRenderer.calculateEdgeCommentPosY($data),transform: 'scale('+$root.getGraphTextScale()+')'}">chat</i>
                                 <!-- /ko -->
                             <!-- /ko -->
                         </div>

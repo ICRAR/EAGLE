@@ -379,6 +379,14 @@ export class GraphRenderer {
         return y
     }
 
+    static calculateEdgeCommentPosX (edge:Edge) : number {
+        return edge.getPosition().x + 2
+    }
+
+    static calculateEdgeCommentPosY (edge:Edge) : number {
+        return edge.getPosition().y - 10
+    }
+
     static sortAndOrganizePorts (node:Node) : void {
         //calculating the minimum port distance as an angle. we save this min distance as a pixel distance between ports
         const minimumPortDistance:number = Number(Math.asin(EagleConfig.PORT_MINIMUM_DISTANCE/node.getRadius()).toFixed(6))
@@ -882,8 +890,8 @@ export class GraphRenderer {
             }
         }
 
-        const edgeCenterX = (x1+x2)/2
-        const edgeCenterY = (y1+y2)/2
+        const edgeCenterX = (x1+x2)/2 - svgTranslationCorrection
+        const edgeCenterY = (y1+y2)/2 - svgTranslationCorrection
 
         edge.setPosition(edgeCenterX,edgeCenterY)
 
@@ -1045,7 +1053,7 @@ export class GraphRenderer {
 
     static startDrag(node: Node, event: MouseEvent) : void {
         //if we click on the title of a node, cancel the drag handler
-        if($(event.target).parent().parent().hasClass('header')){
+        if($(event.target).parent().parent().hasClass('header') || $(event.target).parent().hasClass('edgeComments')){
             event.preventDefault()
             event.stopPropagation()
             return
