@@ -2405,6 +2405,7 @@ export class Utils {
                 "id":node.getId(),
                 "parent":node.getParent() === null ? null : node.getParent().getId(),
                 "embed":node.getEmbed() === null ? null : node.getEmbed().getId(),
+                "subject":node.getSubject() === null ? null : node.getSubject().getId(),
                 "children":children.toString(),
                 "category":node.getCategory(),
                 "categoryType":node.getCategoryType(),

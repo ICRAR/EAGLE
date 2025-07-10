@@ -824,6 +824,15 @@ export class LogicalGraph {
             }
         }
 
+        // if the node we are deleting is the subject of another node, then reset the subject of that node
+        for (const node of this.nodes().values()){
+            if (node.getSubject() !== null && node.getSubject().getId() === id){
+                node.setSubject(null);
+                this.nodes.valueHasMutated();
+                break;
+            }
+        }
+
         // delete children of this node
         for (const child of node.getChildren()){
             this.removeNode(child);
