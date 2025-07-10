@@ -3620,7 +3620,7 @@ export class Eagle {
         for (const object of this.selectedObjects()){
             if (object instanceof Node){
                 for (const node of this.logicalGraph().getNodes()){
-                    if (node.getParent().getId() === object.getId()){
+                    if (node.getParent() !== null && node.getParent().getId() === object.getId()){
                         node.setParent(object.getParent());
                     }
                 }
