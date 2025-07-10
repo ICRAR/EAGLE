@@ -4489,12 +4489,12 @@ export class Eagle {
             newNode.setParent(destNode.getParent());
 
             // if source node is a child of dest node, make the new node a child too
-            if (srcNode.getParent().getId() === destNode.getId()){
+            if (srcNode.getParent() !== null && srcNode.getParent().getId() === destNode.getId()){
                 newNode.setParent(destNode);
             }
 
             // if dest node is a child of source node, make the new node a child too
-            if (destNode.getParent().getId() === srcNode.getId()){
+            if (destNode.getParent() !== null && destNode.getParent().getId() === srcNode.getId()){
                 newNode.setParent(srcNode);
             }
 
