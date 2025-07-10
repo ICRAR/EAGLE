@@ -843,6 +843,11 @@ export class LogicalGraph {
     removeEdgeById = (id: EdgeId) : void => {
         const edge = this.edges().get(id);
 
+        if (typeof edge === 'undefined'){
+            console.warn("removeEdgeById(): Could not find edge with id", id);
+            return;
+        }
+
         this.edges().delete(id);
         this.edges.valueHasMutated();
 

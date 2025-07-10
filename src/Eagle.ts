@@ -3575,14 +3575,21 @@ export class Eagle {
                     this._moveChildrenOfSelection();
                 }
 
-                // delete the selection
+                // NOTE: when deleting the selection, deleting a node will also delete adjacent edges, so the edge will be deleted automatically
+                //       meaning when we come to delete the edge, it will already be missing
+                //       so we should delete all the edges first, so that we don't get an error when trying to delete an edge that is already gone        
+                
+                // delete the edges
+                for (const object of data){
+                    if (object instanceof Edge){
+                        this.logicalGraph().removeEdgeById(object.getId());
+                    }
+                }
+
+                // delete the nodes
                 for (const object of data){
                     if (object instanceof Node){
                         this.logicalGraph().removeNode(object);
-                    }
-
-                    if (object instanceof Edge){
-                        this.logicalGraph().removeEdgeById(object.getId());
                     }
                 }
 
