@@ -440,7 +440,7 @@ export class KeyboardShortcut {
         new KeyboardShortcut({
             id: "center_construct_around_children",
             text: "Center Construct Around Children",
-            keys: [new Key("c", Modifier.Alt)],
+            keys: [new Key("c", Modifier.Shift)],
             tags: ['fit'],
             run: (eagle): void => {GraphRenderer.centerConstruct(eagle.selectedNode(),eagle.logicalGraph().getNodes())}
         }),
@@ -581,13 +581,13 @@ export class KeyboardShortcut {
         new KeyboardShortcut({
             id: "copy_from_graph",
             text: "Copy from graph",
-            keys: [new Key("c", Modifier.Ctrl)],
+            keys: [new Key("c", Modifier.Ctrl), new Key("c", Modifier.Alt)],
             run: (eagle): void => {eagle.copySelectionToClipboard(true);}
         }),
         new KeyboardShortcut({
             id: "paste_to_graph",
             text: "Paste to graph",
-            keys: [new Key("v", Modifier.Ctrl)],
+            keys: [new Key("v", Modifier.Ctrl), new Key("v", Modifier.Alt)],
             run: (eagle): void => {eagle.pasteFromClipboard();}
         }),
 
