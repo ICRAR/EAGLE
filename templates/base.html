@@ -109,6 +109,13 @@
                                 </div>
                             <!-- /ko -->
                         </div>
+                        <div class="edgeComments">
+                            <!-- ko foreach: $root.logicalGraph().getEdges() -->
+                                <!-- ko if: $data.getComment() != '' -->
+                                    <i class="material-icons interactive clickable iconHoverEffect graphComment" data-bs-placement="right" data-bind="eagleTooltip: $data.getComment(), click: $root.graphEditComment, style:{'left': GraphRenderer.calculateEdgeCommentPosX($data), 'top':GraphRenderer.calculateEdgeCommentPosY($data),transform: 'scale('+$root.getGraphTextScale()+')'}">chat</i>
+                                <!-- /ko -->
+                            <!-- /ko -->
+                        </div>
                         <svg  xmlns="https://www.w3.org/2000/svg">
                             <!-- ko foreach: $root.logicalGraph().getEdges() -->
                                 <g data-bind="attr:{id:$data.getId()}">

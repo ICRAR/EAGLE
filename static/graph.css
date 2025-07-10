@@ -314,6 +314,23 @@
     display: block;
 }
 
+.edgeComments{
+    position: relative;
+}
+
+.edgeComments i{
+
+}
+
+.graphComment{
+    position: absolute;
+    font-size: 15px !important;
+    color: white;
+    text-shadow: 0 0 3px black;
+    cursor: pointer;
+    z-index: 15;
+}
+
 .node .container.selected .body {
     outline: solid 3px var(--nodeBorder);
     outline-offset: 0px;
@@ -386,6 +403,7 @@
     line-height: 14px;
     font-size: 15px;
     color: rgb(46 49 146);
+    cursor:text;
     
     /* white outer border, a bit ugly but the only way i found to do it */
     text-shadow:
@@ -403,6 +421,18 @@
     font-size: 20px;
     font-weight: 650;
     color: black;
+}
+
+.node .header i{
+    top: -4px;
+    right: -10px;
+}
+
+.node .header.graphDataNode i{
+    top: auto;
+    bottom: -5px;
+    transform: scaleY(-1);
+
 }
 
 .node.transition{
