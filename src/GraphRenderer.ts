@@ -1529,6 +1529,7 @@ export class GraphRenderer {
     }
 
     // TODO: mode parameter could be a boolean?
+    // TODO: move to RightClick.ts?
     static setNewEmbeddedApp(nodeId: NodeId, mode: "addEmbeddedOutputApp" | "addEmbeddedInputApp") :void {
         const eagle = Eagle.getInstance()
         const parentNode = eagle.selectedNode()
@@ -1549,6 +1550,9 @@ export class GraphRenderer {
         }
 
         const newNode = Utils.duplicateNode(node)
+
+        // add the node to the graph
+        eagle.logicalGraph().addNodeComplete(newNode);
 
         if(mode==='addEmbeddedOutputApp'){
             parentNode.setOutputApplication(newNode)

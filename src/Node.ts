@@ -2031,7 +2031,7 @@ export class Node {
 
         // check that embed has this as either inputApplication or outputApplication
         if (node.embed() !== null){
-            if (node.embed().inputApplication().getId() !== node.getId() && node.embed().outputApplication().getId() !== node.getId()){
+            if ((node.embed().hasInputApplication() && node.embed().inputApplication().getId() !== node.getId()) && (node.embed().hasOutputApplication() && node.embed().outputApplication().getId() !== node.getId())){
                 const message: string = "Node (" + node.getName() + ") has embed (" + node.embed().getName() + "), but is not that node's inputApplication or outputApplication.";
                 const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
                 node.issues().push({issue:issue, validity:Errors.Validity.Error});
