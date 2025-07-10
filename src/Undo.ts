@@ -214,12 +214,12 @@ export class Undo {
 
         // find the objects in the ids list, and add them to the selection
         for (const id of objectIds){
-            const node = eagle.logicalGraph().findNodeById(id as NodeId);
-            const edge = eagle.logicalGraph().findEdgeById(id as EdgeId);
+            const node = eagle.logicalGraph().getNodeById(id as NodeId);
+            const edge = eagle.logicalGraph().getEdgeById(id as EdgeId);
             const object = node || edge;
 
             // abort if no edge or node exists fot that id
-            if (node === null && edge === null){
+            if (typeof node === 'undefined' && typeof edge === 'undefined'){
                 continue;
             }
 
@@ -243,8 +243,8 @@ export class Undo {
                 "current": realCurrent === i ? "->" : "",
                 "description": snapshot.description(),
                 "buffer position": i,
-                "nodes": snapshot.data().getNodes().length,
-                "edges": snapshot.data().getEdges().length
+                "nodes": snapshot.data().getNumNodes(),
+                "edges": snapshot.data().getNumEdges()
             });
         }
 

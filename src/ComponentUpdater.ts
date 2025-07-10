@@ -1,7 +1,8 @@
-import {LogicalGraph} from './LogicalGraph';
-import {Palette} from './Palette';
-import {Node} from './Node';
-import {Errors} from './Errors';
+import { Errors } from './Errors';
+import { Field } from './Field';
+import { LogicalGraph } from './LogicalGraph';
+import { Node } from './Node';
+import { Palette } from './Palette';
 
 export class ComponentUpdater {
 
@@ -36,13 +37,13 @@ export class ComponentUpdater {
     }
 
     // NOTE: the replacement here is "additive", any fields missing from the old node will be added, but extra fields in the old node will not removed
-    static _replaceNode(dest:Node, src:Node){
+    static _replaceNode(dest: Node, src: Node){
         for (const srcField of src.getFields()){
             // try to find a field with the same name in the destination
-            let destField = dest.findFieldById(srcField.getId());
+            let destField: Field = dest.getFieldById(srcField.getId());
 
             // if dest field not found, try to find something that matches by displayText AND fieldType
-            if (destField === null){
+            if (typeof destField === 'undefined'){
                 destField = dest.findFieldByDisplayText(srcField.getDisplayText(), srcField.getParameterType());
             }
 
@@ -53,7 +54,7 @@ export class ComponentUpdater {
             }
            
             // copy everything about the field from the src (palette), except maintain the existing id and nodeKey
-            destField.copyWithIds(srcField, destField.getNodeId(), destField.getId());
+            destField.copyWithIds(srcField, destField.getNode(), destField.getId());
         }
     }
 }

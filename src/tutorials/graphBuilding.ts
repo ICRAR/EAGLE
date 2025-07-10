@@ -87,8 +87,8 @@ newTut.newTutStep("The Parameter Table", "<em>Click to open the node fields tabl
 
 newTut.newTutStep("The Parameter Table", " The Component Parameters are settings pertaining to the DALiuGE component wrapper, the Application Arguments are settings exposed by the underlying application code.", function(){return $('.parameterTable thead')})
 .setWaitType(TutorialStep.Wait.Delay)
-.setAlternateHighlightTargetFunc(function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('#bottomWindow .tableBody')})
-.setDelayAmount(200)
+.setAlternateHighlightTargetFunc(function(){return $('#bottomWindow .tableBody')})
+.setDelayAmount(400)
 
 newTut.newTutStep("Enter a Name", "In case of this hello world app we can change who we are greeting. <em>Enter a name and press enter to continue.</em>", function(){return $('.tableFieldStringValueInput').first()})
 .setType(TutorialStep.Type.Input)
@@ -126,7 +126,7 @@ newTut.newTutStep("Node Ports", "And this is the input port for the file storage
 newTut.newTutStep("Connecting nodes", "<em>Click and hold the output Port of the hello world app and drag over to the file node's input port, then release.</em>",  function(){return $('#portContainer .' + TutorialSystem.initiateSimpleFindGraphNodeIdByNodeName('HelloWorldApp')+' .outputPort')})
 .setType(TutorialStep.Type.Condition)
 .setAlternateHighlightTargetFunc(function(){return $("#logicalGraphParent")})
-.setConditionFunction(function(eagle:Eagle){if(eagle.logicalGraph().getEdges().length != 0){return true}else{return false}}) //check if there are any edges present in the graph
+.setConditionFunction(function(eagle:Eagle){if(eagle.logicalGraph().getNumEdges() != 0){return true}else{return false}}) //check if there are any edges present in the graph
 
 newTut.newTutStep("Graph Errors and warnings", "This is the error checking system, it is showing a check mark, so we did everything correctly. If there are errors in the graph you are able to troubleshoot them by clicking here.", function(){return $("#checkGraphDone")})
 

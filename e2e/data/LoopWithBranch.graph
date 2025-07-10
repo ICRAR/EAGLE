@@ -21,8 +21,34 @@
         "lastModifiedDatetime": 0,
         "numLGNodes": 11
     },
-    "activeGraphConfigId": null,
-    "graphConfigurations": {},
+    "activeGraphConfigId": "0e0aea98-8189-491f-ab5e-8c50adfef79e",
+    "graphConfigurations": {
+        "0e0aea98-8189-491f-ab5e-8c50adfef79e": {
+            "description": "",
+            "lastModifiedDatetime": 0,
+            "lastModifiedEmail": "",
+            "lastModifiedName": "",
+            "name": "Default Configuration",
+            "nodes": {
+                "0da87122-24bc-4ae0-8f13-987dd892907f": {
+                    "fields": {
+                        "03c4c994-b720-4484-9037-41245a5ace3b": {
+                            "comment": "",
+                            "value": -100
+                        },
+                        "0f875278-1ea6-4eaa-ae5b-ba5745ff2e6d": {
+                            "comment": "",
+                            "value": 20
+                        },
+                        "9424b089-c307-4366-b085-b2f6c47bcd39": {
+                            "comment": "",
+                            "value": 100
+                        }
+                    }
+                }
+            }
+        }
+    },
     "nodeDataArray": [
         {
             "category": "Loop",
