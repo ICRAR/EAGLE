@@ -1011,7 +1011,7 @@ export class Eagle {
             }
 
             // if already parented to a node in this selection, skip
-            if (this.objectIsSelected(node.getParent())){
+            if (node.getParent() !== null && this.objectIsSelected(node.getParent())){
                 continue;
             }
 
