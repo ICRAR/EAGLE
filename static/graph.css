@@ -326,7 +326,7 @@
     position: absolute;
     font-size: 15px !important;
     color: white;
-    text-shadow: 0 0 3px black;
+    text-shadow: 0 0 4px black;
     cursor: pointer;
     z-index: 15;
 }
