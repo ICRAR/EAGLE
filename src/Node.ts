@@ -292,7 +292,7 @@ export class Node {
     }
 
     isStreaming = () : boolean => {
-        const streamingField = this.findFieldByDisplayText(Daliuge.FieldName.STREAMING, Daliuge.FieldType.Component);
+        const streamingField = this.findFieldByDisplayText(Daliuge.FieldName.STREAMING);
 
         if (streamingField !== null){
             return streamingField.valIsTrue(streamingField.getValue());
@@ -302,7 +302,7 @@ export class Node {
     }
 
     isPersist = () : boolean => {
-        const persistField = this.findFieldByDisplayText(Daliuge.FieldName.PERSIST, Daliuge.FieldType.Component);
+        const persistField = this.findFieldByDisplayText(Daliuge.FieldName.PERSIST);
 
         if (persistField !== null){
             return persistField.valIsTrue(persistField.getValue());
@@ -907,9 +907,9 @@ export class Node {
         return null;
     }
 
-    findFieldByDisplayText = (displayText: string, fieldType: Daliuge.FieldType) : Field | null => {
+    findFieldByDisplayText = (displayText: string) : Field | null => {
         for (const field of this.fields().values()){
-            if (field.getParameterType() === fieldType && field.getDisplayText() === displayText){
+            if (field.getDisplayText() === displayText){
                 return field;
             }
         }

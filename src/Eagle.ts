@@ -81,7 +81,7 @@ export class Eagle {
     static selectedLocation : ko.Observable<Eagle.FileType>;
     currentField :ko.Observable<Field>;
 
-    static selectedRightClickObject : ko.Observable<any>;
+    static selectedRightClickObject : ko.Observable<Node|Edge>;
     static selectedRightClickLocation : ko.Observable<Eagle.FileType>;
     static selectedRightClickPosition : {x: number, y: number} = {x:0, y:0}
 
@@ -3397,7 +3397,7 @@ export class Eagle {
     }
 
     addSelectedNodesToPalette = (mode: "normal"|"contextMenuRequest") : void => {
-        const nodes = []
+        const nodes: Node[] = []
 
         if(mode === 'normal'){
             for(const object of this.selectedObjects()){
@@ -3406,8 +3406,11 @@ export class Eagle {
                 }
             }
         }else{
-            if ((Eagle.selectedRightClickObject() instanceof Node)){
-                nodes.push(Eagle.selectedRightClickObject())
+            const rightClickObject = Eagle.selectedRightClickObject();
+
+            // if right click object is a node, add it to the nodes list
+            if (rightClickObject instanceof Node){
+                nodes.push(rightClickObject);
             }
         }
 
