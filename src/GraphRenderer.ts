@@ -358,6 +358,7 @@ export class GraphRenderer {
         }
 
         const x = portPosX + node.getPosition().x - node.getRadius()
+        console.log("calculatePortPositionX", mode, field.getDisplayText(), "x:", x, "portPosX:", portPosX, "node.getPosition().x", node.getPosition().x, "nodeRadius:", node.getRadius());
         return x
     }
 
@@ -372,6 +373,7 @@ export class GraphRenderer {
         }
         
         const y = portPosY + node.getPosition().y - node.getRadius()
+        console.log("calculatePortPositionY", mode, field.getDisplayText(), "y:", y, "portPosY:", portPosY, "node.getPosition().y", node.getPosition().y, "nodeRadius:", node.getRadius());
         return y
     }
 
@@ -470,6 +472,8 @@ export class GraphRenderer {
 
     // TODO: the mode parameter could be replaced with a boolean (or an Enum)
     static applyPortAngle (mode: "input" | "output", angle:number, nodeRadius: number, node:Node, field:Field) : void {
+        console.log("applyPortAngle mode:", mode, "angle:", angle, "nodeRadius:", nodeRadius, "node:", node.getName(), "field:", field.getDisplayText());
+
         let portPosition
         if (mode === 'input'){
             portPosition = GraphRenderer.calculatePortPos(angle, nodeRadius, nodeRadius)      
