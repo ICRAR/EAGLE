@@ -1103,7 +1103,7 @@ export class GraphRenderer {
             }   
 
             //check for alt clicking, if so, add the target node and its children to the selection
-            else if(event.button != 2 && !event.altKey&&node.isGroup()){
+            else if(event.button != 2 && !event.altKey&&node.isGroup() && !eagle.objectIsSelected(node)){
                 GraphRenderer.selectNodeAndChildren(node,GraphRenderer.shiftSelect)
             }
 
