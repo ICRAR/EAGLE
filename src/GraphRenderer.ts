@@ -1096,7 +1096,6 @@ export class GraphRenderer {
 
         // select handlers
         if(node !== null && event.button != 1 && !event.shiftKey){
-
             //double click has highest priority, select only this node if it is a contruct
             if(GraphRenderer.dragSelectionDoubleClick && node.isGroup()) {
                 eagle.setSelection(node, Eagle.FileType.Graph);
@@ -1107,11 +1106,8 @@ export class GraphRenderer {
                 GraphRenderer.selectNodeAndChildren(node,GraphRenderer.shiftSelect)
             }
 
-            // check if shift key is down, if so, add or remove selected node to/from current selection | keycode 2 is the middle mouse button
-            else if (node !== null && event.shiftKey && event.altKey){
-                GraphRenderer.dragSelectionHandled(true)
-                eagle.editSelection(node, Eagle.FileType.Graph);
-            } else if(!eagle.objectIsSelected(node)) {
+            //normal node selection
+            else if(!eagle.objectIsSelected(node)) {
                 eagle.setSelection(node, Eagle.FileType.Graph);
             }
 
