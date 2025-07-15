@@ -109,6 +109,13 @@
                                 </div>
                             <!-- /ko -->
                         </div>
+                        <div class="edgeComments">
+                            <!-- ko foreach: $root.logicalGraph().getEdges() -->
+                                <!-- ko if: $data.getComment() != '' -->
+                                    <i class="material-icons interactive clickable iconHoverEffect graphComment" data-bs-placement="right" data-bind="eagleTooltip: $data.getComment(), click: $root.graphEditComment, style:{'left': GraphRenderer.calculateEdgeCommentPosX($data), 'top':GraphRenderer.calculateEdgeCommentPosY($data),transform: 'scale('+$root.getGraphTextScale()+')'}">chat</i>
+                                <!-- /ko -->
+                            <!-- /ko -->
+                        </div>
                         <svg  xmlns="https://www.w3.org/2000/svg">
                             <!-- ko foreach: Array.from($root.logicalGraph().getEdges()) -->
                                 <g data-bind="attr:{id:$data.getId()}">
@@ -198,7 +205,7 @@
                             <button id="bottomTabKeyParamsSwitcher" class="btn btn-secondary btn-sm iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="css:{activeTab:Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ConfigParameterTable}, click: function(){ParameterTable.openTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.Normal)}, eagleTooltip: KeyboardShortcut.idToFullText('open_graph_attributes_configuration_table')">
                                 <i class="md-20 icon-key_attribute_table clickable"></i>
                             </button>
-                            <button id="bottomTabGraphConfigurationsSwitcher" class="btn btn-secondary btn-sm iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="css:{activeTab:Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphConfigsTable}, click: function(){GraphConfigurationsTable.openTable()}, eagleTooltip: KeyboardShortcut.idToFullText('open_graph_attributes_configuration_table')">
+                            <button id="bottomTabGraphConfigurationsSwitcher" class="btn btn-secondary btn-sm iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="css:{activeTab:Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphConfigsTable}, click: function(){GraphConfigurationsTable.openTable()}, eagleTooltip: KeyboardShortcut.idToFullText('open_graph_configurations_table')">
                                 <i class="md-20 icon-config_table clickable"></i>
                             </button>
                             <button id="bottomTabGraphIssuesSwitcher" class="btn btn-secondary btn-sm iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="css:{activeTab:Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphErrors}, click: function(){Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(Eagle.BottomWindowMode.GraphErrors)}, eagleTooltip: `Display Graph Issues`">

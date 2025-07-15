@@ -630,7 +630,8 @@ export class RightClick {
                     $('#customContextMenu').append('<a onclick=RightClick.editNodeFuncCode()>Edit Function Code</a>')
                 }
                 $('#customContextMenu').append('<a onclick="ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.RightClick)">Open Fields Table</a>')
-                $('#customContextMenu').append('<a onclick="ParameterTable.openTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.RightClick)">Graph Attributes</a>')
+                $('#customContextMenu').append('<a onclick="eagle.editNodeDescription()">Edit Description</a>')
+                $('#customContextMenu').append('<a onclick="eagle.editNodeComment()">Edit Comment</a>')
                 if (data.isConstruct()){
                     $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,true)>Delete with children</a>')
                     $('#customContextMenu').append('<a onclick=GraphRenderer.centerConstruct(eagle.selectedNode(),eagle.logicalGraph().getNodes())>Center Around Children</a>')
@@ -650,6 +651,7 @@ export class RightClick {
             }else if(passedObjectClass === 'rightClick_graphEdge'){
                 $('#customContextMenu').append('<a onclick=Eagle.selectedRightClickObject().toggleLoopAware()>Toggle Loop Aware</a>')
                 $('#customContextMenu').append('<a onclick=eagle.toggleEdgeClosesLoop()>Toggle Closes Loop</a>')
+                $('#customContextMenu').append('<a onclick="eagle.editEdgeComment()">Edit Comment</a>')
                 $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,false)>Delete</a>')
             }
         }

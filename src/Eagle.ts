@@ -889,7 +889,7 @@ export class Eagle {
                 const data: string = evt.target.result.toString();
 
                 eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
-                    const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
+                    const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().getText(), "", Category.SubGraph);
     
                     eagle.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges()), parentNode, errorsWarnings);
     
@@ -998,7 +998,7 @@ export class Eagle {
         if (typeof paletteComponent !== 'undefined'){
             parentNode = paletteComponent.clone();
         } else {
-            parentNode = new Node(Category.SubGraph, "", Category.SubGraph);
+            parentNode = new Node(Category.SubGraph, "", "", Category.SubGraph);
         }
 
         // add the parent node to the logical graph
@@ -1060,7 +1060,7 @@ export class Eagle {
         if (typeof paletteComponent !== 'undefined'){
             parentNode = paletteComponent.clone();
         } else {
-            parentNode = new Node(userChoice, "", userChoice as Category);
+            parentNode = new Node(userChoice, "", "", userChoice as Category);
         }
 
         // add the parent node to the logical graph
@@ -1323,7 +1323,7 @@ export class Eagle {
                 const data: string = evt.target.result.toString();
 
                 eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
-                    const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
+                    const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().getText(), "", Category.SubGraph);
     
                     eagle.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges()), parentNode, errorsWarnings);
     
@@ -2452,7 +2452,7 @@ export class Eagle {
         }
 
         // create parent node
-        const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().getText(), Category.SubGraph);
+        const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().getText(), "", Category.SubGraph);
 
         // perform insert
         this.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges()), parentNode, errorsWarnings);
@@ -2708,7 +2708,7 @@ export class Eagle {
             }
 
             // abort if graph has no filename
-            if (graph.fileInfo().name === "") {
+            if (!graph.isInitiated()) {
                 // abort and notify user
                 Utils.showNotification("Unable to save Graph with no name", "Please name the graph before saving", "danger");
                 return;
@@ -3082,7 +3082,7 @@ export class Eagle {
         this.logicalGraph.valueHasMutated();
     }
 
-    duplicateSelection = (mode: "normal"|"contextMenuRequest") : void => {
+    duplicateSelection = async (mode: "normal"|"contextMenuRequest") => {
         if(mode === 'normal' && this.selectedObjects().length === 0){
             Utils.showNotification('Unable to duplicate selection','No nodes are selected','warning')
             return
@@ -3123,7 +3123,10 @@ export class Eagle {
                         }
                     }
 
-                    this.insertGraph(nodes, edges, null, errorsWarnings);
+                    // duplicate nodes and edges
+                    await this.insertGraph(nodes, edges, null, errorsWarnings);
+
+                    // re-check graph, set undo snapshot and trigger re-render
                     this.checkGraph();
                     this.undo().pushSnapshot(this, "Duplicate selection");
                     this.logicalGraph.valueHasMutated();
@@ -3749,7 +3752,7 @@ export class Eagle {
                 }
 
                 // create node
-                const poNode: Node = new Node(poName, "Instance of " + poName, Category.PythonObject);
+                const poNode: Node = new Node(poName, "Instance of " + poName, "", Category.PythonObject);
 
                 // add node to LogicalGraph
                 const OBJECT_OFFSET_X = 100;
@@ -3979,6 +3982,18 @@ export class Eagle {
         // re-check the graph
         this.checkGraph();
     }
+
+    graphEditComment = (object:Node | Edge): void => {
+        this.setSelection(object, Eagle.FileType.Graph)
+        
+        setTimeout(() => {
+            if (object instanceof Node){
+                this.editNodeComment()
+            }else {
+                this.editEdgeComment()
+            }
+        }, 100);
+    };
 
     changeNodeParent = async () => {
         // build list of node name + ids (exclude self)
@@ -4416,14 +4431,14 @@ export class Eagle {
             // if intermediaryComponent is undefined (not found), then choose something guaranteed to be available
             if (typeof intermediaryComponent === 'undefined'){
                 // build a default data component
-                intermediaryComponent = new Node("Data", "Data Component", Category.Data);
+                intermediaryComponent = new Node("Data", "Data Component", "", Category.Data);
             }
 
             // if edge DOES NOT connect two applications, process normally
             // if edge connects two event ports, process normally
             // if the definition of the intermediaryComponent cannot be found, process normally
             if (!edgeConnectsTwoApplications || twoEventPorts || (edgeConnectsTwoApplications && intermediaryComponent === null)){
-                const edge : Edge = new Edge(srcNode, srcPort, destNode, destPort, loopAware, closesLoop, false);
+                const edge : Edge = new Edge('', srcNode, srcPort, destNode, destPort, loopAware, closesLoop, false);
                 this.logicalGraph().addEdgeComplete(edge);
 
                 // re-name node and port according to the port name of the Application node
@@ -4499,8 +4514,8 @@ export class Eagle {
             }
 
             // create TWO edges, one from src to data component, one from data component to dest
-            const firstEdge : Edge = new Edge(srcNode, srcPort, newNode, newInputOutputPort, loopAware, closesLoop, false);
-            const secondEdge : Edge = new Edge(newNode, newInputOutputPort, destNode, destPort, loopAware, closesLoop, false);
+            const firstEdge : Edge = new Edge('', srcNode, srcPort, newNode, newInputOutputPort, loopAware, closesLoop, false);
+            const secondEdge : Edge = new Edge('', newNode, newInputOutputPort, destNode, destPort, loopAware, closesLoop, false);
 
             this.logicalGraph().addEdgeComplete(firstEdge);
             this.logicalGraph().addEdgeComplete(secondEdge);
@@ -4552,6 +4567,34 @@ export class Eagle {
         }
 
         this.selectedNode().setDescription(nodeDescription);
+    }
+
+    editNodeComment = async (): Promise<void> => {
+        const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
+
+        let nodeComment: string;
+        try {
+            nodeComment = await Utils.requestUserMarkdown("Node Comment", this.selectedNode()?.getComment(), markdownEditingEnabled);
+        } catch (error) {
+            console.error(error);
+            return;
+        }
+
+        this.selectedNode().setComment(nodeComment);
+    }
+
+    editEdgeComment = async (): Promise<void> => {
+        const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
+
+        let edgeComment: string;
+        try {
+            edgeComment = await Utils.requestUserMarkdown("Edge Comment", this.selectedEdge()?.getComment(), markdownEditingEnabled);
+        } catch (error) {
+            console.error(error);
+            return;
+        }
+
+        this.selectedEdge().setComment(edgeComment);
     }
 
     getEligibleNodeCategories : ko.PureComputed<Category[]> = ko.pureComputed(() => {
