@@ -7,6 +7,7 @@ import { Repository } from './Repository';
 import { RepositoryFile } from './RepositoryFile';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
+import { LogicalGraph } from "./LogicalGraph";
 
 export class Repositories {
 
@@ -19,6 +20,7 @@ export class Repositories {
 
     static async selectFile(file : RepositoryFile): Promise<void> {
         const eagle: Eagle = Eagle.getInstance();
+        const lg: LogicalGraph | null = eagle.logicalGraph();
 
         if(file.type === Eagle.FileType.Graph || file.type === Eagle.FileType.JSON){
             eagle.showEagleIsLoading()
@@ -28,16 +30,18 @@ export class Repositories {
         let isModified = false;
         switch (file.type){
             case Eagle.FileType.Graph:
-                isModified = eagle.logicalGraph().fileInfo().modified;
+            case Eagle.FileType.JSON:
+                if (lg === null) {
+                    isModified = false;
+                } else {
+                    isModified = lg.fileInfo().modified;
+                }
                 break;
             case Eagle.FileType.Palette: {
                 const palette: Palette = eagle.findPalette(file.name, false);
                 isModified = palette !== null && palette.fileInfo().modified;
                 break;
             }
-            case Eagle.FileType.JSON:
-                isModified = eagle.logicalGraph().fileInfo().modified;
-                break;
         }
 
         // if the file is modified, get the user to confirm they want to overwrite changes

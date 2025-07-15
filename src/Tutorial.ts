@@ -1,4 +1,5 @@
 import { Eagle } from './Eagle';
+import { LogicalGraph } from './LogicalGraph';
 import { Utils } from './Utils';
 
 export class TutorialSystem {
@@ -90,12 +91,24 @@ export class TutorialSystem {
         return x
     }
 
-    static initiateFindGraphNodeIdByNodeName(name:string) : JQuery<HTMLElement> {
-        return $('#logicalGraph #'+Eagle.getInstance().logicalGraph().findNodeIdByNodeName(name)+'.container')
+    static initiateFindGraphNodeIdByNodeName(name: string): JQuery<HTMLElement> {
+        const lg: LogicalGraph | null = Eagle.getInstance().logicalGraph();
+
+        if (lg === null){
+            return $();
+        }
+
+        return $('#logicalGraph #' + lg.findNodeIdByNodeName(name) + '.container');
     }
 
     static initiateSimpleFindGraphNodeIdByNodeName(name:string) : string {
-        return Eagle.getInstance().logicalGraph().findNodeIdByNodeName(name)
+        const lg: LogicalGraph | null = Eagle.getInstance().logicalGraph();
+
+        if (lg === null){
+            return '';
+        }
+
+        return lg.findNodeIdByNodeName(name)
     }
 
     static isRequestedNodeSelected(name:string) : boolean {
@@ -548,8 +561,15 @@ export class Tutorial {
     }
 
     checkConditionFunction = (tutStep: TutorialStep): void => {
-        const eagle = Eagle.getInstance()        
-        const conditionReturn: boolean = tutStep.getConditionFunction()(eagle)
+        const eagle = Eagle.getInstance()
+        const conditionFunc = tutStep.getConditionFunction();
+
+        if (conditionFunc === null) {
+            console.warn("No condition function set for the tutorial step:", tutStep.getTitle());
+            return;
+        }
+
+        const conditionReturn: boolean = conditionFunc(eagle)
 
         if(conditionReturn){
             clearTimeout(TutorialSystem.conditionCheck);
