@@ -186,6 +186,7 @@ export class QuickActions {
                     }else{
                         $(".quickActionsFocus").removeClass('quickActionsFocus')
                         current.next().addClass('quickActionsFocus')
+                        // $('quickActionContainer').scrollTop(current.next().offset().top)
                     }
                 }
                 break;
@@ -208,6 +209,9 @@ export class QuickActions {
                 $('#quickActionSearchbar').trigger("focus")
                 break;
             }
+            
+            //scroll the quick selection item into view
+            $('#quickActionResults .quickActionsFocus').get(0)?.scrollIntoView(false);
         })
         
         $('#quickActionBackground').on('click.quickActionDismiss', function(){
