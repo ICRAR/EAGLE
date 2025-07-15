@@ -2243,7 +2243,7 @@ export class Utils {
                 const paletteComponent: Node | undefined = Utils.getPaletteComponentByName(node.getCategory());
 
                 if (typeof paletteComponent !== 'undefined'){
-                    const dropClassField: Field | undefined = paletteComponent.findFieldByDisplayText(Daliuge.FieldName.DROP_CLASS, field.getParameterType());
+                    const dropClassField: Field | undefined = paletteComponent.findFieldByDisplayText(Daliuge.FieldName.DROP_CLASS);
 
                     if (typeof dropClassField !== 'undefined'){
                         field.setValue(dropClassField.getDefaultValue());
@@ -2412,6 +2412,7 @@ export class Utils {
                 "id":node.getId(),
                 "parent":node.getParent() === null ? null : node.getParent().getId(),
                 "embed":node.getEmbed() === null ? null : node.getEmbed().getId(),
+                "subject":node.getSubject() === null ? null : node.getSubject().getId(),
                 "children":children.toString(),
                 "category":node.getCategory(),
                 "categoryType":node.getCategoryType(),
@@ -2750,8 +2751,8 @@ export class Utils {
                 continue;
             }
 
-            // try to find field in old node that matches by displayText AND parameterType
-            let destField = node.findFieldByDisplayText(field.getDisplayText(), field.getParameterType());
+            // try to find field in old node that matches by displayText
+            let destField = node.findFieldByDisplayText(field.getDisplayText());
 
             // if dest field could not be found, then go ahead and add a NEW field to the dest node
             if (typeof destField === 'undefined'){
@@ -2848,8 +2849,8 @@ export class Utils {
                 continue;
             }
 
-            // try to find field in node that matches by displayText AND parameterType
-            let destField = node.findFieldByDisplayText(field.getDisplayText(), field.getParameterType());
+            // try to find field in node that matches by displayText
+            let destField = node.findFieldByDisplayText(field.getDisplayText());
 
             // if dest field could not be found, then go ahead and add a NEW field to the node
             if (typeof destField === 'undefined'){

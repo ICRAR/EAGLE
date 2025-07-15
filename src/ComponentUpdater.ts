@@ -42,9 +42,9 @@ export class ComponentUpdater {
             // try to find a field with the same name in the destination
             let destField: Field = dest.getFieldById(srcField.getId());
 
-            // if dest field not found, try to find something that matches by displayText AND fieldType
+            // if dest field not found, try to find something that matches by displayText
             if (typeof destField === 'undefined'){
-                destField = dest.findFieldByDisplayText(srcField.getDisplayText(), srcField.getParameterType());
+                destField = dest.findFieldByDisplayText(srcField.getDisplayText());
             }
 
             // if dest field could not be found, then go ahead and add a NEW field to the dest node

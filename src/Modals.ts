@@ -475,7 +475,7 @@ export class Modals {
                         return;
                     }
 
-                    const newEdge = new Edge(srcNode, srcPort, destNode, destPort, loopAware, closesLoop, false);
+                    const newEdge = new Edge('', srcNode, srcPort, destNode, destPort, loopAware, closesLoop, false);
 
                     callback(true, newEdge);
                 }

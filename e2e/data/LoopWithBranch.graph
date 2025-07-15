@@ -21,8 +21,34 @@
         "lastModifiedDatetime": 0,
         "numLGNodes": 11
     },
-    "activeGraphConfigId": null,
-    "graphConfigurations": {},
+    "activeGraphConfigId": "0e0aea98-8189-491f-ab5e-8c50adfef79e",
+    "graphConfigurations": {
+        "0e0aea98-8189-491f-ab5e-8c50adfef79e": {
+            "description": "",
+            "lastModifiedDatetime": 0,
+            "lastModifiedEmail": "",
+            "lastModifiedName": "",
+            "name": "Default Configuration",
+            "nodes": {
+                "0da87122-24bc-4ae0-8f13-987dd892907f": {
+                    "fields": {
+                        "03c4c994-b720-4484-9037-41245a5ace3b": {
+                            "comment": "",
+                            "value": -100
+                        },
+                        "0f875278-1ea6-4eaa-ae5b-ba5745ff2e6d": {
+                            "comment": "",
+                            "value": 20
+                        },
+                        "9424b089-c307-4366-b085-b2f6c47bcd39": {
+                            "comment": "",
+                            "value": 100
+                        }
+                    }
+                }
+            }
+        }
+    },
     "nodeDataArray": [
         {
             "category": "Loop",
@@ -33,6 +59,7 @@
             "id": "4a855dc6-9ddf-407f-b10c-c5f60cebc485",
             "name": "Loop",
             "description": "Placeholder 'loop' description",
+            "comment": "",
             "x": 912.4995760118347,
             "y": 741.4116653614483,
             "subject": null,
@@ -93,10 +120,12 @@
             "inputApplicationType": "None",
             "inputApplicationId": null,
             "inputApplicationDescription": "",
+            "inputApplicationComment": "",
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "outputApplicationId": null,
-            "outputApplicationDescription": ""
+            "outputApplicationDescription": "",
+            "outputApplicationComment": ""
         },
         {
             "category": "PythonApp",
@@ -107,6 +136,7 @@
             "id": "05320368-c28a-4592-8534-13e4dcc51d04",
             "name": "Do a bit more",
             "description": "An application component in the form of a Python app",
+            "comment": "",
             "x": 783.4629878192467,
             "y": 877.1183847647113,
             "subject": null,
@@ -303,10 +333,12 @@
             "inputApplicationType": "None",
             "inputApplicationId": null,
             "inputApplicationDescription": "",
+            "inputApplicationComment": "",
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "outputApplicationId": null,
-            "outputApplicationDescription": ""
+            "outputApplicationDescription": "",
+            "outputApplicationComment": ""
         },
         {
             "category": "PythonApp",
@@ -317,6 +349,7 @@
             "id": "0da87122-24bc-4ae0-8f13-987dd892907f",
             "name": "RandomArrayApp",
             "description": "A testing APP that does not take any input and produces a random array of type int64, if integer is set to True, else of type float64. size indicates the number of elements ranging between the values low and high. The resulting array will be send to all connected output apps.",
+            "comment": "",
             "x": 482.5338441909935,
             "y": 644.0531076701038,
             "subject": null,
@@ -512,10 +545,12 @@
             "inputApplicationType": "None",
             "inputApplicationId": null,
             "inputApplicationDescription": "",
+            "inputApplicationComment": "",
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "outputApplicationId": null,
-            "outputApplicationDescription": ""
+            "outputApplicationDescription": "",
+            "outputApplicationComment": ""
         },
         {
             "category": "File",
@@ -526,6 +561,7 @@
             "id": "79ae1ab0-fbd5-4a3d-9e68-c6ccd18b035c",
             "name": "array",
             "description": "A standard file on a filesystem mounted to the deployment machine",
+            "comment": "",
             "x": 599.1389376220825,
             "y": 640.1710851715623,
             "subject": null,
@@ -676,10 +712,12 @@
             "inputApplicationType": "None",
             "inputApplicationId": null,
             "inputApplicationDescription": "",
+            "inputApplicationComment": "",
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "outputApplicationId": null,
-            "outputApplicationDescription": ""
+            "outputApplicationDescription": "",
+            "outputApplicationComment": ""
         },
         {
             "category": "Branch",
@@ -690,6 +728,7 @@
             "id": "dc7677dd-255b-444b-9c00-af469b33d136",
             "name": "Branch",
             "description": "A branch application that copies the input to either the 'true' or the 'false' output depending on the result of the provided conditional function. The conditional function can be specified either in-line or as an external function and has to return a boolean value. The inputs of the application are passed on as arguments to the conditional function. The conditional function needs to return a boolean value, but the application will copy the input data to the true or false output, depending on the result of the conditional function.",
+            "comment": "",
             "x": 969.6973142684928,
             "y": 691.8176116474392,
             "subject": null,
@@ -856,10 +895,12 @@
             "inputApplicationType": "None",
             "inputApplicationId": null,
             "inputApplicationDescription": "",
+            "inputApplicationComment": "",
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "outputApplicationId": null,
-            "outputApplicationDescription": ""
+            "outputApplicationDescription": "",
+            "outputApplicationComment": ""
         },
         {
             "category": "PythonApp",
@@ -870,6 +911,7 @@
             "id": "67c5883d-b5ea-4a3e-ae38-2b5e6ba3a9bd",
             "name": "do something",
             "description": "Unknown",
+            "comment": "",
             "x": 824.6194689423176,
             "y": 804.0031803523076,
             "subject": null,
@@ -1021,10 +1063,12 @@
             "inputApplicationType": "None",
             "inputApplicationId": null,
             "inputApplicationDescription": "",
+            "inputApplicationComment": "",
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "outputApplicationId": null,
-            "outputApplicationDescription": ""
+            "outputApplicationDescription": "",
+            "outputApplicationComment": ""
         },
         {
             "category": "Memory",
@@ -1035,6 +1079,7 @@
             "id": "be9d73d9-b31c-4d9c-81dd-891c9d378ae1",
             "name": "with something",
             "description": "In-memory storage of intermediate data products",
+            "comment": "",
             "x": 847.0366392627789,
             "y": 598.7049459581854,
             "subject": null,
@@ -1171,10 +1216,12 @@
             "inputApplicationType": "None",
             "inputApplicationId": null,
             "inputApplicationDescription": "",
+            "inputApplicationComment": "",
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "outputApplicationId": null,
-            "outputApplicationDescription": ""
+            "outputApplicationDescription": "",
+            "outputApplicationComment": ""
         },
         {
             "category": "Memory",
@@ -1185,6 +1232,7 @@
             "id": "43e13f1a-44de-4900-9344-39852fcbdcd6",
             "name": "sleep_time",
             "description": "In-memory storage of intermediate data products",
+            "comment": "",
             "x": 1082.31212761442,
             "y": 772.5377883894184,
             "subject": null,
@@ -1321,10 +1369,12 @@
             "inputApplicationType": "None",
             "inputApplicationId": null,
             "inputApplicationDescription": "",
+            "inputApplicationComment": "",
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "outputApplicationId": null,
-            "outputApplicationDescription": ""
+            "outputApplicationDescription": "",
+            "outputApplicationComment": ""
         },
         {
             "category": "Memory",
@@ -1335,6 +1385,7 @@
             "id": "be4de850-ffd9-47f0-911b-f9df52ab11d6",
             "name": "sleep_time",
             "description": "In-memory storage of intermediate data products",
+            "comment": "",
             "x": 933.9618403759545,
             "y": 775.7032356294532,
             "subject": null,
@@ -1471,10 +1522,12 @@
             "inputApplicationType": "None",
             "inputApplicationId": null,
             "inputApplicationDescription": "",
+            "inputApplicationComment": "",
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "outputApplicationId": null,
-            "outputApplicationDescription": ""
+            "outputApplicationDescription": "",
+            "outputApplicationComment": ""
         },
         {
             "category": "PythonApp",
@@ -1485,6 +1538,7 @@
             "id": "15fa6c23-6640-4ebb-a57f-29691025c8ee",
             "name": "PickOne",
             "description": "App that picks the first element of an input list, passes that to all outputs, except the first one. The first output is used to pass the remaining array on. This app is useful for a loop.",
+            "comment": "",
             "x": 749.6870244092496,
             "y": 641.5721636403481,
             "subject": null,
@@ -1651,10 +1705,12 @@
             "inputApplicationType": "None",
             "inputApplicationId": null,
             "inputApplicationDescription": "",
+            "inputApplicationComment": "",
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "outputApplicationId": null,
-            "outputApplicationDescription": ""
+            "outputApplicationDescription": "",
+            "outputApplicationComment": ""
         },
         {
             "category": "Memory",
@@ -1665,6 +1721,7 @@
             "id": "b897f274-f8ba-456b-a5f9-f62621f05755",
             "name": "rest_array",
             "description": "In-memory storage of intermediate data products",
+            "comment": "",
             "x": 743.665719120332,
             "y": 720.016133780737,
             "subject": null,
@@ -1816,14 +1873,17 @@
             "inputApplicationType": "None",
             "inputApplicationId": null,
             "inputApplicationDescription": "",
+            "inputApplicationComment": "",
             "outputApplicationName": "",
             "outputApplicationType": "None",
             "outputApplicationId": null,
-            "outputApplicationDescription": ""
+            "outputApplicationDescription": "",
+            "outputApplicationComment": ""
         }
     ],
     "linkDataArray": [
         {
+            "comment": "",
             "from": "0da87122-24bc-4ae0-8f13-987dd892907f",
             "fromPort": "25bf5b38-439c-49c9-b7cc-7905d34eed3a",
             "to": "79ae1ab0-fbd5-4a3d-9e68-c6ccd18b035c",
@@ -1832,6 +1892,7 @@
             "closesLoop": false
         },
         {
+            "comment": "",
             "from": "be9d73d9-b31c-4d9c-81dd-891c9d378ae1",
             "fromPort": "62927f63-3d46-41ff-8c3f-b2442c358d9d",
             "to": "dc7677dd-255b-444b-9c00-af469b33d136",
@@ -1840,6 +1901,7 @@
             "closesLoop": false
         },
         {
+            "comment": "",
             "from": "dc7677dd-255b-444b-9c00-af469b33d136",
             "fromPort": "6c139138-141c-4132-89b8-7879dda3c4ea",
             "to": "43e13f1a-44de-4900-9344-39852fcbdcd6",
@@ -1848,6 +1910,7 @@
             "closesLoop": false
         },
         {
+            "comment": "",
             "from": "43e13f1a-44de-4900-9344-39852fcbdcd6",
             "fromPort": "3eba1903-0a29-4d04-be3f-ce626cb098b8",
             "to": "05320368-c28a-4592-8534-13e4dcc51d04",
@@ -1856,6 +1919,7 @@
             "closesLoop": false
         },
         {
+            "comment": "",
             "from": "dc7677dd-255b-444b-9c00-af469b33d136",
             "fromPort": "8d74d420-7837-45c3-8b78-bb860cab8a5e",
             "to": "be4de850-ffd9-47f0-911b-f9df52ab11d6",
@@ -1864,6 +1928,7 @@
             "closesLoop": false
         },
         {
+            "comment": "",
             "from": "be4de850-ffd9-47f0-911b-f9df52ab11d6",
             "fromPort": "0f87c684-95b4-4819-927a-9f04af8e86f8",
             "to": "67c5883d-b5ea-4a3e-ae38-2b5e6ba3a9bd",
@@ -1872,6 +1937,7 @@
             "closesLoop": false
         },
         {
+            "comment": "",
             "from": "79ae1ab0-fbd5-4a3d-9e68-c6ccd18b035c",
             "fromPort": "935017d0-297b-4865-9e80-857c9abb160c",
             "to": "15fa6c23-6640-4ebb-a57f-29691025c8ee",
@@ -1880,6 +1946,7 @@
             "closesLoop": false
         },
         {
+            "comment": "",
             "from": "15fa6c23-6640-4ebb-a57f-29691025c8ee",
             "fromPort": "491b1606-d7a0-4209-a06c-99a1ee208e2c",
             "to": "be9d73d9-b31c-4d9c-81dd-891c9d378ae1",
@@ -1888,6 +1955,7 @@
             "closesLoop": false
         },
         {
+            "comment": "",
             "from": "15fa6c23-6640-4ebb-a57f-29691025c8ee",
             "fromPort": "081da0e5-84ce-4177-94c8-f2c32882369a",
             "to": "b897f274-f8ba-456b-a5f9-f62621f05755",
@@ -1896,6 +1964,7 @@
             "closesLoop": false
         },
         {
+            "comment": "",
             "from": "b897f274-f8ba-456b-a5f9-f62621f05755",
             "fromPort": "1278eace-cb28-4ba3-a445-e70899b6093f",
             "to": "15fa6c23-6640-4ebb-a57f-29691025c8ee",
@@ -1904,6 +1973,7 @@
             "closesLoop": true
         },
         {
+            "comment": "",
             "from": "67c5883d-b5ea-4a3e-ae38-2b5e6ba3a9bd",
             "fromPort": "98a5f4a6-52cc-4720-bc79-ddab2c23594f",
             "to": "b897f274-f8ba-456b-a5f9-f62621f05755",
@@ -1912,6 +1982,7 @@
             "closesLoop": false
         },
         {
+            "comment": "",
             "from": "05320368-c28a-4592-8534-13e4dcc51d04",
             "fromPort": "66d8030d-85e5-4489-ab31-bc0be6fe0acf",
             "to": "b897f274-f8ba-456b-a5f9-f62621f05755",

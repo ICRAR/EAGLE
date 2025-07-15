@@ -259,7 +259,12 @@ export class RightClick {
 
 
     static getNodeDescriptionDropdown() : string {
-        const node = Eagle.selectedRightClickObject()
+        const rightClickObject = Eagle.selectedRightClickObject();
+
+        if (!(rightClickObject instanceof Node)) {
+            console.warn("getNodeDescriptionDropdown() called on non-node object");
+            return '';
+        }
 
         let htmlNodeDescription = "<span class='contextmenuNodeDescription' onmouseover='RightClick.openSubMenu(this)' onmouseleave='RightClick.closeSubMenu(this)'> Node Info"
             htmlNodeDescription += '<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">'
@@ -267,16 +272,16 @@ export class RightClick {
             htmlNodeDescription += '<div class="contextMenuDropdown">'
                 htmlNodeDescription += '<div class="container">'
                     htmlNodeDescription += '<div class="row">'
-                        htmlNodeDescription += "<span id='nodeInfoName'><h4>Name:  </h4>" + node.getName() + "</span>"
+                        htmlNodeDescription += "<span id='nodeInfoName'><h4>Name:  </h4>" + rightClickObject.getName() + "</span>"
                     htmlNodeDescription += "</div>"
                     htmlNodeDescription += '<div class="row">'
-                        htmlNodeDescription += "<span id='nodeInfoId'><h4>Id:  </h4>" + node.getId() + "</span>"
+                        htmlNodeDescription += "<span id='nodeInfoId'><h4>Id:  </h4>" + rightClickObject.getId() + "</span>"
                     htmlNodeDescription += "</div>"
                     htmlNodeDescription += '<div class="row">'
-                        htmlNodeDescription += "<span id='nodeInfoCategory'><h4>Category:  </h4>" + node.getCategory() + "</span>"
+                        htmlNodeDescription += "<span id='nodeInfoCategory'><h4>Category:  </h4>" + rightClickObject.getCategory() + "</span>"
                     htmlNodeDescription += "</div>"
                     htmlNodeDescription += '<div class="row">'
-                        htmlNodeDescription += "<span><h4>Description:  </h4>" + node.getDescription() + "</span>"
+                        htmlNodeDescription += "<span><h4>Description:  </h4>" + rightClickObject.getDescription() + "</span>"
                     htmlNodeDescription += "</div>"
                 htmlNodeDescription += "</div>"
             htmlNodeDescription += "</div>"
@@ -443,7 +448,14 @@ export class RightClick {
     }
 
     static editNodeFuncCode = () : void => {
-        const funcCodeField = Eagle.selectedRightClickObject().findFieldByDisplayText(Daliuge.FieldName.FUNC_CODE, Daliuge.FieldType.Component)
+        const rightClickObject = Eagle.selectedRightClickObject();
+
+        if (!(rightClickObject instanceof Node)) {
+            console.warn("editNodeFuncCode() called on non-node object");
+            return;
+        }
+
+        const funcCodeField = rightClickObject.findFieldByDisplayText(Daliuge.FieldName.FUNC_CODE);
         ParameterTable.requestEditValueCode(funcCodeField, false)
     }
 
@@ -451,7 +463,7 @@ export class RightClick {
     // TODO: perhaps break this function up into a top-level handler, that uses 'passedObjectClass' to call one of several sub-functions
     // TODO: make the passedObjectClass an enumerated type
     // data can be a Edge, Node, Palette?, Eagle, Node[], and the passedObjectClass variable tells the function what to do with it
-    static requestCustomContextMenu = (data: any, passedObjectClass:string) : void => {
+    static requestCustomContextMenu = (data: any, passedObjectClass: "edgeDropCreate" | "rightClick_graphNode" | "rightClick_graphEdge" | "rightClick_hierarchyNode" | "rightClick_paletteComponent" | "rightClick_logicalGraph" | "addEmbeddedInputApp" | "addEmbeddedOutputApp") : void => {
         // getting the mouse event for positioning the right click menu at the cursor location
         const eagle: Eagle = Eagle.getInstance();
 
@@ -459,7 +471,7 @@ export class RightClick {
         let mouseX = thisEvent.clientX+2 //small margin to prevent the cursor from hovering on the menu right on the corner, making the experience fiddly
         let mouseY = thisEvent.clientY+2
 
-        if(data instanceof Node||data instanceof Edge || data instanceof Palette){
+        if(data instanceof Node||data instanceof Edge){
             Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
             Eagle.selectedRightClickObject(data)
         }
@@ -618,7 +630,8 @@ export class RightClick {
                     $('#customContextMenu').append('<a onclick=RightClick.editNodeFuncCode()>Edit Function Code</a>')
                 }
                 $('#customContextMenu').append('<a onclick="ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.RightClick)">Open Fields Table</a>')
-                $('#customContextMenu').append('<a onclick="ParameterTable.openTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.RightClick)">Graph Attributes</a>')
+                $('#customContextMenu').append('<a onclick="eagle.editNodeDescription()">Edit Description</a>')
+                $('#customContextMenu').append('<a onclick="eagle.editNodeComment()">Edit Comment</a>')
                 if (data.isConstruct()){
                     $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,true)>Delete with children</a>')
                     $('#customContextMenu').append('<a onclick=GraphRenderer.centerConstruct(eagle.selectedNode(),eagle.logicalGraph().getNodes())>Center Around Children</a>')
@@ -638,6 +651,7 @@ export class RightClick {
             }else if(passedObjectClass === 'rightClick_graphEdge'){
                 $('#customContextMenu').append('<a onclick=Eagle.selectedRightClickObject().toggleLoopAware()>Toggle Loop Aware</a>')
                 $('#customContextMenu').append('<a onclick=eagle.toggleEdgeClosesLoop()>Toggle Closes Loop</a>')
+                $('#customContextMenu').append('<a onclick="eagle.editEdgeComment()">Edit Comment</a>')
                 $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,false)>Delete</a>')
             }
         }

@@ -358,6 +358,7 @@ export class GraphRenderer {
         }
 
         const x = portPosX + node.getPosition().x - node.getRadius()
+        console.log("calculatePortPositionX", mode, field.getDisplayText(), "x:", x, "portPosX:", portPosX, "node.getPosition().x", node.getPosition().x, "nodeRadius:", node.getRadius());
         return x
     }
 
@@ -372,7 +373,16 @@ export class GraphRenderer {
         }
         
         const y = portPosY + node.getPosition().y - node.getRadius()
+        console.log("calculatePortPositionY", mode, field.getDisplayText(), "y:", y, "portPosY:", portPosY, "node.getPosition().y", node.getPosition().y, "nodeRadius:", node.getRadius());
         return y
+    }
+
+    static calculateEdgeCommentPosX (edge:Edge) : number {
+        return edge.getPosition().x + 2
+    }
+
+    static calculateEdgeCommentPosY (edge:Edge) : number {
+        return edge.getPosition().y - 10
     }
 
     static sortAndOrganizePorts (node:Node) : void {
@@ -470,6 +480,8 @@ export class GraphRenderer {
 
     // TODO: the mode parameter could be replaced with a boolean (or an Enum)
     static applyPortAngle (mode: "input" | "output", angle:number, nodeRadius: number, node:Node, field:Field) : void {
+        console.log("applyPortAngle mode:", mode, "angle:", angle, "nodeRadius:", nodeRadius, "node:", node.getName(), "field:", field.getDisplayText());
+
         let portPosition
         if (mode === 'input'){
             portPosition = GraphRenderer.calculatePortPos(angle, nodeRadius, nodeRadius)      
@@ -876,6 +888,11 @@ export class GraphRenderer {
             }
         }
 
+        const edgeCenterX = (x1+x2)/2 - svgTranslationCorrection
+        const edgeCenterY = (y1+y2)/2 - svgTranslationCorrection
+
+        edge?.setPosition(edgeCenterX,edgeCenterY)
+
         // if edge is short, use simplified rendering
         if (isShortEdge || straightEdgeForce){
             return "M " + x1 + " " + y1 + " L " + x2 + " " + y2;
@@ -1032,7 +1049,7 @@ export class GraphRenderer {
 
     static startDrag(node: Node, event: MouseEvent) : void {
         //if we click on the title of a node, cancel the drag handler
-        if($(event.target).hasClass('changingHeader')){
+        if($(event.target).parent().parent().hasClass('header') || $(event.target).parent().hasClass('edgeComments')){
             event.preventDefault()
             event.stopPropagation()
             return
@@ -1391,7 +1408,7 @@ export class GraphRenderer {
         while(constructs.length > i){
             const construct = constructs[i]
             for (const node of eagle.logicalGraph().getNodes()){
-                if(node.getParent().getId() === construct.getId()){
+                if(node.getParent()?.getId() === construct.getId()){
                     eagle.editSelection(node, Eagle.FileType.Graph);
 
                     if(node.isGroup()){
@@ -1403,6 +1420,7 @@ export class GraphRenderer {
         }
     }
 
+    // TODO: change input parameters to iterators
     static findEdgesContainedByNodes(edges: Edge[], nodes: Node[]): Edge[]{
         const result: Edge[] = [];
 
@@ -1528,6 +1546,7 @@ export class GraphRenderer {
     }
 
     // TODO: mode parameter could be a boolean?
+    // TODO: move to RightClick.ts?
     static setNewEmbeddedApp(nodeId: NodeId, mode: "addEmbeddedOutputApp" | "addEmbeddedInputApp") :void {
         const eagle = Eagle.getInstance()
         const parentNode = eagle.selectedNode()
@@ -1548,6 +1567,9 @@ export class GraphRenderer {
         }
 
         const newNode = Utils.duplicateNode(node)
+
+        // add the node to the graph
+        eagle.logicalGraph().addNodeComplete(newNode);
 
         if(mode==='addEmbeddedOutputApp'){
             parentNode.setOutputApplication(newNode)

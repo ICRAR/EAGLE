@@ -296,7 +296,6 @@ export class LogicalGraph {
             const nodeData = dataObject.nodeDataArray[i];
             const parentDataId = Node.determineNodeParentId(nodeData);
 
-
             // if parentId cannot be found, skip this node
             if (parentDataId === null){
                 continue;
@@ -310,6 +309,26 @@ export class LogicalGraph {
             const parent = result.nodes().get(parentId);
 
             node.setParent(parent);
+        }
+
+        // make sure to set subject for all nodes
+        for (let i = 0 ; i < dataObject.nodeDataArray.length ; i++){
+            const nodeData = dataObject.nodeDataArray[i];
+            const subjectDataId = Node.determineNodeSubjectId(nodeData);
+
+            // if parentId cannot be found, skip this node
+            if (subjectDataId === null){
+                continue;
+            }
+
+            const nodeDataId = Node.determineNodeId(nodeData);
+            const nodeId = nodeDataIdToNodeId.get(nodeDataId);
+            const subjectId = nodeDataIdToNodeId.get(subjectDataId);
+
+            const node = result.nodes().get(nodeId);
+            const subject = result.nodes().get(subjectId);
+
+            node.setSubject(subject);
         }
 
         // add edges
@@ -446,6 +465,21 @@ export class LogicalGraph {
             result.edges.valueHasMutated();
         }
 
+        // load configs
+        for (const [gcId, gcData] of Object.entries(dataObject.graphConfigurations)){
+            const gc = GraphConfig.fromJson(gcData, result, errorsWarnings);
+            gc.setId(gcId as GraphConfigId);
+            result.graphConfigs().set(gcId as GraphConfigId, gc);
+        }
+        result.graphConfigs.valueHasMutated();
+
+        //if the saved 'activeGraphConfigId' is empty or missing, we use the last one in the array, else we set the saved one as active                
+        if(typeof dataObject.activeGraphConfigId === 'undefined' || dataObject.activeGraphConfigId === ''){
+            result.activeGraphConfigId(null);
+        }else{
+            result.activeGraphConfigId(dataObject.activeGraphConfigId);
+        }
+
         return result;
     }
 
@@ -456,6 +490,11 @@ export class LogicalGraph {
             }
         }
         return null;
+    }
+
+    isInitiated = () : boolean =>{
+        //checks if the user has used the "create graph" or "save" function to initiate the graph
+        return this.fileInfo().name != ""
     }
 
     addNodeComplete = (node : Node) => {
@@ -528,11 +567,21 @@ export class LogicalGraph {
     }
 
     getInspectorShortDescriptionHTML : ko.PureComputed<string> = ko.pureComputed(() => {
-        return 'Edit Short Graph Description: </br>' + Utils.markdown2html(this.fileInfo().shortDescription);
+        let text = 'No short description available'
+        if(this.fileInfo().shortDescription != ''){
+            text = Utils.markdown2html(this.fileInfo().shortDescription)
+        }
+
+        return '***Edit Short Graph Description:*** </br>' + text;
     }, this);
 
     getInspectorDetailedDescriptionHTML : ko.PureComputed<string> = ko.pureComputed(() => {
-        return 'Edit Detailed Graph Description: </br>' + Utils.markdown2html(this.fileInfo().detailedDescription);
+        let text = 'No detailed description available'
+        if(this.fileInfo().detailedDescription != ''){
+            text = Utils.markdown2html(this.fileInfo().detailedDescription)
+        }
+        
+        return '***Edit Detailed Graph Description:*** </br>' + text;
     }, this);
 
     getGraphConfigs = (): MapIterator<GraphConfig> => {
@@ -790,6 +839,15 @@ export class LogicalGraph {
             }
         }
 
+        // if the node we are deleting is the subject of another node, then reset the subject of that node
+        for (const node of this.nodes().values()){
+            if (node.getSubject() !== null && node.getSubject().getId() === id){
+                node.setSubject(null);
+                this.nodes.valueHasMutated();
+                break;
+            }
+        }
+
         // delete children of this node
         for (const child of node.getChildren()){
             this.removeNode(child);
@@ -808,6 +866,11 @@ export class LogicalGraph {
 
     removeEdgeById = (id: EdgeId) : void => {
         const edge = this.edges().get(id);
+
+        if (typeof edge === 'undefined'){
+            console.warn("removeEdgeById(): Could not find edge with id", id);
+            return;
+        }
 
         this.edges().delete(id);
         this.edges.valueHasMutated();
@@ -1098,6 +1161,35 @@ export class LogicalGraph {
         return radius;
     }
 
+
+    getShortDescriptionBtnColor : ko.PureComputed<string> = ko.pureComputed(() => {
+        //this excludes graphs that have not been initiated by the user (eagle has an empty graph by default)
+        if (this.isInitiated() && this.fileInfo().shortDescription === ""){
+            return EagleConfig.getColor('graphWarning')
+        }
+
+        return ""
+    }, this);
+
+    getDetailedDescriptionBtnColor : ko.PureComputed<string> = ko.pureComputed(() => {
+        //this excludes graphs that have not been initiated by the user (eagle has an empty graph by default)
+        if (this.isInitiated() && this.fileInfo().detailedDescription === ""){
+            return EagleConfig.getColor('graphWarning')
+        }
+
+        return ""
+    }, this);
+
+    getGraphInfoBtnColor : ko.PureComputed<string> = ko.pureComputed(() => {
+        //this excludes graphs that have not been initiated by the user (eagle has an empty graph by default)
+         if (this.isInitiated() && (this.fileInfo().detailedDescription === "" || this.fileInfo().shortDescription === "")){
+            return EagleConfig.getColor('graphWarning')
+        }
+        
+        return ""
+    }, this);
+
+
     static isValid () : void {
         //here should be the higher level graph wide checks for graph validity
         const eagle = Eagle.getInstance()
@@ -1105,6 +1197,24 @@ export class LogicalGraph {
 
         // clear old issues
         graph.issues([]);
+
+        //if the graph has been user created but does not have a description, warn the user
+        if (graph.isInitiated() && graph.fileInfo().shortDescription === ''){
+            const issue: Errors.Issue = Errors.Show(
+                "Graph does not have a short description.",
+                function(){eagle.editGraphShortDescription()}
+            );
+            graph.issues.push({issue : issue, validity : Errors.Validity.Warning})
+        }
+
+        //if the graph has been user created but does not have a description, warn the user
+        if (graph.isInitiated() && graph.fileInfo().detailedDescription === ''){
+            const issue: Errors.Issue = Errors.Show(
+                "Graph does not have a detailed description.",
+                function(){eagle.editGraphDetailedDescription()}
+            );
+            graph.issues.push({issue : issue, validity : Errors.Validity.Warning})
+        }
 
         // check that all node, edge, field, and config ids are unique
         const ids : string[] = [];
