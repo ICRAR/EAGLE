@@ -347,36 +347,21 @@ export class GraphRenderer {
         return Math.atan2(y, x);
     }
 
-    // TODO: the mode parameter could be replaced with a boolean (or an Enum)
-    static calculatePortPositionX(mode: "input" | "output", field: Field) : number {
-        
-        let portPosX :number
-        if(mode==='input'){
-            portPosX = field.getInputPosition().x
-        }else{
-            portPosX = field.getOutputPosition().x
-        }
-
-        const node = field.getNode();
-        const x = portPosX + node.getPosition().x - node.getRadius()
-        console.log("calculatePortPositionX", mode, field.getDisplayText(), "x:", x, "portPosX:", portPosX, "node.getPosition().x", node.getPosition().x, "nodeRadius:", node.getRadius());
+    static calculatePortPosition(portPos: number, nodePos: number, radius: number) : number {
+        const x = portPos + nodePos - radius;
         return x
     }
-
-    // TODO: the mode parameter could be replaced with a boolean (or an Enum)
-    static calculatePortPositionY(mode: "input" | "output", field: Field) {
-        
-        let portPosY :number
-        if(mode==='input'){
-            portPosY = field.getInputPosition().y
-        }else{
-            portPosY = field.getOutputPosition().y
-        }
-        
-        const node = field.getNode();
-        const y = portPosY + node.getPosition().y - node.getRadius()
-        console.log("calculatePortPositionY", mode, field.getDisplayText(), "y:", y, "portPosY:", portPosY, "node.getPosition().y", node.getPosition().y, "nodeRadius:", node.getRadius());
-        return y
+    static calculateInputPortPositionX(field: Field) : number {
+        return GraphRenderer.calculatePortPosition(field.getInputPosition().x, field.getNode().getPosition().x, field.getNode().getRadius());
+    }
+    static calculateInputPortPositionY(field: Field) : number {
+        return GraphRenderer.calculatePortPosition(field.getInputPosition().y, field.getNode().getPosition().y, field.getNode().getRadius());
+    }
+    static calculateOutputPortPositionX(field: Field) : number {
+        return GraphRenderer.calculatePortPosition(field.getOutputPosition().x, field.getNode().getPosition().x, field.getNode().getRadius());
+    }
+    static calculateOutputPortPositionY(field: Field) : number {
+        return GraphRenderer.calculatePortPosition(field.getOutputPosition().y, field.getNode().getPosition().y, field.getNode().getRadius());
     }
 
     static calculateEdgeCommentPosX (edge:Edge) : number {
