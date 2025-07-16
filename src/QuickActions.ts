@@ -186,7 +186,6 @@ export class QuickActions {
                     }else{
                         $(".quickActionsFocus").removeClass('quickActionsFocus')
                         current.next().addClass('quickActionsFocus')
-                        // $('quickActionContainer').scrollTop(current.next().offset().top)
                     }
                 }
                 break;
