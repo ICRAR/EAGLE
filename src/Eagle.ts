@@ -68,7 +68,7 @@ export class Eagle {
     static _instance : Eagle;
 
     palettes : ko.ObservableArray<Palette>;
-    logicalGraph : ko.Observable<LogicalGraph | null>;
+    logicalGraph : ko.Observable<LogicalGraph>;
     tutorial : ko.Observable<Tutorial>;
 
     eagleIsReady : ko.Observable<boolean>;

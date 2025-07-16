@@ -857,31 +857,34 @@ export class Node {
         return '- Git -</br>Url:&nbsp;' + url + '</br>Hash:&nbsp;' + hash;
     }, this);
 
-    findPortInApplicationsById = (portId: FieldId) : {node: Node, port: Field} => {
+    findPortInApplicationsById = (portId: FieldId) : {node: Node | null, port: Field | null} => {
+        const inputApplication: Node | null = this.inputApplication();
+        const outputApplication: Node | null = this.outputApplication();
+
         // if node has an inputApplication, check those ports too
-        if (this.hasInputApplication()){
-            for (const inputPort of this.inputApplication().getInputPorts()){
+        if (inputApplication !== null){
+            for (const inputPort of inputApplication.getInputPorts()){
                 if (inputPort.getId() === portId){
-                    return {node: this.inputApplication(), port: inputPort};
+                    return {node: inputApplication, port: inputPort};
                 }
             }
-            for (const outputPort of this.inputApplication().getOutputPorts()){
+            for (const outputPort of inputApplication.getOutputPorts()){
                 if (outputPort.getId() === portId){
-                    return {node: this.inputApplication(), port: outputPort};
+                    return {node: inputApplication, port: outputPort};
                 }
             }
         }
 
         // if node has an outputApplication, check those ports too
-        if (this.hasOutputApplication()){
-            for (const inputPort of this.outputApplication().getInputPorts()){
+        if (outputApplication !== null){
+            for (const inputPort of outputApplication.getInputPorts()){
                 if (inputPort.getId() === portId){
-                    return {node: this.outputApplication(), port: inputPort};
+                    return {node: outputApplication, port: inputPort};
                 }
             }
-            for (const outputPort of this.outputApplication().getOutputPorts()){
+            for (const outputPort of outputApplication.getOutputPorts()){
                 if (outputPort.getId() === portId){
-                    return {node: this.outputApplication(), port: outputPort};
+                    return {node: outputApplication, port: outputPort};
                 }
             }
         }

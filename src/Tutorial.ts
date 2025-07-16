@@ -10,7 +10,7 @@ export class TutorialSystem {
     static activeTutCurrentStepIndex: number = 0;  //index of the current step in the active tutorial
     static waitForElementTimer: number | undefined    //this houses the time out timer when waiting for a target element to appear
     static onCoolDown: boolean = false //boolean if the tutorial system is currently on cool down
-    static conditionCheck: number | undefined //this stores the condition interval function
+    static conditionCheck: number | undefined //this stores the condition interval function TODO: not actually a function, it actually stores the interval ID, could be better named
 
     static initiateTutorial(tutorialName: string): void {
         for (const tut of Eagle.tutorials){
@@ -92,22 +92,12 @@ export class TutorialSystem {
     }
 
     static initiateFindGraphNodeIdByNodeName(name: string): JQuery<HTMLElement> {
-        const lg: LogicalGraph | null = Eagle.getInstance().logicalGraph();
-
-        if (lg === null){
-            return $();
-        }
-
+        const lg: LogicalGraph = Eagle.getInstance().logicalGraph();
         return $('#logicalGraph #' + lg.findNodeIdByNodeName(name) + '.container');
     }
 
     static initiateSimpleFindGraphNodeIdByNodeName(name:string) : string {
-        const lg: LogicalGraph | null = Eagle.getInstance().logicalGraph();
-
-        if (lg === null){
-            return '';
-        }
-
+        const lg: LogicalGraph = Eagle.getInstance().logicalGraph();
         return lg.findNodeIdByNodeName(name)
     }
 
@@ -338,11 +328,16 @@ export class Tutorial {
         })
     }
 
+    // TODO: does alternateHighlightTarget have to be passed here? Isn't it available in the tutStep via getAlternateHighlightTargetFunc?
     initiateConditionStep = (tutStep: TutorialStep, alternateHighlightTarget: JQuery<HTMLElement> | null): void => {
         if (alternateHighlightTarget !== null) {
             this.highlightStepTarget(alternateHighlightTarget)
         } else {
-            this.highlightStepTarget(tutStep.getTargetFunc()())
+            const targetFunc = tutStep.getTargetFunc();
+
+            if (targetFunc !== null){
+                this.highlightStepTarget(targetFunc());
+            }
         }
 
         //the little wait is waiting for the css animation of the highlighting system
@@ -355,12 +350,14 @@ export class Tutorial {
 
     highlightStepTarget = (target: JQuery<HTMLElement>): void => {
         const eagle = Eagle.getInstance()
+        const alternateHighlightTargetFunc = TutorialSystem.activeTutCurrentStep.getAlternateHighlightTargetFunc();
 
-        if(TutorialSystem.activeTutCurrentStep.getAlternateHighlightTargetFunc() != null){
-            target = TutorialSystem.activeTutCurrentStep.getAlternateHighlightTargetFunc()()
+        // if this step has an alternate highlight target function, we use that instead of the main target
+        if(alternateHighlightTargetFunc !== null){
+            target = alternateHighlightTargetFunc()
         }
 
-        //if the selector is not working, we end the tutorial because it is broken
+        // if the selector is not working, we end the tutorial because it is broken
         if(target.length === 0){
             this.tutButtonEnd()
             Utils.showNotification("Tutorial Error", "There was an error in the tutorial, if this persists, please let our team know.", "warning");
