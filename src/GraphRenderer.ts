@@ -348,7 +348,7 @@ export class GraphRenderer {
     }
 
     // TODO: the mode parameter could be replaced with a boolean (or an Enum)
-    static calculatePortPositionX(mode: "input" | "output", field: Field, node: Node) : number {
+    static calculatePortPositionX(mode: "input" | "output", field: Field) : number {
         
         let portPosX :number
         if(mode==='input'){
@@ -357,13 +357,14 @@ export class GraphRenderer {
             portPosX = field.getOutputPosition().x
         }
 
+        const node = field.getNode();
         const x = portPosX + node.getPosition().x - node.getRadius()
         console.log("calculatePortPositionX", mode, field.getDisplayText(), "x:", x, "portPosX:", portPosX, "node.getPosition().x", node.getPosition().x, "nodeRadius:", node.getRadius());
         return x
     }
 
     // TODO: the mode parameter could be replaced with a boolean (or an Enum)
-    static calculatePortPositionY(mode: "input" | "output", field: Field, node: Node) {
+    static calculatePortPositionY(mode: "input" | "output", field: Field) {
         
         let portPosY :number
         if(mode==='input'){
@@ -372,6 +373,7 @@ export class GraphRenderer {
             portPosY = field.getOutputPosition().y
         }
         
+        const node = field.getNode();
         const y = portPosY + node.getPosition().y - node.getRadius()
         console.log("calculatePortPositionY", mode, field.getDisplayText(), "y:", y, "portPosY:", portPosY, "node.getPosition().y", node.getPosition().y, "nodeRadius:", node.getRadius());
         return y
