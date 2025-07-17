@@ -347,21 +347,21 @@ export class GraphRenderer {
         return Math.atan2(y, x);
     }
 
-    static calculatePortPosition(portPos: number, nodePos: number, radius: number) : number {
+    private static _calculatePortPosition(portPos: number, nodePos: number, radius: number) : number {
         const x = portPos + nodePos - radius;
         return x
     }
     static calculateInputPortPositionX(field: Field) : number {
-        return GraphRenderer.calculatePortPosition(field.getInputPosition().x, field.getNode().getPosition().x, field.getNode().getRadius());
+        return GraphRenderer._calculatePortPosition(field.getInputPosition().x, field.getNode().getPosition().x, field.getNode().getRadius());
     }
     static calculateInputPortPositionY(field: Field) : number {
-        return GraphRenderer.calculatePortPosition(field.getInputPosition().y, field.getNode().getPosition().y, field.getNode().getRadius());
+        return GraphRenderer._calculatePortPosition(field.getInputPosition().y, field.getNode().getPosition().y, field.getNode().getRadius());
     }
     static calculateOutputPortPositionX(field: Field) : number {
-        return GraphRenderer.calculatePortPosition(field.getOutputPosition().x, field.getNode().getPosition().x, field.getNode().getRadius());
+        return GraphRenderer._calculatePortPosition(field.getOutputPosition().x, field.getNode().getPosition().x, field.getNode().getRadius());
     }
     static calculateOutputPortPositionY(field: Field) : number {
-        return GraphRenderer.calculatePortPosition(field.getOutputPosition().y, field.getNode().getPosition().y, field.getNode().getRadius());
+        return GraphRenderer._calculatePortPosition(field.getOutputPosition().y, field.getNode().getPosition().y, field.getNode().getRadius());
     }
 
     static calculateEdgeCommentPosX (edge:Edge) : number {
@@ -467,8 +467,6 @@ export class GraphRenderer {
 
     // TODO: the mode parameter could be replaced with a boolean (or an Enum)
     static applyPortAngle (mode: "input" | "output", angle:number, nodeRadius: number, node:Node, field:Field) : void {
-        console.log("applyPortAngle mode:", mode, "angle:", angle, "nodeRadius:", nodeRadius, "node:", node.getName(), "field:", field.getDisplayText());
-
         let portPosition
         if (mode === 'input'){
             portPosition = GraphRenderer.calculatePortPos(angle, nodeRadius, nodeRadius)      
