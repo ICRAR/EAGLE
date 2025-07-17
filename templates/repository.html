@@ -6,8 +6,8 @@
             </div>
             <!-- /ko -->
             <!-- ko ifnot: isFetching -->
-            <i class="material-icons md-18 interactive iconHoverEffect" data-bind="click: refresh,visible: folders().length == 0 && files().length==0 && fetched">cloud_off</i>
-            <i class="material-icons md-18 interactive iconHoverEffect" data-bs-placement="bottom" data-bind="click: refresh, visible: (folders().length != 0 || files().length != 0)&& fetched, eagleTooltip: 'Refresh'">cloud_done</i>
+            <i class="material-symbols-outlined md-18 interactive iconHoverEffect" data-bind="click: refresh,visible: folders().length == 0 && files().length==0 && fetched">cloud_off</i>
+            <i class="material-symbols-outlined md-18 interactive iconHoverEffect" data-bs-placement="bottom" data-bind="click: refresh, visible: (folders().length != 0 || files().length != 0)&& fetched, eagleTooltip: 'Refresh'">cloud_done</i>
 
             <!-- ko ifnot: fetched -->
             <!-- ko if: service === Repository.Service.GitHub -->
@@ -26,7 +26,7 @@
         </div>
         <!-- ko ifnot: isBuiltIn -->
         <div class="col col-1">
-            <i class="material-icons md-18 interactive iconHoverEffect" data-bind="click: $root.repositories().removeCustomRepository, attr: {id: htmlId() + '-eject'}">eject</i>
+            <i class="material-symbols-outlined md-18 interactive iconHoverEffect" data-bind="click: $root.repositories().removeCustomRepository, attr: {id: htmlId() + '-eject'}">eject</i>
         </div>
         <!-- /ko -->
         <!-- ko if: expanded -->
