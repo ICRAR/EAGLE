@@ -22,10 +22,10 @@
                                 <div class="col-5 col">
                                     <i class="material-symbols-outlined interactive" data-bs-placement="right" data-bind="eagleTooltip: $data.getGitHTML()" data-bs-toggle="tooltip" data-html="true">link</i>
                                     <i class="material-symbols-outlined interactive" data-bs-placement="right" data-bind="eagleTooltip: 'Id: '+$data.getId()" data-bs-toggle="tooltip" data-html="true">fingerprint</i>
-                                    <i class="material-symbols-outlined interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: $data.getInspectorDescriptionHTML(), click: $root.editNodeDescription" data-bs-toggle="tooltip" data-html="true">library_books</i>
-                                    <i class="material-symbols-outlined interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: $data.getInspectorCommentHTML(), click: $root.editNodeComment" data-bs-toggle="tooltip" data-html="true">chat</i>
+                                    <i class="material-symbols-outlined filled interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: $data.getInspectorDescriptionHTML(), click: $root.editNodeDescription" data-bs-toggle="tooltip" data-html="true">library_books</i>
+                                    <i class="material-symbols-outlined filled interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: $data.getInspectorCommentHTML(), click: $root.editNodeComment" data-bs-toggle="tooltip" data-html="true">chat</i>
                                     <!-- ko if: $data.getAllErrorsWarnings().errors.length > 0 || $data.getAllErrorsWarnings().warnings.length > 0 -->
-                                        <i class="material-symbols-outlined interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: $data.getNodeIssuesHtml(), style:{'color': $data.getIconColor()}, click: $root.showGraphErrors" data-bs-toggle="tooltip" data-html="true">error</i>
+                                        <i class="material-symbols-outlined filled interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: $data.getNodeIssuesHtml(), style:{'color': $data.getIconColor()}, click: $root.showGraphErrors" data-bs-toggle="tooltip" data-html="true">error</i>
                                     <!-- /ko -->
                                 </div>
                                 <div class="col-7 col text-right">
@@ -183,9 +183,9 @@
                         <div class="headerButtons inspectorHeaderButtons" id="objectInspectorHeaderIconRow">
                             <div class="row">
                                 <div class="col-4 col">
-                                    <i class="material-symbols-outlined interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: $data.getInspectorCommentHTML(), click: $root.editEdgeComment" data-bs-toggle="tooltip" data-html="true">chat</i>
+                                    <i class="material-symbols-outlined filled interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: $data.getInspectorCommentHTML(), click: $root.editEdgeComment" data-bs-toggle="tooltip" data-html="true">chat</i>
                                     <!-- ko if: $data.getErrorsWarnings().errors.length > 0 || $data.getErrorsWarnings().warnings.length > 0 -->
-                                        <i class="material-symbols-outlined interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: $data.getNodeIssuesHtml(), style:{'color': $data.getIconColor()}, click: $root.showGraphErrors" data-bs-toggle="tooltip" data-html="true">error</i>
+                                        <i class="material-symbols-outlined filled interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: $data.getNodeIssuesHtml(), style:{'color': $data.getIconColor()}, click: $root.showGraphErrors" data-bs-toggle="tooltip" data-html="true">error</i>
                                     <!-- /ko -->
                                 </div>
                                 <div class="col-8 col text-right">
@@ -322,7 +322,7 @@
         <!-- /ko -->      
     
         <!-- ko if: Setting.findValue(Setting.INSPECTOR_COLLAPSED_STATE) -->
-            <i class="material-symbols-outlined iconHoverEffect" data-bind="click: Setting.find(Setting.INSPECTOR_COLLAPSED_STATE).toggle">info</i>
+            <i class="material-symbols-outlined filled iconHoverEffect" data-bind="click: Setting.find(Setting.INSPECTOR_COLLAPSED_STATE).toggle">info</i>
         <!-- /ko -->
     <!-- /ko -->
 
@@ -352,9 +352,9 @@
                                 <!-- /ko -->
                                 <i class="material-symbols-outlined interactive" data-bs-placement="right" data-bind="eagleTooltip: $root.logicalGraph().fileInfo().fullPath()" data-bs-toggle="tooltip" data-html="true">link</i>
 
-                                <i id="inspectorGraphInfoBtn" class="material-symbols-outlined interactive clickable iconHoverEffect" data-bind="eagleTooltip: 'View Graph Model Data', click: function(){Utils.showModelDataModal('Graph Info', $root.logicalGraph().fileInfo());}" data-bs-toggle="tooltip" data-html="true">info</i>
-                                <i id="shortDescriptionEditBtn" class="material-symbols-outlined interactive clickable iconHoverEffect" data-bind="style:{'color': $root.logicalGraph().getShortDescriptionBtnColor()}, eagleTooltip: $root.logicalGraph().getInspectorShortDescriptionHTML(), click: $root.editGraphShortDescription" data-bs-toggle="tooltip" data-html="true">sticky_note_2</i>
-                                <i id="detailedDescriptionEditBtn" class="material-symbols-outlined interactive clickable iconHoverEffect" data-bind="style:{'color': $root.logicalGraph().getDetailedDescriptionBtnColor()}, eagleTooltip: $root.logicalGraph().getInspectorDetailedDescriptionHTML(), click: $root.editGraphDetailedDescription" data-bs-toggle="tooltip" data-html="true">library_books</i>
+                                <i id="inspectorGraphInfoBtn" class="material-symbols-outlined filled interactive clickable iconHoverEffect" data-bind="eagleTooltip: 'View Graph Model Data', click: function(){Utils.showModelDataModal('Graph Info', $root.logicalGraph().fileInfo());}" data-bs-toggle="tooltip" data-html="true">info</i>
+                                <i id="shortDescriptionEditBtn" class="material-symbols-outlined filled interactive clickable iconHoverEffect" data-bind="style:{'color': $root.logicalGraph().getShortDescriptionBtnColor()}, eagleTooltip: $root.logicalGraph().getInspectorShortDescriptionHTML(), click: $root.editGraphShortDescription" data-bs-toggle="tooltip" data-html="true">sticky_note_2</i>
+                                <i id="detailedDescriptionEditBtn" class="material-symbols-outlined filled interactive clickable iconHoverEffect" data-bind="style:{'color': $root.logicalGraph().getDetailedDescriptionBtnColor()}, eagleTooltip: $root.logicalGraph().getInspectorDetailedDescriptionHTML(), click: $root.editGraphDetailedDescription" data-bs-toggle="tooltip" data-html="true">library_books</i>
                             </div>
                             <div class="col-6 col text-right">
                                 <i class="icon-config_table interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: 'View graph configurations table', click: GraphConfigurationsTable.openTable" data-bs-toggle="tooltip" data-html="true"></i>
@@ -408,7 +408,7 @@
         <!-- /ko -->
             
         <!-- ko if: Setting.findValue(Setting.INSPECTOR_COLLAPSED_STATE) -->
-            <i class="material-symbols-outlined iconHoverEffect" data-bind="click: Setting.find(Setting.INSPECTOR_COLLAPSED_STATE).toggle, eagleTooltip: KeyboardShortcut.idToFullText('toggle_inspector')">info</i>
+            <i class="material-symbols-outlined filled iconHoverEffect" data-bind="click: Setting.find(Setting.INSPECTOR_COLLAPSED_STATE).toggle, eagleTooltip: KeyboardShortcut.idToFullText('toggle_inspector')">info</i>
         <!-- /ko -->
     <!-- /ko -->
 </div>
