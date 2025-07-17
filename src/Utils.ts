@@ -2869,4 +2869,9 @@ export class Utils {
 
         return customRepositories;
     }
+
+    // https://stackoverflow.com/questions/6832596/how-can-i-compare-software-version-number-using-javascript-only-numbers
+    static compareVersions(version1: string, version2: string): number {
+        return version1.localeCompare(version2, undefined, { numeric: true, sensitivity: 'base' });
+    }
 }
