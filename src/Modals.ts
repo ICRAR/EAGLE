@@ -425,63 +425,6 @@ export class Modals {
             $('#editFieldModal').removeData(['callback', 'completed']);
         });
 
-        // #editEdgeModal - requestUserEditEdge()
-        $('#editEdgeModalAffirmativeButton').on('click', function(){
-            $('#editEdgeModal').data('completed', true);
-        });
-        $('#editEdgeModalNegativeButton').on('click', function(){
-            $('#editEdgeModal').data('completed', false);
-        });
-        $('#editEdgeModal').on('shown.bs.modal', function(){
-            $('#editEdgeModalAffirmativeButton').trigger("focus");
-        });
-        $('#editEdgeModal').on('hidden.bs.modal', function(){
-            const callback : (completed : boolean, edge: Edge) => void = $('#editEdgeModal').data('callback');
-
-            if (!callback){
-                console.error("No 'callback' data attribute found on modal");
-            } else {
-                // check if the modal was completed (user clicked OK), if not, return false
-                const completed : boolean = $('#editEdgeModal').data('completed');
-                if (!completed){
-                    callback(false, null);
-                } else {
-                    // extract field data from HTML elements
-                    // TODO: validate ids
-                    const srcNodeId: NodeId = $('#editEdgeModalSrcNodeIdSelect').val().toString() as NodeId;
-                    const srcPortId: FieldId = $('#editEdgeModalSrcPortIdSelect').val().toString() as FieldId;
-                    const destNodeId: NodeId = $('#editEdgeModalDestNodeIdSelect').val().toString() as NodeId;
-                    const destPortId: FieldId = $('#editEdgeModalDestPortIdSelect').val().toString() as FieldId;
-                    const loopAware: boolean = $('#editEdgeModalLoopAwareCheckbox').prop('checked');
-                    const closesLoop: boolean = $('#editEdgeModalClosesLoopCheckbox').prop('checked');
-
-                    const newEdge = new Edge('', srcNodeId, srcPortId, destNodeId, destPortId, loopAware, closesLoop, false);
-
-                    callback(true, newEdge);
-                }
-            }
-
-            $('#editEdgeModal').removeData(['callback', 'completed']);
-        });
-        $('#editEdgeModalSrcNodeIdSelect').on('change', function(){
-            const edge: Edge = $('#editEdgeModal').data('edge');
-            const logicalGraph: LogicalGraph = $('#editEdgeModal').data('logicalGraph');
-
-            const srcNodeId: NodeId = $('#editEdgeModalSrcNodeIdSelect').val().toString() as NodeId;
-            edge.setSrcNodeId(srcNodeId);
-
-            Utils.updateEditEdgeModal(edge, logicalGraph);
-        });
-        $('#editEdgeModalDestNodeIdSelect').on('change', function(){
-            const edge: Edge = $('#editEdgeModal').data('edge');
-            const logicalGraph: LogicalGraph = $('#editEdgeModal').data('logicalGraph');
-
-            const destNodeId: NodeId = $('#editEdgeModalDestNodeIdSelect').val().toString() as NodeId;
-            edge.setDestNodeId(destNodeId);
-
-            Utils.updateEditEdgeModal(edge, logicalGraph);
-        });
-
         // #messageModal - showUserMessage()
         $('#messageModal').on('shown.bs.modal', function(){
             $('#messageModal .modal-footer button').trigger("focus");
