@@ -1199,7 +1199,12 @@ select.form-control{
 }
 
 #aboutModal .modal-content{
-    width: 60vw;
+    width: 30vw;
+    height: 45vh;
+}
+
+#whatsNewModal .modal-content{
+    width: 40vw;
     height: 60vh;
 }
 

@@ -362,7 +362,20 @@
                 <span>Version:&nbsp;{{version}}&nbsp;({{commit_hash}})</span>
                 <hr />
                 <pre>{% include 'license.html' %}</pre>
-                <hr />
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Whats New Modal -->
+<div class="modal fade" id="whatsNewModal" tabindex="-1" role="dialog" aria-labelledby="whatsNewModalTitle">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="whatsNewModalTitle">What's New</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
                 <pre>{% include 'versions.html' %}</pre>
             </div>
         </div>

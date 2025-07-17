@@ -2932,6 +2932,10 @@ export class Eagle {
         $('#aboutModal').modal('show');
     }
 
+    showWhatsNew = () : void => {
+        $('#whatsNewModal').modal('show');
+    }
+
     onlineDocs = () : void => {
         // open in new tab:
         window.open(
