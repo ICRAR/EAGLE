@@ -340,6 +340,11 @@ export class ParameterTable {
         }
     }
 
+    static isCodeField(field: Field) : boolean {
+        //func code is for python functions, command is for bash commands
+        return field.getDisplayText() === Daliuge.FieldName.FUNC_CODE || field.getDisplayText() === Daliuge.FieldName.COMMAND;
+    }
+
     static select(selection: string, selectionName: string, selectionParent: Field, selectionIndex: number) : void {
         ParameterTable.selectionName(selectionName);
         ParameterTable.selectionParent(selectionParent);

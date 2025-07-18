@@ -240,7 +240,7 @@
                                                             <!-- ko ifnot: $data.getGraphConfigField() -->
                                                                 <textarea style="resize: none;" class="tableParameter inputNoArrows tableFieldStringValueInput" data-bind="eagleTooltip: 'Graph Value', disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()},  event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.value(), 'value', $data, $index())}, click: function(event, data){ParameterTable.select($data.value(), 'value', $data, $index())}}"></textarea>
                                                             <!-- /ko -->
-                                                            <!-- ko if: !ParameterTable.getNodeLockedState($data) && $data.getDisplayText() === Daliuge.FieldName.FUNC_CODE -->
+                                                            <!-- ko if: !ParameterTable.getNodeLockedState($data) && ParameterTable.isCodeField($data) -->
                                                                 <button class="parameterTableEditParam icon-pencil iconHoverEffect" data-bind="click:function(data,event){ParameterTable.requestEditValueCode($data, false)}"></button>
                                                             <!-- /ko -->
                                                         <!-- /ko -->
@@ -304,7 +304,7 @@
                                                         <!-- string -->
                                                         <!-- ko ifnot: $data.getType() === 'Integer' || $data.getType() === 'Float' -->
                                                             <textarea  style="resize: none;" class="tableParameter inputNoArrows" data-bind="disabled: ParameterTable.getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $data.getHtmlInputType()}, event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $data, $index())}, click: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $data, $index())}}"></textarea>
-                                                            <!-- ko if: !ParameterTable.getNodeLockedState($data) && $data.getDisplayText() === Daliuge.FieldName.FUNC_CODE -->
+                                                            <!-- ko if: !ParameterTable.getNodeLockedState($data) && ParameterTable.isCodeField($data) -->
                                                                 <button class="parameterTableEditParam icon-pencil iconHoverEffect" data-bind="click:function(data,event){ParameterTable.requestEditValueCode($data, true)}"></button>
                                                             <!-- /ko -->
                                                         <!-- /ko -->
