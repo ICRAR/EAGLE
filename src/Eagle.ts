@@ -3318,6 +3318,29 @@ export class Eagle {
             edges.push(edge);
         }
 
+        // set parent and subject links
+        for (const n of clipboard.nodes){
+            const nodeId = Node.determineNodeId(n);
+            const parentId = Node.determineNodeParentId(n);
+            const subjectId = Node.determineNodeSubjectId(n);
+
+            const node = nodes.find((n) => n.getId() === nodeId);
+            const parentNode = nodes.find((n) => n.getId() === parentId);
+            const subjectNode = nodes.find((n) => n.getId() === subjectId);
+
+            if (node === undefined){
+                console.warn("pasteFromClipboard(): node with id", nodeId, "not found in clipboard nodes");
+                continue;
+            }
+
+            if (parentNode !== undefined){
+                node.setParent(parentNode);
+            }
+            if (subjectNode !== undefined){
+                node.setSubject(subjectNode);
+            }
+        }
+
         this.insertGraph(nodes, edges, null, errorsWarnings);
 
         // display notification to user
