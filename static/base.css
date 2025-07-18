@@ -1704,7 +1704,7 @@ select.form-control{
     background-color: white;
 }
 
-.navbar-btn i.material-icons.md-18 {
+.navbar-btn i.material-symbols-outlined.md-18 {
     position: relative;
     top: 3px;
     font-size: 20px;
@@ -1815,17 +1815,17 @@ select.form-control{
     list-style-type: none;
 }
 
-#repositoryList ul.repositories i.material-icons.md-18 {
+#repositoryList ul.repositories i.material-symbols-outlined.md-18 {
     position: relative;
     top: 4px;
     font-size: 22px;
 }
 
-#repositoryList ul.repositories .repo-actions i.material-icons.md-18 {
+#repositoryList ul.repositories .repo-actions i.material-symbols-outlined.md-18 {
     visibility: hidden;
 }
 
-#repositoryList ul.repositories .repoFile:hover .repo-actions i.material-icons.md-18 {
+#repositoryList ul.repositories .repoFile:hover .repo-actions i.material-symbols-outlined.md-18 {
     visibility: visible;
 }
 
@@ -1861,16 +1861,16 @@ select.form-control{
     cursor:grabbing !important;
 }
 
-.leftWindow .card-header i.material-icons {
+.leftWindow .card-header i.material-symbols-outlined {
     position: relative;
     top: 5px;
 }
 
-.leftWindow .card-header i.material-icons.interactive {
+.leftWindow .card-header i.material-symbols-outlined.interactive {
     cursor: pointer;
 }
 
-.rightWindow h5 i.material-icons {
+.rightWindow h5 i.material-symbols-outlined {
     position: relative;
     top: 5px;
 }
@@ -1880,11 +1880,11 @@ div.rightWindow h5.card-header {
     padding: 0rem 1.0rem 0.4rem 1.00rem;
 }
 
-.rightWindow i.material-icons.interactive {
+.rightWindow i.material-symbols-outlined.interactive {
     cursor: pointer;
 }
 
-.rightWindow button i.material-icons.md-18 {
+.rightWindow button i.material-symbols-outlined.md-18 {
     position: relative;
     top: 2px;
     font-size: 18px;
@@ -2911,4 +2911,8 @@ ul.nav.navbar-nav .dropdown-item:hover,ul.nav.navbar-nav .dropdown-item:focus{
 
 .CodeMirror {
     height: 100%;
+}
+
+.material-symbols-outlined.filled{
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48;
 }

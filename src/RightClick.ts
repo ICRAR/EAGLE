@@ -524,9 +524,9 @@ export class RightClick {
         }else{
             //defining the search bar as it is used in several right click menus
             const searchbar = `<div class="searchBarContainer" data-bind="clickBubble:false, click:function(){}">
-                        <i class="material-icons md-18 searchBarIcon">search</i>
+                        <i class="material-symbols-outlined md-18 searchBarIcon">search</i>
                         <a onclick="RightClick.clearSearchField()">
-                            <i class="material-icons md-18 searchBarIconClose">close</i>
+                            <i class="material-symbols-outlined md-18 searchBarIconClose">close</i>
                         </a>
                         <input id="rightClickSearchBar" autocomplete="off" type="text" placeholder="Search" oninput="RightClick.checkSearchField()" >
                     </div>` 

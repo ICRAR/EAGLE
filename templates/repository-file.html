@@ -6,7 +6,7 @@
             </div>
             <!-- /ko -->
             <!-- ko ifnot: isFetching -->
-            <i class="material-icons md-18" data-bind="text: getIconUrl"></i>
+            <i class="material-symbols-outlined md-18" data-bind="text: getIconUrl"></i>
             <!-- /ko -->
         </div>
         <div class="col col-9">
@@ -16,10 +16,10 @@
         </div>
         <div class="col col-2 repo-actions">
             <!-- ko if: getIconUrl() === "device_hub" -->
-                <i class="material-icons md-18 iconHoverEffect" data-bs-placement="left" style="cursor:pointer;top:3px;" data-bind="click: $root.insertRemoteFile, eagleTooltip: 'Insert'">add_box</i>
+                <i class="material-symbols-outlined md-18 iconHoverEffect" data-bs-placement="left" style="cursor:pointer;top:3px;" data-bind="click: $root.insertRemoteFile, eagleTooltip: 'Insert'">add_box</i>
             <!-- /ko -->
             <!-- ko if: type === Eagle.FileType.Daliuge || type === Eagle.FileType.Graph || type === Eagle.FileType.Palette -->
-                <i class="material-icons md-18 iconHoverEffect" data-bs-placement="left" style="cursor:pointer;top:3px;" data-bind="click: $root.deleteRemoteFile, eagleTooltip: 'Delete'">delete</i>
+                <i class="material-symbols-outlined md-18 iconHoverEffect" data-bs-placement="left" style="cursor:pointer;top:3px;" data-bind="click: $root.deleteRemoteFile, eagleTooltip: 'Delete'">delete</i>
             <!-- /ko -->
         </div>
     </div>
