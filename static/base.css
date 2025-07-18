@@ -1055,6 +1055,10 @@ select.form-control{
     display: inline-block;
 }
 
+.modal .modal-body pre{
+    overflow:unset;
+}
+
 #settingsCategoriesAccordion .accordion-button {
     padding: 5px 15px;
     background-color: rgb(194 200 220);
@@ -1200,7 +1204,12 @@ select.form-control{
 }
 
 #aboutModal .modal-content{
-    width: 60vw;
+    width: 30vw;
+    height: 45vh;
+}
+
+#whatsNewModal .modal-content{
+    width: 40vw;
     height: 60vh;
 }
 
