@@ -4800,9 +4800,21 @@ $( document ).ready(function() {
         //reset the modal dialog pointer events so that the modal can be closed when clicked outside
         $('.modal').css({"pointerEvents":"auto"})
         $('.modal .modal-content').css({"pointerEvents":"auto"})
-    }); 
+    });  
+
+    $('.modal').on('show.bs.modal',function(){
+        //this event is called when a modal is requested to open
+        
+        //when a modal is shown, we need to hide any other modals that are currently open
+        if($('.modal.show').length >0){
+            $('.modal.show').modal('hide');
+        }
+    })
 
     $('.modal').on('shown.bs.modal',function(){
+        //this event is called when a modal is done opening
+        const modal = $(this);
+
         // modal draggable
         // the any type is required so we don't have an error when building. at runtime on eagle this actually functions without it.
         (<any>$('.modal-dialog')).draggable({
@@ -4810,7 +4822,6 @@ $( document ).ready(function() {
         });
 
         //this is a system that allows graph interaction with a modal open, it triggers when the user clicks and drags the modal header
-        const modal = $(event.target).parent()
         $(event.target).find('.modal-header').on('mousedown', function(event: JQuery.TriggeredEvent){
             modal.css({"pointerEvents":"none"})
             modal.find('.modal-content').css({"pointerEvents":"all"})
