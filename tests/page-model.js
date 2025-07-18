@@ -207,32 +207,6 @@ class Page {
       .click('#parameterTableModalAffirmativeButton')
   }
 
-  async createEdge(srcNode, dstNode, srcIsConstruct, dstIsConstruct, srcPort, dstPort) {
-    await t
-      .click(this.navbarGraph)
-      .hover(this.navbarGraphNew)
-      .hover(this.navbarGraphNewCreate)  // we have to make sure to move horizontally first, so that the menu doesn't dissappear
-      .click(this.navbarGraphNewAddEdge)
-
-      // choose source node
-      .click(Selector("#editEdgeModalSrcNodeIdSelect"))
-      .click(Selector("#editEdgeModalSrcNodeIdSelect").find('option').withText(srcNode))
-
-      // choose source port
-      .click(Selector("#editEdgeModalSrcPortIdSelect"))
-      .click(Selector("#editEdgeModalSrcPortIdSelect").find('option').withText(srcPort))
-
-      // choose destination node
-      .click(Selector("#editEdgeModalDestNodeIdSelect"))
-      .click(Selector("#editEdgeModalDestNodeIdSelect").find('option').withText(dstNode))
-
-      // choose destination port
-      .click(Selector("#editEdgeModalDestPortIdSelect"))
-      .click(Selector("#editEdgeModalDestPortIdSelect").find('option').withText(dstPort))
-
-      .click(Selector("#editEdgeModalAffirmativeButton"));
-  }
-
   async getRect(id, i = 0) {
     const element = Selector(id).nth(i);
     const state = await element();

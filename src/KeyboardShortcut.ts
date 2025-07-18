@@ -423,13 +423,6 @@ export class KeyboardShortcut {
             run: (eagle): void => {eagle.changeNodeSubject();}
         }),
         new KeyboardShortcut({
-            id: "modify_selected_edge",
-            text: "Modify Selected Edge",
-            keys: [new Key("m")],
-            tags: ['edit'],
-            run: (eagle): void => {eagle.editSelectedEdge();}
-        }),
-        new KeyboardShortcut({
             id: "center_graph",
             text: "Center Graph",
             keys: [new Key("c")],
