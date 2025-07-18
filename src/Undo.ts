@@ -24,19 +24,18 @@
 
 import * as ko from "knockout";
 
-import {Eagle} from './Eagle';
-import {LogicalGraph} from './LogicalGraph';
-import {Setting} from './Setting';
-import {Utils} from './Utils';
+import { Eagle } from './Eagle';
 import { Hierarchy } from "./Hierarchy";
+import { LogicalGraph } from './LogicalGraph';
 import { ParameterTable } from "./ParameterTable";
-
+import { Setting } from './Setting';
+import { Utils } from './Utils';
 
 class Snapshot {
     description: ko.Observable<string>;
-    data : ko.Observable<LogicalGraph>;
+    data : ko.Observable<object>;
 
-    constructor(description: string, data: LogicalGraph){
+    constructor(description: string, data: object){
         this.description = ko.observable(description);
         this.data = ko.observable(data);
     }
@@ -74,7 +73,7 @@ export class Undo {
     pushSnapshot = (eagle: Eagle, description: string) : void => {
         const previousIndex = (this.current() + Undo.MEMORY_SIZE - 1) % Undo.MEMORY_SIZE;
         const previousSnapshot : Snapshot = this.memory()[previousIndex];
-        const newContent : LogicalGraph = eagle.logicalGraph().clone();
+        const newContent: object = LogicalGraph.toOJSJson(eagle.logicalGraph(), false)
 
         // check if newContent matches old content, if so, no need to push
         // TODO: maybe speed this up with checksums? or maybe not required
@@ -193,8 +192,8 @@ export class Undo {
             return;
         }
 
-        const dataObject: LogicalGraph = snapshot.data();
-        eagle.logicalGraph(dataObject.clone());
+        const dataObject: LogicalGraph = LogicalGraph.fromOJSJson(snapshot.data(), null, null);
+        eagle.logicalGraph(dataObject);
     }
 
     // if we undo, or redo, then the objects in selectedObject are from the graph prior to the new snapshot
@@ -214,12 +213,12 @@ export class Undo {
 
         // find the objects in the ids list, and add them to the selection
         for (const id of objectIds){
-            const node = eagle.logicalGraph().findNodeById(id as NodeId);
-            const edge = eagle.logicalGraph().findEdgeById(id as EdgeId);
+            const node = eagle.logicalGraph().getNodeById(id as NodeId);
+            const edge = eagle.logicalGraph().getEdgeById(id as EdgeId);
             const object = node || edge;
 
             // abort if no edge or node exists fot that id
-            if (node === null && edge === null){
+            if (typeof node === 'undefined' && typeof edge === 'undefined'){
                 continue;
             }
 
@@ -239,12 +238,15 @@ export class Undo {
                 continue;
             }
 
+            // parse the snapshot data into a LogicalGraph object
+            const dataObject: LogicalGraph = LogicalGraph.fromOJSJson(snapshot.data(), null, null);
+
             tableData.push({
                 "current": realCurrent === i ? "->" : "",
                 "description": snapshot.description(),
                 "buffer position": i,
-                "nodes": snapshot.data().getNodes().length,
-                "edges": snapshot.data().getEdges().length
+                "nodes": dataObject.getNumNodes(),
+                "edges": dataObject.getNumEdges()
             });
         }
 

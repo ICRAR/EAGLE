@@ -19,7 +19,7 @@
     </div>
     <div class="tableBody">
         <div class="wrapper">
-            <!-- ko if: logicalGraph().graphConfigs().length != 0 && ParameterTable.getTableFields().length === 0 -->
+            <!-- ko if: logicalGraph().getNumGraphConfigs() !== 0 && ParameterTable.getTableFields().length === 0 -->
                 <div class="container h-100">
                     <div class="row align-items-center h-100">
                         <div class="col-md-12 text-center">
@@ -30,7 +30,7 @@
                     </div>
                 </div>
             <!-- /ko -->
-            <!-- ko if: logicalGraph().graphConfigs().length === 0-->
+            <!-- ko if: logicalGraph().getNumGraphConfigs() === 0-->
                 <div class="container h-100">
                     <div class="row align-items-center h-100">
                         <div class="col-md-12 text-center">
@@ -77,10 +77,10 @@
                             <!-- ko if: $data.fitsTableSearchQuery() -->
                                 <!-- ko if: Setting.findValue(Setting.SHOW_NON_CONFIG_PARAMETERS) || $root.logicalGraph().getActiveGraphConfig()?.hasField($data) -->
                                     <tr data-bind="attr: {'id' : 'tableRow_'+$data.getId()}">
-                                        <td class='columnCell column_NodeName' data-bind="click: function(){Utils.showField($root, nodeId(), $data)}">
-                                            <input class="tableParameter" type="string" data-bind="value: $root.logicalGraph().findNodeByIdQuiet(nodeId())?.getName(), disabled: true, eagleTooltip: $root.logicalGraph().findNodeByIdQuiet(nodeId())?.getDescription()">
+                                        <td class='columnCell column_NodeName' data-bind="click: function(){Utils.showField($root, Eagle.FileType.Graph, node(), $data)}">
+                                            <input class="tableParameter" type="string" data-bind="value: node().getName(), disabled: true, eagleTooltip: node().getDescription()">
                                         </td>
-                                            <td class='columnCell column_DisplayText' data-bind=" css: { selectedTableParameter: ParameterTable.isSelected('displayText', $data) }, eagleTooltip:description, click: function(){Utils.showField($root, nodeId(), $data)}">
+                                            <td class='columnCell column_DisplayText' data-bind=" css: { selectedTableParameter: ParameterTable.isSelected('displayText', $data) }, eagleTooltip:description, click: function(){Utils.showField($root, Eagle.FileType.Graph, node(), $data)}">
                                                 <input class="tableParameter selectionTargets tableFieldDisplayName" placeholder="New Parameter" type="string" data-bind="value: displayText, disabled: true, valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $data, $index())}, event:{blur: function(){$(event.target).removeClass('newEmpty')} ,keyup: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $data, $index())}}">
                                             </td>
                                             
