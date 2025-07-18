@@ -2978,6 +2978,10 @@ export class Eagle {
         $('#aboutModal').modal('show');
     }
 
+    showWhatsNew = () : void => {
+        $('#whatsNewModal').modal('show');
+    }
+
     onlineDocs = () : void => {
         // open in new tab:
         window.open(
@@ -3035,54 +3039,6 @@ export class Eagle {
 
     hideEagleIsLoading = () : void => {
         $('#loadingContainer').hide()
-    }
-
-    editSelectedEdge = async (): Promise<void> => {
-        const selectedEdge: Edge = this.selectedEdge();
-
-        if (selectedEdge === null){
-            Utils.showNotification("Unable to edit selected edge:", "No edge selected", "warning");
-            return;
-        }
-
-        // check that graph editing is allowed
-        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
-            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Edit Edge");
-            return;
-        }
-
-        // clone selected edge so that no changes to the original can be made by the user request modal
-        const clone: Edge = selectedEdge.clone();
-
-        let edge: Edge;
-        try {
-            edge = await Utils.requestUserEditEdge(clone, this.logicalGraph());
-        } catch (error) {
-            console.error(error);
-            return;
-        }
-
-        // validate edge
-        const isValid: Errors.Validity = Edge.isValid(this, false, edge.getId(), edge.getSrcNode().getId(), edge.getSrcPort().getId(), edge.getDestNode().getId(), edge.getDestPort().getId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
-        if (isValid === Errors.Validity.Impossible || isValid === Errors.Validity.Error || isValid === Errors.Validity.Unknown){
-            Utils.showUserMessage("Error", "Invalid edge");
-            return;
-        }
-
-        const srcNode: Node = edge.getSrcNode();
-        const srcPort: Field = edge.getSrcPort();
-        const destNode: Node = edge.getDestNode();
-        const destPort: Field = edge.getDestPort();
-
-        // new edges might require creation of new nodes, we delete the existing edge and then create a new one using the full new edge pathway
-        this.logicalGraph().removeEdgeById(selectedEdge.getId());
-        await this.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop());
-
-        this.checkGraph();
-        this.undo().pushSnapshot(this, "Edit edge");
-        this.logicalGraph().fileInfo().modified = true;
-        // trigger the diagram to re-draw with the modified edge
-        this.logicalGraph.valueHasMutated();
     }
 
     duplicateSelection = async (mode: "normal"|"contextMenuRequest") => {

@@ -977,152 +977,6 @@ export class Utils {
         $('#modelDataModal').modal("hide");
     }
 
-    static requestUserEditEdge(edge: Edge, logicalGraph: LogicalGraph): Promise<Edge> {
-        return new Promise(async(resolve, reject) => {
-            Utils.updateEditEdgeModal(edge, logicalGraph);
-
-            $('#editEdgeModal').data('completed', false);
-            $('#editEdgeModal').data('callback', (completed: boolean, edge: Edge): void => {
-                if (!completed){
-                    reject("Utils.requestUserEditEdge() aborted by user");
-                } else {
-                    resolve(edge);
-                }
-            });
-
-            $('#editEdgeModal').data('edge', edge);
-            $('#editEdgeModal').data('logicalGraph', logicalGraph);
-
-            $('#editEdgeModal').modal("toggle");
-        });
-    }
-
-    static updateEditEdgeModal(edge: Edge, logicalGraph: LogicalGraph): void {
-        let srcNode: Node = undefined;
-        let destNode: Node = undefined;
-
-        // TODO: make local copy of edge, so that original is not changed! original might come from inside the active graph
-
-        // populate UI with current edge data
-        // add src node keys
-        $('#editEdgeModalSrcNodeIdSelect').empty();
-        for (const node of logicalGraph.getNodes()){
-            // if node itself can have output ports, add the node to the list
-            if (node.canHaveOutputs()){
-                $('#editEdgeModalSrcNodeIdSelect').append($('<option>', {
-                    value: node.getId(),
-                    text: node.getName(),
-                    selected: edge.getSrcNode().getId() === node.getId()
-                }));
-            }
-
-            // add input application node, if present
-            if (node.hasInputApplication()){
-                const inputApp = node.getInputApplication();
-
-                $('#editEdgeModalSrcNodeIdSelect').append($('<option>', {
-                    value: inputApp.getId(),
-                    text: inputApp.getName(),
-                    selected: edge.getSrcNode().getId() === inputApp.getId()
-                }));
-            }
-
-            // add output application node, if present
-            if (node.hasOutputApplication()){
-                const outputApp = node.getOutputApplication();
-
-                $('#editEdgeModalSrcNodeIdSelect').append($('<option>', {
-                    value: outputApp.getId(),
-                    text: outputApp.getName(),
-                    selected: edge.getSrcNode().getId() === outputApp.getId()
-                }));
-            }
-        }
-
-        // make sure srcNode reflects what is actually selected in the UI
-        // TODO: validate id
-        const srcNodeId: NodeId = $('#editEdgeModalSrcNodeIdSelect').val().toString() as NodeId;
-
-        if (srcNodeId !== null){
-            srcNode = logicalGraph.getNodeById(srcNodeId);
-        }
-
-        // check that source node was found, if not, disable SrcPortIdSelect?
-        $('#editEdgeModalSrcPortIdSelect').empty();
-        if (typeof srcNode === 'undefined'){
-            $('#editEdgeModalSrcPortIdSelect').attr('disabled', 'true');
-        } else {
-            // add src port ids
-            for (const port of srcNode.getOutputPorts()){
-                $('#editEdgeModalSrcPortIdSelect').append($('<option>', {
-                    value: port.getId(),
-                    text: port.getDisplayText(),
-                    selected: edge.getSrcPort().getId() === port.getId()
-                }));
-            }
-        }
-
-        // add dest node keys
-        $('#editEdgeModalDestNodeIdSelect').empty();
-        for (const node of logicalGraph.getNodes()){
-            if (node.canHaveInputs()){
-                $('#editEdgeModalDestNodeIdSelect').append($('<option>', {
-                    value: node.getId(),
-                    text: node.getName(),
-                    selected: edge.getDestNode().getId() === node.getId()
-                }));
-            }
-
-            // input application node, if present
-            if (node.hasInputApplication()){
-                const inputApp = node.getInputApplication();
-
-                $('#editEdgeModalDestNodeIdSelect').append($('<option>', {
-                    value: inputApp.getId(),
-                    text: inputApp.getName(),
-                    selected: edge.getDestNode().getId() === inputApp.getId()
-                }));
-            }
-
-            // output application node, if present
-            if (node.hasOutputApplication()){
-                const outputApp = node.getOutputApplication();
-
-                $('#editEdgeModalDestNodeIdSelect').append($('<option>', {
-                    value: outputApp.getId(),
-                    text: outputApp.getName(),
-                    selected: edge.getDestNode().getId() === outputApp.getId()
-                }));
-            }
-        }
-
-        // make sure srcNode reflects what is actually selected in the UI
-        const destNodeId: NodeId = $('#editEdgeModalDestNodeIdSelect').val().toString() as NodeId;
-
-        if (destNodeId !== null){
-            destNode = logicalGraph.getNodeById(destNodeId);
-        }
-
-        // check that dest node was found, if not, disable DestPortIdSelect?
-        $('#editEdgeModalDestPortIdSelect').empty();
-        if (typeof destNode === 'undefined'){
-            $('#editEdgeModalDestPortIdSelect').attr('disabled', 'true');
-        } else {
-            // add dest port ids
-            for (const port of destNode.getInputPorts()){
-                $('#editEdgeModalDestPortIdSelect').append($('<option>', {
-                    value: port.getId(),
-                    text: port.getDisplayText(),
-                    selected: edge.getDestPort().getId() === port.getId()
-                }));
-            }
-        }
-
-        // update the loopAware and closesLoop checkboxes
-        $('#editEdgeModalLoopAwareCheckbox').prop('checked', edge.isLoopAware());
-        $('#editEdgeModalClosesLoopCheckbox').prop('checked', edge.isClosesLoop());
-    }
-
     /**
      * Returns a list of unique port names (except event ports)
      */
@@ -2857,5 +2711,10 @@ export class Utils {
         }
 
         return customRepositories;
+    }
+
+    // https://stackoverflow.com/questions/6832596/how-can-i-compare-software-version-number-using-javascript-only-numbers
+    static compareVersions(version1: string, version2: string): number {
+        return version1.localeCompare(version2, undefined, { numeric: true, sensitivity: 'base' });
     }
 }

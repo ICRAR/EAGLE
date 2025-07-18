@@ -98,6 +98,12 @@ body {
     transform: translateX(-50%);
 }
 
+@media only screen and (max-width: 1920px) {
+    #quickActionContainer{
+        top: 8rem;
+    }
+}
+
 #quickActionInput{
     width: 50rem;
     height:4rem;
@@ -293,6 +299,7 @@ color: #00bb00;}
     width: calc(100% - 40px);
     height: 100%;
     margin-left: 40px;
+    background-color: #f0f8ff;
 }
 
 #explorePalettesModal #explorePalettesPathContainer{
@@ -1017,14 +1024,6 @@ select.form-control{
     appearance: revert;
 }
 
-#editEdgeModalLoopAwareCheckbox, #editEdgeModalClosesLoopCheckbox{
-    flex: none;
-    padding: 19px;
-    margin-left: 50%;
-    transform: translateX(-50%);
-    margin-top:0px;
-}
-
 .modal-body{
     background-color: aliceblue;
     overflow-y: auto;
@@ -1046,6 +1045,10 @@ select.form-control{
 
 #settingsModal .settingSm{
     display: inline-block;
+}
+
+.modal .modal-body pre{
+    overflow:unset;
 }
 
 #settingsCategoriesAccordion .accordion-button {
@@ -1193,7 +1196,12 @@ select.form-control{
 }
 
 #aboutModal .modal-content{
-    width: 60vw;
+    width: 30vw;
+    height: 45vh;
+}
+
+#whatsNewModal .modal-content{
+    width: 40vw;
     height: 60vh;
 }
 

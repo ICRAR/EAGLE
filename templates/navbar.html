@@ -7,7 +7,7 @@
             EAGLE
             <sup>π</sup>
         </a>
-        <span>{{version}}</span>
+        <span data-bind="text: window.version">version</span>
     </div>
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -240,6 +240,7 @@
                 </a>
                 <div class="dropdown-menu dropdown-menu-right dropdown-area" aria-labelledby="navbarDropdownHelp">
                     <a class="dropdown-item" id="about" href="#" data-bind="click: showAbout">About</a>
+                    <a class="dropdown-item" id="versions" href="#" data-bind="click: showWhatsNew">What's New</a>
                     <span class="dropdown-item dropDropDownParent" id="navTutorials" href="#"><img src="/static/assets/img/arrow_right_white_24dp.svg" alt="" id="navbarDropdownTutorials">Tutorials
                         <div class="dropDropDown">
                             <a class="dropdown-item" id="quickIntroTutBtn" href="#" data-bind="click: function(){TutorialSystem.initiateTutorial('Quick Start')}">Quick Introduction</a>

@@ -71,6 +71,8 @@ let eagle : Eagle;
 $(function(){
     //Check if the user is a first time visitor to the site
     const firstTimeVisit = localStorage.getItem('activeUiMode') === null;
+    const lastSeenVersion = localStorage.getItem('lastSeenVersion') || "0.0.0";
+    const showWhatsNew = Utils.compareVersions((<any>window).version, lastSeenVersion) > 0;
 
     // Global variables.
     eagle = new Eagle();
@@ -166,6 +168,13 @@ $(function(){
     //request a first time visitor welcome to eagle if applicable
     initiateWelcome(firstTimeVisit);
   
+    // if not first time visit, but version is newer than last seen version, show the versions modal
+    if (!firstTimeVisit && showWhatsNew){
+        eagle.showWhatsNew();
+        // set the last seen version
+        localStorage.setItem('lastSeenVersion', (<any>window).version);
+    }
+
     $('.modal').on('hidden.bs.modal', function () {
         $('.modal-dialog').css({"left":"0px", "top":"0px"})
         $("#editFieldModal textarea").attr('style','')

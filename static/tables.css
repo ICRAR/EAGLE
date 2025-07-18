@@ -141,7 +141,8 @@
 .parameterTable .bottomWindowHeaderWrap{
     border: none;
     justify-content: unset;
-    height: 46px;
+    height: 52px;
+    background-color: #002349;
 }
 
 .parameterTable .bottomWindowHeaderWrap button i{

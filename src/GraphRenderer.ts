@@ -1077,22 +1077,23 @@ export class GraphRenderer {
 
         // select handlers
         if(node !== null && event.button != 1 && !event.shiftKey){
-
-            // check if shift key is down, if so, add or remove selected node to/from current selection | keycode 2 is the middle mouse button
-            if (node !== null && event.shiftKey && !event.altKey){
-                GraphRenderer.dragSelectionHandled(true)
-                eagle.editSelection(node, Eagle.FileType.Graph);
-            } else if(!eagle.objectIsSelected(node)) {
+            //double click has highest priority, select only this node if it is a contruct
+            if(GraphRenderer.dragSelectionDoubleClick && node.isGroup()) {
                 eagle.setSelection(node, Eagle.FileType.Graph);
-            }
+            }   
 
             //check for alt clicking, if so, add the target node and its children to the selection
-            if(event.altKey&&node.isGroup()||GraphRenderer.dragSelectionDoubleClick&&node.isGroup()){
+            else if(event.button != 2 && !event.altKey&&node.isGroup() && !eagle.objectIsSelected(node)){
                 GraphRenderer.selectNodeAndChildren(node,GraphRenderer.shiftSelect)
             }
 
+            //normal node selection
+            else if(!eagle.objectIsSelected(node)) {
+                eagle.setSelection(node, Eagle.FileType.Graph);
+            }
+
             //switch back to the node parameter table if a node is selected
-        if(Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE) === true && Setting.findValue(Setting.BOTTOM_WINDOW_MODE) !== Eagle.BottomWindowMode.NodeParameterTable){
+            if(Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE) === true && Setting.findValue(Setting.BOTTOM_WINDOW_MODE) !== Eagle.BottomWindowMode.NodeParameterTable){
                 ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal)
             }
         }else{
@@ -1171,7 +1172,7 @@ export class GraphRenderer {
             
             //checking if there was no drag distance, if so we are clicking a single object and we will toggle its selection
             if(Math.abs(GraphRenderer.selectionRegionStart.x-GraphRenderer.selectionRegionEnd.x)+Math.abs(GraphRenderer.selectionRegionStart.y - GraphRenderer.selectionRegionEnd.y)<3){
-                if(GraphRenderer.altSelect){
+                if(!GraphRenderer.altSelect){
                     GraphRenderer.selectNodeAndChildren(node,GraphRenderer.shiftSelect)
                 }
                 eagle.editSelection(node,Eagle.FileType.Graph);
