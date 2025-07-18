@@ -41,7 +41,7 @@ export class StatusEntry {
             new StatusEntry(KeyboardShortcut.idToKeysText('open_parameter_table', true),' open fields table.', Eagle.getInstance().selectedNode() != null && Setting.findValue(Setting.ALLOW_GRAPH_EDITING)),
             //more than one thing is selected
             new StatusEntry('[Shift + Drag]',' Box select objects.', Eagle.getInstance().selectedObjects().length >1),
-            new StatusEntry('Shift + Ctrl + Drag]',' Box deselect objects.', Eagle.getInstance().selectedObjects().length >1),
+            new StatusEntry('[Shift + Ctrl + Drag]',' Box deselect objects.', Eagle.getInstance().selectedObjects().length >1),
             new StatusEntry(KeyboardShortcut.idToKeysText('create_construct_from_selection', true),' Construct from selection.', Eagle.getInstance().selectedObjects().length >1),
             //construct is selected
             new StatusEntry('[Alt + click]',' Select construct + children.', this.constructIsSelected()),
