@@ -84,7 +84,10 @@ export namespace Daliuge {
         // python
         FUNC_CODE = "func_code",
         FUNC_NAME = "func_name",
-        PYDATA = "pydata"
+        PYDATA = "pydata",
+
+        //bash
+        COMMAND = "command",
     }
 
     export enum DataType {
