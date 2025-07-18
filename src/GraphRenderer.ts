@@ -1551,7 +1551,7 @@ export class GraphRenderer {
             return
         }
 
-        const newNode = Utils.duplicateNode(node)
+        const newNode: Node = Utils.duplicateNode(node);
 
         // add the node to the graph
         eagle.logicalGraph().addNodeComplete(newNode);

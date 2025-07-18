@@ -768,7 +768,7 @@ export class Node {
     }
 
     setInputApplication = (inputApplication : Node) : Node => {
-        console.assert(this.isConstruct(), "Can't set input application on node that is not a construct");
+        console.assert(this.isConstruct() || inputApplication === null, "Can't set non-null input application on node that is not a construct");
 
         this.inputApplication(inputApplication);
 
@@ -788,7 +788,7 @@ export class Node {
     }
 
     setOutputApplication = (outputApplication : Node) : Node => {
-        console.assert(this.isConstruct(), "Can't set output application on node that is not a construct");
+        console.assert(this.isConstruct() || outputApplication === null, "Can't set non-null output application on node that is not a construct");
 
         this.outputApplication(outputApplication);
 

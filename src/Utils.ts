@@ -2743,10 +2743,10 @@ export class Utils {
         }
     }
 
+    // duplicate a node, and all its fields
+    // NOTE: if the node has an input or output application, those will NOT be duplicated!
     static duplicateNode(node: Node): Node {
         const newNodeId = Utils.generateNodeId();
-        const newInputAppId: NodeId = Utils.generateNodeId();
-        const newOutputAppId: NodeId = Utils.generateNodeId();
 
         // set appropriate key for node (one that is not already in use)
         // NOTE: we remove the fields here, and re-add them one-by-one, this seems easier than changing both the key and value in the fields map
@@ -2754,9 +2754,12 @@ export class Utils {
             .clone()
             .setId(newNodeId)
             .setEmbed(null)
+            .setInputApplication(null)
+            .setOutputApplication(null)
+            .setParent(null)
+            .setSubject(null)
             .removeAllFields();
 
-        // TODO: this is wrong here!, the field ids within the fields don't match the keys in the fields map!
         // set new ids for any fields in this node
         for (const field of node.getFields()){
             const clonedField = field
@@ -2764,38 +2767,6 @@ export class Utils {
                 .setId(Utils.generateFieldId())
                 .setNode(newNode);
             newNode.addField(clonedField);
-        }
-
-        // set new ids for embedded applications within node, and new ids for ports within those embedded nodes
-        if (node.hasInputApplication()){
-            const clone : Node = node.getInputApplication().clone();
-            
-            if(clone.getFields() != null){
-                // set new ids for any fields in this node
-                for (const field of clone.getFields()){
-                    field.setId(Utils.generateFieldId()).setNode(clone);
-                }
-            }
-            newNode.setInputApplication(clone)
-
-            // use new ids for input application
-            newNode.getInputApplication().setId(newInputAppId);
-            newNode.getInputApplication().setEmbed(newNode);
-        }
-        if (node.hasOutputApplication()){
-            const clone : Node = node.getOutputApplication().clone();
-            
-            if(clone.getFields() != null){
-                // set new ids for any fields in this node
-                for (const field of clone.getFields()){
-                    field.setId(Utils.generateFieldId()).setNode(clone);
-                }
-            }
-            newNode.setOutputApplication(clone)
-
-            // use new ids for output application
-            newNode.getOutputApplication().setId(newOutputAppId);
-            newNode.getOutputApplication().setEmbed(newNode);
         }
 
         return newNode;

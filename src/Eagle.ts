@@ -1112,7 +1112,8 @@ export class Eagle {
 
         // insert nodes from lg into the existing logicalGraph
         for (const node of nodes){
-            const insertedNode: Node = await this.addNode(node, parentNodePosition.x + node.getPosition().x, parentNodePosition.y + node.getPosition().y);
+            const insertedNode: Node = await this.addNode(node, parentNodePosition.x + node.getPosition().x, parentNodePosition.y + node.getPosition().y); // NOTE: addNode does not add embedded apps
+
             // save mapping for node itself
             nodeMap.set(node.getId(), insertedNode);
 
@@ -1124,7 +1125,8 @@ export class Eagle {
             // copy embedded input application
             if (node.hasInputApplication()){
                 const oldInputApplication : Node = node.getInputApplication();
-                const newInputApplication : Node = insertedNode.getInputApplication();
+                const newInputApplication : Node = await this.addNode(oldInputApplication, 0, 0);
+                insertedNode.setInputApplication(newInputApplication);
                 
                 nodeMap.set(oldInputApplication.getId(), newInputApplication);
 
@@ -1143,7 +1145,8 @@ export class Eagle {
             // copy embedded output application
             if (node.hasOutputApplication()){
                 const oldOutputApplication : Node = node.getOutputApplication();
-                const newOutputApplication : Node = insertedNode.getOutputApplication();
+                const newOutputApplication : Node = await this.addNode(oldOutputApplication, 0, 0);
+                insertedNode.setOutputApplication(newOutputApplication);
                 
                 nodeMap.set(oldOutputApplication.getId(), newOutputApplication);
                 
@@ -1218,7 +1221,7 @@ export class Eagle {
                 continue;
             }
 
-            // TODO: maybe use addEdgeComplete? otherwise check portName = "" is OK
+            // add edge
             this.addEdge(srcNode, portMap.get(edge.getSrcPort().getId()), destNode, portMap.get(edge.getDestPort().getId()), edge.isLoopAware(), edge.isClosesLoop());
         }
 
@@ -3089,7 +3092,7 @@ export class Eagle {
         }
         
         let location: string;
-        let incomingNodes: (Node | Edge)[] = []; // TODO: declare type
+        let incomingNodes: (Node | Edge)[] = [];
 
         if(mode === 'normal'){
             location = Eagle.selectedLocation()
@@ -3123,8 +3126,12 @@ export class Eagle {
                         }
                     }
 
+                    // remove embedded nodes that are already selected
+                    // this is to prevent copying the same embedded node multiple times
+                    const nodesToDuplicate: Node[] = this._removeAlreadySelectedEmbeddedNodes(nodes);
+
                     // duplicate nodes and edges
-                    await this.insertGraph(nodes, edges, null, errorsWarnings);
+                    await this.insertGraph(nodesToDuplicate, edges, null, errorsWarnings);
 
                     // re-check graph, set undo snapshot and trigger re-render
                     this.checkGraph();
@@ -3180,6 +3187,10 @@ export class Eagle {
             }
         }
 
+        // remove any embedded nodes that are already selected
+        // this is to prevent copying the same embedded node multiple times
+        const nodesToCopy: Node[] = this._removeAlreadySelectedEmbeddedNodes(nodes);
+
         // if copyChildren, add all edges adjacent to the nodes in the list objects
         if (copyChildren){
             for (const edge of this.logicalGraph().getEdges()){
@@ -3193,7 +3204,7 @@ export class Eagle {
 
         // TODO: serialise nodes and edges
         const serialisedNodes = [];
-        for (const node of nodes){
+        for (const node of nodesToCopy){
             serialisedNodes.push(Node.toOJSGraphJson(node));
         }
         const serialisedEdges = [];
@@ -3217,6 +3228,18 @@ export class Eagle {
                 Utils.showNotification("Unable to copy to clipboard", "Your browser does not allow access to the clipboard for security reasons", "danger");
             }
         );
+    }
+
+    // given a list of nodes, remove any embedded nodes that are already selected
+    _removeAlreadySelectedEmbeddedNodes = (nodes: Node[]) : Node[] => {
+        const newNodes: Node[] = [];
+        for (const node of nodes){
+            if (node.isEmbedded() && this.objectIsSelected(node.getEmbed())){
+                continue; // skip this node, as it is already selected
+            }
+            newNodes.push(node);
+        }
+        return newNodes;
     }
 
     // NOTE: support func for copySelectionToKeyboard() above
@@ -3639,16 +3662,16 @@ export class Eagle {
     }
 
     addNodeToLogicalGraphAndConnect = async (newNodeId: NodeId) => {
-        const node: Node = await this.addNodeToLogicalGraph(null, newNodeId, Eagle.AddNodeMode.ContextMenu);
+        const nodes: Node[] = await this.addNodeToLogicalGraph(null, newNodeId, Eagle.AddNodeMode.ContextMenu);
 
         const realSourceNode: Node = RightClick.edgeDropSrcNode;
         const realSourcePort: Field = RightClick.edgeDropSrcPort;
-        const realDestNode: Node = node;
-        let realDestPort = node.findPortByMatchingType(realSourcePort.getType(), !RightClick.edgeDropSrcIsInput);
+        const realDestNode: Node = nodes[0];
+        let realDestPort = realDestNode.findPortByMatchingType(realSourcePort.getType(), !RightClick.edgeDropSrcIsInput);
 
         // if no dest port was found, just use first input port on dest node
         if (realDestPort === null){
-            realDestPort = node.findPortOfAnyType(true);
+            realDestPort = realDestNode.findPortOfAnyType(true);
         }
 
         // create edge (in correct direction)
@@ -3667,8 +3690,9 @@ export class Eagle {
         this.logicalGraph.valueHasMutated();
     }
 
-    addNodeToLogicalGraph = (node: Node, nodeId: NodeId, mode: Eagle.AddNodeMode): Promise<Node> => {
+    addNodeToLogicalGraph = (node: Node, nodeId: NodeId, mode: Eagle.AddNodeMode): Promise<Node[]> => {
         return new Promise(async(resolve, reject) => {
+            const result: Node[] = [];
             let pos : {x:number, y:number};
             pos = {x:0,y:0}
             let searchAreaExtended = false; //used if we cant find space on the canvas, we then extend the search area for space and center the graph after adding to bring new nodes into view
@@ -3721,15 +3745,33 @@ export class Eagle {
                 }
             }
 
+            // check for parent before adding the node
+            const parent : Node = this.logicalGraph().checkForNodeAt(pos.x, pos.y, EagleConfig.MINIMUM_CONSTRUCT_RADIUS, true);
+
             // add the node
             const newNode: Node = await this.addNode(node, pos.x, pos.y);
-
-            // make sure the new node is selected
-            this.setSelection(newNode, Eagle.FileType.Graph);
+            result.push(newNode);
 
             // set parent (if the node was dropped on something)
-            const parent : Node = this.logicalGraph().checkForNodeAt(newNode.getPosition().x, newNode.getPosition().y, newNode.getRadius(), true);
             newNode.setParent(parent);
+
+            // if the node is a construct, add the input and output applications, if they exist
+            if (node.isGroup()){
+                // check if the node has an input application, if so, add it
+                if (node.hasInputApplication()){
+                    // add the input application to the logical graph
+                    const inputApp: Node = await this.addNode(node.getInputApplication(), 0, 0);
+                    newNode.setInputApplication(inputApp);
+                    result.push(inputApp);
+                }
+                // check if the node has an output application, if so, add it
+                if (node.hasOutputApplication()){
+                    // add the input application to the logical graph
+                    const outputApp: Node = await this.addNode(node.getOutputApplication(), 0, 0);
+                    newNode.setInputApplication(outputApp);
+                    result.push(outputApp);
+                }
+            }
 
             // determine whether we should also generate an object data drop along with this node
             const generateObjectDataDrop: boolean = Daliuge.isPythonInitialiser(newNode);
@@ -3761,6 +3803,9 @@ export class Eagle {
                 // set parent to same as PythonMemberFunction
                 pythonObjectNode.setParent(newNode);
 
+                // add the PythonObject node to the result
+                result.push(pythonObjectNode);
+
                 // copy all fields from a "PythonObject" node in the palette
                 Utils.copyFieldsFromPrototype(pythonObjectNode, Palette.BUILTIN_PALETTE_NAME, Category.PythonObject);
 
@@ -3782,11 +3827,14 @@ export class Eagle {
                 this.addEdge(newNode, sourcePort, pythonObjectNode, inputOutputPort, false, false);
             }
 
+            // select the new node
+            this.setSelection(newNode, Eagle.FileType.Graph);
+
             this.checkGraph();
             this.undo().pushSnapshot(this, "Add node " + newNode.getName());
             this.logicalGraph.valueHasMutated();
 
-            resolve(newNode);
+            resolve(result);
 
             if(searchAreaExtended){
                 setTimeout(function(){
@@ -4429,9 +4477,11 @@ export class Eagle {
             let intermediaryComponent = Utils.getPaletteComponentByName(Setting.findValue(Setting.DEFAULT_DATA_NODE));
 
             // if intermediaryComponent is undefined (not found), then choose something guaranteed to be available
+            // if intermediaryComponent is defined (found), then duplicate the node so that we don't modify the original in the palette
             if (typeof intermediaryComponent === 'undefined'){
-                // build a default data component
                 intermediaryComponent = new Node("Data", "Data Component", "", Category.Data);
+            } else {
+                intermediaryComponent = Utils.duplicateNode(intermediaryComponent);
             }
 
             // if edge DOES NOT connect two applications, process normally
@@ -4485,8 +4535,8 @@ export class Eagle {
                 y: (srcNodePosition.y + (numIncidentEdges * PORT_HEIGHT) + destNodePosition.y + (numIncidentEdges * PORT_HEIGHT)) / 2.0
             };
 
-            // Add a duplicate of the memory component to the graph
-            const newNode : Node = this.logicalGraph().addDataComponentToGraph(Utils.duplicateNode(intermediaryComponent), dataComponentPosition);
+            // Add the intermediary component to the graph
+            const newNode : Node = this.logicalGraph().addDataComponentToGraph(intermediaryComponent, dataComponentPosition);
 
             // set name of new node (use user-facing name)
             newNode.setName(srcPort.getDisplayText());
@@ -4680,9 +4730,10 @@ export class Eagle {
     }
     
     // NOTE: clones the node internally
+    // NOTE: does not add the node's input or output applications to the logical graph
     addNode = async (node : Node, x: number, y: number): Promise<Node> => {
         // copy node
-        const newNode : Node = Utils.duplicateNode(node);
+        const newNode: Node = Utils.duplicateNode(node);
 
         newNode.setPosition(x, y);
         this.logicalGraph().addNodeComplete(newNode);
