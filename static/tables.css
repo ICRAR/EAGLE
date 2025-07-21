@@ -138,7 +138,7 @@
     width: 80px;
 }
 
-.parameterTable .bottomWindowHeaderWrap{
+#bottomWindow .bottomWindowHeaderWrap{
     border: none;
     justify-content: unset;
     height: 52px;
