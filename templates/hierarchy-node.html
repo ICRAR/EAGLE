@@ -3,11 +3,11 @@
     <div class="hierarchyNode rightClick_hierarchyNode" data-bind="class: Hierarchy.isNodeSelected($root.objectIsSelectedById($data.id())), css:{'hierarchyCollapsed':$data.expanded()===false}, attr: {id:'hierarchy-node-'+$data.id()} , click:function(node, e){Hierarchy.selectNode($data, e);}, clickBubble:false,  eagleRightClick: {data:$data,type:'rightClick_hierarchyNode'}">
         <div class="hierarchyNodeColor" data-bind=" style: {'background-color': color}"></div>
         <div class="hierarchyNodeVisibilityIcon" data-bind="style: {'visibility': Hierarchy.nodeIsHidden($data.id())}">
-            <i class="material-icons md-18">visibility_off</i>
+            <i class="material-symbols-outlined md-18">visibility_off</i>
         </div>
             <!-- ko if: isGroup() -->
                 <button class="hierarchyGroupCollapse"  data-bind="click:function(){$root.logicalGraph().findNodeById(id()).toggleExpanded(); $root.selectedObjects.valueHasMutated()},css:{'hierarchyCollapseDisabled':$data.keepExpanded()===true}, clickBubble:false;">
-                    <i class="material-icons closedIcon" data-bs-placement="top" data-bs-toggle="tooltip" data-html="true" data-bs-original-title="Expand/Collapse" data-bind="css:{'hierarchyCollapseRotate':$data.expanded()===true}">keyboard_arrow_down</i>
+                    <i class="material-symbols-outlined closedIcon" data-bs-placement="top" data-bs-toggle="tooltip" data-html="true" data-bs-original-title="Expand/Collapse" data-bind="css:{'hierarchyCollapseRotate':$data.expanded()===true}">keyboard_arrow_down</i>
                 </button>
             <!-- /ko -->
         <h5 data-bind="text: name" data-bind="style:{'font-weight':}"></h5>

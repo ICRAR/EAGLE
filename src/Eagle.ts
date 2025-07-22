@@ -2995,54 +2995,6 @@ export class Eagle {
         $('#loadingContainer').hide()
     }
 
-    editSelectedEdge = async (): Promise<void> => {
-        const selectedEdge: Edge = this.selectedEdge();
-
-        if (selectedEdge === null){
-            Utils.showNotification("Unable to edit selected edge:", "No edge selected", "warning");
-            return;
-        }
-
-        // check that graph editing is allowed
-        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
-            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Edit Edge");
-            return;
-        }
-
-        // clone selected edge so that no changes to the original can be made by the user request modal
-        const clone: Edge = selectedEdge.clone();
-
-        let edge: Edge;
-        try {
-            edge = await Utils.requestUserEditEdge(clone, this.logicalGraph());
-        } catch (error) {
-            console.error(error);
-            return;
-        }
-
-        // validate edge
-        const isValid: Errors.Validity = Edge.isValid(this, false, edge.getId(), edge.getSrcNodeId(), edge.getSrcPortId(), edge.getDestNodeId(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, true, null);
-        if (isValid === Errors.Validity.Impossible || isValid === Errors.Validity.Error || isValid === Errors.Validity.Unknown){
-            Utils.showUserMessage("Error", "Invalid edge");
-            return;
-        }
-
-        const srcNode: Node = this.logicalGraph().findNodeById(edge.getSrcNodeId());
-        const srcPort: Field = srcNode.findFieldById(edge.getSrcPortId());
-        const destNode: Node = this.logicalGraph().findNodeById(edge.getDestNodeId());
-        const destPort: Field = destNode.findFieldById(edge.getDestPortId());
-
-        // new edges might require creation of new nodes, we delete the existing edge and then create a new one using the full new edge pathway
-        this.logicalGraph().removeEdgeById(selectedEdge.getId());
-        await this.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop());
-
-        this.checkGraph();
-        this.undo().pushSnapshot(this, "Edit edge");
-        this.logicalGraph().fileInfo().modified = true;
-        // trigger the diagram to re-draw with the modified edge
-        this.logicalGraph.valueHasMutated();
-    }
-
     duplicateSelection = async (mode: "normal"|"contextMenuRequest") => {
         if(mode === 'normal' && this.selectedObjects().length === 0){
             Utils.showNotification('Unable to duplicate selection','No nodes are selected','warning')

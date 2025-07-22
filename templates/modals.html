@@ -69,7 +69,7 @@
             </div>
             <div class="modal-footer">
                 <button id="copyInputTextModalInput" class="btn btn-secondary" type="button" data-bs-placement="bottom" data-bind="click: Utils.copyInputTextModalInput, eagleTooltip: 'Copy Text'">
-                    <i class="material-icons md-18">content_copy</i>
+                    <i class="material-symbols-outlined md-18">content_copy</i>
                 </button>
                 <button type="button" class="btn btn-primary affirmativeBtn" data-bs-dismiss="modal">OK</button>
             </div>
@@ -98,7 +98,7 @@
             </div>
             <div class="modal-footer">
                 <button id="copyInputCodeModalInput" class="btn btn-secondary" type="button" data-bs-placement="bottom" data-bind="click: Utils.copyInputCodeModalInput, eagleTooltip: 'Copy Code'">
-                    <i class="material-icons md-18">content_copy</i>
+                    <i class="material-symbols-outlined md-18">content_copy</i>
                 </button>
                 <button type="button" class="btn btn-primary affirmativeBtn" data-bs-dismiss="modal">OK</button>
             </div>
@@ -112,7 +112,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="inputMarkdownModalTitle">Title</h5>
-                <i class="material-icons ms-2" data-bind="eagleTooltip: `<a href='https://www.markdownguide.org/basic-syntax/' target='_blank'> Markdown Basic Syntax </a>`">info</i>
+                <i class="material-symbols-outlined ms-2" data-bind="eagleTooltip: `<a href='https://www.markdownguide.org/basic-syntax/' target='_blank'> Markdown Basic Syntax </a>`">info</i>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -137,7 +137,7 @@
                     <label class="form-check-label" for="editMarkdownSwitchCheck">Edit</label>
                 </div>
                 <button id="copyInputMarkdownModalInput" class="btn btn-secondary" type="button" data-bs-placement="bottom" data-bind="click: Utils.copyInputMarkdownModalInput, eagleTooltip: 'Copy Markdown'">
-                    <i class="material-icons md-18">content_copy</i>
+                    <i class="material-symbols-outlined md-18">content_copy</i>
                 </button>
                 <button type="button" class="btn btn-primary affirmativeBtn" data-bs-dismiss="modal">OK</button>
             </div>
@@ -199,7 +199,7 @@
                         <p id="confirmModalMessage">Message</p>
                     </div>
                     <div class="row" id="confirmModalDontShowAgain">
-                        <p>Don't ask me again <button class="material-icons">check_box_outline_blank</button></p>
+                        <p>Don't ask me again <button class="material-symbols-outlined">check_box_outline_blank</button></p>
                     </div>
                 </div>
             </div>
@@ -387,7 +387,6 @@
 {% include 'modals/settings.html' %}
 {% include 'modals/shortcuts.html' %}
 
-{% include 'modals/edit_edge.html' %}
 {% include 'modals/edit_field.html' %}
 
 {% include 'modals/explore_palettes.html' %}
