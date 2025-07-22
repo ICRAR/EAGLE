@@ -101,35 +101,35 @@
                                         <th class="parameter_table_text" data-bind="click: function(){ParameterTable.sortTableBy('displayText')},eagleTooltip:'User-facing name'" data-bs-placement="top">
                                             <i id="tableSort_displayText" class="md-18 tableSortIcon icon-tableSortNone"></i>
                                             Attribute Name
-                                            <div data-bind="css: {resizer: ParameterTable.setUpColumnResizer('parameter_table_text') === true}"></div>
+                                            <div data-bind="click: function() { },clickBubble: false, css: {resizer: ParameterTable.setUpColumnResizer('parameter_table_text') === true}"></div>
                                         </th>
                                     <!-- /ko -->
                                     <!-- ko if: ParameterTable.getActiveColumnVisibility().fieldId() -->
                                         <th class="parameter_table_id" data-bind="click: function(){ParameterTable.sortTableBy('fieldId')}, eagleTooltip:'backend id'" data-bs-placement="top">
                                             <i id="tableSort_fieldId" class="md-18 tableSortIcon icon-tableSortNone"></i>
                                             Field ID
-                                            <div data-bind="css: {resizer: ParameterTable.setUpColumnResizer('parameter_table_id') === true}"></div>
+                                            <div data-bind="click: function() { },clickBubble: false, css: {resizer: ParameterTable.setUpColumnResizer('parameter_table_id') === true}"></div>
                                         </th>
                                     <!-- /ko -->
                                     <!-- ko if: ParameterTable.getActiveColumnVisibility().value() -->
                                         <th class="parameter_table_value" data-bind="click: function(){ParameterTable.sortTableBy('value')},eagleTooltip:'The value of this parameter'" data-bs-placement="top">
                                             <i id="tableSort_value" class="md-18 tableSortIcon icon-tableSortNone"></i>
                                             Value
-                                            <div data-bind="css: {resizer: ParameterTable.setUpColumnResizer('parameter_table_value') === true}"></div>
+                                            <div data-bind="click: function() { },clickBubble: false, css: {resizer: ParameterTable.setUpColumnResizer('parameter_table_value') === true}"></div>
                                         </th>
                                     <!-- /ko -->
                                     <!-- ko if: ParameterTable.getActiveColumnVisibility().defaultValue() -->
                                         <th class="parameter_table_default_value" data-bind="click: function(){ParameterTable.sortTableBy('defaultValue')}, eagleTooltip:'The default value of this parameter before user modifications'" data-bs-placement="top">
                                             <i id="tableSort_defaultValue" class="md-18 tableSortIcon icon-tableSortNone"></i>
                                             Default Value
-                                            <div data-bind="css: {resizer: ParameterTable.setUpColumnResizer('parameter_table_default_value') === true}"></div>
+                                            <div data-bind="click: function() { },clickBubble: false, css: {resizer: ParameterTable.setUpColumnResizer('parameter_table_default_value') === true}"></div>
                                         </th>
                                     <!-- /ko -->
                                     <!-- ko if: ParameterTable.getActiveColumnVisibility().description() -->
                                         <th class="parameter_table_description" data-bind="click: function(){ParameterTable.sortTableBy('description')}, eagleTooltip:'A description of the purpose of this parameter'" data-bs-placement="top">
                                             <i id="tableSort_description" class="md-18 tableSortIcon icon-tableSortNone"></i>
                                             Description
-                                            <div data-bind="css: {resizer: ParameterTable.setUpColumnResizer('parameter_table_description') === true}"></div>
+                                            <div data-bind="click: function() { },clickBubble: false, css: {resizer: ParameterTable.setUpColumnResizer('parameter_table_description') === true}"></div>
                                         </th>
                                     <!-- /ko -->
                                     <!-- ko if: ParameterTable.getActiveColumnVisibility().type() -->
