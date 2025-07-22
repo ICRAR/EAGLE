@@ -454,7 +454,7 @@ export class Utils {
     static showUserMessage (title : string, message : string) : void {
         $('#messageModalTitle').text(title);
         $('#messageModalMessage').html(message);
-        $('#messageModal').modal("toggle");
+        $('#messageModal').modal("show");
     }
 
     static showErrorsModal(title: string){
@@ -544,7 +544,7 @@ export class Utils {
             });
             $('#inputModal').data('returnType', "string");
 
-            $('#inputModal').modal("toggle");
+            $('#inputModal').modal("show");
         });
     }
 
@@ -567,7 +567,7 @@ export class Utils {
                 }
             });
 
-            $('#inputTextModal').modal("toggle");
+            $('#inputTextModal').modal("show");
         });
     }
 
@@ -610,7 +610,7 @@ export class Utils {
                 }
             });
 
-            $('#inputCodeModal').modal("toggle");
+            $('#inputCodeModal').modal("show");
         })
     }
 
@@ -639,7 +639,7 @@ export class Utils {
                 }
             });
 
-            $('#inputMarkdownModal').modal("toggle");
+            $('#inputMarkdownModal').modal("show");
         });
     }
 
@@ -661,7 +661,7 @@ export class Utils {
             });
             $('#inputModal').data('returnType', "number");
 
-            $('#inputModal').modal("toggle");
+            $('#inputModal').modal("show");
         });
     }
 
@@ -712,7 +712,7 @@ export class Utils {
 
             // trigger the change event, so that the event handler runs and disables the custom text entry field if appropriate
             $('#choiceModalSelect').trigger('change');
-            $('#choiceModal').modal("toggle");
+            $('#choiceModal').modal("show");
             $('#choiceModalSelect').click()
         });
     }
@@ -748,7 +748,7 @@ export class Utils {
                 }
             });
 
-            $('#confirmModal').modal("toggle");
+            $('#confirmModal').modal("show");
         });
     }
 
@@ -765,7 +765,7 @@ export class Utils {
                 }
             });
             $('#gitCommitModal').data('repositories', repositories);
-            $('#gitCommitModal').modal("toggle");
+            $('#gitCommitModal').modal("show");
 
             //
             let defaultRepositoryService: Repository.Service = Repository.Service.Unknown;
@@ -809,7 +809,7 @@ export class Utils {
             });
             $("#editFieldModalTitle").html(title);
             $('#editFieldModal').data('choices', choices);
-            $('#editFieldModal').modal("toggle");
+            $('#editFieldModal').modal("show");
         });
     }
 
@@ -826,7 +826,7 @@ export class Utils {
                     resolve(new Repository(repositoryService, repositoryName, repositoryBranch, false));
                 }
             });
-            $('#gitCustomRepositoryModal').modal("toggle");
+            $('#gitCustomRepositoryModal').modal("show");
         });
     }
 
@@ -942,7 +942,7 @@ export class Utils {
         // empty the list of palettes prior to (re)fetch
         eagle.explorePalettes().clear();
 
-        $('#explorePalettesModal').modal("toggle");
+        $('#explorePalettesModal').modal("show");
 
         let data: any;
         try {
@@ -951,7 +951,7 @@ export class Utils {
             // NOTE: if we immediately get an error, the explore palettes modal may still be transitioning to visible,
             //       so we wait here for a second before hiding the modal and displaying an error
             setTimeout(function(){
-                $('#explorePalettesModal').modal("toggle");
+                $('#explorePalettesModal').modal("hide");
                 Utils.showUserMessage("Error", "Unable to fetch list of palettes");
             }, 1000);
 
@@ -972,7 +972,7 @@ export class Utils {
         eagle.currentFileInfoTitle(title);
         eagle.currentFileInfo(fileInfo);
 
-        $('#modelDataModal').modal("toggle");
+        $('#modelDataModal').modal("show");
     }
 
     static hideModelDataModal(){
