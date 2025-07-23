@@ -4,7 +4,7 @@
             <button class="btn btn-primary btn-block btn_wide" id="explorePalettesButton" data-bind="click: showExplorePalettes, eagleTooltip: 'Retrieve information on all palettes in ' + Setting.findValue(Setting.EXPLORE_PALETTES_REPOSITORY)" data-bs-placement="bottom">Explore Palettes</button>
         </span>
         <span id="paletteWindowdropdownWrapper" class="dropdown">
-            <a class="dropdown-toggle dropdown-control material-icons iconHoverEffect" href="#" id="paletteWindowdropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <a class="dropdown-toggle dropdown-control material-symbols-outlined iconHoverEffect" href="#" id="paletteWindowdropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 more_vert
             </a>
             <div class="dropdown-menu dropdown-menu-right dropdown-area" aria-labelledby="paletteWindowdropdown">
@@ -25,9 +25,9 @@
             </div>
         </span>
         <div class="searchBarContainer">
-            <i class="material-icons md-18 searchBarIcon">search</i>
+            <i class="material-symbols-outlined md-18 searchBarIcon">search</i>
             <a href="#" data-bind="click:function(data, event){$root.emptySearchBar(Eagle.paletteComponentSearchString,data,event)}">
-                <i class="material-icons md-18 searchBarIconClose">close</i>
+                <i class="material-symbols-outlined md-18 searchBarIconClose">close</i>
             </a>
             <input class="componentSearchBar" type="text" placeholder="Search" data-bind="valueUpdate: ['afterkeydown', 'input'], value:Eagle.paletteComponentSearchString, eagleTooltip: 'Search for components in all palettes', event:{keyup: function(data,event){$root.setSearchBarClearBtnState(data,event)}}"></input>
         </div>
@@ -37,7 +37,7 @@
     <div class="accordion">
         <div data-bind="foreach: palettes">
             <div class="paletteCardWrapper">
-                <button type="button" class="material-icons md-18 dropdown-toggle dropdown-control paletteTripleDot iconHoverEffect" data-bs-toggle="dropdown">more_vert</button>
+                <button type="button" class="material-symbols-outlined md-18 dropdown-toggle dropdown-control paletteTripleDot iconHoverEffect" data-bs-toggle="dropdown" >more_vert</button>
                 <div class="dropdown-menu dropdown-area">
                     <a href="#" data-bind="click: $root.selectAllInPalette" data-html="true"><span>Select All</span></a>
                     <!-- ko ifnot: $data.fileInfo().builtIn -->
@@ -64,10 +64,10 @@
                         <div class="headerIcons">
                             <div class="paletteHeaderIcon">
                                 <!-- ko if: $data.fileInfo().readonly -->
-                                <i class="material-icons interactive" data-bs-placement="top" data-bind="eagleTooltip:'readonly'">lock</i>
+                                <i class="material-symbols-outlined interactive" data-bs-placement="top" data-bind="eagleTooltip:'readonly'">lock</i>
                                 <!-- /ko -->
                                 <!-- ko ifnot: $data.fileInfo().readonly -->
-                                <i class="material-icons interactive" data-bs-placement="top" data-bind="eagleTooltip:'readwrite'">lock_open</i>
+                                <i class="material-symbols-outlined interactive" data-bs-placement="top" data-bind="eagleTooltip:'readwrite'">lock_open</i>
                                 <!-- /ko -->
                             </div>
                         </div>

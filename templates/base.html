@@ -14,6 +14,7 @@
         <link rel="stylesheet" href="static/svg.css">
         <link rel="stylesheet" href="static/graph.css">
         <link rel="stylesheet" href="static/fonts.css">
+        <link rel="stylesheet" href="static/fonts/material-symbols/index.css">
         <link rel="stylesheet" href="static/tables.css">
 
         <link rel="shortcut icon" href="static/assets/svg/liuFavIcon.svg" type="image/x-icon">
@@ -60,10 +61,10 @@
                 <div class="leftWindow" data-bind="style: { width: leftWindow().size(), left: Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) ? 0 : -leftWindow().size(),'visibility':eagle.getEagleIsReady(), bottom: Utils.getBottomWindowHeight()+'vh'}">
                     <div class="leftWindowHandle iconHoverEffect" data-bind="click: function(){SideWindow.toggleShown('left')}, eagleTooltip: KeyboardShortcut.idToFullText('toggle_left_window')">
                         <span style="display: none" data-bind="visible: Setting.findValue(Setting.LEFT_WINDOW_VISIBLE)">
-                            <i class="material-icons">arrow_back</i>
+                            <i class="material-symbols-outlined">arrow_back</i>
                         </span>
                         <span data-bind="visible: !Setting.findValue(Setting.LEFT_WINDOW_VISIBLE)">
-                            <i class="material-icons">arrow_forward</i>
+                            <i class="material-symbols-outlined">arrow_forward</i>
                         </span>
                     </div>
 
@@ -89,7 +90,7 @@
                                     <!-- ko foreach: $data.getInputPorts() -->
                                         <div class="inputPort port" data-bind="css: {selected: function(){return GraphRenderer.showPort($parent, $data)}(), match:$data.isInputPeek()},eagleTooltip:$data.getHelpHtml(), style:{'background-color':$data.getBackgroundColor(),'left':GraphRenderer.calculateInputPortPositionX($data),'top':GraphRenderer.calculateInputPortPositionY($data)},graphRendererPortPosition:{n:$parent,f:$data,type:'inputPort'},event:{mousedown:function(){GraphRenderer.portDragStart($data,'input')}, mouseenter:function(){GraphRenderer.mouseEnterPort('input', $data)}, mouseleave:function(){GraphRenderer.mouseLeavePort($data)}}">
                                             <!-- ko if: $data.getIsEvent() -->
-                                                <i class="material-icons">alarm_on</i> 
+                                                <i class="material-symbols-outlined">alarm_on</i> 
                                             <!-- /ko -->
                                             <div>
                                                 <div class="portTitle" data-bind="text:$data.displayText()"></div>
@@ -99,7 +100,7 @@
                                     <!-- ko foreach: $data.getOutputPorts() -->
                                         <div class="outputPort port" data-bind="css: {selected: function(){return GraphRenderer.showPort($parent, $data)}(), match:$data.isOutputPeek()},eagleTooltip:$data.getHelpHtml(), style:{'border-color':$data.getBackgroundColor(),'left':GraphRenderer.calculateOutputPortPositionX($data),'top':GraphRenderer.calculateOutputPortPositionY($data)},graphRendererPortPosition:{n:$parent,f:$data,type:'outputPort'},event:{mousedown:function(){GraphRenderer.portDragStart($data,'output')}, mouseenter:function(){GraphRenderer.mouseEnterPort('output',$data)}, mouseleave:function(){GraphRenderer.mouseLeavePort($data)}}">
                                             <!-- ko if: $data.getIsEvent() -->
-                                                <i class="material-icons">alarm_on</i> 
+                                                <i class="material-symbols-outlined">alarm_on</i> 
                                             <!-- /ko -->
                                             <div>
                                                 <div class="portTitle" data-bind="text:$data.displayText()"></div>
@@ -112,7 +113,7 @@
                         <div class="edgeComments">
                             <!-- ko foreach: $root.logicalGraph().getEdges() -->
                                 <!-- ko if: $data.getComment() != '' -->
-                                    <i class="material-icons interactive clickable iconHoverEffect graphComment" data-bs-placement="right" data-bind="eagleTooltip: $data.getComment(), click: $root.graphEditComment, style:{'left': GraphRenderer.calculateEdgeCommentPosX($data), 'top':GraphRenderer.calculateEdgeCommentPosY($data),transform: 'scale('+$root.getGraphTextScale()+')'}">chat</i>
+                                    <i class="material-symbols-outlined filled interactive clickable iconHoverEffect graphComment" data-bs-placement="right" data-bind="eagleTooltip: $data.getComment(), click: $root.graphEditComment, style:{'left': GraphRenderer.calculateEdgeCommentPosX($data), 'top':GraphRenderer.calculateEdgeCommentPosY($data),transform: 'scale('+$root.getGraphTextScale()+')'}">chat</i>
                                 <!-- /ko -->
                             <!-- /ko -->
                         </div>
@@ -171,10 +172,10 @@
                     </div>
                 <div class="rightWindowHandle iconHoverEffect" data-bind="click: function(){SideWindow.toggleShown('right')}, eagleTooltip: KeyboardShortcut.idToFullText('toggle_right_window')">
                     <span data-bind="visible: Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE)">
-                        <i class="material-icons">arrow_forward</i>
+                        <i class="material-symbols-outlined">arrow_forward</i>
                     </span>
                     <span style="display: none" data-bind="visible: !Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE)">
-                        <i class="material-icons">arrow_back</i>
+                        <i class="material-symbols-outlined">arrow_back</i>
                     </span>
                 </div>
                 <div id="rightWindowContainer">
@@ -200,7 +201,7 @@
                     <div class="tabs">
                         <div class="wrapper">
                             <button id="bottomTabParamsTableSwitcher" type="button" class="btn btn-secondary btn-sm iconHoverEffect" data-bind="css:{activeTab:Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.NodeParameterTable},click: function(){ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal);}, clickBubble: false, eagleTooltip: KeyboardShortcut.idToFullText('open_parameter_table')" data-bs-placement="left">
-                                <i class="material-icons md-20 clickable">table_chart</i>
+                                <i class="material-symbols-outlined filled md-20 clickable">table_chart</i>
                             </button>
                             <button id="bottomTabKeyParamsSwitcher" class="btn btn-secondary btn-sm iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="css:{activeTab:Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ConfigParameterTable}, click: function(){ParameterTable.openTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.Normal)}, eagleTooltip: KeyboardShortcut.idToFullText('open_graph_attributes_configuration_table')">
                                 <i class="md-20 icon-key_attribute_table clickable"></i>

@@ -4586,44 +4586,44 @@ export class Eagle {
 
     editNodeDescription = async (): Promise<void> => {
         const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
-
+        const node = this.selectedNode();
         let nodeDescription: string;
         try {
-            nodeDescription = await Utils.requestUserMarkdown("Node Description", this.selectedNode().getDescription(), markdownEditingEnabled);
+            nodeDescription = await Utils.requestUserMarkdown("Node Description", node.getDescription(), markdownEditingEnabled);
         } catch (error) {
             console.error(error);
             return;
         }
 
-        this.selectedNode().setDescription(nodeDescription);
+        node.setDescription(nodeDescription);
     }
 
     editNodeComment = async (): Promise<void> => {
         const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
-
+        const node = this.selectedNode()
         let nodeComment: string;
         try {
-            nodeComment = await Utils.requestUserMarkdown("Node Comment", this.selectedNode()?.getComment(), markdownEditingEnabled);
+            nodeComment = await Utils.requestUserMarkdown("Node Comment", node?.getComment(), markdownEditingEnabled);
         } catch (error) {
             console.error(error);
             return;
         }
 
-        this.selectedNode().setComment(nodeComment);
+        node.setComment(nodeComment);
     }
 
     editEdgeComment = async (): Promise<void> => {
         const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
-
+        const edge = this.selectedEdge()
         let edgeComment: string;
         try {
-            edgeComment = await Utils.requestUserMarkdown("Edge Comment", this.selectedEdge()?.getComment(), markdownEditingEnabled);
+            edgeComment = await Utils.requestUserMarkdown("Edge Comment", edge?.getComment(), markdownEditingEnabled);
         } catch (error) {
             console.error(error);
             return;
         }
 
-        this.selectedEdge().setComment(edgeComment);
+        edge.setComment(edgeComment);
     }
 
     getEligibleNodeCategories : ko.PureComputed<Category[]> = ko.pureComputed(() => {
@@ -4881,14 +4881,38 @@ $( document ).ready(function() {
         $("#issuesDisplayAccordion").parent().parent().attr('style','')
         //reset parameter table selection
         ParameterTable.resetSelection()
-    }); 
+
+        //reset the modal dialog pointer events so that the modal can be closed when clicked outside
+        $('.modal').css({"pointerEvents":"auto"})
+        $('.modal .modal-content').css({"pointerEvents":"auto"})
+    });  
+
+    $('.modal').on('show.bs.modal',function(){
+        //this event is called when a modal is requested to open
+        
+        //when a modal is shown, we need to hide any other modals that are currently open
+        if($('.modal.show').length >0){
+            $('.modal.show').modal('hide');
+        }
+    })
 
     $('.modal').on('shown.bs.modal',function(){
+        //this event is called when a modal is done opening
+        const modal = $(this);
+
         // modal draggable
         // the any type is required so we don't have an error when building. at runtime on eagle this actually functions without it.
         (<any>$('.modal-dialog')).draggable({
             handle: ".modal-header"
         });
+
+        //this is a system that allows graph interaction with a modal open, it triggers when the user clicks and drags the modal header
+        $(event.target).find('.modal-header').on('mousedown', function(event: JQuery.TriggeredEvent){
+            modal.css({"pointerEvents":"none"})
+            modal.find('.modal-content').css({"pointerEvents":"all"})
+            $('.modal-backdrop').remove()
+        })
+
     })
 
     $(".translationDefault").on("click",function(event: JQuery.TriggeredEvent){

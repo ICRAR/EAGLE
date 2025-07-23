@@ -30,7 +30,7 @@
     "easy-pie-chart": "^2.1.7",
     "jquery": "^3.5.1",
     "knockout": "^3.5.1",
-    "material-icons": "^1.13.6",
+    "material-symbols": "^0.32.0",
     "showdown": "^2.0.1",
     "typescript": "^5.8.3"
   },
