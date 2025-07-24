@@ -588,7 +588,7 @@ export class KeyboardShortcut {
         new KeyboardShortcut({
             id: "select_all_in_graph",
             text: "Select all in graph",
-            keys: [new Key("a", Modifier.Ctrl)],
+            keys: [new Key("a", Modifier.Ctrl),new Key("a", Modifier.Alt)],
             run: (eagle): void => { eagle.selectAllInGraph();}
         }),
         new KeyboardShortcut({
