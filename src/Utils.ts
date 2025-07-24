@@ -133,16 +133,18 @@ export class Utils {
         for (const node of lg.getNodes()){
 
             // if this node has inputApp, set the inputApp id
-            if (node.hasInputApplication()){
-                if (node.getInputApplication().getId() === null){
-                    node.getInputApplication().setId(Utils.generateNodeId());
+            const inputApplication = node.getInputApplication();
+            if (inputApplication !== null){
+                if (inputApplication.getId() === null){
+                    inputApplication.setId(Utils.generateNodeId());
                 }
             }
 
             // if this node has outputApp, set the outputApp id
-            if (node.hasOutputApplication()){
-                if (node.getOutputApplication().getId() === null){
-                    node.getOutputApplication().setId(Utils.generateNodeId());
+            const outputApplication = node.getOutputApplication();
+            if (outputApplication !== null){
+                if (outputApplication.getId() === null){
+                    outputApplication.setId(Utils.generateNodeId());
                 }
             }
         }
@@ -214,9 +216,13 @@ export class Utils {
      * @param path File name.
      */
     static getFileExtension(path : string) : string {
-        const basename = path.split(/[\\/]/).pop(),  // extract file name from full path ...
+        const basename = path.split(/[\\/]/).pop();// extract file name from full path ...
                                                    // (supports `\\` and `/` separators)
-        pos = basename.lastIndexOf(".");           // get last position of `.`
+        if (typeof basename === 'undefined'){
+            return "";                             // if file name is undefined, return empty string
+        }
+
+        const pos = basename.lastIndexOf(".");     // get last position of `.`
 
         if (basename === "" || pos < 1)            // if file name is empty or ...
             return "";                             //  `.` not found (-1) or comes first (0)
@@ -1017,31 +1023,30 @@ export class Utils {
             }
 
             // add input application node, if present
-            if (node.hasInputApplication()){
-                const inputApp = node.getInputApplication();
-
+            const inputApplication = node.getInputApplication();
+            if (inputApplication !== null){
                 $('#editEdgeModalSrcNodeIdSelect').append($('<option>', {
-                    value: inputApp.getId(),
-                    text: inputApp.getName(),
-                    selected: edge.getSrcNode().getId() === inputApp.getId()
+                    value: inputApplication.getId(),
+                    text: inputApplication.getName(),
+                    selected: edge.getSrcNode().getId() === inputApplication.getId()
                 }));
             }
 
             // add output application node, if present
-            if (node.hasOutputApplication()){
-                const outputApp = node.getOutputApplication();
-
+            const outputApplication = node.getOutputApplication();
+            if (outputApplication !== null){
                 $('#editEdgeModalSrcNodeIdSelect').append($('<option>', {
-                    value: outputApp.getId(),
-                    text: outputApp.getName(),
-                    selected: edge.getSrcNode().getId() === outputApp.getId()
+                    value: outputApplication.getId(),
+                    text: outputApplication.getName(),
+                    selected: edge.getSrcNode().getId() === outputApplication.getId()
                 }));
             }
         }
 
         // make sure srcNode reflects what is actually selected in the UI
         // TODO: validate id
-        const srcNodeId: NodeId = $('#editEdgeModalSrcNodeIdSelect').val().toString() as NodeId;
+        const srcNodeInputValue = $('#editEdgeModalSrcNodeIdSelect').val();
+        const srcNodeId: NodeId | null = srcNodeInputValue ? srcNodeInputValue.toString() as NodeId : null;
 
         if (srcNodeId !== null){
             srcNode = logicalGraph.getNodeById(srcNodeId);
@@ -1074,30 +1079,29 @@ export class Utils {
             }
 
             // input application node, if present
-            if (node.hasInputApplication()){
-                const inputApp = node.getInputApplication();
-
+            const inputApplication = node.getInputApplication();
+            if (inputApplication !== null){
                 $('#editEdgeModalDestNodeIdSelect').append($('<option>', {
-                    value: inputApp.getId(),
-                    text: inputApp.getName(),
-                    selected: edge.getDestNode().getId() === inputApp.getId()
+                    value: inputApplication.getId(),
+                    text: inputApplication.getName(),
+                    selected: edge.getDestNode().getId() === inputApplication.getId()
                 }));
             }
 
             // output application node, if present
-            if (node.hasOutputApplication()){
-                const outputApp = node.getOutputApplication();
-
+            const outputApplication = node.getOutputApplication();
+            if (outputApplication !== null){
                 $('#editEdgeModalDestNodeIdSelect').append($('<option>', {
-                    value: outputApp.getId(),
-                    text: outputApp.getName(),
-                    selected: edge.getDestNode().getId() === outputApp.getId()
+                    value: outputApplication.getId(),
+                    text: outputApplication.getName(),
+                    selected: edge.getDestNode().getId() === outputApplication.getId()
                 }));
             }
         }
 
         // make sure srcNode reflects what is actually selected in the UI
-        const destNodeId: NodeId = $('#editEdgeModalDestNodeIdSelect').val().toString() as NodeId;
+        const destNodeInputValue = $('#editEdgeModalDestNodeIdSelect').val();
+        const destNodeId: NodeId | null = destNodeInputValue ? destNodeInputValue.toString() as NodeId : null;
 
         if (destNodeId !== null){
             destNode = logicalGraph.getNodeById(destNodeId);
@@ -1165,16 +1169,17 @@ export class Utils {
             }
 
             // add input application input and output ports
-            if (node.hasInputApplication()){
+            const inputApplication = node.getInputApplication();
+            if (inputApplication !== null){
                 // input ports
-                for (const port of node.getInputApplication().getInputPorts()) {
+                for (const port of inputApplication.getInputPorts()) {
                     if (!port.getIsEvent()) {
                         Utils._addFieldIfUnique(uniquePorts, port.clone());
                     }
                 }
 
                 // output ports
-                for (const port of node.getInputApplication().getOutputPorts()) {
+                for (const port of inputApplication.getOutputPorts()) {
                     if (!port.getIsEvent()) {
                         Utils._addFieldIfUnique(uniquePorts, port.clone());
                     }
@@ -1182,16 +1187,17 @@ export class Utils {
             }
 
             // add output application input and output ports
-            if (node.hasOutputApplication()){
+            const outputApplication = node.getOutputApplication();
+            if (outputApplication !== null){
                 // input ports
-                for (const port of node.getOutputApplication().getInputPorts()) {
+                for (const port of outputApplication.getInputPorts()) {
                     if (!port.getIsEvent()) {
                         Utils._addFieldIfUnique(uniquePorts, port.clone());
                     }
                 }
 
                 // output ports
-                for (const port of node.getOutputApplication().getOutputPorts()) {
+                for (const port of outputApplication.getOutputPorts()) {
                     if (!port.getIsEvent()) {
                         Utils._addFieldIfUnique(uniquePorts, port.clone());
                     }
@@ -1479,7 +1485,8 @@ export class Utils {
 
     static getInspectorOffset() : number {
         const offset = 10
-        const statusBarAndOffsetHeightVH = ((($('#statusBar').height() + offset) / window.innerHeight)*100)
+        const height = $('#statusBar').height() || 0; // Fallback to 0 if height is not available
+        const statusBarAndOffsetHeightVH = (((height + offset) / window.innerHeight)*100)
         return this.getBottomWindowHeight() + statusBarAndOffsetHeightVH
     }
 
@@ -1685,19 +1692,21 @@ export class Utils {
             }
 
             //embedded input applications and their fields
-            if(node.hasInputApplication()){
-                graphIssues.push(...node.getInputApplication().getIssues().values())
+            const inputApplication = node.getInputApplication();
+            if(inputApplication !== null){
+                graphIssues.push(...inputApplication.getIssues().values())
                 
-                for(const field of node.getInputApplication().getFields()){
+                for(const field of inputApplication.getFields()){
                     graphIssues.push(...field.getIssues())
                 }
             }
 
             //embedded output applications and their fields
-            if(node.hasOutputApplication()){
-                graphIssues.push(...node.getOutputApplication().getIssues().values())
+            const outputApplication = node.getOutputApplication();
+            if(outputApplication !== null){
+                graphIssues.push(...outputApplication.getIssues().values())
                 
-                for( const field of node.getOutputApplication().getFields()){
+                for( const field of outputApplication.getFields()){
                     graphIssues.push(...field.getIssues())
                 }
             }
@@ -2405,13 +2414,20 @@ export class Utils {
         // add logical graph nodes to table
         for (const node of nodesList){
             const children: NodeId[] = Array.from(node.getChildren()).map(function(node:Node){return node.getId()});
+            const parent = node.getParent();
+            const embed = node.getEmbed();
+            const subject = node.getSubject();
+            const inputApplication = node.getInputApplication();
+            const outputApplication = node.getOutputApplication();
+            const inputApplicationEmbed = inputApplication === null ? null : inputApplication.getEmbed();
+            const outputApplicationEmbed = outputApplication === null ? null : outputApplication.getEmbed();
 
             tableData.push({
                 "name":node.getName(),
                 "id":node.getId(),
-                "parent":node.getParent() === null ? null : node.getParent().getId(),
-                "embed":node.getEmbed() === null ? null : node.getEmbed().getId(),
-                "subject":node.getSubject() === null ? null : node.getSubject().getId(),
+                "parent":parent === null ? null : parent.getId(),
+                "embed":embed === null ? null : embed.getId(),
+                "subject":subject === null ? null : subject.getId(),
                 "children":children.toString(),
                 "category":node.getCategory(),
                 "categoryType":node.getCategoryType(),
@@ -2420,12 +2436,12 @@ export class Utils {
                 "x":node.getPosition().x,
                 "y":node.getPosition().y,
                 "radius":node.getRadius(),
-                "inputAppId":node.getInputApplication() === null ? null : node.getInputApplication().getId(),
-                "inputAppCategory":node.getInputApplication() === null ? null : node.getInputApplication().getCategory(),
-                "inputAppEmbedId":node.getInputApplication() === null ? null : node.getInputApplication().getEmbed().getId(),
-                "outputAppId":node.getOutputApplication() === null ? null : node.getOutputApplication().getId(),
-                "outputAppCategory":node.getOutputApplication() === null ? null : node.getOutputApplication().getCategory(),
-                "outputAppEmbedId":node.getOutputApplication() === null ? null : node.getOutputApplication().getEmbed().getId()
+                "inputAppId":inputApplication === null ? null : inputApplication.getId(),
+                "inputAppCategory":inputApplication === null ? null : inputApplication.getCategory(),
+                "inputAppEmbedId":inputApplicationEmbed === null ? null : inputApplicationEmbed.getId(),
+                "outputAppId":outputApplication === null ? null : outputApplication.getId(),
+                "outputAppCategory":outputApplication === null ? null : outputApplication.getCategory(),
+                "outputAppEmbedId":outputApplicationEmbed === null ? null : outputApplicationEmbed.getId()
             });
         }
 
@@ -2468,11 +2484,13 @@ export class Utils {
         // add logical graph nodes to table
         for (const palette of eagle.palettes()){
             for (const node of palette.getNodes()){
+                const embed = node.getEmbed();
+
                 tableData.push({
                     "id":node.getId(),
                     "palette":palette.fileInfo().name,
                     "name":node.getName(),
-                    "embedId":node.getEmbed().getId(),
+                    "embedId":embed === null ? null : embed.getId(),
                     "category":node.getCategory(),
                     "categoryType":node.getCategoryType(),
                     "numFields":node.getNumFields(),
@@ -2788,8 +2806,9 @@ export class Utils {
         }
 
         // set new ids for embedded applications within node, and new ids for ports within those embedded nodes
-        if (node.hasInputApplication()){
-            const clone : Node = node.getInputApplication().clone();
+        const inputApplication: Node | null = node.getInputApplication();
+        if (inputApplication !== null){
+            const clone : Node = inputApplication.clone();
             
             if(clone.getFields() != null){
                 // set new ids for any fields in this node
@@ -2800,11 +2819,13 @@ export class Utils {
             newNode.setInputApplication(clone)
 
             // use new ids for input application
-            newNode.getInputApplication().setId(newInputAppId);
-            newNode.getInputApplication().setEmbed(newNode);
+            clone.setId(newInputAppId);
+            clone.setEmbed(newNode);
         }
-        if (node.hasOutputApplication()){
-            const clone : Node = node.getOutputApplication().clone();
+
+        const outputApplication: Node | null = node.getOutputApplication();
+        if (outputApplication !== null){
+            const clone : Node = outputApplication.clone();
             
             if(clone.getFields() != null){
                 // set new ids for any fields in this node
@@ -2815,8 +2836,8 @@ export class Utils {
             newNode.setOutputApplication(clone)
 
             // use new ids for output application
-            newNode.getOutputApplication().setId(newOutputAppId);
-            newNode.getOutputApplication().setEmbed(newNode);
+            clone.setId(newOutputAppId);
+            clone.setEmbed(newNode);
         }
 
         return newNode;

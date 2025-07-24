@@ -1,11 +1,11 @@
 import * as ko from "knockout";
 
 import { Eagle } from './Eagle';
-import { Utils } from './Utils';
-import { Setting } from "./Setting";
-import { UiModeSystem } from "./UiModes";
 import { GraphRenderer } from "./GraphRenderer";
-import { Tutorial, TutorialSystem } from "./Tutorial";
+import { Setting } from "./Setting";
+import { TutorialSystem } from "./Tutorial";
+import { UiModeSystem } from "./UiModes";
+import { Utils } from './Utils';
 
 export class SideWindow {
     // The width remains on the sideWindow, this is because when we are dragging the width of a side window, there are frequent changes to the width. 

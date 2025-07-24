@@ -81,7 +81,7 @@ export class Eagle {
     static selectedLocation : ko.Observable<Eagle.FileType>;
     currentField :ko.Observable<Field | null>;
 
-    static selectedRightClickObject : ko.Observable<Node|Edge>;
+    static selectedRightClickObject : ko.Observable<Node|Edge|null>;
     static selectedRightClickLocation : ko.Observable<Eagle.FileType>;
     static selectedRightClickPosition : {x: number, y: number} = {x:0, y:0}
 
@@ -131,7 +131,7 @@ export class Eagle {
         UiModeSystem.initialise()
 
         this.palettes = ko.observableArray();
-        this.logicalGraph = ko.observable(null);
+        this.logicalGraph = ko.observable(new LogicalGraph());
         this.eagleIsReady = ko.observable(false);
 
         this.leftWindow = ko.observable(new SideWindow(Utils.getLeftWindowWidth()));
@@ -142,7 +142,7 @@ export class Eagle {
         Eagle.selectedLocation = ko.observable<Eagle.FileType>(Eagle.FileType.Unknown);
         this.currentField = ko.observable(null);
 
-        Eagle.selectedRightClickObject = ko.observable();
+        Eagle.selectedRightClickObject = ko.observable(null);
         Eagle.selectedRightClickLocation = ko.observable<Eagle.FileType>(Eagle.FileType.Unknown);
 
         this.repositories = ko.observable(new Repositories());
