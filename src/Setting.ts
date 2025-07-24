@@ -8,7 +8,6 @@ import { Palette } from "./Palette";
 import { Repository } from "./Repository";
 import { UiModeSystem } from './UiModes';
 import { Utils } from './Utils';
-import { EagleConfig } from "./EagleConfig";
 
 export class SettingsGroup {
     private name : string;
@@ -291,7 +290,6 @@ export class Setting {
             }
         }
     }
-
 
     static readonly GITHUB_ACCESS_TOKEN_KEY: string = "GitHubAccessToken";
     static readonly GITLAB_ACCESS_TOKEN_KEY: string = "GitLabAccessToken";
