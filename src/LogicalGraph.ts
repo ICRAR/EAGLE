@@ -1004,7 +1004,7 @@ export class LogicalGraph {
             }
             ids.push(node.getId());
 
-            // loop over fields within graphs to check that all node ids are unique
+            // loop over fields within graphs to check that all field ids are unique
             for (const field of node.getFields()){
                 if (ids.includes(field.getId())){
                     const issue: Errors.Issue = Errors.ShowFix(
@@ -1019,7 +1019,7 @@ export class LogicalGraph {
             }
         }
 
-        // loop over graph edges to check that all node ids are unique
+        // loop over graph edges to check that all graph ids are unique
         for (const edge of graph.getEdges()){
             if (ids.includes(edge.getId())){
                 const issue: Errors.Issue = Errors.ShowFix(
@@ -1033,7 +1033,7 @@ export class LogicalGraph {
             ids.push(edge.getId());
         }
 
-        // loop over the graph configs to check that all node ids are unique
+        // loop over the graph configs to check that all graph config ids are unique
         for (const graphConfig of graph.getGraphConfigs()){
             if (ids.includes(graphConfig.getId())){
                 const issue: Errors.Issue = Errors.ShowFix(
