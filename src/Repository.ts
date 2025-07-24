@@ -121,6 +121,10 @@ export class Repository {
             const pathParts: string[] = path.split('/');
 
             for (const pathPart of pathParts){
+                if (pathPart === ""){
+                    break;
+                }
+
                 let foundPathPart = false;
 
                 for (const folder of pointer.folders()){

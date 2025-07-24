@@ -31,13 +31,13 @@
     "jquery": "^3.5.1",
     "knockout": "^3.5.1",
     "material-symbols": "^0.32.0",
-    "showdown": "^2.0.1"
+    "showdown": "^2.0.1",
+    "typescript": "^5.8.3"
   },
   "devDependencies": {
     "@playwright/test": "^1.48.0",
     "@typescript-eslint/eslint-plugin": "^4.24.0",
     "@typescript-eslint/parser": "^4.24.0",
-    "eslint": "^7.32.0",
-    "typescript": "^3.9.10"
+    "eslint": "^7.32.0"
   }
 }
