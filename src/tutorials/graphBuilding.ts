@@ -16,14 +16,14 @@ newTut.newTutStep("Creating a New Graph", "First we are going to create a new gr
 
 newTut.newTutStep("Creating a New Graph", "<em>Click on 'New'.</em>", function(){return $("#navbarDropdownGraph").parent().find('.dropdown-item').first()})
 .setType(TutorialStep.Type.Press)
-.setPreFunction(function(){TutorialSystem.activeTutCurrentStep.getTargetFunc()().parent().addClass('forceShow')}) //keeping the navbar graph dropdown open
+.setPreFunction(function(){const targetFunc = TutorialSystem.activeTutCurrentStep.getTargetFunc(); if (targetFunc === null){return;} targetFunc().parent().addClass('forceShow')}) //keeping the navbar graph dropdown open // TODO: factor this code out into a TestHelper (it is used in multiple places)
 .setBackPreFunction(function(){$("#navbarDropdownGraph").parent().find('#createNewGraph').removeClass('forceShow')})//allowing the 'new' drop drop down section to close
 .setBackSkip(true)
 
 newTut.newTutStep("Creating a New Graph", "<em>Click on 'Create new graph'</em>", function(){return $("#navbarDropdownGraph").parent().find('#createNewGraph')})
 .setType(TutorialStep.Type.Press)
-.setPreFunction(function(){TutorialSystem.activeTutCurrentStep.getTargetFunc()().parent().addClass('forceShow')})//keeping the 'new' drop drop down section open as well
-.setBackPreFunction(function(){$("#navbarDropdownGraph").parent().find('.dropdown-item').first().parent().addClass('forceShow');TutorialSystem.activeTutCurrentStep.getTargetFunc()().parent().addClass('forceShow')})//force showing both of the navbar graph drop downs
+.setPreFunction(function(){const targetFunc = TutorialSystem.activeTutCurrentStep.getTargetFunc(); if (targetFunc === null){return;} targetFunc().parent().addClass('forceShow')})//keeping the 'new' drop drop down section open as well
+.setBackPreFunction(function(){$("#navbarDropdownGraph").parent().find('.dropdown-item').first().parent().addClass('forceShow');const targetFunc = TutorialSystem.activeTutCurrentStep.getTargetFunc(); if (targetFunc === null){return;} targetFunc().parent().addClass('forceShow')})//force showing both of the navbar graph drop downs
 .setBackSkip(true)
 
 newTut.newTutStep("Creating a new graph", "Then just <em>give it a name and press enter</em>", function(){return $("#inputModalInput")})
@@ -136,7 +136,7 @@ newTut.newTutStep("Saving a Graph", "Options to save your graph are available in
 .setBackPreFunction(function(){$('.forceShow').removeClass('forceShow');$(".dropdown-toggle").removeClass("show");$(".dropdown-menu").removeClass("show")}) //allowing the graph navbar dropdown to hide
 
 newTut.newTutStep("Saving a Graph", "You are able to download the graph in the 'local storage' section, or save the graph into your github repository under 'git storage'", function(){return $("#navbarDropdownGraph").parent().find('.dropdown-menu')})
-.setPreFunction(function(){TutorialSystem.activeTutCurrentStep.getTargetFunc()().addClass('forceShow')}) //keeping the navbar graph dropdown open
+.setPreFunction(function(){const targetFunc = TutorialSystem.activeTutCurrentStep.getTargetFunc(); if (targetFunc === null){return;} targetFunc().addClass('forceShow')}) //keeping the navbar graph dropdown open
 .setBackSkip(true)
 
 newTut.newTutStep("Well Done!", "You have completed the Hello world graph creation tutorial! Be sure to check our <a target='_blank' href='https://eagle-dlg.readthedocs.io'>online documentation</a> for additional help and guidance.", function(){return $("#logicalGraphParent")})

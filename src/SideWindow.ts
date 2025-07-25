@@ -96,7 +96,18 @@ export class SideWindow {
 
         //this is for dealing with drag and drop actions while there is already one or more palette components selected
         if (Eagle.selectedLocation() === Eagle.FileType.Palette){
+            // abort if the nodeDragComponentId is null, abort
+            if (Eagle.nodeDragComponentId === null){
+                console.warn("nodeDragStart(): No node is being dragged, aborting drag operation");
+                return false;
+            }
+
             const draggedNode = eagle.palettes()[Eagle.nodeDragPaletteIndex].getNodeById(Eagle.nodeDragComponentId);
+
+            if (typeof draggedNode === 'undefined'){
+                console.warn("nodeDragStart(): Unknown dragged node");
+                return false;
+            }
 
             if(!eagle.objectIsSelected(draggedNode)){
                 $(e.target).find("div").trigger("click")
@@ -131,8 +142,14 @@ export class SideWindow {
 
     static rightWindowAdjustStart(eagle: Eagle, event: JQuery.TriggeredEvent) : boolean {
         const e: DragEvent = event.originalEvent as DragEvent;
+        const target = e.target;
 
-        $(e.target).addClass('windowDragging')
+        if (target === null){
+            console.warn("rightWindowAdjustStart(): No target element found");
+            return false;
+        }
+
+        $(target).addClass('windowDragging')
         eagle.leftWindow().adjusting(false);
         eagle.rightWindow().adjusting(true);
 
@@ -141,8 +158,14 @@ export class SideWindow {
 
     static leftWindowAdjustStart(eagle : Eagle, event : JQuery.TriggeredEvent) : boolean {
         const e: DragEvent = event.originalEvent as DragEvent;
+        const target = e.target;
 
-        $(e.target).addClass('windowDragging')
+        if (target === null){
+            console.warn("leftWindowAdjustStart(): No target element found");
+            return false;
+        }
+
+        $(target).addClass('windowDragging')
         eagle.leftWindow().adjusting(true);
         eagle.rightWindow().adjusting(false);
 
