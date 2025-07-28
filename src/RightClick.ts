@@ -4,8 +4,6 @@ import { Edge } from './Edge';
 import { Field } from './Field';
 import { GraphRenderer } from './GraphRenderer';
 import { Node } from './Node';
-import { Palette } from './Palette';
-import { Repository } from './Repository';
 import { Setting } from './Setting';
 import { ParameterTable } from './ParameterTable';
 import { Daliuge } from './Daliuge';
@@ -14,14 +12,14 @@ import { EagleConfig } from './EagleConfig';
 
 export class RightClick {
 
-    static edgeDropSrcNode : Node
-    static edgeDropSrcPort : Field
+    static edgeDropSrcNode : Node | null
+    static edgeDropSrcPort : Field | null
     static edgeDropSrcIsInput : boolean
 
     constructor(){
         RightClick.edgeDropSrcNode = null;
         RightClick.edgeDropSrcPort = null;
-        RightClick.edgeDropSrcIsInput = null;
+        RightClick.edgeDropSrcIsInput = false;
     }
 
     static openSubMenu(menuElement: HTMLElement) : void {

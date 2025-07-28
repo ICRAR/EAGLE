@@ -229,16 +229,17 @@ export class Translator {
     }
         
     setUrl = async () : Promise<void> => {
-        const translatorURLSetting : Setting = Setting.find(Setting.TRANSLATOR_URL);
+        const translatorURLSetting : Setting | undefined = Setting.find(Setting.TRANSLATOR_URL);
+        const translatorURL: string = translatorURLSetting ? translatorURLSetting.value() : "";
 
         let userString: string;
         try {
-            userString = await Utils.requestUserString("Translator Url", "Enter the Translator Url", translatorURLSetting.value(), false);
+            userString = await Utils.requestUserString("Translator Url", "Enter the Translator Url", translatorURL, false);
         } catch (error){
             console.error(error);
             return;
         }
 
-        translatorURLSetting.value(userString);
+        translatorURLSetting?.value(userString);
     };
 }

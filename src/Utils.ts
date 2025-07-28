@@ -1436,7 +1436,7 @@ export class Utils {
     }
 
     static setRightWindowWidth(width : number) : void {
-        Setting.find(Setting.RIGHT_WINDOW_WIDTH).setValue(width)
+        Setting.find(Setting.RIGHT_WINDOW_WIDTH)?.setValue(width)
         UiModeSystem.saveToLocalStorage()
     }
 
@@ -1450,7 +1450,7 @@ export class Utils {
     }
 
     static setLeftWindowWidth(width : number) : void {
-        Setting.find(Setting.LEFT_WINDOW_WIDTH).setValue(width)
+        Setting.find(Setting.LEFT_WINDOW_WIDTH)?.setValue(width)
         UiModeSystem.saveToLocalStorage()
     }
 
@@ -1479,7 +1479,7 @@ export class Utils {
     }
 
     static setBottomWindowHeight(height : number) : void {
-        Setting.find(Setting.BOTTOM_WINDOW_HEIGHT).setValue(height)
+        Setting.find(Setting.BOTTOM_WINDOW_HEIGHT)?.setValue(height)
         UiModeSystem.saveToLocalStorage()
     }
 

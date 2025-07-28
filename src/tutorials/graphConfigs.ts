@@ -77,7 +77,7 @@ newTut.newTutStep("Adding Graph Configuration Fields", "<em>Click on the HelloWo
 newTut.newTutStep("Adding Graph Configuration Fields", "<em>Click to open the node fields table and continue.</em>", function(){return $("#inspector #openNodeParamsTable")})
 .setWaitType(TutorialStep.Wait.Element)
 .setType(TutorialStep.Type.Press)
-.setPreFunction(function(){Setting.find(Setting.INSPECTOR_COLLAPSED_STATE).setValue(false)})
+.setPreFunction(function(){Setting.find(Setting.INSPECTOR_COLLAPSED_STATE)?.setValue(false)})
 .setWaitType(TutorialStep.Wait.Delay)
 .setDelayAmount(400)
 
