@@ -54,9 +54,9 @@ export class Setting {
     private expertDefaultValue : any;
     private oldValue : any;
     private options : string[]; // an optional list of possible values for this setting
-    private eventFunc : () => void; // optional function to be called when a settings button is clicked, or checkbox is toggled, or a input is changed
+    private eventFunc : (() => void) | null; // optional function to be called when a settings button is clicked, or checkbox is toggled, or a input is changed
 
-    constructor(display: boolean, name : string, key:string, description : string,perpetual:boolean, type : Setting.Type, studentDefaultValue : any, minimalDefaultValue : any,graphDefaultValue : any,componentDefaultValue : any,expertDefaultValue : any, options?: string[], eventFunc?: () => void){
+    constructor(display: boolean, name : string, key:string, description : string,perpetual:boolean, type : Setting.Type, studentDefaultValue : any, minimalDefaultValue : any,graphDefaultValue : any,componentDefaultValue : any,expertDefaultValue : any, options: string[] = [], eventFunc: (() => void) | null = null){
         this.display = display;
         this.name = name;
         this.key = key;
@@ -169,7 +169,7 @@ export class Setting {
         this.eventFunc?.();
     }
 
-    static find(key : string) : Setting {
+    static find(key : string) : Setting | null {
         // check if Eagle constructor has not been run (usually the case when this module is being used from a tools script)
         if (typeof Eagle.settings === 'undefined'){
             return null;
