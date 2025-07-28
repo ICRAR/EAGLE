@@ -169,10 +169,10 @@ export class Setting {
         this.eventFunc?.();
     }
 
-    static find(key : string) : Setting | null {
+    static find(key : string) : Setting | undefined {
         // check if Eagle constructor has not been run (usually the case when this module is being used from a tools script)
         if (typeof Eagle.settings === 'undefined'){
-            return null;
+            return undefined;
         }
 
         for (const group of Eagle.settings){
@@ -183,15 +183,15 @@ export class Setting {
             }
         }
 
-        return null;
+        return undefined;
     }
 
     static findValue(key : string) : any {
         const setting = Setting.find(key);
 
-        if (setting === null){
+        if (typeof setting === "undefined"){
             console.warn("No setting", key);
-            return null;
+            return undefined;
         }
 
         return setting.value();
@@ -199,7 +199,7 @@ export class Setting {
 
     static setValue(key : string, value : any) : void {
         const setting = Setting.find(key);
-        if (setting === null){
+        if (typeof setting === "undefined"){
             console.warn("No setting", key);
             return;
         }

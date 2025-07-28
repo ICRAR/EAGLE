@@ -33,16 +33,26 @@ export class SideWindow {
         
         SideWindow.toggleTransition()
 
+        // find the setting
+        let setting: Setting | undefined;
         if(window === 'left'){
-            Setting.find(Setting.LEFT_WINDOW_VISIBLE).toggle()
+            setting = Setting.find(Setting.LEFT_WINDOW_VISIBLE)
         }else if (window === 'right'){
-            Setting.find(Setting.RIGHT_WINDOW_VISIBLE).toggle()
+            setting = Setting.find(Setting.RIGHT_WINDOW_VISIBLE)
         }else if (window === 'bottom'){
-            Setting.find(Setting.BOTTOM_WINDOW_VISIBLE).toggle()
+            setting = Setting.find(Setting.BOTTOM_WINDOW_VISIBLE)
         }else{
             console.warn("toggleShown(): Unknown window:", window);
             return;
         }
+
+        if (typeof setting === "undefined"){
+            console.warn("toggleShown(): No setting found for window:", window);
+            return;
+        }
+
+        // toggle the setting value
+        setting.toggle();
         UiModeSystem.saveToLocalStorage()
     }
 
@@ -120,7 +130,16 @@ export class SideWindow {
 
         // grab and set the node's icon and sets it as drag image.
         const drag = e.target.getElementsByClassName('input-group-prepend')[0] as HTMLElement;
-        (e.originalEvent as DragEvent).dataTransfer.setDragImage(drag, 0, 0);
+        if (drag === null){
+            console.warn("nodeDragStart(): No drag element found");
+            return false;
+        }
+        const dataTransfer = (e.originalEvent as DragEvent).dataTransfer;
+        if (dataTransfer === null){
+            console.warn("nodeDragStart(): No dataTransfer object found");
+            return false;
+        }
+        dataTransfer.setDragImage(drag, 0, 0);
 
         return true;
     }
@@ -175,7 +194,13 @@ export class SideWindow {
     static bottomWindowAdjustStart(eagle: Eagle, event: JQuery.TriggeredEvent) : boolean {
         const e: DragEvent = event.originalEvent as DragEvent;
 
-        $(e.target).addClass('windowDragging')
+        const target = e.target;
+        if (target === null){
+            console.warn("bottomWindowAdjustStart(): No target element found");
+            return false;
+        }
+
+        $(target).addClass('windowDragging')
         eagle.leftWindow().adjusting(false);
         eagle.rightWindow().adjusting(false);
         eagle.bottomWindow().adjusting(true)
@@ -189,7 +214,13 @@ export class SideWindow {
     static sideWindowAdjustEnd = (eagle: Eagle, event: JQuery.TriggeredEvent) : boolean => {
         const e: DragEvent = event.originalEvent as DragEvent;
 
-        $(e.target).removeClass('windowDragging')
+        const target = e.target;
+        if (target === null){
+            console.warn("sideWindowAdjustEnd(): No target element found");
+            return false;
+        }
+
+        $(target).removeClass('windowDragging')
         eagle.leftWindow().adjusting(false);
         eagle.rightWindow().adjusting(false);
         eagle.bottomWindow().adjusting(false)
@@ -207,17 +238,36 @@ export class SideWindow {
             return true;
         }
 
+        // get the left, right and bottom width settings
+        const leftWindowWidth = Setting.find(Setting.LEFT_WINDOW_WIDTH);
+        const rightWindowWidth = Setting.find(Setting.RIGHT_WINDOW_WIDTH);
+        const bottomWindowHeight = Setting.find(Setting.BOTTOM_WINDOW_HEIGHT);
+
+        // get values from the settings
+        let leftWindowWidthValue = 0;
+        let rightWindowWidthValue = 0;
+        let bottomWindowHeightValue = 0;
+        if (typeof leftWindowWidth !== "undefined"){
+            leftWindowWidthValue = leftWindowWidth.getPerpetualDefaultVal();
+        }
+        if (typeof rightWindowWidth !== "undefined"){
+            rightWindowWidthValue = rightWindowWidth.getPerpetualDefaultVal();
+        }
+        if (typeof bottomWindowHeight !== "undefined"){
+            bottomWindowHeightValue = bottomWindowHeight.getPerpetualDefaultVal();
+        }
+
         if (isNaN(eagle.leftWindow().size())){
             console.warn("Had to reset left window width from invalid state (NaN)!");
-            eagle.leftWindow().size(Setting.find(Setting.LEFT_WINDOW_WIDTH).getPerpetualDefaultVal());
+            eagle.leftWindow().size(leftWindowWidthValue);
         }
         if (isNaN(eagle.rightWindow().size())){
             console.warn("Had to reset right window width from invalid state (NaN)!");
-            eagle.rightWindow().size(Setting.find(Setting.RIGHT_WINDOW_WIDTH).getPerpetualDefaultVal());
+            eagle.rightWindow().size(rightWindowWidthValue);
         }
         if (isNaN(eagle.bottomWindow().size())){
             console.warn("Had to reset bottom window height from invalid state (NaN)!");
-            eagle.bottomWindow().size(Setting.find(Setting.BOTTOM_WINDOW_HEIGHT).getPerpetualDefaultVal());
+            eagle.bottomWindow().size(bottomWindowHeightValue);
         }
     
         let newSize : number;
@@ -225,9 +275,9 @@ export class SideWindow {
         if (eagle.leftWindow().adjusting()){
             newSize = e.clientX
 
-            if(newSize <= Setting.find(Setting.LEFT_WINDOW_WIDTH).getPerpetualDefaultVal()){
-                eagle.leftWindow().size(Setting.find(Setting.LEFT_WINDOW_WIDTH).getPerpetualDefaultVal());
-                Utils.setLeftWindowWidth(Setting.find(Setting.LEFT_WINDOW_WIDTH).getPerpetualDefaultVal());
+            if(newSize <= leftWindowWidthValue){
+                eagle.leftWindow().size(leftWindowWidthValue);
+                Utils.setLeftWindowWidth(leftWindowWidthValue);
             }else{
                 eagle.leftWindow().size(newSize);
                 Utils.setLeftWindowWidth(newSize);
@@ -235,9 +285,9 @@ export class SideWindow {
         } else if(eagle.rightWindow().adjusting()){
             newSize = window.innerWidth - e.clientX
 
-            if(newSize <= Setting.find(Setting.RIGHT_WINDOW_WIDTH).getPerpetualDefaultVal()){
-                eagle.rightWindow().size(Setting.find(Setting.RIGHT_WINDOW_WIDTH).getPerpetualDefaultVal());
-                Utils.setRightWindowWidth(Setting.find(Setting.RIGHT_WINDOW_WIDTH).getPerpetualDefaultVal());
+            if(newSize <= rightWindowWidthValue){
+                eagle.rightWindow().size(rightWindowWidthValue);
+                Utils.setRightWindowWidth(rightWindowWidthValue);
             }else{
                 eagle.rightWindow().size(newSize);
                 Utils.setRightWindowWidth(newSize);
@@ -247,7 +297,7 @@ export class SideWindow {
             //we are only doing it for the bottom window, as it typically takes up a large part of the screen, causing it to become larger than the screen itself if switching from a 4k display to a smaller one.
             newSize = ((window.innerHeight - e.clientY)/window.innerHeight)*100
             //making sure the height we are setting is not smaller than the minimum height
-            const minBottomWindowVh = Setting.find(Setting.BOTTOM_WINDOW_HEIGHT).getPerpetualDefaultVal()
+            const minBottomWindowVh = bottomWindowHeightValue
             const maxBottomWindowVh = 80
 
             if(newSize <= minBottomWindowVh){
