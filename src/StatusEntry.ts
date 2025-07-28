@@ -26,6 +26,7 @@ export class StatusEntry {
     static getStatusEntries() : StatusEntry[] {
         return [
             //nothing is selected
+            new StatusEntry('[Middle Mouse]',' pan canvas.', Eagle.getInstance().selectedObjects().length === 0),
             new StatusEntry('[Right Click]',' on empty canvas to add nodes.', Eagle.getInstance().selectedObjects().length === 0),
             new StatusEntry(KeyboardShortcut.idToKeysText('quick_action', true),' search and run functions.', Eagle.getInstance().selectedObjects().length === 0),
             new StatusEntry(KeyboardShortcut.idToKeysText('open_graph_configurations_table', true), ' display all graph configs.',  Eagle.getInstance().selectedObjects().length === 0),
