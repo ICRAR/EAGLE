@@ -4283,6 +4283,10 @@ export class Eagle {
     };
 
     showGraphErrors = (): void => {
+        //recheck the graph for errors, this is because we cannot rely on the fact that the graph has been checked.
+        //this is to ensure that when the user requests to see the graph errors, the information is up to date
+        this.checkGraph();
+
         if (this.graphWarnings().length > 0 || this.graphErrors().length > 0){
 
             // switch to graph errors mode
