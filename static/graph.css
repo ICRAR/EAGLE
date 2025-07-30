@@ -217,6 +217,9 @@
     border-radius: 50%;
     color: white;
     padding: 0px;
+    width: 17px;
+    height: 17px;
+    font-size: 10px;
 }
 
 .node .comment_node .body {
