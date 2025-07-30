@@ -118,6 +118,8 @@ export class Node {
             this.radius = ko.observable(EagleConfig.BRANCH_NODE_RADIUS);
         }else if (this.isGroup()){
             this.radius = ko.observable(EagleConfig.MINIMUM_CONSTRUCT_RADIUS);
+        }else if (this.isComment()){
+            this.radius = ko.observable(EagleConfig.COMMENT_NODE_WIDTH);
         }else{
             this.radius = ko.observable(EagleConfig.NORMAL_NODE_RADIUS);
         }
@@ -865,6 +867,13 @@ export class Node {
         }
 
         return -1;
+    }
+
+    getCommentHtml = () : string => {
+        if (this.isComment()){
+            return Utils.markdown2html(this.findFieldByDisplayText(Daliuge.FieldName.COMMENT, Daliuge.FieldType.Component)?.getValue());
+        }
+        return "";
     }
 
     findPortByDisplayText = (displayText : string, input : boolean, local : boolean) : Field => {
