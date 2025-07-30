@@ -1570,7 +1570,7 @@ export class Node {
         // add fields
         if (typeof nodeData.fields !== 'undefined'){
             for (const fieldData of nodeData.fields){
-                const field = Field.fromOJSJson(fieldData, node);
+                const field = Field.fromOJSJson(fieldData);
 
                 // if the parameter type is not specified, assume it is a ComponentParameter
                 if (field.getParameterType() === Daliuge.FieldType.Unknown){
@@ -1584,7 +1584,7 @@ export class Node {
         // add application params
         if (typeof nodeData.applicationArgs !== 'undefined'){
             for (const paramData of nodeData.applicationArgs){
-                const field = Field.fromOJSJson(paramData, node);
+                const field = Field.fromOJSJson(paramData);
                 field.setParameterType(Daliuge.FieldType.Application);
                 node.addField(field);
             }
@@ -1595,7 +1595,7 @@ export class Node {
             for (const fieldData of nodeData.inputAppFields){
                 const inputApplication = node.inputApplication();
                 if (inputApplication !== null){
-                    inputApplication.addField(Field.fromOJSJson(fieldData, node));
+                    inputApplication.addField(Field.fromOJSJson(fieldData));
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Can't add input app field " + fieldData.text + " to node " + node.getName() + ". No input application."));
                 }
@@ -1607,7 +1607,7 @@ export class Node {
             for (const fieldData of nodeData.outputAppFields){
                 const outputApplication = node.outputApplication();
                 if (outputApplication !== null){
-                    outputApplication.addField(Field.fromOJSJson(fieldData, node));
+                    outputApplication.addField(Field.fromOJSJson(fieldData));
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Can't add output app field " + fieldData.text + " to node " + node.getName() + ". No output application."));
                 }
@@ -1617,7 +1617,7 @@ export class Node {
         // add input ports
         if (typeof nodeData.inputPorts !== 'undefined'){
             for (const inputPort of nodeData.inputPorts){
-                const port = Field.fromOJSJsonPort(inputPort, node);
+                const port = Field.fromOJSJsonPort(inputPort);
                 port.setParameterType(Daliuge.FieldType.Application);
                 port.setUsage(Daliuge.FieldUsage.InputPort);
 
@@ -1636,7 +1636,7 @@ export class Node {
         // add output ports
         if (typeof nodeData.outputPorts !== 'undefined'){
             for (const outputPort of nodeData.outputPorts){
-                const port = Field.fromOJSJsonPort(outputPort, node);
+                const port = Field.fromOJSJsonPort(outputPort);
                 port.setParameterType(Daliuge.FieldType.Application);
                 port.setUsage(Daliuge.FieldUsage.OutputPort);
 
@@ -1655,7 +1655,7 @@ export class Node {
         // add input local ports
         if (typeof nodeData.inputLocalPorts !== 'undefined'){
             for (const inputLocalPort of nodeData.inputLocalPorts){
-                const port = Field.fromOJSJsonPort(inputLocalPort, node);
+                const port = Field.fromOJSJsonPort(inputLocalPort);
                 port.setParameterType(Daliuge.FieldType.Application);
                 port.setUsage(Daliuge.FieldUsage.OutputPort);
                 
@@ -1671,7 +1671,7 @@ export class Node {
         // add output local ports
         if (typeof nodeData.outputLocalPorts !== 'undefined'){
             for (const outputLocalPort of nodeData.outputLocalPorts){
-                const port = Field.fromOJSJsonPort(outputLocalPort, node);
+                const port = Field.fromOJSJsonPort(outputLocalPort);
                 port.setParameterType(Daliuge.FieldType.Application);
                 port.setUsage(Daliuge.FieldUsage.InputPort);
 
@@ -1726,7 +1726,7 @@ export class Node {
 
         // add fields
         for (const [id, fieldData] of Object.entries(nodeData.fields)){
-            const field = Field.fromV4Json(fieldData, node);
+            const field = Field.fromV4Json(fieldData);
             node.addField(field);
         }
 

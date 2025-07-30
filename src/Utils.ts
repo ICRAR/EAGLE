@@ -872,7 +872,7 @@ export class Utils {
         return true;
     }
 
-    static updateGitCommitRepositoriesList(repositories: Repository[], defaultRepository: Repository) : void {
+    static updateGitCommitRepositoriesList(repositories: Repository[], defaultRepository: Repository | null) : void {
         // remove existing options from the repository name select tag
         $('#gitCommitModalRepositoryNameSelect').empty();
 
@@ -2178,8 +2178,9 @@ export class Utils {
         if (srcNode.getCategoryType() === Category.Type.Construct){
             const embeddedApplicationKeyAndPort = srcNode.findPortInApplicationsById(edge.getSrcPort().getId());
 
-            if (embeddedApplicationKeyAndPort.node !== null){
-                edge.setSrcNode(embeddedApplicationKeyAndPort.node);
+            const node = embeddedApplicationKeyAndPort.node;
+            if (typeof node !== "undefined"){
+                edge.setSrcNode(node);
             }
         }
 
@@ -2187,8 +2188,9 @@ export class Utils {
         if (destNode.getCategoryType() === Category.Type.Construct){
             const embeddedApplicationKeyAndPort = destNode.findPortInApplicationsById(edge.getDestPort().getId());
 
-            if (embeddedApplicationKeyAndPort.node !== null){
-                edge.setDestNode(embeddedApplicationKeyAndPort.node);
+            const node = embeddedApplicationKeyAndPort.node;
+            if (typeof node !== "undefined"){
+                edge.setDestNode(node);
             }
         }
     }
@@ -2523,10 +2525,11 @@ export class Utils {
 
         // add logical graph nodes to table
         for (const field of node.getFields()){
+            const fieldNode = field.getNode();
             tableData.push({
                 "id":field.getId(),
                 "displayText":field.getDisplayText(),
-                "nodeId":field.getNode().getId(),
+                "nodeId":fieldNode ? fieldNode.getId() : null,
                 "type":field.getType(),
                 "parameterType":field.getParameterType(),
                 "usage":field.getUsage(),

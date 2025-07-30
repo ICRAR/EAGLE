@@ -17,7 +17,7 @@
         <!-- ko if: $data.isConstruct() && Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
             <!-- ko ifnot: $data.hasInputApplication() -->
                 <!-- triggerHandler('context menu') is a way to trigger right click, we want both left and right click to trigger the right click menu to add embedded apps -->
-                <div class="inputSocket socket" onmousedown="GraphRenderer.preventBubbling()" data-bind="click:function(){$(event.target).triggerHandler('contextmenu')},eagleTooltip:'Click to add an input application', eagleRightClick: {data:$data,type:'addEmbeddedInputApp'},style:{'border-color':EagleConfig.getColor('nodeInputPort')}">
+                <div class="inputSocket socket" onmousedown="GraphRenderer.preventBubbling()" data-bind="click:function(){$(event.target).triggerHandler('contextmenu')},eagleTooltip:'Click to add an input application', eagleRightClick: {data:$data,type:Eagle.EmbedMode.AddEmbeddedInputApp},style:{'border-color':EagleConfig.getColor('nodeInputPort')}">
                     <div>
                         <i class="material-icons md-18">add</i>
                     </div>
@@ -27,7 +27,7 @@
 
         <!-- ko if: $data.isConstruct() && Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
             <!-- ko ifnot: $data.hasOutputApplication() -->
-                <div class="outputSocket socket" onmousedown="GraphRenderer.preventBubbling()" data-bind="click:function(){$(event.target).triggerHandler('contextmenu')},eagleTooltip:'Click to add an output application', eagleRightClick: {data:$data,type:'addEmbeddedOutputApp'},style:{'border-color':EagleConfig.getColor('nodeOutputPort')}">
+                <div class="outputSocket socket" onmousedown="GraphRenderer.preventBubbling()" data-bind="click:function(){$(event.target).triggerHandler('contextmenu')},eagleTooltip:'Click to add an output application', eagleRightClick: {data:$data,type:Eagle.EmbedMode.AddEmbeddedOutputApp},style:{'border-color':EagleConfig.getColor('nodeOutputPort')}">
                     <div>
                         <i class="material-icons md-18">add</i>
                     </div>

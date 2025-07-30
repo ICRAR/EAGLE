@@ -4865,6 +4865,12 @@ export namespace Eagle
         Default = "Default"
     }
 
+    export enum EmbedMode {
+        AddEmbeddedInputApp = "addEmbeddedInputApp",
+        AddEmbeddedOutputApp = "addEmbeddedOutputApp",
+        None = "none"
+    }
+
     export enum FileType {
         Graph = "Graph",
         Palette = "Palette",

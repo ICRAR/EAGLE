@@ -109,11 +109,11 @@ export class RightClick {
 
         // add nodes from each palette
         palettes.forEach(function(palette){
-            paletteList += RightClick.constructHtmlPaletteList(Array.from(palette.getNodes()),'addNode',null,palette.fileInfo().name,null)
+            paletteList += RightClick.constructHtmlPaletteList(Array.from(palette.getNodes()),'addNode', [], palette.fileInfo().name, Eagle.EmbedMode.None)
         })
 
         // add nodes from the logical graph
-        paletteList += RightClick.constructHtmlPaletteList(Array.from(eagle.logicalGraph().getNodes()),'addNode',null,'Graph',null)
+        paletteList += RightClick.constructHtmlPaletteList(Array.from(eagle.logicalGraph().getNodes()),'addNode', [], 'Graph', Eagle.EmbedMode.None)
 
         return paletteList
     }
@@ -125,14 +125,14 @@ export class RightClick {
         const palettes = eagle.palettes();
 
         palettes.forEach(function(palette){
-            paletteList += RightClick.constructHtmlPaletteList(Array.from(palette.getNodes()), 'addAndConnect', compatibleNodesList, palette.fileInfo().name,null)
+            paletteList += RightClick.constructHtmlPaletteList(Array.from(palette.getNodes()), 'addAndConnect', compatibleNodesList, palette.fileInfo().name, Eagle.EmbedMode.None)
         })
 
-        paletteList += RightClick.constructHtmlPaletteList(Array.from(eagle.logicalGraph().getNodes()), 'addAndConnect', compatibleNodesList, 'Graph',null)
+        paletteList += RightClick.constructHtmlPaletteList(Array.from(eagle.logicalGraph().getNodes()), 'addAndConnect', compatibleNodesList, 'Graph', Eagle.EmbedMode.None)
         return paletteList
     }
 
-    static createHtmlEligibleEmbeddedNodesList(nodeType:Category.Type,passedObjectClass:string) : string {
+    static createHtmlEligibleEmbeddedNodesList(nodeType:Category.Type, passedObjectClass: Eagle.EmbedMode) : string {
         const eagle: Eagle = Eagle.getInstance();
 
         let paletteList:string = ''
@@ -162,7 +162,7 @@ export class RightClick {
         return paletteList
     }
 
-    static constructHtmlPaletteList(collectionOfNodes:Node[], mode: "addNode" | "addAndConnect" | "embedNode", compatibleNodesList:Node[],paletteName:string,embedMode:String) : string {
+    static constructHtmlPaletteList(collectionOfNodes:Node[], mode: "addNode" | "addAndConnect" | "embedNode", compatibleNodesList: Node[], paletteName: string, embedMode: Eagle.EmbedMode) : string {
         let nodesHtml = ''
         let nodeFound = false
         let htmlPalette = "<span class='contextmenuPalette' onmouseover='RightClick.openSubMenu(this)' onmouseleave='RightClick.closeSubMenu(this)'>"+paletteName
@@ -467,7 +467,7 @@ export class RightClick {
     // TODO: perhaps break this function up into a top-level handler, that uses 'passedObjectClass' to call one of several sub-functions
     // TODO: make the passedObjectClass an enumerated type
     // data can be a Edge, Node, Palette?, Eagle, Node[], and the passedObjectClass variable tells the function what to do with it
-    static requestCustomContextMenu = (data: any, passedObjectClass: "edgeDropCreate" | "rightClick_graphNode" | "rightClick_graphEdge" | "rightClick_hierarchyNode" | "rightClick_paletteComponent" | "rightClick_logicalGraph" | "addEmbeddedInputApp" | "addEmbeddedOutputApp") : void => {
+    static requestCustomContextMenu = (data: any, passedObjectClass: "edgeDropCreate" | "rightClick_graphNode" | "rightClick_graphEdge" | "rightClick_hierarchyNode" | "rightClick_paletteComponent" | "rightClick_logicalGraph" | Eagle.EmbedMode) : void => {
         // getting the mouse event for positioning the right click menu at the cursor location
         const eagle: Eagle = Eagle.getInstance();
 
@@ -583,7 +583,7 @@ export class RightClick {
                     const message = '<span>Lacking graph editing permissions</span>'
                     $('#customContextMenu').append(message)
                 }
-            }else if(passedObjectClass === 'addEmbeddedOutputApp' || passedObjectClass === 'addEmbeddedInputApp'){
+            }else if(passedObjectClass === Eagle.EmbedMode.AddEmbeddedOutputApp || passedObjectClass === Eagle.EmbedMode.AddEmbeddedInputApp){
                 if(Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
 
                     $(thisEvent.target).addClass('fullOpacity')

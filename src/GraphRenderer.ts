@@ -1547,7 +1547,7 @@ export class GraphRenderer {
 
     // TODO: mode parameter could be a boolean?
     // TODO: move to RightClick.ts?
-    static setNewEmbeddedApp(nodeId: NodeId, mode: "addEmbeddedOutputApp" | "addEmbeddedInputApp"): void {
+    static setNewEmbeddedApp(nodeId: NodeId, mode: Eagle.EmbedMode): void {
         const eagle = Eagle.getInstance()
         const parentNode = eagle.selectedNode()
         RightClick.closeCustomContextMenu(true)
@@ -1577,9 +1577,9 @@ export class GraphRenderer {
         // add the node to the graph
         eagle.logicalGraph().addNodeComplete(newNode);
 
-        if(mode==='addEmbeddedOutputApp'){
+        if(mode===Eagle.EmbedMode.AddEmbeddedOutputApp){
             parentNode.setOutputApplication(newNode)
-        }else if(mode === 'addEmbeddedInputApp'){
+        }else if(mode === Eagle.EmbedMode.AddEmbeddedInputApp){
             parentNode.setInputApplication(newNode)
         }else{
             console.warn('mode is not supported:', mode)

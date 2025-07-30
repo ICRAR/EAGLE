@@ -23,7 +23,14 @@ export class Modals {
         $('#inputModal').on('hidden.bs.modal', function(){
             const returnType = $('#inputModal').data('returnType');
             const completed: boolean = $('#inputModal').data('completed');
-            const input: string = $('#inputModalInput').val().toString();
+            const inputValue = $('#inputModalInput').val();
+
+            if (typeof inputValue === 'undefined'){
+                console.error("No input value found in #inputModal");
+                return;
+            }
+
+            const input: string = inputValue.toString();
 
             switch (returnType){
                 case "string": {
@@ -74,7 +81,15 @@ export class Modals {
                 console.log("No callback called when #inputTextModal hidden");
             } else {
                 const completed: boolean = $('#inputTextModal').data('completed');
-                const input: string = $('#inputTextModalInput').val().toString();
+                const inputValue = $('#inputTextModalInput').val();
+
+                if (typeof inputValue === 'undefined'){
+                    console.error("No input value found in #inputTextModal");
+                    callback(completed, "");
+                    return;
+                }
+
+                const input: string = inputValue.toString();
                 callback(completed, input);
             }
 
@@ -200,9 +215,9 @@ export class Modals {
                 } else {
                     // check selected option in select tag
                     const choices : string[] = $('#choiceModal').data('choices');
-                    const choiceIndex : number = parseInt($('#choiceModalSelect').val().toString(), 10);
+                    const choiceIndex : number = Modals.getElementValInt('#choiceModalSelect');
                     const choice = $('#choiceModalSelect option:selected').text();
-                    const customChoice = $('#choiceModalString').val().toString();
+                    const customChoice = Modals.getElementValString('#choiceModalString');
 
                     // if the last item in the select was selected, then return the custom value,
                     // otherwise return the selected choice
@@ -227,7 +242,7 @@ export class Modals {
         });
 
         $('#choiceModalSelect').on('change', function(){
-            const choice : number = parseInt($('#choiceModalSelect').val().toString(), 10);
+            const choice : number = Modals.getElementValInt('#choiceModalSelect');
 
             //checking if the value of the select element is valid
             if(!$('#choiceModalSelect').val() || choice > $('#choiceModalSelect option').length){
@@ -293,15 +308,15 @@ export class Modals {
                     // check selected option in select tag
                     const repositoryService : Repository.Service = <Repository.Service>$('#gitCommitModalRepositoryServiceSelect').val();
                     const repositories : Repository[] = $('#gitCommitModal').data('repositories');
-                    const repositoryNameChoice : number = parseInt($('#gitCommitModalRepositoryNameSelect').val().toString(), 10);
+                    const repositoryNameChoice : number = Modals.getElementValInt('#gitCommitModalRepositoryNameSelect');
 
                     // split repository text (with form: "name (branch)") into name and branch strings
                     const repositoryName : string = repositories[repositoryNameChoice].name;
                     const repositoryBranch : string = repositories[repositoryNameChoice].branch;
 
-                    const filePath : string = $('#gitCommitModalFilePathInput').val().toString();
-                    let fileName : string = $('#gitCommitModalFileNameInput').val().toString();
-                    const commitMessage : string = $('#gitCommitModalCommitMessageInput').val().toString();
+                    const filePath : string = Modals.getElementValString('#gitCommitModalFilePathInput');
+                    let fileName : string = Modals.getElementValString('#gitCommitModalFileNameInput');
+                    const commitMessage : string = Modals.getElementValString('#gitCommitModalCommitMessageInput');
 
                     // ensure that the graph filename ends with ".graph" or ".palette" as appropriate
                     const fileType : Eagle.FileType = $('#gitCommitModal').data('fileType');
@@ -355,9 +370,9 @@ export class Modals {
                 } else {
 
                     // check selected option in select tag
-                    const repositoryService : string = $('#gitCustomRepositoryModalRepositoryServiceSelect').val().toString();
-                    const repositoryName : string = $('#gitCustomRepositoryModalRepositoryNameInput').val().toString();
-                    const repositoryBranch : string = $('#gitCustomRepositoryModalRepositoryBranchInput').val().toString();
+                    const repositoryService : string = Modals.getElementValString('#gitCustomRepositoryModalRepositoryServiceSelect');
+                    const repositoryName : string = Modals.getElementValString('#gitCustomRepositoryModalRepositoryNameInput');
+                    const repositoryBranch : string = Modals.getElementValString('#gitCustomRepositoryModalRepositoryBranchInput');
 
                     callback(true, repositoryService, repositoryName, repositoryBranch);
                 }
@@ -408,7 +423,7 @@ export class Modals {
         });
 
         $('#editFieldModal').on('hidden.bs.modal', function(){
-            const callback : (completed : boolean, field: Field) => void = $('#editFieldModal').data('callback');
+            const callback : (completed : boolean, field: Field | null) => void = $('#editFieldModal').data('callback');
             
             if (!callback){
                 console.error("No 'callback' data attribute found on modal");
@@ -436,7 +451,7 @@ export class Modals {
             $('#editEdgeModalAffirmativeButton').trigger("focus");
         });
         $('#editEdgeModal').on('hidden.bs.modal', function(){
-            const callback : (completed : boolean, edge: Edge) => void = $('#editEdgeModal').data('callback');
+            const callback : (completed : boolean, edge: Edge | null) => void = $('#editEdgeModal').data('callback');
 
             if (!callback){
                 console.error("No 'callback' data attribute found on modal");
@@ -448,10 +463,10 @@ export class Modals {
                 } else {
                     // extract field data from HTML elements
                     // TODO: validate ids
-                    const srcNodeId: NodeId = $('#editEdgeModalSrcNodeIdSelect').val().toString() as NodeId;
-                    const srcPortId: FieldId = $('#editEdgeModalSrcPortIdSelect').val().toString() as FieldId;
-                    const destNodeId: NodeId = $('#editEdgeModalDestNodeIdSelect').val().toString() as NodeId;
-                    const destPortId: FieldId = $('#editEdgeModalDestPortIdSelect').val().toString() as FieldId;
+                    const srcNodeId: NodeId = Modals.getElementValString('#editEdgeModalSrcNodeIdSelect') as NodeId;
+                    const srcPortId: FieldId = Modals.getElementValString('#editEdgeModalSrcPortIdSelect') as FieldId;
+                    const destNodeId: NodeId = Modals.getElementValString('#editEdgeModalDestNodeIdSelect') as NodeId;
+                    const destPortId: FieldId = Modals.getElementValString('#editEdgeModalDestPortIdSelect') as FieldId;
                     const loopAware: boolean = $('#editEdgeModalLoopAwareCheckbox').prop('checked');
                     const closesLoop: boolean = $('#editEdgeModalClosesLoopCheckbox').prop('checked');
 
@@ -487,7 +502,7 @@ export class Modals {
             const edge: Edge = $('#editEdgeModal').data('edge');
             const logicalGraph: LogicalGraph = $('#editEdgeModal').data('logicalGraph');
 
-            const srcNodeId: NodeId = $('#editEdgeModalSrcNodeIdSelect').val().toString() as NodeId;
+            const srcNodeId: NodeId = Modals.getElementValString('#editEdgeModalSrcNodeIdSelect') as NodeId;
             edge.getSrcNode().setId(srcNodeId);
 
             Utils.updateEditEdgeModal(edge, logicalGraph);
@@ -496,7 +511,7 @@ export class Modals {
             const edge: Edge = $('#editEdgeModal').data('edge');
             const logicalGraph: LogicalGraph = $('#editEdgeModal').data('logicalGraph');
 
-            const destNodeId: NodeId = $('#editEdgeModalDestNodeIdSelect').val().toString() as NodeId;
+            const destNodeId: NodeId = Modals.getElementValString('#editEdgeModalDestNodeIdSelect') as NodeId;
             edge.getDestNode().setId(destNodeId);
 
             Utils.updateEditEdgeModal(edge, logicalGraph);
@@ -597,12 +612,16 @@ export class Modals {
 
     static validateCommitModalFileNameInputText(): void {
         const inputElement = $("#gitCommitModalFileNameInput");
+        const inputElementValue = Modals.getElementValString('#gitCommitModalFileNameInput');
+
         const fileTypeData = $('#gitCommitModal').data('fileType');
         const fileType: Eagle.FileType = fileTypeData ? fileTypeData : Eagle.FileType.Unknown;
         
+        
+
         const isValid = (fileType === Eagle.FileType.Unknown) ||
-            (fileType === Eagle.FileType.Graph && inputElement.val().toString().endsWith(".graph")) ||
-            (fileType === Eagle.FileType.Palette && inputElement.val().toString().endsWith(".palette"));
+            (fileType === Eagle.FileType.Graph && inputElementValue.endsWith(".graph")) ||
+            (fileType === Eagle.FileType.Palette && inputElementValue.endsWith(".palette"));
 
         Modals._setValidClasses(inputElement, isValid);
     }
@@ -700,5 +719,28 @@ export class Modals {
     static setMarkdownContent(value: string){
         const html = Utils.markdown2html(value);
         $('#inputMarkdownModalDisplay').html(html);
+    }
+
+    static getElementValString(selector: string): string {
+        const elementValue = $(selector).val();
+        if (typeof elementValue === 'undefined') {
+            console.error(`No value found in element with selector: ${selector}`);
+            return "";
+        }
+        return elementValue.toString();
+    }
+
+    static getElementValInt(selector: string): number {
+        const elementValue = $(selector).val();
+        if (typeof elementValue === 'undefined') {
+            console.error(`No value found in element with selector: ${selector}`);
+            return 0;
+        }
+        const value = parseInt(elementValue.toString(), 10);
+        if (isNaN(value)) {
+            console.error(`Value in element with selector: ${selector} is not a valid number`);
+            return 0;
+        }
+        return value;
     }
 }
