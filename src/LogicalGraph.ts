@@ -837,7 +837,6 @@ export class LogicalGraph {
     findDepthById = (id: NodeId) : number => {
         const node = this.findNodeById(id);
         let parentId: NodeId = node.getParentId();
-        console.log("findDepthById(): nodeId = ", id, " parentId = ", parentId);
         let depth = 0;
         let iterations = 0;
 
