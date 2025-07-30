@@ -99,7 +99,13 @@ export class GitHub {
             }
 
             // get location
-            const location: Repository | RepositoryFolder = repository.findPath(path);
+            const location: Repository | RepositoryFolder | null = repository.findPath(path);
+
+            if (location === null){
+                console.warn("GitHub.loadRepoContent() could not find location for path: " + path);
+                reject("GitHub.loadRepoContent() could not find location for path: " + path);
+                return;
+            }
 
             // flag the location as being fetched
             location.isFetching(true);

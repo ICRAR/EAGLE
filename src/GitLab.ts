@@ -71,7 +71,13 @@ export class GitLab {
             }
 
             // get location
-            const location: Repository | RepositoryFolder = repository.findPath(path);
+            const location: Repository | RepositoryFolder | null = repository.findPath(path);
+
+            if (location === null){
+                console.warn("GitLab.loadRepoContent() could not find location for path: " + path);
+                reject("GitLab.loadRepoContent() could not find location for path: " + path);
+                return;
+            }
 
             // flag the location as being fetched
             location.isFetching(true);

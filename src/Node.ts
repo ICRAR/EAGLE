@@ -867,7 +867,7 @@ export class Node {
         return '- Git -</br>Url:&nbsp;' + url + '</br>Hash:&nbsp;' + hash;
     }, this);
 
-    findPortInApplicationsById = (portId: FieldId) : {node: Node | null, port: Field | null} => {
+    findPortInApplicationsById = (portId: FieldId) : {node: Node | undefined, port: Field | undefined} => {
         const inputApplication: Node | null = this.inputApplication();
         const outputApplication: Node | null = this.outputApplication();
 
@@ -899,7 +899,7 @@ export class Node {
             }
         }
 
-        return {node: null, port: null};
+        return {node: undefined, port: undefined};
     }
 
     findPortByDisplayText = (displayText : string, input : boolean, local : boolean) : Field | undefined => {
@@ -1337,7 +1337,12 @@ export class Node {
         return this;
     }
 
-    static match(node0: Node, node1: Node) : boolean {
+    static match(node0: Node | null, node1: Node | null) : boolean {
+        // if either node is null, then they cannot match
+        if (node0 === null || node1 === null){
+            return false;
+        }
+
         // first just check if they have matching ids
         if (node0.getId() === node1.getId()){
             return true;
@@ -1565,7 +1570,7 @@ export class Node {
         // add fields
         if (typeof nodeData.fields !== 'undefined'){
             for (const fieldData of nodeData.fields){
-                const field = Field.fromOJSJson(fieldData);
+                const field = Field.fromOJSJson(fieldData, node);
 
                 // if the parameter type is not specified, assume it is a ComponentParameter
                 if (field.getParameterType() === Daliuge.FieldType.Unknown){
@@ -1579,7 +1584,7 @@ export class Node {
         // add application params
         if (typeof nodeData.applicationArgs !== 'undefined'){
             for (const paramData of nodeData.applicationArgs){
-                const field = Field.fromOJSJson(paramData);
+                const field = Field.fromOJSJson(paramData, node);
                 field.setParameterType(Daliuge.FieldType.Application);
                 node.addField(field);
             }
@@ -1590,7 +1595,7 @@ export class Node {
             for (const fieldData of nodeData.inputAppFields){
                 const inputApplication = node.inputApplication();
                 if (inputApplication !== null){
-                    inputApplication.addField(Field.fromOJSJson(fieldData));
+                    inputApplication.addField(Field.fromOJSJson(fieldData, node));
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Can't add input app field " + fieldData.text + " to node " + node.getName() + ". No input application."));
                 }
@@ -1602,7 +1607,7 @@ export class Node {
             for (const fieldData of nodeData.outputAppFields){
                 const outputApplication = node.outputApplication();
                 if (outputApplication !== null){
-                    outputApplication.addField(Field.fromOJSJson(fieldData));
+                    outputApplication.addField(Field.fromOJSJson(fieldData, node));
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Can't add output app field " + fieldData.text + " to node " + node.getName() + ". No output application."));
                 }
@@ -1612,7 +1617,7 @@ export class Node {
         // add input ports
         if (typeof nodeData.inputPorts !== 'undefined'){
             for (const inputPort of nodeData.inputPorts){
-                const port = Field.fromOJSJsonPort(inputPort);
+                const port = Field.fromOJSJsonPort(inputPort, node);
                 port.setParameterType(Daliuge.FieldType.Application);
                 port.setUsage(Daliuge.FieldUsage.InputPort);
 
@@ -1631,7 +1636,7 @@ export class Node {
         // add output ports
         if (typeof nodeData.outputPorts !== 'undefined'){
             for (const outputPort of nodeData.outputPorts){
-                const port = Field.fromOJSJsonPort(outputPort);
+                const port = Field.fromOJSJsonPort(outputPort, node);
                 port.setParameterType(Daliuge.FieldType.Application);
                 port.setUsage(Daliuge.FieldUsage.OutputPort);
 
@@ -1650,7 +1655,7 @@ export class Node {
         // add input local ports
         if (typeof nodeData.inputLocalPorts !== 'undefined'){
             for (const inputLocalPort of nodeData.inputLocalPorts){
-                const port = Field.fromOJSJsonPort(inputLocalPort);
+                const port = Field.fromOJSJsonPort(inputLocalPort, node);
                 port.setParameterType(Daliuge.FieldType.Application);
                 port.setUsage(Daliuge.FieldUsage.OutputPort);
                 
@@ -1666,7 +1671,7 @@ export class Node {
         // add output local ports
         if (typeof nodeData.outputLocalPorts !== 'undefined'){
             for (const outputLocalPort of nodeData.outputLocalPorts){
-                const port = Field.fromOJSJsonPort(outputLocalPort);
+                const port = Field.fromOJSJsonPort(outputLocalPort, node);
                 port.setParameterType(Daliuge.FieldType.Application);
                 port.setUsage(Daliuge.FieldUsage.InputPort);
 
@@ -1721,7 +1726,7 @@ export class Node {
 
         // add fields
         for (const [id, fieldData] of Object.entries(nodeData.fields)){
-            const field = Field.fromV4Json(fieldData);
+            const field = Field.fromV4Json(fieldData, node);
             node.addField(field);
         }
 

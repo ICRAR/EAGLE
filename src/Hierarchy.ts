@@ -83,7 +83,7 @@ export class Hierarchy {
         
         //handle expanding groups that nodes get drawn to, and handle adding nodeRelative
         function setNodeRelatives(){
-            nodeRelative.forEach(function(element:Node){
+            nodeRelative.forEach(function(element:Node | null){
                 let iterations = 0;
     
                 if (element === null){
@@ -96,8 +96,8 @@ export class Hierarchy {
                         return
                     }
     
-                    if(element.isEmbedded()){
-                        const localPortGroup: Node = element.getEmbed();
+                    const localPortGroup = element.getEmbed();
+                    if (localPortGroup !== null){
                         localPortGroup.setExpanded(true)
                         localPortGroup.setKeepExpanded(true)
                     }else{  

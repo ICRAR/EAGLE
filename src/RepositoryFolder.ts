@@ -18,8 +18,8 @@ export class RepositoryFolder {
         this.expanded = ko.observable(false);
         this.isFetching = ko.observable(false);
         this.fetched = ko.observable(false);
-        this.folders = ko.observableArray([]);
-        this.files = ko.observableArray([]);
+        this.folders = ko.observableArray<RepositoryFolder>([]);
+        this.files = ko.observableArray<RepositoryFile>([]);
         this.repository = repository;
         this.path = path;
     }

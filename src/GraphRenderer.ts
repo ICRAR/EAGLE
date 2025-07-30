@@ -1454,7 +1454,7 @@ export class GraphRenderer {
 
     // TODO: does this do nothing when construct !== null ? (maybe the first parameter isn't required?) (maybe move to LogicalGraph.ts?)
     // TODO: the graphNodes parameter probably should be a LogicalGraph
-    static centerConstructs(construct:Node, graphNodes:Node[]) : void {
+    static centerConstructs(construct: Node | null, graphNodes:Node[]) : void {
         const constructsList : Node[]=[]
         if(construct === null){
             graphNodes.forEach(function(node){
@@ -1475,7 +1475,7 @@ export class GraphRenderer {
                 while(!finished){
                     let found = false
                     for(const entry of constructsList){
-                        const parent: Node = entry.getParent();
+                        const parent: Node | null = entry.getParent();
 
                         if(parent !== null && parent.getId() === findConstructId){
                             orderedConstructList.unshift(entry)
@@ -1497,7 +1497,7 @@ export class GraphRenderer {
 
     // TODO: maybe move to LogicalGraph.ts
     // TODO: the graphNodes parameter probably should be a LogicalGraph
-    static centerConstruct(construct:Node, graphNodes:Node[]) : void {
+    static centerConstruct(construct:Node | null, graphNodes:Node[]) : void {
         if(!construct){
             Utils.showNotification('Error','A single Construct node must be selected!',"warning")
             return
@@ -1512,7 +1512,7 @@ export class GraphRenderer {
 
         // TODO: redo once we have node.children
         for (const node of graphNodes){
-            const parent: Node = node.getParent();
+            const parent: Node | null = node.getParent();
             
             if (!node.isEmbedded() && parent !== null && parent.getId() === construct.getId()){
                 childCount++
@@ -1547,10 +1547,16 @@ export class GraphRenderer {
 
     // TODO: mode parameter could be a boolean?
     // TODO: move to RightClick.ts?
-    static setNewEmbeddedApp(nodeId: NodeId, mode: "addEmbeddedOutputApp" | "addEmbeddedInputApp") :void {
+    static setNewEmbeddedApp(nodeId: NodeId, mode: "addEmbeddedOutputApp" | "addEmbeddedInputApp"): void {
         const eagle = Eagle.getInstance()
         const parentNode = eagle.selectedNode()
         RightClick.closeCustomContextMenu(true)
+
+        // if no parent node is selected, we can't add an embedded app
+        if (parentNode === null || !parentNode.isGroup()){
+            Utils.showNotification("Error", "Please select a construct to add an embedded application to", "warning");
+            return
+        }
 
         // try to find the node (by nodeId) in the palettes
         let node = Utils.getPaletteComponentById(nodeId);
@@ -1576,7 +1582,7 @@ export class GraphRenderer {
         }else if(mode === 'addEmbeddedInputApp'){
             parentNode.setInputApplication(newNode)
         }else{
-            console.warn('mode is not supported: ',mode)
+            console.warn('mode is not supported:', mode)
         }
     }
 
@@ -1603,7 +1609,9 @@ export class GraphRenderer {
 
         // loop through all nodes, if they belong to the parent's group, move them too
         for (const node of eagle.logicalGraph().getNodes()){
-            if (node.getParent().getId() === parentId){
+            const nodeParent: Node | null = node.getParent();
+
+            if (nodeParent !== null && nodeParent.getId() === parentId){
                 node.changePosition(deltaX, deltaY);
                 GraphRenderer.moveChildNodes(node, deltaX, deltaY);
             }
@@ -1934,7 +1942,7 @@ export class GraphRenderer {
         }
     }
     
-    static SCREEN_TO_GRAPH_POSITION_X(x:number) : number {
+    static SCREEN_TO_GRAPH_POSITION_X(x:number | null) : number {
         const eagle = Eagle.getInstance();
         if(x===null && GraphRenderer.dragCurrentPosition){
             x = GraphRenderer.dragCurrentPosition.x
@@ -1942,7 +1950,7 @@ export class GraphRenderer {
         return x/eagle.globalScale() - eagle.globalOffsetX();
     }
 
-    static SCREEN_TO_GRAPH_POSITION_Y(y:number) : number {
+    static SCREEN_TO_GRAPH_POSITION_Y(y:number | null) : number {
         const eagle = Eagle.getInstance();
         if(y===null && GraphRenderer.dragCurrentPosition){
             y = GraphRenderer.dragCurrentPosition.y

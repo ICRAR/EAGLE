@@ -40,7 +40,7 @@ export class ParameterTable {
         ParameterTable.selectionName = ko.observable('');
         ParameterTable.selectionReadonly = ko.observable(false);
 
-        ParameterTable.fields = ko.observableArray([]);
+        ParameterTable.fields = ko.observableArray(<Field[]>[]);
     }
 
     static setActiveColumnVisibility = () :void => {
@@ -66,20 +66,27 @@ export class ParameterTable {
             return "";
         }
 
+        const selectionParent = ParameterTable.selectionParent();
+        if (selectionParent === null){
+            return "";
+        }
+
         if (Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.NodeParameterTable || Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ConfigParameterTable){
-            return ParameterTable.selectionParent().getDisplayText() + " - " + ParameterTable.selectionName();
+            return selectionParent.getDisplayText() + " - " + ParameterTable.selectionName();
         } else {
             return "Unknown";
         }
     }
 
     static formatTableInspectorValue = () : string => {
-        if (ParameterTable.selection() === null){
+        const selection = ParameterTable.selection();
+
+        if (selection === null){
             return "";
         }
 
         if (Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.NodeParameterTable || Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ConfigParameterTable){
-            return ParameterTable.selection();
+            return selection;
         } else {
             return "Unknown";
         }
@@ -93,6 +100,10 @@ export class ParameterTable {
 
         const selected = ParameterTable.selectionName()
         const selectedForm = ParameterTable.selectionParent()
+        if (selectedForm === null){
+            console.warn("ParameterTable.tableInspectorUpdateSelection(): No selection parent found for selected field:", selected);
+            return;
+        }
         if(selected === 'displayText'){
             selectedForm.setDisplayText(value)
         } else if(selected === 'value'){
@@ -130,12 +141,12 @@ export class ParameterTable {
 
             case Eagle.BottomWindowMode.ConfigParameterTable:
                 const lg: LogicalGraph = eagle.logicalGraph();
-                const config: GraphConfig = lg.getActiveGraphConfig();
+                const config: GraphConfig | undefined = lg.getActiveGraphConfig();
                 const displayedFields: Field[] = [];
 
                 console.log("ParameterTable.getTableFields(): Displaying fields for config:", config ? config.getName() : "<No Config>");
 
-                if (!config){
+                if (typeof config === 'undefined'){
                     return [];
                 }
 
@@ -145,7 +156,7 @@ export class ParameterTable {
 
                         if (typeof lgNode === 'undefined'){
                             const dummyField: Field = new Field(graphConfigField.getField().getId(), "<Missing Node:" + graphConfigNode.getNode().getId() +">", graphConfigField.getValue(), "?", graphConfigField.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
-                            dummyField.setNode(lgNode);
+                            dummyField.setNode(graphConfigNode.getNode());
                             displayedFields.push(dummyField);
                             continue;
                         }
@@ -261,7 +272,8 @@ export class ParameterTable {
 
         // this handles a special case where EAGLE is displaying the "Graph Configuration Attributes Table"
         // all the field names shown in that table should be locked (readonly)
-        if (Setting.find(Setting.BOTTOM_WINDOW_MODE).value() === Eagle.BottomWindowMode.ConfigParameterTable){
+        const bottomWindowMode = Setting.findValue(Setting.BOTTOM_WINDOW_MODE);
+        if (bottomWindowMode === Eagle.BottomWindowMode.ConfigParameterTable){
             return field.getNode().isLocked()
         }
 
@@ -408,7 +420,7 @@ export class ParameterTable {
     }
 
     static async _addRemoveField(currentField: Field, add: boolean): Promise<void> {
-        let graphConfig: GraphConfig = Eagle.getInstance().logicalGraph().getActiveGraphConfig();
+        let graphConfig: GraphConfig | undefined = Eagle.getInstance().logicalGraph().getActiveGraphConfig();
 
         if (graphConfig){
             if (add){
@@ -530,15 +542,23 @@ export class ParameterTable {
     static async requestEditCommentInModal(currentField:Field): Promise<void> {
         const eagle: Eagle = Eagle.getInstance();
         const currentNode: Node = currentField.getNode();
-        const configField: GraphConfigField = eagle.logicalGraph().getActiveGraphConfig().getNodeById(currentNode.getId()).getFieldById(currentField.getId());
+        const activeGraphConfig = eagle.logicalGraph().getActiveGraphConfig();
+
+        if (typeof activeGraphConfig === 'undefined'){
+            console.warn("requestEditCommentInModal: No active graph configuration found");
+            return;
+        }
+
+        const configField: GraphConfigField = activeGraphConfig.getNodeById(currentNode.getId()).getFieldById(currentField.getId());
 
         let fieldComment: string;
         try {
             fieldComment = await Utils.requestUserText("Edit Field Comment", "Please edit the comment for: " + currentNode.getName() + ' - ' + currentField.getDisplayText(), configField.getComment());
         } catch (error){
-            // set the description on the field
-            configField.setComment(fieldComment);
+            console.error(error);
+            return;
         }
+        configField.setComment(fieldComment);
     }
 
     static initiateResizableColumns(upId:string) : void {
@@ -632,11 +652,12 @@ export class ParameterTable {
             $('.modal.show').modal('hide')
         }
 
-        Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(mode)
+        Setting.setValue(Setting.BOTTOM_WINDOW_MODE, mode);
 
         //open the bottom window
         SideWindow.setShown('bottom',true)
 
+        // TODO: the if here looks broken, check expected behavior
         if(mode = Eagle.BottomWindowMode.NodeParameterTable){
             setTimeout(() => {
                 //update the contents of the parameter table and its sorting arrow display
@@ -815,7 +836,7 @@ export class ParameterTable {
         }
     }
 
-    static updateContent = (node: Node) : void => {
+    static updateContent = (node: Node | null) : void => {
         if (node === null){
             ParameterTable.copyFields([]);
         } else {
@@ -895,8 +916,8 @@ export class ColumnVisibilities {
         return this.uiModeName;
     }
 
-    getModeByName = (name:string) : ColumnVisibilities => {
-        let columnVisibilityResult:ColumnVisibilities = null
+    getModeByName = (name:string) : ColumnVisibilities | null => {
+        let columnVisibilityResult:ColumnVisibilities | null = null
         columnVisibilities.forEach(function(columnVisibility){
             if(columnVisibility.getModeName() === name){
                 columnVisibilityResult = columnVisibility
@@ -1057,14 +1078,20 @@ export class ColumnVisibilities {
     }
 
     loadFromLocalStorage = () : void => {
-        const columnVisibilitiesObjArray : any[] = JSON.parse(localStorage.getItem('ColumnVisibilities'))
+        const columnVisibilitiesObjArray : any[] = JSON.parse(localStorage.getItem('ColumnVisibilities') || '[]');
         const that = ParameterTable.getActiveColumnVisibility()
         if(columnVisibilitiesObjArray === null){
             return
         }else{
             columnVisibilitiesObjArray.forEach(function(columnVisibility){
 
-                const columnVisActual:ColumnVisibilities = that.getModeByName(columnVisibility.name)
+                const columnVisActual:ColumnVisibilities | null = that.getModeByName(columnVisibility.name)
+
+                if(columnVisActual === null){
+                    console.warn("ColumnVisibilities: No column visibility found for name: " + columnVisibility.name)
+                    return
+                }
+
                 if(columnVisibility.keyAttribute != null){
                     columnVisActual.setKeyAttribute(columnVisibility.keyAttribute)
                 }

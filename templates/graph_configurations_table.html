@@ -6,10 +6,10 @@
         </h5>
         <div class="searchBarContainer" data-bind="clickBubble:false, click:function(){}">
             <i class="material-icons md-18 searchBarIcon">search</i>
-            <a href="#" data-bind="click:function(data, event){$root.emptySearchBar(Eagle.tableSearchString,data,event)}">
+            <a href="#" data-bind="click:function(data, event){$root.emptySearchBar(Eagle.tableSearchString, event)}">
                 <i class="material-icons md-18 searchBarIconClose">close</i>
             </a>
-            <input class="componentSearchBar" type="text" placeholder="Search: eg. app, string" data-bind="valueUpdate: ['afterkeydown', 'input'], value:Eagle.tableSearchString, event:{keyup: function(data,event){$root.setSearchBarClearBtnState(data,event)}},eagleTooltip:`Search for names, types, anything really! You may enter several terms that should match separated by a ','`">
+            <input class="componentSearchBar" type="text" placeholder="Search: eg. app, string" data-bind="valueUpdate: ['afterkeydown', 'input'], value:Eagle.tableSearchString, event:{keyup: function(data,event){$root.setSearchBarClearBtnState(event)}},eagleTooltip:`Search for names, types, anything really! You may enter several terms that should match separated by a ','`">
         </div>
 
         <div class="header-center">

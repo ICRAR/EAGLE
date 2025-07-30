@@ -42,7 +42,7 @@ export class LogicalGraph {
     private nodes : ko.Observable<Map<NodeId, Node>>;
     private edges : ko.Observable<Map<EdgeId, Edge>>;
     private graphConfigs : ko.Observable<Map<GraphConfigId, GraphConfig>>;
-    private activeGraphConfigId : ko.Observable<GraphConfigId>;
+    private activeGraphConfigId : ko.Observable<GraphConfigId | null>;
 
     private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}> //keeps track of higher level errors on the graph
     
@@ -56,7 +56,7 @@ export class LogicalGraph {
         this.edges = ko.observable(new Map<EdgeId, Edge>());
         this.graphConfigs = ko.observable(new Map<GraphConfigId, GraphConfig>());
         this.activeGraphConfigId = ko.observable(null); // can be null, or an id (can't be undefined)
-        this.issues = ko.observableArray([])
+        this.issues = ko.observableArray(<{issue:Errors.Issue, validity:Errors.Validity}[]>[]);
     }
 
     static toOJSJson(graph : LogicalGraph, forTranslation : boolean) : object {
@@ -107,11 +107,13 @@ export class LogicalGraph {
             }
 
             // for OJS format, we actually store links using the node keys of the construct, not the node keys of the embedded applications
-            if (srcNode.isEmbedded()){
-                srcId = srcNode.getEmbed().getId();
+            const srcEmbed = srcNode.getEmbed();
+            if (srcEmbed !== null){
+                srcId = srcEmbed.getId();
             }
-            if (destNode.isEmbedded()){
-                destId = destNode.getEmbed().getId();
+            const destEmbed = destNode.getEmbed();
+            if (destEmbed !== null){
+                destId = destEmbed.getId();
             }
 
             linkData.from = srcId;

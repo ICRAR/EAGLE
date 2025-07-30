@@ -34,26 +34,26 @@ export class KeyboardShortcut {
     eventType: string;
     tags: string[];           // tags or key words that are associated with the function to help searchability
     icon: string;
-    run: (eagle: Eagle, event: KeyboardEvent) => void;
+    run: (eagle: Eagle, event: KeyboardEvent | null) => void;
 
     constructor(options: KeyboardShortcut.Options){
         this.id = options.id;
         this.text = options.text;
         this.run = options.run;
 
-        if ("keys" in options){
+        if (typeof options.keys !== "undefined"){
             this.keys = options.keys;
             this.eventType = "keydown";
         } else {
             this.keys = [];
             this.eventType = "";
         }
-        if ("tags" in options){
+        if (typeof options.tags !== "undefined"){
             this.tags = options.tags;
         } else {
             this.tags = [];
         }
-        if ("icon" in options){
+        if (typeof options.icon !== "undefined"){
             this.icon = options.icon;
         } else {
             this.icon = "build";
@@ -721,14 +721,14 @@ export class KeyboardShortcut {
         KeyboardShortcut.QUICK_ACTION_DOCS("docs_physicalGraph", "Physical Graph", ['documentation','help','components'], 'https://eagle-dlg.readthedocs.io/en/master/graphs.html#physical-graph'),
     ];
 
-    static findById(id: string) : KeyboardShortcut {
+    static findById(id: string) : KeyboardShortcut | undefined {
         for (const shortcut of KeyboardShortcut.shortcuts){
             if (shortcut.id === id){
                 return shortcut;
             }
         }
         console.warn("Could not find keyboard shortcut with id", id);
-        return null;
+        return undefined;
     }
 
     static idToText(id: string): string {
@@ -746,7 +746,7 @@ export class KeyboardShortcut {
         return ks ? ks.text + ' ' + ks.getKeysText(true) : "";
     }
 
-    static idToRun(id: string): (eagle: Eagle, event: KeyboardEvent) => void {
+    static idToRun(id: string): ((eagle: Eagle, event: KeyboardEvent) => void) | undefined {
         const ks = KeyboardShortcut.findById(id);
         return ks ? ks.run : undefined;
     }
@@ -795,8 +795,8 @@ export namespace KeyboardShortcut{
         id: string,
         text: string,
         keys?: Key[],
-        tags?: string[],
+        tags?: string[] ,
         icon?: string,
-        run: (eagle: Eagle, event: KeyboardEvent) => void
+        run: (eagle: Eagle, event: KeyboardEvent | null) => void
     }
 }

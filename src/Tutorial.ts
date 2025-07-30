@@ -104,8 +104,9 @@ export class TutorialSystem {
     static isRequestedNodeSelected(name:string) : boolean {
         //used when asking the user to select a specific node
         const eagle = Eagle.getInstance()
+        const selectedNode = eagle.selectedNode();
 
-        return eagle.selectedNode() !== null && eagle.selectedNode().getName() === name
+        return selectedNode !== null && selectedNode.getName() === name;
     }
 
     static findInPalettes(target:string) : void {

@@ -9,11 +9,11 @@ export class ExplorePalettesProject {
     name: ko.Observable<string>;
     palettes: ko.ObservableArray<PaletteInfo>;
     imgSrc: ko.Observable<string>;
-    defaultPalette: ko.Observable<PaletteInfo>;
+    defaultPalette: ko.Observable<PaletteInfo | null>;
 
     constructor(name: string){
         this.name = ko.observable(name);
-        this.palettes = ko.observableArray([]);
+        this.palettes = ko.observableArray(<PaletteInfo[]>[]);
         this.imgSrc = ko.observable("");
         this.defaultPalette = ko.observable(null);
     }
@@ -26,7 +26,7 @@ export class ExplorePalettes {
 
     constructor(){
         this.showFiles = ko.observable(false);
-        this.projects = ko.observableArray([]);
+        this.projects = ko.observableArray(<ExplorePalettesProject[]>[]);
         this.currentProjectIndex = ko.observable(-1);
     }
 
@@ -39,7 +39,7 @@ export class ExplorePalettes {
             const isDefaultPalette = palette.name.includes('master') || palette.name.includes('main');
 
             // check if directory is already in directories array
-            let found : ExplorePalettesProject = null;
+            let found : ExplorePalettesProject | null = null;
             for (const project of this.projects()){
                 if (project.name() === dir){
                     found = project;
@@ -111,7 +111,12 @@ export class ExplorePalettes {
             data.isSelected(newState)
 
             // mark as checked
-            $(event.target).find('input').prop("checked", newState);
+            const eventTarget = event.target as HTMLElement;
+            if (eventTarget === null){
+                console.warn("No event target supplied to clickHelper");
+                return;
+            }
+            $(eventTarget).find('input').prop("checked", newState);
         }
     }
 }

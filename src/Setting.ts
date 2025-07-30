@@ -207,6 +207,16 @@ export class Setting {
         return setting.value(value);
     }
 
+    static toggleValue(key : string) : void {
+        const setting = Setting.find(key);
+        if (typeof setting === "undefined"){
+            console.warn("No setting", key);
+            return;
+        }
+
+        setting.toggle();
+    }
+
     resetDefault() : void {
         const activeUIModeName: string = UiModeSystem.getActiveUiMode().getName();
         let value: any = this.graphDefaultValue;
@@ -252,12 +262,18 @@ export class Setting {
 
     static showInspectorErrorsWarnings() : boolean {
         const eagle = Eagle.getInstance();
-            
+        const selectedNode = eagle.selectedNode();
+
+        // if no node is selected, return false
+        if (selectedNode === null) {
+            return false;
+        }
+
         switch (Setting.findValue(Setting.SHOW_GRAPH_WARNINGS)){
             case Setting.ShowErrorsMode.Warnings:
-                return eagle.selectedNode().getErrorsWarnings().errors.length + eagle.selectedNode().getErrorsWarnings().warnings.length > 0;
+                return selectedNode.getErrorsWarnings().errors.length + selectedNode.getErrorsWarnings().warnings.length > 0;
             case Setting.ShowErrorsMode.Errors:
-                return eagle.selectedNode().getErrorsWarnings().errors.length > 0;
+                return selectedNode.getErrorsWarnings().errors.length > 0;
             case Setting.ShowErrorsMode.None:
             default:
                 return false;

@@ -130,7 +130,7 @@ export class Eagle {
         Eagle.settings = Setting.getSettings();
         UiModeSystem.initialise()
 
-        this.palettes = ko.observableArray();
+        this.palettes = ko.observableArray(<Palette[]>[]);
         this.logicalGraph = ko.observable(new LogicalGraph());
         this.eagleIsReady = ko.observable(false);
 
@@ -255,10 +255,12 @@ export class Eagle {
         // add additional custom types
         switch (Eagle.selectedLocation()){
             case Eagle.FileType.Palette:
-                // build a list from the selected component in the palettes
-                if(this.selectedNode() !== null){
+                const selectedNode = this.selectedNode();
 
-                    for (const field of this.selectedNode().getFields()) {
+                // build a list from the selected component in the palettes
+                if(selectedNode !== null){
+
+                    for (const field of selectedNode.getFields()) {
                         Utils.addTypeIfUnique(result, field.getType());
                     }
                 }else{
@@ -281,15 +283,17 @@ export class Eagle {
                     }
 
                     // also check for fields that belong to the inputApplication
-                    if (node.hasInputApplication()){
-                        for (const field of node.getInputApplication().getFields()){
+                    const inputApplication = node.getInputApplication();
+                    if (inputApplication !== null){
+                        for (const field of inputApplication.getFields()){
                             Utils.addTypeIfUnique(result, field.getType());
                         }
                     }
 
                     // also check for fields that belong to the outputApplication
-                    if (node.hasOutputApplication()){
-                        for (const field of node.getOutputApplication().getFields()){
+                    const outputApplication = node.getOutputApplication();
+                    if (outputApplication !== null){
+                        for (const field of outputApplication.getFields()){
                             Utils.addTypeIfUnique(result, field.getType());
                         }
                     }
@@ -460,16 +464,28 @@ export class Eagle {
         SideWindow.setShown('bottom', setOpen);
     }
 
-    emptySearchBar = (target : ko.Observable,data:string, event : Event) => {
+    emptySearchBar = (target: ko.Observable, event: Event) => {
         target("")
-        $(event.target).parent().hide()
+
+        const eventTarget = event.target;
+        if (eventTarget === null){
+            console.warn("emptySearchBar(): event.target is null");
+            return;
+        }
+        $(eventTarget).parent().hide()
     }
 
-    setSearchBarClearBtnState = (data:string, event : Event) => {
-        if($(event.target).val() === ""){
-            $(event.target).parent().find('a').hide()
+    setSearchBarClearBtnState = (event: Event) => {
+        const eventTarget = event.target;
+        if (eventTarget === null){
+            console.warn("setSearchBarClearBtnState(): event.target is null");
+            return;
+        }
+
+        if($(eventTarget).val() === ""){
+            $(eventTarget).parent().find('a').hide()
         }else{
-            $(event.target).parent().find('a').show()
+            $(eventTarget).parent().find('a').show()
         }
     }
 
@@ -545,11 +561,15 @@ export class Eagle {
         let bottomWindow = 0
 
         if(Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE)){
-            bottomWindow = $('#bottomWindow').height()
+            bottomWindow = $('#bottomWindow').height() || 0; // fallback to 0 if height is not available
         }
 
+        // get width and height of the logical graph parent container
+        const logicalGraphParentWidth = $('#logicalGraphParent').width() || 0; // fallback to 0 if width is not available
+        const logicalGraphParentHeight = $('#logicalGraphParent').height() || 0; // fallback to 0 if height is not available
+
         //calculating scale multipliers needed for each, height and width in order to fit the graph
-        const containerHeight = $('#logicalGraphParent').height() - bottomWindow
+        const containerHeight = logicalGraphParentHeight - bottomWindow
         const graphHeight = maxY-minY+200
         const graphYScale = containerHeight/graphHeight
         
@@ -558,7 +578,7 @@ export class Eagle {
         const leftWindow = Utils.getLeftWindowWidth()
         const rightWindow = Utils.getRightWindowWidth()
 
-        const containerWidth = $('#logicalGraphParent').width() - leftWindow - rightWindow
+        const containerWidth = logicalGraphParentWidth - leftWindow - rightWindow
         const graphWidth = maxX-minX+200
         const graphXScale = containerWidth/graphWidth
 
@@ -660,7 +680,7 @@ export class Eagle {
     }
 
     // if selectedObjects contains nothing but one node, return the node, else null
-    selectedNode : ko.PureComputed<Node> = ko.pureComputed(() : Node => {
+    selectedNode : ko.PureComputed<Node | null> = ko.pureComputed(() : Node | null => {
         if (this.selectedObjects().length !== 1){
             return null;
         }
@@ -778,7 +798,7 @@ export class Eagle {
     }, this);
 
     toggleInspectorCollapsedState = () : void => {
-        Setting.find(Setting.INSPECTOR_COLLAPSED_STATE).toggle()
+        Setting.toggleValue(Setting.INSPECTOR_COLLAPSED_STATE);
     };
 
     getGraphModifiedDateText = () : string => {
@@ -860,7 +880,7 @@ export class Eagle {
                 let thisParentIsSelected = true
                 let thisObject = object
                 while (thisParentIsSelected){
-                    const thisParent: Node = thisObject.getParent();
+                    const thisParent: Node | null = thisObject.getParent();
                     if(thisParent != null){
                         thisParentIsSelected = eagle.objectIsSelectedById(thisParent.getId())
                         if(thisParentIsSelected){
@@ -999,7 +1019,7 @@ export class Eagle {
         try {
             dataObject = JSON.parse(data);
         }
-        catch(err){
+        catch(err: any){
             Utils.showUserMessage("Error parsing file JSON", err.message);
             return;
         }
@@ -1073,7 +1093,8 @@ export class Eagle {
             }
 
             // if already parented to a node in this selection, skip
-            if (node.getParent() !== null && this.objectIsSelected(node.getParent())){
+            const nodeParent = node.getParent();
+            if (nodeParent !== null && this.objectIsSelected(nodeParent)){
                 continue;
             }
 
@@ -1148,7 +1169,7 @@ export class Eagle {
     }
 
     // NOTE: parentNode would be null if we are duplicating a selection of objects
-    insertGraph = async (nodes: Node[], edges: Edge[], parentNode: Node, errorsWarnings: Errors.ErrorsWarnings) => {
+    insertGraph = async (nodes: Node[], edges: Edge[], parentNode: Node | null, errorsWarnings: Errors.ErrorsWarnings) => {
         const DUPLICATE_OFFSET: number = 20; // amount (in x and y) by which duplicated nodes will be positioned away from the originals
 
         // create map of inserted graph keys to final graph nodes, and of inserted port ids to final graph ports
@@ -1185,9 +1206,12 @@ export class Eagle {
             
             // copy embedded input application
             if (node.hasInputApplication()){
-                const oldInputApplication : Node = node.getInputApplication();
-                const newInputApplication : Node = insertedNode.getInputApplication();
+                const oldInputApplication : Node | null = node.getInputApplication();
+                const newInputApplication : Node | null = insertedNode.getInputApplication();
                 
+                if (oldInputApplication === null || newInputApplication === null){
+                    continue; // skip if no input application is present
+                }
                 nodeMap.set(oldInputApplication.getId(), newInputApplication);
 
                 // save mapping for input ports
@@ -1204,9 +1228,12 @@ export class Eagle {
 
             // copy embedded output application
             if (node.hasOutputApplication()){
-                const oldOutputApplication : Node = node.getOutputApplication();
-                const newOutputApplication : Node = insertedNode.getOutputApplication();
+                const oldOutputApplication : Node | null = node.getOutputApplication();
+                const newOutputApplication : Node | null = insertedNode.getOutputApplication();
                 
+                if (oldOutputApplication === null || newOutputApplication === null){
+                    continue; // skip if no output application is present
+                }
                 nodeMap.set(oldOutputApplication.getId(), newOutputApplication);
                 
                 // save mapping for input ports
@@ -1233,7 +1260,12 @@ export class Eagle {
 
         // update some other details of the nodes are updated correctly
         for (const node of nodes){
-            const insertedNode: Node = nodeMap.get(node.getId());
+            const insertedNode: Node | undefined = nodeMap.get(node.getId());
+
+            if (typeof insertedNode === 'undefined'){
+                errorsWarnings.errors.push(Errors.Message("Unable to insert node " + node.getId() + ", it was not found in the node map."));
+                continue;
+            }
 
             // if original node has a parent, set the parent of the inserted node to the inserted parent
             if (node.getParent() !== null){
@@ -1281,7 +1313,15 @@ export class Eagle {
             }
 
             // TODO: maybe use addEdgeComplete? otherwise check portName = "" is OK
-            this.addEdge(srcNode, portMap.get(edge.getSrcPort().getId()), destNode, portMap.get(edge.getDestPort().getId()), edge.isLoopAware(), edge.isClosesLoop());
+            const srcPort = portMap.get(edge.getSrcPort().getId());
+            const destPort = portMap.get(edge.getDestPort().getId());
+
+            if (typeof srcPort === "undefined" || typeof destPort === "undefined"){
+                errorsWarnings.warnings.push(Errors.Message("Unable to insert edge " + edge.getId() + " source port or destination port could not be found."));
+                continue;
+            }
+
+            this.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop());
         }
 
         //used if we cant find space on the canvas, we then extend the search area for space and center the graph after adding to bring new nodes into view
@@ -1353,7 +1393,13 @@ export class Eagle {
             return;
         }
 
-        document.getElementById("graphFileToLoad").click();
+        const graphFileToLoad = document.getElementById("graphFileToLoad");
+        if (graphFileToLoad === null){
+            console.error("getGraphFileToLoad(): graphFileToLoad element not found");
+            return;
+        }
+
+        graphFileToLoad.click();
         this.resetEditor()
     }
 
@@ -1363,7 +1409,12 @@ export class Eagle {
             return;
         }
 
-        document.getElementById("graphFileToInsert").click();
+        const graphFileToInsert = document.getElementById("graphFileToInsert");
+        if (graphFileToInsert === null){
+            console.error("getGraphFileToInsert(): graphFileToInsert element not found");
+            return;
+        }
+        graphFileToInsert.click();
     }
 
     getPaletteFileToLoad = () : void => {
@@ -1372,7 +1423,12 @@ export class Eagle {
             return;
         }
 
-        document.getElementById("paletteFileToLoad").click();
+        const paletteFileToLoad = document.getElementById("paletteFileToLoad");
+        if (paletteFileToLoad === null){
+            console.error("getPaletteFileToLoad(): paletteFileToLoad element not found");
+            return;
+        }
+        paletteFileToLoad.click();
     }
 
     /**
@@ -1461,13 +1517,13 @@ export class Eagle {
         const errorsWarnings : Errors.ErrorsWarnings = {"errors": [], "warnings": []};
 
         for (const n of clipboard.nodes){
-            const node = Node.fromOJSJson(n, null, false);
+            const node = Node.fromOJSJson(n, errorsWarnings, false);
 
             nodes.push(node);
         }
 
         for (const e of clipboard.edges){
-            const edge = Edge.fromOJSJson(e, nodes, null);
+            const edge = Edge.fromOJSJson(e, nodes, errorsWarnings);
 
             edges.push(edge);
         }
@@ -2276,7 +2332,7 @@ export class Eagle {
                 break;
             default:
                 console.warn("Unsure how to fetch file with unknown service ", file.repository.service);
-                break;
+                return;
         }
 
         // load file from github or gitlab
@@ -2302,7 +2358,7 @@ export class Eagle {
             try {
                 dataObject = JSON.parse(data);
             }
-            catch(err){
+            catch(err: any){
                 Utils.showUserMessage("Error parsing file JSON", err.message);
                 return;
             }
@@ -2325,7 +2381,7 @@ export class Eagle {
                 // warn user if file newer than EAGLE
                 if (Utils.newerEagleVersion(eagleVersion, (<any>window).version)){
                     try {
-                        await Utils.requestUserConfirm("Newer EAGLE Version", "File " + file.name + " was written with EAGLE version " + eagleVersion + ", whereas the current EAGLE version is " + (<any>window).version + ". Do you wish to load the file anyway?", "Yes", "No", null);
+                        await Utils.requestUserConfirm("Newer EAGLE Version", "File " + file.name + " was written with EAGLE version " + eagleVersion + ", whereas the current EAGLE version is " + (<any>window).version + ". Do you wish to load the file anyway?", "Yes", "No", "");
                     } catch (error){
                         console.error(error);
                         return;
@@ -2474,7 +2530,7 @@ export class Eagle {
     deleteRemoteFile = async (file : RepositoryFile): Promise<void> => {
         // request confirmation from user
         try {
-            await Utils.requestUserConfirm("Delete?", "Are you sure you wish to delete '" + file.name + "' from this repository?", "Yes", "No", Setting.find(Setting.CONFIRM_DELETE_FILES));
+            await Utils.requestUserConfirm("Delete?", "Are you sure you wish to delete '" + file.name + "' from this repository?", "Yes", "No", Setting.CONFIRM_DELETE_FILES);
         } catch (error) {
             console.error(error);
             return;
@@ -2523,7 +2579,7 @@ export class Eagle {
         // if dictated by settings, reload the palette immediately
         if (alreadyLoadedPalette !== null && Setting.findValue(Setting.CONFIRM_RELOAD_PALETTES)){
             try {
-                await Utils.requestUserConfirm("Reload Palette?", "This palette (" + file.name + ") is already loaded, do you wish to load it again?", "Yes", "No", Setting.find(Setting.CONFIRM_RELOAD_PALETTES));
+                await Utils.requestUserConfirm("Reload Palette?", "This palette (" + file.name + ") is already loaded, do you wish to load it again?", "Yes", "No", Setting.CONFIRM_RELOAD_PALETTES);
             } catch (error){
                 console.error(error);
                 return;
@@ -2534,7 +2590,7 @@ export class Eagle {
         }
     }
 
-    private _reloadPalette = (file : RepositoryFile, data : string, palette : Palette) : void => {
+    private _reloadPalette = (file : RepositoryFile, data : string, palette : Palette | null) : void => {
         // close the existing version of the open palette
         if (palette !== null){
             this.closePalette(palette);
@@ -2599,7 +2655,7 @@ export class Eagle {
                 // check if the palette is modified, and if so, ask the user to confirm they wish to close
                 if (p.fileInfo().modified && Setting.findValue(Setting.CONFIRM_DISCARD_CHANGES)){
                     try {
-                        await Utils.requestUserConfirm("Close Modified Palette", "Are you sure you wish to close this modified palette?", "Close", "Cancel", null);
+                        await Utils.requestUserConfirm("Close Modified Palette", "Are you sure you wish to close this modified palette?", "Close", "Cancel", "");
                     } catch (error){
                         console.error(error);
                         return;
@@ -3561,7 +3617,7 @@ export class Eagle {
 
         // request confirmation from user
         try {
-            await Utils.requestUserConfirm("Delete?", confirmMessage, "Yes", "No", Setting.find(Setting.CONFIRM_DELETE_OBJECTS));
+            await Utils.requestUserConfirm("Delete?", confirmMessage, "Yes", "No", Setting.CONFIRM_DELETE_OBJECTS);
         } catch (error) {
             console.error(error);
             return;
@@ -4626,7 +4682,7 @@ export class Eagle {
         // old request if 'confirm' setting is true AND we're not going to keep the old fields
         if (confirmNodeCategoryChanges && !keepOldFields){
             try {
-                await Utils.requestUserConfirm("Change Category?", 'Changing a nodes category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category', "Yes", "No", Setting.find(Setting.CONFIRM_NODE_CATEGORY_CHANGES));
+                await Utils.requestUserConfirm("Change Category?", 'Changing a nodes category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category', "Yes", "No", Setting.CONFIRM_NODE_CATEGORY_CHANGES);
             } catch (error){
                 //we need to reset the input select to the previous value
                 $(event.target).val(this.selectedNode().getCategory())

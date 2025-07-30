@@ -334,7 +334,7 @@ export class Utils {
         });
     }
 
-    static async httpGetJSON(url: string, json: object): Promise<object> {
+    static async httpGetJSON(url: string, json: object | null): Promise<object> {
         return new Promise((resolve, reject) => {
             $.ajax({
                 url: url,
@@ -721,7 +721,8 @@ export class Utils {
         });
     }
 
-    static async requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string, confirmSetting: Setting): Promise<void> {
+    // TODO: ensure that this handles the case where confirmSetting is already false? (should immediately resolve?)
+    static async requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string, confirmSettingKey: string): Promise<void> {
         return new Promise(async(resolve, reject) => {
             $('#confirmModalTitle').text(title);
             $('#confirmModalMessage').html(message);
@@ -729,7 +730,10 @@ export class Utils {
             $('#confirmModalNegativeAnswer').text(negativeAnswer);
 
             $('#confirmModalDontShowAgain button').off()
-            if(confirmSetting === null){
+
+            const confirmSetting = Setting.find(confirmSettingKey);
+
+            if(typeof confirmSetting === "undefined"){
                 $('#confirmModalDontShowAgain').hide()
             }else{
                 $('#confirmModalDontShowAgain').show()
@@ -2316,7 +2320,7 @@ export class Utils {
         eagle.setSelection(edge, Eagle.FileType.Graph);
     }
 
-    static showNode(eagle: Eagle, location: Eagle.FileType, node: Node): void {
+    static showNode(eagle: Eagle, location: Eagle.FileType, node: Node | null): void {
         // close errors modal if visible
         $('#issuesDisplay').modal("hide");
 
@@ -2549,26 +2553,26 @@ export class Utils {
 
         // add logical graph nodes to table
         for (const graphConfigNode of activeConfig.getNodes()){
-            const graphNode: Node | undefined = eagle.logicalGraph().getNodeById(graphConfigNode.getNode().getId());
+            const graphNode: Node | null = graphConfigNode.getNode();
 
-            if (typeof graphNode === 'undefined'){
+            if (graphNode === null){
                 // TODO: what to do here? blank row, console warning?
                 continue;
             }
 
             for (const graphConfigField of graphConfigNode.getFields()){
-                const graphField: Field | undefined = graphNode.getFieldById(graphConfigField.getField().getId());
+                const graphField: Field | null = graphConfigField.getField();
 
-                if (typeof graphField === 'undefined'){
+                if (graphField === null){
                     // TODO: what to do here? blank row, console warning?
                     continue;
                 }
 
                 tableData.push({
                     "nodeName": graphNode.getName(),
-                    "nodeId": graphConfigNode.getNode().getId(),
+                    "nodeId": graphNode.getId(),
                     "fieldName": graphField.getDisplayText(),
-                    "fieldId": graphConfigField.getField().getId(),
+                    "fieldId": graphField.getId(),
                     "value": graphConfigField.getValue(),
                     "comment": graphConfigField.getComment()
                 });
@@ -2754,10 +2758,10 @@ export class Utils {
         }
 
         // find node with new type in builtinPalette
-        const newCategoryPrototype: Node = palette.findNodeByNameAndCategory(category);
+        const newCategoryPrototype: Node | undefined = palette.findNodeByNameAndCategory(category);
 
         // check that category was found
-        if (newCategoryPrototype === null){
+        if (typeof newCategoryPrototype === "undefined"){
             console.warn("Prototypes for new category could not be found in palettes", category);
             return;
         }

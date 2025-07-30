@@ -63,8 +63,8 @@ export class Edge {
         this.closesLoop = ko.observable(closesLoop);
         this.selectionRelative = selectionRelative;
         this.isShortEdge = ko.observable(false)
-        this.issues = ko.observableArray([]);
-        
+        this.issues = ko.observableArray(<{issue:Errors.Issue, validity:Errors.Validity}[]>[]);
+
         this.x = ko.observable(0);
         this.y = ko.observable(0);
     }
@@ -191,20 +191,6 @@ export class Edge {
         return false
     }
 
-    clear = () : void => {
-        this.comment('');
-        this.id = null;
-        this.srcNode = null;
-        this.srcPort = null;
-        this.destNode = null;
-        this.destPort = null;
-        this.loopAware(false);
-        this.closesLoop(false);
-        this.selectionRelative = false;
-        this.isShortEdge(false);
-        this.issues([]);
-    }
-
     clone = () : Edge => {
         const result : Edge = new Edge(this.comment(), this.srcNode, this.srcPort, this.destNode, this.destPort, this.loopAware(), this.closesLoop(), this.selectionRelative);
 
@@ -280,7 +266,7 @@ export class Edge {
         }
     }
 
-    static fromOJSJson(linkData: any, nodes: Node[], errorsWarnings: Errors.ErrorsWarnings) : Edge {
+    static fromOJSJson(linkData: any, nodes: Node[], errorsWarnings: Errors.ErrorsWarnings): Edge | null{
         let comment = ''
         // get comment (if exists)
         if (typeof linkData.comment !== 'undefined'){
@@ -288,10 +274,10 @@ export class Edge {
         }
 
         // try to read source and destination nodes and ports
-        let srcNodeId: NodeId = null;
-        let srcPortId: FieldId = null;
-        let destNodeId: NodeId = null;
-        let destPortId: FieldId = null;
+        let srcNodeId: NodeId = <NodeId>"";
+        let srcPortId: FieldId = <FieldId>"";
+        let destNodeId: NodeId = <NodeId>"";
+        let destPortId: FieldId = <FieldId>"";
 
         if (typeof linkData.from === 'undefined'){
             errorsWarnings.warnings.push(Errors.Message("Edge is missing a 'from' attribute"));
@@ -329,10 +315,10 @@ export class Edge {
             closesLoop = linkData.closesLoop;
         }
 
-        let srcNode: Node;
-        let destNode: Node;
-        let srcPort: Field;
-        let destPort: Field;
+        let srcNode: Node | undefined;
+        let destNode: Node | undefined;
+        let srcPort: Field | undefined;
+        let destPort: Field | undefined;
 
         for (const node of nodes){
             if (node.getId() === srcNodeId){
@@ -340,7 +326,7 @@ export class Edge {
 
                 // check input and output applications for srcPort
                 const result = node.findPortInApplicationsById(srcPortId);
-                if (result.node !== null){
+                if (typeof result.node !== 'undefined'){
                     srcNode = result.node;
                     srcPort = result.port;
                     continue;
@@ -354,7 +340,7 @@ export class Edge {
 
                 // check input and output applications for destPort
                 const result = node.findPortInApplicationsById(destPortId);
-                if (result.node !== null){
+                if (typeof result.node !== 'undefined'){
                     destNode = result.node;
                     destPort = result.port;
                     continue;
@@ -385,40 +371,35 @@ export class Edge {
         return new Edge(comment, srcNode, srcPort, destNode, destPort, loopAware, closesLoop, false);
     }
 
-    static fromV4Json(edgeData: any, lg: LogicalGraph, errorsWarnings: Errors.ErrorsWarnings) : Edge {
+    static fromV4Json(edgeData: any, lg: LogicalGraph, errorsWarnings: Errors.ErrorsWarnings) : Edge | null {
         const comment: string = edgeData.comment || '';
         const loopAware: boolean = edgeData.loopAware;
         const closesLoop: boolean = edgeData.closesLoop;
 
-        const srcNode: Node = lg.getNodeById(edgeData.srcNodeId);
-        const destNode: Node = lg.getNodeById(edgeData.destNodeId);
+        const srcNode: Node | undefined = lg.getNodeById(edgeData.srcNodeId);
+        const destNode: Node | undefined = lg.getNodeById(edgeData.destNodeId);
 
-        let errorFound: boolean = false;
-
-        if (typeof srcNode === 'undefined'){
-            errorsWarnings.warnings.push(Errors.Message("edge (" + edgeData.id + ") source node (" + edgeData.srcNodeId + ") could not be found, skipping"));
-            errorFound = true;
-        }
-        if (typeof destNode === 'undefined'){
-            errorsWarnings.warnings.push(Errors.Message("edge (" + edgeData.id + ") destination node (" + edgeData.destNodeId + ") could not be found, skipping"));
-            errorFound = true;
-        }
-        if (errorFound){
+        // NOTE: this structure is a little odd, but it allows us to produce a warning for missing both srcNode and destNode, not just one before we exit
+        if (typeof srcNode === 'undefined' || typeof destNode === 'undefined'){
+            if (typeof srcNode === 'undefined'){
+                errorsWarnings.warnings.push(Errors.Message("edge (" + edgeData.id + ") source node (" + edgeData.srcNodeId + ") could not be found, skipping"));
+            }
+            if (typeof destNode === 'undefined'){
+                errorsWarnings.warnings.push(Errors.Message("edge (" + edgeData.id + ") destination node (" + edgeData.destNodeId + ") could not be found, skipping"));
+            }
             return null;
         }
 
-        const srcPort: Field = srcNode.getFieldById(edgeData.srcPortId);
-        const destPort: Field = destNode.getFieldById(edgeData.destPortId);
+        const srcPort: Field | undefined = srcNode.getFieldById(edgeData.srcPortId);
+        const destPort: Field | undefined = destNode.getFieldById(edgeData.destPortId);
 
-        if (typeof srcPort === 'undefined'){
-            errorsWarnings.warnings.push(Errors.Message("edge (" + edgeData.id + ") source port (" + edgeData.srcPortId + ") could not be found, skipping"));
-            errorFound = true;
-        }
-        if (typeof destPort === 'undefined'){
-            errorsWarnings.warnings.push(Errors.Message("edge (" + edgeData.id + ") destination port (" + edgeData.destPortId + ") could not be found, skipping"));
-            errorFound = true;
-        }
-        if (errorFound){
+        if (typeof srcPort === 'undefined' || typeof destPort === 'undefined'){
+            if (typeof srcPort === 'undefined'){
+                errorsWarnings.warnings.push(Errors.Message("edge (" + edgeData.id + ") source port (" + edgeData.srcPortId + ") could not be found, skipping"));
+            }
+            if (typeof destPort === 'undefined'){
+                errorsWarnings.warnings.push(Errors.Message("edge (" + edgeData.id + ") destination port (" + edgeData.destPortId + ") could not be found, skipping"));
+            }
             return null;
         }
 

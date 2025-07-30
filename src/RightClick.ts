@@ -31,7 +31,9 @@ export class RightClick {
     }
 
     // TODO: global event
-    static checkSearchField() : void {
+    static checkSearchField(arg1: any) : void {
+        console.log("checkSearchField called with arg1: ", arg1, typeof arg1);
+
         const searchValue:string = $(event.target).val().toString().toLocaleLowerCase()
 
         let paletteNodesHtml = ''
@@ -145,7 +147,7 @@ export class RightClick {
                     paletteNodes.push(paletteNode)
                 }
             }
-            paletteList += RightClick.constructHtmlPaletteList(paletteNodes,'embedNode',null,palette.fileInfo().name,passedObjectClass)
+            paletteList += RightClick.constructHtmlPaletteList(paletteNodes, 'embedNode', [], palette.fileInfo().name, passedObjectClass)
         }
 
         //sorting and adding compatible nodes from the graph
@@ -155,7 +157,7 @@ export class RightClick {
                 graphNodes.push(graphNode)
             }
         }
-        paletteList += RightClick.constructHtmlPaletteList(graphNodes,'embedNode',null,'Graph',passedObjectClass)
+        paletteList += RightClick.constructHtmlPaletteList(graphNodes, 'embedNode', [], 'Graph', passedObjectClass)
 
         return paletteList
     }
@@ -454,6 +456,10 @@ export class RightClick {
         }
 
         const funcCodeField = rightClickObject.findFieldByDisplayText(Daliuge.FieldName.FUNC_CODE);
+        if (!funcCodeField) {
+            console.warn("editNodeFuncCode() called on node without ", Daliuge.FieldName.FUNC_CODE, " field");
+            return;
+        }
         ParameterTable.requestEditValueCode(funcCodeField, false)
     }
 

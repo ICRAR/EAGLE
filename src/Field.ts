@@ -29,7 +29,7 @@ export class Field {
     private parameterType : ko.Observable<Daliuge.FieldType>;
     private usage : ko.Observable<Daliuge.FieldUsage>;
     private isEvent : ko.Observable<boolean>;
-    private node : ko.Observable<Node>;
+    private node : ko.Observable<Node | null>;
     private edges: ko.Observable<Map<EdgeId, Edge>>;
 
     // graph related attributes
@@ -56,7 +56,7 @@ export class Field {
         this.precious = ko.observable(precious);
         this.options = ko.observableArray(options);
         this.positional = ko.observable(positional);
-        this.encoding = ko.observable(Daliuge.Encoding.Pickle);
+        this.encoding = ko.observable<Daliuge.Encoding>(Daliuge.Encoding.Pickle);
 
         this.id = ko.observable(id);
         this.parameterType = ko.observable(parameterType);
@@ -77,7 +77,7 @@ export class Field {
         this.inputAngle = 0;
         this.outputAngle = 0;
 
-        this.issues = ko.observableArray([])
+        this.issues = ko.observableArray(<{issue:Errors.Issue, validity:Errors.Validity}[]>[])
     }
 
     getId = () : FieldId => {
@@ -351,7 +351,7 @@ export class Field {
         return this;
     }
 
-    getNode = () : Node => {
+    getNode = () : Node | null => {
         return this.node();
     }
 
@@ -426,29 +426,13 @@ export class Field {
         return this;
     }
 
-    getGraphConfigField : ko.PureComputed<GraphConfigField> = ko.pureComputed(() => {
-        return Eagle.getInstance().logicalGraph().getActiveGraphConfig()?.getNodeById(this.node().getId())?.getFieldById(this.id());
+    getGraphConfigField : ko.PureComputed<GraphConfigField | undefined> = ko.pureComputed(() => {
+        const node = this.node();
+        if (node === null) {
+            return undefined;
+        }
+        return Eagle.getInstance().logicalGraph().getActiveGraphConfig()?.getNodeById(node.getId())?.getFieldById(this.id());
     }, this);
-
-    clear = () : Field => {
-        this.displayText("");
-        this.value("");
-        this.defaultValue("");
-        this.description("");
-        this.readonly(false);
-        this.type(Daliuge.DataType.Unknown);
-        this.precious(false);
-        this.options([]);
-        this.positional(false);
-        this.parameterType(Daliuge.FieldType.Unknown);
-        this.usage(Daliuge.FieldUsage.NoPort);
-        this.encoding(Daliuge.Encoding.Pickle);
-
-        this.id(null);
-        this.isEvent(false);
-        this.node(null);
-        return this;
-    }
 
     clone = () : Field => {
         const options : string[] = []
@@ -501,7 +485,7 @@ export class Field {
         return tooltipText;
     }
 
-    copyWithIds = (src: Field, node: Node, id: FieldId) : Field => {
+    copyWithIds = (src: Field, node: Node | null, id: FieldId) : Field => {
         this.displayText(src.displayText());
         this.value(src.value());
         this.defaultValue(src.defaultValue());
@@ -583,8 +567,11 @@ export class Field {
 
             //check if the node name matches, but only if using the key parameter table modal
             if(Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ConfigParameterTable){
-                if(that.node().getName().toLowerCase().indexOf(term) >= 0){
-                    result = true
+                const node = that.node();
+                if (node !== null){
+                    if(node.getName().toLowerCase().indexOf(term) >= 0){
+                        result = true
+                    }
                 }
             }
 
@@ -871,21 +858,21 @@ export class Field {
     }
 
     static fromV4Json(data: any): Field {
-        let id: FieldId;
-        let name: string;
-        let value: string;
-        let defaultValue: string;
-        let description: string;
-        let readonly: boolean;
-        let type: Daliuge.DataType;
-        let precious: boolean;
-        let options: string[];
-        let positional: boolean;
-        let parameterType: Daliuge.FieldType;
-        let usage: Daliuge.FieldUsage;
+        let id: FieldId = <FieldId>"";
+        let name: string = "";
+        let value: string = "";
+        let defaultValue: string = "";
+        let description: string = "";
+        let readonly: boolean = false;
+        let type: Daliuge.DataType = Daliuge.DataType.Unknown;
+        let precious: boolean = false;
+        let options: string[] = [];
+        let positional: boolean = false;
+        let parameterType: Daliuge.FieldType = Daliuge.FieldType.Unknown;
+        let usage: Daliuge.FieldUsage = Daliuge.FieldUsage.NoPort;
 
-        let event: boolean;
-        let encoding: Daliuge.Encoding;
+        let event: boolean = false;
+        let encoding: Daliuge.Encoding = Daliuge.Encoding.UTF8;
 
         if (typeof data.id !== 'undefined')
             id = data.id;
@@ -933,20 +920,17 @@ export class Field {
             //check the data type is known (except in the case of event ports, they can be unknown)
             if (!field.isEvent() && field.isType(Daliuge.DataType.Unknown)){
                 let issue: Errors.Issue
+                const embed = node.getEmbed();
 
                 // for normal nodes
-                if(!node.isEmbedded()){
+                if(embed === null){
                     issue = Errors.ShowFix("Node (" + node.getName() + ") has input port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixFieldType(eagle, field)}, "");
                 }else{
-
-                    // for embedded nodes
-                    const constructNode = node.getEmbed();
-
-                    if(constructNode.getInputApplication() === node){
+                    if(embed.getInputApplication() === node){
                         //if node is input application
-                        issue = Errors.ShowFix("Node (" + constructNode.getName() + ") has input application (" + node.getName() + ") with input port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixFieldType(eagle, field)}, "");
+                        issue = Errors.ShowFix("Node (" + embed.getName() + ") has input application (" + node.getName() + ") with input port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixFieldType(eagle, field)}, "");
                     }else{
-                        issue = Errors.ShowFix("Node (" + constructNode.getName() + ") has output application (" + node.getName() + ") with input port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixFieldType(eagle, field)}, "");
+                        issue = Errors.ShowFix("Node (" + embed.getName() + ") has output application (" + node.getName() + ") with input port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixFieldType(eagle, field)}, "");
                     }
                 }
                 field.issues().push({issue:issue,validity:Errors.Validity.Warning})
@@ -961,20 +945,17 @@ export class Field {
             //check the data type is known (except in the case of event ports, they can be unknown)
             if (!field.isEvent() && field.isType(Daliuge.DataType.Unknown)){
                 let issue: Errors.Issue
+                const embed = node.getEmbed();
 
                 //for normal nodes
-                if(!node.isEmbedded()){
+                if(embed === null){
                     issue = Errors.ShowFix("Node (" + node.getName() + ") has output port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixFieldType(eagle, field)}, "");
                 }else{
-
-                    // for embedded nodes
-                    const constructNode = node.getEmbed();
-                    
-                    if(constructNode.getInputApplication() === node){
+                    if(embed.getInputApplication() === node){
                         //if node is input application
-                        issue = Errors.ShowFix("Node (" + constructNode.getName() + ") has input application (" + node.getName() + ") with output port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixFieldType(eagle, field)}, "");
+                        issue = Errors.ShowFix("Node (" + embed.getName() + ") has input application (" + node.getName() + ") with output port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixFieldType(eagle, field)}, "");
                     }else{
-                        issue = Errors.ShowFix("Node (" + constructNode.getName() + ") has output application (" + node.getName() + ") with output port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixFieldType(eagle, field)}, "");
+                        issue = Errors.ShowFix("Node (" + embed.getName() + ") has output application (" + node.getName() + ") with output port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixFieldType(eagle, field)}, "");
                     }
                 }
                 field.issues().push({issue:issue,validity:Errors.Validity.Warning})
@@ -986,19 +967,26 @@ export class Field {
         //check that the field has an id
         if (field.getId() === "" || field.getId() === null){
             const issue = Errors.ShowFix("Node (" + node.getName() + ") has field (" + field.getDisplayText() + ") with no id", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixFieldId(eagle, field)}, "Generate id for field");
-                field.issues().push({issue:issue,validity:Errors.Validity.Error})
+            field.issues().push({issue:issue,validity:Errors.Validity.Error})
         }
 
         // check that the field has a known type
         if (!Utils.validateType(field.getType())) {
             const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") has a component parameter (" + field.getDisplayText() + ") whose type (" + field.getType() + ") is unknown", function(){Utils.showField(eagle, location, node, field)}, function(){Utils.fixFieldType(eagle, field)}, "Prepend existing type (" + field.getType() + ") with 'Object.'");
-                field.issues().push({issue:issue,validity:Errors.Validity.Warning})
+            field.issues().push({issue:issue,validity:Errors.Validity.Warning})
         }
 
-        // check that the fields "key" is the same as the key of the node it belongs to
-        if (field.getNode().getId() !== node.getId()) {
-            const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") has a field (" + field.getDisplayText() + ") whose node id (" + field.getNode().getId() + ") doesn't match the node (" + node.getId() + ")", function(){Utils.showField(eagle, location, node, field)}, function(){Utils.fixFieldNodeId(eagle, node, field)}, "Set field node id correctly");
+        // check that field has a node set
+        const fieldNode = field.getNode();
+        if (fieldNode === null) {
+            const issue: Errors.Issue = Errors.Show("Node (" + node.getName() + ") has a field (" + field.getDisplayText() + ") with no node set", function(){Utils.showField(eagle, location, node, field)});
+            field.issues().push({issue:issue,validity:Errors.Validity.Error})
+        } else {
+            // check that the fields "key" is the same as the key of the node it belongs to
+            if (fieldNode.getId() !== node.getId()) {
+                const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") has a field (" + field.getDisplayText() + ") whose node id (" + fieldNode.getId() + ") doesn't match the node (" + node.getId() + ")", function(){Utils.showField(eagle, location, node, field)}, function(){Utils.fixFieldNodeId(eagle, node, field)}, "Set field node id correctly");
                 field.issues().push({issue:issue,validity:Errors.Validity.Error})
+            }
         }
 
         // check that the field has a unique display text on the node
@@ -1080,9 +1068,12 @@ export class Field {
                 field.issues().push({issue:issue, validity:Errors.Validity.Error});
             }
 
-            if (edge.getSrcNode().getId() !== field.getNode().getId() && edge.getDestNode().getId() !== field.getNode().getId()){
-                const issue: Errors.Issue = Errors.Show("Node (" + node.getName() + ") field (" + field.getDisplayText() + ") has edge that isn't connected to the field", function(){Utils.showNode(eagle, location, field.getNode())});
-                field.issues().push({issue:issue, validity:Errors.Validity.Error});
+            const fieldNode = field.getNode();
+            if (fieldNode !== null) {
+                if (edge.getSrcNode().getId() !== fieldNode.getId() && edge.getDestNode().getId() !== fieldNode.getId()) {
+                    const issue: Errors.Issue = Errors.Show("Node (" + node.getName() + ") field (" + field.getDisplayText() + ") has edge that isn't connected to the field", function(){Utils.showNode(eagle, location, fieldNode)});
+                    field.issues().push({issue:issue, validity:Errors.Validity.Error});
+                }
             }
         }
     }

@@ -92,7 +92,7 @@ export class GraphConfig {
 
     addNode = (node: Node): GraphConfigNode => {
         // check to see if node already exists
-        const graphConfigNode: GraphConfigNode = this.nodes().get(node.getId());
+        const graphConfigNode: GraphConfigNode | undefined = this.nodes().get(node.getId());
 
         if (typeof graphConfigNode !== 'undefined'){
             return graphConfigNode;
@@ -108,10 +108,15 @@ export class GraphConfig {
 
     addField = (field: Field): void => {
         const node = field.getNode();
+        if (node === null) {
+            console.warn("GraphConfig.addField(): Field has no node set", field.getId());
+            return;
+        }
+
         this.addNode(node).addField(field);
     }
 
-    getNodeById = (id: NodeId): GraphConfigNode => {
+    getNodeById = (id: NodeId): GraphConfigNode | undefined => {
         return this.nodes().get(id);
     }
 
@@ -126,15 +131,29 @@ export class GraphConfig {
     }
 
     removeField = (field: Field): void => {
+        // get reference to the node that contains the field
+        const fieldNode = field.getNode();
+        if (fieldNode === null) {
+            console.warn("GraphConfig.removeField(): Field has no node set", field.getId());
+            return;
+        }
+
         // get reference to the GraphConfigNode containing the field
-        const graphConfigNode: GraphConfigNode = this.getNodeById(field.getNode().getId());
+        const graphConfigNode: GraphConfigNode | undefined = this.getNodeById(fieldNode.getId());
+        if (typeof graphConfigNode === 'undefined'){
+            console.warn("GraphConfig.removeField(): Could not find graphConfigNode for field", field.getId());
+            return;
+        }
 
         // remove the field
         graphConfigNode.removeFieldById(field.getId());
 
         // we check if removing the GraphConfigField means that the GraphConfigNode now has zero fields
         if (graphConfigNode.getNumFields() === 0){
-            this.removeNode(graphConfigNode.getNode());
+            const node = graphConfigNode.getNode();
+            if (node !== null){
+                this.removeNode(node);
+            }
         }
 
         // re-check graph
@@ -157,9 +176,14 @@ export class GraphConfig {
 
     hasField = (field: Field): boolean => {
         // get the Node for this field
-        const node: Node = field.getNode();
+        const node: Node | null = field.getNode();
 
-        const f: GraphConfigField = this.nodes().get(node.getId())?.getFieldById(field.getId());
+        if (node === null) {
+            console.warn("GraphConfig.hasField(): Field has no node set", field.getId());
+            return false;
+        }
+
+        const f: GraphConfigField | undefined = this.nodes().get(node.getId())?.getFieldById(field.getId());
 
         return typeof f !== 'undefined';
     }
@@ -178,10 +202,11 @@ export class GraphConfig {
         if (typeof data.nodes !== 'undefined'){
             for (const nodeId in data.nodes){
                 const nodeData = data.nodes[nodeId];
-                const lgNode: Node = lg.getNodeById(nodeId as NodeId);
+                const lgNode: Node | undefined = lg.getNodeById(nodeId as NodeId);
                 if (typeof lgNode === 'undefined'){
                     console.warn("GraphConfig.fromJson(): Could not find node", nodeId);
                     errorsWarnings.errors.push(Errors.Message("GraphConfig.fromJson(): Could not find node " + nodeId));
+                    continue;
                 }
 
                 const newNode: GraphConfigNode = GraphConfigNode.fromJson(nodeData, lgNode, errorsWarnings);
@@ -214,9 +239,9 @@ export class GraphConfig {
         // add nodes
         result.nodes = {};
         for (const node of graphConfig.nodes().values()){
-            const graphNode: Node = node.getNode();
+            const graphNode: Node | null = node.getNode();
 
-            if (typeof graphNode === 'undefined'){
+            if (graphNode === null){
                 continue;
             }
 
@@ -245,7 +270,7 @@ export class GraphConfig {
         console.log("Applying graph config with", config.numFields(), "fields to logical graph", lg.fileInfo.name);
 
         for (const [id, node] of config.nodes()){
-            const lgNode: Node = lg.getNodeById(id);
+            const lgNode: Node | undefined = lg.getNodeById(id);
 
             if (typeof lgNode === 'undefined'){
                 errors.errors.push(Errors.Message("GraphConfig.apply(): Could not find node" + id));
@@ -253,10 +278,16 @@ export class GraphConfig {
             }
 
             for (const field of node.getFields()){
-                const lgField: Field = lgNode.getFieldById(field.getField().getId());
+                const f = field.getField();
+                if (f === null){
+                    errors.errors.push(Errors.Message("GraphConfig.apply(): Field is null on node" + lgNode.getName()));
+                    continue;
+                }
+
+                const lgField: Field | undefined = lgNode.getFieldById(f.getId());
 
                 if (typeof lgField === 'undefined'){
-                    errors.errors.push(Errors.Message("GraphConfig.apply(): Could not find field" + field.getField().getId() + "on node" + lgNode.getName()));
+                    errors.errors.push(Errors.Message("GraphConfig.apply(): Could not find field" + f.getId() + "on node" + lgNode.getName()));
                     continue;
                 }
 
@@ -267,7 +298,7 @@ export class GraphConfig {
 }
 
 export class GraphConfigNode {
-    private node: ko.Observable<Node>;
+    private node: ko.Observable<Node | null>;
     private fields: ko.Observable<Map<FieldId, GraphConfigField>>;
 
     constructor(){
@@ -297,7 +328,7 @@ export class GraphConfigNode {
         return this;
     }
 
-    getNode = (): Node => {
+    getNode = (): Node | null => {
         return this.node();
     }
 
@@ -316,7 +347,7 @@ export class GraphConfigNode {
         return newField;
     }
 
-    getFieldById = (id: FieldId): GraphConfigField => {
+    getFieldById = (id: FieldId): GraphConfigField | undefined => {
         return this.fields().get(id);
     }
 
@@ -339,6 +370,12 @@ export class GraphConfigNode {
                 const newField: GraphConfigField = GraphConfigField.fromJson(fieldData, errorsWarnings);
                 const lgField = node.getFieldById(fieldId as FieldId);
 
+                if (typeof lgField === 'undefined'){
+                    console.warn("GraphConfigNode.fromJson(): Could not find field", fieldId, "on node", node.getName());
+                    errorsWarnings.errors.push(Errors.Message("GraphConfigNode.fromJson(): Could not find field " + fieldId + " on node " + node.getName()));
+                    continue;
+                }
+
                 newField.setField(lgField);
                 result.fields().set(lgField.getId(), newField);
                 result.fields.valueHasMutated();
@@ -354,13 +391,18 @@ export class GraphConfigNode {
         // add fields
         result.fields = {};
         for (const [id, field] of node.fields()){
-            const graphField: Field = graphNode.getFieldById(id);
+            const graphField: Field | undefined= graphNode.getFieldById(id);
 
             if (typeof graphField === 'undefined'){
                 continue;
             }
 
-            result.fields[field.getField().getId()] = GraphConfigField.toJson(field, graphField.getType());
+            const f = field.getField();
+            if (f === null){
+                console.warn("GraphConfigNode.toJSON(): Field is null on node", graphNode.getName());
+                continue;
+            }
+            result.fields[f.getId()] = GraphConfigField.toJson(field, graphField.getType());
         }
 
         return result;
@@ -368,7 +410,7 @@ export class GraphConfigNode {
 }
 
 export class GraphConfigField {
-    private field: ko.Observable<Field>;
+    private field: ko.Observable<Field | null>;
     private value: ko.Observable<string>;
     private comment: ko.Observable<string>;
 
@@ -393,7 +435,7 @@ export class GraphConfigField {
         return this;
     }
 
-    getField = (): Field => {
+    getField = (): Field | null => {
         return this.field();
     }
 

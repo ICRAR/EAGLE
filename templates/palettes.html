@@ -26,10 +26,10 @@
         </span>
         <div class="searchBarContainer">
             <i class="material-icons md-18 searchBarIcon">search</i>
-            <a href="#" data-bind="click:function(data, event){$root.emptySearchBar(Eagle.paletteComponentSearchString,data,event)}">
+            <a href="#" data-bind="click:function(data, event){$root.emptySearchBar(Eagle.paletteComponentSearchString, event)}">
                 <i class="material-icons md-18 searchBarIconClose">close</i>
             </a>
-            <input class="componentSearchBar" type="text" placeholder="Search" data-bind="valueUpdate: ['afterkeydown', 'input'], value:Eagle.paletteComponentSearchString, eagleTooltip: 'Search for components in all palettes', event:{keyup: function(data,event){$root.setSearchBarClearBtnState(data,event)}}"></input>
+            <input class="componentSearchBar" type="text" placeholder="Search" data-bind="valueUpdate: ['afterkeydown', 'input'], value:Eagle.paletteComponentSearchString, eagleTooltip: 'Search for components in all palettes', event:{keyup: function(data,event){$root.setSearchBarClearBtnState(event)}}"></input>
         </div>
     </div>
 </div>

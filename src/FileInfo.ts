@@ -42,15 +42,15 @@ export class FileInfo {
         this._detailedDescription = ko.observable("");
 
         this._path = ko.observable("");
-        this._type = ko.observable(Eagle.FileType.Unknown);
-        this._repositoryService = ko.observable(Repository.Service.Unknown);
+        this._type = ko.observable(<Eagle.FileType>Eagle.FileType.Unknown);
+        this._repositoryService = ko.observable(<Repository.Service>Repository.Service.Unknown);
         this._repositoryBranch = ko.observable("");
         this._repositoryName = ko.observable("");
         this._modified = ko.observable(false);
         this._generatorVersion = ko.observable("");
         this._generatorCommitHash = ko.observable("");
         this._generatorName = ko.observable("");
-        this._schemaVersion = ko.observable(Setting.SchemaVersion.Unknown);
+        this._schemaVersion = ko.observable(<Setting.SchemaVersion>Setting.SchemaVersion.Unknown);
         this._readonly = ko.observable(true);
         this._builtIn = ko.observable(false); // NOTE: not written to/read from JSON
 

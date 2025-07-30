@@ -29,8 +29,8 @@ export class Repository {
         this.isFetching = ko.observable(false);
         this.fetched = ko.observable(false);
         this.expanded = ko.observable(false);
-        this.files = ko.observableArray();
-        this.folders = ko.observableArray();
+        this.files = ko.observableArray(<RepositoryFile[]>[]);
+        this.folders = ko.observableArray(<RepositoryFolder[]>[]);
     }
 
     htmlId : ko.PureComputed<string> = ko.pureComputed(()=>{
@@ -88,7 +88,7 @@ export class Repository {
     // browse down into a repository, along the path, and return the RepositoryFolder there
     // or if no path, just return the Repository
     // or if path not found, return null
-    findPath = (path: string): Repository | RepositoryFolder => {
+    findPath = (path: string): Repository | RepositoryFolder | null => {
         if (path === ""){
             return this;
         }
@@ -180,7 +180,7 @@ export class Repository {
 
     deleteFile = (file: RepositoryFile) : void => {
         let pointer: Repository | RepositoryFolder = this;
-        let lastPointer: Repository | RepositoryFolder = null;
+        let lastPointer: Repository | RepositoryFolder | null = null;
         const fileIsInTopLevelOfRepo: boolean = file.path === "";
 
         if (!fileIsInTopLevelOfRepo){
@@ -208,9 +208,11 @@ export class Repository {
         // if so, the remove the folder too
         if (!fileIsInTopLevelOfRepo){
             if (pointer.files().length === 0){
-                for (let i = 0; i < lastPointer.folders().length ; i++){
-                    if (lastPointer.folders()[i].name === pointer.name){
-                        lastPointer.folders.splice(i, 1);
+                if (lastPointer !== null){
+                    for (let i = 0; i < lastPointer.folders().length ; i++){
+                        if (lastPointer.folders()[i].name === pointer.name){
+                            lastPointer.folders.splice(i, 1);
+                        }
                     }
                 }
             }

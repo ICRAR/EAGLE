@@ -15,7 +15,7 @@ export class Repositories {
     static repositories : ko.ObservableArray<Repository>;
 
     constructor(){
-        Repositories.repositories = ko.observableArray();
+        Repositories.repositories = ko.observableArray(<Repository[]>[]);
     }
 
     static async selectFile(file : RepositoryFile): Promise<void> {
@@ -41,10 +41,9 @@ export class Repositories {
         }
 
         // if the file is modified, get the user to confirm they want to overwrite changes
-        const confirmDiscardChanges: Setting = Setting.find(Setting.CONFIRM_DISCARD_CHANGES);
-        if (isModified && confirmDiscardChanges.value()){
+        if (isModified){
             try {
-                await Utils.requestUserConfirm("Discard changes?", "Opening a new file will discard changes. Continue?", "OK", "Cancel", confirmDiscardChanges);
+                await Utils.requestUserConfirm("Discard changes?", "Opening a new file will discard changes. Continue?", "OK", "Cancel", Setting.CONFIRM_DISCARD_CHANGES);
             } catch (error) {
                 console.error(error);
                 eagle.hideEagleIsLoading();
@@ -103,17 +102,8 @@ export class Repositories {
     }
 
     removeCustomRepository = async (repository : Repository): Promise<void> => {
-        const confirmRemoveRepositories: Setting = Setting.find(Setting.CONFIRM_REMOVE_REPOSITORIES);
-
-        // if settings dictates that we don't confirm with user, remove immediately
-        if (!confirmRemoveRepositories.value()){
-            this._removeCustomRepository(repository);
-            return;
-        }
-
-        // otherwise, check with user
         try {
-            await Utils.requestUserConfirm("Remove Custom Repository", "Remove this repository from the list?", "OK", "Cancel", confirmRemoveRepositories);
+            await Utils.requestUserConfirm("Remove Custom Repository", "Remove this repository from the list?", "OK", "Cancel", Setting.CONFIRM_REMOVE_REPOSITORIES);
         } catch (error) {
             console.error(error);
             return;

@@ -25,12 +25,11 @@ ko.bindingHandlers.eagleTooltip = {
         });
     },
     update: function (element, valueAccessor) {
-        const eagle: Eagle = Eagle.getInstance();
         const jQueryElement = $(element);
         
         // manual tooltip open system to allow for hovering on the tooltips
         let stillHovering = false
-        jQueryElement.on('mouseenter', function () {
+        jQueryElement.on('mouseenter', function (event) {
             event.stopImmediatePropagation()
             event.stopPropagation()
             event.preventDefault()

@@ -14,7 +14,10 @@ export class QuickActions {
 
         setTimeout(function(){
             if(QuickActions.open()){
-                document.getElementById("quickActionSearchbar").focus();
+                const searchbar: HTMLElement | null = document.getElementById("quickActionSearchbar");
+                if(searchbar){
+                    searchbar.focus();
+                }
                 QuickActions.initiateQuickActionQuickSelect()
             }else{
                 $('body').off('keydown.quickActions')
