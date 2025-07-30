@@ -188,7 +188,7 @@
     color: rgb(46 49 146);
 }
 
-.node .body {
+.node .body{
     position: relative;
     background-color: var(--nodeBackground);
     border-radius: 50%;
@@ -203,7 +203,23 @@
     height: auto;
 }
 
+.node .comment_node .commentIcons{
+    position: absolute;
+    inset: 0px 0px auto 0px;
+}
+
+.node .comment_node .commentIcons button{
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index:10;
+    background-color:blue;
+    border-radius: 50%;
+    color: white;
+}
+
 .node .comment_node .body {
+    background-color: transparent;
     border: none;
     box-shadow: none;
     border-radius: 10px;
