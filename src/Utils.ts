@@ -2315,9 +2315,14 @@ export class Utils {
         field.setId(newId);
     }
     
-    static showEdge(eagle: Eagle, edge: Edge): void {
+    static showEdge(eagle: Eagle, edge: Edge | undefined): void {
         // close errors modal if visible
         $('#issuesDisplay').modal("hide");
+
+        if (typeof edge === 'undefined'){
+            console.warn("Could not show undefined edge");
+            return;
+        }
 
         eagle.setSelection(edge, Eagle.FileType.Graph);
     }

@@ -441,8 +441,8 @@ export class Edge {
         }
 
         // get references to actual source and destination nodes (from the ids)
-        const sourceNode : Node = eagle.logicalGraph().getNodeById(sourceNodeId);
-        const destinationNode : Node = eagle.logicalGraph().getNodeById(destinationNodeId);
+        const sourceNode : Node | undefined = eagle.logicalGraph().getNodeById(sourceNodeId);
+        const destinationNode : Node | undefined = eagle.logicalGraph().getNodeById(destinationNodeId);
 
         if (typeof sourceNode === "undefined" || typeof destinationNode === "undefined"){
             return Errors.Validity.Unknown;
@@ -477,8 +477,8 @@ export class Edge {
             }
         }
 
-        const sourcePort : Field = sourceNode.getFieldById(sourcePortId);
-        const destinationPort : Field = destinationNode.getFieldById(destinationPortId);
+        const sourcePort : Field | undefined = sourceNode.getFieldById(sourcePortId);
+        const destinationPort : Field | undefined = destinationNode.getFieldById(destinationPortId);
 
         // check if source port was found
         if (typeof sourcePort === 'undefined') {
@@ -533,8 +533,8 @@ export class Edge {
 
         //checking the type of the parent nodes
         if(!isSibling){
-            const srcNodeParent: Node = sourceNode.getParent()
-            const destNodeParent: Node = destinationNode.getParent()
+            const srcNodeParent: Node | null = sourceNode.getParent()
+            const destNodeParent: Node | null = destinationNode.getParent()
 
             if(destNodeParent !== null && destNodeParent.getCategory() === Category.Loop || srcNodeParent !== null && srcNodeParent.getCategory() === Category.Loop){
                 associatedConstructType = Category.Loop
@@ -624,7 +624,7 @@ export class Edge {
         }
     }
 
-    private static isValidLog(edge: Edge, draggingPortMode: boolean, linkValid: Errors.Validity, issue: Errors.Issue, showNotification: boolean, showConsole: boolean, errorsWarnings: Errors.ErrorsWarnings): void {
+    private static isValidLog(edge: Edge | undefined, draggingPortMode: boolean, linkValid: Errors.Validity, issue: Errors.Issue, showNotification: boolean, showConsole: boolean, errorsWarnings: Errors.ErrorsWarnings): void {
         // determine correct title
         let title = "Edge Valid";
         let type : "success" | "info" | "warning" | "danger" = "success";

@@ -157,7 +157,7 @@ export class Hierarchy {
         }
     }
 
-    static drawEdge(edge:Edge, use:string, edgeSelected:boolean) : void {
+    static drawEdge(edge:Edge, use:"input"|"output", edgeSelected:boolean) : void {
         const srcId = edge.getSrcNode().getId()
         const destId = edge.getDestNode().getId()
 
@@ -172,7 +172,7 @@ export class Hierarchy {
         const srcNodePos = srcNodeElement.getBoundingClientRect()
         const destNodePos = destNodeElement.getBoundingClientRect()
         const parentPos = $("#rightWindowContainer")[0].getBoundingClientRect()
-        const parentScrollOffset = $(".rightWindowDisplay.hierarchy").scrollTop()
+        const parentScrollOffset = $(".rightWindowDisplay.hierarchy").scrollTop() || 0;
 
         // determine colour of edge
         const colour: string = edgeSelected ? EagleConfig.getColor('hierarchyEdgeSelected') : EagleConfig.getColor('hierarchyEdgeDefault');
@@ -190,9 +190,11 @@ export class Hierarchy {
             $('#nodeList .col').append('<div class="positionPointer" style="height:15px;width:auto;position:absolute;z-index:10001;top:'+p2y+'px;left:'+arrowX+'px;transform:rotate(90deg);fill:'+colour+';"><svg id="triangle" viewBox="0 0 100 100" style="transform: translate(-30%, -50%);"><polygon points="50 15, 100 100, 0 100"/></svg></div>')
 
         }else if(use==="output"){
-            p1x = ($('#nodeList .col').width() - (parentPos.right-srcNodePos.right))+29
+            const nodeListColWidth = $('#nodeList .col').width() || 0;
+
+            p1x = (nodeListColWidth - (parentPos.right-srcNodePos.right))+29
             p1y = ((srcNodePos.top - parentPos.top)+9)+parentScrollOffset
-            p2x = ($('#nodeList .col').width() - (parentPos.right-destNodePos.right))+39
+            p2x = (nodeListColWidth - (parentPos.right-destNodePos.right))+39
             p2y = ((destNodePos.top - parentPos.top)+9)+parentScrollOffset
             arrowX = (parentPos.right-destNodePos.right) - 20
             mpx = parentPos.right-srcNodePos.right+10
@@ -200,6 +202,7 @@ export class Hierarchy {
             //append arrows
             $('#nodeList .col').append('<div class="positionPointer" style="height:15px;width:auto;position:absolute;z-index:1001;top:'+p2y+'px;right:'+arrowX+'px;transform:rotate(-90deg);fill:'+colour+';"><svg id="triangle" viewBox="0 0 100 100" style="transform: translate(40%, -75%);"><polygon points="50 15, 100 100, 0 100"/></svg></div>')
         }else{
+            // TODO: handle error case
             console.log("error")
         }
 
