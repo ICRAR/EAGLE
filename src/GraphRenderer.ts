@@ -664,7 +664,7 @@ export class GraphRenderer {
 
         // find a single port of the correct type to consider when looking for adjacentNodes
         // TODO: why do we select a single port here, why not consider all ports (if multiple exist)?
-        let field : Field;
+        let field : Field | undefined = undefined;
         for(const port of node.getFields()){
             if (input && port.isInputPort()){
                 field = port;
@@ -677,7 +677,7 @@ export class GraphRenderer {
         }
 
         // abort if no field is found
-        if (field === undefined){
+        if (typeof field === "undefined"){
             return [];
         }
 
@@ -771,7 +771,7 @@ export class GraphRenderer {
         return interpolatedAngle;
     }
 
-    static createBezier(straightEdgeForce:boolean,addArrowForce:boolean, edge:Edge, srcNodeRadius:number, destNodeRadius:number, srcNodePosition: {x: number, y: number}, destNodePosition: {x: number, y: number}, srcField: Field, destField: Field, sourcePortIsInput: boolean) : string {
+    static createBezier(straightEdgeForce:boolean,addArrowForce:boolean, edge:Edge | null, srcNodeRadius:number, destNodeRadius:number, srcNodePosition: {x: number, y: number}, destNodePosition: {x: number, y: number}, srcField: Field, destField: Field, sourcePortIsInput: boolean) : string {
 
         //since the svg parent is translated -50% to center our working area, we need to add half of its size to correct the positions
         const svgTranslationCorrection = EagleConfig.EDGE_SVG_SIZE/2
@@ -922,7 +922,7 @@ export class GraphRenderer {
         const lg: LogicalGraph = Eagle.getInstance().logicalGraph();
 
         const srcNode: Node = commentNode;
-        const destNode: Node = commentNode.getSubject();
+        const destNode: Node | null = commentNode.getSubject();
 
         if(srcNode === null || destNode === null){
             return ''
@@ -944,13 +944,13 @@ export class GraphRenderer {
         const destY: number = GraphRenderer.mousePosY();
 
         const srcField: Field = GraphRenderer.portDragSourcePort();
-        const destField: Field = null;
+        const destField: Field | null = null;
 
         //if we are dragging from an input port well pass the dragSrcPort(the input port) as the destination of edge. this is so the flow arrow on the edge is point in the correct direction in terms of graph flow
         if(GraphRenderer.portDragSourcePortIsInput){
-            return GraphRenderer.createBezier(false,true, null, destNodeRadius, srcNodeRadius, {x:destX, y:destY}, {x:srcX, y:srcY}, destField, srcField, !GraphRenderer.portDragSourcePortIsInput);
+            return GraphRenderer.createBezier(false, true, null, destNodeRadius, srcNodeRadius, {x:destX, y:destY}, {x:srcX, y:srcY}, destField, srcField, !GraphRenderer.portDragSourcePortIsInput);
         }else{
-            return GraphRenderer.createBezier(false,true, null, srcNodeRadius, destNodeRadius, {x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField, GraphRenderer.portDragSourcePortIsInput);
+            return GraphRenderer.createBezier(false, true, null, srcNodeRadius, destNodeRadius, {x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField, GraphRenderer.portDragSourcePortIsInput);
         }
     }, this);
 
@@ -973,10 +973,10 @@ export class GraphRenderer {
         const srcField: Field = null;
         const destField: Field = GraphRenderer.portDragSuggestedField();
 
-        return GraphRenderer.createBezier(true,false,  null, srcNodeRadius, destNodeRadius, {x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField, GraphRenderer.portDragSourcePortIsInput);
+        return GraphRenderer.createBezier(true, false, null, srcNodeRadius, destNodeRadius, {x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField, GraphRenderer.portDragSourcePortIsInput);
     }, this);
 
-    static _getPath(edge:Edge, srcNode: Node, destNode: Node, srcField: Field, destField: Field) : string {
+    static _getPath(edge:Edge | null, srcNode: Node, destNode: Node, srcField: Field, destField: Field) : string {
         if (srcNode === null || destNode === null){
             console.warn("Cannot getPath between null nodes. srcNode:", srcNode, "destNode:", destNode);
             return "";
@@ -1431,15 +1431,18 @@ export class GraphRenderer {
             let destFound = false;
 
             for (const node of nodes){
+                const inputApplication = node.getInputApplication();
+                const outputApplication = node.getOutputApplication();
+
                 if ((node.getId() === srcId) ||
-                    (node.hasInputApplication() && node.getInputApplication().getId() === srcId) ||
-                    (node.hasOutputApplication() && node.getOutputApplication().getId() === srcId)){
+                    (inputApplication !== null && inputApplication.getId() === srcId) ||
+                    (outputApplication !== null && outputApplication.getId() === srcId)){
                     srcFound = true;
                 }
 
                 if ((node.getId() === destId) ||
-                    (node.hasInputApplication() && node.getInputApplication().getId() === destId) ||
-                    (node.hasOutputApplication() && node.getOutputApplication().getId() === destId)){
+                    (inputApplication !== null && inputApplication.getId() === destId) ||
+                    (outputApplication !== null && outputApplication.getId() === destId)){
                     destFound = true;
                 }
             }

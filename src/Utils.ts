@@ -2380,7 +2380,7 @@ export class Utils {
     }
 
     // only update result if it is worse that current result
-    static worstEdgeError(errorsWarnings: Errors.ErrorsWarnings) : Errors.Validity {
+    static worstEdgeError(errorsWarnings: Errors.ErrorsWarnings | null) : Errors.Validity {
         if (errorsWarnings === null){
             console.warn("errorsWarnings is null");
             return Errors.Validity.Valid;
@@ -2952,5 +2952,15 @@ export class Utils {
         }
 
         return customRepositories;
+    }
+
+    static displayCursor(display: boolean): void {
+        const body = document.querySelector('body');
+        if (body === null) {
+            console.error("Could not find body element to set cursor style");
+            return;
+        }
+
+        body.style.cursor = display ? 'auto' : 'none';
     }
 }

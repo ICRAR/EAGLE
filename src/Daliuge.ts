@@ -192,6 +192,10 @@ export namespace Daliuge {
     export const persistField = new Field(<FieldId>"", FieldName.PERSIST, "false", "false", "Specifies whether this data component contains data that should not be deleted after execution", false, Daliuge.DataType.Boolean, false, [], false, Daliuge.FieldType.Component, Daliuge.FieldUsage.NoPort);
     export const streamingField = new Field(<FieldId>"", FieldName.STREAMING, "false", "false", "Specifies whether this data component streams input and output data", false, Daliuge.DataType.Boolean, false, [], false, Daliuge.FieldType.Component, Daliuge.FieldUsage.NoPort);
 
+    export const imageField = new Field(<FieldId>"", FieldName.IMAGE, "", "", "The name of the docker image to be used for this application", false, Daliuge.DataType.String, false, [], false, Daliuge.FieldType.Component, Daliuge.FieldUsage.NoPort);
+    export const tagField = new Field(<FieldId>"", FieldName.TAG, "1.0", "1.0", "The tag of the docker image to be used for this application", false, Daliuge.DataType.String, false, [], false, Daliuge.FieldType.Component, Daliuge.FieldUsage.NoPort);
+    export const digestField = new Field(<FieldId>"", FieldName.DIGEST, "", "", "The hexadecimal hash (long version) of the docker image to be used for this application", false, Daliuge.DataType.String, false, [], false, Daliuge.FieldType.Component, Daliuge.FieldUsage.NoPort);
+
     // This list defines the fields required for ALL nodes belonging to a given Category.Type
     export const categoryTypeFieldsRequired = [
         {

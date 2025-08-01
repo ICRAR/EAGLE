@@ -406,7 +406,7 @@ export class Edge {
         return new Edge(comment, srcNode, srcPort, destNode, destPort, loopAware, closesLoop, false);
     }
 
-    static isValid(eagle: Eagle, draggingPortMode: boolean, edgeId: EdgeId, sourceNodeId: NodeId, sourcePortId: FieldId, destinationNodeId: NodeId, destinationPortId: FieldId, loopAware: boolean, closesLoop: boolean, showNotification: boolean, showConsole: boolean, errorsWarnings: Errors.ErrorsWarnings) : Errors.Validity {
+    static isValid(eagle: Eagle, draggingPortMode: boolean, edgeId: EdgeId, sourceNodeId: NodeId, sourcePortId: FieldId, destinationNodeId: NodeId, destinationPortId: FieldId, loopAware: boolean, closesLoop: boolean, showNotification: boolean, showConsole: boolean, errorsWarnings: Errors.ErrorsWarnings | null) : Errors.Validity {
         let impossibleEdge : boolean = false;
         let draggingEdgeFixable : boolean = false;
 
@@ -455,17 +455,31 @@ export class Edge {
 
         // check that we are not connecting an Application component to an Application component, that is not supported
         if (sourceNode.getCategoryType() === Category.Type.Application && destinationNode.getCategoryType() === Category.Type.Application){
-            Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Fixable, Errors.ShowFix("Application nodes may not be connected directly to other Application nodes", function(){Utils.showEdge(eagle, edge);}, function(){Utils.fixAppToAppEdge(eagle, edge);}, "Add intermediate Data node between edge's source and destination app nodes"), showNotification, showConsole, errorsWarnings);
+            if (typeof edge === 'undefined'){
+                Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Fixable, Errors.Message("Application nodes may not be connected directly to other Application nodes"), showNotification, showConsole, errorsWarnings);
+            } else {
+                Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Fixable, Errors.ShowFix("Application nodes may not be connected directly to other Application nodes", function(){Utils.showEdge(eagle, edge);}, function(){Utils.fixAppToAppEdge(eagle, edge);}, "Add intermediate Data node between edge's source and destination app nodes"), showNotification, showConsole, errorsWarnings);
+            }
         }
 
         // if source node or destination node is a construct, then something is wrong, constructs should not have ports
         if (sourceNode.getCategoryType() === Category.Type.Construct){
-            const issue: Errors.Issue = Errors.ShowFix("Edge cannot have a source node (" + sourceNode.getName() + ") that is a construct", function(){Utils.showEdge(eagle, edge)}, function(){Utils.fixMoveEdgeToEmbeddedApplication(eagle, edge)}, "Move edge to embedded application");
+            let issue: Errors.Issue;
+            if (typeof edge === 'undefined'){
+                issue = Errors.Message("Edge cannot have a source node (" + sourceNode.getName() + ") that is a construct");
+            } else {
+                issue = Errors.ShowFix("Edge cannot have a source node (" + sourceNode.getName() + ") that is a construct", function(){Utils.showEdge(eagle, edge)}, function(){Utils.fixMoveEdgeToEmbeddedApplication(eagle, edge)}, "Move edge to embedded application");
+            }
             Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Error, issue, showNotification, showConsole, errorsWarnings);
         }
 
         if (destinationNode.getCategoryType() === Category.Type.Construct){
-            const issue: Errors.Issue = Errors.ShowFix("Edge cannot have a destination node (" + destinationNode.getName() + ") that is a construct", function(){Utils.showEdge(eagle, edge)}, function(){Utils.fixMoveEdgeToEmbeddedApplication(eagle, edge)}, "Move edge to embedded application");
+            let issue: Errors.Issue;
+            if (typeof edge === 'undefined'){
+                issue = Errors.Message("Edge cannot have a destination node (" + destinationNode.getName() + ") that is a construct");
+            } else {
+                issue = Errors.ShowFix("Edge cannot have a destination node (" + destinationNode.getName() + ") that is a construct", function(){Utils.showEdge(eagle, edge)}, function(){Utils.fixMoveEdgeToEmbeddedApplication(eagle, edge)}, "Move edge to embedded application");
+            }
             Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Error, issue, showNotification, showConsole, errorsWarnings);
         }
 
@@ -482,7 +496,12 @@ export class Edge {
 
         // check if source port was found
         if (typeof sourcePort === 'undefined') {
-            const issue: Errors.Issue = Errors.ShowFix("Source port doesn't exist on source node (" + sourceNode.getName() + ")", function(){Utils.showEdge(eagle, edge)}, function(){Utils.addSourcePortToSourceNode(eagle, edge)}, "Add source port to source node");
+            let issue: Errors.Issue;
+            if (typeof edge === 'undefined'){
+                issue = Errors.Message("Source port doesn't exist on source node (" + sourceNode.getName() + ")");
+            } else {
+                issue = Errors.ShowFix("Source port doesn't exist on source node (" + sourceNode.getName() + ")", function(){Utils.showEdge(eagle, edge)}, function(){Utils.addSourcePortToSourceNode(eagle, edge)}, "Add source port to source node");
+            }
             Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
             impossibleEdge = true;
             return Errors.Validity.Impossible;
@@ -490,7 +509,12 @@ export class Edge {
 
         // check if destination port was found
         if (typeof destinationPort === 'undefined'){
-            const issue: Errors.Issue = Errors.ShowFix("Destination port doesn't exist on destination node (" + destinationNode.getName() + ")", function(){Utils.showEdge(eagle, edge)}, function(){Utils.addDestinationPortToDestinationNode(eagle, edge)}, "Add destination port to destination node");
+            let issue: Errors.Issue;
+            if (typeof edge === 'undefined'){
+                issue = Errors.Message("Destination port doesn't exist on destination node (" + destinationNode.getName() + ")");
+            } else {
+                issue = Errors.ShowFix("Destination port doesn't exist on destination node (" + destinationNode.getName() + ")", function(){Utils.showEdge(eagle, edge)}, function(){Utils.addDestinationPortToDestinationNode(eagle, edge)}, "Add destination port to destination node");
+            }
             Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
             impossibleEdge = true;
             return Errors.Validity.Impossible;
@@ -517,19 +541,20 @@ export class Edge {
             }
         }
 
+        const sourceNodeParent = sourceNode.getParent();
+        const sourceNodeEmbed = sourceNode.getEmbed();
+        const destinationNodeParent = destinationNode.getParent();
+        const destinationNodeEmbed = destinationNode.getEmbed();
+
         // check relationship of destination Node in relation to source node
-        const sourceHasParent = sourceNode.getParent() !== null;
-        const sourceHasEmbed = sourceNode.getEmbed() !== null;
-        const destinationHasParent = destinationNode.getParent() !== null;
-        const destinationHasEmbed = destinationNode.getEmbed() !== null;
-        const isParentOfConstruct : boolean = sourceHasParent && destinationHasEmbed && sourceNode.getParent().getId() === destinationNode.getEmbed().getId(); // is the connection from a child of a construct to an embedded app of the same construct
-        const isChildOfConstruct : boolean = destinationHasParent && sourceHasEmbed && destinationNode.getParent().getId() === sourceNode.getEmbed().getId(); //is the connections from an embedded app of a construct to a child of that same construct
-        const isSibling : boolean = (sourceHasParent && destinationHasParent && sourceNode.getParent().getId() === destinationNode.getParent().getId()) || (!sourceHasParent && !destinationHasParent); // do the two nodes have the same parent
-        let associatedConstructType : Category = null; //the category type of the parent construct of the source or destination node
+        const isParentOfConstruct : boolean = sourceNodeParent !== null && destinationNodeEmbed !== null && sourceNodeParent.getId() === destinationNodeEmbed.getId(); // is the connection from a child of a construct to an embedded app of the same construct
+        const isChildOfConstruct : boolean = destinationNodeParent !== null && sourceNodeEmbed !== null && destinationNodeParent.getId() === sourceNodeEmbed.getId(); //is the connections from an embedded app of a construct to a child of that same construct
+        const isSibling : boolean = (sourceNodeParent != null && destinationNodeParent !== null && sourceNodeParent.getId() === destinationNodeParent.getId()) || (sourceNodeParent === null && destinationNodeParent === null); // do the two nodes have the same parent
+        let associatedConstructType : Category | null = null; //the category type of the parent construct of the source or destination node
 
         //these checks are to see if the source or destination node are embedded apps whose parent is a sibling of the other source or destination node
-        const destPortIsEmbeddedAppOfSibling : boolean = sourceHasParent && destinationHasEmbed && sourceNode.getParent().getId() === destinationNode.getEmbed()?.getParent()?.getId();
-        const srcPortIsEmbeddedAppOfSibling : boolean = destinationHasParent && sourceHasEmbed && destinationNode.getParent().getId() === sourceNode.getEmbed()?.getParent()?.getId();
+        const destPortIsEmbeddedAppOfSibling : boolean = sourceNodeParent !== null && destinationNodeEmbed !== null && sourceNodeParent.getId() === destinationNodeEmbed.getParent()?.getId();
+        const srcPortIsEmbeddedAppOfSibling : boolean = destinationNodeParent !== null && sourceNodeEmbed !== null && destinationNodeParent.getId() === sourceNodeEmbed.getParent()?.getId();
 
         //checking the type of the parent nodes
         if(!isSibling){
@@ -555,8 +580,8 @@ export class Edge {
         if(    isSibling && loopAware 
             || destPortIsEmbeddedAppOfSibling && loopAware
             || srcPortIsEmbeddedAppOfSibling && loopAware
-            || sourceNode.isEmbedded() && destinationNode.hasParent() && sourceNode.getEmbed().getId() === destinationNode.getParent().getId() && loopAware
-            || destinationNode.isEmbedded() && sourceNode.hasParent() && destinationNode.getEmbed().getId() === sourceNode.getParent().getId() && loopAware
+            || sourceNodeEmbed !== null && destinationNodeParent !== null && sourceNodeEmbed.getId() === destinationNodeParent.getId() && loopAware
+            || destinationNodeEmbed !== null && sourceNodeParent !== null && destinationNodeEmbed.getId() === sourceNodeParent.getId() && loopAware
             || associatedConstructType !== Category.Loop && loopAware
         ){
             const x = Errors.ShowFix("Edge between two siblings should not be loop aware", function(){Utils.showEdge(eagle, edge);}, function(){Utils.fixDisableEdgeLoopAware(eagle, edgeId);}, "Disable loop aware on the edge.");
@@ -595,12 +620,14 @@ export class Edge {
                 Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Error, x, showNotification, showConsole, errorsWarnings);
             }
 
-            if (!sourceNode.hasFieldWithDisplayText(Daliuge.FieldName.GROUP_END) || !Utils.asBool(sourceNode.getFieldByDisplayText(Daliuge.FieldName.GROUP_END).getValue())){
+            const groupEndField = sourceNode.getFieldByDisplayText(Daliuge.FieldName.GROUP_END);
+            if (typeof groupEndField === "undefined" || !Utils.asBool(groupEndField.getValue())){
                 const x = Errors.ShowFix("'Closes Loop' Edge start node (" + sourceNode.getName() + ") does not have 'group_end' set to true.", function(){Utils.showEdge(eagle, edge);}, function(){Utils.fixFieldValue(eagle, sourceNode, Daliuge.groupEndField, "true")}, "Set 'group_end' to true");
                 Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Error, x, showNotification, showConsole, errorsWarnings);
             }
 
-            if (!destinationNode.hasFieldWithDisplayText(Daliuge.FieldName.GROUP_START) || !Utils.asBool(destinationNode.getFieldByDisplayText(Daliuge.FieldName.GROUP_START).getValue())){
+            const groupStartField = destinationNode.getFieldByDisplayText(Daliuge.FieldName.GROUP_START);
+            if (typeof groupStartField === "undefined" || !Utils.asBool(groupStartField.getValue())){
                 const x = Errors.ShowFix("'Closes Loop' Edge end node (" + destinationNode.getName() + ") does not have 'group_start' set to true.", function(){Utils.showEdge(eagle, edge);}, function(){Utils.fixFieldValue(eagle, destinationNode, Daliuge.groupStartField, "true")}, "Set 'group_start' to true");
                 Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Error, x, showNotification, showConsole, errorsWarnings);
             }
@@ -624,7 +651,7 @@ export class Edge {
         }
     }
 
-    private static isValidLog(edge: Edge | undefined, draggingPortMode: boolean, linkValid: Errors.Validity, issue: Errors.Issue, showNotification: boolean, showConsole: boolean, errorsWarnings: Errors.ErrorsWarnings): void {
+    private static isValidLog(edge: Edge | undefined, draggingPortMode: boolean, linkValid: Errors.Validity, issue: Errors.Issue, showNotification: boolean, showConsole: boolean, errorsWarnings: Errors.ErrorsWarnings | null): void {
         // determine correct title
         let title = "Edge Valid";
         let type : "success" | "info" | "warning" | "danger" = "success";

@@ -28,13 +28,13 @@ export class Hierarchy {
         }
 
         //this part of the function flags edges that are selected or directly connected to the selected object
-        const hierarchyEdgesList : {edge:Edge, use:string, edgeSelected:boolean}[] = []
+        const hierarchyEdgesList : {edge:Edge, use:"input"|"output", edgeSelected:boolean}[] = []
         const nodeRelative : Node[]=[]
 
         //loop over selected objects
         for (const element of eagle.selectedObjects()){
             //ignore palette selections
-            if(Eagle.selectedLocation() === "Palette"){continue}
+            if(Eagle.selectedLocation() === Eagle.FileType.Palette){continue}
 
             const elementsToProcess = [element]
 
@@ -76,7 +76,7 @@ export class Hierarchy {
         //an array of edges is used as we have to ensure there are no duplicate edges drawn.
         async function hierarchyDraw() {
             setNodeRelatives()
-            hierarchyEdgesList.forEach(function(e:{edge:Edge , use:string, edgeSelected:boolean}){
+            hierarchyEdgesList.forEach(function(e:{edge:Edge , use:"input"|"output", edgeSelected:boolean}){
                 Hierarchy.drawEdge(e.edge, e.use, e.edgeSelected)
             })   
         }
@@ -122,11 +122,12 @@ export class Hierarchy {
     }
 
     static scrollToNode():void{
+        // TODO: magic number timeout length here
         setTimeout(function(){
             const innerItem = $('.hierarchy .hierarchyNodeIsSelected')
             const parentDiv = $('.hierarchy')
             if(innerItem.length > 0 && parentDiv.length > 0){
-                parentDiv.scrollTop(parentDiv.scrollTop() + innerItem.position().top - parentDiv.height()/2 + innerItem.height()/2)
+                parentDiv.scrollTop((parentDiv.scrollTop() || 0) + innerItem.position().top - (parentDiv.height() || 0)/2 + (innerItem.height() || 0)/2)
             }
         },50)
     }
@@ -177,7 +178,12 @@ export class Hierarchy {
         // determine colour of edge
         const colour: string = edgeSelected ? EagleConfig.getColor('hierarchyEdgeSelected') : EagleConfig.getColor('hierarchyEdgeDefault');
 
-        let p1x, p1y, p2x, p2y, arrowX, mpx;
+        let p1x: number = 0;
+        let p1y: number = 0;
+        let p2x: number = 0;
+        let p2y: number = 0;
+        let arrowX: number = 0;
+        let mpx: number = 0;
         if(use==="input"){
             p1x = (srcNodePos.left - parentPos.left)-1
             p1y = ((srcNodePos.top - parentPos.top)+8)+parentScrollOffset
