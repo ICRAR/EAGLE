@@ -200,9 +200,7 @@
 }
 
 .node .comment_node{
-    /* height: auto; */
-    /* margin-top: 50%;
-    transform: translateY(-50%); */
+    height: auto;
 }
 
 .node .comment_node .commentIcons{

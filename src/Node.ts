@@ -193,8 +193,6 @@ export class Node {
     }
 
     setPosition = (x: number, y: number) : void => {
-        console.log('settingposition', x, y);
-        console.trace()
         this.x(x)
         this.y(y)
     }
