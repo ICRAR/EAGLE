@@ -1510,6 +1510,10 @@ export class Eagle {
         Utils.requestUserCode("json", "Display Node as JSON", jsonString, true);
     }
 
+    editCommentNodeText = (node: Node) : void => {
+        const commentField = node.findFieldByDisplayText(Daliuge.FieldName.COMMENT, Daliuge.FieldType.Component)
+    }
+
     /**
      * Creates a new palette for editing.
      */

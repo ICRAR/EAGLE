@@ -446,7 +446,7 @@ export class RightClick {
 
     static editNodeFuncCode = () : void => {
         const funcCodeField = Eagle.selectedRightClickObject().findFieldByDisplayText(Daliuge.FieldName.FUNC_CODE, Daliuge.FieldType.Component)
-        ParameterTable.requestEditValueCode(funcCodeField, false)
+        ParameterTable.requestEditValueField(funcCodeField, false)
     }
 
     // TODO: event var used in function is the deprecated global, we should get access to the event via some other method
