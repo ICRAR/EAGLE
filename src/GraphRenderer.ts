@@ -67,10 +67,17 @@ ko.bindingHandlers.nodeRenderHandler = {
 
         const pos = node.getPosition() // this line is needed because referencing position here causes this update function to run when the node position gets updated aka. when we are dragging a node on the graph
         if(node.isConstruct() || node.getParent() !== null ){
-            if(!node.isConstruct()){
-                node = node.getParent();
+            if(node.isConstruct()){
+                GraphRenderer.resizeConstruct(node) 
+            } else {
+                const parent = node.getParent();
+                if (parent === null) {
+                    console.warn("Node has no parent, cannot resize construct");
+                    return;
+                }
+                // resize the parent construct
+                GraphRenderer.resizeConstruct(parent);
             }
-            GraphRenderer.resizeConstruct(node)
         }
     },
 };
@@ -82,7 +89,12 @@ ko.bindingHandlers.embeddedAppPosition = {
         const input: boolean = ko.utils.unwrapObservable(valueAccessor()).input;
 
         // find the node in which the applicationNode has been embedded
-        const parentNode: Node = applicationNode.getEmbed();
+        const parentNode: Node | null = applicationNode.getEmbed();
+
+        // abort if parent node is null
+        if (parentNode === null) {
+            return;
+        }
 
         // determine all the adjacent nodes
         // TODO: earlier abort if field is null
@@ -167,11 +179,13 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
         switch(dataType){
             case 'comment': {
-                if(n.getSubject() === null){
+                const nodeSubject = n.getSubject();
+
+                if(nodeSubject === null){
                     return
                 }
 
-                adjacentNodes.push(n.getSubject());
+                adjacentNodes.push(nodeSubject);
                 break;
             }
             case 'inputPort':
