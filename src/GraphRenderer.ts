@@ -296,33 +296,34 @@ ko.bindingHandlers.graphRendererPortPosition = {
 };
 
 export class GraphRenderer {
-    static nodeData : Node[] = null
+    static nodeData : Node[] = []
 
     // TODO: group all the dragging variables. move into a structure?
     static isDragging : ko.Observable<boolean> = ko.observable(false);
-    static draggingNode : ko.Observable<Node> = ko.observable(null);
+    static draggingNode : ko.Observable<Node | null> = ko.observable(null);
     static draggingPaletteNode : boolean = false;
 
     //port drag handler globals
     static draggingPort : boolean = false;
-    static isDraggingPortValid: ko.Observable<Errors.Validity> = ko.observable(Errors.Validity.Unknown);
-    static destinationNode : Node = null;
-    static destinationPort : Field = null;
+
+    static isDraggingPortValid : ko.Observable<Errors.Validity> = ko.observable(<Errors.Validity>Errors.Validity.Unknown);
+    static destinationNode : Node | null = null;
+    static destinationPort : Field | null = null;
     
-    static portDragSourceNode : ko.Observable<Node> = ko.observable(null);
-    static portDragSourcePort : ko.Observable<Field> = ko.observable(null);
+    static portDragSourceNode : ko.Observable<Node | null> = ko.observable(null);
+    static portDragSourcePort : ko.Observable<Field | null> = ko.observable(null);
     static portDragSourcePortIsInput: boolean = false;
 
-    static portDragSuggestedNode : ko.Observable<Node> = ko.observable(null);
-    static portDragSuggestedField : ko.Observable<Field> = ko.observable(null);
-    static portDragSuggestionValidity : ko.Observable<Errors.Validity> = ko.observable(Errors.Validity.Unknown) // this is necessary because we cannot keep the validity on the ege as it does not exist
+    static portDragSuggestedNode : ko.Observable<Node | null> = ko.observable(null);
+    static portDragSuggestedField : ko.Observable<Field | null> = ko.observable(null);
+    static portDragSuggestionValidity : ko.Observable<Errors.Validity> = ko.observable(<Errors.Validity>Errors.Validity.Unknown) // this is necessary because we cannot keep the validity on the ege as it does not exist
     static createEdgeSuggestedPorts : {field:Field,node:Node,validity: Errors.Validity}[] = []
     static portMatchCloseEnough :ko.Observable<boolean> = ko.observable(false);
 
     //node drag handler globals
-    static nodeParentRadiusPreDrag : number = null;
+    static nodeParentRadiusPreDrag : number = 0;
     static nodeDragElement : any = null
-    static nodeDragNode : Node = null
+    static nodeDragNode : Node | null = null
     static dragStartPosition : any = null
     static dragCurrentPosition : any = null
     static dragSelectionHandled : any = ko.observable(true)
@@ -337,7 +338,7 @@ export class GraphRenderer {
     static isDraggingSelectionRegion :boolean = false;
     static selectionRegionStart = {x:0, y:0};
     static selectionRegionEnd = {x:0, y:0};
-    static ctrlDrag:boolean = null;
+    static ctrlDrag: boolean = false;
     static editNodeName:boolean = false;
     static portDragStartPos = {x:0, y:0};
     static simpleSelect : boolean = true; // used for node dragging/selecting. if the cursor position hasn't moved far when click/dragging a node. we wont update the node's position and handle it as a simple select action
@@ -785,7 +786,7 @@ export class GraphRenderer {
         return interpolatedAngle;
     }
 
-    static createBezier(straightEdgeForce:boolean,addArrowForce:boolean, edge:Edge | null, srcNodeRadius:number, destNodeRadius:number, srcNodePosition: {x: number, y: number}, destNodePosition: {x: number, y: number}, srcField: Field, destField: Field, sourcePortIsInput: boolean) : string {
+    static createBezier(straightEdgeForce:boolean,addArrowForce:boolean, edge:Edge | null, srcNodeRadius:number, destNodeRadius:number, srcNodePosition: {x: number, y: number}, destNodePosition: {x: number, y: number}, srcField: Field | null, destField: Field | null, sourcePortIsInput: boolean) : string {
 
         //since the svg parent is translated -50% to center our working area, we need to add half of its size to correct the positions
         const svgTranslationCorrection = EagleConfig.EDGE_SVG_SIZE/2
@@ -942,7 +943,7 @@ export class GraphRenderer {
             return ''
         }
 
-        return GraphRenderer._getPath(null,srcNode, destNode, null, null);
+        return GraphRenderer._getPath(null, srcNode, destNode, null, null);
     }
 
     static getPathDraggingEdge : ko.PureComputed<string> = ko.pureComputed(() => {
@@ -990,7 +991,7 @@ export class GraphRenderer {
         return GraphRenderer.createBezier(true, false, null, srcNodeRadius, destNodeRadius, {x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField, GraphRenderer.portDragSourcePortIsInput);
     }, this);
 
-    static _getPath(edge:Edge | null, srcNode: Node, destNode: Node, srcField: Field, destField: Field) : string {
+    static _getPath(edge:Edge | null, srcNode: Node, destNode: Node, srcField: Field | null, destField: Field | null) : string {
         if (srcNode === null || destNode === null){
             console.warn("Cannot getPath between null nodes. srcNode:", srcNode, "destNode:", destNode);
             return "";
@@ -1256,6 +1257,12 @@ export class GraphRenderer {
         const containerWidth = $('#logicalGraph').width()
         const containerHeight = $('#logicalGraph').height()
 
+        // check we were able to get the container size
+        if (typeof containerWidth === "undefined" || typeof containerHeight === "undefined"){
+            console.warn("Could not get container size for selection rectangle.");
+            return;
+        }
+
         //turning the graph coordinates into a distance from bottom/right for css inset before applying
         const selectionBottomOffset = containerHeight - GraphRenderer.selectionRegionEnd.y
         const selectionRightOffset = containerWidth - GraphRenderer.selectionRegionEnd.x
@@ -1265,6 +1272,12 @@ export class GraphRenderer {
     static drawSelectionRectangle() : void {
         const containerWidth = $('#logicalGraph').width()
         const containerHeight = $('#logicalGraph').height()
+
+        // check we were able to get the container size
+        if (typeof containerWidth === "undefined" || typeof containerHeight === "undefined"){
+            console.warn("Could not get container size for selection rectangle.");
+            return;
+        }
 
         if(GraphRenderer.selectionRegionEnd.x>GraphRenderer.selectionRegionStart.x){
             $('#selectionRectangle').css({'left':GraphRenderer.selectionRegionStart.x+'px','right':containerWidth - GraphRenderer.selectionRegionEnd.x+'px'})

@@ -96,7 +96,7 @@ export class TutorialSystem {
         return $('#logicalGraph #' + lg.findNodeIdByNodeName(name) + '.container');
     }
 
-    static initiateSimpleFindGraphNodeIdByNodeName(name:string) : string {
+    static initiateSimpleFindGraphNodeIdByNodeName(name:string): NodeId | null {
         const lg: LogicalGraph = Eagle.getInstance().logicalGraph();
         return lg.findNodeIdByNodeName(name)
     }

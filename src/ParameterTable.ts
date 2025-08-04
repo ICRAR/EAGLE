@@ -151,6 +151,12 @@ export class ParameterTable {
                 }
 
                 for (const graphConfigNode of config.getNodes()){
+
+                    const lgNode = graphConfigNode.getNode();
+                    if (lgNode === null){
+                        continue;
+                    }
+
                     for (const graphConfigField of graphConfigNode.getFields()){
                         const lgNode = lg.getNodeById(graphConfigNode.getNode().getId());
 
@@ -274,19 +280,25 @@ export class ParameterTable {
         // all the field names shown in that table should be locked (readonly)
         const bottomWindowMode = Setting.findValue(Setting.BOTTOM_WINDOW_MODE);
         if (bottomWindowMode === Eagle.BottomWindowMode.ConfigParameterTable){
-            return field.getNode().isLocked()
+            const node = field.getNode();
+            if (node === null){
+                return false;
+            }
+            return node.isLocked();
         }
 
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
-            if(eagle.selectedNode() === null){
+            const selectedNode = eagle.selectedNode();
+            if(selectedNode === null){
                 return false
             }
-            return eagle.selectedNode().isLocked()
+            return selectedNode.isLocked()
         }else{
-            if(field.getNode() === null){
+            const node = field.getNode();
+            if(node === null){
                 return false
             }
-            return field.getNode().isLocked()
+            return node.isLocked()
         }
     }
 
@@ -340,9 +352,11 @@ export class ParameterTable {
                 const paletteNode: Node | Edge = eagle.selectedObjects()[0];
                 console.assert(paletteNode instanceof Node)
 
-                const containingPalette: Palette = eagle.findPaletteContainingNode(paletteNode.getId());
+                const containingPalette: Palette | null = eagle.findPaletteContainingNode(paletteNode.getId());
 
-                containingPalette.fileInfo().modified = true;
+                if (containingPalette !== null) {
+                    containingPalette.fileInfo().modified = true;
+                }
                 break;
             }
             case Eagle.FileType.Graph:
@@ -505,9 +519,9 @@ export class ParameterTable {
 
     static async requestEditValueCode(field:Field, defaultValue: boolean) : Promise<void> {
         const eagle: Eagle = Eagle.getInstance();
-        const node: Node = eagle.selectedNode();
+        const node: Node | null = eagle.selectedNode();
 
-        let editingField: Field | GraphConfigField // this will either be the normal field or the configured field if applicable
+        let editingField: Field | GraphConfigField | undefined // this will either be the normal field or the configured field if applicable
         let editingValue: string // this will either be the value or default value or configured value
 
         //checking if the field is a configured field
@@ -687,7 +701,11 @@ export class ParameterTable {
     }
 
     static addEmptyTableRow = () : void => {
-        const selectedNode: Node = Eagle.getInstance().selectedNode();
+        const selectedNode: Node | null = Eagle.getInstance().selectedNode();
+        if (selectedNode === null) {
+            Utils.showNotification("Warning", "Could not find selected node", "warning");
+            return;
+        }
         selectedNode.addEmptyField();
 
         const fieldIndex = selectedNode.getNumFields()-1;
@@ -714,6 +732,12 @@ export class ParameterTable {
     static duplicateParameter = (field: Field) : void => {
         const node = field.getNode();
 
+        // check that we actually found the node that this field belongs to
+        if (node === null){
+            Utils.showNotification("Warning", "Could not find node containing this field", "warning");
+            return;
+        }
+
         const newFieldText = field.getDisplayText()+' copy';
 
         const copiedField = field
@@ -726,6 +750,7 @@ export class ParameterTable {
 
         const fieldIndex = node.getNumFields() - 1;
 
+        // TODO: magic numbers here, should be replaced with constants
         setTimeout(function() {
             //handling selecting and highlighting the newly created field on the node
             const clickTarget = $(".paramsTableWrapper tr#tableRow_"+ copiedField.getId() +" .selectionTargets")[0]
@@ -753,7 +778,13 @@ export class ParameterTable {
     static deleteTableRow = (field: Field) : void => {
         const eagle = Eagle.getInstance()
 
-        eagle.logicalGraph().removeFieldFromNodeById(eagle.selectedNode(),field.getId())
+        const selectedNode = eagle.selectedNode();
+        if (selectedNode === null){
+            Utils.showNotification("Warning", "Could not find node containing this field", "warning");
+            return;
+        }
+
+        eagle.logicalGraph().removeFieldFromNodeById(selectedNode, field.getId())
         eagle.selectedObjects.valueHasMutated()
         eagle.flagActiveFileModified()
 

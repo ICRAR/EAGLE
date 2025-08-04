@@ -4460,19 +4460,29 @@ export class Eagle {
         let numIterations = 0;
         let increaseSearchArea = false
         const MAX_ITERATIONS = 150;
-        let x;
-        let y;
+        let x = 0;
+        let y = 0;
         
         while (!suitablePositionFound && numIterations <= MAX_ITERATIONS){
+            // get logical graph parent element size
+            const lgParentWidth = $('#logicalGraphParent').width();
+            const lgParentHeight = $('#logicalGraphParent').height();
+
+            // check we were able to get the parent size
+            if (typeof lgParentWidth === "undefined" || typeof lgParentHeight === "undefined"){
+                console.warn("getNewNodePosition(): Could not determine logical graph parent size");
+                return {x: 0, y: 0, extended: false};
+            }
+
             // get visible screen size
             let minX = Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) ? this.leftWindow().size()+MARGIN: 0+MARGIN;
-            let maxX = Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE) ? $('#logicalGraphParent').width() - this.rightWindow().size() - MARGIN : $('#logicalGraphParent').width() - MARGIN;
+            let maxX = Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE) ? lgParentWidth - this.rightWindow().size() - MARGIN : lgParentWidth - MARGIN;
             let minY = 0 + navBarHeight + MARGIN;
             //using jquery here to get the bottom window height because it is internally saved in VH (percentage screen height). Doing it this way means we don't have to convert it to pixels
-            let maxY = $('#logicalGraphParent').height() - MARGIN + navBarHeight
+            let maxY = lgParentHeight - MARGIN + navBarHeight
 
             if(Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE)){
-                maxY = $('#logicalGraphParent').height() - $('#bottomWindow').height() - MARGIN + navBarHeight;
+                maxY = lgParentHeight - $('#bottomWindow').height() - MARGIN + navBarHeight;
             }
 
             if(increaseSearchArea){

@@ -1341,8 +1341,14 @@ export class Utils {
     static getComponentsWithMatchingPort(nodes:Node[], input: boolean, type: string) : Node[] {
         const result: Node[] = [];
 
+        const portDragSourceNode: Node | null = GraphRenderer.portDragSourceNode();
+        // if no portDragSourceNode, return empty list
+        if (portDragSourceNode === null){
+            return result;
+        }
+
         // no destination, ask user to choose a new node
-        const isData: boolean = GraphRenderer.portDragSourceNode().getCategoryType() === Category.Type.Data;
+        const isData: boolean = portDragSourceNode.getCategoryType() === Category.Type.Data;
 
         for (const node of nodes){
             // skip data nodes if not eligible
