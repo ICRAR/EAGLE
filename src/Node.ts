@@ -193,6 +193,8 @@ export class Node {
     }
 
     setPosition = (x: number, y: number) : void => {
+        console.log('settingposition', x, y);
+        console.trace()
         this.x(x)
         this.y(y)
     }
@@ -1419,10 +1421,6 @@ export class Node {
         // get comment (if exists)
         if (typeof nodeData.comment !== 'undefined'){
             node.comment(nodeData.comment);
-        }
-
-        if(!isPaletteNode && nodeData.radius === undefined){
-            GraphRenderer.legacyGraph = true
         }
 
         // drawOrderHint

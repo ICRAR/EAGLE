@@ -848,9 +848,6 @@ export class Eagle {
 
                 eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
                     eagle.logicalGraph(lg);
-    
-                    // center graph
-                    GraphRenderer.translateLegacyGraph()
 
                     eagle._postLoadGraph(new RepositoryFile(new Repository(Repository.Service.File, "", "", false), Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath)));
                 });
@@ -2321,9 +2318,6 @@ export class Eagle {
 
         // show errors/warnings
         this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
-
-        // center graph
-        GraphRenderer.translateLegacyGraph()
 
         this._postLoadGraph(file);
     }

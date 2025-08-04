@@ -200,7 +200,9 @@
 }
 
 .node .comment_node{
-    height: auto;
+    /* height: auto; */
+    /* margin-top: 50%;
+    transform: translateY(-50%); */
 }
 
 .node .comment_node .commentIcons{
@@ -220,6 +222,7 @@
     width: 17px;
     height: 17px;
     font-size: 10px;
+    display: none;
 }
 
 .node .comment_node .body {
@@ -230,7 +233,11 @@
     padding:5px;
 }
 
-.node .comment_node .body .content{
+.node .comment_node .container:hover .commentIcons button{
+    display: block;
+}
+
+.node .comment_node .container{
     pointer-events: all;
 }
 
