@@ -848,7 +848,12 @@ export class LogicalGraph {
 
             iterations += 1;
             depth += 1;
-            parentId = this.findNodeById(parentId).getParentId();
+            const parent = this.findNodeById(parentId);
+            if (parent === null){
+                console.warn("findDepthById(): could not find parent node with id (", parentId, ")");
+                break;
+            }
+            parentId = parent.getParentId();
         }
 
         return depth;

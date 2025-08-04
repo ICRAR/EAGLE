@@ -1089,8 +1089,10 @@ export class GraphRenderer {
             //checking if the node is inside of a construct, if so, fetching it's parent
             if(node.getParentId() != null){
                 const parentNode = eagle.logicalGraph().findNodeByIdQuiet(node.getParentId())
-                $('#'+parentNode.getId()).removeClass('transition')
-                GraphRenderer.NodeParentRadiusPreDrag = parentNode.getRadius()
+                if (parentNode !== null){
+                    $('#'+parentNode.getId()).removeClass('transition')
+                    GraphRenderer.NodeParentRadiusPreDrag = parentNode.getRadius()
+                }
             }
         }
 

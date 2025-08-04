@@ -106,6 +106,7 @@ export class GraphUpdater {
 
             keyToId.set(node.key, newId);
             node.id = newId;
+            delete node.key; // remove key attribute
 
             // input app
             if (node.inputApplicationKey !== null){
@@ -128,11 +129,12 @@ export class GraphUpdater {
             } else {
                 node.parentId = null;
             }
+            delete node.group; // remove group attribute
         }
 
         // use map to update subject
         for (const node of graphObject["nodeDataArray"]){
-            if (typeof node.subject !== "undefined"){
+            if (typeof node.subject !== "undefined" && node.subject !== null){
                 node.subject = keyToId.get(node.subject);
             } else {
                 node.subjectId = null;
@@ -141,7 +143,6 @@ export class GraphUpdater {
 
         // use map to update edges
         for (const edge of graphObject["linkDataArray"]){
-
             if (!keyToId.has(edge.from)){
                 console.warn("GraphUpdater.updateKeysToIds() : Can't find Id for from key", edge.from, edge);
             }
