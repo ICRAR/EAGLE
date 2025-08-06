@@ -436,9 +436,18 @@ export class ParameterTable {
     static async _addRemoveField(currentField: Field, add: boolean): Promise<void> {
         let graphConfig: GraphConfig | undefined = Eagle.getInstance().logicalGraph().getActiveGraphConfig();
 
+        // get node from current field
+        const currentNode: Node | null = currentField.getNode();
+
+        // check that we actually found the node that this field belongs to
+        if (currentNode === null){
+            console.warn("requestEditCommentInModal: No current node found");
+            return;
+        }
+
         if (graphConfig){
             if (add){
-                graphConfig.addValue(currentField.getNode(), currentField, currentField.getValue())
+                graphConfig.addValue(currentNode, currentField, currentField.getValue())
             } else {
                 graphConfig.removeField(currentField);
             }
@@ -465,7 +474,7 @@ export class ParameterTable {
 
             // add/remove the field that was requested in the first place
             if (add){
-                graphConfig.addValue(currentField.getNode(), currentField, currentField.getValue())
+                graphConfig.addValue(currentNode, currentField, currentField.getValue())
             } else {
                 graphConfig.removeField(currentField);
             }
@@ -555,7 +564,7 @@ export class ParameterTable {
 
     static async requestEditCommentInModal(currentField:Field): Promise<void> {
         const eagle: Eagle = Eagle.getInstance();
-        const currentNode: Node = currentField.getNode();
+        const currentNode: Node | null = currentField.getNode();
         const activeGraphConfig = eagle.logicalGraph().getActiveGraphConfig();
 
         if (typeof activeGraphConfig === 'undefined'){
@@ -563,13 +572,29 @@ export class ParameterTable {
             return;
         }
 
-        const configField: GraphConfigField = activeGraphConfig.getNodeById(currentNode.getId()).getFieldById(currentField.getId());
+        if (currentNode === null){
+            console.warn("requestEditCommentInModal: No current node found");
+            return;
+        }
+
+        const configField: GraphConfigField | undefined = activeGraphConfig.getNodeById(currentNode.getId())?.getFieldById(currentField.getId());
+
+        // get default text from current field comment
+        let defaultText: string = "";
+        if (typeof configField !== 'undefined'){
+            defaultText = configField.getComment();
+        }
 
         let fieldComment: string;
         try {
-            fieldComment = await Utils.requestUserText("Edit Field Comment", "Please edit the comment for: " + currentNode.getName() + ' - ' + currentField.getDisplayText(), configField.getComment());
+            fieldComment = await Utils.requestUserText("Edit Field Comment", "Please edit the comment for: " + currentNode.getName() + ' - ' + currentField.getDisplayText(), defaultText);
         } catch (error){
             console.error(error);
+            return;
+        }
+
+        if (typeof configField === 'undefined'){
+            console.warn("requestEditCommentInModal: No config field found");
             return;
         }
         configField.setComment(fieldComment);
