@@ -1053,7 +1053,7 @@ export class GraphRenderer {
 
     static startDrag(node: Node, event: MouseEvent) : void {
         //if we click on the title of a node, cancel the drag handler
-        if($(event.target).parent().parent().hasClass('header') || $(event.target).parent().hasClass('edgeComments')){
+        if($(event.target).parent().parent().hasClass('header') || $(event.target).parent().hasClass('edgeComments') || $(event.target).parent().hasClass('commentIcons')){
             event.preventDefault()
             event.stopPropagation()
             return
