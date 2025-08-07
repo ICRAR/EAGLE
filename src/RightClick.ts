@@ -444,7 +444,9 @@ export class RightClick {
         RightClick.requestCustomContextMenu(data, 'edgeDropCreate')
 
         // prevent bubbling events
-        event.stopPropagation();
+        if (typeof event !== "undefined"){
+            event.stopPropagation();
+        }
     }
 
     static editNodeFuncCode = () : void => {
@@ -492,14 +494,16 @@ export class RightClick {
 
         const minXMargin = 390 // this is the minimum amount of room we need on the right side of the click location to draw the context menu
         const minYMargin = 430 // this is the minimum amount of room we need on the bottom side of the click location to draw the context menu
+        const documentWidth = $(document).innerWidth() || document.documentElement.clientWidth;
+        const documentHeight = $(document).innerHeight() || document.documentElement.clientHeight;
 
         //checking for screen real estate to the right and bottom, if we are too close to the edges of the window, we expand left, up or both
-        if($(document).innerWidth()-mouseX<minXMargin){
+        if(documentWidth-mouseX<minXMargin){
             mouseX -= 4 // correcting the usability margin in the opposite direction
             $('#customContextMenu').addClass("leftBoundContextMenu")
         }
 
-        if($(document).innerHeight()-mouseY<minYMargin){
+        if(documentHeight-mouseY<minYMargin){
             mouseY -= 4 
             $('#customContextMenu').addClass("topBoundContextMenu")
         }
@@ -660,6 +664,11 @@ export class RightClick {
             }
         }
         // adding a listener to function options that closes the menu if an option is clicked
-        $('#customContextMenu a').on('click',function(){if($(event.target).parents('.searchBarContainer').length){return}RightClick.closeCustomContextMenu(true)})
+        $('#customContextMenu a').on('click',function(){
+            if($(event.target).parents('.searchBarContainer').length){
+                return
+            }
+            RightClick.closeCustomContextMenu(true)
+        });
     }
 }
