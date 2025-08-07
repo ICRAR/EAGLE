@@ -210,7 +210,7 @@
 
 .node .comment_node .commentIcons button{
     position: absolute;
-    top: 10px;
+    top: 4px;
     right: 10px;
     z-index:10;
     background-color:#002e5f;

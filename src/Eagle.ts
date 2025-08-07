@@ -1510,23 +1510,6 @@ export class Eagle {
         Utils.requestUserCode("json", "Display Node as JSON", jsonString, true);
     }
 
-    editCommentNodeText = async (node: Node) : Promise<void> => {
-        const commentField = node.findFieldByDisplayText(Daliuge.FieldName.COMMENT, Daliuge.FieldType.Component)
-        if (!commentField) return;
-
-        let newComment: string;
-        try {
-            newComment = await Utils.requestUserMarkdown("Edit Comment", commentField.getValue(), true);
-        } catch (error) {
-            console.error(error);
-            return;
-        }
-
-        commentField.setValue(newComment);
-        this.undo().pushSnapshot(this, "Edit Comment Node Text");
-        this.logicalGraph().fileInfo().modified = true;
-    }
-
     /**
      * Creates a new palette for editing.
      */

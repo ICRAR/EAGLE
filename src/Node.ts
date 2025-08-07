@@ -869,11 +869,16 @@ export class Node {
         return -1;
     }
 
-    getCommentHtml = () : string => {
+    getCommentNodeHtml = () : string => {
         if (this.isComment()){
-            return Utils.markdown2html(this.findFieldByDisplayText(Daliuge.FieldName.COMMENT, Daliuge.FieldType.Component)?.getValue());
+            let commentHtml = this.comment()
+            if (commentHtml === undefined || commentHtml === null || commentHtml === ""){
+                commentHtml = "Click on edit icon to add comment";
+            }
+
+            return Utils.markdown2html(commentHtml);
         }
-        return "";
+        return ''
     }
 
     findPortByDisplayText = (displayText : string, input : boolean, local : boolean) : Field => {
