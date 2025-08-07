@@ -680,7 +680,12 @@ export class Field {
             case Daliuge.DataType.Float:
                 return parseFloat(value);
             case Daliuge.DataType.Integer:
-                return parseInt(value, 10);
+                const parsedValue = parseInt(value, 10);
+                if (isNaN(parsedValue)){
+                    console.warn("Field.stringAsType(): Unable to parse value as integer:", value);
+                    return value; // return the original value if parsing fails
+                }
+                return parsedValue;
             default:
                 return value;
         }

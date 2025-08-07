@@ -426,7 +426,11 @@ export class GraphConfigField {
         const result = new GraphConfigField();
 
         if (typeof data.value !== 'undefined'){
-            result.value(data.value.toString());
+            if (data.value === null){
+                result.value(null);
+            } else {
+                result.value(data.value.toString());
+            }
         }
 
         if (typeof data.comment !== 'undefined'){
