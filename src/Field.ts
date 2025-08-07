@@ -854,11 +854,14 @@ export class Field {
                     // for embedded nodes
                     const constructNode = eagle.logicalGraph().findNodeById(node.getEmbedId())
 
-                    if(constructNode.getInputApplication() === node){
-                        //if node is input application
-                        issue = Errors.ShowFix("Node (" + constructNode.getName() + ") has input application (" + node.getName() + ") with input port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, node.getId(),field);}, function(){Utils.fixFieldType(eagle, field)}, "");
-                    }else{
-                        issue = Errors.ShowFix("Node (" + constructNode.getName() + ") has output application (" + node.getName() + ") with input port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, node.getId(),field);}, function(){Utils.fixFieldType(eagle, field)}, "");
+                    // check if the construct node was found
+                    if (constructNode !== null) {
+                        if(constructNode.getInputApplication() === node){
+                            //if node is input application
+                            issue = Errors.ShowFix("Node (" + constructNode.getName() + ") has input application (" + node.getName() + ") with input port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, node.getId(),field);}, function(){Utils.fixFieldType(eagle, field)}, "");
+                        }else{
+                            issue = Errors.ShowFix("Node (" + constructNode.getName() + ") has output application (" + node.getName() + ") with input port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, node.getId(),field);}, function(){Utils.fixFieldType(eagle, field)}, "");
+                        }
                     }
                 }
                 field.issues().push({issue:issue,validity:Errors.Validity.Warning})
@@ -882,11 +885,13 @@ export class Field {
                     // for embedded nodes
                     const constructNode = eagle.logicalGraph().findNodeById(node.getEmbedId())
                     
-                    if(constructNode.getInputApplication() === node){
-                        //if node is input application
-                        issue = Errors.ShowFix("Node (" + constructNode.getName() + ") has input application (" + node.getName() + ") with output port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, node.getId(),field);}, function(){Utils.fixFieldType(eagle, field)}, "");
-                    }else{
-                        issue = Errors.ShowFix("Node (" + constructNode.getName() + ") has output application (" + node.getName() + ") with output port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, node.getId(),field);}, function(){Utils.fixFieldType(eagle, field)}, "");
+                    if (constructNode !== null){
+                        if(constructNode.getInputApplication() === node){
+                            //if node is input application
+                            issue = Errors.ShowFix("Node (" + constructNode.getName() + ") has input application (" + node.getName() + ") with output port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, node.getId(),field);}, function(){Utils.fixFieldType(eagle, field)}, "");
+                        }else{
+                            issue = Errors.ShowFix("Node (" + constructNode.getName() + ") has output application (" + node.getName() + ") with output port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, node.getId(),field);}, function(){Utils.fixFieldType(eagle, field)}, "");
+                        }
                     }
                 }
                 field.issues().push({issue:issue,validity:Errors.Validity.Warning})
