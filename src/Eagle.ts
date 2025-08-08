@@ -4648,7 +4648,7 @@ export class Eagle {
         // check that a node is selected
         const node: Node = this.selectedNode();
         if (node === null){
-            Utils.showNotification("Error", "No node selected to update", "danger");
+            Utils.showNotification("Error", "No nodes selected to update", "danger");
             return;
         }
 
@@ -4672,6 +4672,10 @@ export class Eagle {
         }
 
         // notify user of success
+        if (updatedNodes.length === 0){
+            Utils.showNotification("Info", "No components were updated", "info");
+            return;
+        }
         Utils.showNotification("Success", "Successfully updated " + updatedNodes.length + " component(s)", "success");
 
         // make undo snapshot, recheck graph, mark as modified etc
