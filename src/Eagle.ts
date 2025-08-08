@@ -63,6 +63,7 @@ import { UiModeSystem } from './UiModes';
 import { Utils } from './Utils';
 import { GraphUpdater } from "./GraphUpdater";
 import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
+import { versions } from "./Versions";
 
 
 export class Eagle {
@@ -4675,6 +4676,10 @@ export class Eagle {
                 bootstrap.Collapse.getOrCreateInstance(element).show();
             }
         }
+    }
+
+    getVersionsHtml = () : void => {
+        console.log(versions)
     }
 }
 
