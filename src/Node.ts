@@ -1465,41 +1465,15 @@ export class Node {
         // these next six if statements are covering old versions of nodes, that
         // specified input and output applications using name strings rather than nested nodes.
         // NOTE: the key for the new nodes are not set correctly, they will have to be overwritten later
-        if (inputApplicationName !== ""){
-            if (categoryData.categoryType !== Category.Type.Construct){
-                errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
-            } else {
-                // check applicationType is an application
-                if (CategoryData.getCategoryData(inputApplicationType).categoryType === Category.Type.Application){
-                    node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationName, inputApplicationType, inputApplicationDescription, inputApplicationComment, node.getId()));
-                } else {
-                    errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication of unsuitable type: " + inputApplicationType + ", to node."));
-                }
-            }
-        }
-
         if (inputApplicationName !== "" && inputApplicationType !== Category.None){
             if (categoryData.categoryType !== Category.Type.Construct){
                 errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
             } else {
                 // check applicationType is an application
-                if (CategoryData.getCategoryData(inputApplicationType).categoryType === Category.Type.Application){
+                if ([Category.Type.Application, Category.Type.Unknown].includes(CategoryData.getCategoryData(inputApplicationType).categoryType)){
                     node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationName, inputApplicationType, inputApplicationDescription, inputApplicationComment, node.getId()));
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication of unsuitable type: " + inputApplicationType + ", to node."));
-                }
-            }
-        }
-
-        if (outputApplicationName !== ""){
-            if (categoryData.categoryType !== Category.Type.Construct){
-                errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication to unsuitable node: " + category));
-            } else {
-                // check applicationType is an application
-                if (CategoryData.getCategoryData(outputApplicationType).categoryType === Category.Type.Application){
-                    node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationName, outputApplicationType, outputApplicationDescription, outputApplicationComment, node.getId()));
-                } else {
-                    errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication of unsuitable type: " + outputApplicationType + ", to node."));
                 }
             }
         }
@@ -1508,7 +1482,8 @@ export class Node {
             if (categoryData.categoryType !== Category.Type.Construct){
                 errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication to unsuitable node: " + category));
             } else {
-                if (CategoryData.getCategoryData(outputApplicationType).categoryType === Category.Type.Application){
+                // check applicationType is an application
+                if ([Category.Type.Application, Category.Type.Unknown].includes(CategoryData.getCategoryData(outputApplicationType).categoryType)){
                     node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationName, outputApplicationType, outputApplicationDescription, outputApplicationComment, node.getId()));
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication of unsuitable type: " + outputApplicationType + ", to node."));
@@ -1714,7 +1689,7 @@ export class Node {
         if (input){
             if (!node.hasInputApplication()){
                 if (Setting.findValue(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
-                    node.inputApplication(Node.createEmbeddedApplicationNode(port.getDisplayText(), Category.UnknownApplication, "", "", node.getId()));
+                    node.setInputApplication(Node.createEmbeddedApplicationNode("Unknown", Category.UnknownApplication, "", "", node.getId()));
                     errorsWarnings.errors.push(Errors.Message("Created new embedded input application (" + node.inputApplication().getName() + ") for node (" + node.getName() + "). Application category is " + node.inputApplication().getCategory() + " and may require user intervention."));
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Cannot add input port to construct that doesn't support input ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name" + port.getDisplayText() ));
@@ -1726,7 +1701,7 @@ export class Node {
         } else {
             if (!node.hasOutputApplication()){
                 if (Setting.findValue(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
-                    node.outputApplication(Node.createEmbeddedApplicationNode(port.getDisplayText(), Category.UnknownApplication, "", "", node.getId()));
+                    node.setOutputApplication(Node.createEmbeddedApplicationNode("Unknown", Category.UnknownApplication, "", "", node.getId()));
                     errorsWarnings.errors.push(Errors.Message("Created new embedded output application (" + node.outputApplication().getName() + ") for node (" + node.getName() + "). Application category is " + node.outputApplication().getCategory() + " and may require user intervention."));
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Cannot add output port to construct that doesn't support output ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name" + port.getDisplayText() ));
@@ -1899,8 +1874,6 @@ export class Node {
     }
 
     static createEmbeddedApplicationNode(name : string, category: Category, description: string, comment:string, embedId: NodeId) : Node {
-        console.assert(CategoryData.getCategoryData(category).categoryType === Category.Type.Application);
-
         const node = new Node(name, description, comment, category);
         node.setEmbedId(embedId);
         node.setRadius(EagleConfig.NORMAL_NODE_RADIUS);
