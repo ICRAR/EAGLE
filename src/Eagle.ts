@@ -4678,8 +4678,17 @@ export class Eagle {
         }
     }
 
-    getVersionsHtml = () : void => {
-        console.log(versions)
+    getLatestVersion = () : any => {
+        return versions[0]
+    }
+
+    getVersionHistory = () : any => {
+        const versionsCopy = versions
+        return versionsCopy.slice(1, versionsCopy.length);
+    }
+
+    formatVersionTitle = (tag: string, date: Date) : string => { 
+        return tag + " (" + date.toISOString().split("T")[0] + ")";
     }
 }
 
