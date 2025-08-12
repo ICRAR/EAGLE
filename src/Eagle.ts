@@ -4690,6 +4690,18 @@ export class Eagle {
     formatVersionTitle = (tag: string, date: Date) : string => { 
         return tag + " (" + date.toISOString().split("T")[0] + ")";
     }
+
+    versionShowMoreToggle = () : void => {
+        //toggle display of the full version history
+        $("#whatsNewModal .versionHistory").toggle()
+
+        //change the text of the toggle button
+        if($('#whatsNewModal #whatsNewShowMore').html() === 'Show More'){
+            $('#whatsNewModal #whatsNewShowMore').html('Show Less')
+        }else{
+            $('#whatsNewModal #whatsNewShowMore').html('Show More')
+        }
+    }
 }
 
 export namespace Eagle

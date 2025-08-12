@@ -1210,7 +1210,25 @@ select.form-control{
 }
 
 #whatsNewModal .modal-content .versionHistory{
-    /* display: none; */
+    display: none;
+    border-top: black 1px solid;
+    padding-top: 18px;
+}
+
+#whatsNewModal .modal-content #whatsNewShowMore{
+    position: fixed;
+    left: 50%;
+    bottom: 14px;
+    transform: translateX(-50%);
+    font-weight: bold;
+    color: #004084;
+    cursor: pointer;
+    user-select: none;
+}
+
+#whatsNewModal .modal-content #whatsNewShowMore:hover{
+    text-decoration: underline;
+    color: var(--hoverHighlight);
 }
 
 #settingsModal .modal-content{
