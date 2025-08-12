@@ -231,7 +231,7 @@
     padding:5px;
 }
 
-.node .comment_node .container:hover .commentIcons button{
+.node .comment_node .container.selected:hover .commentIcons button{
     display: block;
 }
 
