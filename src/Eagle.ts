@@ -4642,6 +4642,13 @@ export class Eagle {
 
             Utils.showNotification("Success", "Successfully updated " + updatedNodes.length + " component(s): " + nodeNames.join(", "), "success");
         }
+
+        // make undo snapshot, recheck graph, mark as modified etc
+        this.logicalGraph.valueHasMutated();
+        this.logicalGraph().fileInfo().modified = true;
+        this.logicalGraph().fileInfo.valueHasMutated();
+        this.checkGraph();
+        this.undo().pushSnapshot(this, "Check for Component Updates");
     }
 
     findPaletteContainingNode = (nodeId: NodeId): Palette => {
