@@ -4683,8 +4683,7 @@ export class Eagle {
     }
 
     getVersionHistory = () : any => {
-        const versionsCopy = versions
-        return versionsCopy.slice(1, versionsCopy.length);
+        return versions.slice(1);
     }
 
     formatVersionTitle = (tag: string, date: Date) : string => { 
