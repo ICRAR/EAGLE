@@ -55,8 +55,6 @@ export class Node {
     private category : ko.Observable<Category>;
     private categoryType : ko.Observable<Category.Type>;
 
-    private subject : ko.Observable<NodeId>;       // the id of another node that is the subject of this node. used by comment nodes only.
-
     private repositoryUrl : ko.Observable<string>;
     private commitHash : ko.Observable<string>;
     private paletteDownloadUrl : ko.Observable<string>;
@@ -95,7 +93,6 @@ export class Node {
 
         // lookup correct categoryType based on category
         this.categoryType = ko.observable(CategoryData.getCategoryData(category).categoryType);
-        this.subject = ko.observable(null);
 
         this.repositoryUrl = ko.observable("");
         this.commitHash = ko.observable("");
@@ -716,14 +713,6 @@ export class Node {
         return 'Edit Node Comment: </br>' + Utils.markdown2html(this.comment());
     }, this);
 
-    getSubjectId = () : NodeId => {
-        return this.subject();
-    }
-
-    setSubjectId = (id: NodeId) : void => {
-        this.subject(id);
-    }
-
     setInputApplication = (inputApplication : Node) : void => {
         console.assert(this.isConstruct(), "Can't set input application on node that is not a construct");
 
@@ -781,8 +770,6 @@ export class Node {
 
         this.category(Category.Unknown);
         this.categoryType(Category.Type.Unknown);
-
-        this.subject(null);
 
         this.expanded(false);
         this.keepExpanded(false)
@@ -1105,12 +1092,7 @@ export class Node {
         result.parentId(this.parentId());
         result.embedId(this.embedId());
 
-        // result.expanded(this.expanded());
-        // result.keepExpanded(this.expanded());
-
         result.peek(this.peek());
-
-        result.subject(this.subject());
 
         // clone fields
         for (const field of this.fields()){
@@ -1578,13 +1560,6 @@ export class Node {
             node.addField(streamingField);
         }
 
-        // subject (for comment nodes)
-        if (typeof nodeData.subject !== 'undefined'){
-            node.subject(nodeData.subject);
-        } else {
-            node.subject(null);
-        }
-
         // add fields
         if (typeof nodeData.fields !== 'undefined'){
             for (const fieldData of nodeData.fields){
@@ -1841,7 +1816,6 @@ export class Node {
         result.comment = node.comment();
         result.x = node.x();
         result.y = node.y();
-        result.subject = node.subject();
         result.repositoryUrl = node.repositoryUrl();
         result.commitHash = node.commitHash();
         result.paletteDownloadUrl = node.paletteDownloadUrl();

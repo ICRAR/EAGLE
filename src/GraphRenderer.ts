@@ -157,10 +157,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
                 node = eagle.logicalGraph().findNodeByIdQuiet(f.getNodeId())
                 field = f
                 break;
-            case 'comment':
-                node = n
-                field = null
-                break;
         }
 
         // determine all the adjacent nodes
@@ -168,21 +164,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
         let connectedField:boolean=false;
 
         switch(dataType){
-            case 'comment': {
-                if(n.getSubjectId() === null){
-                    return
-                }
-
-                const adjacentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(n.getSubjectId());
-
-                if (adjacentNode === null){
-                     console.warn("Could not find adjacentNode for comment with subjectId", n.getSubjectId());
-                    return;
-                }
-
-                adjacentNodes.push(adjacentNode);
-                break;
-            }
             case 'inputPort':
                 for(const edge of eagle.logicalGraph().getEdges()){
                     if(field != null && field.getId()===edge.getDestPortId()){
@@ -220,7 +201,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
         const currentNodePos = node.getPosition();
         let averageAngle
 
-        if(connectedField || dataType === 'comment'){
+        if(connectedField){
 
             // calculate angles to all adjacent nodes
             const angles: number[] = [];
@@ -920,19 +901,6 @@ export class GraphRenderer {
         const destField: Field = destNode.findFieldById(edge.getDestPortId());
 
         return GraphRenderer._getPath(edge,srcNode, destNode, srcField, destField);
-    }
-
-    static getPathComment(commentNode: Node) : string {
-        const lg: LogicalGraph = Eagle.getInstance().logicalGraph();
-
-        const srcNode: Node = commentNode;
-        const destNode: Node = lg.findNodeByIdQuiet(commentNode.getSubjectId());
-
-        if(srcNode === null || destNode === null){
-            return ''
-        }
-
-        return GraphRenderer._getPath(null,srcNode, destNode, null, null);
     }
 
     static getPathDraggingEdge : ko.PureComputed<string> = ko.pureComputed(() => {

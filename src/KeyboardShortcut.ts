@@ -416,13 +416,6 @@ export class KeyboardShortcut {
             run: (eagle): void => {eagle.changeNodeParent();}
         }),
         new KeyboardShortcut({
-            id: "connect_comment_node",
-            text: "Connect comment node",
-            keys: [new Key("u", Modifier.Shift)],
-            tags: ['comment'],
-            run: (eagle): void => {eagle.changeNodeSubject();}
-        }),
-        new KeyboardShortcut({
             id: "center_graph",
             text: "Center Graph",
             keys: [new Key("c")],

@@ -639,9 +639,6 @@ export class RightClick {
                 if(data.getCategory() === Category.Docker){
                     $('#customContextMenu').append('<a onclick=eagle.fetchDockerHTML()>Browse DockerHub</a>')
                 }
-                if(data.isComment()){
-                    $('#customContextMenu').append('<a onclick=eagle.changeNodeSubject()>Connect to Node</a>')
-                }
                 if(Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
                     $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to palette</a>')
                 }
