@@ -88,9 +88,6 @@ export namespace Daliuge {
 
         //bash
         COMMAND = "command",
-
-        //comment
-        COMMENT = "comment",
     }
 
     export enum DataType {
