@@ -1492,12 +1492,15 @@ export class Eagle {
         }
     }
 
-    displayObjectAsJson = (fileType: Eagle.FileType) : void => {
+    displayObjectAsJson = (fileType: Eagle.FileType, object: LogicalGraph | Palette) : void => {
         let jsonString: string;
         
         switch(fileType){
             case Eagle.FileType.Graph:
-                jsonString = LogicalGraph.toOJSJsonString(this.logicalGraph(), false);
+                jsonString = LogicalGraph.toOJSJsonString(object as LogicalGraph, false);
+                break;
+            case Eagle.FileType.Palette:
+                jsonString = Palette.toOJSJsonString(object as Palette);
                 break;
             default:
                 console.error("displayObjectAsJson(): Un-handled fileType", fileType);
