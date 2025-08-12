@@ -850,8 +850,12 @@ export class Field {
                 if(!node.isEmbedded()){
                     issue = Errors.ShowFix("Node (" + node.getName() + ") has input port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, node.getId(),field);}, function(){Utils.fixFieldType(eagle, field)}, "");
                 }else{
+                    // if selectedLocation is Palette, abort, it is too difficult to validate
+                    if (selectedLocation === Eagle.FileType.Palette) {
+                        return;
+                    }
 
-                    // for embedded nodes
+                    // find the construct node for the embedded node
                     const constructNode = eagle.logicalGraph().findNodeById(node.getEmbedId())
 
                     // check if the construct node was found
@@ -881,10 +885,14 @@ export class Field {
                 if(!node.isEmbedded()){
                     issue = Errors.ShowFix("Node (" + node.getName() + ") has output port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, node.getId(),field);}, function(){Utils.fixFieldType(eagle, field)}, "");
                 }else{
+                    // if selectedLocation is Palette, abort, it is too difficult to validate
+                    if (selectedLocation === Eagle.FileType.Palette) {
+                        return;
+                    }
 
-                    // for embedded nodes
+                    // find the construct node for the embedded node
                     const constructNode = eagle.logicalGraph().findNodeById(node.getEmbedId())
-                    
+
                     if (constructNode !== null){
                         if(constructNode.getInputApplication() === node){
                             //if node is input application
