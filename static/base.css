@@ -1205,6 +1205,14 @@ select.form-control{
     height: 60vh;
 }
 
+#whatsNewModal .modal-content h4{
+    color: #ffb709;
+}
+
+#whatsNewModal .modal-content .versionHistory{
+    /* display: none; */
+}
+
 #settingsModal .modal-content{
     height: 40vh;
 }
@@ -1964,24 +1972,25 @@ ul.nav.navbat-nav .btn-outline-secondary:hover{
  }
 
  #eagleAndVersion{
-     margin-left:5px;
-     position: absolute;
-     left:5.2em
+    margin-left:5px;
+    position: absolute;
+    left:5.2em
  }
 
  #eagleAndVersion a{
-     display: block;
-     padding: 0px;
-     position: absolute;
-     margin-top: -23px;
+    display: block;
+    padding: 0px;
+    position: absolute;
+    margin-top: -23px;
  }
 
  #eagleAndVersion span{
-     display: block;
-     padding: 0px;
-     position: absolute;
-     color: rgb(170, 170, 170);
-     white-space: pre;
+    display: block;
+    padding: 0px;
+    position: absolute;
+    color: rgb(170, 170, 170);
+    white-space: pre;
+    cursor: pointer;
  }
 
  #eagleAndVersion sup{

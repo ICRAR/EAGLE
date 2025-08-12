@@ -376,25 +376,24 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-            <div class="latestVersion" data-bind="with: eagle.getLatestVersion()">
-                <h5 data-bind="text: eagle.formatVersionTitle($data.version, $data.date)"></h5>
-                <ul>
-                    <!-- ko foreach: $data.changes -->
-                        <li data-bind="text: $data"></li>
-                    <!-- /ko -->
-                </ul>
-            </div>
-            <!-- ko foreach: $data.getVersionHistory() -->
-                <div class="latestVersion">
-                    <h5 data-bind="text: eagle.formatVersionTitle($data.version, $data.date)"></h5>
+                <div class="latestVersion" data-bind="with: eagle.getLatestVersion()">
+                    <h4 data-bind="text: eagle.formatVersionTitle($data.version, $data.date)"></h4>
                     <ul>
                         <!-- ko foreach: $data.changes -->
                             <li data-bind="text: $data"></li>
                         <!-- /ko -->
                     </ul>
                 </div>
-            <!-- /ko -->
-
+                <!-- ko foreach: $data.getVersionHistory() -->
+                    <div class="versionHistory">
+                        <h5 data-bind="text: eagle.formatVersionTitle($data.version, $data.date)"></h5>
+                        <ul>
+                            <!-- ko foreach: $data.changes -->
+                                <li data-bind="text: $data"></li>
+                            <!-- /ko -->
+                        </ul>
+                    </div>
+                <!-- /ko -->
             </div>
         </div>
     </div>
