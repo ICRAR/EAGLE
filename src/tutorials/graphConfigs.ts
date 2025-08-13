@@ -112,6 +112,8 @@ newTut.newTutStep("Managing Graph Configurations", "<em>Click to Switch to the g
 .setType(TutorialStep.Type.Press)
 
 newTut.newTutStep("Managing Graph Configurations", "In this table we can view, edit, copy or delete existing graph configurations saved in this graph. <em>next to continue</em>", function(){return $('#graphConfigurationsTableWrapper tr').first()})
+.setWaitType(TutorialStep.Wait.Delay)
+.setDelayAmount(200)
 .setAlternateHighlightTargetFunc(function(){return $('#bottomWindow .content')})
 
 newTut.newTutStep("Managing Graph Configurations", "Lets say we want another version of this config, but also be able to easily change the output file path. First, we must duplicate our existing graph configuration. <em>Click to duplicate our first configuration</em>", function(){return $('.btmWindowDuplicateBtn').first()})
