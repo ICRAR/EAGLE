@@ -1232,7 +1232,7 @@ export class LogicalGraph {
             }
             ids.push(nodeId);
 
-            // loop over fields within graphs
+            // loop over fields within graphs to check that all field ids are unique
             for (const field of node.getFields()){
                 if (ids.includes(field.getId())){
                     const issue: Errors.Issue = Errors.ShowFix(
@@ -1261,7 +1261,7 @@ export class LogicalGraph {
             ids.push(id);
         }
 
-        // loop over the graph configs
+        // loop over the graph configs to check that all graph config ids are unique
         for (const graphConfig of graph.getGraphConfigs()){
             if (ids.includes(graphConfig.getId())){
                 const issue: Errors.Issue = Errors.ShowFix(

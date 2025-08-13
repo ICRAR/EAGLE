@@ -1499,13 +1499,16 @@ export class Eagle {
         }
     }
 
-    displayObjectAsJson = (fileType: Eagle.FileType) : void => {
+    displayObjectAsJson = (fileType: Eagle.FileType, object: LogicalGraph | Palette) : void => {
         let jsonString: string;
         const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
         
         switch(fileType){
             case Eagle.FileType.Graph:
-                jsonString = LogicalGraph.toJsonString(this.logicalGraph(), false, version);
+                jsonString = LogicalGraph.toJsonString(object as LogicalGraph, false, version);
+                break;
+            case Eagle.FileType.Palette:
+                jsonString = Palette.toJsonString(object as Palette, version);
                 break;
             default:
                 console.error("displayObjectAsJson(): Un-handled fileType", fileType);
@@ -4406,6 +4409,10 @@ export class Eagle {
     };
 
     showGraphErrors = (): void => {
+        //recheck the graph for errors, this is because we cannot rely on the fact that the graph has been checked.
+        //this is to ensure that when the user requests to see the graph errors, the information is up to date
+        this.checkGraph();
+
         if (this.graphWarnings().length > 0 || this.graphErrors().length > 0){
 
             // switch to graph errors mode
@@ -4771,9 +4778,16 @@ export class Eagle {
 
             Utils.showNotification("Success", "Successfully updated " + updatedNodes.length + " component(s): " + nodeNames.join(", "), "success");
         }
+
+        // make undo snapshot, recheck graph, mark as modified etc
+        this.logicalGraph.valueHasMutated();
+        this.logicalGraph().fileInfo().modified = true;
+        this.logicalGraph().fileInfo.valueHasMutated();
+        this.checkGraph();
+        this.undo().pushSnapshot(this, "Check for Component Updates");
     }
 
-    findPaletteContainingNode = (nodeId: string): Palette => {
+    findPaletteContainingNode = (nodeId: NodeId): Palette => {
         for (const palette of this.palettes()){
             for (const node of palette.getNodes()){
                 if (node.getId() === nodeId){

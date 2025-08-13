@@ -245,7 +245,7 @@ export class KeyboardShortcut {
         new KeyboardShortcut({
             id: "display_graph_as_json",
             text: "Display Graph As Json",
-            run: (eagle): void => {eagle.displayObjectAsJson(Eagle.FileType.Graph);}
+            run: (eagle): void => {eagle.displayObjectAsJson(Eagle.FileType.Graph, eagle.logicalGraph());}
         }),
         // load/save
         // TODO: this one (open_graph_from_repo) does almost nothing! we should have a real modal
@@ -588,7 +588,7 @@ export class KeyboardShortcut {
         new KeyboardShortcut({
             id: "select_all_in_graph",
             text: "Select all in graph",
-            keys: [new Key("a", Modifier.Ctrl)],
+            keys: [new Key("a", Modifier.Ctrl),new Key("a", Modifier.Alt)],
             run: (eagle): void => { eagle.selectAllInGraph();}
         }),
         new KeyboardShortcut({

@@ -269,6 +269,10 @@ export class Utils {
         if (fileType.toLowerCase() === "json"){
             return Eagle.FileType.JSON;
         }
+        const markdownExtensions = ["md", "markdown", "mdown"];
+        if (markdownExtensions.includes(fileType.toLowerCase())){
+            return Eagle.FileType.Markdown;
+        }
 
         return Eagle.FileType.Unknown;
     }

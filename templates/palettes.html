@@ -58,6 +58,7 @@
                     <!-- /ko -->
                     <a href="#" data-bind="click: $data.copyUrl"><span>Copy URL</span></a>
                     <a href="#" data-bind="click: function(){Utils.showModelDataModal('Palette Info', fileInfo());}"><span>Show ModelData</span></a>
+                    <a href="#" data-bind="click: function(){eagle.displayObjectAsJson(Eagle.FileType.Palette, $data);}"><span>Display as JSON</span></a>
                 </div>
                 <div class="accordion-item paletteWrapper" data-bind="attr: {'data-palette-index': $index}, event: { dragover: SideWindow.nodeDragOver, drop: $root.nodeDropPalette }">
                     <div class="accordion-header">

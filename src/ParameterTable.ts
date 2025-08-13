@@ -325,7 +325,7 @@ export class ParameterTable {
 
         switch (Eagle.selectedLocation()){
             case Eagle.FileType.Palette: {
-                const paletteNode: Node | Edge = eagle.selectedObjects()[0];
+                const paletteNode: Node = eagle.selectedNode();
                 console.assert(paletteNode instanceof Node)
 
                 const containingPalette: Palette = eagle.findPaletteContainingNode(paletteNode.getId());

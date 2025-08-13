@@ -1070,8 +1070,10 @@ export class GraphRenderer {
             //checking if the node is inside of a construct, if so, fetching it's parent
             if(node.getParent() !== null){
                 const parentNode = node.getParent();
-                $('#'+parentNode.getId()).removeClass('transition')
-                GraphRenderer.nodeParentRadiusPreDrag = parentNode.getRadius()
+                if (parentNode !== null){
+                    $('#'+parentNode.getId()).removeClass('transition')
+                    GraphRenderer.nodeParentRadiusPreDrag = parentNode.getRadius()
+                }
             }
         }
 

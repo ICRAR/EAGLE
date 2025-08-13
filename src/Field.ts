@@ -707,7 +707,12 @@ export class Field {
             case Daliuge.DataType.Float:
                 return parseFloat(value);
             case Daliuge.DataType.Integer:
-                return parseInt(value, 10);
+                const parsedValue = parseInt(value, 10);
+                if (isNaN(parsedValue)){
+                    console.warn("Field.stringAsType(): Unable to parse value as integer:", value);
+                    return value; // return the original value if parsing fails
+                }
+                return parsedValue;
             default:
                 return value;
         }
@@ -938,7 +943,6 @@ export class Field {
                 if(!node.isEmbedded()){
                     issue = Errors.ShowFix("Node (" + node.getName() + ") has input port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixFieldType(eagle, field)}, "");
                 }else{
-
                     // for embedded nodes
                     const constructNode = node.getEmbed();
 
@@ -966,7 +970,6 @@ export class Field {
                 if(!node.isEmbedded()){
                     issue = Errors.ShowFix("Node (" + node.getName() + ") has output port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixFieldType(eagle, field)}, "");
                 }else{
-
                     // for embedded nodes
                     const constructNode = node.getEmbed();
                     
