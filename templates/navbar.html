@@ -7,7 +7,7 @@
             EAGLE
             <sup>π</sup>
         </a>
-        <span data-bind="text: window.version">version</span>
+        <span data-bind="text: window.version, click: showWhatsNew">version</span>
     </div>
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -163,7 +163,7 @@
                         </span>
                         <a class="dropdown-item" id="createNewGraphFromUrl" href="#" data-bind="click: function(){loadFileFromUrl(Eagle.FileType.Graph)}">Open from URL</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" id="displayGraphAsJson" href="#" data-bind="click: function(){displayObjectAsJson(Eagle.FileType.Graph);}">Display As Json</a>
+                        <a class="dropdown-item" id="displayGraphAsJson" href="#" data-bind="click: function(){displayObjectAsJson(Eagle.FileType.Graph, eagle.logicalGraph());}">Display As Json</a>
                         <a class="dropdown-item" id="screenshotGraph" href="#" data-bind="click: saveGraphScreenshot">Screenshot</a>
                         <a class="dropdown-item" id="validateGraph" href="#" data-bind="click: validateGraph">Validate</a>
                     <!-- /ko -->

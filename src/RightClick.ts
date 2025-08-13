@@ -446,7 +446,7 @@ export class RightClick {
 
     static editNodeFuncCode = () : void => {
         const funcCodeField = Eagle.selectedRightClickObject().findFieldByDisplayText(Daliuge.FieldName.FUNC_CODE, Daliuge.FieldType.Component)
-        ParameterTable.requestEditValueCode(funcCodeField, false)
+        ParameterTable.requestEditValueField(funcCodeField, false)
     }
 
     // TODO: event var used in function is the deprecated global, we should get access to the event via some other method
@@ -639,9 +639,6 @@ export class RightClick {
                 }
                 if(data.getCategory() === Category.Docker){
                     $('#customContextMenu').append('<a onclick=eagle.fetchDockerHTML()>Browse DockerHub</a>')
-                }
-                if(data.isComment()){
-                    $('#customContextMenu').append('<a onclick=eagle.changeNodeSubject()>Connect to Node</a>')
                 }
                 if(Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
                     $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to palette</a>')

@@ -204,7 +204,7 @@ export class Palette {
         this.nodes.push(newNode);
     }
 
-    findNodeById = (id : string) : Node => {
+    findNodeById = (id: NodeId) : Node => {
         for (let i = this.nodes().length - 1; i >= 0 ; i--){
             if (this.nodes()[i].getId() === id){
                 return this.nodes()[i];
@@ -213,7 +213,7 @@ export class Palette {
         return null;
     }
 
-    removeNodeById = (id : string) : void => {
+    removeNodeById = (id: NodeId) : void => {
         for (let i = this.nodes().length - 1; i >= 0 ; i--){
             if (this.nodes()[i].getId() === id){
                 this.nodes.splice(i, 1);

@@ -48,7 +48,7 @@ export class CategoryData {
 
         // legacy
         Component            : {categoryType: Category.Type.Unknown, isGroup: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: true, icon: "icon-none", color: Category.Color.Legacy, sortOrder: Category.SortOrder.Legacy},
-        Description          : {categoryType: Category.Type.Other, isGroup: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveComponentParameters: false, canHaveApplicationArguments: false, canHaveConstructParameters: false, icon: "icon-paragraph-justify", color: Category.Color.Legacy, sortOrder: Category.SortOrder.Legacy},
+        Description          : {categoryType: Category.Type.Other, isGroup: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveComponentParameters: false, canHaveApplicationArguments: false, canHaveConstructParameters: false, icon: "icon-none", color: Category.Color.Legacy, sortOrder: Category.SortOrder.Legacy},
         PythonApp            : {categoryType: Category.Type.Application, isGroup: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-python", color: Category.Color.Application, sortOrder: Category.SortOrder.Legacy},
     };
 

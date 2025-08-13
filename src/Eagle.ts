@@ -63,6 +63,7 @@ import { UiModeSystem } from './UiModes';
 import { Utils } from './Utils';
 import { GraphUpdater } from "./GraphUpdater";
 import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
+import { versions } from "./Versions";
 
 
 export class Eagle {
@@ -848,9 +849,6 @@ export class Eagle {
 
                 eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
                     eagle.logicalGraph(lg);
-    
-                    // center graph
-                    GraphRenderer.translateLegacyGraph()
 
                     eagle._postLoadGraph(new RepositoryFile(new Repository(Repository.Service.File, "", "", false), Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath)));
                 });
@@ -1187,21 +1185,6 @@ export class Eagle {
                     insertedNode.setParentId(insertedParent.getId());
                 }
             }
-
-            if (node.getSubjectId() !== null){
-                const subjectNode = this.logicalGraph().findNodeById(node.getSubjectId());
-                const insertedSubject: Node = nodeMap.get(node.getSubjectId());
-
-                if (typeof insertedSubject === 'undefined'){
-                    if (subjectNode === null){
-                        insertedNode.setSubjectId(null);
-                    } else {
-                        insertedNode.setSubjectId(subjectNode.getId());
-                    }
-                } else {
-                    insertedNode.setSubjectId(insertedSubject.getId());
-                }
-            }
         }
 
         // insert edges from lg into the existing logicalGraph
@@ -1492,12 +1475,15 @@ export class Eagle {
         }
     }
 
-    displayObjectAsJson = (fileType: Eagle.FileType) : void => {
+    displayObjectAsJson = (fileType: Eagle.FileType, object: LogicalGraph | Palette) : void => {
         let jsonString: string;
         
         switch(fileType){
             case Eagle.FileType.Graph:
-                jsonString = LogicalGraph.toOJSJsonString(this.logicalGraph(), false);
+                jsonString = LogicalGraph.toOJSJsonString(object as LogicalGraph, false);
+                break;
+            case Eagle.FileType.Palette:
+                jsonString = Palette.toOJSJsonString(object as Palette);
                 break;
             default:
                 console.error("displayObjectAsJson(): Un-handled fileType", fileType);
@@ -2321,9 +2307,6 @@ export class Eagle {
 
         // show errors/warnings
         this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
-
-        // center graph
-        GraphRenderer.translateLegacyGraph()
 
         this._postLoadGraph(file);
     }
@@ -3984,67 +3967,6 @@ export class Eagle {
         this.logicalGraph.valueHasMutated();
     }
 
-    changeNodeSubject = async () => {
-        // build list of node name + ids (exclude self)
-        const selectedNode: Node = this.selectedNode();
-
-        if (selectedNode === null){
-            Utils.showNotification('Unable to change node subject','No node selected!','warning')
-            return;
-        }
-
-        // check selectedNode is a comment node
-        if (selectedNode.getCategory() !== Category.Comment){
-            Utils.showNotification('Unable to change node subject','Selected node is not a "Comment" node!','warning')
-            return;
-        }
-
-        // check that graph editing is permitted
-        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
-            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Change Node Subject");
-            return;
-        }
-
-        const nodeList : string[] = [];
-        let selectedChoiceIndex = 0;
-
-        // build list of nodes that are candidates to be the subject
-        for (let i = 0 ; i < this.logicalGraph().getNodes().length; i++){
-            const node : Node = this.logicalGraph().getNodes()[i];
-
-            // if this node is already the subject, note its index, so that we can preselect this subject node in the modal dialog
-            if (node.getId() === selectedNode.getSubjectId()){
-                selectedChoiceIndex = i;
-            }
-
-            // comment and description nodes can't be the subject of comment nodes
-            if (node.getCategory() === Category.Comment || node.getCategory() === Category.Description){
-                continue;
-            }
-
-            nodeList.push(node.getName() + " : " + node.getId());
-        }
-
-        // ask user for parent
-        const userChoice: string = await Utils.requestUserChoice("Node Subject Id", "Select a subject node", nodeList, selectedChoiceIndex, false, "");
-
-        if (userChoice === null)
-            return;
-
-        const choice = userChoice;
-
-        // change the subject
-        const newSubjectId: NodeId = choice.substring(choice.lastIndexOf(" ") + 1) as NodeId;
-        selectedNode.setSubjectId(newSubjectId);
-
-        // refresh the display
-        this.checkGraph();
-        this.undo().pushSnapshot(this, "Change Node Subject");
-        this.logicalGraph().fileInfo().modified = true;
-        this.selectedObjects.valueHasMutated();
-        this.logicalGraph.valueHasMutated();
-    }
-
     nodeDropLogicalGraph = (eagle : Eagle, event: JQuery.TriggeredEvent) : void => {
         const e: DragEvent = event.originalEvent as DragEvent;
 
@@ -4474,6 +4396,13 @@ export class Eagle {
     editNodeComment = async (): Promise<void> => {
         const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
         const node = this.selectedNode()
+
+        // abort if no node is selected
+        if (node === null) {
+            console.warn("No node selected");
+            return;
+        }
+
         let nodeComment: string;
         try {
             nodeComment = await Utils.requestUserMarkdown("Node Comment", node?.getComment(), markdownEditingEnabled);
@@ -4488,6 +4417,13 @@ export class Eagle {
     editEdgeComment = async (): Promise<void> => {
         const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
         const edge = this.selectedEdge()
+
+        // abort if no edge is selected
+        if (edge === null) {
+            console.warn("No edge selected");
+            return;
+        }
+
         let edgeComment: string;
         try {
             edgeComment = await Utils.requestUserMarkdown("Edge Comment", edge?.getComment(), markdownEditingEnabled);
@@ -4642,6 +4578,13 @@ export class Eagle {
 
             Utils.showNotification("Success", "Successfully updated " + updatedNodes.length + " component(s): " + nodeNames.join(", "), "success");
         }
+
+        // make undo snapshot, recheck graph, mark as modified etc
+        this.logicalGraph.valueHasMutated();
+        this.logicalGraph().fileInfo().modified = true;
+        this.logicalGraph().fileInfo.valueHasMutated();
+        this.checkGraph();
+        this.undo().pushSnapshot(this, "Check for Component Updates");
     }
 
     updateSelection = (): void => {
@@ -4686,7 +4629,7 @@ export class Eagle {
         this.undo().pushSnapshot(this, "Update Component " + node.getName());
     }
 
-    findPaletteContainingNode = (nodeId: string): Palette => {
+    findPaletteContainingNode = (nodeId: NodeId): Palette => {
         for (const palette of this.palettes()){
             for (const node of palette.getNodes()){
                 if (node.getId() === nodeId){
@@ -4716,6 +4659,30 @@ export class Eagle {
             } else {
                 bootstrap.Collapse.getOrCreateInstance(element).show();
             }
+        }
+    }
+
+    getLatestVersion = () : any => {
+        return versions[0]
+    }
+
+    getVersionHistory = () : any => {
+        return versions.slice(1);
+    }
+
+    formatVersionTitle = (tag: string, date: Date) : string => { 
+        return tag + " (" + date.toISOString().split("T")[0] + ")";
+    }
+
+    versionShowMoreToggle = () : void => {
+        //toggle display of the full version history
+        $("#whatsNewModal .versionHistory").toggle()
+
+        //change the text of the toggle button
+        if($('#whatsNewModal #whatsNewShowMore').html() === 'Show More'){
+            $('#whatsNewModal #whatsNewShowMore').html('Show Less')
+        }else{
+            $('#whatsNewModal #whatsNewShowMore').html('Show More')
         }
     }
 }

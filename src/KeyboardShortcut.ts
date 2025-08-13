@@ -245,7 +245,7 @@ export class KeyboardShortcut {
         new KeyboardShortcut({
             id: "display_graph_as_json",
             text: "Display Graph As Json",
-            run: (eagle): void => {eagle.displayObjectAsJson(Eagle.FileType.Graph);}
+            run: (eagle): void => {eagle.displayObjectAsJson(Eagle.FileType.Graph, eagle.logicalGraph());}
         }),
         // load/save
         // TODO: this one (open_graph_from_repo) does almost nothing! we should have a real modal
@@ -414,13 +414,6 @@ export class KeyboardShortcut {
             text: "Change Selected Node Parent",
             keys: [new Key("u")],
             run: (eagle): void => {eagle.changeNodeParent();}
-        }),
-        new KeyboardShortcut({
-            id: "connect_comment_node",
-            text: "Connect comment node",
-            keys: [new Key("u", Modifier.Shift)],
-            tags: ['comment'],
-            run: (eagle): void => {eagle.changeNodeSubject();}
         }),
         new KeyboardShortcut({
             id: "center_graph",
@@ -663,6 +656,12 @@ export class KeyboardShortcut {
             tags: ['menu','options'],
             icon: "settings",
             run: (eagle): void => {eagle.smartToggleModal('settingsModal');}
+        }),
+        new KeyboardShortcut({
+            id: "whats_new",
+            text: "What's new",
+            tags: ['whats new','updates','versions'],
+            run: (eagle): void => {eagle.showWhatsNew();}
         }),
 
         // tutorials
