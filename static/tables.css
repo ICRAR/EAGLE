@@ -525,6 +525,7 @@
     background-color: #002e5f;
     transform: translateY(-50%);
     color: white;
+    display: none;
 }
 
 .eagleTableDisplay  td:hover button.parameterTableEditParam{

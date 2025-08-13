@@ -340,9 +340,9 @@ export class ParameterTable {
         }
     }
 
-    static isCodeField(field: Field) : boolean {
+    static isCodeField(fieldName: string) : boolean {
         //func code is for python functions, command is for bash commands
-        return field.getDisplayText() === Daliuge.FieldName.FUNC_CODE || field.getDisplayText() === Daliuge.FieldName.COMMAND;
+        return fieldName === Daliuge.FieldName.FUNC_CODE || fieldName === Daliuge.FieldName.COMMAND;
     }
 
     static select(selection: string, selectionName: string, selectionParent: Field, selectionIndex: number) : void {
@@ -495,7 +495,7 @@ export class ParameterTable {
         field.setDescription(fieldDescription);
     }
 
-    static async requestEditValueCode(field:Field, defaultValue: boolean) : Promise<void> {
+    static async requestEditValueField(field:Field, defaultValue: boolean) : Promise<void> {
         const eagle: Eagle = Eagle.getInstance();
         const node: Node = eagle.selectedNode();
 
@@ -517,7 +517,11 @@ export class ParameterTable {
 
         let fieldValue: string;
         try {
-            fieldValue = await Utils.requestUserCode("python", "Edit Value  |  Node: " + node.getName() + " - Field: " + field.getDisplayText(), editingValue, false);
+            if (this.isCodeField(field.getDisplayText())){ 
+                fieldValue = await Utils.requestUserCode("python", "Edit Value  |  Node: " + node.getName() + " - Field: " + field.getDisplayText(), editingValue, false);
+            }else {
+                fieldValue = await Utils.requestUserText("Edit Value  |  Node: " + node.getName() + " - Field: " + field.getDisplayText(), "Please edit the value for: " + node.getName() + ' - ' + field.getDisplayText(), editingValue, false);
+            }
         } catch (error) {
             console.error(error);
             return;

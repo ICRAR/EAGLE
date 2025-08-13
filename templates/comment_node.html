@@ -1,18 +1,12 @@
-<div class="nodeContent basic_node">
+<div class="nodeContent comment_node">
     <div class="container" data-bind="css: {selected: $root.objectIsSelected($data)}">
-        <div class="header">
-            <div data-bind="style: {transform: 'scale('+$root.getGraphTextScale()+')'}">
-                <div class="header-name" data-bind="html: $data.name,event: {click: GraphRenderer.editNodeTitleInGraph}"></div>
-                <input type="text" onmousedown="GraphRenderer.preventBubbling()" onmousemove="GraphRenderer.preventBubbling()" onmouseup="GraphRenderer.preventBubbling()" data-bind="value:$data.name, readonly: $data.isLocked, style:{display:'none'},event:{click:function(){$(event.target).focus()},keyup:GraphRenderer.nodeNameEditorKeybinds}" class="header-input">  
-                <!-- ko if: $data.getComment() != '' -->
-                    <i class="material-symbols-outlined filled interactive clickable iconHoverEffect graphComment" data-bs-placement="right" data-bind="eagleTooltip: $data.getComment(), click: $root.graphEditComment">chat</i>
-                <!-- /ko -->  
-            </div>
+        <div class="commentIcons">
+            <button class="parameterTableEditParam icon-pencil iconHoverEffect" data-bind="click:function(data,event){$root.editNodeComment()}"></button>
         </div>
-    
         <div class="body"  data-bind="eagleRightClick: {data:$data,type:'rightClick_graphNode'}, event: {mousedown: function(object,event){GraphRenderer.startDrag(object,event);}, mouseup: function(){GraphRenderer.endDrag($data);}}, mousedownBubble: false, mouseupBubble: false">
-            <span data-bind="class: $data.getIcon(), style:{'color':$data.color}"></span>
-            <div class="connectingPort port" data-bind="style:{'background-color':EagleConfig.getColor('nodeUtilPort')},graphRendererPortPosition:{n:$data,f:null,type:'comment'}"></div>
+            <div class="content" data-bind="html: $data.getCommentNodeHtml()">
+
+            </div>
         </div>
     </div>
 </div>
