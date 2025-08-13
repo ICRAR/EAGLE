@@ -4560,7 +4560,7 @@ export class Eagle {
             return;
         }
 
-        const {updatedNodes, errorsWarnings} = ComponentUpdater.update(this.palettes(), this.logicalGraph());
+        const {updatedNodes, errorsWarnings} = ComponentUpdater.updateLogicalGraph(this.palettes(), this.logicalGraph());
 
         // report missing palettes to the user
         if (errorsWarnings.errors.length > 0){
@@ -4585,6 +4585,48 @@ export class Eagle {
         this.logicalGraph().fileInfo.valueHasMutated();
         this.checkGraph();
         this.undo().pushSnapshot(this, "Check for Component Updates");
+    }
+
+    updateSelection = (): void => {
+        // check that a node is selected
+        const node: Node = this.selectedNode();
+        if (node === null){
+            Utils.showNotification("Error", "No nodes selected to update", "danger");
+            return;
+        }
+
+        // check if graph editing is allowed
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Update Component " + node.getName());
+            return;
+        }
+
+        // update
+        const {updatedNodes, errorsWarnings} = ComponentUpdater.updateSelection(this.palettes());
+
+        // check if any errors were reported
+        if (errorsWarnings.errors.length > 0){
+            const errorStrings = [];
+            for (const error of errorsWarnings.errors){
+                errorStrings.push(error.message);
+            }
+            Utils.showNotification("Error", errorStrings.join("\n"), "danger");
+            return;
+        }
+
+        // notify user of success
+        if (updatedNodes.length === 0){
+            Utils.showNotification("Info", "No components were updated", "info");
+            return;
+        }
+        Utils.showNotification("Success", "Successfully updated " + updatedNodes.length + " component(s)", "success");
+
+        // make undo snapshot, recheck graph, mark as modified etc
+        this.logicalGraph.valueHasMutated();
+        this.logicalGraph().fileInfo().modified = true;
+        this.logicalGraph().fileInfo.valueHasMutated();
+        this.checkGraph();
+        this.undo().pushSnapshot(this, "Update Component " + node.getName());
     }
 
     findPaletteContainingNode = (nodeId: NodeId): Palette => {
