@@ -664,6 +664,12 @@ export class KeyboardShortcut {
             icon: "settings",
             run: (eagle): void => {eagle.smartToggleModal('settingsModal');}
         }),
+        new KeyboardShortcut({
+            id: "whats_new",
+            text: "What's new",
+            tags: ['whats new','updates','versions'],
+            run: (eagle): void => {eagle.showWhatsNew();}
+        }),
 
         // tutorials
         new KeyboardShortcut({
