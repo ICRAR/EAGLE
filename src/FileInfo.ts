@@ -2,6 +2,7 @@ import * as ko from "knockout";
 
 import { Daliuge } from "./Daliuge";
 import { Eagle } from './Eagle';
+import { EagleConfig } from "./EagleConfig";
 import { Errors } from './Errors';
 import { Repository } from "./Repository";
 import { Utils } from './Utils';
@@ -426,12 +427,43 @@ export class FileInfo {
         return s;
     }
 
+    isInitiated = () : boolean => {
+        return this._name() != ""
+    }
+
     renderedShortDescription: ko.PureComputed<string> = ko.pureComputed(() => {
         return Utils.markdown2html(this._shortDescription());
     }, this);
 
     renderedDetailedDescription: ko.PureComputed<string> = ko.pureComputed(() => {
         return Utils.markdown2html(this._detailedDescription());
+    }, this);
+
+    getShortDescriptionBtnColor : ko.PureComputed<string> = ko.pureComputed(() => {
+        //this excludes graphs that have not been initiated by the user (eagle has an empty graph by default)
+        if (this.isInitiated() && this._shortDescription() === ""){
+            return EagleConfig.getColor('graphWarning')
+        }
+
+        return ""
+    }, this);
+
+    getDetailedDescriptionBtnColor : ko.PureComputed<string> = ko.pureComputed(() => {
+        //this excludes graphs that have not been initiated by the user (eagle has an empty graph by default)
+        if (this.isInitiated() && this._detailedDescription() === ""){
+            return EagleConfig.getColor('graphWarning')
+        }
+
+        return ""
+    }, this);
+
+    getGraphInfoBtnColor : ko.PureComputed<string> = ko.pureComputed(() => {
+        //this excludes graphs that have not been initiated by the user (eagle has an empty graph by default)
+         if (this.isInitiated() && (this._detailedDescription() === "" || this._shortDescription() === "")){
+            return EagleConfig.getColor('graphWarning')
+        }
+
+        return ""
     }, this);
 
     static toOJSJson(fileInfo : FileInfo) : object {
@@ -532,19 +564,19 @@ export class FileInfo {
         return url;
     }
 
-    static async editShortDescription(){
+    static async editShortDescription(fileInfo: FileInfo){
         const eagle = Eagle.getInstance();
 
         Utils.hideModelDataModal();
-        await eagle.editGraphShortDescription();
-        Utils.showModelDataModal('Graph Info', eagle.logicalGraph().fileInfo()); // TODO: standardise 'Graph Info'
+        await eagle.editShortDescription(fileInfo);
+        Utils.showModelDataModal(fileInfo.type + ' Info', fileInfo);
     }
 
-    static async editDetailedDescription(){
+    static async editDetailedDescription(fileInfo: FileInfo){
         const eagle = Eagle.getInstance();
 
         Utils.hideModelDataModal();
-        await eagle.editGraphDetailedDescription();
-        Utils.showModelDataModal('Graph Info', eagle.logicalGraph().fileInfo()); // TODO: standardise 'Graph Info'
+        await eagle.editDetailedDescription(fileInfo);
+        Utils.showModelDataModal(fileInfo.type + ' Info', fileInfo);
     }
 }
