@@ -26,7 +26,7 @@
             <!-- navbar category -->
             <div class="btn-group ms-4 navbarGroup" role="group" aria-label="Basic example">
                 <span class="navBarToolBarTitle">Graph</span>
-                <button id="openGraphModelDataModal" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="style:{'color': $root.logicalGraph().getGraphInfoBtnColor()}, click: function(){Utils.showModelDataModal('Graph Info', $root.logicalGraph().fileInfo());}, eagleTooltip: 'Show Graph Info'">
+                <button id="openGraphModelDataModal" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="style:{'color': $root.logicalGraph().fileInfo().getGraphInfoBtnColor()}, click: function(){Utils.showModelDataModal('Graph Info', $root.logicalGraph().fileInfo());}, eagleTooltip: 'Show Graph Info'">
                     <i class="material-symbols-outlined md-18 filled">info</i>
                 </button>
                 <button id="openGraphConfigurationTable" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: function(){ParameterTable.openTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.Normal)}, eagleTooltip: KeyboardShortcut.idToFullText('open_graph_attributes_configuration_table')">

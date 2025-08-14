@@ -2661,7 +2661,7 @@ export class Eagle {
             }
 
             // abort if graph has no filename
-            if (!graph.isInitiated()) {
+            if (!graph.fileInfo().isInitiated()) {
                 // abort and notify user
                 Utils.showNotification("Unable to save Graph with no name", "Please name the graph before saving", "danger");
                 return;
@@ -4349,34 +4349,34 @@ export class Eagle {
         });
     }
 
-    editGraphShortDescription = async(): Promise<void> => {
+    editShortDescription = async(fileInfo: FileInfo): Promise<void> => {
         const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
 
-        let graphDescription: string;
+        let description: string;
         try {
-            graphDescription = await Utils.requestUserMarkdown("Graph Short Description", this.logicalGraph().fileInfo().shortDescription, markdownEditingEnabled);
+            description = await Utils.requestUserMarkdown(fileInfo.type + " Short Description", fileInfo.shortDescription, markdownEditingEnabled);
         } catch (error) {
             console.error(error);
             return;
         }
 
-        this.logicalGraph().fileInfo().shortDescription = graphDescription;
-        this.logicalGraph().fileInfo().modified = true;
+        fileInfo.shortDescription = description;
+        fileInfo.modified = true;
     }
 
-    editGraphDetailedDescription = async(): Promise<void> => {
+    editDetailedDescription = async(fileInfo: FileInfo): Promise<void> => {
         const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
 
-        let graphDescription: string;
+        let description: string;
         try {
-            graphDescription = await Utils.requestUserMarkdown("Graph Detailed Description", this.logicalGraph().fileInfo().detailedDescription, markdownEditingEnabled);
+            description = await Utils.requestUserMarkdown(fileInfo.type + " Detailed Description", fileInfo.detailedDescription, markdownEditingEnabled);
         } catch (error) {
             console.error(error);
             return;
         }
 
-        this.logicalGraph().fileInfo().detailedDescription = graphDescription;
-        this.logicalGraph().fileInfo().modified = true;
+        fileInfo.detailedDescription = description;
+        fileInfo.modified = true;
     }
 
     editNodeDescription = async (): Promise<void> => {
