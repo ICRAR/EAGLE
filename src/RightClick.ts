@@ -456,7 +456,7 @@ export class RightClick {
         }
 
         const funcCodeField = rightClickObject.findFieldByDisplayText(Daliuge.FieldName.FUNC_CODE);
-        ParameterTable.requestEditValueCode(funcCodeField, false)
+        ParameterTable.requestEditValueField(funcCodeField, false)
     }
 
     // TODO: event var used in function is the deprecated global, we should get access to the event via some other method
@@ -528,6 +528,7 @@ export class RightClick {
                 $('#customContextMenu').append('<a onclick=eagle.deleteSelection(false,false,false)>Delete</a>')
                 $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("normal")>Duplicate</a>')
                 $('#customContextMenu').append('<a onclick=eagle.copySelectionToClipboard()>Copy</a>')
+                $('#customContextMenu').append('<a onclick=eagle.updateSelection()>Update</a>')
                 $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("normal")>Add To Palette</a>')
                 $('#customContextMenu').append('<a onclick=eagle.createConstructFromSelection()>Construct from Selection</a>')
                 $('#customContextMenu').append('<a onclick=eagle.createSubgraphFromSelection()>Sub Graph from Selection</a>')
@@ -649,15 +650,13 @@ export class RightClick {
                 if(data.getCategory() === Category.Docker){
                     $('#customContextMenu').append('<a onclick=eagle.fetchDockerHTML()>Browse DockerHub</a>')
                 }
-                if(data.isComment()){
-                    $('#customContextMenu').append('<a onclick=eagle.changeNodeSubject()>Connect to Node</a>')
-                }
                 if(Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
                     $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to palette</a>')
                 }
                 $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("contextMenuRequest")>Duplicate</a>')
                 $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,false)>Delete</a>')
                 $('#customContextMenu').append('<a onclick=eagle.copySelectionToClipboard()>Copy</a>')
+                $('#customContextMenu').append('<a onclick=eagle.updateSelection()>Update</a>')
 
 //graph edge right click options
             }else if(passedObjectClass === 'rightClick_graphEdge'){

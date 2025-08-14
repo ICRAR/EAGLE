@@ -311,26 +311,6 @@ export class LogicalGraph {
             node.setParent(parent);
         }
 
-        // make sure to set subject for all nodes
-        for (let i = 0 ; i < dataObject.nodeDataArray.length ; i++){
-            const nodeData = dataObject.nodeDataArray[i];
-            const subjectDataId = Node.determineNodeSubjectId(nodeData);
-
-            // if parentId cannot be found, skip this node
-            if (subjectDataId === null){
-                continue;
-            }
-
-            const nodeDataId = Node.determineNodeId(nodeData);
-            const nodeId = nodeDataIdToNodeId.get(nodeDataId);
-            const subjectId = nodeDataIdToNodeId.get(subjectDataId);
-
-            const node = result.nodes().get(nodeId);
-            const subject = result.nodes().get(subjectId);
-
-            node.setSubject(subject);
-        }
-
         // add edges
         for (const linkData of dataObject.linkDataArray){       
             const newEdge = Edge.fromOJSJson(linkData, Array.from(result.nodes().values()), errorsWarnings);
@@ -438,9 +418,6 @@ export class LogicalGraph {
             const node: Node = result.getNodeById(nodeId as NodeId);
             if (typeof embed !== 'undefined'){
                 node.setEmbed(embed);
-            }
-            if (typeof subject !== 'undefined'){
-                node.setSubject(subject);
             }
             if (typeof parent !== 'undefined'){
                 node.setParent(parent);
@@ -835,15 +812,6 @@ export class LogicalGraph {
                 this.nodes().delete(node.getOutputApplication().getId());
                 this.nodes.valueHasMutated();
                 node.setOutputApplication(null);
-                break;
-            }
-        }
-
-        // if the node we are deleting is the subject of another node, then reset the subject of that node
-        for (const node of this.nodes().values()){
-            if (node.getSubject() !== null && node.getSubject().getId() === id){
-                node.setSubject(null);
-                this.nodes.valueHasMutated();
                 break;
             }
         }

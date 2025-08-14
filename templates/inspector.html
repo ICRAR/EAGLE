@@ -52,11 +52,6 @@
                                             <i class="material-symbols-outlined md-20 clickable iconHoverEffect">library_add</i>
                                         </button>
                                     <!-- /ko -->
-                                    <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph && $data.isComment() -->
-                                        <button type="button" id="connectCommentNode" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.changeNodeSubject()}, clickBubble: false, eagleTooltip: KeyboardShortcut.idToFullText('connect_comment_node')" data-bs-placement="left">
-                                            <i class="material-symbols-outlined md-20 clickable iconHoverEffect">polyline</i>
-                                        </button>
-                                    <!-- /ko -->
                                     <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                                         <button type="button" id="deleteSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.deleteSelection(false,false,false);}, clickBubble: false, eagleTooltip: KeyboardShortcut.idToFullText('delete_selection')" data-bs-placement="left">
                                             <i class="material-symbols-outlined md-20 clickable iconHoverEffect">delete</i>
@@ -129,8 +124,7 @@
                                             <!-- ko ifnot: $data.getGraphConfigField() -->
                                                 <textarea class="form-control" rows="1" data-bind="eagleTooltip: 'Graph Value', disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()}, event: {change: ParameterTable.fieldValueChanged}"></textarea>
                                             <!-- /ko -->
-                                            
-                                            <button class="inspectorEditBtn icon-pencil iconHoverEffect" data-bind="click:function(data,event){ParameterTable.requestEditValueCode($data, false)}"></button>
+                                            <button class="inspectorEditBtn icon-pencil iconHoverEffect" data-bind="click:function(data,event){ParameterTable.requestEditValueField($data, false)}"></button>
                                         <!-- /ko -->
                                     <!-- /ko -->
 

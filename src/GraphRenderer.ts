@@ -155,10 +155,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
                 node = f.getNode()
                 field = f
                 break;
-            case 'comment':
-                node = n
-                field = null
-                break;
         }
 
         // determine all the adjacent nodes
@@ -166,14 +162,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
         let connectedField:boolean=false;
 
         switch(dataType){
-            case 'comment': {
-                if(n.getSubject() === null){
-                    return
-                }
-
-                adjacentNodes.push(n.getSubject());
-                break;
-            }
             case 'inputPort':
                 for(const edge of eagle.logicalGraph().getEdges()){
                     if(field != null && field.getId()===edge.getDestPort().getId()){
@@ -211,7 +199,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
         const currentNodePos = node.getPosition();
         let averageAngle
 
-        if(connectedField || dataType === 'comment'){
+        if(connectedField){
 
             // calculate angles to all adjacent nodes
             const angles: number[] = [];
@@ -903,19 +891,6 @@ export class GraphRenderer {
         return GraphRenderer._getPath(edge, srcNode, destNode, srcField, destField);
     }
 
-    static getPathComment(commentNode: Node) : string {
-        const lg: LogicalGraph = Eagle.getInstance().logicalGraph();
-
-        const srcNode: Node = commentNode;
-        const destNode: Node = commentNode.getSubject();
-
-        if(srcNode === null || destNode === null){
-            return ''
-        }
-
-        return GraphRenderer._getPath(null,srcNode, destNode, null, null);
-    }
-
     static getPathDraggingEdge : ko.PureComputed<string> = ko.pureComputed(() => {
         if (GraphRenderer.portDragSourceNode() === null){
             return '';
@@ -1034,7 +1009,7 @@ export class GraphRenderer {
 
     static startDrag(node: Node, event: MouseEvent) : void {
         //if we click on the title of a node, cancel the drag handler
-        if($(event.target).parent().parent().hasClass('header') || $(event.target).parent().hasClass('edgeComments')){
+        if($(event.target).parent().parent().hasClass('header') || $(event.target).parent().hasClass('edgeComments') || $(event.target).parent().hasClass('commentIcons')){
             event.preventDefault()
             event.stopPropagation()
             return
@@ -1566,21 +1541,6 @@ export class GraphRenderer {
         }else{
             console.warn('mode is not supported: ',mode)
         }
-    }
-
-    static translateLegacyGraph() : void {
-        const eagle = Eagle.getInstance();
-        //we are moving each node by half its radius to counter the fact that the new graph renderer treats the node's visual center as node position, previously the node position was in its top left.
-        if(GraphRenderer.legacyGraph){
-            //we need to calculate the construct radius in relation to it's children
-            for (const node of eagle.logicalGraph().getNodes()){
-                if(!node.isGroup()&&!node.isEmbedded()){
-                    node.setPosition(node.getPosition().x+node.getRadius()/2,node.getPosition().y + node.getRadius()/2)
-                }
-            }
-            GraphRenderer.centerConstructs(null, Array.from(eagle.logicalGraph().getNodes()))
-        }
-        GraphRenderer.legacyGraph = false
     }
 
     static moveChildNodes(node: Node, deltaX : number, deltaY : number) : void {

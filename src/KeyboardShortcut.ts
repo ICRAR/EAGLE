@@ -416,13 +416,6 @@ export class KeyboardShortcut {
             run: (eagle): void => {eagle.changeNodeParent();}
         }),
         new KeyboardShortcut({
-            id: "connect_comment_node",
-            text: "Connect comment node",
-            keys: [new Key("u", Modifier.Shift)],
-            tags: ['comment'],
-            run: (eagle): void => {eagle.changeNodeSubject();}
-        }),
-        new KeyboardShortcut({
             id: "center_graph",
             text: "Center Graph",
             keys: [new Key("c")],
@@ -663,6 +656,12 @@ export class KeyboardShortcut {
             tags: ['menu','options'],
             icon: "settings",
             run: (eagle): void => {eagle.smartToggleModal('settingsModal');}
+        }),
+        new KeyboardShortcut({
+            id: "whats_new",
+            text: "What's new",
+            tags: ['whats new','updates','versions'],
+            run: (eagle): void => {eagle.showWhatsNew();}
         }),
 
         // tutorials

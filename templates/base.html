@@ -125,9 +125,6 @@
                                     <polygon data-bind="style:{'visibility': $data.getArrowVisibility(), 'fill':GraphRenderer.edgeGetStrokeColor($data)}"></polygon>
                                 </g>
                             <!-- /ko -->
-                            <!-- ko foreach: $root.logicalGraph().getCommentNodes() -->
-                                <path class="commentEdge" data-bind="attr:{d: GraphRenderer.getPathComment($data)}"></path>
-                            <!-- /ko -->
                             <!-- ko if: GraphRenderer.renderDraggingPortEdge -->
                                 <g data-bind="attr:{id:'draggingEdge'}">
                                     <path data-bind="attr:{d: GraphRenderer.getPathDraggingEdge()},style:{'stroke':GraphRenderer.draggingEdgeGetStrokeColor(), 'stroke-dasharray': GraphRenderer.draggingEdgeGetStrokeType}"></path>

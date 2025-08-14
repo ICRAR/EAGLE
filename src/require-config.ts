@@ -57,6 +57,7 @@ require.config({
         "Category": "./static/built/Category",
         "CategoryData": "./static/built/CategoryData",
         "Hierarchy": "./static/built/Hierarchy",
+        "Versions": "./static/built/Versions",
         "RightClick": "./static/built/RightClick",
         "Repositories": "./static/built/Repositories",
         "ParameterTable": "./static/built/ParameterTable",

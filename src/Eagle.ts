@@ -62,6 +62,7 @@ import { UiModeSystem } from './UiModes';
 import { Utils } from './Utils';
 import { GraphUpdater } from "./GraphUpdater";
 import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
+import { versions } from "./Versions";
 
 
 export class Eagle {
@@ -848,9 +849,6 @@ export class Eagle {
 
                 eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
                     eagle.logicalGraph(lg);
-    
-                    // center graph
-                    GraphRenderer.translateLegacyGraph()
 
                     eagle._postLoadGraph(new RepositoryFile(new Repository(Repository.Service.File, "", "", false), Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath)));
                 });
@@ -1192,21 +1190,6 @@ export class Eagle {
                     }
                 } else {
                     insertedNode.setParent(insertedParent);
-                }
-            }
-
-            if (node.getSubject() !== null){
-                const subjectNode = node.getSubject();
-                const insertedSubject: Node = nodeMap.get(subjectNode.getId());
-
-                if (typeof insertedSubject === 'undefined'){
-                    if (subjectNode === null){
-                        insertedNode.setSubject(null);
-                    } else {
-                        insertedNode.setSubject(subjectNode);
-                    }
-                } else {
-                    insertedNode.setSubject(insertedSubject);
                 }
             }
         }
@@ -2361,9 +2344,6 @@ export class Eagle {
         // show errors/warnings
         this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
 
-        // center graph
-        GraphRenderer.translateLegacyGraph()
-
         this._postLoadGraph(file);
     }
 
@@ -3277,15 +3257,13 @@ export class Eagle {
             edges.push(edge);
         }
 
-        // set parent and subject links
+        // set parent links
         for (const n of clipboard.nodes){
             const nodeId = Node.determineNodeId(n);
             const parentId = Node.determineNodeParentId(n);
-            const subjectId = Node.determineNodeSubjectId(n);
 
             const node = nodes.find((n) => n.getId() === nodeId);
             const parentNode = nodes.find((n) => n.getId() === parentId);
-            const subjectNode = nodes.find((n) => n.getId() === subjectId);
 
             if (node === undefined){
                 console.warn("pasteFromClipboard(): node with id", nodeId, "not found in clipboard nodes");
@@ -3294,9 +3272,6 @@ export class Eagle {
 
             if (parentNode !== undefined){
                 node.setParent(parentNode);
-            }
-            if (subjectNode !== undefined){
-                node.setSubject(subjectNode);
             }
         }
 
@@ -4103,73 +4078,6 @@ export class Eagle {
         this.logicalGraph.valueHasMutated();
     }
 
-    changeNodeSubject = async () => {
-        // build list of node name + ids (exclude self)
-        const selectedNode: Node = this.selectedNode();
-
-        if (selectedNode === null){
-            Utils.showNotification('Unable to change node subject','No node selected!','warning')
-            return;
-        }
-
-        // check selectedNode is a comment node
-        if (selectedNode.getCategory() !== Category.Comment){
-            Utils.showNotification('Unable to change node subject','Selected node is not a "Comment" node!','warning')
-            return;
-        }
-
-        // check that graph editing is permitted
-        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
-            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Change Node Subject");
-            return;
-        }
-
-        const nodeList : string[] = [];
-        let selectedChoiceIndex = 0;
-
-        // build list of nodes that are candidates to be the subject
-        for (const node of this.logicalGraph().getNodes()){
-            // comment and description nodes can't be the subject of comment nodes
-            if (node.getCategory() === Category.Comment || node.getCategory() === Category.Description){
-                continue;
-            }
-
-            nodeList.push(node.getName() + " : " + node.getId());
-
-            // if this node is already the subject, note its index, so that we can preselect this subject node in the modal dialog
-            if (selectedNode.getSubject() !== null && selectedNode.getSubject().getId() === node.getId()){
-                selectedChoiceIndex = nodeList.length - 1;
-            }
-        }
-
-        // ask user for parent
-        const userChoice: string = await Utils.requestUserChoice("Node Subject Id", "Select a subject node", nodeList, selectedChoiceIndex, false, "");
-
-        if (userChoice === null)
-            return;
-
-        const choice = userChoice;
-
-        // change the subject
-        const newSubjectId: NodeId = choice.substring(choice.lastIndexOf(" ") + 1) as NodeId;
-        const subjectNode = this.logicalGraph().getNodeById(newSubjectId);
-
-        // abort if subjectNode is still undefined
-        if (typeof subjectNode === 'undefined'){
-            console.warn("changeNodeSubject(): could not find subject node specified by user: " + newSubjectId);
-            return;
-        }
-
-        selectedNode.setSubject(subjectNode);
-
-        // refresh the display
-        this.checkGraph();
-        this.undo().pushSnapshot(this, "Change Node Subject");
-        this.logicalGraph().fileInfo().modified = true;
-        this.selectedObjects.valueHasMutated();
-        this.logicalGraph.valueHasMutated();
-    }
-
     nodeDropLogicalGraph = (eagle : Eagle, event: JQuery.TriggeredEvent) : void => {
         const e: DragEvent = event.originalEvent as DragEvent;
 
@@ -4608,6 +4516,13 @@ export class Eagle {
     editNodeComment = async (): Promise<void> => {
         const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
         const node = this.selectedNode()
+
+        // abort if no node is selected
+        if (node === null) {
+            console.warn("No node selected");
+            return;
+        }
+
         let nodeComment: string;
         try {
             nodeComment = await Utils.requestUserMarkdown("Node Comment", node?.getComment(), markdownEditingEnabled);
@@ -4622,6 +4537,13 @@ export class Eagle {
     editEdgeComment = async (): Promise<void> => {
         const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
         const edge = this.selectedEdge()
+
+        // abort if no edge is selected
+        if (edge === null) {
+            console.warn("No edge selected");
+            return;
+        }
+
         let edgeComment: string;
         try {
             edgeComment = await Utils.requestUserMarkdown("Edge Comment", edge?.getComment(), markdownEditingEnabled);
@@ -4760,7 +4682,7 @@ export class Eagle {
             return;
         }
 
-        const {updatedNodes, errorsWarnings} = ComponentUpdater.update(this.palettes(), this.logicalGraph());
+        const {updatedNodes, errorsWarnings} = ComponentUpdater.updateLogicalGraph(this.palettes(), this.logicalGraph());
 
         // report missing palettes to the user
         if (errorsWarnings.errors.length > 0){
@@ -4785,6 +4707,48 @@ export class Eagle {
         this.logicalGraph().fileInfo.valueHasMutated();
         this.checkGraph();
         this.undo().pushSnapshot(this, "Check for Component Updates");
+    }
+
+    updateSelection = (): void => {
+        // check that a node is selected
+        const node: Node = this.selectedNode();
+        if (node === null){
+            Utils.showNotification("Error", "No nodes selected to update", "danger");
+            return;
+        }
+
+        // check if graph editing is allowed
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Update Component " + node.getName());
+            return;
+        }
+
+        // update
+        const {updatedNodes, errorsWarnings} = ComponentUpdater.updateSelection(this.palettes());
+
+        // check if any errors were reported
+        if (errorsWarnings.errors.length > 0){
+            const errorStrings = [];
+            for (const error of errorsWarnings.errors){
+                errorStrings.push(error.message);
+            }
+            Utils.showNotification("Error", errorStrings.join("\n"), "danger");
+            return;
+        }
+
+        // notify user of success
+        if (updatedNodes.length === 0){
+            Utils.showNotification("Info", "No components were updated", "info");
+            return;
+        }
+        Utils.showNotification("Success", "Successfully updated " + updatedNodes.length + " component(s)", "success");
+
+        // make undo snapshot, recheck graph, mark as modified etc
+        this.logicalGraph.valueHasMutated();
+        this.logicalGraph().fileInfo().modified = true;
+        this.logicalGraph().fileInfo.valueHasMutated();
+        this.checkGraph();
+        this.undo().pushSnapshot(this, "Update Component " + node.getName());
     }
 
     findPaletteContainingNode = (nodeId: NodeId): Palette => {
@@ -4817,6 +4781,30 @@ export class Eagle {
             } else {
                 bootstrap.Collapse.getOrCreateInstance(element).show();
             }
+        }
+    }
+
+    getLatestVersion = () : any => {
+        return versions[0]
+    }
+
+    getVersionHistory = () : any => {
+        return versions.slice(1);
+    }
+
+    formatVersionTitle = (tag: string, date: Date) : string => { 
+        return tag + " (" + date.toISOString().split("T")[0] + ")";
+    }
+
+    versionShowMoreToggle = () : void => {
+        //toggle display of the full version history
+        $("#whatsNewModal .versionHistory").toggle()
+
+        //change the text of the toggle button
+        if($('#whatsNewModal #whatsNewShowMore').html() === 'Show More'){
+            $('#whatsNewModal #whatsNewShowMore').html('Show Less')
+        }else{
+            $('#whatsNewModal #whatsNewShowMore').html('Show More')
         }
     }
 }
