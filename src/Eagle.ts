@@ -4629,6 +4629,72 @@ export class Eagle {
         this.undo().pushSnapshot(this, "Update Component " + node.getName());
     }
 
+    fixSelection = (): void => {
+        // check that a node is selected
+        const node: Node = this.selectedNode();
+        if (node === null){
+            Utils.showNotification("Error", "No nodes selected to fix", "danger");
+            return;
+        }
+
+        // check if graph editing is allowed
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Fix Component " + node.getName());
+            return;
+        }
+
+        const updatedNodes: Node[] = [];
+
+        for (const object of Eagle.getInstance().selectedObjects()){
+            let updated: boolean = false;
+
+            // skip non-node objects
+            if (!(object instanceof Node)) {
+                continue;
+            }
+
+            const node: Node = object as Node;
+
+            console.log("fix node", node.getName(), "number of issues", node.getIssues().length);
+
+            // fix node issues
+            for (const {issue, validity} of node.getIssues()){
+                if (issue.fix !== null){
+                    issue.fix();
+                    updated = true;
+                }
+            }
+
+            // fix field issues
+            for (const field of node.getFields()) {
+                for (const {issue, validity} of field.getIssues()){
+                    if (issue.fix !== null){
+                        issue.fix();
+                        updated = true;
+                    }
+                }
+            }
+
+            if (updated) {
+                updatedNodes.push(node);
+            }
+        }
+
+        // notify user of success
+        if (updatedNodes.length === 0){
+            Utils.showNotification("Info", "No components were fixed", "info");
+            return;
+        }
+        Utils.showNotification("Success", "Successfully fixed " + updatedNodes.length + " component(s)", "success");
+
+        // make undo snapshot, recheck graph, mark as modified etc
+        this.logicalGraph.valueHasMutated();
+        this.logicalGraph().fileInfo().modified = true;
+        this.logicalGraph().fileInfo.valueHasMutated();
+        this.checkGraph();
+        this.undo().pushSnapshot(this, "Fix Component " + node.getName());
+    }
+
     findPaletteContainingNode = (nodeId: NodeId): Palette => {
         for (const palette of this.palettes()){
             for (const node of palette.getNodes()){
