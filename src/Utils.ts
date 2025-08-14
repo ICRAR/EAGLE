@@ -2296,8 +2296,8 @@ export class Utils {
                 "outputAppId":node.getOutputApplication() === null ? null : node.getOutputApplication().getId(),
                 "outputAppCategory":node.getOutputApplication() === null ? null : node.getOutputApplication().getCategory(),
                 "outputAppEmbedId":node.getOutputApplication() === null ? null : node.getOutputApplication().getEmbedId(),
-                "node issues": node.getIssues().length,
-                "field issues": numFieldIssues
+                "nodeIssues": node.getIssues().length,
+                "fieldIssues": numFieldIssues
             });
         }
 

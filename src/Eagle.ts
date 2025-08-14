@@ -4588,16 +4588,9 @@ export class Eagle {
     }
 
     updateSelection = (): void => {
-        // check that a node is selected
-        const node: Node = this.selectedNode();
-        if (node === null){
-            Utils.showNotification("Error", "No nodes selected to update", "danger");
-            return;
-        }
-
         // check if graph editing is allowed
         if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
-            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Update Component " + node.getName());
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Update Selection");
             return;
         }
 
@@ -4626,20 +4619,14 @@ export class Eagle {
         this.logicalGraph().fileInfo().modified = true;
         this.logicalGraph().fileInfo.valueHasMutated();
         this.checkGraph();
-        this.undo().pushSnapshot(this, "Update Component " + node.getName());
+        const updatedNodeNames = updatedNodes.map(n => n.getName()).join(", ");
+        this.undo().pushSnapshot(this, "Update Component(s): " + updatedNodeNames);
     }
 
     fixSelection = (): void => {
-        // check that a node is selected
-        const node: Node = this.selectedNode();
-        if (node === null){
-            Utils.showNotification("Error", "No nodes selected to fix", "danger");
-            return;
-        }
-
         // check if graph editing is allowed
         if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
-            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Fix Component " + node.getName());
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Fix Selection");
             return;
         }
 
@@ -4660,8 +4647,12 @@ export class Eagle {
             // fix node issues
             for (const {issue, validity} of node.getIssues()){
                 if (issue.fix !== null){
-                    issue.fix();
-                    updated = true;
+                    try {
+                        issue.fix();
+                        updated = true;
+                    } catch (error) {
+                        console.error("Error fixing node issue:", error);
+                    }
                 }
             }
 
@@ -4692,7 +4683,8 @@ export class Eagle {
         this.logicalGraph().fileInfo().modified = true;
         this.logicalGraph().fileInfo.valueHasMutated();
         this.checkGraph();
-        this.undo().pushSnapshot(this, "Fix Component " + node.getName());
+        const updatedNodeNames = updatedNodes.map(n => n.getName()).join(", ");
+        this.undo().pushSnapshot(this, "Fix Component(s): " + updatedNodeNames);
     }
 
     findPaletteContainingNode = (nodeId: NodeId): Palette => {
