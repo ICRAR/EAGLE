@@ -430,34 +430,6 @@ export class Modals {
             $('#messageModal .modal-footer button').trigger("focus");
         });
 
-        $('#explorePalettesModal').on('shown.bs.modal', function(){
-            $('#explorePalettesModal .modal-footer button').trigger("focus");
-        });
-        $('#explorePalettesModalAffirmativeButton').on('click', function(){
-            $('#explorePalettesModal').data('completed', true);
-        });
-        $('#explorePalettesModal').on('hidden.bs.modal', function(){
-            const completed : boolean = $('#explorePalettesModal').data('completed');
-            $('#explorePalettesModal').removeData(['completed']);
-
-            // check if the modal was completed (user clicked OK), if not, return false
-            if (!completed){
-                return;
-            }
-
-            // check if currentProjectIndex is -1, if so, no individual files were selected, so we can do nothing
-            if (eagle.explorePalettes().currentProjectIndex() === -1){
-                return;
-            }
-
-            // otherwise, check the current project, and load all selected palettes
-            for (const ep of eagle.explorePalettes().getProject().palettes()){
-                if (ep.isSelected()){
-                    eagle.openRemoteFile(new RepositoryFile(new Repository(ep.repositoryService, ep.repositoryName, ep.repositoryBranch, false), ep.path, ep.name));
-                }
-            }
-        });
-
         $('.parameterTable').on('hidden.bs.modal', function(){
             eagle.checkGraph();
         });

@@ -35,7 +35,6 @@ import { DockerHubBrowser } from "./DockerHubBrowser";
 import { EagleConfig } from "./EagleConfig";
 import { Edge } from './Edge';
 import { Errors } from './Errors';
-import { ExplorePalettes } from './ExplorePalettes';
 import { Field } from './Field';
 import { FileInfo } from './FileInfo';
 import { GitHub } from './GitHub';
@@ -95,7 +94,6 @@ export class Eagle {
     globalOffsetY : ko.Observable<number>;
     globalScale : ko.Observable<number>;
 
-    explorePalettes : ko.Observable<ExplorePalettes>;
     dockerHubBrowser : ko.Observable<DockerHubBrowser>;
 
     errorsMode : ko.Observable<Errors.Mode>;
@@ -171,7 +169,6 @@ export class Eagle {
         this.globalOffsetY = ko.observable(0);
         this.globalScale = ko.observable(1.0);
 
-        this.explorePalettes = ko.observable(new ExplorePalettes());
         this.dockerHubBrowser = ko.observable(new DockerHubBrowser());
 
         this.errorsMode = ko.observable(Errors.Mode.Loading);
@@ -2112,7 +2109,7 @@ export class Eagle {
             {name:Palette.BUILTIN_PALETTE_NAME, filename:Daliuge.PALETTE_URL, readonly:true, expanded: builtinPaletteExpanded},
             {name:Palette.TEMPLATE_PALETTE_NAME, filename:Daliuge.TEMPLATE_URL, readonly:true, expanded: templatePaletteExpanded}
         ]);
-
+        
         const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
 
         // display of errors if setting is true
@@ -3858,10 +3855,6 @@ export class Eagle {
 
             Utils.showNotification("EAGLE", "Image, tag and digest set from Docker Hub", "success");
         });
-    }
-
-    showExplorePalettes = () : void => {
-        Utils.showPalettesModal(this);
     }
 
     tableDropdownClick = (newType: Daliuge.DataType, field: Field) : void => {

@@ -1453,11 +1453,6 @@ select.form-control{
     padding-right:4px;
 }
 
-#explorePalettesWrapper{
-    width: 90%;
-    display: inline-block;
-}
-
 #paletteWindowdropdownWrapper{
     position: absolute;
     right: 5px;
@@ -2735,7 +2730,7 @@ ul.nav.navbar-nav .dropdown-item:hover,ul.nav.navbar-nav .dropdown-item:focus{
 }
 
 .leftWindow .searchBarContainer{
-    margin-top: 10px;
+    width: 90%;
 }
 
 .searchBarContainer a,#customContextMenu .searchBarContainer a{
