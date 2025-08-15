@@ -67,6 +67,16 @@ export class Repositories {
         return Repository.Service.Unknown;
     }
 
+    static generateUrl(repository: Repository): string {
+        let url = window.location.origin;
+
+        url += "/?service=" + repository.service;
+        url += "&repository=" + repository.name;
+        url += "&branch=" + repository.branch;
+
+        return url;
+    }
+
     // use a custom modal to ask user for repository service and url at the same time
     addCustomRepository = async () => {
         let customRepository: Repository;
@@ -78,7 +88,7 @@ export class Repositories {
         }
 
         if (customRepository.name.trim() == ""){
-            Utils.showUserMessage("Error", "Repository name is empty!");
+            console.log("Error", "Repository name is empty!");
             return;
         }
 
@@ -91,6 +101,13 @@ export class Repositories {
     };
 
     _addCustomRepository = async (repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string) => {
+        // check if repository already exists
+        const existingRepo = Repositories.get(repositoryService, repositoryName, repositoryBranch);
+        if (existingRepo !== null) {
+            console.log("Repository already exists!");
+            return;
+        }
+
         // create repo
         const newRepo = new Repository(repositoryService, repositoryName, repositoryBranch, false);
 
@@ -121,6 +138,19 @@ export class Repositories {
 
         this._removeCustomRepository(repository);
     };
+
+    copyRepository = (repository: Repository): void => {
+        console.log("copyRepository()", repository.getNameAndBranch());
+
+        // build url
+        const url: string = Repositories.generateUrl(repository);
+ 
+        // copy to clipboard
+        navigator.clipboard.writeText(url);
+
+        // notification
+        Utils.showNotification("Repository URL", "Copied to clipboard", "success");
+    }
 
     private _removeCustomRepository = (repository : Repository) : void => {
 
