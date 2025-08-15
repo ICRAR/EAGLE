@@ -132,17 +132,22 @@ export class Repositories {
         this._removeCustomRepository(repository);
     };
 
-    copyRepository = (repository: Repository): void => {
+    copyRepository = async (repository: Repository): Promise<void> => {
         console.log("copyRepository()", repository.getNameAndBranch());
 
         // build url
         const url: string = Repositories.generateUrl(repository);
- 
-        // copy to clipboard
-        navigator.clipboard.writeText(url);
 
-        // notification
-        Utils.showNotification("Repository URL", "Copied to clipboard", "success");
+        try {
+            // copy to clipboard
+            await navigator.clipboard.writeText(url);
+
+            // notification
+            Utils.showNotification("Repository URL", "Copied to clipboard", "success");
+        } catch (error) {
+            Utils.showNotification("Repository URL", "Failed to copy to clipboard", "danger");
+            console.error("Failed to copy repository URL:", error);
+        }
     }
 
     private _removeCustomRepository = (repository : Repository) : void => {
