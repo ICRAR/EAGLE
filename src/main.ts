@@ -328,8 +328,16 @@ async function autoLoad() {
         Repositories.selectFile(new RepositoryFile(new Repository(realService, "", "", false), "", url));
     } else {
         if (filename === ""){
+            // check if repository already exists
+            const existingRepo = Repositories.get(realService, repository, branch);
+            if (existingRepo !== null) {
+                Utils.showNotification("Add Repository", "Repository already exists!", "info");
+                return;
+            }
+
             // add repository to repository list
             await eagle.repositories()._addCustomRepository(realService, repository, branch);
+            Utils.showNotification("Add Repository", "Repository added successfully!", "success");
         } else {
             // load file
             Repositories.selectFile(new RepositoryFile(new Repository(realService, repository, branch, false), path, filename));

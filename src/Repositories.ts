@@ -101,13 +101,6 @@ export class Repositories {
     };
 
     _addCustomRepository = async (repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string) => {
-        // check if repository already exists
-        const existingRepo = Repositories.get(repositoryService, repositoryName, repositoryBranch);
-        if (existingRepo !== null) {
-            console.log("Repository already exists!");
-            return;
-        }
-
         // create repo
         const newRepo = new Repository(repositoryService, repositoryName, repositoryBranch, false);
 
