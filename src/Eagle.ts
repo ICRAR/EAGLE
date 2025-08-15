@@ -3864,7 +3864,7 @@ export class Eagle {
             this.setSelection(newNode, Eagle.FileType.Graph);
 
             // set parent (if the node was dropped on something)
-            const parent : Node = this.logicalGraph().checkForNodeAt(newNode.getPosition().x, newNode.getPosition().y, newNode.getRadius(), true);
+            const parent : Node | null = this.logicalGraph().checkForNodeAt(newNode.getPosition().x, newNode.getPosition().y, newNode.getRadius(), true);
             newNode.setParent(parent);
 
             // determine whether we should also generate an object data drop along with this node
@@ -4310,8 +4310,10 @@ export class Eagle {
 
         // if some node in the graph is selected, ignore it and used the node that was dragged from the palette
         if (Eagle.selectedLocation() === Eagle.FileType.Graph || Eagle.selectedLocation() === Eagle.FileType.Unknown){
-            const component: Node = this.palettes()[Eagle.nodeDragPaletteIndex].getNodeById(Eagle.nodeDragComponentId);
-            sourceComponents.push(component);
+            const component: Node | undefined = this.palettes()[Eagle.nodeDragPaletteIndex].getNodeById(Eagle.nodeDragComponentId);
+            if (component instanceof Node){
+                sourceComponents.push(component);
+            }
         }
 
         // if a node or nodes in the palette are selected, then assume those are being moved to the destination
@@ -4325,7 +4327,7 @@ export class Eagle {
 
         // add each of the nodes we are moving
         for (const sourceComponent of sourceComponents){
-            this.addNodeToLogicalGraph(sourceComponent, null, Eagle.AddNodeMode.Default);
+            this.addNodeToLogicalGraph(sourceComponent, undefined, Eagle.AddNodeMode.Default);
 
             // to avoid placing all the selected nodes on top of each other at the same spot, we increment the nodeDropLocation after each node
             Eagle.nodeDropLocation.x += 20;
@@ -4346,8 +4348,10 @@ export class Eagle {
 
         // if some node in the graph is selected, ignore it and used the node that was dragged from the palette
         if (Eagle.selectedLocation() === Eagle.FileType.Graph || Eagle.selectedLocation() === Eagle.FileType.Unknown){
-            const component: Node = this.palettes()[Eagle.nodeDragPaletteIndex].getNodeById(Eagle.nodeDragComponentId);
-            sourceComponents.push(component);
+            const component: Node | undefined = this.palettes()[Eagle.nodeDragPaletteIndex].getNodeById(Eagle.nodeDragComponentId);
+            if (component instanceof Node){
+                sourceComponents.push(component);
+            }
         }
 
         // if a node or nodes in the palette are selected, then assume those are being moved to the destination
@@ -4360,7 +4364,15 @@ export class Eagle {
         }
 
         // determine destination palette
-        const destinationPaletteIndex : number = parseInt((e.currentTarget as HTMLElement).getAttribute('data-palette-index'), 10);
+        const target = e.currentTarget;
+        if (target === null){
+            return;
+        }
+        const paletteIndexData = (target as HTMLElement).getAttribute('data-palette-index');
+        if (paletteIndexData === null){
+            return;
+        }
+        const destinationPaletteIndex: number = parseInt(paletteIndexData, 10);
         const destinationPalette: Palette = this.palettes()[destinationPaletteIndex];
 
         const allowReadonlyPaletteEditing = Setting.findValue(Setting.ALLOW_READONLY_PALETTE_EDITING);
@@ -4450,7 +4462,10 @@ export class Eagle {
         this.undo().pushSnapshot(this, "Edit Field");
 
         // now that we are done, re-open the params table
-        Utils.showField(this, Eagle.selectedLocation(), field.getNode(), field);
+        const fieldNode = field.getNode();
+        if (fieldNode instanceof Node){
+            Utils.showField(this, Eagle.selectedLocation(), fieldNode, field);
+        }
     };
 
     getNewNodePosition = (radius: number) : {x:number, y:number, extended:boolean} => {

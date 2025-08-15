@@ -221,9 +221,20 @@ ko.bindingHandlers.graphRendererPortPosition = {
                 break;
         }
         
+        // abort if node could not be found
+        if (node === null) {
+            console.warn("Node could not be found");
+            return;
+        }
+        // abort if field could not be found
+        if (field === null) {
+            console.warn("Field could not be found");
+            return;
+        }
+
         // determine port position
         const currentNodePos = node.getPosition();
-        let averageAngle
+        let averageAngle = 0;
 
         if(connectedField || dataType === 'comment'){
 
@@ -521,8 +532,8 @@ export class GraphRenderer {
 
     static findClosestMatchingAngle (node:Node, angle:number, minPortDistance:number,field:Field,mode: "input" | "output") : number {
         let result = 0
-        let minAngle 
-        let maxAngle
+        let minAngle = 0
+        let maxAngle = 0
 
         let currentAngle = angle
         let noMatch = true
@@ -530,7 +541,7 @@ export class GraphRenderer {
 
         //checking max angle
         while(noMatch && circles<10){
-            const collidingPortAngle:number = GraphRenderer.checkForPortUsingAngle(node,currentAngle,minPortDistance, field,mode)
+            const collidingPortAngle: number | null = GraphRenderer.checkForPortUsingAngle(node,currentAngle,minPortDistance, field,mode)
             if(collidingPortAngle === null){
                 maxAngle = currentAngle // we've found our closest gap when adding to our angle
                 noMatch = false
@@ -554,7 +565,7 @@ export class GraphRenderer {
 
         //checking min angle
         while(noMatch && circles<10){
-            const collidingPortAngle:number = GraphRenderer.checkForPortUsingAngle(node,currentAngle,minPortDistance, field,mode)
+            const collidingPortAngle: number | null = GraphRenderer.checkForPortUsingAngle(node,currentAngle,minPortDistance, field,mode)
             if(collidingPortAngle === null){
                 minAngle = currentAngle // we've found our closest gap when adding to our angle
                 noMatch = false
@@ -597,9 +608,9 @@ export class GraphRenderer {
         return result
     }
 
-    static checkForPortUsingAngle (node:Node, angle:number, minPortDistance:number, activeField:Field, mode: "input" | "output") : number {
+    static checkForPortUsingAngle (node:Node, angle:number, minPortDistance:number, activeField:Field, mode: "input" | "output") : number | null {
         //we check if there are any ports within range of the desired angle. if there are we will return the angle of the port we collided with
-        let result:number = null
+        let result: number | null = null
 
         //dangling ports will collide with all other ports including other dandling ports, connected ports take priority and will push dangling ones out of the way
         let danglingActivePort = false
@@ -947,18 +958,20 @@ export class GraphRenderer {
     }
 
     static getPathDraggingEdge : ko.PureComputed<string> = ko.pureComputed(() => {
-        if (GraphRenderer.portDragSourceNode() === null){
+        const portDragSourceNode = GraphRenderer.portDragSourceNode();
+
+        if (portDragSourceNode === null){
             return '';
         }
 
-        const srcNodeRadius: number = GraphRenderer.portDragSourceNode().getRadius();
+        const srcNodeRadius: number = portDragSourceNode.getRadius();
         const destNodeRadius: number = 0;
-        const srcX: number = GraphRenderer.portDragSourceNode().getPosition().x - srcNodeRadius;
-        const srcY: number = GraphRenderer.portDragSourceNode().getPosition().y - srcNodeRadius;
+        const srcX: number = portDragSourceNode.getPosition().x - srcNodeRadius;
+        const srcY: number = portDragSourceNode.getPosition().y - srcNodeRadius;
         const destX: number = GraphRenderer.mousePosX();
         const destY: number = GraphRenderer.mousePosY();
 
-        const srcField: Field = GraphRenderer.portDragSourcePort();
+        const srcField: Field | null = GraphRenderer.portDragSourcePort();
         const destField: Field | null = null;
 
         //if we are dragging from an input port well pass the dragSrcPort(the input port) as the destination of edge. this is so the flow arrow on the edge is point in the correct direction in terms of graph flow
@@ -970,7 +983,9 @@ export class GraphRenderer {
     }, this);
 
     static getPathSuggestedEdge : ko.PureComputed<string> = ko.pureComputed(() => {
-        if (GraphRenderer.portDragSuggestedNode() === null){
+        const portDragSuggestedNode = GraphRenderer.portDragSuggestedNode();
+
+        if (portDragSuggestedNode === null){
             return '';
         }
 
@@ -980,13 +995,13 @@ export class GraphRenderer {
         }
 
         const srcNodeRadius: number = 0;
-        const destNodeRadius: number = GraphRenderer.portDragSuggestedNode().getRadius();
+        const destNodeRadius: number = portDragSuggestedNode.getRadius();
         const srcX: number = GraphRenderer.mousePosX();
         const srcY: number = GraphRenderer.mousePosY();
-        const destX = GraphRenderer.portDragSuggestedNode().getPosition().x - destNodeRadius;
-        const destY = GraphRenderer.portDragSuggestedNode().getPosition().y - destNodeRadius;
-        const srcField: Field = null;
-        const destField: Field = GraphRenderer.portDragSuggestedField();
+        const destX = portDragSuggestedNode.getPosition().x - destNodeRadius;
+        const destY = portDragSuggestedNode.getPosition().y - destNodeRadius;
+        const srcField: Field | null = null;
+        const destField: Field | null = GraphRenderer.portDragSuggestedField();
 
         return GraphRenderer.createBezier(true, false, null, srcNodeRadius, destNodeRadius, {x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField, GraphRenderer.portDragSourcePortIsInput);
     }, this);

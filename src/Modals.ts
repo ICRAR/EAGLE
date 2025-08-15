@@ -595,19 +595,25 @@ export class Modals {
 
     static validateFieldModalValueInputText(data: Field, event: Event): void {
         const type: string = data.getType()
-        const value: any = $(event.target).val();
+        const target = event.target;
+        if (target === null){
+            console.warn("validateFieldModalValueInputText(): No target found in event");
+            return;
+        }
+
+        const value: any = $(target).val();
         const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
 
         // only validate Json fields
         if (realType !== Daliuge.DataType.Json){
-            $(event.target).removeClass('is-valid');
-            $(event.target).removeClass('is-invalid');
+            $(target).removeClass('is-valid');
+            $(target).removeClass('is-invalid');
             return;
         }
 
         const isValid = Utils.validateField(realType, value);
 
-        Modals._setValidClasses($(event.target), isValid);
+        Modals._setValidClasses($(target), isValid);
     }
 
     static validateCommitModalFileNameInputText(): void {
@@ -616,8 +622,6 @@ export class Modals {
 
         const fileTypeData = $('#gitCommitModal').data('fileType');
         const fileType: Eagle.FileType = fileTypeData ? fileTypeData : Eagle.FileType.Unknown;
-        
-        
 
         const isValid = (fileType === Eagle.FileType.Unknown) ||
             (fileType === Eagle.FileType.Graph && inputElementValue.endsWith(".graph")) ||
