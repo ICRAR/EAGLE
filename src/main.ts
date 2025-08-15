@@ -312,8 +312,8 @@ async function autoLoad() {
     const serviceIsGit: boolean = [Repository.Service.GitHub, Repository.Service.GitLab].includes(realService);
 
     // skip empty strings
-    if (serviceIsGit && (repository === "" || branch === "" || filename === "")){
-        console.log("No auto load. Repository, branch or filename not specified");
+    if (serviceIsGit && (repository === "" || branch === "")){
+        console.log("No auto load. Repository or branch not specified");
         return;
     }
 
@@ -323,11 +323,25 @@ async function autoLoad() {
         return;
     }
 
-    // load
+    // decide what to do based on the url
     if (realService === Repository.Service.Url){
         Repositories.selectFile(new RepositoryFile(new Repository(realService, "", "", false), "", url));
     } else {
-        Repositories.selectFile(new RepositoryFile(new Repository(realService, repository, branch, false), path, filename));
+        if (filename === ""){
+            // check if repository already exists
+            const existingRepo = Repositories.get(realService, repository, branch);
+            if (existingRepo !== null) {
+                Utils.showNotification("Add Repository", "Repository already exists!", "info");
+                return;
+            }
+
+            // add repository to repository list
+            await eagle.repositories()._addCustomRepository(realService, repository, branch);
+            Utils.showNotification("Add Repository", "Repository added successfully!", "success");
+        } else {
+            // load file
+            Repositories.selectFile(new RepositoryFile(new Repository(realService, repository, branch, false), path, filename));
+        }
     }
 
     // if developer setting enabled, fetch the repository that this graph belongs to (if the repository is in the list of known repositories)

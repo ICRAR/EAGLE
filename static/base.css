@@ -1855,6 +1855,10 @@ select.form-control{
     visibility: visible;
 }
 
+#repositoryList ul.repositories .repoContainer:hover .repo-actions i.material-symbols-outlined.md-18 {
+    visibility: visible;
+}
+
 #nodeList ul.nodes {
     list-style-type: none;
     padding: 0px 20px;

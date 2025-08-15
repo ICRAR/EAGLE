@@ -14,6 +14,7 @@ test('Adding and Removing Repositories', async ({ page }) => {
 
   //making sure the repo doesn't exist for some reason, if it does, remove it
   if(await page.locator('#ICRAR_daliuge_yan-812-2').count() === 1){
+    await page.locator('.repoContainer').filter({has:page.locator(repoHTMLId)}).hover()
     await page.locator('.repoContainer').filter({has:page.locator(repoHTMLId)}).getByText('eject').click()
   }
 
@@ -35,6 +36,7 @@ test('Adding and Removing Repositories', async ({ page }) => {
   await expect(await page.locator(repoHTMLId).count() === 1).toBeTruthy()
 
   //removing the repo
+  await page.locator('.repoContainer').filter({has:page.locator(repoHTMLId)}).hover()
   await page.locator(repoHTMLId + "-eject").click()
   await page.locator('button#confirmModalAffirmativeButton').click()
 
