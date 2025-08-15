@@ -39,7 +39,6 @@ import { LogicalGraph } from './LogicalGraph';
 import { Modals } from "./Modals";
 import { Node } from './Node';
 import { Palette } from './Palette';
-import { PaletteInfo } from './PaletteInfo';
 import { Repository, RepositoryCommit } from './Repository';
 import { Setting } from './Setting';
 import { UiModeSystem } from "./UiModes";
@@ -925,50 +924,6 @@ export class Utils {
         palette.fileInfo().repositoryService = Repository.Service.Url;
 
         palette.expanded(paletteListItem.expanded);
-    }
-
-    static async showPalettesModal(eagle: Eagle): Promise<void> {
-        const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
-
-        if (token === null || token === "") {
-            Utils.showUserMessage("Access Token", "The GitHub access token is not set! To access GitHub repository, set the token via settings.");
-            return;
-        }
-
-        // add parameters in json data
-        const jsonData = {
-            service: Setting.findValue(Setting.EXPLORE_PALETTES_SERVICE),
-            repository: Setting.findValue(Setting.EXPLORE_PALETTES_REPOSITORY),
-            branch: Setting.findValue(Setting.EXPLORE_PALETTES_BRANCH),
-            token: token,
-        };
-
-        // empty the list of palettes prior to (re)fetch
-        eagle.explorePalettes().clear();
-
-        $('#explorePalettesModal').modal("show");
-
-        let data: any;
-        try {
-            data = await Utils.httpPostJSON('/getExplorePalettes', jsonData);
-        } catch (error) {
-            // NOTE: if we immediately get an error, the explore palettes modal may still be transitioning to visible,
-            //       so we wait here for a second before hiding the modal and displaying an error
-            setTimeout(function(){
-                $('#explorePalettesModal').modal("hide");
-                Utils.showUserMessage("Error", "Unable to fetch list of palettes");
-            }, 1000);
-
-            return;
-        }
-
-        const explorePalettes: PaletteInfo[] = [];
-        for (const palette of data){
-            explorePalettes.push(new PaletteInfo(jsonData.service, jsonData.repository, jsonData.branch, palette.name, palette.path));
-        }
-
-        // process files into a more complex structure
-        eagle.explorePalettes().initialise(explorePalettes);
     }
 
     static showModelDataModal(title: string, fileInfo: FileInfo) : void {

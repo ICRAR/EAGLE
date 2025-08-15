@@ -92,12 +92,6 @@ External Services
 
 **Docker Hub Username** - The username to use when retrieving data on images stored on Docker Hub.
 
-**Explore Palettes Service** - The service hosting the repository from which palettes will be fetched by the 'Explore Palettes' feature
-
-**Explore Palettes Repository** - The repository from which palettes will be fetched by the 'Explore Palettes' feature
-
-**Explore Palettes Branch** - The branch of the repository from which palettes will be fetched by the 'Explore Palettes' feature
-
 Developer
 """""""""
 

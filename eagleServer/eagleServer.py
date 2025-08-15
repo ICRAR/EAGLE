@@ -439,43 +439,6 @@ def get_docker_image_tags():
     return jsonify(data)
 
 
-@app.route("/getExplorePalettes", methods=["POST"])
-def get_explore_palettes():
-    """
-    FLASK POST routing method for '/getExplorePalettes'
-
-    Returns a list of palettes from a repository. The POST request content is a JSON string containing the repository name, branch and access token.
-    """
-    content = request.get_json(silent=True)
-
-    try:
-        # NOTE: repo_service is not currently used
-        repo_service = content["service"]
-        repo_name = content["repository"]
-        repo_branch = content["branch"]
-        repo_token = content["token"]
-    except KeyError as ke:
-        print("KeyError {1}: {0}".format(str(ke), repo_name))
-        return jsonify({"error":"Repository, Branch or Token not specified in request"})
-
-    # Extracting the true repo name and repo folder.
-    # TODO: Only GitHub supported here, add GitLab
-    folder_name, repo_name = extract_folder_and_repo_names(repo_name)
-    g = github.Github(repo_token)
-
-    try:
-        repo = g.get_repo(repo_name)
-    except github.UnknownObjectException as uoe:
-        print("UnknownObjectException {1}: {0}".format(str(uoe), repo_name))
-        return jsonify({"error":str(uoe)}), 400
-
-    # get results
-    d = find_github_palettes(repo, "", repo_branch)
-
-    # return correct result
-    return jsonify(d)
-
-
 @app.route("/saveFileToRemoteGithub", methods=["POST"])
 def save_git_hub_file():
     """
