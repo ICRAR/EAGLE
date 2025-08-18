@@ -514,7 +514,11 @@ export class Edge {
         // check that we are not connecting an Application component to an Application component, that is not supported
         if (sourceNode.getCategoryType() === Category.Type.Application && destinationNode.getCategoryType() === Category.Type.Application){
             if (!sourcePort.getIsEvent() || !destinationPort.getIsEvent()){
-                Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Fixable, Errors.ShowFix("Application nodes may not be connected directly to other Application nodes", function(){Utils.showEdge(eagle, edge);}, function(){Utils.fixAppToAppEdge(eagle, edge);}, "Add intermediate Data node between edge's source and destination app nodes"), showNotification, showConsole, errorsWarnings);
+                if (typeof edge !== 'undefined'){
+                    Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Fixable, Errors.ShowFix("Application nodes may not be connected directly to other Application nodes", function(){Utils.showEdge(eagle, edge);}, function(){Utils.fixAppToAppEdge(eagle, edge);}, "Add intermediate Data node between edge's source and destination app nodes"), showNotification, showConsole, errorsWarnings);
+                } else {
+                    Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Fixable, Errors.Message("Application nodes may not be connected directly to other Application nodes"), showNotification, showConsole, errorsWarnings);
+                }
             }
         }
 

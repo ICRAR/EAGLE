@@ -3275,7 +3275,9 @@ export class Eagle {
     _removeAlreadySelectedEmbeddedNodes = (nodes: Node[]) : Node[] => {
         const newNodes: Node[] = [];
         for (const node of nodes){
-            if (node.isEmbedded() && this.objectIsSelected(node.getEmbed())){
+            const embed = node.getEmbed();
+
+            if (embed !== null && this.objectIsSelected(embed)){
                 continue; // skip this node, as it is already selected
             }
             newNodes.push(node);
@@ -4375,6 +4377,12 @@ export class Eagle {
             return;
         }
 
+        const selectedNode = this.selectedNode();
+        if (selectedNode === null){
+            console.warn("editField(): Please select a node before editing its field");
+            return;
+        }
+
         // get field names list from the logical graph
         const allFields: Field[] = Utils.getUniqueFieldsOfType(this.logicalGraph(), field.getParameterType());
         const allFieldNames: string[] = [];
@@ -4386,7 +4394,7 @@ export class Eagle {
         }
 
         // build modal header text
-        const title = this.selectedNode().getName() + " - " + field.getDisplayText() + " : " + Field.getHtmlTitleText(field.getParameterType(), field.getUsage());
+        const title = selectedNode.getName() + " - " + field.getDisplayText() + " : " + Field.getHtmlTitleText(field.getParameterType(), field.getUsage());
 
         try {
             await Utils.requestUserEditField(this, field, title, allFieldNames);
@@ -4781,6 +4789,12 @@ export class Eagle {
     }, this)
 
     inspectorChangeNodeCategoryRequest = async (event: Event): Promise<void> => {
+        const target = event.target;
+        if (target === null){
+            console.warn("inspectorChangeNodeCategoryRequest(): No target element found");
+            return;
+        }
+
         const confirmNodeCategoryChanges = Setting.findValue(Setting.CONFIRM_NODE_CATEGORY_CHANGES);
         const keepOldFields = Setting.findValue(Setting.KEEP_OLD_FIELDS_DURING_CATEGORY_CHANGE);
 
@@ -4790,8 +4804,15 @@ export class Eagle {
             try {
                 await Utils.requestUserConfirm("Change Category?", 'Changing a nodes category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category', "Yes", "No", Setting.CONFIRM_NODE_CATEGORY_CHANGES);
             } catch (error){
+                let category = Category.Unknown;
+                const selectedNode = this.selectedNode();
+
+                if (selectedNode !== null){
+                    category = selectedNode.getCategory();
+                }
+
                 //we need to reset the input select to the previous value
-                $(event.target).val(this.selectedNode().getCategory())
+                $(target).val(category)
                 return;
             }
             this.inspectorChangeNodeCategory(event)
