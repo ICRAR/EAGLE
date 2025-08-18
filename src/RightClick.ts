@@ -462,7 +462,7 @@ export class RightClick {
             console.warn("editNodeFuncCode() called on node without ", Daliuge.FieldName.FUNC_CODE, " field");
             return;
         }
-        ParameterTable.requestEditValueCode(funcCodeField, false)
+        ParameterTable.requestEditValueField(funcCodeField, false)
     }
 
     // TODO: event var used in function is the deprecated global, we should get access to the event via some other method
@@ -530,11 +530,14 @@ export class RightClick {
         }
 
         if(rightClickObjectInSelection){
-            // if we right clicked an object that is part of a multi selection
+
+//graph selection right click options
             if(passedObjectClass === 'rightClick_graphNode' || passedObjectClass === 'rightClick_graphEdge' || passedObjectClass === 'rightClick_hierarchyNode' || passedObjectClass === 'rightClick_paletteComponent'){
                 $('#customContextMenu').append('<a onclick=eagle.deleteSelection(false,false,false)>Delete</a>')
                 $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("normal")>Duplicate</a>')
                 $('#customContextMenu').append('<a onclick=eagle.copySelectionToClipboard()>Copy</a>')
+                $('#customContextMenu').append('<a onclick=eagle.updateSelection()>Update</a>')
+                $('#customContextMenu').append('<a onclick=eagle.fixSelection()>Fix</a>')
                 $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("normal")>Add To Palette</a>')
                 $('#customContextMenu').append('<a onclick=eagle.createConstructFromSelection()>Construct from Selection</a>')
                 $('#customContextMenu').append('<a onclick=eagle.createSubgraphFromSelection()>Sub Graph from Selection</a>')
@@ -542,15 +545,14 @@ export class RightClick {
         }else{
             //defining the search bar as it is used in several right click menus
             const searchbar = `<div class="searchBarContainer" data-bind="clickBubble:false, click:function(){}">
-                        <i class="material-icons md-18 searchBarIcon">search</i>
+                        <i class="material-symbols-outlined md-18 searchBarIcon">search</i>
                         <a onclick="RightClick.clearSearchField()">
-                            <i class="material-icons md-18 searchBarIconClose">close</i>
+                            <i class="material-symbols-outlined md-18 searchBarIconClose">close</i>
                         </a>
                         <input id="rightClickSearchBar" autocomplete="off" type="text" placeholder="Search" oninput="RightClick.checkSearchField()" >
                     </div>` 
 
-            //if we right clicked an individual object
-            //append function options depending on the right click object
+//canvas right click options
             if(passedObjectClass === 'rightClick_logicalGraph'){
                 if(Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
                     $('#customContextMenu').append(searchbar)
@@ -568,10 +570,13 @@ export class RightClick {
                     $('#customContextMenu').append(message)
                 }
 
-                $('#customContextMenu').append('<h5 class="rightClickDropdownDividerTitle" tabindex="-1">Graph Options</h5>')
+                $('#customContextMenu').append('<h5 class="rightClickDropdownDividerTitle" tabindex="-1">Graph Options</h5>') //divider line
+                $('#customContextMenu').append(`<a class='rightClickPerpetual' onclick="eagle.pasteFromClipboard();">Paste</a>`)
                 $('#customContextMenu').append(`<a class='rightClickPerpetual' onclick="Utils.showModelDataModal('Graph Info', eagle.logicalGraph().fileInfo());">Show Graph Info</a>`)
                 $('#customContextMenu').append(`<a class='rightClickPerpetual' onclick="ParameterTable.openTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.Normal);">Graph Attributes Table</a>`)
                 $('#customContextMenu').append(`<a class='rightClickPerpetual' onclick="eagle.copyGraphUrl();">Copy Graph URL</a>`)
+
+//edge drop menu options
             }else if(passedObjectClass === 'edgeDropCreate'){
                 if(Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
                     $('#customContextMenu').append(searchbar)
@@ -610,6 +615,8 @@ export class RightClick {
                     const message = '<span>Lacking graph editing permissions</span>'
                     $('#customContextMenu').append(message)
                 }
+
+//palette node right click options
             }else if(passedObjectClass === 'rightClick_paletteComponent'){
                 Eagle.selectedRightClickLocation(Eagle.FileType.Palette)
     
@@ -619,6 +626,8 @@ export class RightClick {
                     $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,false)>Delete</a>')
                     $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to another palette</a>')
                 }
+
+//hierarchy node right click options
             }else if(passedObjectClass === 'rightClick_hierarchyNode'){
                 Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
 
@@ -631,6 +640,7 @@ export class RightClick {
                 }
                 $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("contextMenuRequest")>Duplicate</a>')
     
+// graph node right click options
             }else if(passedObjectClass === 'rightClick_graphNode'){
                 $('#customContextMenu').append(RightClick.getNodeDescriptionDropdown())
                 if(data.hasFunc_code()){
@@ -647,15 +657,16 @@ export class RightClick {
                 if(data.getCategory() === Category.Docker){
                     $('#customContextMenu').append('<a onclick=eagle.fetchDockerHTML()>Browse DockerHub</a>')
                 }
-                if(data.isComment()){
-                    $('#customContextMenu').append('<a onclick=eagle.changeNodeSubject()>Connect to Node</a>')
-                }
                 if(Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
                     $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to palette</a>')
                 }
                 $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("contextMenuRequest")>Duplicate</a>')
                 $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,false)>Delete</a>')
+                $('#customContextMenu').append('<a onclick=eagle.copySelectionToClipboard()>Copy</a>')
+                $('#customContextMenu').append('<a onclick=eagle.updateSelection()>Update</a>')
+                $('#customContextMenu').append('<a onclick=eagle.fixSelection()>Fix</a>')
 
+//graph edge right click options
             }else if(passedObjectClass === 'rightClick_graphEdge'){
                 $('#customContextMenu').append('<a onclick=Eagle.selectedRightClickObject().toggleLoopAware()>Toggle Loop Aware</a>')
                 $('#customContextMenu').append('<a onclick=eagle.toggleEdgeClosesLoop()>Toggle Closes Loop</a>')

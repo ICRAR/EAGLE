@@ -26,6 +26,7 @@ export class StatusEntry {
     static getStatusEntries() : StatusEntry[] {
         return [
             //nothing is selected
+            new StatusEntry('[Middle Mouse]',' pan canvas.', Eagle.getInstance().selectedObjects().length === 0),
             new StatusEntry('[Right Click]',' on empty canvas to add nodes.', Eagle.getInstance().selectedObjects().length === 0),
             new StatusEntry(KeyboardShortcut.idToKeysText('quick_action', true),' search and run functions.', Eagle.getInstance().selectedObjects().length === 0),
             new StatusEntry(KeyboardShortcut.idToKeysText('open_graph_configurations_table', true), ' display all graph configs.',  Eagle.getInstance().selectedObjects().length === 0),
@@ -41,7 +42,7 @@ export class StatusEntry {
             new StatusEntry(KeyboardShortcut.idToKeysText('open_parameter_table', true),' open fields table.', Eagle.getInstance().selectedNode() != null && Setting.findValue(Setting.ALLOW_GRAPH_EDITING)),
             //more than one thing is selected
             new StatusEntry('[Shift + Drag]',' Box select objects.', Eagle.getInstance().selectedObjects().length >1),
-            new StatusEntry('Shift + Ctrl + Drag]',' Box deselect objects.', Eagle.getInstance().selectedObjects().length >1),
+            new StatusEntry('[Shift + Ctrl + Drag]',' Box deselect objects.', Eagle.getInstance().selectedObjects().length >1),
             new StatusEntry(KeyboardShortcut.idToKeysText('create_construct_from_selection', true),' Construct from selection.', Eagle.getInstance().selectedObjects().length >1),
             //construct is selected
             new StatusEntry('[Alt + click]',' Select construct + children.', this.constructIsSelected()),

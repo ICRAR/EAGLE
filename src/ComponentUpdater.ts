@@ -1,3 +1,4 @@
+import { Eagle } from './Eagle';
 import { Errors } from './Errors';
 import { Field } from './Field';
 import { LogicalGraph } from './LogicalGraph';
@@ -6,13 +7,23 @@ import { Palette } from './Palette';
 
 export class ComponentUpdater {
 
-    static update(palettes: Palette[], graph: LogicalGraph): {updatedNodes: Node[], errorsWarnings: Errors.ErrorsWarnings} {
+    static updateLogicalGraph(palettes: Palette[], graph: LogicalGraph): {updatedNodes: Node[], errorsWarnings: Errors.ErrorsWarnings} {
         const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
         const updatedNodes: Node[] = [];
 
         // make sure we have a palette available for each component in the graph
         for (const node of graph.getNodes()){
-            let newVersion : Node | null = null;
+            const updatedNode = ComponentUpdater.updateNode(palettes, node, errorsWarnings);
+            if (updatedNode !== null) {
+                updatedNodes.push(updatedNode);
+            }
+        }
+
+        return {updatedNodes: updatedNodes, errorsWarnings: errorsWarnings};
+    }
+
+    static updateNode(palettes: Palette[], node: Node, errorsWarnings: Errors.ErrorsWarnings): Node | null {
+        let newVersion : Node | null = null;
 
             for (const palette of palettes){
                 for (const paletteNode of palette.getNodes()){
@@ -25,15 +36,12 @@ export class ComponentUpdater {
             if (newVersion === null){
                 console.log("No match for node", node.getName());
                 errorsWarnings.warnings.push(Errors.Message("Could not find appropriate palette for node " + node.getName() + " from repository " + node.getRepositoryUrl()));
-                continue;
+                return null;
             }
 
             // update the node with a new definition
             ComponentUpdater._replaceNode(node, newVersion);
-            updatedNodes.push(node);
-        }
-
-        return {updatedNodes: updatedNodes, errorsWarnings: errorsWarnings};
+            return node;
     }
 
     // NOTE: the replacement here is "additive", any fields missing from the old node will be added, but extra fields in the old node will not removed
@@ -56,5 +64,8 @@ export class ComponentUpdater {
             // copy everything about the field from the src (palette), except maintain the existing id and nodeKey
             destField.copyWithIds(srcField, destField.getNode(), destField.getId());
         }
+
+        // update commit hash of destination node
+        dest.setCommitHash(src.getCommitHash());
     }
 }

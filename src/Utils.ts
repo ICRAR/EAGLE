@@ -39,7 +39,6 @@ import { LogicalGraph } from './LogicalGraph';
 import { Modals } from "./Modals";
 import { Node } from './Node';
 import { Palette } from './Palette';
-import { PaletteInfo } from './PaletteInfo';
 import { Repository, RepositoryCommit } from './Repository';
 import { Setting } from './Setting';
 import { UiModeSystem } from "./UiModes";
@@ -275,6 +274,10 @@ export class Utils {
         if (fileType.toLowerCase() === "json"){
             return Eagle.FileType.JSON;
         }
+        const markdownExtensions = ["md", "markdown", "mdown"];
+        if (markdownExtensions.includes(fileType.toLowerCase())){
+            return Eagle.FileType.Markdown;
+        }
 
         return Eagle.FileType.Unknown;
     }
@@ -458,7 +461,7 @@ export class Utils {
     static showUserMessage (title : string, message : string) : void {
         $('#messageModalTitle').text(title);
         $('#messageModalMessage').html(message);
-        $('#messageModal').modal("toggle");
+        $('#messageModal').modal("show");
     }
 
     static showErrorsModal(title: string){
@@ -548,7 +551,7 @@ export class Utils {
             });
             $('#inputModal').data('returnType', "string");
 
-            $('#inputModal').modal("toggle");
+            $('#inputModal').modal("show");
         });
     }
 
@@ -571,7 +574,7 @@ export class Utils {
                 }
             });
 
-            $('#inputTextModal').modal("toggle");
+            $('#inputTextModal').modal("show");
         });
     }
 
@@ -614,7 +617,7 @@ export class Utils {
                 }
             });
 
-            $('#inputCodeModal').modal("toggle");
+            $('#inputCodeModal').modal("show");
         })
     }
 
@@ -643,7 +646,7 @@ export class Utils {
                 }
             });
 
-            $('#inputMarkdownModal').modal("toggle");
+            $('#inputMarkdownModal').modal("show");
         });
     }
 
@@ -665,7 +668,7 @@ export class Utils {
             });
             $('#inputModal').data('returnType', "number");
 
-            $('#inputModal').modal("toggle");
+            $('#inputModal').modal("show");
         });
     }
 
@@ -716,7 +719,7 @@ export class Utils {
 
             // trigger the change event, so that the event handler runs and disables the custom text entry field if appropriate
             $('#choiceModalSelect').trigger('change');
-            $('#choiceModal').modal("toggle");
+            $('#choiceModal').modal("show");
             $('#choiceModalSelect').click()
         });
     }
@@ -756,7 +759,7 @@ export class Utils {
                 }
             });
 
-            $('#confirmModal').modal("toggle");
+            $('#confirmModal').modal("show");
         });
     }
 
@@ -773,7 +776,7 @@ export class Utils {
                 }
             });
             $('#gitCommitModal').data('repositories', repositories);
-            $('#gitCommitModal').modal("toggle");
+            $('#gitCommitModal').modal("show");
 
             //
             let defaultRepositoryService: Repository.Service = Repository.Service.Unknown;
@@ -817,7 +820,7 @@ export class Utils {
             });
             $("#editFieldModalTitle").html(title);
             $('#editFieldModal').data('choices', choices);
-            $('#editFieldModal').modal("toggle");
+            $('#editFieldModal').modal("show");
         });
     }
 
@@ -834,7 +837,7 @@ export class Utils {
                     resolve(new Repository(repositoryService, repositoryName, repositoryBranch, false));
                 }
             });
-            $('#gitCustomRepositoryModal').modal("toggle");
+            $('#gitCustomRepositoryModal').modal("show");
         });
     }
 
@@ -931,204 +934,16 @@ export class Utils {
         palette.expanded(paletteListItem.expanded);
     }
 
-    static async showPalettesModal(eagle: Eagle): Promise<void> {
-        const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
-
-        if (token === null || token === "") {
-            Utils.showUserMessage("Access Token", "The GitHub access token is not set! To access GitHub repository, set the token via settings.");
-            return;
-        }
-
-        // add parameters in json data
-        const jsonData = {
-            service: Setting.findValue(Setting.EXPLORE_PALETTES_SERVICE),
-            repository: Setting.findValue(Setting.EXPLORE_PALETTES_REPOSITORY),
-            branch: Setting.findValue(Setting.EXPLORE_PALETTES_BRANCH),
-            token: token,
-        };
-
-        // empty the list of palettes prior to (re)fetch
-        eagle.explorePalettes().clear();
-
-        $('#explorePalettesModal').modal("toggle");
-
-        let data: any;
-        try {
-            data = await Utils.httpPostJSON('/getExplorePalettes', jsonData);
-        } catch (error) {
-            // NOTE: if we immediately get an error, the explore palettes modal may still be transitioning to visible,
-            //       so we wait here for a second before hiding the modal and displaying an error
-            setTimeout(function(){
-                $('#explorePalettesModal').modal("toggle");
-                Utils.showUserMessage("Error", "Unable to fetch list of palettes");
-            }, 1000);
-
-            return;
-        }
-
-        const explorePalettes: PaletteInfo[] = [];
-        for (const palette of data){
-            explorePalettes.push(new PaletteInfo(jsonData.service, jsonData.repository, jsonData.branch, palette.name, palette.path));
-        }
-
-        // process files into a more complex structure
-        eagle.explorePalettes().initialise(explorePalettes);
-    }
-
     static showModelDataModal(title: string, fileInfo: FileInfo) : void {
         const eagle = Eagle.getInstance();
         eagle.currentFileInfoTitle(title);
         eagle.currentFileInfo(fileInfo);
 
-        $('#modelDataModal').modal("toggle");
+        $('#modelDataModal').modal("show");
     }
 
     static hideModelDataModal(){
         $('#modelDataModal').modal("hide");
-    }
-
-    static requestUserEditEdge(edge: Edge, logicalGraph: LogicalGraph): Promise<Edge> {
-        return new Promise(async(resolve, reject) => {
-            Utils.updateEditEdgeModal(edge, logicalGraph);
-
-            $('#editEdgeModal').data('completed', false);
-            $('#editEdgeModal').data('callback', (completed: boolean, edge: Edge): void => {
-                if (!completed){
-                    reject("Utils.requestUserEditEdge() aborted by user");
-                } else {
-                    resolve(edge);
-                }
-            });
-
-            $('#editEdgeModal').data('edge', edge);
-            $('#editEdgeModal').data('logicalGraph', logicalGraph);
-
-            $('#editEdgeModal').modal("toggle");
-        });
-    }
-
-    static updateEditEdgeModal(edge: Edge, logicalGraph: LogicalGraph): void {
-        let srcNode: Node | undefined = undefined;
-        let destNode: Node | undefined = undefined;
-
-        // TODO: make local copy of edge, so that original is not changed! original might come from inside the active graph
-
-        // populate UI with current edge data
-        // add src node keys
-        $('#editEdgeModalSrcNodeIdSelect').empty();
-        for (const node of logicalGraph.getNodes()){
-            // if node itself can have output ports, add the node to the list
-            if (node.canHaveOutputs()){
-                $('#editEdgeModalSrcNodeIdSelect').append($('<option>', {
-                    value: node.getId(),
-                    text: node.getName(),
-                    selected: edge.getSrcNode().getId() === node.getId()
-                }));
-            }
-
-            // add input application node, if present
-            const inputApplication = node.getInputApplication();
-            if (inputApplication !== null){
-                $('#editEdgeModalSrcNodeIdSelect').append($('<option>', {
-                    value: inputApplication.getId(),
-                    text: inputApplication.getName(),
-                    selected: edge.getSrcNode().getId() === inputApplication.getId()
-                }));
-            }
-
-            // add output application node, if present
-            const outputApplication = node.getOutputApplication();
-            if (outputApplication !== null){
-                $('#editEdgeModalSrcNodeIdSelect').append($('<option>', {
-                    value: outputApplication.getId(),
-                    text: outputApplication.getName(),
-                    selected: edge.getSrcNode().getId() === outputApplication.getId()
-                }));
-            }
-        }
-
-        // make sure srcNode reflects what is actually selected in the UI
-        // TODO: validate id
-        const srcNodeInputValue = $('#editEdgeModalSrcNodeIdSelect').val();
-        const srcNodeId: NodeId | null = srcNodeInputValue ? srcNodeInputValue.toString() as NodeId : null;
-
-        if (srcNodeId !== null){
-            srcNode = logicalGraph.getNodeById(srcNodeId);
-        }
-
-        // check that source node was found, if not, disable SrcPortIdSelect?
-        $('#editEdgeModalSrcPortIdSelect').empty();
-        if (typeof srcNode === 'undefined'){
-            $('#editEdgeModalSrcPortIdSelect').attr('disabled', 'true');
-        } else {
-            // add src port ids
-            for (const port of srcNode.getOutputPorts()){
-                $('#editEdgeModalSrcPortIdSelect').append($('<option>', {
-                    value: port.getId(),
-                    text: port.getDisplayText(),
-                    selected: edge.getSrcPort().getId() === port.getId()
-                }));
-            }
-        }
-
-        // add dest node keys
-        $('#editEdgeModalDestNodeIdSelect').empty();
-        for (const node of logicalGraph.getNodes()){
-            if (node.canHaveInputs()){
-                $('#editEdgeModalDestNodeIdSelect').append($('<option>', {
-                    value: node.getId(),
-                    text: node.getName(),
-                    selected: edge.getDestNode().getId() === node.getId()
-                }));
-            }
-
-            // input application node, if present
-            const inputApplication = node.getInputApplication();
-            if (inputApplication !== null){
-                $('#editEdgeModalDestNodeIdSelect').append($('<option>', {
-                    value: inputApplication.getId(),
-                    text: inputApplication.getName(),
-                    selected: edge.getDestNode().getId() === inputApplication.getId()
-                }));
-            }
-
-            // output application node, if present
-            const outputApplication = node.getOutputApplication();
-            if (outputApplication !== null){
-                $('#editEdgeModalDestNodeIdSelect').append($('<option>', {
-                    value: outputApplication.getId(),
-                    text: outputApplication.getName(),
-                    selected: edge.getDestNode().getId() === outputApplication.getId()
-                }));
-            }
-        }
-
-        // make sure srcNode reflects what is actually selected in the UI
-        const destNodeInputValue = $('#editEdgeModalDestNodeIdSelect').val();
-        const destNodeId: NodeId | null = destNodeInputValue ? destNodeInputValue.toString() as NodeId : null;
-
-        if (destNodeId !== null){
-            destNode = logicalGraph.getNodeById(destNodeId);
-        }
-
-        // check that dest node was found, if not, disable DestPortIdSelect?
-        $('#editEdgeModalDestPortIdSelect').empty();
-        if (typeof destNode === 'undefined'){
-            $('#editEdgeModalDestPortIdSelect').attr('disabled', 'true');
-        } else {
-            // add dest port ids
-            for (const port of destNode.getInputPorts()){
-                $('#editEdgeModalDestPortIdSelect').append($('<option>', {
-                    value: port.getId(),
-                    text: port.getDisplayText(),
-                    selected: edge.getDestPort().getId() === port.getId()
-                }));
-            }
-        }
-
-        // update the loopAware and closesLoop checkboxes
-        $('#editEdgeModalLoopAwareCheckbox').prop('checked', edge.isLoopAware());
-        $('#editEdgeModalClosesLoopCheckbox').prop('checked', edge.isClosesLoop());
     }
 
     /**
@@ -2433,18 +2248,21 @@ export class Utils {
             const children: NodeId[] = Array.from(node.getChildren()).map(function(node:Node){return node.getId()});
             const parent = node.getParent();
             const embed = node.getEmbed();
-            const subject = node.getSubject();
             const inputApplication = node.getInputApplication();
             const outputApplication = node.getOutputApplication();
             const inputApplicationEmbed = inputApplication === null ? null : inputApplication.getEmbed();
             const outputApplicationEmbed = outputApplication === null ? null : outputApplication.getEmbed();
+            let numFieldIssues = 0;
+            for (const field of node.getFields()){
+                numFieldIssues += field.getIssues().length;
+            }
 
             tableData.push({
                 "name":node.getName(),
                 "id":node.getId(),
                 "parent":parent === null ? null : parent.getId(),
                 "embed":embed === null ? null : embed.getId(),
-                "subject":subject === null ? null : subject.getId(),
+                "comment":node.getComment(),
                 "children":children.toString(),
                 "category":node.getCategory(),
                 "categoryType":node.getCategoryType(),
@@ -2458,7 +2276,9 @@ export class Utils {
                 "inputAppEmbedId":inputApplicationEmbed === null ? null : inputApplicationEmbed.getId(),
                 "outputAppId":outputApplication === null ? null : outputApplication.getId(),
                 "outputAppCategory":outputApplication === null ? null : outputApplication.getCategory(),
-                "outputAppEmbedId":outputApplicationEmbed === null ? null : outputApplicationEmbed.getId()
+                "outputAppEmbedId":outputApplicationEmbed === null ? null : outputApplicationEmbed.getId(),
+                "nodeIssues": node.getIssues().length,
+                "fieldIssues": numFieldIssues
             });
         }
 
@@ -2800,10 +2620,10 @@ export class Utils {
         }
     }
 
+    // duplicate a node, and all its fields
+    // NOTE: if the node has an input or output application, those will NOT be duplicated!
     static duplicateNode(node: Node): Node {
         const newNodeId = Utils.generateNodeId();
-        const newInputAppId: NodeId = Utils.generateNodeId();
-        const newOutputAppId: NodeId = Utils.generateNodeId();
 
         // set appropriate key for node (one that is not already in use)
         // NOTE: we remove the fields here, and re-add them one-by-one, this seems easier than changing both the key and value in the fields map
@@ -2811,9 +2631,11 @@ export class Utils {
             .clone()
             .setId(newNodeId)
             .setEmbed(null)
+            .setInputApplication(null)
+            .setOutputApplication(null)
+            .setParent(null)
             .removeAllFields();
 
-        // TODO: this is wrong here!, the field ids within the fields don't match the keys in the fields map!
         // set new ids for any fields in this node
         for (const field of node.getFields()){
             const clonedField = field
@@ -2821,41 +2643,6 @@ export class Utils {
                 .setId(Utils.generateFieldId())
                 .setNode(newNode);
             newNode.addField(clonedField);
-        }
-
-        // set new ids for embedded applications within node, and new ids for ports within those embedded nodes
-        const inputApplication: Node | null = node.getInputApplication();
-        if (inputApplication !== null){
-            const clone : Node = inputApplication.clone();
-            
-            if(clone.getFields() != null){
-                // set new ids for any fields in this node
-                for (const field of clone.getFields()){
-                    field.setId(Utils.generateFieldId()).setNode(clone);
-                }
-            }
-            newNode.setInputApplication(clone)
-
-            // use new ids for input application
-            clone.setId(newInputAppId);
-            clone.setEmbed(newNode);
-        }
-
-        const outputApplication: Node | null = node.getOutputApplication();
-        if (outputApplication !== null){
-            const clone : Node = outputApplication.clone();
-            
-            if(clone.getFields() != null){
-                // set new ids for any fields in this node
-                for (const field of clone.getFields()){
-                    field.setId(Utils.generateFieldId()).setNode(clone);
-                }
-            }
-            newNode.setOutputApplication(clone)
-
-            // use new ids for output application
-            clone.setId(newOutputAppId);
-            clone.setEmbed(newNode);
         }
 
         return newNode;
@@ -2968,5 +2755,9 @@ export class Utils {
         }
 
         body.style.cursor = display ? 'auto' : 'none';
+    }
+    // https://stackoverflow.com/questions/6832596/how-can-i-compare-software-version-number-using-javascript-only-numbers
+    static compareVersions(version1: string, version2: string): number {
+        return version1.localeCompare(version2, undefined, { numeric: true, sensitivity: 'base' });
     }
 }

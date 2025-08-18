@@ -167,10 +167,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
                 node = f.getNode()
                 field = f
                 break;
-            case 'comment':
-                node = n
-                field = null
-                break;
         }
 
         // determine all the adjacent nodes
@@ -178,16 +174,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
         let connectedField:boolean=false;
 
         switch(dataType){
-            case 'comment': {
-                const nodeSubject = n.getSubject();
-
-                if(nodeSubject === null){
-                    return
-                }
-
-                adjacentNodes.push(nodeSubject);
-                break;
-            }
             case 'inputPort':
                 for(const edge of eagle.logicalGraph().getEdges()){
                     if(field != null && field.getId()===edge.getDestPort().getId()){
@@ -236,7 +222,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
         const currentNodePos = node.getPosition();
         let averageAngle = 0;
 
-        if(connectedField || dataType === 'comment'){
+        if(connectedField){
 
             // calculate angles to all adjacent nodes
             const angles: number[] = [];
@@ -373,34 +359,21 @@ export class GraphRenderer {
         return Math.atan2(y, x);
     }
 
-    // TODO: the mode parameter could be replaced with a boolean (or an Enum)
-    static calculatePortPositionX(mode: "input" | "output", field: Field, node: Node) : number {
-        
-        let portPosX :number
-        if(mode==='input'){
-            portPosX = field.getInputPosition().x
-        }else{
-            portPosX = field.getOutputPosition().x
-        }
-
-        const x = portPosX + node.getPosition().x - node.getRadius()
-        console.log("calculatePortPositionX", mode, field.getDisplayText(), "x:", x, "portPosX:", portPosX, "node.getPosition().x", node.getPosition().x, "nodeRadius:", node.getRadius());
+    private static _calculatePortPosition(portPos: number, nodePos: number, radius: number) : number {
+        const x = portPos + nodePos - radius;
         return x
     }
-
-    // TODO: the mode parameter could be replaced with a boolean (or an Enum)
-    static calculatePortPositionY(mode: "input" | "output", field: Field, node: Node) {
-        
-        let portPosY :number
-        if(mode==='input'){
-            portPosY = field.getInputPosition().y
-        }else{
-            portPosY = field.getOutputPosition().y
-        }
-        
-        const y = portPosY + node.getPosition().y - node.getRadius()
-        console.log("calculatePortPositionY", mode, field.getDisplayText(), "y:", y, "portPosY:", portPosY, "node.getPosition().y", node.getPosition().y, "nodeRadius:", node.getRadius());
-        return y
+    static calculateInputPortPositionX(field: Field) : number {
+        return GraphRenderer._calculatePortPosition(field.getInputPosition().x, field.getNode().getPosition().x, field.getNode().getRadius());
+    }
+    static calculateInputPortPositionY(field: Field) : number {
+        return GraphRenderer._calculatePortPosition(field.getInputPosition().y, field.getNode().getPosition().y, field.getNode().getRadius());
+    }
+    static calculateOutputPortPositionX(field: Field) : number {
+        return GraphRenderer._calculatePortPosition(field.getOutputPosition().x, field.getNode().getPosition().x, field.getNode().getRadius());
+    }
+    static calculateOutputPortPositionY(field: Field) : number {
+        return GraphRenderer._calculatePortPosition(field.getOutputPosition().y, field.getNode().getPosition().y, field.getNode().getRadius());
     }
 
     static calculateEdgeCommentPosX (edge:Edge) : number {
@@ -506,8 +479,6 @@ export class GraphRenderer {
 
     // TODO: the mode parameter could be replaced with a boolean (or an Enum)
     static applyPortAngle (mode: "input" | "output", angle:number, nodeRadius: number, node:Node, field:Field) : void {
-        console.log("applyPortAngle mode:", mode, "angle:", angle, "nodeRadius:", nodeRadius, "node:", node.getName(), "field:", field.getDisplayText());
-
         let portPosition
         if (mode === 'input'){
             portPosition = GraphRenderer.calculatePortPos(angle, nodeRadius, nodeRadius)      
@@ -944,19 +915,6 @@ export class GraphRenderer {
         return GraphRenderer._getPath(edge, srcNode, destNode, srcField, destField);
     }
 
-    static getPathComment(commentNode: Node) : string {
-        const lg: LogicalGraph = Eagle.getInstance().logicalGraph();
-
-        const srcNode: Node = commentNode;
-        const destNode: Node | null = commentNode.getSubject();
-
-        if(srcNode === null || destNode === null){
-            return ''
-        }
-
-        return GraphRenderer._getPath(null, srcNode, destNode, null, null);
-    }
-
     static getPathDraggingEdge : ko.PureComputed<string> = ko.pureComputed(() => {
         const portDragSourceNode = GraphRenderer.portDragSourceNode();
 
@@ -1079,7 +1037,7 @@ export class GraphRenderer {
 
     static startDrag(node: Node, event: MouseEvent) : void {
         //if we click on the title of a node, cancel the drag handler
-        if($(event.target).parent().parent().hasClass('header') || $(event.target).parent().hasClass('edgeComments')){
+        if($(event.target).parent().parent().hasClass('header') || $(event.target).parent().hasClass('edgeComments') || $(event.target).parent().hasClass('commentIcons')){
             event.preventDefault()
             event.stopPropagation()
             return
@@ -1115,29 +1073,32 @@ export class GraphRenderer {
             //checking if the node is inside of a construct, if so, fetching it's parent
             if(node.getParent() !== null){
                 const parentNode = node.getParent();
-                $('#'+parentNode.getId()).removeClass('transition')
-                GraphRenderer.nodeParentRadiusPreDrag = parentNode.getRadius()
+                if (parentNode !== null){
+                    $('#'+parentNode.getId()).removeClass('transition')
+                    GraphRenderer.nodeParentRadiusPreDrag = parentNode.getRadius()
+                }
             }
         }
 
         // select handlers
         if(node !== null && event.button != 1 && !event.shiftKey){
-
-            // check if shift key is down, if so, add or remove selected node to/from current selection | keycode 2 is the middle mouse button
-            if (node !== null && event.shiftKey && !event.altKey){
-                GraphRenderer.dragSelectionHandled(true)
-                eagle.editSelection(node, Eagle.FileType.Graph);
-            } else if(!eagle.objectIsSelected(node)) {
+            //double click has highest priority, select only this node if it is a contruct
+            if(GraphRenderer.dragSelectionDoubleClick && node.isGroup()) {
                 eagle.setSelection(node, Eagle.FileType.Graph);
-            }
+            }   
 
             //check for alt clicking, if so, add the target node and its children to the selection
-            if(event.altKey&&node.isGroup()||GraphRenderer.dragSelectionDoubleClick&&node.isGroup()){
+            else if(event.button != 2 && !event.altKey&&node.isGroup() && !eagle.objectIsSelected(node)){
                 GraphRenderer.selectNodeAndChildren(node,GraphRenderer.shiftSelect)
             }
 
+            //normal node selection
+            else if(!eagle.objectIsSelected(node)) {
+                eagle.setSelection(node, Eagle.FileType.Graph);
+            }
+
             //switch back to the node parameter table if a node is selected
-        if(Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE) === true && Setting.findValue(Setting.BOTTOM_WINDOW_MODE) !== Eagle.BottomWindowMode.NodeParameterTable){
+            if(Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE) === true && Setting.findValue(Setting.BOTTOM_WINDOW_MODE) !== Eagle.BottomWindowMode.NodeParameterTable){
                 ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal)
             }
         }else{
@@ -1216,7 +1177,7 @@ export class GraphRenderer {
             
             //checking if there was no drag distance, if so we are clicking a single object and we will toggle its selection
             if(Math.abs(GraphRenderer.selectionRegionStart.x-GraphRenderer.selectionRegionEnd.x)+Math.abs(GraphRenderer.selectionRegionStart.y - GraphRenderer.selectionRegionEnd.y)<3){
-                if(GraphRenderer.altSelect){
+                if(!GraphRenderer.altSelect){
                     GraphRenderer.selectNodeAndChildren(node,GraphRenderer.shiftSelect)
                 }
                 eagle.editSelection(node,Eagle.FileType.Graph);
@@ -1617,7 +1578,7 @@ export class GraphRenderer {
             return
         }
 
-        const newNode = Utils.duplicateNode(node)
+        const newNode: Node = Utils.duplicateNode(node);
 
         // add the node to the graph
         eagle.logicalGraph().addNodeComplete(newNode);
@@ -1629,21 +1590,6 @@ export class GraphRenderer {
         }else{
             console.warn('mode is not supported:', mode)
         }
-    }
-
-    static translateLegacyGraph() : void {
-        const eagle = Eagle.getInstance();
-        //we are moving each node by half its radius to counter the fact that the new graph renderer treats the node's visual center as node position, previously the node position was in its top left.
-        if(GraphRenderer.legacyGraph){
-            //we need to calculate the construct radius in relation to it's children
-            for (const node of eagle.logicalGraph().getNodes()){
-                if(!node.isGroup()&&!node.isEmbedded()){
-                    node.setPosition(node.getPosition().x+node.getRadius()/2,node.getPosition().y + node.getRadius()/2)
-                }
-            }
-            GraphRenderer.centerConstructs(null, Array.from(eagle.logicalGraph().getNodes()))
-        }
-        GraphRenderer.legacyGraph = false
     }
 
     static moveChildNodes(node: Node, deltaX : number, deltaY : number) : void {

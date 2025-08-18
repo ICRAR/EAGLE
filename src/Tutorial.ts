@@ -240,8 +240,9 @@ export class Tutorial {
             console.warn('no target function for this tutorial step')
             return
         }
+
         let targetElement: JQuery<HTMLElement> = targetFunc()
-        let alternateHighlightTarget: JQuery<HTMLElement> | null = null
+        let autoAlternateHighlightTarget: JQuery<HTMLElement> | null = null // used for modals to automatically highlight the modal body, footer or header
 
         if (waitType === TutorialStep.Wait.Modal) {
             //in  case of a modal we make sure the selector is for the modal, we then check if it has the class 'show'
@@ -249,13 +250,13 @@ export class Tutorial {
                 //we also pass this modal selector to the highlighting function, so whole modal is highlighted, 
                 //but the arrow still points at a specific object in the modal
                 if (targetElement.closest('.modal-body').length > 0) {
-                    alternateHighlightTarget = targetElement.closest('.modal-body')
+                    autoAlternateHighlightTarget = targetElement.closest('.modal-body')
                 } else if (targetElement.closest('.modal-footer').length > 0) {
-                    alternateHighlightTarget = targetElement.closest('.modal-footer')
+                    autoAlternateHighlightTarget = targetElement.closest('.modal-footer')
                 } else if (targetElement.closest('.modal-header').length > 0) {
-                    alternateHighlightTarget = targetElement.closest('.modal-header')
+                    autoAlternateHighlightTarget = targetElement.closest('.modal-header')
                 } else {
-                    alternateHighlightTarget = targetElement.closest('.modal')
+                    autoAlternateHighlightTarget = targetElement.closest('.modal')
                 }
 
                 targetElement = targetElement.closest('.modal')
@@ -276,7 +277,7 @@ export class Tutorial {
         }
 
         if (elementAvailable) {
-            this.initiateStep(tutStep, alternateHighlightTarget)
+            this.initiateStep(tutStep, autoAlternateHighlightTarget)
             clearTimeout(TutorialSystem.waitForElementTimer);
             TutorialSystem.waitForElementTimer = undefined;
         } else {
@@ -284,7 +285,7 @@ export class Tutorial {
         }
     }
 
-    initiateStep = (tutStep: TutorialStep, alternateHighlightTarget: JQuery<HTMLElement> | null): void => {
+    initiateStep = (tutStep: TutorialStep, autoAlternateHighlightTarget: JQuery<HTMLElement> | null): void => {
         const that = this;
         $(':focus').trigger("blur");
         const targetFunc = tutStep.getTargetFunc();
@@ -296,21 +297,21 @@ export class Tutorial {
 
         //call the correct function depending on which type of tutorial step this is
         if (tutStep.getType() === TutorialStep.Type.Info) {
-            that.initiateInfoStep(tutStep, alternateHighlightTarget)
+            that.initiateInfoStep(tutStep, autoAlternateHighlightTarget)
         } else if (tutStep.getType() === TutorialStep.Type.Press) {
-            that.initiatePressStep(tutStep, alternateHighlightTarget)
+            that.initiatePressStep(tutStep, autoAlternateHighlightTarget)
         } else if (tutStep.getType() === TutorialStep.Type.Input) {
-            that.initiateInputStep(tutStep, alternateHighlightTarget)
+            that.initiateInputStep(tutStep, autoAlternateHighlightTarget)
         } else if (tutStep.getType() === TutorialStep.Type.Condition) {
-            that.initiateConditionStep(tutStep, alternateHighlightTarget)
+            that.initiateConditionStep(tutStep, autoAlternateHighlightTarget)
         }
     }
 
     //normal info step
-    initiateInfoStep = (tutStep: TutorialStep, alternateHighlightTarget: JQuery<HTMLElement> | null): void => {
+    initiateInfoStep = (tutStep: TutorialStep, autoAlternateHighlightTarget: JQuery<HTMLElement> | null): void => {
         //the alternate highlight selector is for modals in which case we highlight the whole modal while the arrow points at a specific child
-        if (alternateHighlightTarget !== null) {
-            this.highlightStepTarget(alternateHighlightTarget)
+        if (autoAlternateHighlightTarget != null && autoAlternateHighlightTarget.length > 0) {
+            this.highlightStepTarget(autoAlternateHighlightTarget)
         } else {
             const targetFunc = tutStep.getTargetFunc();
             if (targetFunc === null) {
@@ -327,15 +328,16 @@ export class Tutorial {
     }
 
     //a selector press step
-    initiatePressStep = (tutStep: TutorialStep, alternateHighlightTarget: JQuery<HTMLElement> | null): void => {
+    initiatePressStep = (tutStep: TutorialStep, autoAlternateHighlightTarget: JQuery<HTMLElement>): void => {
         const targetFunc = tutStep.getTargetFunc();
         if (targetFunc === null) {
             console.warn('no target function for this tutorial step')
             return
         }
-        const targetElement: JQuery<HTMLElement> = targetFunc()
-        if (alternateHighlightTarget !== null) {
-            this.highlightStepTarget(alternateHighlightTarget)
+
+        const targetElement = targetFunc()
+        if (autoAlternateHighlightTarget != null) {
+            this.highlightStepTarget(autoAlternateHighlightTarget)
         } else {
             this.highlightStepTarget(targetElement)
         }
@@ -350,15 +352,15 @@ export class Tutorial {
     }
 
     //these are ground work for future tutorial system functionality
-    initiateInputStep = (tutStep: TutorialStep, alternateHighlightTarget: JQuery<HTMLElement> | null): void => {
+    initiateInputStep = (tutStep: TutorialStep, autoAlternateHighlightTarget: JQuery<HTMLElement> | null): void => {
         const targetFunc = tutStep.getTargetFunc();
         if (targetFunc === null) {
             console.warn('no target function for this tutorial step')
             return;
         }
 
-        if (alternateHighlightTarget !== null) {
-            this.highlightStepTarget(alternateHighlightTarget)
+        if (autoAlternateHighlightTarget != null) {
+            this.highlightStepTarget(autoAlternateHighlightTarget)
         } else {
             this.highlightStepTarget(targetFunc())
         }
@@ -381,10 +383,9 @@ export class Tutorial {
         })
     }
 
-    // TODO: does alternateHighlightTarget have to be passed here? Isn't it available in the tutStep via getAlternateHighlightTargetFunc?
-    initiateConditionStep = (tutStep: TutorialStep, alternateHighlightTarget: JQuery<HTMLElement> | null): void => {
-        if (alternateHighlightTarget !== null) {
-            this.highlightStepTarget(alternateHighlightTarget)
+    initiateConditionStep = (tutStep: TutorialStep, autoAlternateHighlightTarget: JQuery<HTMLElement> | null): void => {
+        if (autoAlternateHighlightTarget != null) {
+            this.highlightStepTarget(autoAlternateHighlightTarget)
         } else {
             const targetFunc = tutStep.getTargetFunc();
 
@@ -409,11 +410,30 @@ export class Tutorial {
 
     highlightStepTarget = (target: JQuery<HTMLElement>): void => {
         const eagle = Eagle.getInstance()
+        const activeTutorial: Tutorial | null = TutorialSystem.activeTut;
+
+        if (activeTutorial === null){
+            console.warn("No active tutorial found.");
+            return;
+        }
+
+        //if the target element is not found, we end the tutorial gracefully
+        if(target.length === 0){
+            console.warn('target highlight element not found: ', TutorialSystem.activeTutCurrentStep.getTargetFunc())
+            activeTutorial.tutButtonEnd()
+            return
+        }
+
         const alternateHighlightTargetFunc = TutorialSystem.activeTutCurrentStep.getAlternateHighlightTargetFunc();
 
         // if this step has an alternate highlight target function, we use that instead of the main target
         if(alternateHighlightTargetFunc !== null){
-            target = alternateHighlightTargetFunc()
+            const alternateHighlightTarget = alternateHighlightTargetFunc();
+            if (target.length > 0){
+                target = alternateHighlightTarget;
+            }else{
+                console.warn('alternate highlight target not found using main target instead')
+            }
         }
 
         // if the selector is not working, we end the tutorial because it is broken

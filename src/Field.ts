@@ -694,7 +694,12 @@ export class Field {
             case Daliuge.DataType.Float:
                 return parseFloat(value);
             case Daliuge.DataType.Integer:
-                return parseInt(value, 10);
+                const parsedValue = parseInt(value, 10);
+                if (isNaN(parsedValue)){
+                    console.warn("Field.stringAsType(): Unable to parse value as integer:", value);
+                    return value; // return the original value if parsing fails
+                }
+                return parsedValue;
             default:
                 return value;
         }
@@ -926,7 +931,10 @@ export class Field {
                 if(embed === null){
                     issue = Errors.ShowFix("Node (" + node.getName() + ") has input port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixFieldType(eagle, field)}, "");
                 }else{
-                    if(embed.getInputApplication() === node){
+                    // for embedded nodes
+                    const constructNode = node.getEmbed();
+
+                    if(constructNode.getInputApplication() === node){
                         //if node is input application
                         issue = Errors.ShowFix("Node (" + embed.getName() + ") has input application (" + node.getName() + ") with input port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixFieldType(eagle, field)}, "");
                     }else{
@@ -951,7 +959,10 @@ export class Field {
                 if(embed === null){
                     issue = Errors.ShowFix("Node (" + node.getName() + ") has output port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixFieldType(eagle, field)}, "");
                 }else{
-                    if(embed.getInputApplication() === node){
+                    // for embedded nodes
+                    const constructNode = node.getEmbed();
+                    
+                    if(constructNode.getInputApplication() === node){
                         //if node is input application
                         issue = Errors.ShowFix("Node (" + embed.getName() + ") has input application (" + node.getName() + ") with output port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixFieldType(eagle, field)}, "");
                     }else{

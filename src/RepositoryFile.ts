@@ -30,8 +30,11 @@ export class RepositoryFile {
                 return "palette";
             case Eagle.FileType.JSON:
                 return "language";
+            case Eagle.FileType.Markdown:
+                return "markdown";
+            case Eagle.FileType.Unknown:
             default:
-                return this.type;
+                return "unknown_document";
         }
     }, this);
 

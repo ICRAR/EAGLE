@@ -6,8 +6,8 @@
             </div>
             <!-- /ko -->
             <!-- ko ifnot: isFetching -->
-            <i class="material-icons md-18 interactive iconHoverEffect" data-bind="click: refresh,visible: folders().length == 0 && files().length==0 && fetched">cloud_off</i>
-            <i class="material-icons md-18 interactive iconHoverEffect" data-bs-placement="bottom" data-bind="click: refresh, visible: (folders().length != 0 || files().length != 0)&& fetched, eagleTooltip: 'Refresh'">cloud_done</i>
+            <i class="material-symbols-outlined md-18 interactive iconHoverEffect" data-bind="click: refresh,visible: folders().length == 0 && files().length==0 && fetched">cloud_off</i>
+            <i class="material-symbols-outlined md-18 interactive iconHoverEffect" data-bs-placement="bottom" data-bind="click: refresh, visible: (folders().length != 0 || files().length != 0)&& fetched, eagleTooltip: 'Refresh'">cloud_done</i>
 
             <!-- ko ifnot: fetched -->
             <!-- ko if: service === Repository.Service.GitHub -->
@@ -19,16 +19,19 @@
             <!-- /ko -->
             <!-- /ko -->
         </div>
-        <div class="col-10 col">
+        <div class="col-9 col">
             <a href="" data-bind="attr: {id: htmlId}, click: select, eagleTooltip: '|||' +  name + ' (' + branch + ') |||'" data-bs-placement="left">
                 <span data-bind="text: name + ' (' + branch + ')'"></span>
             </a>
         </div>
-        <!-- ko ifnot: isBuiltIn -->
-        <div class="col col-1">
-            <i class="material-icons md-18 interactive iconHoverEffect" data-bind="click: $root.repositories().removeCustomRepository, attr: {id: htmlId() + '-eject'}">eject</i>
+        
+        <div class="col col-2 repo-actions">
+            <!-- ko ifnot: isBuiltIn -->
+                <i class="material-symbols-outlined filled md-18 interactive iconHoverEffect" data-bind="click: $root.repositories().removeCustomRepository, attr: {id: htmlId() + '-eject'}">eject</i>
+            <!-- /ko -->
+            <i class="material-symbols-outlined md-18 interactive iconHoverEffect" data-bind="click: $root.repositories().copyRepository, attr: {id: htmlId() + '-copy'}">content_copy</i>
         </div>
-        <!-- /ko -->
+        
         <!-- ko if: expanded -->
         <ul class="folders" data-bind="foreach: folders">
             <li>

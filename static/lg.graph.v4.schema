@@ -126,8 +126,8 @@
                         "y": {
                             "type": "number"
                         },
-                        "subjectId": {
-                            "$ref": "#/$defs/eagleId"
+                        "comment": {
+                            "type": "string"
                         },
                         "paletteDownloadUrl": {
                             "type": "string"
@@ -239,7 +239,6 @@
                         "paletteDownloadUrl",
                         "parentId",
                         "repositoryUrl",
-                        "subjectId",
                         "x",
                         "y"
                     ],

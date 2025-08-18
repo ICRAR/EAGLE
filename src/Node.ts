@@ -56,8 +56,6 @@ export class Node {
     private category : ko.Observable<Category>;
     private categoryType : ko.Observable<Category.Type>;
 
-    private subject : ko.Observable<Node | null>;       // the node that is the subject of this node. used by comment nodes only.
-
     private repositoryUrl : ko.Observable<string>;
     private commitHash : ko.Observable<string>;
     private paletteDownloadUrl : ko.Observable<string>;
@@ -98,7 +96,6 @@ export class Node {
 
         // lookup correct categoryType based on category
         this.categoryType = ko.observable(CategoryData.getCategoryData(category).categoryType);
-        this.subject = ko.observable(null);
 
         this.repositoryUrl = ko.observable("");
         this.commitHash = ko.observable("");
@@ -121,6 +118,8 @@ export class Node {
             this.radius = ko.observable(EagleConfig.BRANCH_NODE_RADIUS);
         }else if (this.isGroup()){
             this.radius = ko.observable(EagleConfig.MINIMUM_CONSTRUCT_RADIUS);
+        }else if (this.isComment()){
+            this.radius = ko.observable(EagleConfig.COMMENT_NODE_WIDTH);
         }else{
             this.radius = ko.observable(EagleConfig.NORMAL_NODE_RADIUS);
         }
@@ -604,6 +603,11 @@ export class Node {
         return this.commitHash();
     }
 
+    setCommitHash = (commitHash: string) : Node => {
+        this.commitHash(commitHash);
+        return this;
+    }
+
     getPaletteDownloadUrl = () : string => {
         return this.paletteDownloadUrl();
     }
@@ -768,17 +772,8 @@ export class Node {
         return 'Edit Node Comment: </br>' + Utils.markdown2html(this.comment());
     }, this);
 
-    getSubject = () : Node | null => {
-        return this.subject();
-    }
-
-    setSubject = (node: Node | null): Node => {
-        this.subject(node);
-        return this;
-    }
-
-    setInputApplication = (inputApplication: Node | null) : Node => {
-        console.assert(this.isConstruct(), "Can't set input application on node that is not a construct");
+    setInputApplication = (inputApplication : Node) : Node => {
+        console.assert(this.isConstruct() || inputApplication === null, "Can't set non-null input application on node that is not a construct");
 
         this.inputApplication(inputApplication);
 
@@ -797,8 +792,8 @@ export class Node {
         return this.inputApplication() !== null;
     }
 
-    setOutputApplication = (outputApplication: Node | null) : Node => {
-        console.assert(this.isConstruct(), "Can't set output application on node that is not a construct");
+    setOutputApplication = (outputApplication : Node) : Node => {
+        console.assert(this.isConstruct() || outputApplication === null, "Can't set non-null output application on node that is not a construct");
 
         this.outputApplication(outputApplication);
 
@@ -839,8 +834,6 @@ export class Node {
 
         this.category(Category.Unknown);
         this.categoryType(Category.Type.Unknown);
-
-        this.subject(null);
 
         this.expanded(false);
         this.keepExpanded(false)
@@ -900,6 +893,38 @@ export class Node {
         }
 
         return {node: undefined, port: undefined};
+    }
+
+    findPortIndexById = (portId: FieldId) : number => {
+        // check input ports
+        for (let i = 0; i < this.getInputPorts().length; i++){
+            const port = this.getInputPorts()[i];
+            if (port.getId() === portId){
+                return i;
+            }
+        }
+
+        // check output ports
+        for (let i = 0; i < this.getOutputPorts().length; i++){
+            const port = this.getOutputPorts()[i];
+            if (port.getId() === portId){
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    getCommentNodeHtml = () : string => {
+        if (this.isComment()){
+            let commentHtml = this.comment()
+            if (commentHtml === undefined || commentHtml === null || commentHtml === ""){
+                commentHtml = "Click on edit icon to add comment";
+            }
+
+            return Utils.markdown2html(commentHtml);
+        }
+        return ''
     }
 
     findPortByDisplayText = (displayText : string, input : boolean, local : boolean) : Field | undefined => {
@@ -1091,12 +1116,7 @@ export class Node {
         result.parent(this.parent());
         result.embed(this.embed());
 
-        // result.expanded(this.expanded());
-        // result.keepExpanded(this.expanded());
-
         result.peek(this.peek());
-
-        result.subject(this.subject());
 
         // clone fields
         for (const field of this.fields().values()){
@@ -1424,10 +1444,6 @@ export class Node {
             node.comment(nodeData.comment);
         }
 
-        if(!isPaletteNode && nodeData.radius === undefined){
-            GraphRenderer.legacyGraph = true
-        }
-
         // drawOrderHint
         if (typeof nodeData.drawOrderHint !== 'undefined'){
             node.drawOrderHint(nodeData.drawOrderHint);
@@ -1477,41 +1493,15 @@ export class Node {
         // these next six if statements are covering old versions of nodes, that
         // specified input and output applications using name strings rather than nested nodes.
         // NOTE: the key for the new nodes are not set correctly, they will have to be overwritten later
-        if (inputApplicationName !== ""){
-            if (categoryData.categoryType !== Category.Type.Construct){
-                errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
-            } else {
-                // check applicationType is an application
-                if (CategoryData.getCategoryData(inputApplicationType).categoryType === Category.Type.Application){
-                    node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationName, inputApplicationType, inputApplicationDescription, inputApplicationComment, node));
-                } else {
-                    errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication of unsuitable type: " + inputApplicationType + ", to node."));
-                }
-            }
-        }
-
         if (inputApplicationName !== "" && inputApplicationType !== Category.None){
             if (categoryData.categoryType !== Category.Type.Construct){
                 errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
             } else {
                 // check applicationType is an application
-                if (CategoryData.getCategoryData(inputApplicationType).categoryType === Category.Type.Application){
+                if ([Category.Type.Application, Category.Type.Unknown].includes(CategoryData.getCategoryData(inputApplicationType).categoryType)){
                     node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationName, inputApplicationType, inputApplicationDescription, inputApplicationComment, node));
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication of unsuitable type: " + inputApplicationType + ", to node."));
-                }
-            }
-        }
-
-        if (outputApplicationName !== ""){
-            if (categoryData.categoryType !== Category.Type.Construct){
-                errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication to unsuitable node: " + category));
-            } else {
-                // check applicationType is an application
-                if (CategoryData.getCategoryData(outputApplicationType).categoryType === Category.Type.Application){
-                    node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationName, outputApplicationType, outputApplicationDescription, outputApplicationComment, node));
-                } else {
-                    errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication of unsuitable type: " + outputApplicationType + ", to node."));
                 }
             }
         }
@@ -1520,7 +1510,8 @@ export class Node {
             if (categoryData.categoryType !== Category.Type.Construct){
                 errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication to unsuitable node: " + category));
             } else {
-                if (CategoryData.getCategoryData(outputApplicationType).categoryType === Category.Type.Application){
+                // check applicationType is an application
+                if ([Category.Type.Application, Category.Type.Unknown].includes(CategoryData.getCategoryData(outputApplicationType).categoryType)){
                     node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationName, outputApplicationType, outputApplicationDescription, outputApplicationComment, node));
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication of unsuitable type: " + outputApplicationType + ", to node."));
@@ -1755,7 +1746,7 @@ export class Node {
             let inputApplication = node.inputApplication();
             if (inputApplication === null){
                 if (Setting.findValue(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
-                    inputApplication = Node.createEmbeddedApplicationNode(port.getDisplayText(), Category.UnknownApplication, "", "", node);
+                    inputApplication = Node.createEmbeddedApplicationNode("Unknown", Category.UnknownApplication, "", "", node);
                     node.inputApplication(inputApplication);
                     errorsWarnings.errors.push(Errors.Message("Created new embedded input application (" + inputApplication.getName() + ") for node (" + node.getName() + "). Application category is " + inputApplication.getCategory() + " and may require user intervention."));
                 } else {
@@ -1769,7 +1760,7 @@ export class Node {
             let outputApplication = node.outputApplication();
             if (outputApplication === null){
                 if (Setting.findValue(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
-                    outputApplication = Node.createEmbeddedApplicationNode(port.getDisplayText(), Category.UnknownApplication, "", "", node);
+                    outputApplication = Node.createEmbeddedApplicationNode("Unknown", Category.UnknownApplication, "", "", node);
                     node.outputApplication(outputApplication);
                     errorsWarnings.errors.push(Errors.Message("Created new embedded output application (" + outputApplication.getName() + ") for node (" + node.getName() + "). Application category is " + outputApplication.getCategory() + " and may require user intervention."));
                 } else {
@@ -1879,7 +1870,6 @@ export class Node {
         result.comment = node.comment();
         result.x = node.x();
         result.y = node.y();
-        result.subject = node.subject();
         result.repositoryUrl = node.repositoryUrl();
         result.commitHash = node.commitHash();
         result.paletteDownloadUrl = node.paletteDownloadUrl();
@@ -1966,10 +1956,8 @@ export class Node {
         result.paletteDownloadUrl = node.paletteDownloadUrl();
         result.dataHash = node.dataHash();
 
-        const subject = node.subject();
         const parent = node.parent();
         const embed = node.embed();
-        result.subjectId = subject === null ? null : subject.getId();
         result.parentId = parent === null ? null : parent.getId();
         result.embedId = embed === null ? null : embed.getId();
 
@@ -1998,8 +1986,6 @@ export class Node {
     }
 
     static createEmbeddedApplicationNode(name : string, category: Category, description: string, comment: string, embed: Node) : Node {
-        console.assert(CategoryData.getCategoryData(category).categoryType === Category.Type.Application);
-
         const node = new Node(name, description, comment, category);
         node.setEmbed(embed);
         node.setRadius(EagleConfig.NORMAL_NODE_RADIUS);

@@ -71,6 +71,8 @@ let eagle : Eagle;
 $(function(){
     //Check if the user is a first time visitor to the site
     const firstTimeVisit = localStorage.getItem('activeUiMode') === null;
+    const lastSeenVersion = localStorage.getItem('lastSeenVersion') || "0.0.0";
+    const showWhatsNew = Utils.compareVersions((<any>window).version, lastSeenVersion) > 0;
 
     // Global variables.
     eagle = new Eagle();
@@ -166,6 +168,13 @@ $(function(){
     //request a first time visitor welcome to eagle if applicable
     initiateWelcome(firstTimeVisit);
   
+    // if not first time visit, but version is newer than last seen version, show the versions modal
+    if (!firstTimeVisit && showWhatsNew){
+        eagle.showWhatsNew();
+        // set the last seen version
+        localStorage.setItem('lastSeenVersion', (<any>window).version);
+    }
+
     $('.modal').on('hidden.bs.modal', function () {
         $('.modal-dialog').css({"left":"0px", "top":"0px"})
         $("#editFieldModal textarea").attr('style','')
@@ -305,8 +314,8 @@ async function autoLoad() {
     const serviceIsGit: boolean = [Repository.Service.GitHub, Repository.Service.GitLab].includes(realService);
 
     // skip empty strings
-    if (serviceIsGit && (repository === "" || branch === "" || filename === "")){
-        console.log("No auto load. Repository, branch or filename not specified");
+    if (serviceIsGit && (repository === "" || branch === "")){
+        console.log("No auto load. Repository or branch not specified");
         return;
     }
 
@@ -316,11 +325,25 @@ async function autoLoad() {
         return;
     }
 
-    // load
+    // decide what to do based on the url
     if (realService === Repository.Service.Url){
         Repositories.selectFile(new RepositoryFile(new Repository(realService, "", "", false), "", url));
     } else {
-        Repositories.selectFile(new RepositoryFile(new Repository(realService, repository, branch, false), path, filename));
+        if (filename === ""){
+            // check if repository already exists
+            const existingRepo = Repositories.get(realService, repository, branch);
+            if (existingRepo !== null) {
+                Utils.showNotification("Add Repository", "Repository already exists!", "info");
+                return;
+            }
+
+            // add repository to repository list
+            await eagle.repositories()._addCustomRepository(realService, repository, branch);
+            Utils.showNotification("Add Repository", "Repository added successfully!", "success");
+        } else {
+            // load file
+            Repositories.selectFile(new RepositoryFile(new Repository(realService, repository, branch, false), path, filename));
+        }
     }
 
     // if developer setting enabled, fetch the repository that this graph belongs to (if the repository is in the list of known repositories)
