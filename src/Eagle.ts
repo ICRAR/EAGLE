@@ -4595,7 +4595,23 @@ export class Eagle {
         }
 
         // update
-        const {updatedNodes, errorsWarnings} = ComponentUpdater.updateSelection(this.palettes());
+        const updatedNodes: Node[] = [];
+        const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
+        let numSelectedNodes: number = 0;
+
+        // make sure we have a palette available for each selected component
+        for (const node of Eagle.getInstance().selectedObjects()){
+            if (!(node instanceof Node)) {
+                continue; // skip non-node objects
+            }
+
+            numSelectedNodes++;
+
+            const updatedNode = ComponentUpdater.updateNode(this.palettes(), node, errorsWarnings);
+            if (updatedNode !== null) {
+                updatedNodes.push(updatedNode);
+            }
+        }
 
         // check if any errors were reported
         if (errorsWarnings.errors.length > 0){
@@ -4612,7 +4628,7 @@ export class Eagle {
             Utils.showNotification("Info", "No components were updated", "info");
             return;
         }
-        Utils.showNotification("Success", "Successfully updated " + updatedNodes.length + " component(s)", "success");
+        Utils.showNotification("Success", "Successfully updated " + updatedNodes.length + " of " + numSelectedNodes + " component(s)", "success");
 
         // make undo snapshot, recheck graph, mark as modified etc
         this.logicalGraph.valueHasMutated();
@@ -4631,6 +4647,7 @@ export class Eagle {
         }
 
         const updatedNodes: Node[] = [];
+        let numSelectedNodes: number = 0;
 
         for (const object of Eagle.getInstance().selectedObjects()){
             let updated: boolean = false;
@@ -4640,9 +4657,8 @@ export class Eagle {
                 continue;
             }
 
+            numSelectedNodes++;
             const node: Node = object as Node;
-
-            console.log("fix node", node.getName(), "number of issues", node.getIssues().length);
 
             // fix node issues
             for (const {issue, validity} of node.getIssues()){
@@ -4676,7 +4692,7 @@ export class Eagle {
             Utils.showNotification("Info", "No components were fixed", "info");
             return;
         }
-        Utils.showNotification("Success", "Successfully fixed " + updatedNodes.length + " component(s)", "success");
+        Utils.showNotification("Success", "Successfully fixed " + updatedNodes.length + " of " + numSelectedNodes + " component(s)", "success");
 
         // make undo snapshot, recheck graph, mark as modified etc
         this.logicalGraph.valueHasMutated();

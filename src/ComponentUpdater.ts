@@ -21,24 +21,6 @@ export class ComponentUpdater {
         return {updatedNodes: updatedNodes, errorsWarnings: errorsWarnings};
     }
 
-    static updateSelection(palettes: Palette[]): {updatedNodes: Node[], errorsWarnings: Errors.ErrorsWarnings} {
-        const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
-        const updatedNodes: Node[] = [];
-
-        // make sure we have a palette available for each selected component
-        for (const node of Eagle.getInstance().selectedObjects()){
-            if (!(node instanceof Node)) {
-                continue; // skip non-node objects
-            }
-            const updatedNode = ComponentUpdater.updateNode(palettes, node, errorsWarnings);
-            if (updatedNode !== null) {
-                updatedNodes.push(updatedNode);
-            }
-        }
-
-        return {updatedNodes: updatedNodes, errorsWarnings: errorsWarnings};
-    }
-
     static updateNode(palettes: Palette[], node: Node, errorsWarnings: Errors.ErrorsWarnings): Node | null {
         let newVersion : Node = null;
 
@@ -81,5 +63,8 @@ export class ComponentUpdater {
             // copy everything about the field from the src (palette), except maintain the existing id and nodeKey
             destField.copyWithIds(srcField, destField.getNodeId(), destField.getId());
         }
+
+        // update commit hash of destination node
+        dest.setCommitHash(src.getCommitHash());
     }
 }
