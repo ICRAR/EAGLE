@@ -27,24 +27,24 @@
                                 <td data-bind="text: $root.currentFileInfo().getText()"></td>
                             <!-- /ko -->
                         </tr>
-                        <tr id="modelDataShortDescription" data-bind="style:{'background-color': $root.logicalGraph().getShortDescriptionBtnColor()}">
+                        <tr id="modelDataShortDescription" data-bind="style:{'background-color': $root.currentFileInfo() ? $root.currentFileInfo().getShortDescriptionBtnColor() : ''}">
                             <td data-bind="eagleTooltip: 'A one-line description of the purpose of this file'">Short Description</td>
                             <!-- ko if: $root.currentFileInfo -->
                                 <td>
                                     <div data-bind="html: $root.currentFileInfo().renderedShortDescription"></div>
                                     <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
-                                    <button class="modelDataTableEditParam icon-pencil iconHoverEffect" data-bind="click:FileInfo.editShortDescription"></button>
+                                    <button class="modelDataTableEditParam icon-pencil iconHoverEffect" data-bind="click:function() { FileInfo.editShortDescription($root.currentFileInfo()) }"></button>
                                     <!-- /ko -->
                                 </td>
                             <!-- /ko -->
                         </tr>
-                        <tr id="modelDataDetailedDescription" data-bind="style:{'background-color': $root.logicalGraph().getDetailedDescriptionBtnColor()}">
+                        <tr id="modelDataDetailedDescription" data-bind="style:{'background-color': $root.currentFileInfo() ? $root.currentFileInfo().getDetailedDescriptionBtnColor() : ''}">
                             <td data-bind="eagleTooltip: 'A complete description of the purpose of this file'">Detailed Description</td>
                             <!-- ko if: $root.currentFileInfo -->
                                 <td>
                                     <div data-bind="html: $root.currentFileInfo().renderedDetailedDescription"></div>
                                     <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
-                                    <button class="modelDataTableEditParam icon-pencil iconHoverEffect" data-bind="click:FileInfo.editDetailedDescription"></button>
+                                    <button class="modelDataTableEditParam icon-pencil iconHoverEffect" data-bind="click:function() { FileInfo.editDetailedDescription($root.currentFileInfo()) }"></button>
                                     <!-- /ko -->
                                 </td>
                             <!-- /ko -->

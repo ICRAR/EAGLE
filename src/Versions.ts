@@ -1,5 +1,24 @@
 export const versions = [
   {
+    version: 'v6.8.0',
+    date: new Date("2025-08-13"),
+    changes: [
+      `Markdown editing modal for descriptions/comments`,
+      `Quick access for important node fields in inspector`,
+      `Improved quick search results`,
+      `New keyboard shortcut to toggle the inspector on "i"`,
+      `New comment system for graph nodes and edges in inspector`,
+      `Swapped construct selection behaviour (single click or double click)`,
+      `Improved change log and what's new system!`,
+      `New modal dialog behaviour: modals can be moved and kept open while interacting with the graph`,
+      `'Display palette as JSON' in palette triple dot menu`,
+      `Update single component in graph node right click menu`,
+      `Comment nodes re-done, add markdown text explanations to your graph`,
+      `Graph and palette loading and saving fixes`,
+      `Various interface fixes`
+    ]
+  },
+  {
     version: 'v6.7.0',
     date: new Date("2025-06-09"),
     changes: [

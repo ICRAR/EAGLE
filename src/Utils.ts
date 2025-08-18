@@ -2257,6 +2257,10 @@ export class Utils {
         // add logical graph nodes to table
         for (const node of nodesList){
             const children: NodeId[] = Array.from(node.getChildren()).map(function(node:Node){return node.getId()});
+            let numFieldIssues = 0;
+            for (const field of node.getFields()){
+                numFieldIssues += field.getIssues().length;
+            }
 
             tableData.push({
                 "name":node.getName(),
@@ -2277,7 +2281,9 @@ export class Utils {
                 "inputAppEmbedId":node.getInputApplication() === null ? null : node.getInputApplication().getEmbed().getId(),
                 "outputAppId":node.getOutputApplication() === null ? null : node.getOutputApplication().getId(),
                 "outputAppCategory":node.getOutputApplication() === null ? null : node.getOutputApplication().getCategory(),
-                "outputAppEmbedId":node.getOutputApplication() === null ? null : node.getOutputApplication().getEmbed().getId()
+                "outputAppEmbedId":node.getOutputApplication() === null ? null : node.getOutputApplication().getEmbed().getId(),
+                "nodeIssues": node.getIssues().length,
+                "fieldIssues": numFieldIssues
             });
         }
 
