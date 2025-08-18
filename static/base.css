@@ -1399,31 +1399,6 @@ select.form-control{
     padding-right:4px;
 }
 
-#paletteWindowdropdownWrapper{
-    position: absolute;
-    right: 5px;
-}
-
-#paletteWindowdropdownWrapper a:after{
-    display: none;
-}
-
-#paletteWindowdropdownWrapper a{
-    text-decoration: none;
-    color: black;
-    padding:7px;
-}
-
-#paletteWindowdropdownWrapper .dropdown-item{
-    color:white;
-    padding: 4px 16px;
-}
-
-#paletteWindowdropdownWrapper .dropDropDown{
-    left:100%;
-    right: unset;
-}
-
 #root span:after{
     height: 2px;
     background-color: tomato;
