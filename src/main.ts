@@ -228,12 +228,14 @@ $(function(){
         }
     })
 
+    // TODO: move to Hierarchy.ts?
     $(document).on('click', '.hierarchyEdgeExtra', function(event: JQuery.TriggeredEvent){
         const eagle: Eagle = Eagle.getInstance();
-        const selectEdge = eagle.logicalGraph().findEdgeById(($(event.target).attr("id") as EdgeId))
+        const edgeId: EdgeId = $(event.target).attr("id") as EdgeId;
+        const selectEdge = eagle.logicalGraph().getEdgeById(edgeId);
 
-        if(!selectEdge){
-            console.log("no edge found")
+        if(typeof selectEdge === 'undefined'){
+            console.log("no edge found with id:", edgeId);
             return
         }
         if(!event.shiftKey){
@@ -409,4 +411,5 @@ declare global {
     type EdgeId = Branded<string, "EdgeId">
     type RepositoryId = Branded<string, "RepositoryId">
     type RepositoryFileId = Branded<string, "RepositoryFileId">
+    type GraphConfigId = Branded<string, "GraphConfigId">
 }

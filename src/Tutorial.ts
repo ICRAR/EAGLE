@@ -91,28 +91,18 @@ export class TutorialSystem {
     }
 
     static initiateFindGraphNodeIdByNodeName(name:string) : JQuery<HTMLElement> {
-        const eagle = Eagle.getInstance()
-        const x = $('#logicalGraph #'+eagle.logicalGraph().findNodeGraphIdByNodeName(name)+'.container')
-        return x
+        return $('#logicalGraph #'+Eagle.getInstance().logicalGraph().findNodeIdByNodeName(name)+'.container')
     }
 
     static initiateSimpleFindGraphNodeIdByNodeName(name:string) : string {
-        const eagle = Eagle.getInstance()
-        const x = eagle.logicalGraph().findNodeGraphIdByNodeName(name)
-        return x
+        return Eagle.getInstance().logicalGraph().findNodeIdByNodeName(name)
     }
 
     static isRequestedNodeSelected(name:string) : boolean {
         //used when asking the user to select a specific node
         const eagle = Eagle.getInstance()
-        if(eagle.selectedObjects().length>1 || eagle.selectedObjects().length<1){
-            return false
-        }
-        if(name === eagle.selectedNode().getName()){
-            return true
-        }else{
-            return false
-        }
+
+        return eagle.selectedNode() !== null && eagle.selectedNode().getName() === name
     }
 
     static findInPalettes(target:string) : void {
@@ -295,7 +285,7 @@ export class Tutorial {
         //the little wait is waiting for the css animation of the highlighting system
         // TODO: magic number here, move it to a constant somewhere in the tutorial system
         setTimeout(function () {
-            TutorialSystem.activeTut.openInfoPopUp()
+            TutorialSystem.activeTut?.openInfoPopUp()
         }, 510);
     }
 
@@ -314,7 +304,7 @@ export class Tutorial {
         //the little wait is waiting for the css animation of the highlighting system
         // TODO: magic number here!
         setTimeout(function () {
-            TutorialSystem.activeTut.openInfoPopUp()
+            TutorialSystem.activeTut?.openInfoPopUp()
         }, 510);
     }
 
@@ -329,7 +319,7 @@ export class Tutorial {
         //the little wait is waiting for the css animation of the highlighting system
         // TODO: magic number (510) here!
         setTimeout(function () {
-            TutorialSystem.activeTut.openInfoPopUp()
+            TutorialSystem.activeTut?.openInfoPopUp()
         }, 510);
 
         //attaching an input handler for checking input
@@ -348,7 +338,7 @@ export class Tutorial {
 
         //the little wait is waiting for the css animation of the highlighting system
         setTimeout(function () {
-            TutorialSystem.activeTut.openInfoPopUp()
+            TutorialSystem.activeTut?.openInfoPopUp()
         }, 510);
 
         TutorialSystem.conditionCheck = setInterval(function(){TutorialSystem.activeTut.checkConditionFunction(tutStep)}, 100);
@@ -376,6 +366,7 @@ export class Tutorial {
         if(target.length === 0){
             this.tutButtonEnd()
             Utils.showNotification("Tutorial Error", "There was an error in the tutorial, if this persists, please let our team know.", "warning");
+            console.warn('no target for this step could be found')
             return
         }
 
@@ -524,6 +515,7 @@ export class Tutorial {
     }
 
     tutButtonEnd = (): void => {
+        console.log('ending tut')
         this.closeInfoPopUp()
         $('body').off('keydown.tutEventListener');
         $('.tutButtonListener').off('click.tutButtonListener').removeClass('tutButtonListener')

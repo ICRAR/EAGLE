@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { TestHelpers } from './TestHelpers';
 
 test('Creating a Simple Graph', async ({ page }) => {
   
@@ -7,15 +8,8 @@ test('Creating a Simple Graph', async ({ page }) => {
   // Expect a title "to contain" a substring.
   await expect(page).toHaveTitle(/EAGLE/);
 
-  //open settings modal
-  await page.locator('#settings').click()
-
-  //enable expert mode
-  const uiModeSelect = await page.getByPlaceholder('uiMode')
-  uiModeSelect.selectOption({value:'Expert'})
-  //close settings modal (wait is needed, bootstrap is not ready to close the modal again that quickly)
-  await page.waitForTimeout(500);
-  await page.getByRole('button', { name: 'OK' }).click()
+  // set 'Expert' UI mode
+  await TestHelpers.setUIMode(page, "Expert");
 
   //expand the 'Builtin Components' palette
   await page.locator('#palette0').click();
@@ -62,6 +56,31 @@ test('Creating a Simple Graph', async ({ page }) => {
   //wait for bootstrap modal then close
   await page.waitForTimeout(500);
   await page.locator('.closeBottomWindowBtn').getByRole('button').click();
+
+  // check that the graph has the expected number of nodes
+  const numNodesPreDelete = await page.evaluate(() => {
+    return (<any>window).eagle.logicalGraph().getNumNodes();
+  });
+
+  await expect(numNodesPreDelete).toBe(2);
+
+  // add a second file node
+  await page.locator('#palette_0_File').scrollIntoViewIfNeeded();
+  await page.locator('#addPaletteNodeFile').click();
+  await page.waitForTimeout(500);
+
+  // delete the second file node
+  await page.keyboard.press('Delete');
+
+  // confirm the deletion in the modal
+  await page.locator('#confirmModalAffirmativeAnswer').click();
+
+  // check that the graph has the expected number of nodes
+  const numNodesPostDelete = await page.evaluate(() => {
+    return (<any>window).eagle.logicalGraph().getNumNodes();
+  });
+
+  await expect(numNodesPostDelete).toBe(2);
 
   await page.close();
 });

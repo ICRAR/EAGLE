@@ -2,6 +2,7 @@ import * as ko from "knockout";
 
 import { Category } from "./Category";
 import { CategoryData } from "./CategoryData";
+import { Daliuge } from "./Daliuge";
 import { Eagle } from './Eagle';
 import { Errors } from './Errors';
 import { Palette } from "./Palette";
@@ -360,6 +361,8 @@ export class Setting {
     static readonly FETCH_REPOSITORY_FOR_URLS: string = "FetchRepositoryForUrls";
     static readonly KEEP_OLD_FIELDS_DURING_CATEGORY_CHANGE: string = "KeepOldFieldsDuringCategoryChange";
     static readonly MARKDOWN_EDITING_ENABLED: string = "MarkdownEditingEnabled";
+
+    static readonly DALIUGE_SCHEMA_VERSION: string = "DaliugeSchemaVersion";
 }
 
 export namespace Setting {
@@ -388,6 +391,12 @@ export namespace Setting {
         Minimal = "minimal",
         Normal = "normal",
         Expert = "expert"
+    }
+
+    export enum SchemaVersion {
+        Unknown = "Unknown",
+        OJS = "OJS",
+        V4 = "V4" //dict-of-dicts
     }
 }
 
@@ -478,7 +487,8 @@ const settings : SettingsGroup[] = [
             new Setting(true, "Allow modified graph translation", Setting.ALLOW_MODIFIED_GRAPH_TRANSLATION, "Allow users to submit graphs for translation even when not saved or committed", true, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(true, "Apply active graph config before translation", Setting.APPLY_ACTIVE_GRAPH_CONFIG_BEFORE_TRANSLATION, "Apply the active graph config to the graph before sending the graph for translation", false, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(true, "Fetch repository for URLs", Setting.FETCH_REPOSITORY_FOR_URLS, "Automatically fetch the contents of the object's repository when a graph/palette is specified in the URL", true, Setting.Type.Boolean, false, false ,false, false, false),
-            new Setting(true, "Keep Old Fields during Category Change", Setting.KEEP_OLD_FIELDS_DURING_CATEGORY_CHANGE, "When changing the category of an existing node, several fields may become useless and would normally be deleted. Enabling this setting will keep those fields.", false, Setting.Type.Boolean, false, false, false, false, false)
+            new Setting(true, "Keep Old Fields during Category Change", Setting.KEEP_OLD_FIELDS_DURING_CATEGORY_CHANGE, "When changing the category of an existing node, several fields may become useless and would normally be deleted. Enabling this setting will keep those fields.", false, Setting.Type.Boolean, false, false, false, false, false),
+            new Setting(true, "DALiuGE Schema Version", Setting.DALIUGE_SCHEMA_VERSION, "JSON file format for output graphs (used for saving and translation)", true, Setting.Type.Select, Setting.SchemaVersion.OJS, Setting.SchemaVersion.OJS, Setting.SchemaVersion.OJS, Setting.SchemaVersion.OJS, Setting.SchemaVersion.OJS, [Setting.SchemaVersion.OJS, Setting.SchemaVersion.V4])
         ]
     )
 ];

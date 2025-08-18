@@ -80,7 +80,7 @@
 
             <div id="logicalGraphParent" class="rightClick_logicalGraph" data-bind="event: { dragover:SideWindow.nodeDragOver, drop: nodeDropLogicalGraph, mousemove: GraphRenderer.mouseMove, mousedown: function(object, event){GraphRenderer.startDrag(null, event);}, mouseup: function(){GraphRenderer.endDrag(null);}, wheel: GraphRenderer.scrollZoom }, eagleRightClick: {data:$data,type:'rightClick_logicalGraph'},style:{'visibility':eagle.getEagleIsReady()}">
                 <div id="logicalGraph" data-bind="style: {transform: 'scale('+eagle.globalScale()+')translate('+eagle.globalOffsetX()+'px,'+eagle.globalOffsetY()+'px)'}">
-                    <!-- ko if: $root.logicalGraph() !== null && logicalGraph().getNodes().length != 0-->
+                    <!-- ko if: $root.logicalGraph() !== null && logicalGraph().getNumNodes() !== 0-->
                         <!-- ko foreach: $root.logicalGraph().getNodesDrawOrdered() -->
                             {% include 'node.html' %}
                         <!-- /ko -->
@@ -88,7 +88,7 @@
                             <!-- ko foreach: $root.logicalGraph().getAllNodes() -->
                                 <div data-bind="class:$data.getId(), attr:{id:$data.getName()}">
                                     <!-- ko foreach: $data.getInputPorts() -->
-                                        <div class="inputPort port" data-bind="css: {selected: function(){return GraphRenderer.showPort($parent, $data)}(), match:$data.isInputPeek()},eagleTooltip:$data.getHelpHtml(), style:{'background-color':$data.getBackgroundColor(),'left':GraphRenderer.calculatePortPositionX('input',$data,$parent),'top':GraphRenderer.calculatePortPositionY('input',$data,$parent)},graphRendererPortPosition:{n:$parent,f:$data,type:'inputPort'},event:{mousedown:function(){GraphRenderer.portDragStart($data,'input')}, mouseenter:function(){GraphRenderer.mouseEnterPort('input', $data)}, mouseleave:function(){GraphRenderer.mouseLeavePort($data)}}">
+                                        <div class="inputPort port" data-bind="css: {selected: function(){return GraphRenderer.showPort($parent, $data)}(), match:$data.isInputPeek()},eagleTooltip:$data.getHelpHtml(), style:{'background-color':$data.getBackgroundColor(),'left':GraphRenderer.calculateInputPortPositionX($data),'top':GraphRenderer.calculateInputPortPositionY($data)},graphRendererPortPosition:{n:$parent,f:$data,type:'inputPort'},event:{mousedown:function(){GraphRenderer.portDragStart($data,'input')}, mouseenter:function(){GraphRenderer.mouseEnterPort('input', $data)}, mouseleave:function(){GraphRenderer.mouseLeavePort($data)}}">
                                             <!-- ko if: $data.getIsEvent() -->
                                                 <i class="material-symbols-outlined">alarm_on</i> 
                                             <!-- /ko -->
@@ -98,7 +98,7 @@
                                         </div>
                                         <!-- /ko -->
                                     <!-- ko foreach: $data.getOutputPorts() -->
-                                        <div class="outputPort port" data-bind="css: {selected: function(){return GraphRenderer.showPort($parent, $data)}(), match:$data.isOutputPeek()},eagleTooltip:$data.getHelpHtml(), style:{'border-color':$data.getBackgroundColor(),'left':GraphRenderer.calculatePortPositionX('output',$data,$parent),'top':GraphRenderer.calculatePortPositionY('output',$data,$parent)},graphRendererPortPosition:{n:$parent,f:$data,type:'outputPort'},event:{mousedown:function(){GraphRenderer.portDragStart($data,'output')}, mouseenter:function(){GraphRenderer.mouseEnterPort('output',$data)}, mouseleave:function(){GraphRenderer.mouseLeavePort($data)}}">
+                                        <div class="outputPort port" data-bind="css: {selected: function(){return GraphRenderer.showPort($parent, $data)}(), match:$data.isOutputPeek()},eagleTooltip:$data.getHelpHtml(), style:{'border-color':$data.getBackgroundColor(),'left':GraphRenderer.calculateOutputPortPositionX($data),'top':GraphRenderer.calculateOutputPortPositionY($data)},graphRendererPortPosition:{n:$parent,f:$data,type:'outputPort'},event:{mousedown:function(){GraphRenderer.portDragStart($data,'output')}, mouseenter:function(){GraphRenderer.mouseEnterPort('output',$data)}, mouseleave:function(){GraphRenderer.mouseLeavePort($data)}}">
                                             <!-- ko if: $data.getIsEvent() -->
                                                 <i class="material-symbols-outlined">alarm_on</i> 
                                             <!-- /ko -->
@@ -118,7 +118,7 @@
                             <!-- /ko -->
                         </div>
                         <svg  xmlns="https://www.w3.org/2000/svg">
-                            <!-- ko foreach: $root.logicalGraph().getEdges() -->
+                            <!-- ko foreach: Array.from($root.logicalGraph().getEdges()) -->
                                 <g data-bind="attr:{id:$data.getId()}">
                                     <path data-bind="attr:{d: GraphRenderer.getPath($data)},style:{'stroke':GraphRenderer.edgeGetStrokeColor($data), 'stroke-dasharray': GraphRenderer.edgeGetStrokeType($data)}"></path>
                                     <path class="edgeClickTarget" data-bind="attr:{d: GraphRenderer.getPath($data)},click:function(viewModel, event){GraphRenderer.selectEdge(viewModel, event)},eagleRightClick: {data:$data,type:'rightClick_graphEdge'}"></path>
@@ -141,7 +141,7 @@
                     <div id="selectionRectangle"></div>
                 </div>
                 
-                <!-- ko if: logicalGraph === null || logicalGraph() === null || logicalGraph().getNodes().length === 0 -->
+                <!-- ko if: logicalGraph === null || logicalGraph() === null || logicalGraph().getNumNodes() === 0 -->
                     <div id="eagleIconAnimation">
                         <svg>
                             <path id="path1" class="path"

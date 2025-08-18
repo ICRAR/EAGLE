@@ -1,10 +1,10 @@
 import * as ko from "knockout";
 
-import { Daliuge } from "./Daliuge";
 import { Eagle } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { Errors } from './Errors';
 import { Repository } from "./Repository";
+import { Setting } from "./Setting";
 import { Utils } from './Utils';
 
 
@@ -22,7 +22,7 @@ export class FileInfo {
     private _generatorVersion : ko.Observable<string>;
     private _generatorCommitHash : ko.Observable<string>;
     private _generatorName : ko.Observable<string>;
-    private _schemaVersion : ko.Observable<Daliuge.SchemaVersion>;
+    private _schemaVersion : ko.Observable<Setting.SchemaVersion>;
     private _readonly : ko.Observable<boolean>;
     private _builtIn : ko.Observable<boolean>;
 
@@ -51,7 +51,7 @@ export class FileInfo {
         this._generatorVersion = ko.observable("");
         this._generatorCommitHash = ko.observable("");
         this._generatorName = ko.observable("");
-        this._schemaVersion = ko.observable(Daliuge.SchemaVersion.Unknown);
+        this._schemaVersion = ko.observable(Setting.SchemaVersion.Unknown);
         this._readonly = ko.observable(true);
         this._builtIn = ko.observable(false); // NOTE: not written to/read from JSON
 
@@ -163,11 +163,11 @@ export class FileInfo {
         this._generatorName(hash);
     }
 
-    get schemaVersion(): Daliuge.SchemaVersion{
+    get schemaVersion(): Setting.SchemaVersion{
         return this._schemaVersion();
     }
 
-    set schemaVersion(version: Daliuge.SchemaVersion){
+    set schemaVersion(version: Setting.SchemaVersion){
         this._schemaVersion(version);
     }
 
@@ -265,7 +265,7 @@ export class FileInfo {
         this._generatorVersion("");
         this._generatorCommitHash("");
         this._generatorName("");
-        this._schemaVersion(Daliuge.SchemaVersion.Unknown);
+        this._schemaVersion(Setting.SchemaVersion.Unknown);
         this._readonly(true);
         this._builtIn(true);
 
@@ -498,6 +498,35 @@ export class FileInfo {
         };
     }
 
+    static toV4Json(fileInfo : FileInfo) : object {
+        return {
+            // name and path variables are written together into fullPath
+            filePath: fileInfo.fullPath(),
+            fileType: fileInfo.type,
+
+            shortDescription: fileInfo.shortDescription,
+            detailedDescription: fileInfo.detailedDescription,
+
+            repoService: fileInfo.repositoryService,
+            repoBranch: fileInfo.repositoryBranch,
+            repo: fileInfo.repositoryName,
+
+            generatorVersion: fileInfo.generatorVersion,
+            generatorCommitHash: fileInfo.generatorCommitHash,
+            generatorName: fileInfo.generatorName,
+            schemaVersion: fileInfo.schemaVersion,
+            readonly: fileInfo.readonly,
+
+            repositoryUrl: fileInfo.repositoryUrl,
+            commitHash: fileInfo.commitHash,
+            signature: fileInfo.signature,
+
+            lastModifiedName: fileInfo.lastModifiedName,
+            lastModifiedEmail: fileInfo.lastModifiedEmail,
+            lastModifiedDatetime: fileInfo.lastModifiedDatetime,
+        };
+    }
+
     // TODO: use errors array if attributes cannot be found
     static fromOJSJson(modelData : any, errorsWarnings: Errors.ErrorsWarnings) : FileInfo {
         const result : FileInfo = new FileInfo();
@@ -543,6 +572,37 @@ export class FileInfo {
         }
 
         result.numLGNodes = modelData.numLGNodes ?? 0;
+
+        return result;
+    }
+
+    static fromV4Json(modelData: any, errorsWarnings: Errors.ErrorsWarnings): FileInfo{
+        const result: FileInfo = new FileInfo();
+
+        result.path = Utils.getFilePathFromFullPath(modelData.filePath);
+        result.name = Utils.getFileNameFromFullPath(modelData.filePath);
+        result.type = Utils.translateStringToFileType(modelData.fileType);
+
+        result.shortDescription = modelData.shortDescription ?? "";
+        result.detailedDescription = modelData.detailedDescription ?? "";
+
+        result.repositoryService = modelData.repoService ?? Repository.Service.Unknown;
+        result.repositoryBranch = modelData.repoBranch ?? "";
+        result.repositoryName = modelData.repo ?? "";
+
+        result.generatorVersion = modelData.generatorVersion ?? "";
+        result.generatorCommitHash = modelData.generatorCommitHash ?? "";
+        result.generatorName = modelData.generatorName ?? "";
+        result.schemaVersion = modelData.schemaVersion ?? "";
+        result.readonly = modelData.readonly ?? true;
+
+        result.repositoryUrl = modelData.repositoryUrl ?? "";
+        result.commitHash = modelData.commitHash ?? "";
+        result.signature = modelData.signature ?? "";
+
+        result.lastModifiedName = modelData.lastModifiedName ?? "";
+        result.lastModifiedEmail = modelData.lastModifiedEmail ?? "";
+        result.lastModifiedDatetime = modelData.lastModifiedDatetime ?? 0;
 
         return result;
     }

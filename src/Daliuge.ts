@@ -32,7 +32,8 @@ export class Daliuge {
     static readonly TEMPLATE_URL : string = "https://raw.githubusercontent.com/ICRAR/EAGLE-graph-repo/master/daliuge/daliuge-master-template.palette";
 
     // schemas
-    static readonly GRAPH_SCHEMA_URL : string = "https://raw.githubusercontent.com/ICRAR/EAGLE_test_repo/master/tools/lg.graph.schema";
+    static readonly OJS_GRAPH_SCHEMA_URL : string = "https://raw.githubusercontent.com/ICRAR/EAGLE_test_repo/master/tools/lg.graph.schema";
+    static readonly V4_GRAPH_SCHEMA_URL : string = window.location.origin + "/static/lg.graph.v4.schema";
 
     // NOTE: eventually this can be replaced. Once we have added a new category for PythonInitialiser
     static isPythonInitialiser(node: Node): boolean {
@@ -165,11 +166,6 @@ export namespace Daliuge {
         PhysicalGraph = "PhysicalGraph",
         PhysicalGraphTemplate = "PhysicalGraphTemplate",
         Unknown = "Unknown"
-    }
-
-    export enum SchemaVersion {
-        Unknown = "Unknown",
-        OJS = "OJS",
     }
 
     // These are the canonical example definition of each field
