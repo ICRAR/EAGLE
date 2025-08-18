@@ -263,7 +263,7 @@ export class LogicalGraph {
         return result;
     }
 
-    static fromOJSJson(dataObject : any, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph {
+    static fromOJSJson(dataObject : any, file : RepositoryFile | null, errorsWarnings : Errors.ErrorsWarnings | null) : LogicalGraph {
         // create new logical graph object
         const result : LogicalGraph = new LogicalGraph();
         const nodeDataIdToNodeId: Map<string, NodeId> = new Map();

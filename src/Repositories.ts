@@ -34,7 +34,7 @@ export class Repositories {
                 isModified = lg.fileInfo().modified;
                 break;
             case Eagle.FileType.Palette: {
-                const palette: Palette = eagle.findPalette(file.name, false);
+                const palette: Palette | null = eagle.findPalette(file.name, false);
                 isModified = palette !== null && palette.fileInfo().modified;
                 break;
             }

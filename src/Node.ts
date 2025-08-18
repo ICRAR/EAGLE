@@ -772,7 +772,7 @@ export class Node {
         return 'Edit Node Comment: </br>' + Utils.markdown2html(this.comment());
     }, this);
 
-    setInputApplication = (inputApplication : Node) : Node => {
+    setInputApplication = (inputApplication : Node | null) : Node => {
         console.assert(this.isConstruct() || inputApplication === null, "Can't set non-null input application on node that is not a construct");
 
         this.inputApplication(inputApplication);
@@ -792,7 +792,7 @@ export class Node {
         return this.inputApplication() !== null;
     }
 
-    setOutputApplication = (outputApplication : Node) : Node => {
+    setOutputApplication = (outputApplication : Node | null) : Node => {
         console.assert(this.isConstruct() || outputApplication === null, "Can't set non-null output application on node that is not a construct");
 
         this.outputApplication(outputApplication);

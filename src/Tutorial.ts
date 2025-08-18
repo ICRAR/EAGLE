@@ -328,7 +328,7 @@ export class Tutorial {
     }
 
     //a selector press step
-    initiatePressStep = (tutStep: TutorialStep, autoAlternateHighlightTarget: JQuery<HTMLElement>): void => {
+    initiatePressStep = (tutStep: TutorialStep, autoAlternateHighlightTarget: JQuery<HTMLElement> | null): void => {
         const targetFunc = tutStep.getTargetFunc();
         if (targetFunc === null) {
             console.warn('no target function for this tutorial step')
