@@ -302,17 +302,6 @@ color: #00bb00;}
     background-color: #f0f8ff;
 }
 
-#explorePalettesModal #explorePalettesPathContainer{
-    display: block;
-    width: 100%;
-    height: 25px;
-    padding: 0px 15px;
-    margin-top: 50px;
-    background-color: #002349;
-    z-index: 10;
-    color: white;
-}
-
 #inspector{
     background-color: #002349;
     width: 300px;
@@ -513,35 +502,6 @@ color: #00bb00;}
     border:none;
 }
 
-#explorePalettesModal #explorePalettesPathContainer{
-    display: block;
-    width: 100%;
-    height: 25px;
-    padding: 0px 15px;
-    margin-top: 50px;
-    background-color: #002349;
-    z-index: 10;
-    color: white;
-}
-
-#explorePalettesModal .clickableFilePath{
-    cursor: pointer;
-    text-decoration: underline;
-}
-
-#explorePalettesModal .list-group{
-    border: 2px solid #e4ebf2;
-}
-
-#explorePalettesModal .list-group-item:hover{
-    color: black;
-    background-color: #f1f1f1;
-}
-
-#explorePalettesModal input{
-    pointer-events: none;
-}
-
 .openParamsTableBtn{
     width: fit-content;
     height: fit-content;
@@ -550,10 +510,6 @@ color: #00bb00;}
     padding: 3px 4px;
     right: 1rem;
     top: 2px;
-}
-
-#explorePalettesModal li.list-group-item:hover{
-    background-color: #b6c3cf;
 }
 
 #editFieldModalTypeSelect{
@@ -570,10 +526,6 @@ color: #00bb00;}
 #editFieldModalTypeSelect .dropdown-item:hover{
     background: #002e5f;
     color: white;
-}
-
-#explorePalettesModal li.list-group-item span{
-    pointer-events: none;
 }
 
 #editFieldModal .defaultSelectCustom{
@@ -1154,11 +1106,6 @@ select.form-control{
 
 #inputCodeModal .modal-body, #inputCodeModal .container{
     padding:0px;
-}
-
-#explorePalettesModal .modal-body{
-    height: calc(100% - 126px) !important ;
-    top: 75px;
 }
 
 .modal-footer{
