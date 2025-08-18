@@ -2666,17 +2666,16 @@ ul.nav.navbar-nav .dropdown-item:hover,ul.nav.navbar-nav .dropdown-item:focus{
 
 .leftWindow .paletteHeader .col-2{
     padding-left: 2px;
-    padding-top: 1px;
     text-align: right;
 }
 
 .leftWindow .paletteHeader .paletteMenuIcons button{
     border: none;
-    border-radius: 50%;
-    height: auto;
+    border-radius: 5px;
+    height: 100%;
+    width: 100%;
     color: #002349;
     background-color: #cbd2e8;
-    aspect-ratio: 1 / 1;
 }
 
 .leftWindow .paletteHeader .paletteMenuIcons i{
