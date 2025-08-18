@@ -1241,7 +1241,7 @@ select.form-control{
 }
 
 #paletteList{
-    height: calc(100% - 41px);
+    height: calc(100% - 45px);
     overflow-y: scroll;
 }
 
@@ -1352,7 +1352,7 @@ select.form-control{
 }
 
 #paletteList .accordion-body{
-    padding: 0.6rem 1rem;
+    padding: 0.5rem;
 }
 
 #paletteList .accordion-item h5{
