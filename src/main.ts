@@ -228,12 +228,14 @@ $(function(){
         }
     })
 
+    // TODO: move to Hierarchy.ts?
     $(document).on('click', '.hierarchyEdgeExtra', function(event: JQuery.TriggeredEvent){
         const eagle: Eagle = Eagle.getInstance();
-        const selectEdge = eagle.logicalGraph().findEdgeById(($(event.target).attr("id") as EdgeId))
+        const edgeId: EdgeId = $(event.target).attr("id") as EdgeId;
+        const selectEdge = eagle.logicalGraph().getEdgeById(edgeId);
 
-        if(!selectEdge){
-            console.log("no edge found")
+        if(typeof selectEdge === 'undefined'){
+            console.log("no edge found with id:", edgeId);
             return
         }
         if(!event.shiftKey){
@@ -312,8 +314,8 @@ async function autoLoad() {
     const serviceIsGit: boolean = [Repository.Service.GitHub, Repository.Service.GitLab].includes(realService);
 
     // skip empty strings
-    if (serviceIsGit && (repository === "" || branch === "" || filename === "")){
-        console.log("No auto load. Repository, branch or filename not specified");
+    if (serviceIsGit && (repository === "" || branch === "")){
+        console.log("No auto load. Repository or branch not specified");
         return;
     }
 
@@ -323,11 +325,25 @@ async function autoLoad() {
         return;
     }
 
-    // load
+    // decide what to do based on the url
     if (realService === Repository.Service.Url){
         Repositories.selectFile(new RepositoryFile(new Repository(realService, "", "", false), "", url));
     } else {
-        Repositories.selectFile(new RepositoryFile(new Repository(realService, repository, branch, false), path, filename));
+        if (filename === ""){
+            // check if repository already exists
+            const existingRepo = Repositories.get(realService, repository, branch);
+            if (existingRepo !== null) {
+                Utils.showNotification("Add Repository", "Repository already exists!", "info");
+                return;
+            }
+
+            // add repository to repository list
+            await eagle.repositories()._addCustomRepository(realService, repository, branch);
+            Utils.showNotification("Add Repository", "Repository added successfully!", "success");
+        } else {
+            // load file
+            Repositories.selectFile(new RepositoryFile(new Repository(realService, repository, branch, false), path, filename));
+        }
     }
 
     // if developer setting enabled, fetch the repository that this graph belongs to (if the repository is in the list of known repositories)
@@ -395,4 +411,5 @@ declare global {
     type EdgeId = Branded<string, "EdgeId">
     type RepositoryId = Branded<string, "RepositoryId">
     type RepositoryFileId = Branded<string, "RepositoryFileId">
+    type GraphConfigId = Branded<string, "GraphConfigId">
 }

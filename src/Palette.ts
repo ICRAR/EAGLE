@@ -25,7 +25,6 @@
 import * as ko from "knockout";
 
 import { Category } from './Category';
-import { CategoryData } from './CategoryData';
 import { Eagle } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { Errors } from './Errors';
@@ -39,7 +38,7 @@ import { UiModeSystem } from "./UiModes";
 
 export class Palette {
     fileInfo : ko.Observable<FileInfo>;
-    private nodes : ko.ObservableArray<Node>;
+    private nodes : ko.Observable<Map<NodeId, Node>>;
     private searchExclude : ko.Observable<boolean>;
     expanded: ko.Observable<boolean>;
 
@@ -51,12 +50,12 @@ export class Palette {
         this.fileInfo().type = Eagle.FileType.Palette;
         this.fileInfo().readonly = false;
         this.fileInfo().builtIn = false;
-        this.nodes = ko.observableArray([]);
+        this.nodes = ko.observable(new Map<NodeId, Node>());
         this.searchExclude = ko.observable(false);
         this.expanded = ko.observable(false);
     }
 
-    static fromOJSJson(data : string, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : Palette {
+    static fromOJSJson(data: string, file: RepositoryFile, errorsWarnings: Errors.ErrorsWarnings) : Palette {
         // parse the JSON first
         const dataObject : any = JSON.parse(data);
         const result : Palette = new Palette();
@@ -72,11 +71,11 @@ export class Palette {
             const newNode : Node = Node.fromOJSJson(nodeData, errorsWarnings, true);
 
             // check that node has no group
-            if (newNode.getParentId() !== null){
-                const error : string = file.name + " Node " + i + " has parentKey: " + newNode.getParentId() + ". Setting parentKey to null.";
+            if (newNode.getParent() !== null){
+                const error : string = file.name + " Node " + i + " has parent: " + newNode.getParent().getName() + ". Setting parentKey to null.";
                 errorsWarnings.warnings.push(Errors.Message(error));
 
-                newNode.setParentId(null);
+                newNode.setParent(null);
             }
 
             // check that x, y, position is the default
@@ -88,7 +87,60 @@ export class Palette {
             }
 
             // add node to palette
-            result.nodes.push(newNode);
+            result.nodes().set(newNode.getId(), newNode);
+            result.nodes.valueHasMutated();
+        }
+
+        // check for missing name
+        if (result.fileInfo().name === ""){
+            const error : string = file.name + " FileInfo.name is empty. Setting name to " + file.name;
+            errorsWarnings.warnings.push(Errors.Message(error));
+
+            result.fileInfo().name = file.name;
+        }
+
+        // check palette, and then add any resulting errors/warnings to the end of the errors/warnings list
+        const checkResult = Utils.checkPalette(result);
+        errorsWarnings.errors.push(...checkResult.errors);
+        errorsWarnings.warnings.push(...checkResult.warnings);
+
+        return result;
+    }
+
+    static fromV4Json(data: string, file: RepositoryFile, errorsWarnings: Errors.ErrorsWarnings): Palette {
+        // parse the JSON first
+        const dataObject : any = JSON.parse(data);
+        const result : Palette = new Palette();
+
+        // copy modelData into fileInfo
+        result.fileInfo(FileInfo.fromV4Json(dataObject.modelData, errorsWarnings));
+
+        // add nodes
+        for (let i = 0 ; i < dataObject.nodeDataArray.length ; i++){
+            const nodeData = dataObject.nodeDataArray[i];
+
+            // read node
+            const newNode : Node = Node.fromV4Json(nodeData, errorsWarnings, true);
+
+            // check that node has no group
+            if (newNode.getParent() !== null){
+                const error : string = file.name + " Node " + i + " has parent: " + newNode.getParent().getName() + ". Setting parentKey to null.";
+                errorsWarnings.warnings.push(Errors.Message(error));
+
+                newNode.setParent(null);
+            }
+
+            // check that x, y, position is the default
+            if (newNode.getPosition().x !== 0 || newNode.getPosition().y !== 0){
+                const error : string = file.name + " Node " + i + " has non-default position: (" + newNode.getPosition().x + "," + newNode.getPosition().y + "). Setting to default.";
+                errorsWarnings.warnings.push(Errors.Message(error));
+
+                newNode.setPosition(0, 0);
+            }
+
+            // add node to palette
+            result.nodes().set(newNode.getId(), newNode);
+            result.nodes.valueHasMutated();
         }
 
         // check for missing name
@@ -111,11 +163,11 @@ export class Palette {
         const result : any = {};
 
         result.modelData = FileInfo.toOJSJson(palette.fileInfo());
-        result.modelData.numLGNodes = palette.getNodes().length;
+        result.modelData.numLGNodes = palette.nodes().size;
 
         // add nodes
         result.nodeDataArray = [];
-        for (const node of palette.nodes()){
+        for (const node of palette.nodes().values()){
             result.nodeDataArray.push(Node.toOJSPaletteJson(node));
         }
 
@@ -125,10 +177,48 @@ export class Palette {
         return result;
     }
 
-    static toOJSJsonString(palette: Palette) : string {
+    static toV4Json(palette: Palette) : object {
+        const result : any = {};
+
+        result.modelData = FileInfo.toV4Json(palette.fileInfo());
+        result.modelData.schemaVersion = Setting.SchemaVersion.V4;
+
+        // add nodes
+        result.nodes = {};
+        for (const [id, node] of palette.nodes()){
+            const nodeData : any = Node.toV4GraphJson(node);
+            result.nodes[id] = nodeData;
+
+            // add input and output applications to the top-level nodes dict
+            if (node.hasInputApplication()){
+                const inputApp = node.getInputApplication();
+                result.nodes[inputApp.getId()] = Node.toV4GraphJson(inputApp);
+            }
+
+            if (node.hasOutputApplication()){
+                const outputApp = node.getOutputApplication();
+                result.nodes[outputApp.getId()] = Node.toV4GraphJson(outputApp);
+            }
+        }
+
+        return result;
+    }
+
+    static toJsonString(palette: Palette, version: Setting.SchemaVersion) : string {
         let result: string = "";
 
-        const json: any = Palette.toOJSJson(palette);
+        let json: any;
+        switch(version){
+            case Setting.SchemaVersion.OJS:
+                json = Palette.toOJSJson(palette);
+                break;
+            case Setting.SchemaVersion.V4:
+                json = Palette.toV4Json(palette);
+                break;
+            default:
+                console.error("Unsupported graph format! (" + version + ")");
+                return "";
+        }
 
         // manually build the JSON so that we can enforce ordering of attributes (modelData first)
         result += "{\n";
@@ -140,8 +230,20 @@ export class Palette {
         return result;
     }
 
-    getNodes = () : Node[] => {
-        return this.nodes();
+    getNodes = () : MapIterator<Node> => {
+        return this.nodes().values();
+    }
+
+    getNumNodes = () : number => {
+        return this.nodes().size;
+    }
+
+    hasNode = (id: NodeId): boolean => {
+        return this.nodes().has(id);
+    }
+
+    getNodeById = (id: NodeId): Node | undefined => {
+        return this.nodes().get(id);
     }
 
     getSearchExclude = () : boolean => {
@@ -160,7 +262,8 @@ export class Palette {
     clear = () : void => {
         this.fileInfo().clear();
         this.fileInfo().type = Eagle.FileType.Palette;
-        this.nodes([]);
+        this.nodes().clear();
+        this.nodes.valueHasMutated();
     }
 
     clone = () : Palette => {
@@ -168,9 +271,10 @@ export class Palette {
 
         result.fileInfo(this.fileInfo().clone());
 
-        for (const node of this.nodes()){
-            result.nodes.push(node.clone());
+        for (const [id, node] of this.nodes()){
+            result.nodes().set(id, node.clone());
         }
+        result.nodes.valueHasMutated();
 
         return result;
     }
@@ -179,52 +283,45 @@ export class Palette {
     // NOTE: clones the node internally
     addNode = (node: Node, force: boolean) : void => {
         // copy node
-        const newNode : Node = node.clone();
-
-        // set appropriate key for node (one that is not already in use)
-        newNode.setId(Utils.generateNodeId());
+        const newNode : Node = node
+            .clone()
+            .setId(Utils.generateNodeId());
 
         if (force){
-            this.nodes.push(newNode);
+            this.nodes().set(newNode.getId(), newNode);
+            this.nodes.valueHasMutated();
             return;
         }
 
         // try to find a matching node that already exists in the palette
         // TODO: at the moment, we only match by name and category, but we should match by ID (once the ID is unique)
-        for (let i = 0 ; i < this.getNodes().length; i++){
-            const paletteNode = this.getNodes()[i];
-
+        for (const paletteNode of this.nodes().values()){
             if (paletteNode.getName() === newNode.getName() && paletteNode.getCategory() === newNode.getCategory()){
-                this.replaceNode(i, newNode);
+                this.nodes().delete(paletteNode.getId());
+                this.nodes().set(newNode.getId(), newNode);
+                this.nodes.valueHasMutated();
                 return;
             }
         }
 
         // if we didn't find a matching node to replace, add it as a new node
-        this.nodes.push(newNode);
+        this.nodes().set(newNode.getId(), newNode);
+        this.nodes.valueHasMutated();
     }
 
     findNodeById = (id: NodeId) : Node => {
-        for (let i = this.nodes().length - 1; i >= 0 ; i--){
-            if (this.nodes()[i].getId() === id){
-                return this.nodes()[i];
-            }
-        }
-        return null;
+        return this.nodes().get(id);
     }
 
     removeNodeById = (id: NodeId) : void => {
-        for (let i = this.nodes().length - 1; i >= 0 ; i--){
-            if (this.nodes()[i].getId() === id){
-                this.nodes.splice(i, 1);
-            }
-        }
+        this.nodes().delete(id);
+        this.nodes.valueHasMutated();
     }
 
     findNodeByNameAndCategory = (nameAndCategory: Category) : Node => {
-        for (let i = this.nodes().length - 1; i >= 0 ; i--){
-            if (this.nodes()[i].getName() === nameAndCategory && this.nodes()[i].getCategory() === nameAndCategory){
-                return this.nodes()[i];
+        for (const node of this.nodes().values()){
+            if (node.getName() === nameAndCategory && node.getCategory() === nameAndCategory){
+                return node;
             }
         }
         return null;
@@ -233,37 +330,56 @@ export class Palette {
     getNodesByCategoryType = (categoryType: Category.Type) : Node[] => {
         const result : Node[] = []
 
-        for (let i = this.nodes().length - 1; i >= 0 ; i--){
-            if (this.nodes()[i].getCategoryType() === categoryType){
-                result.push(this.nodes()[i])
+        for (const node of this.nodes().values()){
+            if (node.getCategoryType() === categoryType){
+                result.push(node);
             }
         }
 
         return result;
     }
 
-    replaceNode = (index : number, newNode : Node) : void => {
-        this.nodes.splice(index, 1, newNode);
-    }
+    removeNode = (node: Node) : void => {
+        const id = node.getId();
 
-    sort = () : void => {
-
-        const sortFunc = function(a:Node, b:Node) : number {
-            const aCData : Category.CategoryData = CategoryData.getCategoryData(a.getCategory());
-            const bCData : Category.CategoryData = CategoryData.getCategoryData(b.getCategory());
-
-            if (aCData.sortOrder < bCData.sortOrder) {
-                return -1;
-            }
-            if (aCData.sortOrder > bCData.sortOrder) {
-                return 1;
+        // search through nodes in palette, looking for one with the correct key
+        for (const node of this.nodes().values()){
+            if (typeof node === 'undefined'){
+                continue;
             }
 
-            // a must be equal to b
-            return a.getName() > b.getName() ? 1 : -1;
+            if (node.getId() === id){
+                this.nodes().delete(id);
+                this.nodes.valueHasMutated();
+                break;
+            }
+
+            // delete the input application
+            if (node.hasInputApplication() && node.getInputApplication().getId() === id){
+                this.nodes().delete(node.getInputApplication().getId());
+                this.nodes.valueHasMutated();
+                node.setInputApplication(null);
+                break;
+            }
+
+            // delete the output application
+            if (node.hasOutputApplication() && node.getOutputApplication().getId() === id){
+                this.nodes().delete(node.getOutputApplication().getId());
+                this.nodes.valueHasMutated();
+                node.setOutputApplication(null);
+                break;
+            }
         }
 
-        this.nodes.sort(sortFunc);
+        // remove inputApplication and outputApplication from the nodes map
+        if (node.hasInputApplication()){
+            this.nodes().delete(node.getInputApplication().getId());
+            this.nodes.valueHasMutated();
+        }
+        if (node.hasOutputApplication()){
+            this.nodes().delete(node.getOutputApplication().getId());
+            this.nodes.valueHasMutated();
+        }
     }
 
     copyUrl = (): void => {

@@ -1,29 +1,5 @@
-<div class="card">
-    <div class="card-body">
-        <span id="explorePalettesWrapper">
-            <button class="btn btn-primary btn-block btn_wide" id="explorePalettesButton" data-bind="click: showExplorePalettes, eagleTooltip: 'Retrieve information on all palettes in ' + Setting.findValue(Setting.EXPLORE_PALETTES_REPOSITORY)" data-bs-placement="bottom">Explore Palettes</button>
-        </span>
-        <span id="paletteWindowdropdownWrapper" class="dropdown">
-            <a class="dropdown-toggle dropdown-control material-symbols-outlined iconHoverEffect" href="#" id="paletteWindowdropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                more_vert
-            </a>
-            <div class="dropdown-menu dropdown-menu-right dropdown-area" aria-labelledby="paletteWindowdropdown">
-                <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
-                <span class="dropdown-item dropDropDownParent" href="#">New<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
-                    <div class="dropDropDown">
-                        <a class="dropdown-item" id="createNewPalette" href="#" data-bind="click: newPalette">Create New Palette
-                            <span data-bind="text: KeyboardShortcut.idToKeysText('new_palette', true)"></span>
-                        </a>
-                        <a class="dropdown-item" id="createNewPalette" href="#" data-bind="click: newPaletteFromJson">Create New Palette From Json</a>
-                    </div>
-                </span>
-                <!-- /ko -->
-                <a class="dropdown-item" id="loadPalette" href="#" data-bind="click: getPaletteFileToLoad">Load Local Palette
-                    <span data-bind="text: KeyboardShortcut.idToKeysText('open_palette_from_local_disk', true)"></span>
-                </a>
-                <a class="dropdown-item" id="toggleAllPalettes" href="#" data-bind="click: toggleAllPalettes">Toggle All Palettes</a>
-            </div>
-        </span>
+<div class="row paletteHeader">
+    <div class="col-10">
         <div class="searchBarContainer">
             <i class="material-symbols-outlined md-18 searchBarIcon">search</i>
             <a href="#" data-bind="click:function(data, event){$root.emptySearchBar(Eagle.paletteComponentSearchString,data,event)}">
@@ -32,6 +8,11 @@
             <input class="componentSearchBar" type="text" placeholder="Search" data-bind="valueUpdate: ['afterkeydown', 'input'], value:Eagle.paletteComponentSearchString, eagleTooltip: 'Search for components in all palettes', event:{keyup: function(data,event){$root.setSearchBarClearBtnState(data,event)}}"></input>
         </div>
     </div>
+    <div class="col-2 paletteMenuIcons">
+        <button id="toggleAllPalettes" class='iconHoverEffect' data-bind="click: toggleAllPalettes, eagleTooltip: 'Collapse/Expand All Palettes'">
+            <i class="material-symbols-outlined">collapse_all</i>
+        </button>
+    </div>
 </div>
 <div id="paletteList">
     <div class="accordion">
@@ -39,7 +20,6 @@
             <div class="paletteCardWrapper">
                 <button type="button" class="material-symbols-outlined md-18 dropdown-toggle dropdown-control paletteTripleDot iconHoverEffect" data-bs-toggle="dropdown" >more_vert</button>
                 <div class="dropdown-menu dropdown-area">
-                    <a href="#" data-bind="click: $root.sortPalette" data-html="true"><span>Sort</span></a>
                     <a href="#" data-bind="click: $root.selectAllInPalette" data-html="true"><span>Select All</span></a>
                     <!-- ko ifnot: $data.fileInfo().builtIn -->
                     <a href="#" data-bind="click: $root.closePalette" data-html="true"><span>Remove</span></a>

@@ -97,7 +97,6 @@ export class GraphUpdater {
     // Takes a graph that is using keys and updates it to use ids only
     // - edges .from and .to attributes refer to keys, so we change to ids
     static updateKeysToIds(graphObject: any): void {
-        console.log("GraphUpdater.updateKeysToIds()");
         const keyToId: Map<number, string> = new Map<number, string>();
 
         // build keyToId map from nodes

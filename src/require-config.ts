@@ -47,8 +47,6 @@ require.config({
         "KeyboardShortcut": "./static/built/KeyboardShortcut",
         "StatusEntry": "./static/built/StatusEntry",
         "QuickActions": "./static/built/QuickActions",
-        "PaletteInfo": "./static/built/PaletteInfo",
-        "ExplorePalettes": "./static/built/ExplorePalettes",
         "DockerHubBrowser": "./static/built/DockerHubBrowser",
         "Undo": "./static/built/Undo",
         "Errors": "./static/built/Errors",

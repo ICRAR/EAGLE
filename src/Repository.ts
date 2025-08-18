@@ -117,10 +117,19 @@ export class Repository {
     // expand all the directories along a given path
     expandPath = async (path: string) : Promise<void> => {
         return new Promise(async(resolve, reject) => {
+            if (path === ""){
+                resolve();
+                return;
+            }
+
             let pointer: Repository | RepositoryFolder = this;
             const pathParts: string[] = path.split('/');
 
             for (const pathPart of pathParts){
+                if (pathPart === ""){
+                    break;
+                }
+
                 let foundPathPart = false;
 
                 for (const folder of pointer.folders()){

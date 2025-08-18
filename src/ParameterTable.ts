@@ -133,26 +133,28 @@ export class ParameterTable {
                 const config: GraphConfig = lg.getActiveGraphConfig();
                 const displayedFields: Field[] = [];
 
+                console.log("ParameterTable.getTableFields(): Displaying fields for config:", config ? config.getName() : "<No Config>");
+
                 if (!config){
                     return [];
                 }
 
-                for (const node of config.getNodes()){
-                    for (const field of node.getFields()){
-                        const lgNode = lg.findNodeByIdQuiet(node.getId());
+                for (const graphConfigNode of config.getNodes()){
+                    for (const graphConfigField of graphConfigNode.getFields()){
+                        const lgNode = lg.getNodeById(graphConfigNode.getNode().getId());
 
-                        if (lgNode === null){
-                            const dummyField: Field = new Field(field.getId(), "<Missing Node:" + node.getId() +">", field.getValue(), "?", field.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
-                            dummyField.setNodeId(node.getId());
+                        if (typeof lgNode === 'undefined'){
+                            const dummyField: Field = new Field(graphConfigField.getField().getId(), "<Missing Node:" + graphConfigNode.getNode().getId() +">", graphConfigField.getValue(), "?", graphConfigField.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
+                            dummyField.setNode(lgNode);
                             displayedFields.push(dummyField);
                             continue;
                         }
 
-                        const lgField = lgNode.findFieldById(field.getId());
+                        const lgField = lgNode.getFieldById(graphConfigField.getField().getId());
         
-                        if (lgField === null){
-                            const dummyField: Field = new Field(field.getId(), "<Missing Field: " + field.getId() + ">", field.getValue(), "?", field.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
-                            dummyField.setNodeId(node.getId());
+                        if (typeof lgField === 'undefined'){
+                            const dummyField: Field = new Field(graphConfigField.getField().getId(), "<Missing Field: " + graphConfigField.getField().getId() + ">", graphConfigField.getValue(), "?", graphConfigField.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
+                            dummyField.setNode(lgNode);
                             displayedFields.push(dummyField);
                             continue;
                         }
@@ -260,7 +262,7 @@ export class ParameterTable {
         // this handles a special case where EAGLE is displaying the "Graph Configuration Attributes Table"
         // all the field names shown in that table should be locked (readonly)
         if (Setting.find(Setting.BOTTOM_WINDOW_MODE).value() === Eagle.BottomWindowMode.ConfigParameterTable){
-            return eagle.logicalGraph().findNodeByIdQuiet(field?.getNodeId()).isLocked()
+            return field.getNode().isLocked()
         }
 
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
@@ -269,10 +271,10 @@ export class ParameterTable {
             }
             return eagle.selectedNode().isLocked()
         }else{
-            if(eagle.logicalGraph().findNodeByIdQuiet(field.getNodeId()) === null){
+            if(field.getNode() === null){
                 return false
             }
-            return eagle.logicalGraph().findNodeByIdQuiet(field.getNodeId()).isLocked()
+            return field.getNode().isLocked()
         }
     }
 
@@ -291,13 +293,13 @@ export class ParameterTable {
 
         for (const edge of eagle.logicalGraph().getEdges()){
             // check edges whose source is this field
-            if (edge.getSrcPortId() === field.getId() && !field.isOutputPort()){
+            if (edge.getSrcPort().getId() === field.getId() && !field.isOutputPort()){
                 // remove edge
                 edgesToRemove.push(edge.getId());
             }
 
             // check edges whose destination is this field
-            if (edge.getDestPortId() === field.getId() && !field.isInputPort()){
+            if (edge.getDestPort().getId() === field.getId() && !field.isInputPort()){
                 // remove edge
                 edgesToRemove.push(edge.getId());
             }
@@ -305,7 +307,6 @@ export class ParameterTable {
 
         // remove edges
         for (const edgeId of edgesToRemove){
-            console.log("remove edge", edgeId);
             eagle.logicalGraph().removeEdgeById(edgeId);
         }
 
@@ -416,7 +417,7 @@ export class ParameterTable {
 
         if (graphConfig){
             if (add){
-                graphConfig.addValue(currentField.getNodeId(), currentField.getId(), currentField.getValue())
+                graphConfig.addValue(currentField.getNode(), currentField, currentField.getValue())
             } else {
                 graphConfig.removeField(currentField);
             }
@@ -443,7 +444,7 @@ export class ParameterTable {
 
             // add/remove the field that was requested in the first place
             if (add){
-                graphConfig.addValue(currentField.getNodeId(), currentField.getId(), currentField.getValue())
+                graphConfig.addValue(currentField.getNode(), currentField, currentField.getValue())
             } else {
                 graphConfig.removeField(currentField);
             }
@@ -537,8 +538,8 @@ export class ParameterTable {
 
     static async requestEditCommentInModal(currentField:Field): Promise<void> {
         const eagle: Eagle = Eagle.getInstance();
-        const currentNode: Node = eagle.logicalGraph().findNodeByIdQuiet(currentField.getNodeId());
-        const configField: GraphConfigField = eagle.logicalGraph().getActiveGraphConfig().findNodeById(currentNode.getId()).findFieldById(currentField.getId());
+        const currentNode: Node = currentField.getNode();
+        const configField: GraphConfigField = eagle.logicalGraph().getActiveGraphConfig().getNodeById(currentNode.getId()).getFieldById(currentField.getId());
 
         let fieldComment: string;
         try {
@@ -674,19 +675,10 @@ export class ParameterTable {
     }
 
     static addEmptyTableRow = () : void => {
-        let fieldIndex:number
         const selectedNode: Node = Eagle.getInstance().selectedNode();
+        selectedNode.addEmptyField();
 
-        if(ParameterTable.hasSelection()){
-            // A cell in the table is selected well insert new row instead of adding at the end
-            fieldIndex = ParameterTable.selectionParentIndex() + 1
-            selectedNode.addEmptyField(fieldIndex)
-        }else{
-            selectedNode.addEmptyField(-1)
-
-            //getting the length of the array to use as an index to select the last row in the table
-            fieldIndex = selectedNode.getFields().length-1;
-        }
+        const fieldIndex = selectedNode.getNumFields()-1;
 
         //update the parameter table fields array
         ParameterTable.copySelectedNodeFields()
@@ -707,21 +699,20 @@ export class ParameterTable {
         }, 100);
     }
 
-    static duplicateParameter = (index:number,fieldId:string) : void => {
-        let fieldIndex:number //variable holds the index of which row to highlight after creation
-        const eagle = Eagle.getInstance()
+    static duplicateParameter = (field: Field) : void => {
+        const node = field.getNode();
 
-        const copiedField = eagle.selectedNode().findFieldById(fieldId).clone().setId(Utils.generateFieldId());
-        copiedField.setDisplayText(copiedField.getDisplayText()+' copy');
-        if(ParameterTable.hasSelection()){
-            //if a cell in the table is selected in this case the new node will be placed below the currently selected node
-            fieldIndex = ParameterTable.selectionParentIndex() + 1
-            eagle.selectedNode().addFieldByIndex(copiedField,fieldIndex)
-        }else{
-            //if no cell in the table is selected, in this case the new node is appended at the bottom
-            eagle.selectedNode().addField(copiedField)
-            fieldIndex = eagle.selectedNode().getFields().length -1
-        }
+        const newFieldText = field.getDisplayText()+' copy';
+
+        const copiedField = field
+            .clone()
+            .setId(Utils.generateFieldId())
+            .setDisplayText(newFieldText);
+
+        // the new node is appended at the bottom
+        node.addField(copiedField)
+
+        const fieldIndex = node.getNumFields() - 1;
 
         setTimeout(function() {
             //handling selecting and highlighting the newly created field on the node
@@ -736,10 +727,10 @@ export class ParameterTable {
         }, 100);
     }
 
-    static duplicateTableRow = (index:number, fieldId:string) : void => {
+    static duplicateTableRow = (field: Field) : void => {
         const eagle = Eagle.getInstance()
 
-        ParameterTable.duplicateParameter(index, fieldId)
+        ParameterTable.duplicateParameter(field)
         // eagle.selectedObjects.valueHasMutated()
         eagle.flagActiveFileModified()
 
@@ -747,7 +738,7 @@ export class ParameterTable {
         ParameterTable.updateContent(eagle.selectedNode())
     }
 
-    static deleteTableRow = (field:Field) : void => {
+    static deleteTableRow = (field: Field) : void => {
         const eagle = Eagle.getInstance()
 
         eagle.logicalGraph().removeFieldFromNodeById(eagle.selectedNode(),field.getId())
@@ -823,11 +814,12 @@ export class ParameterTable {
         //this is doing essantially the same as eagle.selectedNode() but for some reason selected node would still return the previously selected node, not the newly selected one
         const selectedNode = eagle.selectedObjects()[0]
 
-        if( eagle.selectedObjects().length === 1 && selectedNode instanceof Node){
+        if(eagle.selectedObjects().length === 1 && selectedNode instanceof Node){
             const fields = selectedNode.getFields()
 
+            // TODO: do we need to check that fields exists, shouldn't it always exist?
             if(fields){
-                ParameterTable.copyFields(fields)
+                ParameterTable.copyFields(Array.from(fields)) 
             }
         }
     }
@@ -836,7 +828,7 @@ export class ParameterTable {
         if (node === null){
             ParameterTable.copyFields([]);
         } else {
-            ParameterTable.copyFields(node.getFields());
+            ParameterTable.copyFields(Array.from(node.getFields()));
             ParameterTable.sortFields();
         }
     }

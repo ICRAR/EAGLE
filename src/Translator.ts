@@ -24,8 +24,8 @@
 
 import * as ko from "knockout";
 
-import { Daliuge } from "./Daliuge";
 import { Eagle } from './Eagle';
+import { Errors } from './Errors';
 import { GraphConfig } from "./GraphConfig";
 import { LogicalGraph } from './LogicalGraph';
 import { Setting } from './Setting';
@@ -116,7 +116,7 @@ export class Translator {
      * @param testingMode
      * @param format
      */
-     genPGT = async (algorithmName : string, testingMode: boolean, format: Daliuge.SchemaVersion) : Promise<void> => {
+     genPGT = async (algorithmName : string, testingMode: boolean) : Promise<void> => {
         const eagle: Eagle = Eagle.getInstance();
 
         // check if the graph has at least one node
@@ -153,15 +153,14 @@ export class Translator {
         const translatorURL : string = Setting.findValue(Setting.TRANSLATOR_URL);
         console.log("Eagle.getPGT() : ", "algorithm name:", algorithmName, "translator URL", translatorURL);
 
-        // NOTE: we always set the schema version to OJS here, we used to have multiple versions
-        this._genPGT(eagle, translatorURL, algorithmName, testingMode, Daliuge.SchemaVersion.OJS);
+        this._genPGT(eagle, translatorURL, algorithmName, testingMode);
     }
 
     private _checkGraphModified = (eagle: Eagle): boolean => {
         return eagle.logicalGraph().fileInfo().modified && !Setting.findValue(Setting.ALLOW_MODIFIED_GRAPH_TRANSLATION);
     }
 
-    private _genPGT = (eagle: Eagle, translatorURL: string, algorithmName : string, testingMode: boolean, format: Daliuge.SchemaVersion) : void => {
+    private _genPGT = (eagle: Eagle, translatorURL: string, algorithmName : string, testingMode: boolean) : void => {
         // clone the logical graph
         const lgClone: LogicalGraph = eagle.logicalGraph().clone();
 
@@ -169,25 +168,33 @@ export class Translator {
         if (Setting.findValue(Setting.APPLY_ACTIVE_GRAPH_CONFIG_BEFORE_TRANSLATION)){
             const activeConfig: GraphConfig = eagle.logicalGraph().getActiveGraphConfig();
 
+            // create a errors object to collect any errors
+            const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+
             // if there is a GraphConfig, apply GraphConfig to logicalGraph
             if (activeConfig !== null){
-                GraphConfig.apply(lgClone, activeConfig);
+                GraphConfig.apply(lgClone, activeConfig, errorsWarnings);
+            }
+
+            // display any errors or warnings
+            if (errorsWarnings.errors.length > 0){
+                Utils.showNotification("GraphConfig Errors", "Errors occurred while applying GraphConfig to logical graph. Please check the console for details.", "danger");
+                console.error("GraphConfig.apply() errors:", errorsWarnings.errors);
+            }
+            if (errorsWarnings.warnings.length > 0){
+                Utils.showNotification("GraphConfig Warnings", "Warnings occurred while applying GraphConfig to logical graph. Please check the console for details.", "warning");
+                console.warn("GraphConfig.apply() warnings:", errorsWarnings.warnings);
             }
         }
 
-        // get json for logical graph
-        let jsonString: string;
-        switch (format){
-            case Daliuge.SchemaVersion.OJS:
-                jsonString = LogicalGraph.toOJSJsonString(lgClone, true);
-                break;
-            default:
-                console.error("Unsupported graph format for translator!");
-                return;
-        }
+        // get the version of JSON we are using
+        const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
+
+        // convert to JSON
+        const jsonString: string = LogicalGraph.toJsonString(lgClone, true, version);
 
         // validate json
-        Utils.validateJSON(jsonString, Eagle.FileType.Graph);
+        Utils.validateJSON(jsonString, Eagle.FileType.Graph, version);
 
         const translatorData = {
             algo: algorithmName,

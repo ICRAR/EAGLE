@@ -302,17 +302,6 @@ color: #00bb00;}
     background-color: #f0f8ff;
 }
 
-#explorePalettesModal #explorePalettesPathContainer{
-    display: block;
-    width: 100%;
-    height: 25px;
-    padding: 0px 15px;
-    margin-top: 50px;
-    background-color: #002349;
-    z-index: 10;
-    color: white;
-}
-
 #inspector{
     background-color: #002349;
     width: 300px;
@@ -513,35 +502,6 @@ color: #00bb00;}
     border:none;
 }
 
-#explorePalettesModal #explorePalettesPathContainer{
-    display: block;
-    width: 100%;
-    height: 25px;
-    padding: 0px 15px;
-    margin-top: 50px;
-    background-color: #002349;
-    z-index: 10;
-    color: white;
-}
-
-#explorePalettesModal .clickableFilePath{
-    cursor: pointer;
-    text-decoration: underline;
-}
-
-#explorePalettesModal .list-group{
-    border: 2px solid #e4ebf2;
-}
-
-#explorePalettesModal .list-group-item:hover{
-    color: black;
-    background-color: #f1f1f1;
-}
-
-#explorePalettesModal input{
-    pointer-events: none;
-}
-
 .openParamsTableBtn{
     width: fit-content;
     height: fit-content;
@@ -550,10 +510,6 @@ color: #00bb00;}
     padding: 3px 4px;
     right: 1rem;
     top: 2px;
-}
-
-#explorePalettesModal li.list-group-item:hover{
-    background-color: #b6c3cf;
 }
 
 #editFieldModalTypeSelect{
@@ -570,10 +526,6 @@ color: #00bb00;}
 #editFieldModalTypeSelect .dropdown-item:hover{
     background: #002e5f;
     color: white;
-}
-
-#explorePalettesModal li.list-group-item span{
-    pointer-events: none;
 }
 
 #editFieldModal .defaultSelectCustom{
@@ -1156,11 +1108,6 @@ select.form-control{
     padding:0px;
 }
 
-#explorePalettesModal .modal-body{
-    height: calc(100% - 126px) !important ;
-    top: 75px;
-}
-
 .modal-footer{
     position: absolute;
     bottom: 0px;
@@ -1294,8 +1241,7 @@ select.form-control{
 }
 
 #paletteList{
-    height:90%;
-    height: calc(100% - 118px);
+    height: calc(100% - 45px);
     overflow-y: scroll;
 }
 
@@ -1406,7 +1352,7 @@ select.form-control{
 }
 
 #paletteList .accordion-body{
-    padding: 0.6rem 1rem;
+    padding: 0.5rem;
 }
 
 #paletteList .accordion-item h5{
@@ -1451,36 +1397,6 @@ select.form-control{
 
 #paletteList .accordion{
     padding-right:4px;
-}
-
-#explorePalettesWrapper{
-    width: 90%;
-    display: inline-block;
-}
-
-#paletteWindowdropdownWrapper{
-    position: absolute;
-    right: 5px;
-}
-
-#paletteWindowdropdownWrapper a:after{
-    display: none;
-}
-
-#paletteWindowdropdownWrapper a{
-    text-decoration: none;
-    color: black;
-    padding:7px;
-}
-
-#paletteWindowdropdownWrapper .dropdown-item{
-    color:white;
-    padding: 4px 16px;
-}
-
-#paletteWindowdropdownWrapper .dropDropDown{
-    left:100%;
-    right: unset;
 }
 
 #root span:after{
@@ -1852,6 +1768,10 @@ select.form-control{
 }
 
 #repositoryList ul.repositories .repoFile:hover .repo-actions i.material-symbols-outlined.md-18 {
+    visibility: visible;
+}
+
+#repositoryList ul.repositories .repoContainer:hover .repo-actions i.material-symbols-outlined.md-18 {
     visibility: visible;
 }
 
@@ -2735,7 +2655,36 @@ ul.nav.navbar-nav .dropdown-item:hover,ul.nav.navbar-nav .dropdown-item:focus{
 }
 
 .leftWindow .searchBarContainer{
-    margin-top: 10px;
+    width: 100%;
+}
+
+.leftWindow .paletteHeader{
+    padding-right: 10px;
+    margin-bottom: 5px;
+    margin-top: 5px;
+}
+
+.leftWindow .paletteHeader .col-10{
+    padding-right: 3px;
+}
+
+.leftWindow .paletteHeader .col-2{
+    padding-left: 3px;
+    text-align: right;
+}
+
+.leftWindow .paletteHeader .paletteMenuIcons button{
+    border: none;
+    border-radius: 5px;
+    height: 100%;
+    width: 100%;
+    color: #002349;
+    background-color: #cbd2e8;
+}
+
+.leftWindow .paletteHeader .paletteMenuIcons i{
+    vertical-align: middle;
+    font-size: 21px;
 }
 
 .searchBarContainer a,#customContextMenu .searchBarContainer a{

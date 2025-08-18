@@ -11,9 +11,9 @@ export class Hierarchy {
 
         $("#hierarchyEdgesSvg").empty()
         
-        eagle.logicalGraph().getNodes().forEach(function(element){
-            element.setKeepExpanded(false)
-        })
+        for (const node of eagle.logicalGraph().getNodes()){
+            node.setKeepExpanded(false);
+        }
 
         // TODO: should we move this up?
         //return if the graph is not loaded yet
@@ -23,18 +23,18 @@ export class Hierarchy {
 
         //reset all selection relatives to false
         $(".positionPointer").remove()
-        eagle.logicalGraph().getEdges().forEach(function(element:Edge){
-            element.setSelectionRelative(false)
-        })
+        for (const edge of eagle.logicalGraph().getEdges()){
+            edge.setSelectionRelative(false)
+        }
 
         //this part of the function flags edges that are selected or directly connected to the selected object
         const hierarchyEdgesList : {edge:Edge, use:string, edgeSelected:boolean}[] = []
         const nodeRelative : Node[]=[]
 
         //loop over selected objects
-        eagle.selectedObjects().forEach(function(element:any){
+        for (const element of eagle.selectedObjects()){
             //ignore palette selections
-            if(Eagle.selectedLocation() === "Palette"){return}
+            if(Eagle.selectedLocation() === "Palette"){continue}
 
             const elementsToProcess = [element]
 
@@ -43,32 +43,32 @@ export class Hierarchy {
                 if (element instanceof Node){
                     const id: NodeId = element.getId()
 
-                    eagle.logicalGraph().getEdges().forEach(function(e:Edge){
-                        if(e.getDestNodeId() === id){
+                    for (const e of eagle.logicalGraph().getEdges()){
+                        if(e.getDestNode().getId() === id){
                             e.setSelectionRelative(true)
                             Hierarchy.addUniqueHierarchyEdge(e, "input", hierarchyEdgesList, false)
-                            nodeRelative.push(eagle.logicalGraph().findNodeById(e.getDestNodeId()))
-                            nodeRelative.push(eagle.logicalGraph().findNodeById(e.getSrcNodeId()))
-                        }else if(e.getSrcNodeId() === id){
+                            nodeRelative.push(e.getDestNode())
+                            nodeRelative.push(e.getSrcNode())
+                        }else if(e.getSrcNode().getId() === id){
                             e.setSelectionRelative(true)
                             Hierarchy.addUniqueHierarchyEdge(e, "output", hierarchyEdgesList,false)
-                            nodeRelative.push(eagle.logicalGraph().findNodeById(e.getDestNodeId()))
-                            nodeRelative.push(eagle.logicalGraph().findNodeById(e.getSrcNodeId()))
+                            nodeRelative.push(e.getDestNode())
+                            nodeRelative.push(e.getSrcNode())
                         }
-                    })
+                    }
                 //for edges we must check if a related node is selected to decide if it should be drawn as input or output edge
                 }else if(element instanceof Edge){
                     element.setSelectionRelative(true)
-                    if(eagle.objectIsSelected(eagle.logicalGraph().findNodeById(element.getSrcNodeId()))){
+                    if(eagle.objectIsSelected(element.getSrcNode())){
                         Hierarchy.addUniqueHierarchyEdge(element, "output", hierarchyEdgesList,true)
                     }else{
                         Hierarchy.addUniqueHierarchyEdge(element, "input", hierarchyEdgesList,true)
                     }
-                    nodeRelative.push(eagle.logicalGraph().findNodeById(element.getDestNodeId()))
-                    nodeRelative.push(eagle.logicalGraph().findNodeById(element.getSrcNodeId()))
+                    nodeRelative.push(element.getDestNode())
+                    nodeRelative.push(element.getSrcNode())
                 }
             })
-        })
+        }
 
         //using a called async function here to wait for changes to the hierarchy to finish before drawing the edges
         hierarchyDraw()
@@ -97,7 +97,7 @@ export class Hierarchy {
                     }
     
                     if(element.isEmbedded()){
-                        const localPortGroup = eagle.logicalGraph().findNodeById(element.getEmbedId())
+                        const localPortGroup: Node = element.getEmbed();
                         localPortGroup.setExpanded(true)
                         localPortGroup.setKeepExpanded(true)
                     }else{  
@@ -106,16 +106,14 @@ export class Hierarchy {
                     }
     
                     iterations += 1;
+
+                    // recurse to parent
+                    element = element.getParent();
     
-                    // otherwise keep traversing upwards
-                    const parentKey = element.getParentId();
-    
-                    // if we reach a null parent, we are done looking
-                    if (parentKey === null){
+                    // if we reach a null node, we are done looking
+                    if (element === null){
                         return 
                     }
-    
-                    element = eagle.logicalGraph().findNodeById(parentKey);
                 }
             })
         }
@@ -160,8 +158,8 @@ export class Hierarchy {
     }
 
     static drawEdge(edge:Edge, use:string, edgeSelected:boolean) : void {
-        const srcId = edge.getSrcNodeId()
-        const destId = edge.getDestNodeId()
+        const srcId = edge.getSrcNode().getId()
+        const destId = edge.getDestNode().getId()
 
         const srcNodeElement = $('#hierarchy-node-'+ srcId)[0];
         const destNodeElement = $('#hierarchy-node-'+ destId)[0];
@@ -292,18 +290,22 @@ export class Hierarchy {
 
     static nodeIsHidden(id: NodeId) : string {
         const eagle: Eagle = Eagle.getInstance();
+        const node = eagle.logicalGraph().getNodeById(id);
 
-        const node = eagle.logicalGraph().findNodeById(id);
+        if (typeof node === 'undefined'){
+            return 'hidden';
+        }
+
         let nodeHasConnectedInput: boolean = false;
         let nodeHasConnectedOutput: boolean = false;
 
         // check if node has connected input and output
         for (const edge of eagle.logicalGraph().getEdges()){
-            if (edge.getDestNodeId() === node.getId()){
+            if (edge.getDestNode().getId() === node.getId()){
                 nodeHasConnectedInput = true;
             }
 
-            if (edge.getSrcNodeId() === node.getId()){
+            if (edge.getSrcNode().getId() === node.getId()){
                 nodeHasConnectedOutput = true;
             }
         }

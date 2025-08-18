@@ -2,6 +2,7 @@ import * as ko from "knockout";
 
 import { Category } from "./Category";
 import { CategoryData } from "./CategoryData";
+import { Daliuge } from "./Daliuge";
 import { Eagle } from './Eagle';
 import { Errors } from './Errors';
 import { Palette } from "./Palette";
@@ -336,10 +337,6 @@ export class Setting {
     static readonly TRANSLATOR_URL : string = "TranslatorURL";
     static readonly TRANSLATOR_ALGORITHM_DEFAULT : string = "TranslatorAlgorithmDefault";
 
-    static readonly EXPLORE_PALETTES_SERVICE : string = "ExplorePalettesService";
-    static readonly EXPLORE_PALETTES_REPOSITORY : string = "ExplorePalettesRepository";
-    static readonly EXPLORE_PALETTES_BRANCH : string = "ExplorePalettesBranch";
-
     static readonly CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS: string = "CreateApplicationsForConstructPorts";
     static readonly DISABLE_JSON_VALIDATION: string = "DisableJsonValidation";
 
@@ -364,6 +361,8 @@ export class Setting {
     static readonly FETCH_REPOSITORY_FOR_URLS: string = "FetchRepositoryForUrls";
     static readonly KEEP_OLD_FIELDS_DURING_CATEGORY_CHANGE: string = "KeepOldFieldsDuringCategoryChange";
     static readonly MARKDOWN_EDITING_ENABLED: string = "MarkdownEditingEnabled";
+
+    static readonly DALIUGE_SCHEMA_VERSION: string = "DaliugeSchemaVersion";
 }
 
 export namespace Setting {
@@ -392,6 +391,12 @@ export namespace Setting {
         Minimal = "minimal",
         Normal = "normal",
         Expert = "expert"
+    }
+
+    export enum SchemaVersion {
+        Unknown = "Unknown",
+        OJS = "OJS",
+        V4 = "V4" //dict-of-dicts
     }
 }
 
@@ -465,9 +470,6 @@ const settings : SettingsGroup[] = [
             new Setting(true, "GitLab Access Token", Setting.GITLAB_ACCESS_TOKEN_KEY, "A users access token for GitLab repositories.", true, Setting.Type.Password, "","","", "", ""),
             new Setting(true, "Docker Hub Username", Setting.DOCKER_HUB_USERNAME, "The username to use when retrieving data on images stored on Docker Hub", true, Setting.Type.String, "icrar","icrar","icrar", "icrar", "icrar"),
             new Setting(false, "Default Translation Algorithm", Setting.TRANSLATOR_ALGORITHM_DEFAULT, "Which of the algorithms will be used by default", true, Setting.Type.String, "agl-1", "agl-1", "agl-1", "agl-1", "agl-1"),
-            new Setting(true, "Explore Palettes Service", Setting.EXPLORE_PALETTES_SERVICE, "The service hosting the repository from which palettes will be fetched by the 'Explore Palettes' feature", true, Setting.Type.Select, Repository.Service.GitHub, Repository.Service.GitHub, Repository.Service.GitHub, Repository.Service.GitHub, Repository.Service.GitHub, [Repository.Service.GitHub /*, Repository.Service.GitLab*/]),
-            new Setting(true, "Explore Palettes Repository", Setting.EXPLORE_PALETTES_REPOSITORY, "The repository from which palettes will be fetched by the 'Explore Palettes' feature", true, Setting.Type.String, "ICRAR/EAGLE-graph-repo", "ICRAR/EAGLE-graph-repo", "ICRAR/EAGLE-graph-repo", "ICRAR/EAGLE-graph-repo", "ICRAR/EAGLE-graph-repo"),
-            new Setting(true, "Explore Palettes Branch", Setting.EXPLORE_PALETTES_BRANCH, "The branch of the repository from which palettes will be fetched by the 'Explore Palettes' feature", true, Setting.Type.String, "master", "master", "master", "master", "master"),
         ]
     ),
     new SettingsGroup(
@@ -485,7 +487,8 @@ const settings : SettingsGroup[] = [
             new Setting(true, "Allow modified graph translation", Setting.ALLOW_MODIFIED_GRAPH_TRANSLATION, "Allow users to submit graphs for translation even when not saved or committed", true, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(true, "Apply active graph config before translation", Setting.APPLY_ACTIVE_GRAPH_CONFIG_BEFORE_TRANSLATION, "Apply the active graph config to the graph before sending the graph for translation", false, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(true, "Fetch repository for URLs", Setting.FETCH_REPOSITORY_FOR_URLS, "Automatically fetch the contents of the object's repository when a graph/palette is specified in the URL", true, Setting.Type.Boolean, false, false ,false, false, false),
-            new Setting(true, "Keep Old Fields during Category Change", Setting.KEEP_OLD_FIELDS_DURING_CATEGORY_CHANGE, "When changing the category of an existing node, several fields may become useless and would normally be deleted. Enabling this setting will keep those fields.", false, Setting.Type.Boolean, false, false, false, false, false)
+            new Setting(true, "Keep Old Fields during Category Change", Setting.KEEP_OLD_FIELDS_DURING_CATEGORY_CHANGE, "When changing the category of an existing node, several fields may become useless and would normally be deleted. Enabling this setting will keep those fields.", false, Setting.Type.Boolean, false, false, false, false, false),
+            new Setting(true, "DALiuGE Schema Version", Setting.DALIUGE_SCHEMA_VERSION, "JSON file format for output graphs (used for saving and translation)", true, Setting.Type.Select, Setting.SchemaVersion.OJS, Setting.SchemaVersion.OJS, Setting.SchemaVersion.OJS, Setting.SchemaVersion.OJS, Setting.SchemaVersion.OJS, [Setting.SchemaVersion.OJS, Setting.SchemaVersion.V4])
         ]
     )
 ];
