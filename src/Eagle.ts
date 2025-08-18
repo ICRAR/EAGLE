@@ -4588,21 +4588,30 @@ export class Eagle {
     }
 
     updateSelection = (): void => {
-        // check that a node is selected
-        const node: Node = this.selectedNode();
-        if (node === null){
-            Utils.showNotification("Error", "No nodes selected to update", "danger");
-            return;
-        }
-
         // check if graph editing is allowed
         if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
-            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Update Component " + node.getName());
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Update Selection");
             return;
         }
 
         // update
-        const {updatedNodes, errorsWarnings} = ComponentUpdater.updateSelection(this.palettes());
+        const updatedNodes: Node[] = [];
+        const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
+        let numSelectedNodes: number = 0;
+
+        // make sure we have a palette available for each selected component
+        for (const node of Eagle.getInstance().selectedObjects()){
+            if (!(node instanceof Node)) {
+                continue; // skip non-node objects
+            }
+
+            numSelectedNodes++;
+
+            const updatedNode = ComponentUpdater.updateNode(this.palettes(), node, errorsWarnings);
+            if (updatedNode !== null) {
+                updatedNodes.push(updatedNode);
+            }
+        }
 
         // check if any errors were reported
         if (errorsWarnings.errors.length > 0){
@@ -4619,14 +4628,79 @@ export class Eagle {
             Utils.showNotification("Info", "No components were updated", "info");
             return;
         }
-        Utils.showNotification("Success", "Successfully updated " + updatedNodes.length + " component(s)", "success");
+        Utils.showNotification("Success", "Successfully updated " + updatedNodes.length + " of " + numSelectedNodes + " component(s)", "success");
 
         // make undo snapshot, recheck graph, mark as modified etc
         this.logicalGraph.valueHasMutated();
         this.logicalGraph().fileInfo().modified = true;
         this.logicalGraph().fileInfo.valueHasMutated();
         this.checkGraph();
-        this.undo().pushSnapshot(this, "Update Component " + node.getName());
+        const updatedNodeNames = updatedNodes.map(n => n.getName()).join(", ");
+        this.undo().pushSnapshot(this, "Update Component(s): " + updatedNodeNames);
+    }
+
+    fixSelection = (): void => {
+        // check if graph editing is allowed
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Fix Selection");
+            return;
+        }
+
+        const updatedNodes: Node[] = [];
+        let numSelectedNodes: number = 0;
+
+        for (const object of Eagle.getInstance().selectedObjects()){
+            let updated: boolean = false;
+
+            // skip non-node objects
+            if (!(object instanceof Node)) {
+                continue;
+            }
+
+            numSelectedNodes++;
+            const node: Node = object as Node;
+
+            // fix node issues
+            for (const {issue, validity} of node.getIssues()){
+                if (issue.fix !== null){
+                    try {
+                        issue.fix();
+                        updated = true;
+                    } catch (error) {
+                        console.error("Error fixing node issue:", error);
+                    }
+                }
+            }
+
+            // fix field issues
+            for (const field of node.getFields()) {
+                for (const {issue, validity} of field.getIssues()){
+                    if (issue.fix !== null){
+                        issue.fix();
+                        updated = true;
+                    }
+                }
+            }
+
+            if (updated) {
+                updatedNodes.push(node);
+            }
+        }
+
+        // notify user of success
+        if (updatedNodes.length === 0){
+            Utils.showNotification("Info", "No components were fixed", "info");
+            return;
+        }
+        Utils.showNotification("Success", "Successfully fixed " + updatedNodes.length + " of " + numSelectedNodes + " component(s)", "success");
+
+        // make undo snapshot, recheck graph, mark as modified etc
+        this.logicalGraph.valueHasMutated();
+        this.logicalGraph().fileInfo().modified = true;
+        this.logicalGraph().fileInfo.valueHasMutated();
+        this.checkGraph();
+        const updatedNodeNames = updatedNodes.map(n => n.getName()).join(", ");
+        this.undo().pushSnapshot(this, "Fix Component(s): " + updatedNodeNames);
     }
 
     findPaletteContainingNode = (nodeId: NodeId): Palette => {

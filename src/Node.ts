@@ -549,6 +549,11 @@ export class Node {
         return this.commitHash();
     }
 
+    setCommitHash = (commitHash: string) : Node => {
+        this.commitHash(commitHash);
+        return this;
+    }
+
     getPaletteDownloadUrl = () : string => {
         return this.paletteDownloadUrl();
     }
