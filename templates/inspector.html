@@ -183,11 +183,6 @@
                                     <!-- /ko -->
                                 </div>
                                 <div class="col-8 col text-right">
-                                    <!-- ko if: Setting.findValue(Setting.ALLOW_EDGE_EDITING) -->
-                                        <button type="button" class="btn btn-secondary btn-sm" data-bind="click: $root.editSelectedEdge, eagleTooltip: KeyboardShortcut.idToFullText('modify_selected_edge')">
-                                            <i class="material-symbols-outlined md-24 clickable iconHoverEffect">edit</i>
-                                        </button>
-                                    <!-- /ko -->
                                     <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
                                         <button  type="button" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.deleteSelection(false,false,false);}, eagleTooltip: KeyboardShortcut.idToFullText('delete_selection')">
                                             <i class="material-symbols-outlined md-24 clickable iconHoverEffect">delete</i>
