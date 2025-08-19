@@ -931,10 +931,7 @@ export class Field {
                 if(embed === null){
                     issue = Errors.ShowFix("Node (" + node.getName() + ") has input port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixFieldType(eagle, field)}, "");
                 }else{
-                    // for embedded nodes
-                    const constructNode = node.getEmbed();
-
-                    if(constructNode.getInputApplication() === node){
+                    if(embed.getInputApplication() === node){
                         //if node is input application
                         issue = Errors.ShowFix("Node (" + embed.getName() + ") has input application (" + node.getName() + ") with input port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixFieldType(eagle, field)}, "");
                     }else{
@@ -943,8 +940,6 @@ export class Field {
                 }
                 field.issues().push({issue:issue,validity:Errors.Validity.Warning})
             }
-
-
         }
 
         // checks for output ports
@@ -959,10 +954,7 @@ export class Field {
                 if(embed === null){
                     issue = Errors.ShowFix("Node (" + node.getName() + ") has output port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixFieldType(eagle, field)}, "");
                 }else{
-                    // for embedded nodes
-                    const constructNode = node.getEmbed();
-                    
-                    if(constructNode.getInputApplication() === node){
+                    if(embed.getInputApplication() === node){
                         //if node is input application
                         issue = Errors.ShowFix("Node (" + embed.getName() + ") has input application (" + node.getName() + ") with output port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixFieldType(eagle, field)}, "");
                     }else{
@@ -971,8 +963,6 @@ export class Field {
                 }
                 field.issues().push({issue:issue,validity:Errors.Validity.Warning})
             }
-
-
         }
 
         //check that the field has an id
