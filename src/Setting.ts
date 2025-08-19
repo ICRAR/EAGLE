@@ -5,6 +5,7 @@ import { CategoryData } from "./CategoryData";
 import { Daliuge } from "./Daliuge";
 import { Eagle } from './Eagle';
 import { Errors } from './Errors';
+import { GraphRenderer } from "./GraphRenderer";
 import { Palette } from "./Palette";
 import { Repository } from "./Repository";
 import { UiModeSystem } from './UiModes';
@@ -431,7 +432,7 @@ const settings : SettingsGroup[] = [
             new Setting(true, "Graph Zoom Divisor", Setting.GRAPH_ZOOM_DIVISOR, "The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.", false, Setting.Type.Number,1000,1000,1000,1000,1000),
             new Setting(false, "Snap To Grid", Setting.SNAP_TO_GRID, "Align positions of nodes in graph to a grid", false, Setting.Type.Boolean,false,false,false,false,false),
             new Setting(false, "Snap To Grid Size", Setting.SNAP_TO_GRID_SIZE, "Size of grid used when aligning positions of nodes in graph (pixels)", false, Setting.Type.Number, 50, 50, 50, 50, 50),
-            new Setting(true, "Show edge/node errors/warnings in Graph", Setting.SHOW_GRAPH_WARNINGS, "Show the errors/warnings found in the graph", false, Setting.Type.Select,  Setting.ShowErrorsMode.None, Setting.ShowErrorsMode.None, Setting.ShowErrorsMode.Errors, Setting.ShowErrorsMode.Errors,Setting.ShowErrorsMode.Errors, Object.values(Setting.ShowErrorsMode)),
+            new Setting(true, "Show edge/node errors/warnings in Graph", Setting.SHOW_GRAPH_WARNINGS, "Show the errors/warnings found in the graph", false, Setting.Type.Select,  Setting.ShowErrorsMode.None, Setting.ShowErrorsMode.None, Setting.ShowErrorsMode.Errors, Setting.ShowErrorsMode.Errors,Setting.ShowErrorsMode.Errors, Object.values(Setting.ShowErrorsMode), function(){const showErrorsMode = Setting.findValue(Setting.SHOW_GRAPH_WARNINGS); GraphRenderer.setShowErrorsMode(showErrorsMode)}),
             new Setting(false, "Right Window Width", Setting.RIGHT_WINDOW_WIDTH, "saving the width of the right window", true, Setting.Type.Number,400,400,400,400,400),
             new Setting(false, "Right Window Visibility", Setting.RIGHT_WINDOW_VISIBLE, "visibility state of the right window", true, Setting.Type.Boolean,true,true,true,true,true),
             new Setting(false, "Right Window Mode/Tab", Setting.RIGHT_WINDOW_MODE, "saving the selected mode/tab of the right window", true, Setting.Type.String,'Repository','Repository','Repository','Repository','Repository'),
