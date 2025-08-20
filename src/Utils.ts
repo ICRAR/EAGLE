@@ -165,18 +165,7 @@ export class Utils {
 
     // NOTE: used for sorting files by filetype
     static getFileTypeNum(fileType: Eagle.FileType) : number {
-        switch (fileType){
-            case Eagle.FileType.Palette:
-                return 0;
-            case Eagle.FileType.Graph:
-                return 1;
-            case Eagle.FileType.JSON:
-                return 2;
-            case Eagle.FileType.Markdown:
-                return 3;
-            case Eagle.FileType.Unknown:
-                return 4;
-        }
+        return Object.values(Eagle.FileType).indexOf(fileType);
     }
 
     /**

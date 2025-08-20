@@ -1703,6 +1703,36 @@ export class Eagle {
         });
     }
 
+    saveGraphConfigAs = async (config: GraphConfig) : Promise<void> => {
+        return new Promise(async(resolve, reject) => {
+            const isLocalFile = this.logicalGraph().fileInfo().repositoryService === Repository.Service.File;
+
+            const userChoice: string = await Utils.requestUserChoice("Save Graph Config As", "Please choose where to save the graph config", ["Local File", "Remote Git Repository"], isLocalFile?0:1, false, "");
+
+            if (userChoice === null){
+                return;
+            }
+
+            if (userChoice === "Local File"){
+                try {
+                    this.saveAsFileToLocal(Eagle.FileType.GraphConfig);
+                } catch (error) {
+                    reject(error);
+                    return;
+                }
+            } else {
+                try {
+                    this.commitToGitAs(Eagle.FileType.GraphConfig);
+                } catch(error) {
+                    reject(error);
+                    return;
+                }
+            }
+
+            resolve();
+        });
+    }
+
     /**
      * Saves the file to a local download folder.
      */
@@ -4905,6 +4935,7 @@ export namespace Eagle
 
     export enum FileType {
         Graph = "Graph",
+        GraphConfig = "GraphConfig",
         Palette = "Palette",
         JSON = "JSON",
         Markdown = "Markdown",
