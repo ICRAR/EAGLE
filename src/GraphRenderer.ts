@@ -1054,13 +1054,13 @@ export class GraphRenderer {
 
         // select handlers
         if(node !== null && event.button != 1 && !event.shiftKey){
-            //double click has highest priority, select only this node if it is a contruct
-            if(GraphRenderer.dragSelectionDoubleClick) {
+            //double click and alt + clicking has highest priority
+            if(GraphRenderer.dragSelectionDoubleClick || event.altKey) {
                 eagle.setSelection(node, Eagle.FileType.Graph);
             }   
 
-            //check for alt clicking, if so, add the target node and its children to the selection
-            else if(event.button != 2 && !event.altKey&&node.isGroup() && !eagle.objectIsSelected(node)){
+            //check that we are not alt + clicking, add the target node and its children to the selection
+            else if(event.button != 2 && !event.altKey && node.isGroup() && !eagle.objectIsSelected(node)){
                 GraphRenderer.selectNodeAndChildren(node,GraphRenderer.shiftSelect)
             }
 
