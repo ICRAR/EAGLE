@@ -3,6 +3,7 @@ import * as ko from "knockout";
 import { Eagle } from "./Eagle";
 import { Errors } from "./Errors";
 import { Field } from "./Field";
+import { FileInfo } from "./FileInfo";
 import { LogicalGraph } from "./LogicalGraph";
 import { Node } from "./Node";
 import { Utils } from "./Utils";
@@ -10,34 +11,22 @@ import { EagleConfig } from "./EagleConfig";
 import { Daliuge } from "./Daliuge";
 
 export class GraphConfig {
+    fileInfo : ko.Observable<FileInfo>;
     private id: ko.Observable<GraphConfigId>;
-    private name: ko.Observable<string>;
-    private description: ko.Observable<string>;
     
     private nodes: ko.Observable<Map<NodeId, GraphConfigNode>>;
-
-    private lastModifiedName : ko.Observable<string>;
-    private lastModifiedEmail : ko.Observable<string>;
-    private lastModifiedDatetime : ko.Observable<number>;
     
     constructor(){
+        this.fileInfo = ko.observable(new FileInfo());
         this.id = ko.observable(Utils.generateGraphConfigId());
-        this.name = ko.observable("");
-        this.description = ko.observable("");
-
         this.nodes = ko.observable(new Map());
-
-        this.lastModifiedName = ko.observable("");
-        this.lastModifiedEmail = ko.observable("");
-        this.lastModifiedDatetime = ko.observable(0);
     }
 
     clone = () : GraphConfig => {
         const result : GraphConfig = new GraphConfig();
 
+        result.fileInfo(this.fileInfo().clone());
         result.id(this.id());
-        result.name(this.name());
-        result.description(this.description());
 
         // copy nodes
         // TODO: check ids, do we need to generate new ids?
@@ -45,10 +34,6 @@ export class GraphConfig {
             result.nodes().set(id, node.clone());
         }
         result.nodes.valueHasMutated();
-
-        result.lastModifiedName(this.lastModifiedName());
-        result.lastModifiedEmail(this.lastModifiedEmail());
-        result.lastModifiedDatetime(this.lastModifiedDatetime());
 
         return result;
     }
@@ -62,32 +47,8 @@ export class GraphConfig {
         return this;
     }
 
-    getName = (): string => {
-        return this.name();
-    }
-
-    setName = (name: string): GraphConfig => {
-        this.name(name);
-        return this;
-    }
-
-    getDescription = (): string => {
-        return this.description();
-    }
-
-    setDescription = (description: string): GraphConfig => {
-        this.description(description);
-        return this;
-    }
-
     getNodes = (): MapIterator<GraphConfigNode> => {
         return this.nodes().values();
-    }
-
-    setLastModified = (name: string, email: string, datetime: number): void => {
-        this.lastModifiedName(name);
-        this.lastModifiedEmail(email);
-        this.lastModifiedDatetime(datetime);
     }
 
     addNode = (node: Node): GraphConfigNode => {
@@ -167,12 +128,11 @@ export class GraphConfig {
     static fromJson(data: any, lg: LogicalGraph, errorsWarnings: Errors.ErrorsWarnings) : GraphConfig {
         const result: GraphConfig = new GraphConfig();
 
-        if (typeof data.name !== 'undefined'){
-            result.name(data.name);
-        }
+        // copy modelData into fileInfo
+        result.fileInfo(FileInfo.fromV4Json(data.modelData, errorsWarnings));
 
-        if (typeof data.description !== 'undefined'){
-            result.description(data.description);
+        if (typeof data.id !== 'undefined'){
+            result.id(data.id);
         }
 
         if (typeof data.nodes !== 'undefined'){
@@ -191,25 +151,17 @@ export class GraphConfig {
             }
         }
 
-        if (typeof data.lastModifiedName !== 'undefined'){
-            result.lastModifiedName(data.lastModifiedName);
-        }
-        if (typeof data.lastModifiedEmail !== 'undefined'){
-            result.lastModifiedEmail(data.lastModifiedEmail);
-        }
-        if (typeof data.lastModifiedDatetime !== 'undefined'){
-            result.lastModifiedDatetime(data.lastModifiedDatetime);
-        }
-
         return result;
     }
 
     static toJson(graphConfig: GraphConfig) : object {
         const result : any = {};
 
-        // NOTE: we don't write isModified to JSON, it is run-time only
-        result.name = graphConfig.name();
-        result.description = graphConfig.description();
+        // modelData
+        result.modelData = FileInfo.toV4Json(graphConfig.fileInfo());
+
+        // id
+        result.id = graphConfig.id();
 
         // add nodes
         result.nodes = {};
@@ -222,10 +174,6 @@ export class GraphConfig {
 
             result.nodes[graphNode.getId()] = GraphConfigNode.toJSON(node, graphNode);
         }
-
-        result.lastModifiedName = graphConfig.lastModifiedName();
-        result.lastModifiedEmail = graphConfig.lastModifiedEmail();
-        result.lastModifiedDatetime = graphConfig.lastModifiedDatetime();
 
         return result;
     }

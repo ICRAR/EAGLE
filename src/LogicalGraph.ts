@@ -578,22 +578,22 @@ export class LogicalGraph {
         const newConfigName = Utils.generateGraphConfigName(config);
         const clone = config
             .clone()
-            .setId(Utils.generateGraphConfigId())
-            .setName(newConfigName);
+            .setId(Utils.generateGraphConfigId());
+        clone.fileInfo().name = newConfigName;
 
         // duplicate, set active and graph as modified
         this.addGraphConfig(clone)
         this.activeGraphConfigId(clone.getId())
         this.fileInfo().modified = true;
 
-        Utils.showNotification("Duplicated Config", "as '" + clone.getName() + "' and set to active config", "success");
+        Utils.showNotification("Duplicated Config", "as '" + clone.fileInfo().name + "' and set to active config", "success");
 
         //focus on and select the name field of the newly duplicated config, ready to rename. this requires a little wait, to allow the ui to update
         setTimeout(() => {
             $('#graphConfigurationsTableWrapper .activeConfig .column-name input').focus().select()
         }, 100);
 
-        Eagle.getInstance().undo().pushSnapshot(Eagle.getInstance(), "Duplicated a graph config" + clone.getName());
+        Eagle.getInstance().undo().pushSnapshot(Eagle.getInstance(), "Duplicated a graph config" + clone.fileInfo().name);
     }
 
     removeGraphConfig = (config: GraphConfig): void => {
@@ -1252,7 +1252,7 @@ export class LogicalGraph {
 
                 if (typeof graphNode === 'undefined'){
                     const issue: Errors.Issue = Errors.Fix(
-                        "Node in graph config (" + graphConfig.getName() + ") is not present in Logical Graph",
+                        "Node in graph config (" + graphConfig.fileInfo().name + ") is not present in Logical Graph",
                         function(){
                             graphConfig.removeNode(graphNode);
                         },
@@ -1267,7 +1267,7 @@ export class LogicalGraph {
 
                     if (typeof graphField === 'undefined'){
                         const issue: Errors.Issue = Errors.Fix(
-                            "Field in graph config (" + graphConfig.getName() + ", " + graphNode.getName() + ") is not present in Logical Graph",
+                            "Field in graph config (" + graphConfig.fileInfo().name + ", " + graphNode.getName() + ") is not present in Logical Graph",
                             function(){
                                 graphConfigNode.removeFieldById(graphConfigField.getField().getId());
                             },

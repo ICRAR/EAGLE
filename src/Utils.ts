@@ -2139,7 +2139,7 @@ export class Utils {
 
         // highlight the name of the graph config
         setTimeout(() => {
-            $('#tableRow_' + graphConfig.getName()).focus().select()
+            $('#tableRow_' + graphConfig.fileInfo().name).focus().select()
         }, 100);
     }
 
@@ -2580,10 +2580,10 @@ export class Utils {
     }
 
     static generateGraphConfigName(config:GraphConfig): string {
-        if (config.getName() === ""){
+        if (config.fileInfo().name === ""){
             return "Default Configuration";
         } else {
-            return config.getName() + " (Copy)";
+            return config.fileInfo().name + " (Copy)";
         }
     }
 

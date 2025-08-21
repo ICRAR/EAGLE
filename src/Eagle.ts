@@ -390,7 +390,7 @@ export class Eagle {
             return "";
         }
 
-        return  "<strong>Config:</strong> " +this.logicalGraph().getActiveGraphConfig().getName()
+        return  "<strong>Config:</strong> " + this.logicalGraph().getActiveGraphConfig().fileInfo().name;
     }, this);
 
     // TODO: move to SideWindow.ts?
@@ -1615,7 +1615,7 @@ export class Eagle {
         }
 
         const c: GraphConfig = new GraphConfig();
-        c.setName('newConfig');
+        c.fileInfo().name = 'newConfig';
 
         // adding a new graph config to the array, then setting it as active
         this.logicalGraph().addGraphConfig(c)
@@ -1980,7 +1980,7 @@ export class Eagle {
 
             let commit: RepositoryCommit;
             try {
-                commit = await Utils.requestUserGitCommit(defaultRepository, Repositories.getList(defaultRepository.service), fileInfo ? fileInfo().path: this.logicalGraph().fileInfo().path, fileInfo ? fileInfo().name : graphConfig.getName() + ".graphConfig", fileType);
+                commit = await Utils.requestUserGitCommit(defaultRepository, Repositories.getList(defaultRepository.service), fileInfo ? fileInfo().path: this.logicalGraph().fileInfo().path, fileInfo ? fileInfo().name : graphConfig.fileInfo().name + ".graphConfig", fileType);
             } catch (error){
                 reject(error);
                 return;
@@ -2804,7 +2804,7 @@ export class Eagle {
 
     saveGraphConfigToDisk = async (graphConfig: GraphConfig): Promise<void> => {
         return new Promise(async(resolve, reject) => {
-            console.log("saveGraphConfigToDisk()", graphConfig.getName());
+            console.log("saveGraphConfigToDisk()", graphConfig.fileInfo().name);
 
             // get version
             const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
@@ -2816,7 +2816,7 @@ export class Eagle {
             Utils.validateJSON(jsonString, Eagle.FileType.GraphConfig, version);
 
             try {
-                await Utils.downloadFile(jsonString, graphConfig.getName());
+                await Utils.downloadFile(jsonString, graphConfig.fileInfo().name);
             } catch (error) {
                 reject(error);
                 return;
@@ -2826,28 +2826,16 @@ export class Eagle {
     }
 
     saveAsFileToDisk = async (fileType: Eagle.FileType, file: LogicalGraph | Palette | GraphConfig): Promise<void> => {
-        // get default filename
-        let defaultFilename = "";
-        if (file instanceof LogicalGraph || file instanceof Palette) {
-            defaultFilename = file.fileInfo().name;
-        } else {
-            defaultFilename = file.getName() + ".graphConfig";
-        }
-
         let userString: string;
         try {
-            userString = await Utils.requestUserString("Save As", "Please enter a filename for the " + fileType, defaultFilename, false);
+            userString = await Utils.requestUserString("Save As", "Please enter a filename for the " + fileType, file.fileInfo().name, false);
         } catch (error) {
             console.error(error);
             return;
         }
 
-        // if file is LG or Palette, update the name
-        if (file instanceof LogicalGraph || file instanceof Palette) {
-            file.fileInfo().name = userString;
-        } else {
-            file.setName(userString);
-        }
+        // update the name
+        file.fileInfo().name = userString;
 
         switch(fileType){
             case Eagle.FileType.Graph:
