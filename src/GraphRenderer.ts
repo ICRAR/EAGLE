@@ -1055,7 +1055,7 @@ export class GraphRenderer {
         // select handlers
         if(node !== null && event.button != 1 && !event.shiftKey){
             //double click has highest priority, select only this node if it is a contruct
-            if(GraphRenderer.dragSelectionDoubleClick && node.isGroup()) {
+            if(GraphRenderer.dragSelectionDoubleClick) {
                 eagle.setSelection(node, Eagle.FileType.Graph);
             }   
 
