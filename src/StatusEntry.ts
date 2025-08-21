@@ -67,7 +67,7 @@ export class StatusEntry {
             new StatusEntry(KeyboardShortcut.idToKeysText('create_construct_from_selection', true),' Construct from selection.', Eagle.getInstance().selectedObjects().length >1),
             new StatusEntry('[Shift + Alt + Click]',' toggle selection of object', Eagle.getInstance().selectedObjects().length >1),
             //construct is selected
-            new StatusEntry('[Alt + Click]',' Select construct without children.', this.constructIsSelected()),
+            new StatusEntry('[Double Click] or [Alt + Click]',' Select specific object.', this.constructIsSelected()),
             //at least one child of a construct, but no construct without parent is selected
             new StatusEntry('[Ctrl + Drag]',' move selection without resizing constructs.', this.childOfConstructIsSelected()),
             //multi selection but no construct selected
