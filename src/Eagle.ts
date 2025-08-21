@@ -62,6 +62,7 @@ import { Utils } from './Utils';
 import { GraphUpdater } from "./GraphUpdater";
 import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 import { versions } from "./Versions";
+import { event } from "jquery";
 
 
 export class Eagle {
@@ -4874,6 +4875,13 @@ export class Eagle {
             $('#whatsNewModal #whatsNewShowMore').html('Show More')
         }
     }
+
+    slowScroll = (data:any, event: JQuery.TriggeredEvent) : void => {
+        let target = event.currentTarget;//gets the element that has the event binding
+
+        $(target).scrollTop($(target).scrollTop() + (event.originalEvent as WheelEvent).deltaY * 0.5);
+    }
+
 }
 
 export namespace Eagle
@@ -4965,7 +4973,7 @@ $( document ).ready(function() {
         }
     })
 
-    $('.modal').on('shown.bs.modal',function(){
+    $('.modal').on('shown.bs.modal',function(event:JQuery.TriggeredEvent){
         //this event is called when a modal is done opening
         const modal = $(this);
 
@@ -4976,7 +4984,7 @@ $( document ).ready(function() {
         });
 
         //this is a system that allows graph interaction with a modal open, it triggers when the user clicks and drags the modal header
-        $(event.target).find('.modal-header').on('mousedown', function(event: JQuery.TriggeredEvent){
+        $(event.target).find('.modal-header').on('mousedown', function(){
             modal.css({"pointerEvents":"none"})
             modal.find('.modal-content').css({"pointerEvents":"all"})
             $('.modal-backdrop').remove()
