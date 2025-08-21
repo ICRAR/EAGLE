@@ -20,6 +20,7 @@
             <div class="paletteCardWrapper">
                 <button type="button" class="material-symbols-outlined md-18 dropdown-toggle dropdown-control paletteTripleDot iconHoverEffect" data-bs-toggle="dropdown" >more_vert</button>
                 <div class="dropdown-menu dropdown-area">
+                    <a href="#" data-bind="click: function(){Utils.showModelDataModal('Palette Info', fileInfo());}"><span>Show Palette Info</span></a>
                     <a href="#" data-bind="click: $root.selectAllInPalette" data-html="true"><span>Select All</span></a>
                     <!-- ko ifnot: $data.fileInfo().builtIn -->
                     <a href="#" data-bind="click: $root.closePalette" data-html="true"><span>Remove</span></a>
@@ -38,7 +39,6 @@
                     <a href="#" data-bind="click: function(){$data.setSearchExclude(true)}"><span>Exclude From Search Filter</span></a>
                     <!-- /ko -->
                     <a href="#" data-bind="click: $data.copyUrl"><span>Copy URL</span></a>
-                    <a href="#" data-bind="click: function(){Utils.showModelDataModal('Palette Info', fileInfo());}"><span>Show ModelData</span></a>
                     <a href="#" data-bind="click: function(){eagle.displayObjectAsJson(Eagle.FileType.Palette, $data);}"><span>Display as JSON</span></a>
                 </div>
                 <div class="accordion-item paletteWrapper" data-bind="attr: {'data-palette-index': $index}, event: { dragover: SideWindow.nodeDragOver, drop: $root.nodeDropPalette }">

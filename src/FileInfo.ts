@@ -366,7 +366,7 @@ export class FileInfo {
             text = "<p>" + this._repositoryService() + " : " + this._repositoryName() + ((this._repositoryBranch() == "") ? "" : ("(" + this._repositoryBranch() + ")")) + " : " + this._path() + "/" + this._name() + "</p>";
         }
 
-        return "<p><h5>" + title + "<h5><p><p>" + text + "</p>";
+        return "<p><h5>" + title + "<h5><p><p>" + text + "</p><p>"+this.renderedShortDescription() + "</p><p>" + this.renderedDetailedDescription() + "</p></p>";
     }
 
     getText = () : string => {
