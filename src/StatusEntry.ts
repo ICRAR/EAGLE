@@ -25,6 +25,7 @@ export class StatusEntry {
     }
     
     static childOfConstructIsSelected():boolean {
+        // Check if at least one child of a construct is selected, but no construct without parent
         const selectedObjects = Eagle.getInstance().getOutermostSelectedNodes();
 
         if(selectedObjects.length > 0){
@@ -35,6 +36,7 @@ export class StatusEntry {
     }
 
     static multiSelectionNoConstructRelatives():boolean {
+        //check if more than one object is selected and no node is selected that is a construct or has a parent
         const selectedObjects = Eagle.getInstance().selectedObjects();
 
         if(selectedObjects.length > 1){
