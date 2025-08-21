@@ -1,6 +1,7 @@
 import { Eagle } from './Eagle';
 import { KeyboardShortcut } from './KeyboardShortcut';
 import { Setting } from './Setting';
+import { Node } from './Node';
 
 export class StatusEntry {
     action:string;
@@ -22,6 +23,16 @@ export class StatusEntry {
 
         return false;
     }
+    
+    static childOfConstructIsSelected():boolean {
+        const selectedObjects = Eagle.getInstance().selectedObjects();
+
+        if(selectedObjects.length > 0){
+            return selectedObjects.some(obj => obj instanceof Node && (obj as Node).hasParent());
+        }
+
+        return false;
+    }
 
     static getStatusEntries() : StatusEntry[] {
         return [
@@ -38,14 +49,16 @@ export class StatusEntry {
             new StatusEntry('[Right Click]',' on Objects in the graph for more options.', Eagle.getInstance().selectedObjects().length > 0),
             new StatusEntry(KeyboardShortcut.idToKeysText('duplicate_selection', true),' duplicate selection.', Eagle.getInstance().selectedObjects().length > 0),
             new StatusEntry(KeyboardShortcut.idToKeysText('delete_selection', true),' delete selection.', Eagle.getInstance().selectedObjects().length > 0),
-            //node is selected
+            //a node is selected
             new StatusEntry(KeyboardShortcut.idToKeysText('open_parameter_table', true),' open fields table.', Eagle.getInstance().selectedNode() != null && Setting.findValue(Setting.ALLOW_GRAPH_EDITING)),
             //more than one thing is selected
             new StatusEntry('[Shift + Drag]',' Box select objects.', Eagle.getInstance().selectedObjects().length >1),
             new StatusEntry('[Shift + Ctrl + Drag]',' Box deselect objects.', Eagle.getInstance().selectedObjects().length >1),
             new StatusEntry(KeyboardShortcut.idToKeysText('create_construct_from_selection', true),' Construct from selection.', Eagle.getInstance().selectedObjects().length >1),
             //construct is selected
-            new StatusEntry('[Alt + click]',' Select construct + children.', this.constructIsSelected()),
+            new StatusEntry('[Alt + Click]',' Select construct without children.', this.constructIsSelected()),
+            //at least one child of a construct is selected
+            new StatusEntry('[Ctrl + Drag]',' move selection without resizing constructs.', this.childOfConstructIsSelected()),
             //always
         ];
     }
