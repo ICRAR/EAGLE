@@ -1703,7 +1703,7 @@ export class Eagle {
         });
     }
 
-    saveGraphConfigAs = async (config: GraphConfig) : Promise<void> => {
+    saveGraphConfigAs = async (graphConfig: GraphConfig) : Promise<void> => {
         return new Promise(async(resolve, reject) => {
             const isLocalFile = this.logicalGraph().fileInfo().repositoryService === Repository.Service.File;
 
@@ -1715,14 +1715,14 @@ export class Eagle {
 
             if (userChoice === "Local File"){
                 try {
-                    this.saveAsFileToLocal(Eagle.FileType.GraphConfig);
+                    this.saveAsFileToLocal(Eagle.FileType.GraphConfig, graphConfig);
                 } catch (error) {
                     reject(error);
                     return;
                 }
             } else {
                 try {
-                    this.commitToGitAs(Eagle.FileType.GraphConfig);
+                    this.commitToGitAs(Eagle.FileType.GraphConfig, graphConfig);
                 } catch(error) {
                     reject(error);
                     return;
@@ -1736,12 +1736,20 @@ export class Eagle {
     /**
      * Saves the file to a local download folder.
      */
-    saveFileToLocal = async (fileType : Eagle.FileType) : Promise<void> => {
+    saveFileToLocal = async (fileType : Eagle.FileType, graphConfig: GraphConfig | null = null) : Promise<void> => {
         return new Promise(async(resolve, reject) => {
             switch (fileType){
                 case Eagle.FileType.Graph:
                     try {
                         await this.saveGraphToDisk(this.logicalGraph());
+                    } catch(error) {
+                        reject(error);
+                        return;
+                    }
+                    break;
+                case Eagle.FileType.GraphConfig:
+                    try {
+                        await this.saveGraphConfigToDisk(graphConfig);
                     } catch(error) {
                         reject(error);
                         return;
@@ -1778,13 +1786,21 @@ export class Eagle {
         });
     }
 
-    saveAsFileToLocal = async (fileType: Eagle.FileType): Promise<void> => {
+    saveAsFileToLocal = async (fileType: Eagle.FileType, graphConfig: GraphConfig | null = null): Promise<void> => {
         return new Promise(async(resolve, reject) => {
             switch (fileType){
                 case Eagle.FileType.Graph:
                     try {
-                        await this.saveAsFileToDisk(this.logicalGraph());
+                        await this.saveAsFileToDisk(fileType, this.logicalGraph());
                     } catch (error){
+                        reject(error);
+                        return;
+                    }
+                    break;
+                case Eagle.FileType.GraphConfig:
+                    try {
+                        await this.saveAsFileToDisk(fileType, graphConfig);
+                    } catch(error) {
                         reject(error);
                         return;
                     }
@@ -1805,7 +1821,7 @@ export class Eagle {
                     }
 
                     try {
-                        await this.saveAsFileToDisk(destinationPalette);
+                        await this.saveAsFileToDisk(fileType, destinationPalette);
                     } catch (error){
                         reject(error);
                         return;
@@ -1900,16 +1916,20 @@ export class Eagle {
     /**
      * Performs a Git commit of a graph/palette. Asks user for a file name before saving.
      */
-    commitToGitAs = async (fileType : Eagle.FileType) : Promise<void> => {
+    commitToGitAs = async (fileType : Eagle.FileType, graphConfig: GraphConfig | null = null) : Promise<void> => {
         return new Promise(async(resolve, reject) => {
             let fileInfo : ko.Observable<FileInfo>;
-            let obj : LogicalGraph | Palette;
+            let obj : LogicalGraph | Palette | GraphConfig;
 
             // determine which object of the given filetype we are committing
             switch (fileType){
                 case Eagle.FileType.Graph:
                     fileInfo = this.logicalGraph().fileInfo;
                     obj = this.logicalGraph();
+                    break;
+                case Eagle.FileType.GraphConfig:
+                    fileInfo = null;
+                    obj = graphConfig;
                     break;
                 case Eagle.FileType.Palette: {
                     const paletteNames: string[] = this.buildReadablePaletteNamesList();
@@ -1936,7 +1956,7 @@ export class Eagle {
             if (this.logicalGraph()){
                 // if the repository service is unknown (or file), probably because the graph hasn't been saved before, then
                 // just use any existing repo
-                if (fileInfo().repositoryService === Repository.Service.Unknown || fileInfo().repositoryService === Repository.Service.File){
+                if (fileInfo === null || fileInfo().repositoryService === Repository.Service.Unknown || fileInfo().repositoryService === Repository.Service.File){
                     const gitHubRepoList : Repository[] = Repositories.getList(Repository.Service.GitHub);
                     const gitLabRepoList : Repository[] = Repositories.getList(Repository.Service.GitLab);
 
@@ -1960,7 +1980,7 @@ export class Eagle {
 
             let commit: RepositoryCommit;
             try {
-                commit = await Utils.requestUserGitCommit(defaultRepository, Repositories.getList(defaultRepository.service), fileInfo().path, fileInfo().name, fileType);
+                commit = await Utils.requestUserGitCommit(defaultRepository, Repositories.getList(defaultRepository.service), fileInfo ? fileInfo().path: this.logicalGraph().fileInfo().path, fileInfo ? fileInfo().name : graphConfig.getName() + ".graphConfig", fileType);
             } catch (error){
                 reject(error);
                 return;
@@ -2053,7 +2073,7 @@ export class Eagle {
         });
     }
 
-    _commit = async (repository: Repository, fileType: Eagle.FileType, filePath: string, fileName: string, fileInfo: ko.Observable<FileInfo>, commitMessage: string, obj: LogicalGraph | Palette) : Promise<void> => {
+    _commit = async (repository: Repository, fileType: Eagle.FileType, filePath: string, fileName: string, fileInfo: ko.Observable<FileInfo>, commitMessage: string, obj: LogicalGraph | Palette | GraphConfig) : Promise<void> => {
         return new Promise(async(resolve, reject) => {
             // check that repository was found, if not try "save as"!
             if (repository === null){
@@ -2080,12 +2100,15 @@ export class Eagle {
     /**
      * Saves a graph/palette file to the GitHub repository.
      */
-    saveDiagramToGit = (repository : Repository, fileType : Eagle.FileType, filePath : string, fileName : string, fileInfo: ko.Observable<FileInfo>, commitMessage : string, obj: LogicalGraph | Palette) : Promise<void> => {
+    saveDiagramToGit = (repository : Repository, fileType : Eagle.FileType, filePath : string, fileName : string, fileInfo: ko.Observable<FileInfo>, commitMessage : string, obj: LogicalGraph | Palette | GraphConfig) : Promise<void> => {
         return new Promise(async(resolve, reject) => {
             console.log("saveDiagramToGit() repositoryName", repository.name, "fileType", fileType, "filePath", filePath, "fileName", fileName, "commitMessage", commitMessage);
 
-            const clone: LogicalGraph | Palette | Eagle = obj.clone();
-            clone.fileInfo().updateEagleInfo();
+            const clone: LogicalGraph | Palette | GraphConfig = obj.clone();
+
+            if (clone instanceof LogicalGraph || clone instanceof Palette) {
+                clone.fileInfo().updateEagleInfo();
+            }
 
             const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
 
@@ -2093,6 +2116,9 @@ export class Eagle {
             switch (fileType){
                 case Eagle.FileType.Graph:
                     jsonString = LogicalGraph.toJsonString(<LogicalGraph>clone, false, version);
+                    break;
+                case Eagle.FileType.GraphConfig:
+                    jsonString = GraphConfig.toJsonString(<GraphConfig>clone);
                     break;
                 case Eagle.FileType.Palette:
                     jsonString = Palette.toJsonString(<Palette>clone, version);
@@ -2776,28 +2802,66 @@ export class Eagle {
         });
     }
 
-    saveAsFileToDisk = async (file: LogicalGraph | Palette): Promise<void> => {
+    saveGraphConfigToDisk = async (graphConfig: GraphConfig): Promise<void> => {
+        return new Promise(async(resolve, reject) => {
+            console.log("saveGraphConfigToDisk()", graphConfig.getName());
+
+            // get version
+            const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
+
+            // convert to json
+            const jsonString: string = GraphConfig.toJsonString(graphConfig);
+
+            // validate json
+            Utils.validateJSON(jsonString, Eagle.FileType.GraphConfig, version);
+
+            try {
+                await Utils.downloadFile(jsonString, graphConfig.getName());
+            } catch (error) {
+                reject(error);
+                return;
+            }
+            resolve();
+        });
+    }
+
+    saveAsFileToDisk = async (fileType: Eagle.FileType, file: LogicalGraph | Palette | GraphConfig): Promise<void> => {
+        // get default filename
+        let defaultFilename = "";
+        if (file instanceof LogicalGraph || file instanceof Palette) {
+            defaultFilename = file.fileInfo().name;
+        } else {
+            defaultFilename = file.getName() + ".graphConfig";
+        }
+
         let userString: string;
         try {
-            userString = await Utils.requestUserString("Save As", "Please enter a filename for the " + file.fileInfo().type, file.fileInfo().name, false);
+            userString = await Utils.requestUserString("Save As", "Please enter a filename for the " + fileType, defaultFilename, false);
         } catch (error) {
             console.error(error);
             return;
         }
 
+        // if file is LG or Palette, update the name
+        if (file instanceof LogicalGraph || file instanceof Palette) {
+            file.fileInfo().name = userString;
+        } else {
+            file.setName(userString);
+        }
 
-        file.fileInfo().name = userString;
-
-        switch(file.fileInfo().type){
+        switch(fileType){
             case Eagle.FileType.Graph:
                 this.saveGraphToDisk(file as LogicalGraph);
+                break;
+            case Eagle.FileType.GraphConfig:
+                this.saveGraphConfigToDisk(file as GraphConfig);
                 break;
             case Eagle.FileType.Palette:
                 this.savePaletteToDisk(file as Palette);
                 break;
             default:
-                console.warn("saveAsFileToDisk(): fileType", file.fileInfo().type, "not implemented, aborting.");
-                Utils.showUserMessage("Error", "Unable to save file: file type '" + file.fileInfo().type + "' is not supported.");
+                console.warn("saveAsFileToDisk(): fileType", fileType, "not implemented, aborting.");
+                Utils.showUserMessage("Error", "Unable to save file: file type '" + fileType + "' is not supported.");
         }
     }
 
