@@ -322,7 +322,6 @@ export class GraphRenderer {
 
     static renderDraggingPortEdge : ko.Observable<boolean> = ko.observable(false);
 
-
     static averageAngles(angles: number[]) : number {
         let x: number = 0;
         let y: number = 0;
@@ -2298,6 +2297,7 @@ export class GraphRenderer {
 
     static edgeGetStrokeColor(edge: Edge) : string {
         const eagle = Eagle.getInstance();
+        const showErrorsMode = Setting.findValue(Setting.SHOW_GRAPH_WARNINGS);
 
         let normalColor: string = EagleConfig.getColor('edgeDefault');
         let selectedColor: string = EagleConfig.getColor('edgeDefaultSelected');
@@ -2318,12 +2318,12 @@ export class GraphRenderer {
         // const linkValid : Errors.Validity = Edge.isValid(eagle,false, edge.getId(), edge.getSrcNodeId(), edge.getSrcPortId(), edge.getDestNodeId(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {errors:[], warnings:[]});
         const linkValid : Errors.Validity = Utils.worstEdgeError(edge.getErrorsWarnings());
 
-        if (linkValid === Errors.Validity.Error || linkValid === Errors.Validity.Impossible){
+        if ((linkValid === Errors.Validity.Error || linkValid === Errors.Validity.Impossible) && showErrorsMode !== Setting.ShowErrorsMode.None){
             normalColor = EagleConfig.getColor('edgeInvalid');
             selectedColor = EagleConfig.getColor('edgeInvalidSelected');
         }
 
-        if (linkValid === Errors.Validity.Warning){
+        if (linkValid === Errors.Validity.Warning && showErrorsMode === Setting.ShowErrorsMode.Warnings){
             normalColor = EagleConfig.getColor('edgeWarning');
             selectedColor = EagleConfig.getColor('edgeWarningSelected');
         }
