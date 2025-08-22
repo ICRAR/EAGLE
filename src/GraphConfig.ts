@@ -131,6 +131,24 @@ export class GraphConfig {
         // copy modelData into fileInfo
         if (typeof data.modelData === 'undefined'){
             const fi = new FileInfo();
+
+            // attempt to read old-style attributes and place them in the new FileInfo class
+            if (typeof data.name !== "undefined"){
+                fi.name = data.name;
+            }
+            if (typeof data.description !== "undefined"){
+                fi.shortDescription = data.description;
+            }
+            if (typeof data.lastModifiedName !== "undefined"){
+                fi.lastModifiedName = data.lastModifiedName;
+            }
+            if (typeof data.lastModifiedEmail !== "undefined"){
+                fi.lastModifiedEmail = data.lastModifiedEmail;
+            }
+            if (typeof data.lastModifiedDatetime !== "undefined"){
+                fi.lastModifiedDatetime = data.lastModifiedDatetime;
+            }
+
             fi.type = Eagle.FileType.GraphConfig;
             result.fileInfo(fi);
         } else {
