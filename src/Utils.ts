@@ -251,6 +251,9 @@ export class Utils {
         if (fileType.toLowerCase() === "graph"){
             return Eagle.FileType.Graph;
         }
+        if (fileType.toLowerCase() === "graphconfig"){
+            return Eagle.FileType.GraphConfig;
+        }
         if (fileType.toLowerCase() === "palette"){
             return Eagle.FileType.Palette;
         }
