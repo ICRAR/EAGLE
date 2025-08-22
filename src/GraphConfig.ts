@@ -129,7 +129,13 @@ export class GraphConfig {
         const result: GraphConfig = new GraphConfig();
 
         // copy modelData into fileInfo
-        result.fileInfo(FileInfo.fromV4Json(data.modelData, errorsWarnings));
+        if (typeof data.modelData === 'undefined'){
+            const fi = new FileInfo();
+            fi.type = Eagle.FileType.GraphConfig;
+            result.fileInfo(fi);
+        } else {
+            result.fileInfo(FileInfo.fromV4Json(data.modelData, errorsWarnings));
+        }
 
         if (typeof data.id !== 'undefined'){
             result.id(data.id);
