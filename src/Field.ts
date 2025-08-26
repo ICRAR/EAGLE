@@ -698,6 +698,22 @@ export class Field {
         return this;
     }
 
+    isIntegerValueField = () : Boolean => {
+        return this.type() === Daliuge.DataType.Integer || this.type() === Daliuge.DataType.int;
+    }
+
+    isFloatValueField = () : Boolean => {
+        return this.type() === Daliuge.DataType.Float || this.type() === Daliuge.DataType.float;
+    }
+
+    isBooleanValueField = () : Boolean => {
+        return this.type() === Daliuge.DataType.Boolean || this.type() === Daliuge.DataType.bool;
+    }
+
+    isStringValueField = () : Boolean => {
+        return !this.isBooleanValueField() && !this.isFloatValueField() && !this.isIntegerValueField()
+    }
+
     // used to transform the value attribute of a field into a variable with the correct type
     // the value attribute is always stored as a string internally
     static stringAsType(value: string, type: Daliuge.DataType) : boolean | number | string {

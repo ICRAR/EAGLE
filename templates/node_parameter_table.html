@@ -214,7 +214,7 @@
                                                 <td class='columnCell column_Value'data-bind="css: {selectedTableParameter: ParameterTable.isSelected('value', $data) || ParameterTable.isSelected('configValue', $data)}">
                                                     <!-- ko if: $data.getHtmlInputType() === 'number' || $data.getHtmlInputType() === 'text' || $data.getHtmlInputType() === 'password' -->
 
-                                                        <!-- ko if: $data.getType() === 'Integer' -->
+                                                        <!-- ko if: $data.isIntegerValueField() -->
                                                             <!-- ko if: $data.getGraphConfigField() -->
                                                                 <input class="tableParameter configValueInput" step="1" onfocus="this.previousValue = this.value" onkeydown="this.previousValue = this.value" oninput="validity.valid || (value = this.previousValue)" data-bind="eagleTooltip: 'Configured Value',disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: $data.getGraphConfigField().value, attr:{type: $data.getHtmlInputType()},  event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.getGraphConfigField().value(), 'configValue', $data, $index())}, click: function(event, data){ParameterTable.select($data.getGraphConfigField().value(), 'configValue', $data, $index())}}">    
                                                             <!-- /ko -->
@@ -223,7 +223,7 @@
                                                             <!-- /ko -->
                                                         <!-- /ko -->
 
-                                                        <!-- ko if: $data.getType() === 'Float' -->
+                                                        <!-- ko if: $data.isFloatValueField() -->
                                                             <!-- ko if: $data.getGraphConfigField() -->
                                                                 <input class="tableParameter configValueInput" step="0.1" data-bind="eagleTooltip: 'Configured Value',disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: $data.getGraphConfigField().value, attr:{type: $data.getHtmlInputType()},  event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.getGraphConfigField().value(), 'configValue', $data, $index())}, click: function(event, data){ParameterTable.select($data.getGraphConfigField().value(), 'configValue', $data, $index())}}">    
                                                             <!-- /ko -->
