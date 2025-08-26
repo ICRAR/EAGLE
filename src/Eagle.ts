@@ -1741,7 +1741,7 @@ export class Eagle {
             switch (fileType){
                 case Eagle.FileType.Graph:
                     try {
-                        await this.saveGraphToDisk(this.logicalGraph());
+                        await this.saveGraphToDisk(this.logicalGraph(), this.logicalGraph().fileInfo().name);
                     } catch(error) {
                         reject(error);
                         return;
@@ -1749,7 +1749,7 @@ export class Eagle {
                     break;
                 case Eagle.FileType.GraphConfig:
                     try {
-                        await this.saveGraphConfigToDisk(graphConfig);
+                        await this.saveGraphConfigToDisk(graphConfig, graphConfig.fileInfo().name);
                     } catch(error) {
                         reject(error);
                         return;
@@ -1771,7 +1771,7 @@ export class Eagle {
                     }
 
                     try {
-                        await this.savePaletteToDisk(destinationPalette);
+                        await this.savePaletteToDisk(destinationPalette, destinationPalette.fileInfo().name);
                     } catch (error){
                         reject(error);
                         return;
@@ -2683,70 +2683,60 @@ export class Eagle {
     }
 
     // TODO: shares some code with saveFileToLocal(), we should try to factor out the common stuff at some stage
-    savePaletteToDisk = async (palette : Palette) : Promise<void> => {
-        // TODO: promise
-        console.log("savePaletteToDisk()", palette.fileInfo().name, palette.fileInfo().type);
+    savePaletteToDisk = async (palette : Palette, fileName: string) : Promise<void> => {
+        return new Promise(async (resolve, reject) => {
+            console.log("savePaletteToDisk()", fileName);
 
-        let fileName = palette.fileInfo().name;
+            // clone the palette and remove github info ready for local save
+            const p_clone : Palette = palette.clone();
+            p_clone.fileInfo().removeGitInfo();
+            p_clone.fileInfo().updateEagleInfo();
 
-        // Adding file extension to the title if it does not have it.
-        if (!Utils.verifyFileExtension(fileName)) {
-            fileName = fileName + "." + Utils.getDiagramExtension(Eagle.FileType.Palette);
-        }
+            // get version
+            const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
 
-        // clone the palette and remove github info ready for local save
-        const p_clone : Palette = palette.clone();
-        p_clone.fileInfo().removeGitInfo();
-        p_clone.fileInfo().updateEagleInfo();
+            // convert to json
+            const jsonString: string = Palette.toJsonString(p_clone, version);
 
-        // get version
-        const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
+            // validate json
+            Utils.validateJSON(jsonString, Eagle.FileType.Palette, version);
 
-        // convert to json
-        const jsonString: string = Palette.toJsonString(p_clone, version);
+            let data: any;
+            try {
+                data = await Utils.httpPostJSONString('/saveFileToLocal', jsonString);
+            } catch (error){
+                Utils.showUserMessage("Error", "Error saving the file! " + error);
+                console.error(error);
+                reject(error);
+                return;
+            }
 
-        // validate json
-        Utils.validateJSON(jsonString, Eagle.FileType.Palette, version);
+            Utils.downloadFile(data, fileName);
 
-        let data: any;
-        try {
-            data = await Utils.httpPostJSONString('/saveFileToLocal', jsonString);
-        } catch (error){
-            Utils.showUserMessage("Error", "Error saving the file! " + error);
-            console.error(error);
-            return;
-        }
+            // since changes are now stored locally, the file will have become out of sync with the GitHub repository, so the association should be broken
+            // clear the modified flag
+            palette.fileInfo().modified = false;
+            palette.fileInfo().repositoryService = Repository.Service.Unknown;
+            palette.fileInfo().repositoryName = "";
+            palette.fileInfo().repositoryUrl = "";
+            palette.fileInfo().commitHash = "";
+            palette.fileInfo().downloadUrl = "";
+            palette.fileInfo.valueHasMutated();
 
-        Utils.downloadFile(data, fileName);
-
-        // since changes are now stored locally, the file will have become out of sync with the GitHub repository, so the association should be broken
-        // clear the modified flag
-        palette.fileInfo().modified = false;
-        palette.fileInfo().repositoryService = Repository.Service.Unknown;
-        palette.fileInfo().repositoryName = "";
-        palette.fileInfo().repositoryUrl = "";
-        palette.fileInfo().commitHash = "";
-        palette.fileInfo().downloadUrl = "";
-        palette.fileInfo.valueHasMutated();
+            resolve();
+        });
     }
 
     /**
      * Saves the file to a local download folder.
      */
-    saveGraphToDisk = async (graph : LogicalGraph): Promise<void> => {
+    saveGraphToDisk = async (graph : LogicalGraph, fileName: string): Promise<void> => {
         return new Promise(async(resolve, reject) => {
-            console.log("saveGraphToDisk()", graph.fileInfo().name, graph.fileInfo().type);
+            console.log("saveGraphToDisk()", fileName);
 
             // check that the fileType has been set for the logicalGraph
             if (graph.fileInfo().type !== Eagle.FileType.Graph){
                 Utils.showUserMessage("Error", "Graph fileType not set correctly. Could not save file.");
-                return;
-            }
-
-            // abort if graph has no filename
-            if (!graph.fileInfo().isInitiated()) {
-                // abort and notify user
-                Utils.showNotification("Unable to save Graph with no name", "Please name the graph before saving", "danger");
                 return;
             }
 
@@ -2779,7 +2769,7 @@ export class Eagle {
             }
 
             try {
-                await Utils.downloadFile(data, graph.fileInfo().name);
+                await Utils.downloadFile(data, fileName);
             } catch (error){
                 reject(error);
                 return;
@@ -2799,9 +2789,9 @@ export class Eagle {
         });
     }
 
-    saveGraphConfigToDisk = async (graphConfig: GraphConfig): Promise<void> => {
+    saveGraphConfigToDisk = async (graphConfig: GraphConfig, fileName: string): Promise<void> => {
         return new Promise(async(resolve, reject) => {
-            console.log("saveGraphConfigToDisk()", graphConfig.fileInfo().name);
+            console.log("saveGraphConfigToDisk()", fileName);
 
             // get version
             const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
@@ -2813,7 +2803,7 @@ export class Eagle {
             Utils.validateJSON(jsonString, Eagle.FileType.GraphConfig, version);
 
             try {
-                await Utils.downloadFile(jsonString, graphConfig.fileInfo().name);
+                await Utils.downloadFile(jsonString, fileName);
             } catch (error) {
                 reject(error);
                 return;
@@ -2823,26 +2813,40 @@ export class Eagle {
     }
 
     saveAsFileToDisk = async (file: LogicalGraph | Palette | GraphConfig): Promise<void> => {
+        // get extension for fileType
+        let extension: string = Utils.getDiagramExtension(file.fileInfo().type);
+
+        let defaultFilename = file.fileInfo().name;
+
+        // check whether existing name ends with the file extension
+        if (!defaultFilename.endsWith("." + extension)) {
+            defaultFilename += "." + extension;
+        }
+
         let userString: string;
         try {
-            userString = await Utils.requestUserString("Save As", "Please enter a filename for the " + file.fileInfo().type, file.fileInfo().name, false);
+            userString = await Utils.requestUserString("Save As", "Please enter a filename for the " + file.fileInfo().type, defaultFilename, false);
         } catch (error) {
             console.error(error);
             return;
         }
 
-        // update the name
-        file.fileInfo().name = userString;
+        // abort if user entered empty string
+        if (userString === "") {
+            // abort and notify user
+            Utils.showNotification("Unable to save file with no name", "Please name the file before saving", "danger");
+            return;
+        }
 
         switch(file.fileInfo().type){
             case Eagle.FileType.Graph:
-                this.saveGraphToDisk(file as LogicalGraph);
+                this.saveGraphToDisk(file as LogicalGraph, userString);
                 break;
             case Eagle.FileType.GraphConfig:
-                this.saveGraphConfigToDisk(file as GraphConfig);
+                this.saveGraphConfigToDisk(file as GraphConfig, userString);
                 break;
             case Eagle.FileType.Palette:
-                this.savePaletteToDisk(file as Palette);
+                this.savePaletteToDisk(file as Palette, userString);
                 break;
             default:
                 console.warn("saveAsFileToDisk(): fileType", file.fileInfo().type, "not implemented, aborting.");

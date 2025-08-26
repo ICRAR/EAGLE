@@ -60,8 +60,10 @@ export class Utils {
 
     static ojsGraphSchema : object = {};
     static ojsPaletteSchema : object = {};
+    static ojsGraphConfigSchema : object = {};
     static v4GraphSchema : object = {};
     static v4PaletteSchema : object = {};
+    static v4GraphConfigSchema : object = {};
 
     static generateNodeId(): NodeId {
         return Utils._uuidv4() as NodeId;
@@ -1555,6 +1557,9 @@ export class Utils {
                     case Eagle.FileType.Palette:
                         valid = ajv.validate(Utils.ojsPaletteSchema, json) as boolean;
                         break;
+                    case Eagle.FileType.GraphConfig:
+                        valid = ajv.validate(Utils.ojsGraphConfigSchema, json) as boolean;
+                        break;
                     default:
                         console.warn("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");
                         valid = true;
@@ -1568,6 +1573,9 @@ export class Utils {
                         break;
                     case Eagle.FileType.Palette:
                         valid = ajv.validate(Utils.v4PaletteSchema, json) as boolean;
+                        break;
+                    case Eagle.FileType.GraphConfig:
+                        valid = ajv.validate(Utils.v4GraphConfigSchema, json) as boolean;
                         break;
                     default:
                         console.warn("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");
@@ -2441,6 +2449,9 @@ export class Utils {
             Utils.v4PaletteSchema = schema;
 
             // TODO: hack to introduce difference between palette and graph schemas
+
+            // just use the 'graphConfig' part of the schema for graphConfigs
+            Utils.v4GraphConfigSchema = (<any>schema).properties.graphConfigurations.patternProperties["[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"];
         }
 
         const _fetchSchema = async function(url: string, localStorageKey: string, setFunc: (schema: object) => void){

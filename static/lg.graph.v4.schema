@@ -4,10 +4,7 @@
         "eagleId": {
             "type": ["string", "null"],
             "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
-        }
-    },
-    "type": "object",
-    "properties": {
+        },
         "modelData": {
             "type": "object",
             "properties": {
@@ -89,6 +86,12 @@
                 "detailedDescription"
             ],
             "additionalProperties": false
+        }
+    },
+    "type": "object",
+    "properties": {
+        "modelData": {
+            "$ref": "#/$defs/eagleId"
         },
         "nodes": {
             "type": "object",
@@ -295,11 +298,8 @@
                 "[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}": {
                     "type": "object",
                     "properties": {
-                        "name": {
-                            "type": "string"
-                        },
-                        "description": {
-                            "type": "string"
+                        "modelData": {
+                            "$ref": "#/$defs/eagleId"
                         },
                         "nodes": {
                             "type": "object",
@@ -312,21 +312,10 @@
                                 }
                             }
                         },
-                        "lastModifiedName": {
-                            "type": "string"
-                        },
-                        "lastModifiedEmail": {
-                            "type": "string"
-                        },
-                        "lastModifiedDatetime": {
-                            "type": "number"
-                        }
                     },
                     "required": [
+                        "modelData",
                         "nodes",
-                        "lastModifiedName",
-                        "lastModifiedEmail",
-                        "lastModifiedDatetime"
                     ],
                     "additionalProperties": false
                 }
