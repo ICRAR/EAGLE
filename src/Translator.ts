@@ -25,8 +25,6 @@
 import * as ko from "knockout";
 
 import { Eagle } from './Eagle';
-import { Errors } from './Errors';
-import { GraphConfig } from "./GraphConfig";
 import { LogicalGraph } from './LogicalGraph';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
