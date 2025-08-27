@@ -356,7 +356,6 @@ export class Setting {
     static readonly SHOW_ALL_CATEGORY_OPTIONS: string = "ShowAllCategoryOptions";
 
     static readonly ALLOW_MODIFIED_GRAPH_TRANSLATION: string = "AllowModifiedGraphTranslation";
-    static readonly APPLY_ACTIVE_GRAPH_CONFIG_BEFORE_TRANSLATION: string = "ApplyActiveGraphConfigBeforeTranslation";
     static readonly FETCH_REPOSITORY_FOR_URLS: string = "FetchRepositoryForUrls";
     static readonly KEEP_OLD_FIELDS_DURING_CATEGORY_CHANGE: string = "KeepOldFieldsDuringCategoryChange";
     static readonly MARKDOWN_EDITING_ENABLED: string = "MarkdownEditingEnabled";
@@ -483,7 +482,6 @@ const settings : SettingsGroup[] = [
             new Setting(true, "Print Translator JSON to JS Console", Setting.PRINT_TRANSLATOR_JSON_TO_JS_CONSOLE, "When translating a graph, print the JSON data sent to the translator to the browser's javascript console", false, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(true, "Display all Category options", Setting.SHOW_ALL_CATEGORY_OPTIONS, "Displays all category options when changing the category of a node", false, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(true, "Allow modified graph translation", Setting.ALLOW_MODIFIED_GRAPH_TRANSLATION, "Allow users to submit graphs for translation even when not saved or committed", true, Setting.Type.Boolean, false, false, false, false, false),
-            new Setting(true, "Apply active graph config before translation", Setting.APPLY_ACTIVE_GRAPH_CONFIG_BEFORE_TRANSLATION, "Apply the active graph config to the graph before sending the graph for translation", false, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(true, "Fetch repository for URLs", Setting.FETCH_REPOSITORY_FOR_URLS, "Automatically fetch the contents of the object's repository when a graph/palette is specified in the URL", true, Setting.Type.Boolean, false, false ,false, false, false),
             new Setting(true, "Keep Old Fields during Category Change", Setting.KEEP_OLD_FIELDS_DURING_CATEGORY_CHANGE, "When changing the category of an existing node, several fields may become useless and would normally be deleted. Enabling this setting will keep those fields.", false, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(true, "DALiuGE Schema Version", Setting.DALIUGE_SCHEMA_VERSION, "JSON file format for output graphs (used for saving and translation)", true, Setting.Type.Select, Setting.SchemaVersion.OJS, Setting.SchemaVersion.OJS, Setting.SchemaVersion.OJS, Setting.SchemaVersion.OJS, Setting.SchemaVersion.OJS, [Setting.SchemaVersion.OJS, Setting.SchemaVersion.V4])
