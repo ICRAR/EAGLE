@@ -911,9 +911,9 @@ export class Utils {
         palette.fileInfo().name = paletteListItem.name;
         palette.fileInfo().readonly = paletteListItem.readonly;
         palette.fileInfo().builtIn = true;
-        palette.fileInfo().downloadUrl = paletteListItem.filename;
+        palette.fileInfo().location.downloadUrl(paletteListItem.filename);
         palette.fileInfo().type = Eagle.FileType.Palette;
-        palette.fileInfo().repositoryService = Repository.Service.Url;
+        palette.fileInfo().location.repositoryService(Repository.Service.Url);
 
         palette.expanded(paletteListItem.expanded);
     }

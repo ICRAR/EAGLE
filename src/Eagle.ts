@@ -37,6 +37,7 @@ import { Edge } from './Edge';
 import { Errors } from './Errors';
 import { Field } from './Field';
 import { FileInfo } from './FileInfo';
+import { FileLocation } from "./FileLocation";
 import { GitHub } from './GitHub';
 import { GitLab } from './GitLab';
 import { GraphConfig } from "./GraphConfig";
@@ -382,7 +383,7 @@ export class Eagle {
             return "";
         }
 
-        return fileInfo.getHtml();
+        return fileInfo.location.getHtml();
     }, this);
 
     activeConfigHtml : ko.PureComputed<string> = ko.pureComputed(() => {
@@ -637,7 +638,7 @@ export class Eagle {
     
     getTranslatorColor : ko.PureComputed<string> = ko.pureComputed(() : string => {
         // check if current graph comes from a supported git service
-        const serviceIsGit: boolean = [Repository.Service.GitHub, Repository.Service.GitLab].includes(this.logicalGraph().fileInfo().repositoryService);
+        const serviceIsGit: boolean = [Repository.Service.GitHub, Repository.Service.GitLab].includes(this.logicalGraph().fileInfo().location.repositoryService());
 
         if(!serviceIsGit){
             return 'dodgerblue'
@@ -884,7 +885,7 @@ export class Eagle {
                 const data: string = evt.target.result.toString();
 
                 eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
-                    const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().getText(), "", Category.SubGraph);
+                    const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().location.getText(), "", Category.SubGraph);
     
                     eagle.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges()), parentNode, errorsWarnings);
     
@@ -1244,7 +1245,7 @@ export class Eagle {
 
                 eagle._loadPaletteJSON(data, fileFullPath);
 
-                eagle.palettes()[0].fileInfo().repositoryService = Repository.Service.File;
+                eagle.palettes()[0].fileInfo().location.repositoryService(Repository.Service.File);
                 eagle.palettes()[0].fileInfo.valueHasMutated();
             }
             reader.onerror = function (evt) {
@@ -1306,7 +1307,7 @@ export class Eagle {
                 const data: string = evt.target.result.toString();
 
                 eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
-                    const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().getText(), "", Category.SubGraph);
+                    const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().location.getText(), "", Category.SubGraph);
     
                     eagle.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges()), parentNode, errorsWarnings);
     
@@ -1577,18 +1578,18 @@ export class Eagle {
          // remove palette
          this.closePalette(palette);
 
-         switch (fileInfo.repositoryService){
+         switch (fileInfo.location.repositoryService()){
              case Repository.Service.File:
                 // load palette
                 this.getPaletteFileToLoad();
                 break;
             case Repository.Service.GitLab:
             case Repository.Service.GitHub:
-                Repositories.selectFile(new RepositoryFile(new Repository(fileInfo.repositoryService, fileInfo.repositoryName, fileInfo.repositoryBranch, false), fileInfo.path, fileInfo.name));
+                Repositories.selectFile(new RepositoryFile(new Repository(fileInfo.location.repositoryService(), fileInfo.location.repositoryName(), fileInfo.location.repositoryBranch(), false), fileInfo.location.repositoryPath(), fileInfo.location.repositoryFileName()));
                 break;
             case Repository.Service.Url:
                 const {palettes, errorsWarnings} = await this.loadPalettes([
-                    {name:palette.fileInfo().name, filename:palette.fileInfo().downloadUrl, readonly:palette.fileInfo().readonly, expanded: true}
+                    {name:palette.fileInfo().name, filename:palette.fileInfo().location.downloadUrl(), readonly:palette.fileInfo().readonly, expanded: true}
                 ]);
 
                 for (const palette of palettes){
@@ -1639,7 +1640,7 @@ export class Eagle {
         return new Promise(async(resolve, reject) => {
             const eagle: Eagle = Eagle.getInstance();
 
-            switch (eagle.logicalGraph().fileInfo().repositoryService){
+            switch (eagle.logicalGraph().fileInfo().location.repositoryService()){
                 case Repository.Service.File:
                     try {
                         await eagle.saveFileToLocal(Eagle.FileType.Graph);
@@ -1673,7 +1674,7 @@ export class Eagle {
 
     saveGraphAs = async () : Promise<void> => {
         return new Promise(async(resolve, reject) => {
-            const isLocalFile = this.logicalGraph().fileInfo().repositoryService === Repository.Service.File;
+            const isLocalFile = this.logicalGraph().fileInfo().location.repositoryService() === Repository.Service.File;
 
             const userChoice: string = await Utils.requestUserChoice("Save Graph As", "Please choose where to save the graph", ["Local File", "Remote Git Repository"], isLocalFile?0:1, false, "");
 
@@ -1705,7 +1706,7 @@ export class Eagle {
 
     saveGraphConfigAs = async (graphConfig: GraphConfig) : Promise<void> => {
         return new Promise(async(resolve, reject) => {
-            const isLocalFile = this.logicalGraph().fileInfo().repositoryService === Repository.Service.File;
+            const isLocalFile = this.logicalGraph().fileInfo().location.repositoryService() === Repository.Service.File;
 
             const userChoice: string = await Utils.requestUserChoice("Save Graph Config As", "Please choose where to save the graph config", ["Local File", "Remote Git Repository"], isLocalFile?0:1, false, "");
 
@@ -1889,10 +1890,10 @@ export class Eagle {
             // Mark file as non-modified.
             fileInfo().modified = false;
 
-            fileInfo().repositoryService = repository.service;
-            fileInfo().repositoryName = repository.name;
-            fileInfo().repositoryBranch = repository.branch;
-            fileInfo().path = filePath;
+            fileInfo().location.repositoryService(repository.service);
+            fileInfo().location.repositoryName(repository.name);
+            fileInfo().location.repositoryBranch(repository.branch);
+            fileInfo().location.repositoryPath(filePath);
             fileInfo().type = fileType;
 
             // Adding file extension to the title if it does not have it.
@@ -1956,7 +1957,7 @@ export class Eagle {
             if (this.logicalGraph()){
                 // if the repository service is unknown (or file), probably because the graph hasn't been saved before, then
                 // just use any existing repo
-                if (fileInfo().repositoryService === Repository.Service.Unknown || fileInfo().repositoryService === Repository.Service.File){
+                if (fileInfo().location.repositoryService() === Repository.Service.Unknown || fileInfo().location.repositoryService() === Repository.Service.File){
                     const gitHubRepoList : Repository[] = Repositories.getList(Repository.Service.GitHub);
                     const gitLabRepoList : Repository[] = Repositories.getList(Repository.Service.GitLab);
 
@@ -1974,13 +1975,13 @@ export class Eagle {
                         defaultRepository = new Repository(Repository.Service.GitHub, "", "", false);
                     }
                 } else {
-                    defaultRepository = new Repository(fileInfo().repositoryService, fileInfo().repositoryName, fileInfo().repositoryBranch, false);
+                    defaultRepository = new Repository(fileInfo().location.repositoryService(), fileInfo().location.repositoryName(), fileInfo().location.repositoryBranch(), false);
                 }
             }
 
             let commit: RepositoryCommit;
             try {
-                commit = await Utils.requestUserGitCommit(defaultRepository, Repositories.getList(defaultRepository.service), fileInfo().path, fileInfo().name, fileType);
+                commit = await Utils.requestUserGitCommit(defaultRepository, Repositories.getList(defaultRepository.service), fileInfo().location.repositoryPath(), fileInfo().location.repositoryFileName(), fileType);
             } catch (error){
                 reject(error);
                 return;
@@ -2027,15 +2028,12 @@ export class Eagle {
                     break;
             }
 
-            console.log("fileInfo().repositoryService", fileInfo().repositoryService);
-            console.log("fileInfo().repositoryName", fileInfo().repositoryName);
+            console.log("fileInfo().repositoryService", fileInfo().location.repositoryService());
+            console.log("fileInfo().repositoryName", fileInfo().location.repositoryName());
 
             // if there is no git repository or filename defined for this file. Please use 'save as' instead!
             if (
-                fileInfo().repositoryService === Repository.Service.Unknown ||
-                fileInfo().repositoryService === Repository.Service.File ||
-                fileInfo().repositoryService === Repository.Service.Url ||
-                fileInfo().repositoryName === null
+                [Repository.Service.Unknown, Repository.Service.File, Repository.Service.Url].includes(fileInfo().location.repositoryService()) || fileInfo().location.repositoryName() === null
             ) {
                 await this.commitToGitAs(fileType);
                 return;
@@ -2060,10 +2058,10 @@ export class Eagle {
             // set the EAGLE version etc according to this running version
             fileInfo().updateEagleInfo();
 
-            const repository = Repositories.get(fileInfo().repositoryService, fileInfo().repositoryName, fileInfo().repositoryBranch);
+            const repository = Repositories.getByLocation(fileInfo().location);
 
             try {
-                await this._commit(repository, fileType, fileInfo().path, fileInfo().name, fileInfo, commitMessage, obj);
+                await this._commit(repository, fileType, fileInfo().location.repositoryPath(), fileInfo().location.repositoryFileName(), fileInfo, commitMessage, obj);
             } catch (error) {
                 reject(error);
                 return;
@@ -2488,7 +2486,7 @@ export class Eagle {
         }
 
         // create parent node
-        const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().getText(), "", Category.SubGraph);
+        const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().location.getText(), "", Category.SubGraph);
 
         // perform insert
         this.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges()), parentNode, errorsWarnings);
@@ -2576,8 +2574,8 @@ export class Eagle {
         const newPalette = Palette.fromOJSJson(data, file, errorsWarnings);
 
         if (file.repository.service === Repository.Service.Url){
-            newPalette.fileInfo().repositoryService = Repository.Service.Url;
-            newPalette.fileInfo().downloadUrl = file.name;
+            newPalette.fileInfo().location.repositoryService(Repository.Service.Url);
+            newPalette.fileInfo().location.downloadUrl(file.name);
             newPalette.fileInfo.valueHasMutated();
         }
 
@@ -2595,15 +2593,15 @@ export class Eagle {
 
     private updateLogicalGraphFileInfo = (repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, path : string, name : string) : void => {
         // update the activeFileInfo with details of the repository the file was loaded from
-        this.logicalGraph().fileInfo().repositoryName = repositoryName;
-        this.logicalGraph().fileInfo().repositoryBranch = repositoryBranch;
-        this.logicalGraph().fileInfo().repositoryService = repositoryService;
-        this.logicalGraph().fileInfo().path = path;
-        this.logicalGraph().fileInfo().name = name;
+        this.logicalGraph().fileInfo().location.repositoryName(repositoryName);
+        this.logicalGraph().fileInfo().location.repositoryBranch(repositoryBranch);
+        this.logicalGraph().fileInfo().location.repositoryService(repositoryService);
+        this.logicalGraph().fileInfo().location.repositoryPath(path);
+        this.logicalGraph().fileInfo().location.repositoryFileName(name);
 
         // set url
         if (repositoryService === Repository.Service.Url){
-            this.logicalGraph().fileInfo().downloadUrl = name;
+            this.logicalGraph().fileInfo().location.downloadUrl(name);
         }
 
         // communicate to knockout that the value of the fileInfo has been modified (so it can update UI)
@@ -2625,6 +2623,7 @@ export class Eagle {
         for (let i = 0 ; i < this.palettes().length ; i++){
             const p = this.palettes()[i];
 
+            // TODO: can we use a palette id here, to be sure the correct palette is closed?
             if (p.fileInfo().name === palette.fileInfo().name){
 
                 // check if the palette is modified, and if so, ask the user to confirm they wish to close
@@ -2716,11 +2715,11 @@ export class Eagle {
             // since changes are now stored locally, the file will have become out of sync with the GitHub repository, so the association should be broken
             // clear the modified flag
             palette.fileInfo().modified = false;
-            palette.fileInfo().repositoryService = Repository.Service.Unknown;
-            palette.fileInfo().repositoryName = "";
+            palette.fileInfo().location.repositoryService(Repository.Service.Unknown);
+            palette.fileInfo().location.repositoryName("");
             palette.fileInfo().repositoryUrl = "";
-            palette.fileInfo().commitHash = "";
-            palette.fileInfo().downloadUrl = "";
+            palette.fileInfo().location.commitHash("");
+            palette.fileInfo().location.downloadUrl("");
             palette.fileInfo.valueHasMutated();
 
             resolve();
@@ -2778,11 +2777,11 @@ export class Eagle {
             // since changes are now stored locally, the file will have become out of sync with the GitHub repository, so the association should be broken
             // clear the modified flag
             graph.fileInfo().modified = false;
-            graph.fileInfo().repositoryService = Repository.Service.File;
-            graph.fileInfo().repositoryName = "";
+            graph.fileInfo().location.repositoryService(Repository.Service.File);
+            graph.fileInfo().location.repositoryName("");
             graph.fileInfo().repositoryUrl = "";
-            graph.fileInfo().commitHash = "";
-            graph.fileInfo().downloadUrl = "";
+            graph.fileInfo().location.commitHash("");
+            graph.fileInfo().location.downloadUrl("");
             graph.fileInfo.valueHasMutated();
 
             resolve();
@@ -2857,11 +2856,11 @@ export class Eagle {
     savePaletteToGit = async (palette: Palette): Promise<void> => {
         console.log("savePaletteToGit()", palette.fileInfo().name, palette.fileInfo().type);
 
-        const defaultRepository: Repository = new Repository(palette.fileInfo().repositoryService, palette.fileInfo().repositoryName, palette.fileInfo().repositoryBranch, false);
+        const defaultRepository: Repository = new Repository(palette.fileInfo().location.repositoryService(), palette.fileInfo().location.repositoryName(), palette.fileInfo().location.repositoryBranch(), false);
 
         let commit: RepositoryCommit;
         try {
-            commit = await Utils.requestUserGitCommit(defaultRepository, Repositories.getList(Repository.Service.GitHub),  palette.fileInfo().path, palette.fileInfo().name, Eagle.FileType.Palette);
+            commit = await Utils.requestUserGitCommit(defaultRepository, Repositories.getList(Repository.Service.GitHub),  palette.fileInfo().location.repositoryPath(), palette.fileInfo().name, Eagle.FileType.Palette);
         } catch (error) {
             console.error(error);
             return;
@@ -4369,13 +4368,13 @@ export class Eagle {
 
         // if we don't know where this file came from then we can't build a URL
         // for example, if the graph was loaded from local disk, then we can't build a URL for others to reach it
-        if (fileInfo.repositoryService === Repository.Service.Unknown || fileInfo.repositoryService === Repository.Service.File){
+        if (fileInfo.location.repositoryService() === Repository.Service.Unknown || fileInfo.location.repositoryService() === Repository.Service.File){
             Utils.showNotification("Graph URL", "Source of graph is a local file or unknown, unable to create URL for graph.", "danger");
             return;
         }
 
         // build graph url
-        const graph_url: string = FileInfo.generateUrl(fileInfo);
+        const graph_url: string = FileLocation.generateUrl(fileInfo.location);
  
         // copy to clipboard
         navigator.clipboard.writeText(graph_url);

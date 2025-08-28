@@ -3,61 +3,64 @@ import * as ko from "knockout";
 import { Eagle } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { Errors } from './Errors';
+import { FileLocation } from "./FileLocation";
 import { Repository } from "./Repository";
 import { Setting } from "./Setting";
 import { Utils } from './Utils';
+import { $dataMetaSchema } from "ajv";
 
 
 export class FileInfo {
     private _name : ko.Observable<string>;
     private _shortDescription : ko.Observable<string>;
     private _detailedDescription : ko.Observable<string>;
-
-    private _path : ko.Observable<string>;
     private _type : ko.Observable<Eagle.FileType>;
-    private _repositoryService : ko.Observable<Repository.Service>;
-    private _repositoryBranch : ko.Observable<string>;
-    private _repositoryName : ko.Observable<string>;
-    private _modified : ko.Observable<boolean>;
-    private _generatorVersion : ko.Observable<string>;
-    private _generatorCommitHash : ko.Observable<string>;
-    private _generatorName : ko.Observable<string>;
     private _schemaVersion : ko.Observable<Setting.SchemaVersion>;
     private _readonly : ko.Observable<boolean>;
-    private _builtIn : ko.Observable<boolean>;
+    private _location : ko.Observable<FileLocation>;
 
-    private _repositoryUrl : ko.Observable<string>;
-    private _commitHash : ko.Observable<string>;
-    private _downloadUrl : ko.Observable<string>;
+    // process that created the file, for example EAGLE, or dlg_paletteGen
+    private _generatorVersion : ko.Observable<string>; 
+    private _generatorCommitHash : ko.Observable<string>;
+    private _generatorName : ko.Observable<string>;
+
+    // palette-only?
+    private _repositoryUrl : ko.Observable<string>;    
+
+    // graphconfig-only?
+    private _graphLocation : ko.Observable<FileLocation>;
+
+    // reproducibility
     private _signature : ko.Observable<string>;
 
+    // authorship
     private _lastModifiedName : ko.Observable<string>;
     private _lastModifiedEmail : ko.Observable<string>;
     private _lastModifiedDatetime : ko.Observable<number>;
 
     private _numLGNodes : ko.Observable<number>;  // NOTE: this is only updated prior to saving to disk, during editing it could be incorrect
 
+    // run-time only
+    private _modified : ko.Observable<boolean>;
+    private _builtIn : ko.Observable<boolean>;
+
     constructor(){
         this._name = ko.observable("");
         this._shortDescription = ko.observable("");
         this._detailedDescription = ko.observable("");
-
-        this._path = ko.observable("");
         this._type = ko.observable(Eagle.FileType.Unknown);
-        this._repositoryService = ko.observable(Repository.Service.Unknown);
-        this._repositoryBranch = ko.observable("");
-        this._repositoryName = ko.observable("");
-        this._modified = ko.observable(false);
+        this._schemaVersion = ko.observable(Setting.SchemaVersion.Unknown);
+        this._readonly = ko.observable(true);
+        this._location = ko.observable(new FileLocation());
+
         this._generatorVersion = ko.observable("");
         this._generatorCommitHash = ko.observable("");
         this._generatorName = ko.observable("");
-        this._schemaVersion = ko.observable(Setting.SchemaVersion.Unknown);
-        this._readonly = ko.observable(true);
-        this._builtIn = ko.observable(false); // NOTE: not written to/read from JSON
 
         this._repositoryUrl = ko.observable("");
-        this._commitHash = ko.observable("");
-        this._downloadUrl = ko.observable("");
+
+        this._graphLocation = ko.observable(new FileLocation());
+
         this._signature = ko.observable("");
 
         this._lastModifiedName = ko.observable("");
@@ -65,6 +68,9 @@ export class FileInfo {
         this._lastModifiedDatetime = ko.observable(0);
 
         this._numLGNodes = ko.observable(0);
+
+        this._modified = ko.observable(false);
+        this._builtIn = ko.observable(false);
     }
 
     get name() : string{
@@ -91,44 +97,12 @@ export class FileInfo {
         this._detailedDescription(detailedDescription);
     }
 
-    get path() : string{
-        return this._path();
-    }
-
-    set path(path : string){
-        this._path(path);
-    }
-
     get type() : Eagle.FileType {
         return this._type();
     }
 
     set type(type : Eagle.FileType){
         this._type(type);
-    }
-
-    get repositoryService() : Repository.Service {
-        return this._repositoryService();
-    }
-
-    set repositoryService(repositoryService : Repository.Service){
-        this._repositoryService(repositoryService);
-    }
-
-    get repositoryBranch() : string {
-        return this._repositoryBranch();
-    }
-
-    set repositoryBranch(repositoryBranch : string){
-        this._repositoryBranch(repositoryBranch);
-    }
-
-    get repositoryName() : string {
-        return this._repositoryName();
-    }
-
-    set repositoryName(repositoryName : string){
-        this._repositoryName(repositoryName);
     }
 
     get modified() : boolean{
@@ -179,6 +153,14 @@ export class FileInfo {
         this._readonly(readonly);
     }
 
+    get location() : FileLocation{
+        return this._location();
+    }
+
+    set location(location : FileLocation){
+        this._location(location);
+    }
+
     get builtIn() : boolean{
         return this._builtIn();
     }
@@ -195,20 +177,12 @@ export class FileInfo {
         this._repositoryUrl(repositoryUrl);
     }
 
-    get commitHash() : string{
-        return this._commitHash();
+    get graphLocation() : FileLocation{
+        return this._graphLocation();
     }
 
-    set commitHash(commitHash : string){
-        this._commitHash(commitHash);
-    }
-
-    get downloadUrl() : string {
-        return this._downloadUrl();
-    }
-
-    set downloadUrl(downloadUrl : string){
-        this._downloadUrl(downloadUrl);
+    set graphLocation(graphLocation : FileLocation){
+        this._graphLocation(graphLocation);
     }
 
     get signature() : string{
@@ -255,23 +229,19 @@ export class FileInfo {
         this._name("");
         this._shortDescription("");
         this._detailedDescription("");
-
-        this._path("");
         this._type(Eagle.FileType.Unknown);
-        this._repositoryService(Repository.Service.Unknown);
-        this._repositoryBranch("");
-        this._repositoryName("");
-        this._modified(false);
+        this._schemaVersion(Setting.SchemaVersion.Unknown);
+        this._readonly(true);
+        this._location().clear();
+        
         this._generatorVersion("");
         this._generatorCommitHash("");
         this._generatorName("");
-        this._schemaVersion(Setting.SchemaVersion.Unknown);
-        this._readonly(true);
-        this._builtIn(true);
-
+        
         this._repositoryUrl("");
-        this._commitHash("");
-        this._downloadUrl("");
+
+        this._graphLocation().clear();
+
         this._signature("");
 
         this._lastModifiedName("");
@@ -279,6 +249,9 @@ export class FileInfo {
         this._lastModifiedDatetime(0);
 
         this._numLGNodes(0);
+
+        this._modified(false);
+        this._builtIn(true);
     }
 
     clone = () : FileInfo => {
@@ -287,23 +260,19 @@ export class FileInfo {
         result.name = this._name();
         result.shortDescription = this._shortDescription();
         result.detailedDescription = this._detailedDescription();
-
-        result.path = this._path();
         result.type = this._type();
-        result.repositoryService = this._repositoryService();
-        result.repositoryBranch = this._repositoryBranch();
-        result.repositoryName = this._repositoryName();
-        result.modified = this._modified();
+        result.schemaVersion = this._schemaVersion();
+        result.readonly = this._readonly();
+        result.location = this._location().clone();
+        
         result.generatorVersion = this._generatorVersion();
         result.generatorCommitHash = this._generatorCommitHash();
         result.generatorName = this._generatorName();
-        result.schemaVersion = this._schemaVersion();
-        result.readonly = this._readonly();
-        result.builtIn = this._builtIn();
 
         result.repositoryUrl = this._repositoryUrl();
-        result.commitHash = this._commitHash();
-        result.downloadUrl = this._downloadUrl();
+
+        result.graphLocation = this._graphLocation();
+
         result.signature = this._signature();
 
         result.lastModifiedName = this._lastModifiedName();
@@ -312,26 +281,21 @@ export class FileInfo {
 
         result.numLGNodes = this._numLGNodes();
 
+        result.modified = this._modified();
+        result.builtIn = this._builtIn();
+
         return result;
     }
 
-    fullPath = () : string => {
-        if (this._path() === ""){
-            return this._name();
-        } else {
-            return this._path() + "/" + this._name();
-        }
-    }
-
     removeGitInfo = () : void => {
-        this._repositoryService(Repository.Service.Unknown);
-        this._repositoryBranch("");
-        this._repositoryName("");
-        this._path("");
+        this._location().repositoryService(Repository.Service.Unknown);
+        this._location().repositoryBranch("");
+        this._location().repositoryName("");
+        this._location().repositoryPath("");
+        this._location().commitHash("");
+        this._location().downloadUrl("");
 
         this._repositoryUrl("");
-        this._commitHash("");
-        this._downloadUrl("");
 
         this._lastModifiedName("");
         this._lastModifiedEmail("");
@@ -358,64 +322,25 @@ export class FileInfo {
         return new Date(this._lastModifiedDatetime() * 1000).toLocaleString();
     }, this);
 
-    getSummaryHTML = (title : string) : string => {
-        let text
-        if (this._repositoryService() === Repository.Service.Unknown){
-            text = "- Location -</br>Url:&nbsp;" + this._repositoryUrl() + "</br>Hash:&nbsp;" + this._commitHash();
-        } else {
-            text = "<p>" + this._repositoryService() + " : " + this._repositoryName() + ((this._repositoryBranch() == "") ? "" : ("(" + this._repositoryBranch() + ")")) + " : " + this._path() + "/" + this._name() + "</p>";
-        }
-
-        return "<p><h5>" + title + "<h5><p><p>" + text + "</p>";
-    }
-
-    getText = () : string => {
-        if (this.repositoryName !== ""){
-            if (this.path === ""){
-                return this.repositoryService + ": " + this.repositoryName + " (" + this.repositoryBranch + "): " + this.name;
-            } else {
-                return this.repositoryService + ": " + this.repositoryName + " (" + this.repositoryBranch + "): " + this.path + "/" + this.name;
-            }
-        } else {
-            return this.name;
-        }
-    }
-
-    getHtml = () : string => {
-        if (this.repositoryName !== ""){
-            if (this.path === ""){
-                return "<strong>" + this.repositoryService + "</strong>: " + this.repositoryName + " (" + this.repositoryBranch + "): " + this.name;
-            } else {
-                return "<strong>" + this.repositoryService + "</strong>: " + this.repositoryName + " (" + this.repositoryBranch + "): " + this.path + "/" + this.name;
-            }
-        } else {
-            return this.name;
-        }
-    }
-
     toString = () : string => {
         let s = "";
 
         s += "Name:" + this._name();
         s += " Short Description:" + this._shortDescription();
         s += " Detailed Description:" + this._detailedDescription();
-
-        s += " Path:" + this._path();
         s += " Type:" + this._type();
-        s += " Repository Service:" + this._repositoryService();
-        s += " Repository Name:" + this._repositoryName();
-        s += " Repository Branch:" + this._repositoryBranch();
-        s += " Modified:" + this._modified();
+        s += " Schema Version:" + this._schemaVersion();
+        s += " readonly:" + this._readonly();
+        s += " location:" + this._location().toString();
+        
         s += " Generator Name:" + this._generatorName();
         s += " Generator Version:" + this._generatorVersion();
         s += " Generator Commit Hash:" + this._generatorCommitHash();
-        s += " Schema Version:" + this._schemaVersion();
-        s += " readonly:" + this._readonly();
-        s += " builtIn:" + this._builtIn();
-
+        
         s += " Repository URL:" + this._repositoryUrl();
-        s += " Commit Hash:" + this._commitHash();
-        s += " Download URL:" + this._downloadUrl();
+
+        s += " Graph Location:" + this._graphLocation().toString();
+
         s += " signature:" + this._signature();
 
         s += " Last Modified Name:" + this._lastModifiedName();
@@ -423,6 +348,9 @@ export class FileInfo {
         s += " Last Modified Date:" + this._lastModifiedDatetime();
 
         s += " Num LG Nodes:" + this._numLGNodes();
+
+        s += " Modified:" + this._modified();
+        s += " builtIn:" + this._builtIn();
 
         return s;
     }
@@ -469,16 +397,16 @@ export class FileInfo {
     static toOJSJson(fileInfo : FileInfo) : object {
         return {
             // name and path variables are written together into fullPath
-            filePath: fileInfo.fullPath(),
+            filePath: fileInfo.location.fullPath(),
             fileType: fileInfo.type,
 
             shortDescription: fileInfo.shortDescription,
             detailedDescription: fileInfo.detailedDescription,
 
-            repoService: fileInfo.repositoryService,
-            repoBranch: fileInfo.repositoryBranch,
-            repo: fileInfo.repositoryName,
-            
+            repoService: fileInfo.location.repositoryService,
+            repoBranch: fileInfo.location.repositoryBranch,
+            repo: fileInfo.location.repositoryName,
+
             generatorVersion: fileInfo.generatorVersion,
             generatorCommitHash: fileInfo.generatorCommitHash,
             generatorName: fileInfo.generatorName,
@@ -486,8 +414,8 @@ export class FileInfo {
             readonly: fileInfo.readonly,
 
             repositoryUrl: fileInfo.repositoryUrl,
-            commitHash: fileInfo.commitHash,
-            downloadUrl: fileInfo.downloadUrl,
+            commitHash: fileInfo.location.commitHash,
+            downloadUrl: fileInfo.location.downloadUrl,
             signature: fileInfo.signature,
 
             lastModifiedName: fileInfo.lastModifiedName,
@@ -500,30 +428,29 @@ export class FileInfo {
 
     static toV4Json(fileInfo : FileInfo) : object {
         return {
-            // name and path variables are written together into fullPath
-            filePath: fileInfo.fullPath(),
-            fileType: fileInfo.type,
-
+            name: fileInfo.name,
             shortDescription: fileInfo.shortDescription,
             detailedDescription: fileInfo.detailedDescription,
-
-            repoService: fileInfo.repositoryService,
-            repoBranch: fileInfo.repositoryBranch,
-            repo: fileInfo.repositoryName,
+            type: fileInfo.type,
+            schemaVersion: fileInfo.schemaVersion,
+            readonly: fileInfo.readonly,
+            location: FileLocation.toJson(fileInfo.location),
 
             generatorVersion: fileInfo.generatorVersion,
             generatorCommitHash: fileInfo.generatorCommitHash,
             generatorName: fileInfo.generatorName,
-            schemaVersion: fileInfo.schemaVersion,
-            readonly: fileInfo.readonly,
-
+            
             repositoryUrl: fileInfo.repositoryUrl,
-            commitHash: fileInfo.commitHash,
+
+            graphLocation: FileLocation.toJson(fileInfo.graphLocation),
+
             signature: fileInfo.signature,
 
             lastModifiedName: fileInfo.lastModifiedName,
             lastModifiedEmail: fileInfo.lastModifiedEmail,
             lastModifiedDatetime: fileInfo.lastModifiedDatetime,
+
+            numLGNodes: fileInfo.numLGNodes,
         };
     }
 
@@ -531,34 +458,41 @@ export class FileInfo {
     static fromOJSJson(modelData : any, errorsWarnings: Errors.ErrorsWarnings) : FileInfo {
         const result : FileInfo = new FileInfo();
 
-        result.path = Utils.getFilePathFromFullPath(modelData.filePath);
-        result.name = Utils.getFileNameFromFullPath(modelData.filePath);
-        result.type = Utils.translateStringToFileType(modelData.fileType);
+        const fileName = Utils.getFileNameFromFullPath(modelData.filePath);
+        const filePath = Utils.getFilePathFromFullPath(modelData.filePath);
 
+        
+        result.name = fileName;
         result.shortDescription = modelData.shortDescription ?? "";
         result.detailedDescription = modelData.detailedDescription ?? "";
-
+        
         // if shortDescription is not set, and detailed description is set, then use first sentence of detailed as the short
         // NOTE: doesn't actually do any semantic analysis of text, just grabs everything before the first '.' in the detailed description
         if (result.shortDescription === "" && result.detailedDescription !== ""){
             result.shortDescription = result.detailedDescription.split('. ', 1)[0];
         }
 
-        result.repositoryService = modelData.repoService ?? Repository.Service.Unknown;
-        result.repositoryBranch = modelData.repoBranch ?? "";
-        result.repositoryName = modelData.repo ?? "";
+        result.type = Utils.translateStringToFileType(modelData.fileType);
+        result.schemaVersion = modelData.schemaVersion ?? "";
+        result.readonly = modelData.readonly ?? true;
+
+        result.location.repositoryService(modelData.repoService ?? Repository.Service.Unknown);
+        result.location.repositoryBranch(modelData.repoBranch ?? "");
+        result.location.repositoryName(modelData.repo ?? "");
+        result.location.repositoryPath(filePath);
+        result.location.repositoryFileName(fileName);
+        result.location.commitHash(modelData.commitHash ?? "");
+        result.location.downloadUrl(modelData.downloadUrl ?? "");
 
         // look for deprecated attributes (eagleVersion and eagleCommitHash) too
         result.generatorVersion = modelData.generatorVersion ?? modelData.eagleVersion ?? "";
         result.generatorCommitHash = modelData.generatorCommitHash ?? modelData.eagleCommitHash ?? "";
         result.generatorName = modelData.generatorName ?? "";
-        result.schemaVersion = modelData.schemaVersion ?? "";
-
-        result.readonly = modelData.readonly ?? true;
 
         result.repositoryUrl = modelData.repositoryUrl ?? "";
-        result.commitHash = modelData.commitHash ?? "";
-        result.downloadUrl = modelData.downloadUrl ?? "";
+
+        // NOTE: no info for result.graphLocation
+
         result.signature = modelData.signature ?? "";
 
         result.lastModifiedName = modelData.lastModifiedName ?? "";
@@ -579,49 +513,31 @@ export class FileInfo {
     static fromV4Json(modelData: any, errorsWarnings: Errors.ErrorsWarnings): FileInfo{
         const result: FileInfo = new FileInfo();
 
-        result.path = Utils.getFilePathFromFullPath(modelData.filePath);
-        result.name = Utils.getFileNameFromFullPath(modelData.filePath);
-        result.type = Utils.translateStringToFileType(modelData.fileType);
-
+        result.name = modelData.name ?? "";
         result.shortDescription = modelData.shortDescription ?? "";
         result.detailedDescription = modelData.detailedDescription ?? "";
-
-        result.repositoryService = modelData.repoService ?? Repository.Service.Unknown;
-        result.repositoryBranch = modelData.repoBranch ?? "";
-        result.repositoryName = modelData.repo ?? "";
+        result.type = Utils.translateStringToFileType(modelData.fileType);
+        result.schemaVersion = modelData.schemaVersion ?? "";
+        result.readonly = modelData.readonly ?? true;
+        result.location = FileLocation.fromJson(modelData.location ?? {}, errorsWarnings);
 
         result.generatorVersion = modelData.generatorVersion ?? "";
         result.generatorCommitHash = modelData.generatorCommitHash ?? "";
         result.generatorName = modelData.generatorName ?? "";
-        result.schemaVersion = modelData.schemaVersion ?? "";
-        result.readonly = modelData.readonly ?? true;
 
         result.repositoryUrl = modelData.repositoryUrl ?? "";
-        result.commitHash = modelData.commitHash ?? "";
+        
+        result.graphLocation = FileLocation.fromJson(modelData.graphLocation ?? {}, errorsWarnings);
+
         result.signature = modelData.signature ?? "";
 
         result.lastModifiedName = modelData.lastModifiedName ?? "";
         result.lastModifiedEmail = modelData.lastModifiedEmail ?? "";
         result.lastModifiedDatetime = modelData.lastModifiedDatetime ?? 0;
 
+        result.numLGNodes = modelData.numLGNodes ?? 0;
+
         return result;
-    }
-
-    static generateUrl(fileInfo: FileInfo): string {
-        let url = window.location.origin;
-
-        url += "/?service=" + fileInfo.repositoryService;
-
-        if (fileInfo.repositoryService === Repository.Service.Url){
-            url += "&url=" + fileInfo.downloadUrl;
-        } else {
-            url += "&repository=" + fileInfo.repositoryName;
-            url += "&branch=" + fileInfo.repositoryBranch;
-            url += "&path=" + encodeURI(fileInfo.path);
-            url += "&filename=" + encodeURI(fileInfo.name);
-        }
-
-        return url;
     }
 
     static async editShortDescription(fileInfo: FileInfo){

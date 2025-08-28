@@ -2,6 +2,7 @@ import * as ko from "knockout";
 
 import { Eagle } from './Eagle';
 import { EagleStorage } from "./EagleStorage";
+import { FileLocation } from "./FileLocation";
 import { Palette } from './Palette';
 import { Repository } from './Repository';
 import { RepositoryFile } from './RepositoryFile';
@@ -193,6 +194,10 @@ export class Repositories {
         }
         console.warn("Repositories.get() could not find " + service + " repository with the name " + name + " and branch " + branch);
         return null;
+    }
+
+    static getByLocation(fileLocation: FileLocation) : Repository | null {
+        return Repositories.get(fileLocation.repositoryService(), fileLocation.repositoryName(), fileLocation.repositoryBranch());
     }
 
     static fetchAll() : void {
