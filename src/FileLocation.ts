@@ -88,7 +88,7 @@ export class FileLocation {
             return this.repositoryFileName();
         }
     }
-    
+
     static toJson(fileLocation: FileLocation) : object {
         return {
             repositoryService: fileLocation.repositoryService(),

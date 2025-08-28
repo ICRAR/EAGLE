@@ -7,7 +7,6 @@ import { FileLocation } from "./FileLocation";
 import { Repository } from "./Repository";
 import { Setting } from "./Setting";
 import { Utils } from './Utils';
-import { $dataMetaSchema } from "ajv";
 
 
 export class FileInfo {
@@ -20,12 +19,12 @@ export class FileInfo {
     private _location : ko.Observable<FileLocation>;
 
     // process that created the file, for example EAGLE, or dlg_paletteGen
-    private _generatorVersion : ko.Observable<string>; 
+    private _generatorVersion : ko.Observable<string>;
     private _generatorCommitHash : ko.Observable<string>;
     private _generatorName : ko.Observable<string>;
 
     // palette-only?
-    private _repositoryUrl : ko.Observable<string>;    
+    private _repositoryUrl : ko.Observable<string>;
 
     // graphconfig-only?
     private _graphLocation : ko.Observable<FileLocation>;
@@ -233,11 +232,11 @@ export class FileInfo {
         this._schemaVersion(Setting.SchemaVersion.Unknown);
         this._readonly(true);
         this._location().clear();
-        
+
         this._generatorVersion("");
         this._generatorCommitHash("");
         this._generatorName("");
-        
+
         this._repositoryUrl("");
 
         this._graphLocation().clear();
@@ -264,7 +263,7 @@ export class FileInfo {
         result.schemaVersion = this._schemaVersion();
         result.readonly = this._readonly();
         result.location = this._location().clone();
-        
+
         result.generatorVersion = this._generatorVersion();
         result.generatorCommitHash = this._generatorCommitHash();
         result.generatorName = this._generatorName();
@@ -332,11 +331,11 @@ export class FileInfo {
         s += " Schema Version:" + this._schemaVersion();
         s += " readonly:" + this._readonly();
         s += " location:" + this._location().toString();
-        
+
         s += " Generator Name:" + this._generatorName();
         s += " Generator Version:" + this._generatorVersion();
         s += " Generator Commit Hash:" + this._generatorCommitHash();
-        
+
         s += " Repository URL:" + this._repositoryUrl();
 
         s += " Graph Location:" + this._graphLocation().toString();
@@ -439,7 +438,7 @@ export class FileInfo {
             generatorVersion: fileInfo.generatorVersion,
             generatorCommitHash: fileInfo.generatorCommitHash,
             generatorName: fileInfo.generatorName,
-            
+
             repositoryUrl: fileInfo.repositoryUrl,
 
             graphLocation: FileLocation.toJson(fileInfo.graphLocation),
@@ -461,11 +460,10 @@ export class FileInfo {
         const fileName = Utils.getFileNameFromFullPath(modelData.filePath);
         const filePath = Utils.getFilePathFromFullPath(modelData.filePath);
 
-        
         result.name = fileName;
         result.shortDescription = modelData.shortDescription ?? "";
         result.detailedDescription = modelData.detailedDescription ?? "";
-        
+
         // if shortDescription is not set, and detailed description is set, then use first sentence of detailed as the short
         // NOTE: doesn't actually do any semantic analysis of text, just grabs everything before the first '.' in the detailed description
         if (result.shortDescription === "" && result.detailedDescription !== ""){
@@ -526,7 +524,7 @@ export class FileInfo {
         result.generatorName = modelData.generatorName ?? "";
 
         result.repositoryUrl = modelData.repositoryUrl ?? "";
-        
+
         result.graphLocation = FileLocation.fromJson(modelData.graphLocation ?? {}, errorsWarnings);
 
         result.signature = modelData.signature ?? "";
