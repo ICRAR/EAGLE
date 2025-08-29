@@ -622,9 +622,13 @@ export class Field {
         const typePrefix = Utils.dataTypePrefix(this.type());
         switch (typePrefix){
             case Daliuge.DataType.Float:
+            case Daliuge.DataType.float:
+                return "float";
+            case Daliuge.DataType.int:
             case Daliuge.DataType.Integer:
-                return "number";
+                return "integer";
             case Daliuge.DataType.Boolean:
+            case Daliuge.DataType.bool:
                 return "checkbox";
             case Daliuge.DataType.Password:
                 return "password";
@@ -633,6 +637,30 @@ export class Field {
             default:
                 return "text";
         }
+    }
+
+    isFloatValueType = () : boolean => {
+        const typePrefix = Utils.dataTypePrefix(this.type());
+        return typePrefix === Daliuge.DataType.Float || typePrefix === Daliuge.DataType.float;
+    }
+
+    isIntegerValueType = () : boolean => {
+        const typePrefix = Utils.dataTypePrefix(this.type());
+        return typePrefix === Daliuge.DataType.Integer || typePrefix === Daliuge.DataType.int;
+    }
+
+    isBooleanValueType = () : boolean => {
+        const typePrefix = Utils.dataTypePrefix(this.type());
+        return typePrefix === Daliuge.DataType.Boolean || typePrefix === Daliuge.DataType.bool;
+    }
+
+    isSelectValueType = () : boolean => {
+        return Utils.dataTypePrefix(this.type()) === Daliuge.DataType.Select;
+    }
+
+    isStringValueType = () : boolean => {
+        //this serves as the fallback input type
+        return !this.isFloatValueType() && !this.isIntegerValueType() && !this.isBooleanValueType() && !this.isSelectValueType();
     }
 
     static getHtmlTitleText(parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage) : string {
@@ -696,22 +724,6 @@ export class Field {
     setOutputConnected = (value:boolean) : Field => {
         this.outputConnected(value);
         return this;
-    }
-
-    isIntegerValueField = () : Boolean => {
-        return this.type() === Daliuge.DataType.Integer || this.type() === Daliuge.DataType.int;
-    }
-
-    isFloatValueField = () : Boolean => {
-        return this.type() === Daliuge.DataType.Float || this.type() === Daliuge.DataType.float;
-    }
-
-    isBooleanValueField = () : Boolean => {
-        return this.type() === Daliuge.DataType.Boolean || this.type() === Daliuge.DataType.bool;
-    }
-
-    isStringValueField = () : Boolean => {
-        return !this.isBooleanValueField() && !this.isFloatValueField() && !this.isIntegerValueField()
     }
 
     // used to transform the value attribute of a field into a variable with the correct type
