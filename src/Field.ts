@@ -618,27 +618,6 @@ export class Field {
         return Object.values<string>(Daliuge.FieldName).includes(this.displayText());
     }, this);
 
-    getHtmlInputType = () : string => {
-        const typePrefix = Utils.dataTypePrefix(this.type());
-        switch (typePrefix){
-            case Daliuge.DataType.Float:
-            case Daliuge.DataType.float:
-                return "float";
-            case Daliuge.DataType.int:
-            case Daliuge.DataType.Integer:
-                return "integer";
-            case Daliuge.DataType.Boolean:
-            case Daliuge.DataType.bool:
-                return "checkbox";
-            case Daliuge.DataType.Password:
-                return "password";
-            case Daliuge.DataType.Select:
-                return "select";
-            default:
-                return "text";
-        }
-    }
-
     isFloatValueType = () : boolean => {
         const typePrefix = Utils.dataTypePrefix(this.type());
         return typePrefix === Daliuge.DataType.Float || typePrefix === Daliuge.DataType.float;

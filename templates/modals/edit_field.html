@@ -12,6 +12,8 @@
                     </div>
                     <div class="modal-body">
                         <div class="container" id="customParameterOptionsWrapper">
+
+<!-- display text -->
                             <div class="row">
                                 <div class="col-3">
                                     <p data-bind="eagleTooltip: 'User-facing name'" data-bs-placement="left">Display Text:</p>
@@ -22,31 +24,40 @@
                                     </div>
                                 </div>
                             </div>
+
+<!-- value -->
                             <div class="row" id="editFieldModalValue">
                                 <div class="col-3">
                                     <p>Value:</p>
                                 </div>
                                 <div class="col">
                                     <div class="input-group mb-3">
-                                        <!-- ko if: $data.getHtmlInputType() === 'number' || $data.getHtmlInputType() === 'text' || $data.getHtmlInputType() === 'password' -->
-                                            <!-- ko ifnot: $data.getHtmlInputType() === 'number' -->    
-                                                <textarea type="text" class="form-control" id="editFieldModalValueInputText" placeholder="" aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="value: $data.value, valueUpdate: ['afterkeydown', 'input'], attr: {type: $data.getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated();},input:function(data,event){Modals.validateFieldModalValueInputText(data,event)}}, eagleTooltip: getFieldValue()"></textarea>
-                                            <!-- /ko --> 
-                                            <!-- ko if: $data.getType() === 'Float' -->    
-                                                <input type="number" id="editFieldModalValueInputNumber" class="form-control" data-bind=" valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()},  event: {change: function(){$root.selectedObjects.valueHasMutated()}}">
 
-                                            <!-- /ko --> 
-                                            <!-- ko if: $data.getType() === 'Integer' -->    
-                                                <input type="number" id="editFieldModalValueInputNumber" class="form-control" step="1" onfocus="this.previousValue = this.value" onkeydown="this.previousValue = this.value" oninput="validity.valid || (value = this.previousValue)" data-bind=" valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()},  event: {change: function(){$root.selectedObjects.valueHasMutated()}}">
-                                            <!-- /ko --> 
+                                        <!-- string -->
+                                        <!-- ko if: $data.isStringValueType() -->    
+                                            <textarea type="text" class="form-control" type="text" id="editFieldModalValueInputText" placeholder="" aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="value: $data.value, valueUpdate: ['afterkeydown', 'input'], event: {change: function(){$root.selectedObjects.valueHasMutated();},input:function(data,event){Modals.validateFieldModalValueInputText(data,event)}}, eagleTooltip: getFieldValue()"></textarea>
                                         <!-- /ko --> 
-                                        <!-- ko if: $data.getHtmlInputType() === 'checkbox' -->
+
+                                        <!-- float -->
+                                        <!-- ko if: $data.isFloatValueType() -->    
+                                            <input type="number" step="0.1" id="editFieldModalValueInputNumber" class="form-control" data-bind=" valueUpdate: ['afterkeydown', 'input'], value: value, event: {change: function(){$root.selectedObjects.valueHasMutated()}}">
+                                        <!-- /ko --> 
+
+                                        <!-- integer -->
+                                        <!-- ko if: $data.isIntegerValueType() -->    
+                                            <input type="number" id="editFieldModalValueInputNumber" class="form-control" step="1" onfocus="this.previousValue = this.value" onkeydown="this.previousValue = this.value" oninput="validity.valid || (value = this.previousValue)" data-bind=" valueUpdate: ['afterkeydown', 'input'], value: value, event: {change: function(){$root.selectedObjects.valueHasMutated()}}">
+                                        <!-- /ko --> 
+
+                                        <!-- boolean -->
+                                        <!-- ko if: $data.isBooleanValueType() -->
                                             <div class="input-group componentCheckbox" id="componentValueCheckbox" data-bind="click:$data.toggle">
                                                 <span class="noselect" data-bind="text:value"></span>
-                                                <input type="checkbox" tabindex='-1' class="form-control form-check-input" id="editFieldModalValueInputCheckbox" data-bind="checked: valIsTrue($data.value()), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$data.toggle(); $root.selectedObjects.valueHasMutated();}}">
+                                                <input type="checkbox" tabindex='-1' class="form-control form-check-input" id="editFieldModalValueInputCheckbox" data-bind="checked: valIsTrue($data.value()), valueUpdate: ['afterkeydown', 'input'], value: value, event: {change: function(){$data.toggle(); $root.selectedObjects.valueHasMutated();}}">
                                             </div>
                                         <!-- /ko --> 
-                                        <!-- ko if: $data.getHtmlInputType() === 'select' -->
+
+                                        <!-- select -->
+                                        <!-- ko if: $data.isSelectValueType() -->
                                             <select class="form-control" id="editFieldModalValueInputSelect" data-bind=" event: {change: function(){$root.selectedObjects.valueHasMutated();}}, options: $data.options, value: $data.value">
                                                 <!-- options are added dynamically -->
                                             </select>
@@ -54,30 +65,40 @@
                                     </div>
                                 </div>
                             </div>
+
+<!-- default value -->
                             <div class="row" id="editFieldModalDefaultValue">
                                 <div class="col-3">
                                     <p>Default Value:</p>
                                 </div>
                                 <div class="col">
                                     <div class="input-group mb-3">
-                                        <!-- ko if: $data.getHtmlInputType() === 'number' || $data.getHtmlInputType() === 'text' || $data.getHtmlInputType() === 'password' -->
-                                            <!-- ko ifnot: $data.getHtmlInputType() === 'number' -->    
-                                                <textarea type="text" class="form-control" id="editFieldModalDefaultValueInputText" data-bind="checked: valIsTrue($data.defaultValue()), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated()},keyup:function(data,event){Modals.validateFieldModalValueInputText(data,event)}}"></textarea>
-                                            <!-- /ko --> 
-                                            <!-- ko if: $data.getType() === 'Float' -->    
-                                                <input type="number" id="editFieldModalDefaultValueInputNumber" class="form-control" data-bind="checked: valIsTrue($data.defaultValue()), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated()}}">
-                                                <!-- /ko --> 
-                                            <!-- ko if: $data.getType() === 'Integer' -->    
-                                                <input type="number" id="editFieldModalDefaultValueInputNumber" class="form-control" step="1" onfocus="this.previousValue = this.value" onkeydown="this.previousValue = this.value" oninput="validity.valid || (value = this.previousValue)" data-bind="checked: valIsTrue($data.defaultValue()), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $data.getHtmlInputType()}, event: {change: function(){$root.selectedObjects.valueHasMutated()}}">
-                                            <!-- /ko --> 
-                                        <!-- /ko --> 
-                                        <!-- ko if: $data.getHtmlInputType() === 'checkbox' -->
+
+                                        <!-- string -->
+                                        <!-- ko if: $data.isStringValueType() --> 
+                                            <textarea type="text" class="form-control" id="editFieldModalDefaultValueInputText" data-bind="checked: valIsTrue($data.defaultValue()), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, event: {change: function(){$root.selectedObjects.valueHasMutated()},keyup:function(data,event){Modals.validateFieldModalValueInputText(data,event)}}"></textarea>
+                                        <!-- /ko -->
+
+                                        <!-- float -->
+                                        <!-- ko if: $data.isFloatValueType() -->
+                                            <input type="number" id="editFieldModalDefaultValueInputNumber" class="form-control" data-bind="checked: valIsTrue($data.defaultValue()), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, event: {change: function(){$root.selectedObjects.valueHasMutated()}}">
+                                        <!-- /ko -->
+
+                                        <!-- integer -->
+                                        <!-- ko if: $data.isIntegerValueType() -->
+                                            <input type="number" id="editFieldModalDefaultValueInputNumber" class="form-control" step="1" onfocus="this.previousValue = this.value" onkeydown="this.previousValue = this.value" oninput="validity.valid || (value = this.previousValue)" data-bind="checked: valIsTrue($data.defaultValue()), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, event: {change: function(){$root.selectedObjects.valueHasMutated()}}">
+                                        <!-- /ko -->
+
+                                        <!-- boolean -->
+                                        <!-- ko if: $data.isBooleanValueType() -->
                                             <div class="input-group componentCheckbox" id="componentDefaultValueCheckbox" data-bind="click:$data.toggleDefault">
                                                 <span class="noselect" data-bind="text:defaultValue"></span>
-                                                <input type="checkbox" tabindex='-1' class="form-control form-check-input" id="editFieldModalDefaultValueInputCheckbox" data-bind="checked: valIsTrue($data.defaultValue()), valueUpdate: ['afterkeydown', 'input'], value: defaultValue,attr:{type: $data.getHtmlInputType()}, event: {change: function(){$data.toggleDefault(); $root.selectedObjects.valueHasMutated();}}">
+                                                <input type="checkbox" tabindex='-1' class="form-control form-check-input" id="editFieldModalDefaultValueInputCheckbox" data-bind="checked: valIsTrue($data.defaultValue()), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, event: {change: function(){$data.toggleDefault(); $root.selectedObjects.valueHasMutated();}}">
                                             </div>
-                                        <!-- /ko --> 
-                                        <!-- ko if: $data.getHtmlInputType() === 'select' -->
+                                        <!-- /ko -->
+
+                                        <!-- select -->
+                                        <!-- ko if: $data.isSelectValueType() -->
                                             <!-- ko ifnot: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING) -->
                                                 <select class="form-control" id="editFieldModalDefaultValueInputSelect" aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="event: {change: function(){$root.selectedObjects.valueHasMutated();}}, options: $data.options, value: $data.defaultValue">
                                                     <!-- options are added dynamically -->
@@ -103,6 +124,8 @@
                                     </div>
                                 </div>
                             </div>
+
+<!-- description -->
                             <div class="row">
                                 <div class="col-3">
                                     <p>Description:</p>
@@ -113,6 +136,8 @@
                                     </div>
                                 </div>
                             </div>
+
+<!-- type -->
                             <div class="row">
                                 <div class="col-3">
                                     <p>Type:</p>
@@ -129,6 +154,8 @@
                                     </div>
                                 </div>
                             </div>
+
+<!-- flags -->
                             <div class="row">
                                 <div class="col-3">
                                     <p>Flags:</p>
@@ -156,6 +183,8 @@
                                     </div>
                                 </div>
                             </div>
+
+<!-- parameter type -->
                             <div class="row" id="editFieldModalParameterTypeSelectRow">
                                 <div class="col-3">
                                     <p>Parameter Type:</p>
@@ -168,6 +197,8 @@
                                     </div>
                                 </div>
                             </div>
+
+<!-- usage -->
                             <div class="row" id="editFieldModalParameterUsageSelectRow">
                                 <div class="col-3">
                                     <p>Parameter Usage:</p>
