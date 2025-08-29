@@ -237,6 +237,8 @@ export class Utils {
             return "graph";
         } else if (fileType == Eagle.FileType.Palette) {
             return "palette";
+        } else if (fileType == Eagle.FileType.GraphConfig) {
+            return "graphConfig";
         } else {
             console.error("Utils.getDiagramExtension() : Unknown file type! (" + fileType + ")");
             return "";
@@ -2456,8 +2458,9 @@ export class Utils {
 
             // TODO: hack to introduce difference between palette and graph schemas
 
-            // just use the 'graphConfig' part of the schema for graphConfigs
-            Utils.v4GraphConfigSchema = (<any>schema).properties.graphConfigurations.patternProperties["[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"];
+            // TODO: use the 'graphConfig' part of the schema for graphConfigs
+            //Utils.v4GraphConfigSchema = (<any>schema).properties.graphConfigurations.patternProperties["[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"];
+            Utils.v4GraphConfigSchema = {};
         }
 
         const _fetchSchema = async function(url: string, localStorageKey: string, setFunc: (schema: object) => void){
