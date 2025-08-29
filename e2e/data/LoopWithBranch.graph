@@ -29,12 +29,12 @@
                     "repositoryPath": "",
                     "repositoryService": "Unknown"
                 },
-                "name": "",
+                "name": "simple",
                 "numLGNodes": 0,
                 "readonly": true,
                 "repositoryUrl": "",
                 "schemaVersion": "Unknown",
-                "shortDescription": "",
+                "shortDescription": "Default Configuration",
                 "signature": "",
                 "type": "GraphConfig"
             },
