@@ -1617,6 +1617,7 @@ export class Eagle {
 
         const c: GraphConfig = new GraphConfig();
         c.fileInfo().name = 'newConfig';
+        c.fileInfo().type = Eagle.FileType.GraphConfig;
 
         // adding a new graph config to the array, then setting it as active
         this.logicalGraph().addGraphConfig(c)
