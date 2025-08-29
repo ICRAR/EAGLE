@@ -5,27 +5,46 @@
             "type": ["string", "null"],
             "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
         },
+        "fileLocation": {
+            "type": "object",
+            "properties": {
+                "repositoryService":{
+                    "type": "string"
+                },
+                "repositoryBranch": {
+                    "type": "string"
+                },
+                "repositoryName": {
+                    "type": "string"
+                },
+                "repositoryPath": {
+                    "type": "string"
+                },
+                "repositoryFileName": {
+                    "type": "string"
+                },
+                "commitHash": {
+                    "type": "string"
+                },
+                "downloadUrl": {
+                    "type": "string"
+                }
+            },
+            "required": [],
+            "additionalProperties": false
+        },
         "modelData": {
             "type": "object",
             "properties": {
-                "repoService": {
-                    "type": "string"
-                },
-                "repoBranch": {
-                    "type": "string"
-                },
                 "readonly": {
                     "type": "boolean"
                 },
-                "repo": {
+                "name": {
                     "type": "string"
                 },
-                "filePath": {
-                    "type": "string"
-                },
-                "fileType": {
+                "type": {
                     "type": "string",
-                    "enum": ["Graph", "Palette"],
+                    "enum": ["Graph", "Palette", "GraphConfig"],
                     "default": "Graph"
                 },
                 "generatorVersion": {
@@ -49,9 +68,6 @@
                 "lastModifiedDatetime": {
                     "type": "number"
                 },
-                "commitHash": {
-                    "type": "string"
-                },
                 "repositoryUrl": {
                     "type": "string"
                 },
@@ -63,15 +79,21 @@
                 },
                 "detailedDescription": {
                     "type": "string"
+                },
+                "location": {
+                    "type": ""
+                },
+                "graphLocation": {
+                    "type": ""
+                },
+                "numLGNodes": {
+                    "type": "number"
                 }
             },
             "required": [
-                "filePath",
-                "fileType",
+                "name",
+                "type",
                 "readonly",
-                "repo",
-                "repoBranch",
-                "repoService",
                 "generatorVersion",
                 "generatorCommitHash",
                 "generatorName",
@@ -79,11 +101,13 @@
                 "lastModifiedName",
                 "lastModifiedEmail",
                 "lastModifiedDatetime",
-                "commitHash",
                 "repositoryUrl",
                 "signature",
                 "shortDescription",
-                "detailedDescription"
+                "detailedDescription",
+                "location",
+                "graphLocation",
+                "numLGNodes"
             ],
             "additionalProperties": false
         }
@@ -91,7 +115,7 @@
     "type": "object",
     "properties": {
         "modelData": {
-            "$ref": "#/$defs/eagleId"
+            "$ref": "#/$defs/modelData"
         },
         "nodes": {
             "type": "object",
@@ -298,8 +322,11 @@
                 "[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}": {
                     "type": "object",
                     "properties": {
-                        "modelData": {
+                        "id": {
                             "$ref": "#/$defs/eagleId"
+                        },
+                        "modelData": {
+                            "$ref": "#/$defs/modelData"
                         },
                         "nodes": {
                             "type": "object",
@@ -311,11 +338,12 @@
                                     "type": "string"
                                 }
                             }
-                        },
+                        }
                     },
                     "required": [
+                        "id",
                         "modelData",
-                        "nodes",
+                        "nodes"
                     ],
                     "additionalProperties": false
                 }
