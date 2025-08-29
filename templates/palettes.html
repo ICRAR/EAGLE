@@ -55,7 +55,7 @@
                         </div>
                         <div class="accordion-button" type="button" data-bs-toggle="collapse" data-bind="click: toggle, attr:{id:'palette' + $index(), 'data-bs-target':'#collapse' + $index(), 'aria-controls':'collapse' + $index(), 'aria-expanded':expanded}, css: {collapsed: !expanded}">
                             <span>&nbsp;</span>
-                            <h5 class="template-title" data-bs-placement="right" data-bind="text: fileInfo().nameAndModifiedIndicator(), eagleTooltip: fileInfo().getSummaryHTML(fileInfo().nameAndModifiedIndicator())"></h5>
+                            <h5 class="template-title" data-bs-placement="right" data-bind="text: fileInfo().nameAndModifiedIndicator(), eagleTooltip: fileInfo().location.getSummaryHTML(fileInfo().nameAndModifiedIndicator())"></h5>
                         </div>
                     </div>
                     <div class="collapse accordion-collapse" aria-labelledby="headingOne" data-bind="attr:{id:'collapse' + $index()}, css:{show: expanded}">

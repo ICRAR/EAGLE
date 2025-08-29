@@ -514,7 +514,7 @@ export class FileInfo {
         result.name = modelData.name ?? "";
         result.shortDescription = modelData.shortDescription ?? "";
         result.detailedDescription = modelData.detailedDescription ?? "";
-        result.type = Utils.translateStringToFileType(modelData.fileType);
+        result.type = Utils.translateStringToFileType(modelData.type);
         result.schemaVersion = modelData.schemaVersion ?? "";
         result.readonly = modelData.readonly ?? true;
         result.location = FileLocation.fromJson(modelData.location ?? {}, errorsWarnings);
