@@ -1320,8 +1320,14 @@ export class Utils {
 
     static determineFileType(data: any): Eagle.FileType {
         if (typeof data.modelData !== 'undefined'){
+            // find type of OJS files
             if (typeof data.modelData.fileType !== 'undefined'){
                 return Utils.translateStringToFileType(data.modelData.fileType);
+            }
+
+            // find type of V4 files
+            if (typeof data.modelData.type !== 'undefined'){
+                return Utils.translateStringToFileType(data.modelData.type);
             }
         }
 
