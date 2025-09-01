@@ -321,7 +321,7 @@
                                                         <!-- ko if: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING) -->
                                                             <div class="dropdown parameterTableTypeCustomSelect">
                                                                 <a class="dropdown-toggle dropdown-control" data-bind="text:$data.defaultValue, disabled: ParameterTable.getNodeLockedState($data)" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
-                                                                <div class="dropdown-menu dropdown-menu-right dropdown-area" aria-labelledby="parameterTableTpeCustomSelect">
+                                                                <div class="dropdown-menu dropdown-menu-right dropdown-area" aria-labelledby="parameterTableTpeCustomSelect" data-bind="event:{mousewheel: $root.slowScroll}">
                                                                     <!-- ko foreach:$data.options()-->
                                                                         <div class="dropdown-item" data-bind="click:function(data, event){$parent.setDefaultValue($data);}">
                                                                             <input data-bind="value:$data, event: {change:function(data,event){$parent.editOption($index(),$(event.target).val())}}" type="text">
@@ -370,7 +370,7 @@
                                                                         arrow_drop_down
                                                                     </span>
                                                                 </button>
-                                                                <ul class="dropdown-menu dropdown-menu-end dropdown-area" data-bind="attr:{id:'typeFor_'+$data.getId()}">
+                                                                <ul class="dropdown-menu dropdown-menu-end dropdown-area" data-bind="event:{mousewheel: $root.slowScroll}, attr:{id:'typeFor_'+$data.getId()}">
                                                                     <!-- ko foreach:$root.types() -->
                                                                         <a class="dropdown-item" data-bind="text:$data, click:function(){$root.tableDropdownClick($data, $parent);}"></a>
                                                                     <!-- /ko -->
