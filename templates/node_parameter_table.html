@@ -370,7 +370,7 @@
                                                                         arrow_drop_down
                                                                     </span>
                                                                 </button>
-                                                                <ul class="dropdown-menu dropdown-menu-end dropdown-area" data-bind="event:{mousewheel: $root.slowScroll},attr:{id:'typeFor_'+$data.getId()},clickBubble:false">
+                                                                <ul class="dropdown-menu dropdown-menu-end dropdown-area" data-bind="event:{mousewheel: $root.slowScroll}, attr:{id:'typeFor_'+$data.getId()}">
                                                                     <!-- ko foreach:$root.types() -->
                                                                         <a class="dropdown-item" data-bind="text:$data, click:function(){$root.tableDropdownClick($data, $parent);}"></a>
                                                                     <!-- /ko -->

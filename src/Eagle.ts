@@ -62,7 +62,6 @@ import { Utils } from './Utils';
 import { GraphUpdater } from "./GraphUpdater";
 import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 import { versions } from "./Versions";
-import { event } from "jquery";
 
 
 export class Eagle {
