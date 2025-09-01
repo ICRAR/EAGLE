@@ -240,30 +240,6 @@ export class GraphConfig {
 
         return result;
     }
-
-    static apply(lg: LogicalGraph, config: GraphConfig, errors: Errors.ErrorsWarnings) : void {
-        console.log("Applying graph config with", config.numFields(), "fields to logical graph", lg.fileInfo.name);
-
-        for (const [id, node] of config.nodes()){
-            const lgNode: Node = lg.getNodeById(id);
-
-            if (typeof lgNode === 'undefined'){
-                errors.errors.push(Errors.Message("GraphConfig.apply(): Could not find node" + id));
-                continue;
-            }
-
-            for (const field of node.getFields()){
-                const lgField: Field = lgNode.getFieldById(field.getField().getId());
-
-                if (typeof lgField === 'undefined'){
-                    errors.errors.push(Errors.Message("GraphConfig.apply(): Could not find field" + field.getField().getId() + "on node" + lgNode.getName()));
-                    continue;
-                }
-
-                lgField.setValue(field.getValue());
-            }
-        }
-    }
 }
 
 export class GraphConfigNode {
