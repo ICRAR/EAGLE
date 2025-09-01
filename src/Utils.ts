@@ -53,7 +53,7 @@ export class Utils {
         "diagram",
         "graph",
         "palette",
-        "cfg", // for graph config files
+        "graphConfig", // for graph config files
         "md", // for markdown e.g. README.md
         "daliuge", "dlg" // for logical graphs templates containing graph configurations
     ];
