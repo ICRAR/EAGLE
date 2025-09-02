@@ -618,7 +618,11 @@ export class LogicalGraph {
     }
 
     setActiveGraphConfig = (configId: GraphConfigId): void => {
-        this.activeGraphConfigId(configId)
+        if(this.activeGraphConfigId() === configId){
+            this.activeGraphConfigId(null)
+        }else{
+            this.activeGraphConfigId(configId)
+        }
     }
 
     countEdgesIncidentOnNode = (node : Node) : number => {
