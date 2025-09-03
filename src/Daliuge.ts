@@ -102,7 +102,6 @@ export namespace Daliuge {
         Boolean = "Boolean",
         bool = "bool",
         Select = "Select",
-        Password = "Password",
         Json = "Json",
         Python = "Python"
     }
