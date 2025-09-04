@@ -2,6 +2,7 @@ import * as ko from "knockout";
 import {Utils} from '../Utils';
 import { GraphRenderer } from "../GraphRenderer";
 import {Eagle} from '../Eagle';
+import { EagleConfig } from "../EagleConfig";
 
 ko.bindingHandlers.eagleTooltip = {
     init: function(element) {
@@ -45,22 +46,28 @@ ko.bindingHandlers.eagleTooltip = {
 
             let html = ko.unwrap(valueAccessor())
             let result = ''
-            let size = '300px'
+            let size = EagleConfig.EAGLE_TOOLTIP_DEFAULT_MAX_WIDTH + 'px' //default size
+            let content = ''
+            let observable = null
 
             // abort if the input html is undefined
-            if (typeof html === 'undefined'){
+            if (typeof html === 'undefined' || typeof html === 'object' && html.content === undefined){
+                console.log('eagleTooltip: no content provided or faulty')
                 return;
+            }else if (typeof html === 'object'){
+                //html can be either a string or an Object with a content string and size (in pixels)
+                if(html.size != undefined) size = html.size
+                if(html.content != undefined) content = html.content
+                if(html.observable != undefined) observable = html.observable
+            }else{
+                content = html
             }
 
-            //html can be either a string or an Object with a content string and size (in pixels)
-            if(html.content != undefined){
-                size = html.size
-                html = html.content
-            }
+
 
             // when surrounding text in a tooltip with |||, that section will be excluded from the markdown conversion. 
-            if(html.includes('|||')){
-                const x = html.split('|||')
+            if(content.includes('|||')){
+                const x = content.split('|||')
                 for(let i = 0 ; i < x.length ; i++){
                     if(i===0){
                         if(x[i].length === 0){
@@ -77,7 +84,7 @@ ko.bindingHandlers.eagleTooltip = {
                     result += y
                 }
             }else{
-                result = Utils.markdown2html(html)
+                result = Utils.markdown2html(content)
             }
 
             jQueryElement.attr("data-bs-original-title", result);

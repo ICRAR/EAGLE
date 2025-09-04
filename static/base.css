@@ -2290,7 +2290,7 @@ ul.nav.navbar-nav .dropdown-item:hover,ul.nav.navbar-nav .dropdown-item:focus{
 }
 
 .tooltip-inner p {
-    font-size: 1rem;
+    font-size: 14px;
     font-weight: 300;
     margin-bottom: 10px;
 }
