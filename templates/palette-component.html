@@ -1,7 +1,7 @@
 <div class="palette-component">
     <div class="row">
         <div class="col"  draggable="true" data-bind="event: {dragstart: SideWindow.nodeDragStart, dragend: SideWindow.nodeDragEnd}, attr: {'data-palette-index': $parentContext.$index, 'data-component-id': $data.getId()}">
-            <div class="input-group mb-1 rightClick_paletteComponent"  data-bind="attr: {id: 'palette_'  + $parentContext.$index() + '_' + $data.getPaletteComponentId()}, click: $root.paletteComponentClick, eagleTooltip: {content: $data.getHelpHTML(),size: '500px'}, eagleRightClick: {data:$data,type:'rightClick_paletteComponent'}">
+            <div class="input-group mb-1 rightClick_paletteComponent"  data-bind="attr: {id: 'palette_'  + $parentContext.$index() + '_' + $data.getPaletteComponentId()}, click: $root.paletteComponentClick, eagleTooltip: {content: $data.getHelpHTML(), size: '500px'}, eagleRightClick: {data:$data,type:'rightClick_paletteComponent'}">
                 <div class="input-group-prepend">
                     <button class="nodeBtn" type="button" data-bind="click: function(){$root.addNodeToLogicalGraph($data, '', Eagle.AddNodeMode.Default, null)}, clickBubble: false, attr: {id: 'addPaletteNode' + $data.getNoWhiteSpaceName()}">
                         <span class="input-group-text iconHoverEffect" data-bind="style: {'background-color': $data.color}">

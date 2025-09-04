@@ -52,10 +52,10 @@ ko.bindingHandlers.eagleTooltip = {
                 return;
             }
 
-            //html can be either a string or a Object with a content string and size (in pixels)
+            //html can be either a string or an Object with a content string and size (in pixels)
             if(html.content != undefined){
                 size = html.size
-                html=html.content
+                html = html.content
             }
 
             // when surrounding text in a tooltip with |||, that section will be excluded from the markdown conversion. 
