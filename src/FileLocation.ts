@@ -73,7 +73,11 @@ export class FileLocation {
                 return this.repositoryService() + ": " + this.repositoryName() + " (" + this.repositoryBranch() + "): " + this.repositoryPath() + "/" + this.repositoryFileName();
             }
         } else {
-            return this.repositoryFileName();
+            if (this.repositoryFileName() === ""){
+                return this.repositoryService();
+            } else {
+                return this.repositoryFileName();
+            }
         }
     }
 
@@ -130,5 +134,15 @@ export class FileLocation {
         }
 
         return url;
+    }
+
+    static match(fl0: FileLocation, fl1: FileLocation): boolean {
+        return (fl0.repositoryService() === fl1.repositoryService()) &&
+               (fl0.repositoryBranch() === fl1.repositoryBranch()) &&
+               (fl0.repositoryName() === fl1.repositoryName()) &&
+               (fl0.repositoryPath() === fl1.repositoryPath()) &&
+               (fl0.repositoryFileName() === fl1.repositoryFileName()) &&
+               (fl0.commitHash() === fl1.commitHash()) &&
+               (fl0.downloadUrl() === fl1.downloadUrl());
     }
 }

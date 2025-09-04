@@ -451,13 +451,6 @@ export class ParameterTable {
 
             //add the graph config to the graph
             Eagle.getInstance().logicalGraph().addGraphConfig(graphConfig)
-
-            // make this config the active config
-            Eagle.getInstance().logicalGraph().setActiveGraphConfig(graphConfig.getId());
-
-            //set the graph as modified and take an undo snapshot
-            Eagle.getInstance().undo().pushSnapshot(Eagle.getInstance(), "Added field " + currentField.getDisplayText() + ' to config ' + graphConfig.fileInfo().name);
-            Eagle.getInstance().logicalGraph().fileInfo().modified = true;
         }
     }
 

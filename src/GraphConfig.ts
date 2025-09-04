@@ -166,6 +166,7 @@ export class GraphConfig {
                 if (typeof lgNode === 'undefined'){
                     console.warn("GraphConfig.fromJson(): Could not find node", nodeId);
                     errorsWarnings.errors.push(Errors.Message("GraphConfig.fromJson(): Could not find node " + nodeId));
+                    continue;
                 }
 
                 const newNode: GraphConfigNode = GraphConfigNode.fromJson(nodeData, lgNode, errorsWarnings);

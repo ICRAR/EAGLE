@@ -61,7 +61,6 @@ import { Undo } from './Undo';
 import { UiModeSystem } from './UiModes';
 import { Utils } from './Utils';
 import { GraphUpdater } from "./GraphUpdater";
-import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 import { versions } from "./Versions";
 
 
@@ -1619,22 +1618,19 @@ export class Eagle {
         c.fileInfo().name = 'newConfig';
         c.fileInfo().type = Eagle.FileType.GraphConfig;
 
-        // adding a new graph config to the array, then setting it as active
+        // adding a new graph config to the array
         this.logicalGraph().addGraphConfig(c)
-        this.logicalGraph().setActiveGraphConfig(c.getId());
+    }
 
-        Utils.showNotification("New Graph Config Created", 'newConfig', "success");
+    duplicateGraphConfig = (config: GraphConfig): void => {
+        const newConfigName = Utils.generateGraphConfigName(config);
+        const clone = config
+            .clone()
+            .setId(Utils.generateGraphConfigId());
+        clone.fileInfo().name = newConfigName;
 
-        // open the graph configurations table
-        GraphConfigurationsTable.openTable();
-
-        this.undo().pushSnapshot(this, "New graph configuration added");
-        this.logicalGraph().fileInfo().modified = true;
-
-        //focus on and select the name field of the newly added config in the configurations table, ready to rename. this requires a little wait, to allow the ui to update
-        setTimeout(() => {
-            $('#graphConfigurationsTableWrapper .activeConfig .column-name input').focus().select()
-        }, 100);
+        // add duplicate to LG
+        this.logicalGraph().addGraphConfig(clone);
     }
 
     saveGraph = async () : Promise<void> => {
@@ -2373,6 +2369,10 @@ export class Eagle {
                 this._remotePaletteLoaded(file, data);
                 break;
 
+            case Eagle.FileType.GraphConfig:
+                this._loadGraphConfig(dataObject, file);
+                break;
+
             case Eagle.FileType.Markdown:
                 Utils.showUserMessage(file.name, Utils.markdown2html(data));
                 break;
@@ -2409,6 +2409,25 @@ export class Eagle {
 
         // if the fileType is the same as the current mode, update the activeFileInfo with details of the repository the file was loaded from
         this.updateLogicalGraphFileInfo(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
+    }
+
+    _loadGraphConfig = (dataObject: any, file: RepositoryFile): void => {
+        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+
+        const graphConfig = GraphConfig.fromJson(dataObject, this.logicalGraph(), errorsWarnings);
+
+        // abort if graphConfig does not belong to this graph
+        const configMatch = FileLocation.match(graphConfig.fileInfo().graphLocation, this.logicalGraph().fileInfo().location);
+        console.log("configMatch", configMatch);
+        if (!configMatch) {
+            Utils.showUserMessage("Error", "Graph config does not belong to this graph!\nGraph Location: " + graphConfig.fileInfo().graphLocation.getText());
+            return;
+        }
+
+        this.logicalGraph().addGraphConfig(graphConfig);
+
+        // show errors/warnings
+        this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
     }
 
     insertRemoteFile = async (file : RepositoryFile): Promise<void> => {
