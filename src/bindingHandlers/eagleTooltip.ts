@@ -3,6 +3,7 @@ import {Utils} from '../Utils';
 import { GraphRenderer } from "../GraphRenderer";
 import {Eagle} from '../Eagle';
 import { EagleConfig } from "../EagleConfig";
+import { Daliuge } from "../Daliuge";
 
 ko.bindingHandlers.eagleTooltip = {
     init: function(element) {
@@ -48,7 +49,7 @@ ko.bindingHandlers.eagleTooltip = {
             let result = ''
             let size = EagleConfig.EAGLE_TOOLTIP_DEFAULT_MAX_WIDTH + 'px' //default size
             let content = ''
-            let observable = null
+
 
             // abort if the input html is undefined
             if (typeof html === 'undefined' || typeof html === 'object' && html.content === undefined){
@@ -58,7 +59,6 @@ ko.bindingHandlers.eagleTooltip = {
                 //html can be either a string or an Object with a content string and size (in pixels)
                 if(html.size != undefined) size = html.size
                 if(html.content != undefined) content = html.content
-                if(html.observable != undefined) observable = html.observable
             }else{
                 content = html
             }
@@ -87,12 +87,26 @@ ko.bindingHandlers.eagleTooltip = {
                 result = Utils.markdown2html(content)
             }
 
+            if(html.node != undefined && html.buttonAction != undefined){
+                result = '<div class="material-symbols-outlined float-end tooltipBtn">expand_content</div>' + result
+            }
+
             jQueryElement.attr("data-bs-original-title", result);
 
             jQueryElement.tooltip({
                 html : true,
                 boundary: document.body,
                 trigger : 'manual',
+            });
+
+
+            //bootstrap will not let us place databinds on our custom in tooltip button itself, so we need to add an event listener to the button after the tooltip is shown
+            jQueryElement.on('shown.bs.tooltip', function () {
+                $('.tooltip .tooltipBtn').on('click', function(){
+                    if(html.node != null && html.buttonAction === 'descriptionEdit'){
+                        eagle.editNodeDescription(html.node)
+                    }
+                })
             });
 
             stillHovering=true
