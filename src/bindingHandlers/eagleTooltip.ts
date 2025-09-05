@@ -88,7 +88,7 @@ ko.bindingHandlers.eagleTooltip = {
             }
 
             if(html.node != undefined && html.buttonAction != undefined){
-                result = '<div class="material-symbols-outlined float-end tooltipBtn">expand_content</div>' + result
+                result = '<div class="material-symbols-outlined float-end tooltipBtn iconHoverEffect">expand_content</div>' + result
             }
 
             jQueryElement.attr("data-bs-original-title", result);
