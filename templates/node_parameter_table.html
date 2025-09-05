@@ -212,39 +212,40 @@
 
                                             <!-- ko if: ParameterTable.getActiveColumnVisibility().value()  -->
                                                 <td class='columnCell column_Value'data-bind="css: {selectedTableParameter: ParameterTable.isSelected('value', $data) || ParameterTable.isSelected('configValue', $data)}">
-                                                    <!-- ko if: $data.getHtmlInputType() === 'number' || $data.getHtmlInputType() === 'text' || $data.getHtmlInputType() === 'password' -->
 
-                                                        <!-- ko if: $data.getType() === 'Integer' -->
-                                                            <!-- ko if: $data.getGraphConfigField() -->
-                                                                <input class="tableParameter configValueInput" step="1" onfocus="this.previousValue = this.value" onkeydown="this.previousValue = this.value" oninput="validity.valid || (value = this.previousValue)" data-bind="eagleTooltip: 'Configured Value',disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: $data.getGraphConfigField().value, attr:{type: $data.getHtmlInputType()},  event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.getGraphConfigField().value(), 'configValue', $data, $index())}, click: function(event, data){ParameterTable.select($data.getGraphConfigField().value(), 'configValue', $data, $index())}}">    
-                                                            <!-- /ko -->
-                                                            <!-- ko ifnot: $data.getGraphConfigField() -->
-                                                                <input class="tableParameter" step="1" onfocus="this.previousValue = this.value" onkeydown="this.previousValue = this.value" oninput="validity.valid || (value = this.previousValue)" data-bind="eagleTooltip: 'Graph Value',disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()},  event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.value(), 'value', $data, $index())}, click: function(event, data){ParameterTable.select($data.value(), 'value', $data, $index())}}">
-                                                            <!-- /ko -->
+                                                    <!-- integer value -->
+                                                    <!-- ko if: $data.isIntegerValueType() -->
+                                                        <!-- ko if: $data.getGraphConfigField() -->
+                                                            <input class="tableParameter configValueInput" type="number" step="1" onfocus="this.previousValue = this.value" onkeydown="this.previousValue = this.value" oninput="validity.valid || (value = this.previousValue)" data-bind="eagleTooltip: 'Configured Value',disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: $data.getGraphConfigField().value, event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.getGraphConfigField().value(), 'configValue', $data, $index())}, click: function(event, data){ParameterTable.select($data.getGraphConfigField().value(), 'configValue', $data, $index())}}">    
                                                         <!-- /ko -->
-
-                                                        <!-- ko if: $data.getType() === 'Float' -->
-                                                            <!-- ko if: $data.getGraphConfigField() -->
-                                                                <input class="tableParameter configValueInput" step="0.1" data-bind="eagleTooltip: 'Configured Value',disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: $data.getGraphConfigField().value, attr:{type: $data.getHtmlInputType()},  event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.getGraphConfigField().value(), 'configValue', $data, $index())}, click: function(event, data){ParameterTable.select($data.getGraphConfigField().value(), 'configValue', $data, $index())}}">    
-                                                            <!-- /ko -->
-                                                            <!-- ko ifnot: $data.getGraphConfigField() -->
-                                                                <input class="tableParameter"  step="0.1" data-bind="eagleTooltip: 'Graph Value', disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()},  event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.value(), 'value', $data, $index())}, click: function(event, data){ParameterTable.select($data.value(), 'value', $data, $index())}}">
-                                                            <!-- /ko -->
-                                                        <!-- /ko -->
-
-                                                        <!-- string value -->
-                                                        <!-- ko ifnot: $data.getType() === 'Integer' || $data.getType() === 'Float' -->
-                                                            <!-- ko if: $data.getGraphConfigField() -->
-                                                                <textarea style="resize: none;" class="tableParameter inputNoArrows configValueInput tableFieldStringValueInput" data-bind="eagleTooltip: 'Configured Value', disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: $data.getGraphConfigField().value, attr:{type: $data.getHtmlInputType()}, event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.getGraphConfigField().value(), 'configValue', $data, $index())}, click: function(event, data){ParameterTable.select($data.getGraphConfigField().value(), 'configValue', $data, $index())}}"></textarea>
-                                                            <!-- /ko -->
-                                                            <!-- ko ifnot: $data.getGraphConfigField() -->
-                                                                <textarea style="resize: none;" class="tableParameter inputNoArrows tableFieldStringValueInput" data-bind="eagleTooltip: 'Graph Value', disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()},  event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.value(), 'value', $data, $index())}, click: function(event, data){ParameterTable.select($data.value(), 'value', $data, $index())}}"></textarea>
-                                                            <!-- /ko -->
-                                                            <button class="parameterTableEditParam icon-pencil iconHoverEffect" data-bind="click:function(data,event){ParameterTable.requestEditValueField($data, false)}"></button>
+                                                        <!-- ko ifnot: $data.getGraphConfigField() -->
+                                                            <input class="tableParameter" type="number" step="1" onfocus="this.previousValue = this.value" onkeydown="this.previousValue = this.value" oninput="validity.valid || (value = this.previousValue)" data-bind="eagleTooltip: 'Graph Value',disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.value(), 'value', $data, $index())}, click: function(event, data){ParameterTable.select($data.value(), 'value', $data, $index())}}">
                                                         <!-- /ko -->
                                                     <!-- /ko -->
 
-                                                    <!-- ko if: $data.getHtmlInputType() === 'checkbox' -->
+                                                    <!-- float value -->
+                                                    <!-- ko if: $data.isFloatValueType() -->
+                                                        <!-- ko if: $data.getGraphConfigField() -->
+                                                            <input class="tableParameter configValueInput" type="number" step="0.1" data-bind="eagleTooltip: 'Configured Value',disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: $data.getGraphConfigField().value, event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.getGraphConfigField().value(), 'configValue', $data, $index())}, click: function(event, data){ParameterTable.select($data.getGraphConfigField().value(), 'configValue', $data, $index())}}">    
+                                                        <!-- /ko -->
+                                                        <!-- ko ifnot: $data.getGraphConfigField() -->
+                                                            <input class="tableParameter" type="number" step="0.1" data-bind="eagleTooltip: 'Graph Value', disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.value(), 'value', $data, $index())}, click: function(event, data){ParameterTable.select($data.value(), 'value', $data, $index())}}">
+                                                        <!-- /ko -->
+                                                    <!-- /ko -->
+
+                                                    <!-- string value -->
+                                                    <!-- ko if: $data.isStringValueType() -->
+                                                        <!-- ko if: $data.getGraphConfigField() -->
+                                                            <textarea style="resize: none;" type="text" class="tableParameter inputNoArrows configValueInput tableFieldStringValueInput" data-bind="eagleTooltip: 'Configured Value', disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: $data.getGraphConfigField().value, event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.getGraphConfigField().value(), 'configValue', $data, $index())}, click: function(event, data){ParameterTable.select($data.getGraphConfigField().value(), 'configValue', $data, $index())}}"></textarea>
+                                                        <!-- /ko -->
+                                                        <!-- ko ifnot: $data.getGraphConfigField() -->
+                                                            <textarea style="resize: none;" type="text" class="tableParameter inputNoArrows tableFieldStringValueInput" data-bind="eagleTooltip: 'Graph Value', disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value,  event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.value(), 'value', $data, $index())}, click: function(event, data){ParameterTable.select($data.value(), 'value', $data, $index())}}"></textarea>
+                                                        <!-- /ko -->
+                                                        <button class="parameterTableEditParam icon-pencil iconHoverEffect" data-bind="click:function(data,event){ParameterTable.requestEditValueField($data, false)}"></button>
+                                                    <!-- /ko -->
+
+                                                    <!-- boolean value -->
+                                                    <!-- ko if: $data.isBooleanValueType() -->
                                                         <!-- ko if: $data.getGraphConfigField() -->
                                                             <div class="checkboxWrapper configValueInput" data-bind="eagleTooltip: 'Configured Value'">
                                                                 <div>
@@ -261,7 +262,8 @@
                                                         <!-- /ko -->
                                                     <!-- /ko -->
 
-                                                    <!-- ko if: $data.getHtmlInputType() === 'select' -->
+                                                    <!-- select value -->
+                                                    <!-- ko if: $data.isSelectValueType() -->
                                                         <!-- ko if: $data.getGraphConfigField() -->
                                                             <div class="checkboxWrapper configValueInput" data-bind="eagleTooltip: 'Configured Value'">
                                                                 <div>
@@ -288,31 +290,29 @@
  
                                             <!-- ko if: ParameterTable.getActiveColumnVisibility().defaultValue() -->
                                                 <td class='columnCell column_DefaultValue' data-bind="css: {selectedTableParameter: ParameterTable.isSelected('defaultValue', $data) }">
-                                                    <!-- ko if: $data.getHtmlInputType() === 'number' || $data.getHtmlInputType() === 'text' || $data.getHtmlInputType() === 'password' -->
 
-                                                        <!-- integer -->
-                                                        <!-- ko if: $data.getType() === 'Integer' -->
-                                                            <input class="tableParameter" step="1" onfocus="this.previousValue = this.value" onkeydown="this.previousValue = this.value" oninput="validity.valid || (value = this.previousValue)" data-bind="disabled: ParameterTable.getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $data.getHtmlInputType()}, event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $data, $index())}, click: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $data, $index())}}">
-                                                        <!-- /ko -->
+                                                    <!-- integer -->
+                                                    <!-- ko if: $data.isIntegerValueType() -->
+                                                        <input class="tableParameter" type="number" step="1" onfocus="this.previousValue = this.value" onkeydown="this.previousValue = this.value" oninput="validity.valid || (value = this.previousValue)" data-bind="disabled: ParameterTable.getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $data, $index())}, click: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $data, $index())}}">
+                                                    <!-- /ko -->
 
-                                                        <!-- ko if: $data.getType() === 'Float' -->
-                                                            <input class="tableParameter"  step="0.1" data-bind="disabled: ParameterTable.getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $data.getHtmlInputType()}, event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $data, $index())}, click: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $data, $index())}}">
-                                                        <!-- /ko -->
+                                                    <!-- ko if: $data.isFloatValueType() -->
+                                                        <input class="tableParameter" type="number"  step="0.1" data-bind="disabled: ParameterTable.getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $data, $index())}, click: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $data, $index())}}">
+                                                    <!-- /ko -->
 
-                                                        <!-- string -->
-                                                        <!-- ko ifnot: $data.getType() === 'Integer' || $data.getType() === 'Float' -->
-                                                            <textarea  style="resize: none;" class="tableParameter inputNoArrows" data-bind="disabled: ParameterTable.getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $data.getHtmlInputType()}, event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $data, $index())}, click: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $data, $index())}}"></textarea>
-                                                            <button class="parameterTableEditParam icon-pencil iconHoverEffect" data-bind="click:function(data,event){ParameterTable.requestEditValueField($data, true)}"></button>
-                                                        <!-- /ko -->
+                                                    <!-- string -->
+                                                    <!-- ko if: $data.isStringValueType() -->
+                                                        <textarea  style="resize: none;" type="text" class="tableParameter inputNoArrows" data-bind="disabled: ParameterTable.getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $data, $index())}, click: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $data, $index())}}"></textarea>
+                                                        <button class="parameterTableEditParam icon-pencil iconHoverEffect" data-bind="click:function(data,event){ParameterTable.requestEditValueField($data, true)}"></button>
                                                     <!-- /ko -->
                                                      
-                                                    <!-- checkbox -->
-                                                    <!-- ko if: $data.getHtmlInputType() === 'checkbox' -->
-                                                        <input class="tableParameter" tabindex='-1' onclick="$(this).val(this.checked ? true : false)" data-bind="checked: valIsTrue($data.defaultValue()), disabled: ParameterTable.getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, attr:{type: $data.getHtmlInputType()}, event: {change: ParameterTable.fieldValueChanged}">
+                                                    <!-- boolean -->
+                                                    <!-- ko if: $data.isBooleanValueType() -->
+                                                        <input class="tableParameter" tabindex='-1' type="checkbox" onclick="$(this).val(this.checked ? true : false)" data-bind="checked: valIsTrue($data.defaultValue()), disabled: ParameterTable.getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, event: {change: ParameterTable.fieldValueChanged}">
                                                     <!-- /ko -->
 
                                                     <!-- selection input -->
-                                                    <!-- ko if: $data.getHtmlInputType() === 'select' -->
+                                                    <!-- ko if: $data.isSelectValueType() -->
                                                         <!-- ko ifnot: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING) -->
                                                             <select aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="disabled: ParameterTable.getNodeLockedState($data), event: {change: ParameterTable.fieldValueChanged}, options: $data.options, value: $data.defaultValue">
                                                                 <!-- options are added dynamically -->

@@ -232,7 +232,6 @@ export class Eagle {
             Daliuge.DataType.Integer,
             Daliuge.DataType.Json,
             Daliuge.DataType.Object,
-            Daliuge.DataType.Password,
             Daliuge.DataType.Python,
             Daliuge.DataType.Select,
             Daliuge.DataType.String
