@@ -50,7 +50,6 @@ ko.bindingHandlers.eagleTooltip = {
             let size = EagleConfig.EAGLE_TOOLTIP_DEFAULT_MAX_WIDTH + 'px' //default size
             let content = ''
 
-
             // abort if the input html is undefined
             if (typeof html === 'undefined' || typeof html === 'object' && html.content === undefined){
                 console.log('eagleTooltip: no content provided or faulty')
@@ -62,8 +61,6 @@ ko.bindingHandlers.eagleTooltip = {
             }else{
                 content = html
             }
-
-
 
             // when surrounding text in a tooltip with |||, that section will be excluded from the markdown conversion. 
             if(content.includes('|||')){
@@ -87,20 +84,20 @@ ko.bindingHandlers.eagleTooltip = {
                 result = Utils.markdown2html(content)
             }
 
+            //if a button is requested and all necessary info is supplied we will insert it here.
             if(html.node != undefined && html.buttonAction != undefined){
                 result = '<div class="material-symbols-outlined float-end tooltipBtn iconHoverEffect">expand_content</div>' + result
             }
 
+            //fire the tooltip
             jQueryElement.attr("data-bs-original-title", result);
-
             jQueryElement.tooltip({
                 html : true,
                 boundary: document.body,
                 trigger : 'manual',
             });
 
-
-            //bootstrap will not let us place databinds on our custom in tooltip button itself, so we need to add an event listener to the button after the tooltip is shown
+            //bootstrap will not let us place databinds or click events on our custom button itself, so we need to add an event listener to the button after the tooltip is shown
             jQueryElement.on('shown.bs.tooltip', function () {
                 $('.tooltip .tooltipBtn').on('click', function(){
                     if(html.node != null && html.buttonAction === 'descriptionEdit'){
