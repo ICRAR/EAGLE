@@ -31,6 +31,7 @@ import { Edge } from './Edge';
 import { Errors } from './Errors';
 import { Field } from './Field';
 import { FileInfo } from './FileInfo';
+import { FileLocation } from "./FileLocation";
 import { GraphConfig } from './GraphConfig';
 import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 import { Node } from './Node';
@@ -591,6 +592,7 @@ export class LogicalGraph {
 
         const eagle: Eagle = Eagle.getInstance();
         eagle.undo().pushSnapshot(eagle, "Added a new graph config (" + config.fileInfo().name + ")");
+        eagle.checkGraph();
     }
 
     removeGraphConfig = (config: GraphConfig): void => {
@@ -1205,6 +1207,19 @@ export class LogicalGraph {
             }
 
             ids.push(graphConfig.getId());
+        }
+
+        // loop over the graph configs to check that the graphLocation in fileInfo matches the location of the graph itself
+        for (const graphConfig of graph.getGraphConfigs()){
+            if (!FileLocation.match(graphConfig.fileInfo().graphLocation, graph.fileInfo().location)){
+                const issue: Errors.Issue = Errors.ShowFix(
+                    "Graph Config (" + graphConfig.fileInfo().name + ") graph location does not match the location of the parent graph",
+                    function(){Utils.showGraphConfig(eagle, graphConfig.getId())},
+                    function(){graphConfig.fileInfo().graphLocation = graph.fileInfo().location.clone()},
+                    "Set graph config's graph location to match that of the graph"
+                );
+                graph.issues.push({issue : issue, validity : Errors.Validity.Error})
+            }
         }
 
         // check all edges in the edges dict are also present in the srcPort or destPort edges dict

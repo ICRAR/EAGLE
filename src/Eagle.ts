@@ -1282,11 +1282,11 @@ export class Eagle {
     }
 
     /**
-     * Loads a custom daliuge "project" from a file.
+     * Loads a custom graph config from a file.
      */
-    loadLocalDaliugeFile = () : void => {
-        const daliugeFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("daliugeFileToLoad");
-        const fileFullPath : string = daliugeFileInputElement.value;
+    loadLocalGraphConfigFile = () : void => {
+        const graphConfigFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("graphConfigFileToLoad");
+        const fileFullPath : string = graphConfigFileInputElement.value;
         const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
         const eagle: Eagle = this;
 
@@ -1296,7 +1296,7 @@ export class Eagle {
         }
 
         // get a reference to the file in the html element
-        const file = daliugeFileInputElement.files[0];
+        const file = graphConfigFileInputElement.files[0];
         
         // read the file
         if (file) {
@@ -1304,18 +1304,17 @@ export class Eagle {
             reader.readAsText(file, "UTF-8");
             reader.onload = function (evt) {
                 const data: string = evt.target.result.toString();
+                let dataObject;
 
-                eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
-                    const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().location.getText(), "", Category.SubGraph);
-    
-                    eagle.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges()), parentNode, errorsWarnings);
-    
-                    // TODO: handle errors and warnings
-    
-                    eagle.checkGraph();
-                    eagle.undo().pushSnapshot(eagle, "Insert Logical Graph");
-                    eagle.logicalGraph.valueHasMutated();
-                });
+                try {
+                    dataObject = JSON.parse(data);
+                }
+                catch(err){
+                    Utils.showUserMessage("Error parsing file JSON", err.message);
+                    return;
+                }
+
+                eagle._loadGraphConfig(dataObject, new RepositoryFile(Repository.dummy(), "", Utils.getFileNameFromFullPath(fileFullPath)));
             }
             reader.onerror = function (evt) {
                 console.error("error reading file", evt);
@@ -1323,7 +1322,7 @@ export class Eagle {
         }
         
         // reset file selection element
-        daliugeFileInputElement.value = "";
+        graphConfigFileInputElement.value = "";
     }
 
     /**
@@ -1355,6 +1354,15 @@ export class Eagle {
         }
 
         document.getElementById("paletteFileToLoad").click();
+    }
+
+    getGraphConfigFileToLoad = () : void => {
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Load Graph Config");
+            return;
+        }
+
+        document.getElementById("graphConfigFileToLoad").click();
     }
 
     /**
@@ -1617,6 +1625,8 @@ export class Eagle {
         const c: GraphConfig = new GraphConfig();
         c.fileInfo().name = 'newConfig';
         c.fileInfo().type = Eagle.FileType.GraphConfig;
+        c.fileInfo().schemaVersion = Setting.SchemaVersion.V4;
+        c.fileInfo().readonly = false;
 
         // adding a new graph config to the array
         this.logicalGraph().addGraphConfig(c)
@@ -1729,6 +1739,17 @@ export class Eagle {
 
             resolve();
         });
+    }
+
+    saveActiveGraphConfig = async (): Promise<void> => {
+        const activeGraphConfig = this.logicalGraph().getActiveGraphConfig();
+
+        if (typeof activeGraphConfig === "undefined") {
+            Utils.showNotification("Error", "No active graph config", "danger");
+            return;
+        }
+
+        await this.saveGraphConfigAs(activeGraphConfig);
     }
 
     /**
@@ -2418,9 +2439,18 @@ export class Eagle {
 
         // abort if graphConfig does not belong to this graph
         const configMatch = FileLocation.match(graphConfig.fileInfo().graphLocation, this.logicalGraph().fileInfo().location);
-        console.log("configMatch", configMatch);
         if (!configMatch) {
-            Utils.showUserMessage("Error", "Graph config does not belong to this graph!\nGraph Location: " + graphConfig.fileInfo().graphLocation.getText());
+            let locationTableHtml = "<table class='eagleTableWrapper'><tr><th></th><th>GraphConfig Parent Location</th><th>Current Graph Location</th></tr>";
+            locationTableHtml += "<tr><td>Repository Service</td><td>" + graphConfig.fileInfo().graphLocation.repositoryService() + "</td><td>" + this.logicalGraph().fileInfo().location.repositoryService() + "</td></tr>";
+            locationTableHtml += "<tr><td>Repository Name</td><td>" + graphConfig.fileInfo().graphLocation.repositoryName() + "</td><td>" + this.logicalGraph().fileInfo().location.repositoryName() + "</td></tr>";
+            locationTableHtml += "<tr><td>Repository Branch</td><td>" + graphConfig.fileInfo().graphLocation.repositoryBranch() + "</td><td>" + this.logicalGraph().fileInfo().location.repositoryBranch() + "</td></tr>";
+            locationTableHtml += "<tr><td>Repository Path</td><td>" + graphConfig.fileInfo().graphLocation.repositoryPath() + "</td><td>" + this.logicalGraph().fileInfo().location.repositoryPath() + "</td></tr>";
+            locationTableHtml += "<tr><td>Repository FileName</td><td>" + graphConfig.fileInfo().graphLocation.repositoryFileName() + "</td><td>" + this.logicalGraph().fileInfo().location.repositoryFileName() + "</td></tr>";
+            locationTableHtml += "<tr><td>Commit Hash</td><td>" + graphConfig.fileInfo().graphLocation.commitHash() + "</td><td>" + this.logicalGraph().fileInfo().location.commitHash() + "</td></tr>";
+            locationTableHtml += "<tr><td>Download Url</td><td>" + graphConfig.fileInfo().graphLocation.downloadUrl() + "</td><td>" + this.logicalGraph().fileInfo().location.downloadUrl() + "</td></tr>";
+            locationTableHtml += "</table>";
+
+            Utils.showUserMessage("Error", "Graph config does not belong to this graph!\n" + locationTableHtml);
             return;
         }
 
