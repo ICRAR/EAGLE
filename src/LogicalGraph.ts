@@ -544,7 +544,7 @@ export class LogicalGraph {
             text = Utils.markdown2html(this.fileInfo().shortDescription)
         }
 
-        return '***Edit Short Graph Description:*** </br>' + text;
+        return '***Open Short Graph Description:*** </br>' + text;
     }, this);
 
     getInspectorDetailedDescriptionHTML : ko.PureComputed<string> = ko.pureComputed(() => {
@@ -553,7 +553,7 @@ export class LogicalGraph {
             text = Utils.markdown2html(this.fileInfo().detailedDescription)
         }
         
-        return '***Edit Detailed Graph Description:*** </br>' + text;
+        return '***Open Detailed Graph Description:*** </br>' + text;
     }, this);
 
     getGraphConfigs = (): MapIterator<GraphConfig> => {
