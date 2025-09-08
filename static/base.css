@@ -2295,6 +2295,10 @@ ul.nav.navbar-nav .dropdown-item:hover,ul.nav.navbar-nav .dropdown-item:focus{
     margin-bottom: 10px;
 }
 
+.tooltip-inner .tooltipBtn{
+    cursor:pointer;
+}
+
 .tooltip-inner{
     transition: 0s visibility;
     visibility: visible;

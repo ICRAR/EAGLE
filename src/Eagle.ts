@@ -4497,13 +4497,13 @@ export class Eagle {
         const targetNode = node || this.selectedNode();
         let nodeDescription: string;
         try {
-            nodeDescription = await Utils.requestUserMarkdown(node.getDisplayName() + " - Description", targetNode.getDescription(), markdownEditingEnabled);
+            nodeDescription = await Utils.requestUserMarkdown(targetNode.getDisplayName() + " - Description", targetNode.getDescription(), markdownEditingEnabled);
         } catch (error) {
             console.error(error);
             return;
         }
 
-        node.setDescription(nodeDescription);
+        targetNode.setDescription(nodeDescription);
     }
 
     editNodeComment = async (): Promise<void> => {
