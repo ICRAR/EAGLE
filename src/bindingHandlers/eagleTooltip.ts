@@ -3,7 +3,6 @@ import {Utils} from '../Utils';
 import { GraphRenderer } from "../GraphRenderer";
 import {Eagle} from '../Eagle';
 import { EagleConfig } from "../EagleConfig";
-import { Daliuge } from "../Daliuge";
 
 ko.bindingHandlers.eagleTooltip = {
     init: function(element) {
