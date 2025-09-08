@@ -4491,18 +4491,18 @@ export class Eagle {
         fileInfo.modified = true;
     }
 
-    editNodeDescription = async (): Promise<void> => {
+    editNodeDescription = async (node?: Node): Promise<void> => {
         const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
-        const node = this.selectedNode();
+        const targetNode = node || this.selectedNode();
         let nodeDescription: string;
         try {
-            nodeDescription = await Utils.requestUserMarkdown("Node Description", node.getDescription(), markdownEditingEnabled);
+            nodeDescription = await Utils.requestUserMarkdown(targetNode.getDisplayName() + " - Description", targetNode.getDescription(), markdownEditingEnabled);
         } catch (error) {
             console.error(error);
             return;
         }
 
-        node.setDescription(nodeDescription);
+        targetNode.setDescription(nodeDescription);
     }
 
     editNodeComment = async (): Promise<void> => {
@@ -4517,7 +4517,7 @@ export class Eagle {
 
         let nodeComment: string;
         try {
-            nodeComment = await Utils.requestUserMarkdown("Node Comment", node?.getComment(), markdownEditingEnabled);
+            nodeComment = await Utils.requestUserMarkdown(node.getDisplayName() + " - Comment", node?.getComment(), markdownEditingEnabled);
         } catch (error) {
             console.error(error);
             return;
