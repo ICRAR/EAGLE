@@ -24,7 +24,7 @@
                         <tr>
                             <td data-bind="eagleTooltip: 'The location in which this file is stored'">Location</td>
                             <!-- ko if: $root.currentFileInfo -->
-                                <td data-bind="text: $root.currentFileInfo().getText()"></td>
+                                <td data-bind="text: $root.currentFileInfo().location.getText()"></td>
                             <!-- /ko -->
                         </tr>
                         <tr id="modelDataShortDescription" data-bind="style:{'background-color': $root.currentFileInfo() ? $root.currentFileInfo().getShortDescriptionBtnColor() : ''}">

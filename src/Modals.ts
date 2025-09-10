@@ -497,7 +497,8 @@ export class Modals {
         
         const isValid = (fileType === Eagle.FileType.Unknown) ||
             (fileType === Eagle.FileType.Graph && inputElement.val().toString().endsWith(".graph")) ||
-            (fileType === Eagle.FileType.Palette && inputElement.val().toString().endsWith(".palette"));
+            (fileType === Eagle.FileType.Palette && inputElement.val().toString().endsWith(".palette")) ||
+            (fileType === Eagle.FileType.GraphConfig && inputElement.val().toString().endsWith(".graphConfig"));
 
         Modals._setValidClasses(inputElement, isValid);
     }
