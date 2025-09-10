@@ -25,8 +25,6 @@
 import * as ko from "knockout";
 
 import { Eagle } from './Eagle';
-import { Errors } from './Errors';
-import { GraphConfig } from "./GraphConfig";
 import { LogicalGraph } from './LogicalGraph';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
@@ -163,29 +161,6 @@ export class Translator {
     private _genPGT = (eagle: Eagle, translatorURL: string, algorithmName : string, testingMode: boolean) : void => {
         // clone the logical graph
         const lgClone: LogicalGraph = eagle.logicalGraph().clone();
-
-        // temporary fix to apply graph config to graph (if developer setting is enabled)
-        if (Setting.findValue(Setting.APPLY_ACTIVE_GRAPH_CONFIG_BEFORE_TRANSLATION)){
-            const activeConfig: GraphConfig = eagle.logicalGraph().getActiveGraphConfig();
-
-            // create a errors object to collect any errors
-            const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
-
-            // if there is a GraphConfig, apply GraphConfig to logicalGraph
-            if (activeConfig !== null){
-                GraphConfig.apply(lgClone, activeConfig, errorsWarnings);
-            }
-
-            // display any errors or warnings
-            if (errorsWarnings.errors.length > 0){
-                Utils.showNotification("GraphConfig Errors", "Errors occurred while applying GraphConfig to logical graph. Please check the console for details.", "danger");
-                console.error("GraphConfig.apply() errors:", errorsWarnings.errors);
-            }
-            if (errorsWarnings.warnings.length > 0){
-                Utils.showNotification("GraphConfig Warnings", "Warnings occurred while applying GraphConfig to logical graph. Please check the console for details.", "warning");
-                console.warn("GraphConfig.apply() warnings:", errorsWarnings.warnings);
-            }
-        }
 
         // get the version of JSON we are using
         const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);

@@ -321,6 +321,18 @@ export class FileInfo {
         return new Date(this._lastModifiedDatetime() * 1000).toLocaleString();
     }, this);
 
+
+    getSummaryHTML = (title : string) : string => {
+        let text
+        if (this._location().repositoryService() === Repository.Service.Unknown){
+            text = "- Location -</br>Url:&nbsp;" + this._repositoryUrl() + "</br>Hash:&nbsp;" + this._location().commitHash();
+        } else {
+            text = "<p>" + this._location().repositoryService() + " : " + this._location().repositoryName() + ((this._location().repositoryBranch() == "") ? "" : ("(" + this._location().repositoryBranch() + ")")) + " : " + this._location().repositoryPath() + "/" + this._name() + "</p>";
+        }
+
+        return "<p><h5>" + title + "<h5><p><p>" + text + "</p><p>"+this.renderedShortDescription() + "</p><p>" + this.renderedDetailedDescription() + "</p></p>";
+    }
+
     toString = () : string => {
         let s = "";
 

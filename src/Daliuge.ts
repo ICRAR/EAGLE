@@ -95,11 +95,13 @@ export namespace Daliuge {
         Unknown = "Unknown",
         String = "String",
         Integer = "Integer",
+        int = "int",
         Float = "Float",
+        float = "float",
         Object = "Object",
         Boolean = "Boolean",
+        bool = "bool",
         Select = "Select",
-        Password = "Password",
         Json = "Json",
         Python = "Python"
     }

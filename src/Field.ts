@@ -618,21 +618,28 @@ export class Field {
         return Object.values<string>(Daliuge.FieldName).includes(this.displayText());
     }, this);
 
-    getHtmlInputType = () : string => {
+    isFloatValueType = () : boolean => {
         const typePrefix = Utils.dataTypePrefix(this.type());
-        switch (typePrefix){
-            case Daliuge.DataType.Float:
-            case Daliuge.DataType.Integer:
-                return "number";
-            case Daliuge.DataType.Boolean:
-                return "checkbox";
-            case Daliuge.DataType.Password:
-                return "password";
-            case Daliuge.DataType.Select:
-                return "select";
-            default:
-                return "text";
-        }
+        return typePrefix === Daliuge.DataType.Float || typePrefix === Daliuge.DataType.float;
+    }
+
+    isIntegerValueType = () : boolean => {
+        const typePrefix = Utils.dataTypePrefix(this.type());
+        return typePrefix === Daliuge.DataType.Integer || typePrefix === Daliuge.DataType.int;
+    }
+
+    isBooleanValueType = () : boolean => {
+        const typePrefix = Utils.dataTypePrefix(this.type());
+        return typePrefix === Daliuge.DataType.Boolean || typePrefix === Daliuge.DataType.bool;
+    }
+
+    isSelectValueType = () : boolean => {
+        return Utils.dataTypePrefix(this.type()) === Daliuge.DataType.Select;
+    }
+
+    isStringValueType = () : boolean => {
+        //this serves as the fallback input type
+        return !this.isFloatValueType() && !this.isIntegerValueType() && !this.isBooleanValueType() && !this.isSelectValueType();
     }
 
     static getHtmlTitleText(parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage) : string {

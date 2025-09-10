@@ -54,17 +54,6 @@ export class FileLocation {
         }
     }
 
-    getSummaryHTML = (title : string) : string => {
-        let text
-        if (this.repositoryService() === Repository.Service.Unknown){
-            text = "- Location -</br>Url:&nbsp;" + this.downloadUrl() + "</br>Hash:&nbsp;" + this.commitHash();
-        } else {
-            text = "<p>" + this.repositoryService() + " : " + this.repositoryName() + ((this.repositoryBranch() == "") ? "" : ("(" + this.repositoryBranch() + ")")) + " : " + this.repositoryPath() + "/" + this.repositoryFileName() + "</p>";
-        }
-
-        return "<p><h5>" + title + "<h5><p><p>" + text + "</p>";
-    }
-
     getText = () : string => {
         if (this.repositoryName() !== ""){
             if (this.repositoryPath() === ""){

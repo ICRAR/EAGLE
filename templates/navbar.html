@@ -163,6 +163,20 @@
                         </span>
                         <a class="dropdown-item" id="createNewGraphFromUrl" href="#" data-bind="click: function(){loadFileFromUrl(Eagle.FileType.Graph)}">Open from URL</a>
                         <div class="dropdown-divider"></div>
+
+                        <span class="dropdown-item dropDropDownParent" href="#">Config<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
+                            <div class="dropDropDown">
+                                <a class="dropdown-item" id="createNewConfig" href="#" data-bind="click: newConfig">New
+                                    <span data-bind="text: KeyboardShortcut.idToKeysText('new_config', true)"></span>
+                                </a>
+                                <a class="dropdown-item" id="saveGraphConfig" href="#" data-bind="click: saveActiveGraphConfig">Save</a>
+                                <a class="dropdown-item" id="loadGraphConfig" href="#" data-bind="click: getGraphConfigFileToLoad">Load</a>
+                                <a class="dropdown-item" id="displayAllConfigs" href="#" data-bind="click: GraphConfigurationsTable.openTable">Display All
+                                    <span data-bind="text: KeyboardShortcut.idToKeysText('open_graph_configurations_table', true)"></span>
+                                </a>
+                            </div>
+                        </span>
+                        <div class="dropdown-divider"></div>
                         <a class="dropdown-item" id="displayGraphAsJson" href="#" data-bind="click: function(){displayObjectAsJson(Eagle.FileType.Graph, eagle.logicalGraph());}">Display As Json</a>
                         <a class="dropdown-item" id="screenshotGraph" href="#" data-bind="click: saveGraphScreenshot">Screenshot</a>
                         <a class="dropdown-item" id="validateGraph" href="#" data-bind="click: validateGraph">Validate</a>
@@ -220,22 +234,6 @@
                 </div>
             </li>
             <!-- /ko -->
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle dropdown-control ms-auto iconHoverEffect" href="#" id="navbarDropdownConfig" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Config
-                </a>
-                <div class="dropdown-menu dropdown-menu-right dropdown-area" aria-labelledby="navbarDropdownConfig">
-                    <a class="dropdown-item" id="createNewConfig" href="#" data-bind="click: newConfig">New
-                        <span data-bind="text: KeyboardShortcut.idToKeysText('new_config', true)"></span>
-                    </a>
-                    <a class="dropdown-item" id="saveGraphConfig" href="#" data-bind="click: saveActiveGraphConfig">Save</a>
-                    <a class="dropdown-item" id="loadGraphConfig" href="#" data-bind="click: getGraphConfigFileToLoad">Load</a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" id="displayAllConfigs" href="#" data-bind="click: GraphConfigurationsTable.openTable">Display All
-                        <span data-bind="text: KeyboardShortcut.idToKeysText('open_graph_configurations_table', true)"></span>
-                    </a>
-                </div>  
-            </li>
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle dropdown-control iconHoverEffect" href="#" id="navbarDropdownHelp" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Help
