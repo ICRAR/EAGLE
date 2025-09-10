@@ -1712,31 +1712,47 @@ export class Eagle {
 
     saveGraphConfigAs = async (graphConfig: GraphConfig) : Promise<void> => {
         return new Promise(async(resolve, reject) => {
-            const isLocalFile = this.logicalGraph().fileInfo().location.repositoryService() === Repository.Service.File;
-
-            const userChoice: string = await Utils.requestUserChoice("Save Graph Config As", "Please choose where to save the graph config", ["Local File", "Remote Git Repository"], isLocalFile?0:1, false, "");
-
-            if (userChoice === null){
-                return;
-            }
-
-            if (userChoice === "Local File"){
-                try {
-                    this.saveAsFileToLocal(Eagle.FileType.GraphConfig, graphConfig);
-                } catch (error) {
-                    reject(error);
+            try {
+                // Robust null/invalid check
+                if (!graphConfig || typeof graphConfig !== "object" || Object.keys(graphConfig).length === 0) {
+                    Utils.showNotification("Invalid Graph Config", "The graph configuration is missing or invalid. Please check your input and try again.", "danger");
+                    reject(new Error("GraphConfig is null or invalid"));
                     return;
                 }
-            } else {
-                try {
-                    this.commitToGitAs(Eagle.FileType.GraphConfig, graphConfig);
-                } catch(error) {
-                    reject(error);
+
+                const isLocalFile = this.logicalGraph().fileInfo().location.repositoryService() === Repository.Service.File;
+
+                const userChoice: string = await Utils.requestUserChoice("Save Graph Config As", "Please choose where to save the graph config", ["Local File", "Remote Git Repository"], isLocalFile?0:1, false, "");
+
+                if (userChoice === null){
+                    Utils.showNotification("Save Cancelled", "No save location was selected.", "danger");
+                    reject(new Error("User cancelled save"));
                     return;
                 }
-            }
 
-            resolve();
+                if (userChoice === "Local File"){
+                    try {
+                        this.saveAsFileToLocal(Eagle.FileType.GraphConfig, graphConfig);
+                        resolve();
+                    } catch (error) {
+                        Utils.showNotification("Save Failed", "Failed to save graph config locally: " + error.message, "danger");
+                        reject(error);
+                        return;
+                    }
+                } else {
+                    try {
+                        this.commitToGitAs(Eagle.FileType.GraphConfig, graphConfig);
+                        resolve();
+                    } catch(error) {
+                        Utils.showNotification("Save Failed", "Failed to save graph config to remote repository: " + error.message, "danger");
+                        reject(error);
+                        return;
+                    }
+                }
+            } catch (err) {
+                Utils.showNotification("Unexpected Error", "An unexpected error occurred: " + err.message, "danger");
+                reject(err);
+            }
         });
     }
 
