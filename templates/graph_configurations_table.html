@@ -82,6 +82,9 @@
                                 <button class="iconHoverEffect" data-bind="click: function(){$root.displayObjectAsJson(Eagle.FileType.GraphConfig, $data)}, eagleTooltip:'Display Config as JSON', clickBubble:false">
                                     <i class="material-symbols-outlined">data_object</i>
                                 </button>
+                                <button class="iconHoverEffect" data-bind="click: function(){Utils.showModelDataModal('Graph Configuration Info', $data.fileInfo())}, eagleTooltip:'Show Graph Configuration Info', clickBubble:false">
+                                    <i class="material-symbols-outlined">info</i>
+                                </button>
                             </td>
                         </tr>
                     <!-- /ko -->
