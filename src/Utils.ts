@@ -170,12 +170,14 @@ export class Utils {
                 return 0;
             case Eagle.FileType.Graph:
                 return 1;
-            case Eagle.FileType.JSON:
+            case Eagle.FileType.GraphConfig:
                 return 2;
-            case Eagle.FileType.Markdown:
+            case Eagle.FileType.JSON:
                 return 3;
-            case Eagle.FileType.Unknown:
+            case Eagle.FileType.Markdown:
                 return 4;
+            case Eagle.FileType.Unknown:
+                return 5;
         }
     }
 

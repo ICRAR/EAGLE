@@ -79,6 +79,9 @@
                                 <button class="iconHoverEffect" data-bind="click: $root.logicalGraph().removeGraphConfig, eagleTooltip:'Remove Config from Graph', clickBubble:false">
                                     <i class="material-symbols-outlined">delete</i>
                                 </button>
+                                <button class="iconHoverEffect" data-bind="click: function(){$root.displayObjectAsJson(Eagle.FileType.GraphConfig, $data)}, eagleTooltip:'Display Config as JSON', clickBubble:false">
+                                    <i class="material-symbols-outlined">data_object</i>
+                                </button>
                             </td>
                         </tr>
                     <!-- /ko -->
