@@ -2089,8 +2089,16 @@ export class Node {
         }
 
         // check if this category of node is a legacy node
-        if (cData.sortOrder === Category.SortOrder.Legacy){
-            const message: string = "Node (" + node.getName() + ") has a legacy category (" + node.getCategory() + ").  Consider updating to a more modern node category.";
+        const updatedCategory = CategoryData.LEGACY_CATEGORIES_UPGRADES.get(node.getCategory());
+        if (typeof updatedCategory !== 'undefined'){
+            let updateMessage: string;
+            if (updatedCategory === null){
+                updateMessage = "Consider updating to a more modern node category.";
+            } else {
+                updateMessage = "Please update the component to use the new category (" + updatedCategory + ").";
+            }
+
+            const message: string = "Node (" + node.getName() + ") has a legacy category (" + node.getCategory() + "). " + updateMessage;
             const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
             node.issues().push({issue:issue,validity:Errors.Validity.Warning})
         }
