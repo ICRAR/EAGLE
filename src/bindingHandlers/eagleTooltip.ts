@@ -3,6 +3,7 @@ import {Utils} from '../Utils';
 import { GraphRenderer } from "../GraphRenderer";
 import {Eagle} from '../Eagle';
 import { EagleConfig } from "../EagleConfig";
+import { Node } from "../Node";
 
 ko.bindingHandlers.eagleTooltip = {
     init: function(element) {
@@ -55,8 +56,8 @@ ko.bindingHandlers.eagleTooltip = {
                 return;
             }else if (typeof html === 'object'){
                 //html can be either a string or an Object with a content string and size (in pixels)
-                if(html.size != undefined) size = html.size
-                if(html.content != undefined) content = html.content
+                if(typeof html.size != 'undefined') size = html.size
+                if(typeof html.content != 'undefined') content = html.content
             }else{
                 content = html
             }
@@ -83,9 +84,22 @@ ko.bindingHandlers.eagleTooltip = {
                 result = Utils.markdown2html(content)
             }
 
+
+
+            let buttonRequirements : boolean = false
+
             //if a button is requested and all necessary info is supplied we will insert it here.
-            if(html.node != undefined && html.buttonAction != undefined){
-                result = '<div class="material-symbols-outlined float-end tooltipBtn iconHoverEffect">expand_content</div>' + result
+            if(typeof html.buttonAction != 'undefined'){
+
+                if(html.buttonAction === 'descriptionEdit' && html.node instanceof Node ){
+                    buttonRequirements = true
+                }else{
+                    console.warn('requested description button function: '+ html.buttonAction +' isnt supported or description button wasnt provided with its required arguments')
+                }
+
+                if(buttonRequirements){
+                    result = '<div class="material-symbols-outlined float-end tooltipBtn iconHoverEffect">expand_content</div>' + result
+                }
             }
 
             //fire the tooltip
@@ -96,14 +110,16 @@ ko.bindingHandlers.eagleTooltip = {
                 trigger : 'manual',
             });
 
-            //bootstrap will not let us place databinds or click events on our custom button itself, so we need to add an event listener to the button after the tooltip is shown
-            jQueryElement.on('shown.bs.tooltip', function () {
-                $('.tooltip .tooltipBtn').on('click', function(){
-                    if(html.node != null && html.buttonAction === 'descriptionEdit'){
-                        eagle.editNodeDescription(html.node)
-                    }
-                })
-            });
+            if(buttonRequirements){
+                //bootstrap will not let us place databinds or click events on our custom button itself, so we need to add an event listener to the button after the tooltip is shown
+                jQueryElement.on('shown.bs.tooltip', function () {
+                    $('.tooltip .tooltipBtn').on('click', function(){
+                        if(html.buttonAction === 'descriptionEdit'){
+                            eagle.editNodeDescription(html.node)
+                        }
+                    })
+                });
+            }
 
             stillHovering=true
 
