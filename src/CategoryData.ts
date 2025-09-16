@@ -56,7 +56,6 @@ export class CategoryData {
     static readonly LEGACY_CATEGORIES_UPGRADES: Map<Category, Category> = new Map([
         [Category.Component, Category.PyFuncApp],
         [Category.Description, Category.Comment],
-        [Category.PythonApp, Category.DALiuGEApp],
         [Category.EnvironmentVariables, Category.GlobalVariable],
     ]);
 

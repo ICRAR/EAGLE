@@ -2089,7 +2089,7 @@ export class Node {
         }
 
         // check if this category of node is a legacy node
-        const updatedCategory = CategoryData.LEGACY_CATEGORIES_UPGRADES.get(node.getCategory());
+        const updatedCategory = Utils.getLegacyCategoryUpdate(node);
         if (typeof updatedCategory !== 'undefined'){
             let updateMessage: string;
             if (updatedCategory === null){
@@ -2099,7 +2099,13 @@ export class Node {
             }
 
             const message: string = "Node (" + node.getName() + ") has a legacy category (" + node.getCategory() + "). " + updateMessage;
-            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
+            const issue: Errors.Issue = Errors.ShowFix(
+                message,
+                function(){Utils.showNode(eagle, location, node)},
+                function(){Utils.fixNodeCategory(eagle, node, updatedCategory, node.getCategoryType())},
+                "Change node category from " + node.getCategory() + " to " + updatedCategory
+            );
+
             node.issues().push({issue:issue,validity:Errors.Validity.Warning})
         }
 
@@ -2159,25 +2165,6 @@ export class Node {
         if (node.getCategory() === Category.Service && node.hasInputApplication() && node.getInputApplication().getOutputPorts().length > 0){
             const issue : Errors.Issue = Errors.Message("Node (" + node.getName() + ") is a Service node, but has an input application with at least one output.")
             node.issues().push({issue:issue,validity:Errors.Validity.Error});
-        }
-
-        // check if this category of node is an old PythonApp node
-        if (node.getCategory() === Category.PythonApp){
-            let newCategory: Category = Category.DALiuGEApp;
-            const dropClassField = node.getFieldByDisplayText(Daliuge.FieldName.DROP_CLASS);
-
-            // by default, update PythonApp to a DALiuGEApp, unless dropclass field value indicates it is a PyFuncApp
-            if (dropClassField && dropClassField.getValue() === Daliuge.DEFAULT_PYFUNCAPP_DROPCLASS_VALUE){
-                newCategory = Category.PyFuncApp;
-            }
-
-            const issue : Errors.Issue = Errors.ShowFix(
-                "Node (" + node.getName() + ") is a " + node.getCategory() + " node, which is a legacy category. The node should be updated to a " + newCategory + " node.",
-                function(){Utils.showNode(eagle, location, node)},
-                function(){Utils.fixNodeCategory(eagle, node, newCategory, node.getCategoryType())},
-                "Change node category from " + node.getCategory() + " to " + newCategory
-            );
-            node.issues().push({issue:issue,validity:Errors.Validity.Warning});
         }
 
         // check that this category of node contains all the fields it requires
