@@ -1298,6 +1298,10 @@ export class Node {
         return CategoryData.getCategoryData(this.category()).icon;
     }
 
+    graphNodeTitleIsVisible = () : boolean => {
+        return this.isData() && Setting.findValue(Setting.SHOW_DATA_NODE_TITLES);
+    }
+
     //get icon color
     getGraphIconAttr = () : string => {
         const attr = "font-size: 44px; color:" + CategoryData.getCategoryData(this.category()).color
