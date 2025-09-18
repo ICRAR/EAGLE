@@ -363,6 +363,10 @@ export class Field {
         return this.edges().get(id);
     }
 
+    getNumEdges = () : number => {
+        return this.edges().size;
+    }
+
     getErrorsWarnings : ko.PureComputed<Errors.ErrorsWarnings> = ko.pureComputed(() => {
         const errorsWarnings : Errors.ErrorsWarnings = {warnings: [], errors: []};
         
@@ -447,6 +451,8 @@ export class Field {
         this.id(null);
         this.isEvent(false);
         this.node(null);
+        this.edges().clear();
+
         return this;
     }
 
@@ -460,6 +466,10 @@ export class Field {
         f.encoding(this.encoding());
         f.isEvent(this.isEvent());
         f.node(this.node());
+        f.edges(new Map<EdgeId, Edge>());
+        for (const edge of this.edges().values()) {
+            f.edges().set(edge.getId(), edge.clone());
+        }
         return f;
     }
 
@@ -482,6 +492,7 @@ export class Field {
         f.encoding = this.encoding;
         f.isEvent = this.isEvent;
         f.node = this.node;
+        f.edges = this.edges;
 
         return f;
     }

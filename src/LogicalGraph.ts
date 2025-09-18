@@ -506,6 +506,16 @@ export class LogicalGraph {
         return this.nodes().get(id);
     }
 
+    // NOTE: only returns the first node found with the given name, names are not unique
+    getNodeByName = (name: string): Node | undefined => {
+        for (const node of this.nodes().values()){
+            if (node.getName() === name){
+                return node;
+            }
+        }
+        return undefined;
+    }
+
     addEdgeComplete = (edge : Edge) => {
         this.edges().set(edge.getId(), edge);
         this.edges.valueHasMutated();
