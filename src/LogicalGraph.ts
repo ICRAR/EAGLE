@@ -506,6 +506,16 @@ export class LogicalGraph {
         return this.nodes().get(id);
     }
 
+    // NOTE: only returns the first node found with the given name, names are not unique
+    getNodeByName = (name: string): Node | undefined => {
+        for (const node of this.nodes().values()){
+            if (node.getName() === name){
+                return node;
+            }
+        }
+        return undefined;
+    }
+
     addEdgeComplete = (edge : Edge) => {
         this.edges().set(edge.getId(), edge);
         this.edges.valueHasMutated();
@@ -544,7 +554,7 @@ export class LogicalGraph {
             text = Utils.markdown2html(this.fileInfo().shortDescription)
         }
 
-        return '***Edit Short Graph Description:*** </br>' + text;
+        return '***Open Short Graph Description:*** </br>' + text;
     }, this);
 
     getInspectorDetailedDescriptionHTML : ko.PureComputed<string> = ko.pureComputed(() => {
@@ -553,7 +563,7 @@ export class LogicalGraph {
             text = Utils.markdown2html(this.fileInfo().detailedDescription)
         }
         
-        return '***Edit Detailed Graph Description:*** </br>' + text;
+        return '***Open Detailed Graph Description:*** </br>' + text;
     }, this);
 
     getGraphConfigs = (): MapIterator<GraphConfig> => {

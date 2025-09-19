@@ -2,6 +2,8 @@ import * as ko from "knockout";
 import {Utils} from '../Utils';
 import { GraphRenderer } from "../GraphRenderer";
 import {Eagle} from '../Eagle';
+import { EagleConfig } from "../EagleConfig";
+import { Node } from "../Node";
 
 ko.bindingHandlers.eagleTooltip = {
     init: function(element) {
@@ -45,22 +47,24 @@ ko.bindingHandlers.eagleTooltip = {
 
             let html = ko.unwrap(valueAccessor())
             let result = ''
-            let size = '300px'
+            let size = EagleConfig.EAGLE_TOOLTIP_DEFAULT_MAX_WIDTH + 'px' //default size
+            let content = ''
 
             // abort if the input html is undefined
-            if (typeof html === 'undefined'){
+            if (typeof html === 'undefined' || typeof html === 'object' && html.content === undefined){
+                console.log('eagleTooltip: no content provided or faulty')
                 return;
-            }
-
-            //html can be either a string or a Object with a content string and size (in pixels)
-            if(html.content != undefined){
-                size = html.size
-                html=html.content
+            }else if (typeof html === 'object'){
+                //html can be either a string or an Object with a content string and size (in pixels)
+                if(typeof html.size != 'undefined') size = html.size
+                if(typeof html.content != 'undefined') content = html.content
+            }else{
+                content = html
             }
 
             // when surrounding text in a tooltip with |||, that section will be excluded from the markdown conversion. 
-            if(html.includes('|||')){
-                const x = html.split('|||')
+            if(content.includes('|||')){
+                const x = content.split('|||')
                 for(let i = 0 ; i < x.length ; i++){
                     if(i===0){
                         if(x[i].length === 0){
@@ -77,16 +81,45 @@ ko.bindingHandlers.eagleTooltip = {
                     result += y
                 }
             }else{
-                result = Utils.markdown2html(html)
+                result = Utils.markdown2html(content)
             }
 
-            jQueryElement.attr("data-bs-original-title", result);
 
+
+            let buttonRequirements : boolean = false
+
+            //if a button is requested and all necessary info is supplied we will insert it here.
+            if(typeof html.buttonAction != 'undefined'){
+
+                if(html.buttonAction === 'descriptionEdit' && html.node instanceof Node ){
+                    buttonRequirements = true
+                }else{
+                    console.warn('requested description button function: '+ html.buttonAction +' isnt supported or description button wasnt provided with its required arguments')
+                }
+
+                if(buttonRequirements){
+                    result = '<div class="material-symbols-outlined float-end tooltipBtn iconHoverEffect">expand_content</div>' + result
+                }
+            }
+
+            //fire the tooltip
+            jQueryElement.attr("data-bs-original-title", result);
             jQueryElement.tooltip({
                 html : true,
                 boundary: document.body,
                 trigger : 'manual',
             });
+
+            if(buttonRequirements){
+                //bootstrap will not let us place databinds or click events on our custom button itself, so we need to add an event listener to the button after the tooltip is shown
+                jQueryElement.on('shown.bs.tooltip', function () {
+                    $('.tooltip .tooltipBtn').on('click', function(){
+                        if(html.buttonAction === 'descriptionEdit'){
+                            eagle.editNodeDescription(html.node)
+                        }
+                    })
+                });
+            }
 
             stillHovering=true
 

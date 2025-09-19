@@ -52,6 +52,7 @@ export class EagleConfig {
     // General UI
     public static readonly DROPDOWN_DISMISS_DELAY: number = 400;
     public static readonly EDGE_SVG_SIZE: number = 10000;
+    public static readonly EAGLE_TOOLTIP_DEFAULT_MAX_WIDTH: number = 300;
 
     // graph behaviour
     public static readonly NODE_SUGGESTION_RADIUS = 300
