@@ -1298,8 +1298,8 @@ export class Node {
         return CategoryData.getCategoryData(this.category()).icon;
     }
 
-    graphNodeTitleIsVisible = () : boolean => {
-        return this.isData() && Setting.findValue(Setting.SHOW_DATA_NODE_TITLES);
+    graphNodeTitleIsHidden = () : boolean => {
+        return this.isData() && Setting.findValue(Setting.HIDE_DATA_NODE_TITLES);
     }
 
     //get icon color

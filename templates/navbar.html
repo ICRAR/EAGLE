@@ -38,6 +38,9 @@
                 <button id="centerGraph" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: centerGraph, eagleTooltip: KeyboardShortcut.idToFullText('center_graph')">
                     <i class="material-symbols-outlined md-18">filter_center_focus</i>
                 </button>
+                <button id="hideDataNodeNames" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: function(){Setting.find(Setting.HIDE_DATA_NODE_TITLES).toggle()}, css: { 'navbar-btn-active': Setting.findValue(Setting.HIDE_DATA_NODE_TITLES)}, eagleTooltip: 'Hide Data Node Names in the graph editor'">
+                    <i class="material-symbols-outlined md-18">visibility_off</i>
+                </button>
             </div>
 
             <!-- navbar category -->

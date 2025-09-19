@@ -188,6 +188,10 @@
     color: rgb(46 49 146);
 }
 
+.node .header input{
+    display: none;
+}
+
 .node .body{
     position: relative;
     background-color: var(--nodeBackground);
