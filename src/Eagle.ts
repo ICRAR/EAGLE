@@ -1720,6 +1720,14 @@ export class Eagle {
                     return;
                 }
 
+                // check whether the GraphConfig has the same modelData location as the LogicalGraph
+                const configMatch = FileLocation.match(graphConfig.fileInfo().graphLocation, this.logicalGraph().fileInfo().location);
+                if (!configMatch) {
+                    Utils.showNotification("Invalid Graph Config", "The graph configuration's parent location does not match the current graph's location. Try fixing graph errors " + KeyboardShortcut.idToKeysText('fix_all', true) + " before saving.", "danger");
+                    reject(new Error("GraphConfig location mismatch"));
+                    return;
+                }
+
                 const isLocalFile = this.logicalGraph().fileInfo().location.repositoryService() === Repository.Service.File;
 
                 const userChoice: string = await Utils.requestUserChoice("Save Graph Config As", "Please choose where to save the graph config", ["Local File", "Remote Git Repository"], isLocalFile?0:1, false, "");
