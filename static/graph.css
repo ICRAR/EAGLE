@@ -192,6 +192,17 @@
     display: none;
 }
 
+/* node headers with class hiddenDataName will be hidden when the node is not selected */
+.node .container:not(.selected) .header .hiddenDataName{
+    visibility: hidden;
+}
+
+/* node header containers that have a child div with class hiddenDataName will not react to pointer events when the node is not selected */
+/* this is the prevent hover tooltips on hidden nodes' titles */
+.node .container:not(.selected) .header > div:has(.hiddenDataName){
+    pointer-events: none;
+}
+
 .node .body{
     position: relative;
     background-color: var(--nodeBackground);

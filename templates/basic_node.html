@@ -2,8 +2,8 @@
     <div class="container" data-bind="css: {selected: $root.objectIsSelected($data)},attr:{id:$data.getId()}">
         <div class="header" data-bind=" css:{'graphDataNode':$data.isData()}">
             <div data-bind="eagleTooltip: {content: $data.getHelpHTML(),size: '500px'}, style: {transform: 'scale('+$root.getGraphTextScale()+')'}">
-                <div class="header-name" data-bind="html: $data.name, event: {click: GraphRenderer.editNodeTitleInGraph}, style:{visibility: $data.graphNodeTitleIsHidden() ? 'hidden' : 'visible'}"></div>
-                <input type="text" onmousedown="GraphRenderer.preventBubbling()" onmousemove="GraphRenderer.preventBubbling()" onmouseup="GraphRenderer.preventBubbling()" data-bind="value:$data.name, readonly: $data.isLocked,event:{keyup:GraphRenderer.nodeNameEditorKeybinds}, style:{visibility: $data.graphNodeTitleIsHidden() ? 'hidden' : 'visible'}" class="header-input">
+                <div class="header-name" data-bind="html: $data.name, event: {click: GraphRenderer.editNodeTitleInGraph},css:{hiddenDataName: $data.graphNodeTitleIsHidden()}"></div>
+                <input type="text" onmousedown="GraphRenderer.preventBubbling()" onmousemove="GraphRenderer.preventBubbling()" onmouseup="GraphRenderer.preventBubbling()" data-bind="value:$data.name, readonly: $data.isLocked,event:{keyup:GraphRenderer.nodeNameEditorKeybinds},,css:{hiddenDataName: $data.graphNodeTitleIsHidden()}" class="header-input">
                 <!-- ko if: $data.getComment() != '' -->
                     <i class="material-symbols-outlined filled interactive clickable iconHoverEffect graphComment" data-bs-placement="right" data-bind="eagleTooltip: $data.getComment(), click: $root.graphEditComment">chat</i>
                 <!-- /ko -->
