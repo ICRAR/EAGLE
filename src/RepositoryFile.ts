@@ -28,6 +28,8 @@ export class RepositoryFile {
                 return "device_hub";
             case Eagle.FileType.Palette:
                 return "palette";
+            case Eagle.FileType.GraphConfig:
+                return "construction";
             case Eagle.FileType.JSON:
                 return "language";
             case Eagle.FileType.Markdown:
