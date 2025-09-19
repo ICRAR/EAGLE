@@ -491,9 +491,13 @@
 
 .node .header.graphDataNode i{
     top: auto;
-    bottom: -5px;
+    bottom: -7px;
     transform: scaleY(-1);
+}
 
+.node .container:not(.selected) .header.graphDataNode:has(.hiddenDataName) i{
+    bottom: 10px;
+    pointer-events: all;
 }
 
 .node.transition{
