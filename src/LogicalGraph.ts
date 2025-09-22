@@ -628,6 +628,10 @@ export class LogicalGraph {
     }
 
     setActiveGraphConfig = (configId: GraphConfigId): void => {
+        this.activeGraphConfigId(configId)
+    }
+
+    toggleActiveGraphConfig = (configId: GraphConfigId): void => {
         if(this.activeGraphConfigId() === configId){
             this.activeGraphConfigId(null)
         }else{

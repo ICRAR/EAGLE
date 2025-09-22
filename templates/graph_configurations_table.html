@@ -63,7 +63,7 @@
                             </td>
 <!-- active config -->
                             <td class='columnCell column-active'>
-                                <button class="iconHoverEffect" type="button" data-bind="click: function(){$root.logicalGraph().setActiveGraphConfig($data.getId());}">
+                                <button class="iconHoverEffect" type="button" data-bind="click: function(){$root.logicalGraph().toggleActiveGraphConfig($data.getId());}">
                                     <i class="material-symbols-outlined md-18" data-bind="visible: $data.id() === $root.logicalGraph().activeGraphConfigId()">radio_button_checked</i>
                                     <i class="material-symbols-outlined md-18" data-bind="hidden:  $data.id() === $root.logicalGraph().activeGraphConfigId()">radio_button_unchecked</i>
                                 </button>
