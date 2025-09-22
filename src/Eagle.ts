@@ -1286,7 +1286,6 @@ export class Eagle {
     loadLocalGraphConfigFile = () : void => {
         const graphConfigFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("graphConfigFileToLoad");
         const fileFullPath : string = graphConfigFileInputElement.value;
-        const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
         const eagle: Eagle = this;
 
         // abort if value is empty string
@@ -2455,7 +2454,7 @@ export class Eagle {
         this.updateLogicalGraphFileInfo(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
     }
 
-    _loadGraphConfig = (dataObject: any, file: RepositoryFile): void => {
+    _loadGraphConfig = async (dataObject: any, file: RepositoryFile): Promise<void> => {
         const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
         const graphConfig = GraphConfig.fromJson(dataObject, this.logicalGraph(), errorsWarnings);
@@ -2477,7 +2476,24 @@ export class Eagle {
             return;
         }
 
-        this.logicalGraph().addGraphConfig(graphConfig);
+        // check if graphConfig already exists in this graph
+        const configAlreadyExists: boolean = this.logicalGraph().getGraphConfigById(graphConfig.getId()) !== undefined;
+
+        if (configAlreadyExists){
+            const userOption = await Utils.requestUserOptions("Graph Config Already Exists", "A graph config with the same id already exists in this graph. Do you wish to overwrite it, or load the new one with a different name?", "Overwrite", "Load as Separate Config", "Cancel", 0);
+
+            if (userOption === "Overwrite"){
+                this.logicalGraph().addGraphConfig(graphConfig);
+            } else if (userOption === "Load as Separate Config"){
+                graphConfig.fileInfo().name = graphConfig.fileInfo().name + " (copy)";
+                graphConfig.setId(Utils.generateGraphConfigId());
+                this.logicalGraph().addGraphConfig(graphConfig);
+            } else {
+                // do nothing
+            }
+        } else {
+            this.logicalGraph().addGraphConfig(graphConfig);
+        }
 
         // show errors/warnings
         this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);

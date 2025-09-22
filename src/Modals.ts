@@ -269,6 +269,44 @@ export class Modals {
             $('#confirmModalAffirmativeButton').trigger("focus");
         });
 
+        // #optionsModal - requestUserOptions()
+        $('#optionsModalOption0').on('click', function(){
+            const callback : (selectedOptionIndex: number) => void = $('#optionsModal').data('callback');
+            if (callback){
+                callback(0);
+            } else {
+                console.error("No 'callback' data attribute found on modal");
+            }
+
+            // remove data stored on the modal
+            $('#optionsModal').removeData('callback');
+        });
+        $('#optionsModalOption1').on('click', function(){
+            const callback : (selectedOptionIndex: number) => void = $('#optionsModal').data('callback');
+            if (callback){
+                callback(1);
+            } else {
+                console.error("No 'callback' data attribute found on modal");
+            }
+
+            // remove data stored on the modal
+            $('#optionsModal').removeData('callback');
+        });
+        $('#optionsModalOption2').on('click', function(){
+            const callback : (selectedOptionIndex: number) => void = $('#optionsModal').data('callback');
+            if (callback){
+                callback(2);
+            } else {
+                console.error("No 'callback' data attribute found on modal");
+            }
+
+            // remove data stored on the modal
+            $('#optionsModal').removeData('callback');
+        });
+        $('#optionsModal').on('shown.bs.modal', function(){
+            $('#optionsModalOption0').trigger("focus");
+        });
+
         // #gitCommitModal - requestUserGitCommit()
         $('#gitCommitModalAffirmativeButton').on('click', function(){
             $('#gitCommitModal').data('completed', true);

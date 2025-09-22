@@ -749,6 +749,30 @@ export class Utils {
         });
     }
 
+    static async requestUserOptions(title: string, message: string, option0: string, option1: string, option2: string, defaultOptionIndex: number): Promise<string> {
+        return new Promise(async(resolve, reject) => {
+            $('#optionsModalTitle').text(title);
+            $('#optionsModalMessage').html(message);
+            $('#optionsModalOption0').text(option0);
+            $('#optionsModalOption1').text(option1);
+            $('#optionsModalOption2').text(option2);
+
+            $('#optionsModalOption0').toggleClass('btn-primary', defaultOptionIndex === 0);
+            $('#optionsModalOption0').toggleClass('btn-secondary', defaultOptionIndex !== 0);
+            $('#optionsModalOption1').toggleClass('btn-primary', defaultOptionIndex === 1);
+            $('#optionsModalOption1').toggleClass('btn-secondary', defaultOptionIndex !== 1);
+            $('#optionsModalOption2').toggleClass('btn-primary', defaultOptionIndex === 2);
+            $('#optionsModalOption2').toggleClass('btn-secondary', defaultOptionIndex !== 2);
+
+            $('#optionsModal').data('callback', function(selectedOptionIndex: number){
+                const selectedOption = [option0, option1, option2][selectedOptionIndex];
+                resolve(selectedOption);
+            });
+
+            $('#optionsModal').modal("show");
+        });
+    }
+
     // , callback : (completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void ) : void {
     static async requestUserGitCommit(defaultRepository : Repository, repositories: Repository[], filePath: string, fileName: string, fileType: Eagle.FileType): Promise<RepositoryCommit> {
         return new Promise(async(resolve, reject) => {
