@@ -188,6 +188,21 @@
     color: rgb(46 49 146);
 }
 
+.node .header input{
+    display: none;
+}
+
+/* node headers with class hiddenDataName will be hidden when the node is not selected */
+.node .container:not(.selected) .header .hiddenDataName{
+    visibility: hidden;
+}
+
+/* node header containers that have a child div with class hiddenDataName will not react to pointer events when the node is not selected */
+/* this is the prevent hover tooltips on hidden nodes' titles */
+.node .container:not(.selected) .header > div:has(.hiddenDataName){
+    pointer-events: none;
+}
+
 .node .body{
     position: relative;
     background-color: var(--nodeBackground);
@@ -476,14 +491,18 @@
 
 .node .header.graphDataNode i{
     top: auto;
-    bottom: -5px;
+    bottom: -7px;
     transform: scaleY(-1);
+}
 
+/* if the node is not selected and the node title is hidden, move the comment icon closer to the node body */
+.node .container:not(.selected) .header.graphDataNode:has(.hiddenDataName) i{
+    bottom: 10px;
+    pointer-events: all;
 }
 
 .node.transition{
     transition: width .2s cubic-bezier(0.68, 2.15, 0.5, 0.75), height .2s cubic-bezier(0.68, 2.15, 0.5, 0.75);
-    
 }
 
 .node .graphDataNode{    
