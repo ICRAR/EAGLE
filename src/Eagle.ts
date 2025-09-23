@@ -2472,8 +2472,12 @@ export class Eagle {
             locationTableHtml += "<tr><td>Download Url</td><td>" + graphConfig.fileInfo().graphLocation.downloadUrl() + "</td><td>" + this.logicalGraph().fileInfo().location.downloadUrl() + "</td></tr>";
             locationTableHtml += "</table>";
 
-            Utils.showUserMessage("Error", "Graph config does not belong to this graph!\n" + locationTableHtml);
-            return;
+            try {
+                await Utils.requestUserConfirm("Error", "Graph config does not belong to this graph!\n" + locationTableHtml + "\n\nDo you wish to load it anyway?", "Yes", "No", null);
+            } catch (error){
+                console.error(error);
+                return;
+            }
         }
 
         // check if graphConfig already exists in this graph
