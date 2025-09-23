@@ -266,7 +266,7 @@ export class Modals {
             }
 
             // remove data stored on the modal
-            $('#choiceModal').removeData(['callback', 'completed', 'confirmed']);
+            $('#confirmModal').removeData(['callback', 'completed', 'confirmed']);
         });
 
         // #gitCommitModal - requestUserGitCommit()
