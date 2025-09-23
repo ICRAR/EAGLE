@@ -2462,6 +2462,28 @@ export class Eagle {
         // abort if graphConfig does not belong to this graph
         const configMatch = FileLocation.match(graphConfig.fileInfo().graphLocation, this.logicalGraph().fileInfo().location);
         if (!configMatch) {
+            // first determine how many fields within the config can be found in the current graph
+            let foundCount = 0;
+
+            for (const gcNode of graphConfig.getNodes()) {
+                for (const gcField of gcNode.getFields()) {
+                    const lgNode = gcNode.getNode();
+                    const lgField = gcField.getField();
+
+                    // skip if no node found
+                    if (lgNode === null) {
+                        continue;
+                    }
+
+                    // skip if no field found
+                    if (lgField === null) {
+                        continue;
+                    }
+
+                    foundCount++;
+                }
+            }
+
             let locationTableHtml = "<table class='eagleTableWrapper'><tr><th></th><th>GraphConfig Parent Location</th><th>Current Graph Location</th></tr>";
             locationTableHtml += "<tr><td>Repository Service</td><td>" + graphConfig.fileInfo().graphLocation.repositoryService() + "</td><td>" + this.logicalGraph().fileInfo().location.repositoryService() + "</td></tr>";
             locationTableHtml += "<tr><td>Repository Name</td><td>" + graphConfig.fileInfo().graphLocation.repositoryName() + "</td><td>" + this.logicalGraph().fileInfo().location.repositoryName() + "</td></tr>";
@@ -2470,10 +2492,12 @@ export class Eagle {
             locationTableHtml += "<tr><td>Repository FileName</td><td>" + graphConfig.fileInfo().graphLocation.repositoryFileName() + "</td><td>" + this.logicalGraph().fileInfo().location.repositoryFileName() + "</td></tr>";
             locationTableHtml += "<tr><td>Commit Hash</td><td>" + graphConfig.fileInfo().graphLocation.commitHash() + "</td><td>" + this.logicalGraph().fileInfo().location.commitHash() + "</td></tr>";
             locationTableHtml += "<tr><td>Download Url</td><td>" + graphConfig.fileInfo().graphLocation.downloadUrl() + "</td><td>" + this.logicalGraph().fileInfo().location.downloadUrl() + "</td></tr>";
+
+            locationTableHtml += "<tr><td>Matching Fields</td><td colspan='2'>" + foundCount + "/" + graphConfig.numFields() + "</td></tr>";
             locationTableHtml += "</table>";
 
             try {
-                await Utils.requestUserConfirm("Error", "Graph config does not belong to this graph!\n" + locationTableHtml + "\n\nDo you wish to load it anyway?", "Yes", "No", null);
+                await Utils.requestUserConfirm("Error", "Graph config does not belong to this graph! Do you wish to load it anyway?" + locationTableHtml, "Yes", "No", null);
             } catch (error){
                 console.error(error);
                 return;
