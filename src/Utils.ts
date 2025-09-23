@@ -718,7 +718,7 @@ export class Utils {
         });
     }
 
-    static async requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string, confirmSetting: Setting): Promise<void> {
+    static async requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string, confirmSetting: Setting): Promise<boolean> {
         return new Promise(async(resolve, reject) => {
             $('#confirmModalTitle').text(title);
             $('#confirmModalMessage').html(message);
@@ -741,10 +741,12 @@ export class Utils {
                 })
             }
 
-            $('#confirmModal').data('callback', function(completed: boolean){
+            $('#confirmModal').data('callback', function(completed: boolean, confirmed: boolean): void {
                 if (completed){
-                    resolve();
+                    // if the user confirmed the action, resolve the promise
+                    resolve(confirmed);
                 } else {
+                    // if the user did not confirm, reject the promise
                     reject("Utils.requestUserConfirm() aborted by user");
                 }
             });
