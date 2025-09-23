@@ -742,13 +742,7 @@ export class Utils {
             }
 
             $('#confirmModal').data('callback', function(completed: boolean, confirmed: boolean): void {
-                if (completed){
-                    // if the user confirmed the action, resolve the promise
-                    resolve(confirmed);
-                } else {
-                    // if the user did not confirm, reject the promise
-                    reject("Utils.requestUserConfirm() aborted by user");
-                }
+                resolve(completed && confirmed);
             });
 
             $('#confirmModal').modal("show");
