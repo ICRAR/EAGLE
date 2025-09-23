@@ -1227,6 +1227,25 @@ export class Utils {
         fields.push(field);
     }
 
+    // return undefined if no update required, null if no direct update available (but should update), or the new category if a direct update is available
+    static getLegacyCategoryUpdate(node: Node): Category | undefined {
+        // first check for the special case of PythonApp, which should be upgraded to either a DALiuGEApp or a PyFuncApp, depending on the dropclass field value
+        if (node.getCategory() === Category.PythonApp){
+            const dropClassField = node.getFieldByDisplayText(Daliuge.FieldName.DROP_CLASS);
+
+            // by default, update PythonApp to a DALiuGEApp, unless dropclass field value indicates it is a PyFuncApp
+            if (dropClassField && dropClassField.getValue() === Daliuge.DEFAULT_PYFUNCAPP_DROPCLASS_VALUE){
+                return Category.PyFuncApp;
+            } else {
+                return Category.DALiuGEApp;
+            }
+        }
+
+        // otherwise, check the standard legacy categories map
+        let newCategory: Category | undefined = CategoryData.LEGACY_CATEGORIES_UPGRADES.get(node.getCategory());
+        return newCategory;
+    }
+
     static isKnownCategory(category : string) : boolean {
         return typeof CategoryData.cData[category] !== 'undefined';
     }
