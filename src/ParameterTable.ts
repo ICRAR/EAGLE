@@ -133,7 +133,7 @@ export class ParameterTable {
                 const config: GraphConfig = lg.getActiveGraphConfig();
                 const displayedFields: Field[] = [];
 
-                console.log("ParameterTable.getTableFields(): Displaying fields for config:", config ? config.getName() : "<No Config>");
+                console.log("ParameterTable.getTableFields(): Displaying fields for config:", config ? config.fileInfo().name : "<No Config>");
 
                 if (!config){
                     return [];
@@ -440,7 +440,7 @@ export class ParameterTable {
             }
 
             // set name
-            graphConfig.setName(configName);
+            graphConfig.fileInfo().name = configName;
 
             // add/remove the field that was requested in the first place
             if (add){
@@ -451,13 +451,6 @@ export class ParameterTable {
 
             //add the graph config to the graph
             Eagle.getInstance().logicalGraph().addGraphConfig(graphConfig)
-
-            // make this config the active config
-            Eagle.getInstance().logicalGraph().setActiveGraphConfig(graphConfig.getId());
-
-            //set the graph as modified and take an undo snapshot
-            Eagle.getInstance().undo().pushSnapshot(Eagle.getInstance(), "Added field " + currentField.getDisplayText() + ' to config ' + graphConfig.getName());
-            Eagle.getInstance().logicalGraph().fileInfo().modified = true;
         }
     }
 

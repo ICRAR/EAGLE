@@ -31,7 +31,9 @@ import { Edge } from './Edge';
 import { Errors } from './Errors';
 import { Field } from './Field';
 import { FileInfo } from './FileInfo';
+import { FileLocation } from "./FileLocation";
 import { GraphConfig } from './GraphConfig';
+import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 import { Node } from './Node';
 import { RepositoryFile } from './RepositoryFile';
 import { Setting } from './Setting';
@@ -506,6 +508,16 @@ export class LogicalGraph {
         return this.nodes().get(id);
     }
 
+    // NOTE: only returns the first node found with the given name, names are not unique
+    getNodeByName = (name: string): Node | undefined => {
+        for (const node of this.nodes().values()){
+            if (node.getName() === name){
+                return node;
+            }
+        }
+        return undefined;
+    }
+
     addEdgeComplete = (edge : Edge) => {
         this.edges().set(edge.getId(), edge);
         this.edges.valueHasMutated();
@@ -544,7 +556,7 @@ export class LogicalGraph {
             text = Utils.markdown2html(this.fileInfo().shortDescription)
         }
 
-        return '***Edit Short Graph Description:*** </br>' + text;
+        return '***Open Short Graph Description:*** </br>' + text;
     }, this);
 
     getInspectorDetailedDescriptionHTML : ko.PureComputed<string> = ko.pureComputed(() => {
@@ -553,7 +565,7 @@ export class LogicalGraph {
             text = Utils.markdown2html(this.fileInfo().detailedDescription)
         }
         
-        return '***Edit Detailed Graph Description:*** </br>' + text;
+        return '***Open Detailed Graph Description:*** </br>' + text;
     }, this);
 
     getGraphConfigs = (): MapIterator<GraphConfig> => {
@@ -569,31 +581,28 @@ export class LogicalGraph {
     }
 
     addGraphConfig = (config: GraphConfig): void => {
+        // update fileInfo of config with data about the graph to which it was added
+        config.fileInfo().graphLocation = this.fileInfo().location.clone();
+
         this.graphConfigs().set(config.getId(), config);
         this.graphConfigs.valueHasMutated();
-        Eagle.getInstance().undo().pushSnapshot(Eagle.getInstance(), "Added a new graph config");
-    }
 
-    duplicateGraphConfig = (config: GraphConfig): void => {
-        const newConfigName = Utils.generateGraphConfigName(config);
-        const clone = config
-            .clone()
-            .setId(Utils.generateGraphConfigId())
-            .setName(newConfigName);
-
-        // duplicate, set active and graph as modified
-        this.addGraphConfig(clone)
-        this.activeGraphConfigId(clone.getId())
+        this.setActiveGraphConfig(config.getId());
         this.fileInfo().modified = true;
 
-        Utils.showNotification("Duplicated Config", "as '" + clone.getName() + "' and set to active config", "success");
+        // open the graph configurations table
+        GraphConfigurationsTable.openTable();
 
-        //focus on and select the name field of the newly duplicated config, ready to rename. this requires a little wait, to allow the ui to update
+        //focus on and select the name field of the newly added config in the configurations table, ready to rename. this requires a little wait, to allow the ui to update
         setTimeout(() => {
             $('#graphConfigurationsTableWrapper .activeConfig .column-name input').focus().select()
         }, 100);
 
-        Eagle.getInstance().undo().pushSnapshot(Eagle.getInstance(), "Duplicated a graph config" + clone.getName());
+        Utils.showNotification("Graph Config added to Logical Graph", config.fileInfo().name, "success");
+
+        const eagle: Eagle = Eagle.getInstance();
+        eagle.undo().pushSnapshot(eagle, "Added a new graph config (" + config.fileInfo().name + ")");
+        eagle.checkGraph();
     }
 
     removeGraphConfig = (config: GraphConfig): void => {
@@ -618,6 +627,10 @@ export class LogicalGraph {
     }
 
     setActiveGraphConfig = (configId: GraphConfigId): void => {
+        this.activeGraphConfigId(configId)
+    }
+
+    toggleActiveGraphConfig = (configId: GraphConfigId): void => {
         if(this.activeGraphConfigId() === configId){
             this.activeGraphConfigId(null)
         }else{
@@ -1214,6 +1227,19 @@ export class LogicalGraph {
             ids.push(graphConfig.getId());
         }
 
+        // loop over the graph configs to check that the graphLocation in fileInfo matches the location of the graph itself
+        for (const graphConfig of graph.getGraphConfigs()){
+            if (!FileLocation.match(graphConfig.fileInfo().graphLocation, graph.fileInfo().location)){
+                const issue: Errors.Issue = Errors.ShowFix(
+                    "Graph Config (" + graphConfig.fileInfo().name + ") graph location does not match the location of the parent graph",
+                    function(){Utils.showGraphConfig(eagle, graphConfig.getId())},
+                    function(){graphConfig.fileInfo().graphLocation = graph.fileInfo().location.clone()},
+                    "Set graph config's graph location to match that of the graph"
+                );
+                graph.issues.push({issue : issue, validity : Errors.Validity.Error})
+            }
+        }
+
         // check all edges in the edges dict are also present in the srcPort or destPort edges dict
         for (const [id, edge] of graph.edges()){
             if (typeof edge.getSrcPort() === 'undefined' || typeof edge.getDestPort() === 'undefined'){
@@ -1256,7 +1282,7 @@ export class LogicalGraph {
 
                 if (typeof graphNode === 'undefined'){
                     const issue: Errors.Issue = Errors.Fix(
-                        "Node in graph config (" + graphConfig.getName() + ") is not present in Logical Graph",
+                        "Node in graph config (" + graphConfig.fileInfo().name + ") is not present in Logical Graph",
                         function(){
                             graphConfig.removeNode(graphNode);
                         },
@@ -1271,7 +1297,7 @@ export class LogicalGraph {
 
                     if (typeof graphField === 'undefined'){
                         const issue: Errors.Issue = Errors.Fix(
-                            "Field in graph config (" + graphConfig.getName() + ", " + graphNode.getName() + ") is not present in Logical Graph",
+                            "Field in graph config (" + graphConfig.fileInfo().name + ", " + graphNode.getName() + ") is not present in Logical Graph",
                             function(){
                                 graphConfigNode.removeFieldById(graphConfigField.getField().getId());
                             },
