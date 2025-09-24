@@ -29,6 +29,7 @@ import { Eagle } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { Errors } from './Errors';
 import { FileInfo } from './FileInfo';
+import { FileLocation } from "./FileLocation";
 import { Node } from './Node';
 import { Repository } from "./Repository";
 import { RepositoryFile } from './RepositoryFile';
@@ -388,13 +389,13 @@ export class Palette {
 
         // if we don't know where this file came from then we can't build a URL
         // for example, if the palette was loaded from local disk, then we can't build a URL for others to reach it
-        if (fileInfo.repositoryService === Repository.Service.Unknown || fileInfo.repositoryService === Repository.Service.File){
+        if (fileInfo.location.repositoryService() === Repository.Service.Unknown || fileInfo.location.repositoryService() === Repository.Service.File){
             Utils.showNotification("Palette URL", "Source of palette is a local file or unknown, unable to create URL for palette.", "danger");
             return;
         }
 
         // generate URL
-        const palette_url = FileInfo.generateUrl(fileInfo);
+        const palette_url = FileLocation.generateUrl(fileInfo.location);
 
         // copy to clipboard
         navigator.clipboard.writeText(palette_url);

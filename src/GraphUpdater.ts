@@ -261,8 +261,8 @@ export class GraphUpdater {
                         row.generatorVersion = lg.fileInfo().generatorVersion;
                         row.lastModifiedBy = lg.fileInfo().lastModifiedName;
                         row.repositoryUrl = lg.fileInfo().repositoryUrl;
-                        row.commitHash = lg.fileInfo().commitHash;
-                        row.downloadUrl = lg.fileInfo().downloadUrl;
+                        row.commitHash = lg.fileInfo().location.commitHash();
+                        row.downloadUrl = lg.fileInfo().location.downloadUrl();
                         row.signature = lg.fileInfo().signature;
 
                         // convert date from timestamp to date string

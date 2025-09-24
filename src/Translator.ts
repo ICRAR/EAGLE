@@ -128,7 +128,7 @@ export class Translator {
         }
 
         // is the graph a local file?
-        const isLocalFile: boolean = eagle.logicalGraph().fileInfo().repositoryService === Repository.Service.File;
+        const isLocalFile: boolean = eagle.logicalGraph().fileInfo().location.repositoryService() === Repository.Service.File;
 
         // check if the graph is committed before translation
         if (!Setting.findValue(Setting.TEST_TRANSLATE_MODE) && !isLocalFile && this._checkGraphModified(eagle)){
