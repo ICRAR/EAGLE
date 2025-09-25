@@ -29,6 +29,7 @@ import { Category } from './Category';
 import { CategoryData } from "./CategoryData";
 import { Daliuge } from './Daliuge';
 import { Eagle } from './Eagle';
+import { EagleConfig } from "./EagleConfig";
 import { Edge } from './Edge';
 import { Errors } from './Errors';
 import { Field } from './Field';
@@ -1242,7 +1243,7 @@ export class Utils {
         }
 
         // otherwise, check the standard legacy categories map
-        let newCategory: Category | undefined = CategoryData.LEGACY_CATEGORIES_UPGRADES.get(node.getCategory());
+        const newCategory: Category | undefined = CategoryData.LEGACY_CATEGORIES_UPGRADES.get(node.getCategory());
         return newCategory;
     }
 
@@ -1250,8 +1251,22 @@ export class Utils {
         return typeof CategoryData.cData[category] !== 'undefined';
     }
 
-    static getColorForNode(category : Category) : string {
-        return CategoryData.getCategoryData(category).color;
+    static getColorForNode(node: Node) : string {
+        return CategoryData.getCategoryData(node.getCategory()).color;
+    }
+
+    static getRadiusForNode(node: Node) : number {
+        if(node.isData()){
+            return EagleConfig.DATA_NODE_RADIUS;
+        }else if (node.isBranch()){
+            return EagleConfig.BRANCH_NODE_RADIUS;
+        }else if (node.isConstruct()){
+            return EagleConfig.MINIMUM_CONSTRUCT_RADIUS;
+        }else if (node.isComment()){
+            return EagleConfig.COMMENT_NODE_WIDTH;
+        }else{
+            return EagleConfig.NORMAL_NODE_RADIUS;
+        }
     }
 
     static getRightWindowWidth() : number {
@@ -1807,6 +1822,8 @@ export class Utils {
     static fixNodeCategory(eagle: Eagle, node: Node, category: Category, categoryType: Category.Type){
         node.setCategory(category);
         node.setCategoryType(categoryType);
+        node.setRadius(Utils.getRadiusForNode(node));
+        node.setColor(Utils.getColorForNode(node));
     }
 
     // NOTE: merges field1 into field0

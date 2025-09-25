@@ -108,20 +108,10 @@ export class Node {
         this.keepExpanded = ko.observable(false);
         this.peek = ko.observable(false);
 
-        this.color = ko.observable(Utils.getColorForNode(category));
+        this.color = ko.observable(Utils.getColorForNode(this));
         this.drawOrderHint = ko.observable(0);
 
-        if(this.isData()){
-            this.radius = ko.observable(EagleConfig.DATA_NODE_RADIUS);
-        }else if (this.isBranch()){
-            this.radius = ko.observable(EagleConfig.BRANCH_NODE_RADIUS);
-        }else if (this.isGroup()){
-            this.radius = ko.observable(EagleConfig.MINIMUM_CONSTRUCT_RADIUS);
-        }else if (this.isComment()){
-            this.radius = ko.observable(EagleConfig.COMMENT_NODE_WIDTH);
-        }else{
-            this.radius = ko.observable(EagleConfig.NORMAL_NODE_RADIUS);
-        }
+        this.radius = ko.observable(Utils.getRadiusForNode(this));
     }
 
     getId = () : NodeId => {
@@ -566,7 +556,6 @@ export class Node {
 
     setCategory = (category: Category) : Node => {
         this.category(category);
-        this.color(Utils.getColorForNode(category));
         return this;
     }
 
