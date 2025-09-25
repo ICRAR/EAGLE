@@ -1485,7 +1485,7 @@ export class Eagle {
         }
     }
 
-    displayObjectAsJson = (fileType: Eagle.FileType, object: LogicalGraph | Palette) : void => {
+    displayObjectAsJson = (fileType: Eagle.FileType, object: LogicalGraph | Palette | GraphConfig) : void => {
         let jsonString: string;
         const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
         
@@ -1495,6 +1495,9 @@ export class Eagle {
                 break;
             case Eagle.FileType.Palette:
                 jsonString = Palette.toJsonString(object as Palette, version);
+                break;
+            case Eagle.FileType.GraphConfig:
+                jsonString = GraphConfig.toJsonString(object as GraphConfig);
                 break;
             default:
                 console.error("displayObjectAsJson(): Un-handled fileType", fileType);
