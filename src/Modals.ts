@@ -244,29 +244,29 @@ export class Modals {
 
         // #confirmModal - requestUserConfirm()
         $('#confirmModalAffirmativeButton').on('click', function(){
-            const callback : (confirmed : boolean) => void = $('#confirmModal').data('callback');
-            if (callback){
-                callback(true);
-            } else {
-                console.error("No 'callback' data attribute found on modal");
-            }
-
-            // remove data stored on the modal
-            $('#confirmModal').removeData('callback');
+            $('#confirmModal').data('completed', true);
+            $('#confirmModal').data('confirmed', true);
         });
         $('#confirmModalNegativeButton').on('click', function(){
-            const callback : (confirmed : boolean) => void = $('#confirmModal').data('callback');
-            if (callback){
-                callback(false);
-            } else {
-                console.error("No 'callback' data attribute found on modal");
-            }
-
-            // remove data stored on the modal
-            $('#confirmModal').removeData('callback');
+            $('#confirmModal').data('completed', true);
+            $('#confirmModal').data('confirmed', false);
         });
         $('#confirmModal').on('shown.bs.modal', function(){
             $('#confirmModalAffirmativeButton').trigger("focus");
+        });
+        $('#confirmModal').on('hidden.bs.modal', function(){
+            const callback : (completed: boolean, confirmed: boolean) => void = $('#confirmModal').data('callback');
+            if (!callback){
+                console.error("No 'callback' data attribute found on modal");
+            } else {
+                const completed: boolean = $('#confirmModal').data('completed');
+                const confirmed: boolean = $('#confirmModal').data('confirmed');
+
+                callback(completed, confirmed);
+            }
+
+            // remove data stored on the modal
+            $('#confirmModal').removeData(['callback', 'completed', 'confirmed']);
         });
 
         // #optionsModal - requestUserOptions()

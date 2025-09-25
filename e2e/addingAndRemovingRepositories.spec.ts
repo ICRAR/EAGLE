@@ -38,6 +38,7 @@ test('Adding and Removing Repositories', async ({ page }) => {
   //removing the repo
   await page.locator('.repoContainer').filter({has:page.locator(repoHTMLId)}).hover()
   await page.locator(repoHTMLId + "-eject").click()
+  await page.waitForTimeout(500);
   await page.locator('button#confirmModalAffirmativeButton').click()
 
   //wait for the repo to be removed

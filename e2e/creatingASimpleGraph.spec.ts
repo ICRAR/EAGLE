@@ -71,9 +71,11 @@ test('Creating a Simple Graph', async ({ page }) => {
 
   // delete the second file node
   await page.keyboard.press('Delete');
+  await page.waitForTimeout(500);
 
   // confirm the deletion in the modal
   await page.locator('#confirmModalAffirmativeAnswer').click();
+  await page.waitForTimeout(500);
 
   // check that the graph has the expected number of nodes
   const numNodesPostDelete = await page.evaluate(() => {

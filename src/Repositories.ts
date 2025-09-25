@@ -44,15 +44,10 @@ export class Repositories {
         // if the file is modified, get the user to confirm they want to overwrite changes
         const confirmDiscardChanges: Setting = Setting.find(Setting.CONFIRM_DISCARD_CHANGES);
         if (isModified && confirmDiscardChanges.value()){
-            try {
-                await Utils.requestUserConfirm("Discard changes?", "Opening a new file will discard changes. Continue?", "OK", "Cancel", confirmDiscardChanges);
-            } catch (error) {
-                console.error(error);
-                eagle.hideEagleIsLoading();
-                return;
+            const confirmed = await Utils.requestUserConfirm("Discard changes?", "Opening a new file will discard changes. Continue?", "OK", "Cancel", confirmDiscardChanges);
+            if (confirmed){
+                eagle.openRemoteFile(file);
             }
-
-            eagle.openRemoteFile(file);
         } else {
             eagle.openRemoteFile(file);
         }
@@ -123,14 +118,10 @@ export class Repositories {
         }
 
         // otherwise, check with user
-        try {
-            await Utils.requestUserConfirm("Remove Custom Repository", "Remove this repository from the list?", "OK", "Cancel", confirmRemoveRepositories);
-        } catch (error) {
-            console.error(error);
-            return;
+        const confirmed = await Utils.requestUserConfirm("Remove Custom Repository", "Remove this repository from the list?", "OK", "Cancel", confirmRemoveRepositories);
+        if (confirmed){
+            this._removeCustomRepository(repository);
         }
-
-        this._removeCustomRepository(repository);
     };
 
     copyRepository = async (repository: Repository): Promise<void> => {
