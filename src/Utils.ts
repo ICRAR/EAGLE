@@ -1260,6 +1260,8 @@ export class Utils {
             return EagleConfig.DATA_NODE_RADIUS;
         }else if (node.isBranch()){
             return EagleConfig.BRANCH_NODE_RADIUS;
+        }else if (node.isConstruct() && node.getCategory() === Category.GlobalVariable){
+            return EagleConfig.NORMAL_NODE_RADIUS;
         }else if (node.isConstruct()){
             return EagleConfig.MINIMUM_CONSTRUCT_RADIUS;
         }else if (node.isComment()){
