@@ -2031,9 +2031,9 @@ export class Eagle {
             }
 
             // check repository name
-            const repository : Repository = Repositories.get(commit.repositoryService, commit.repositoryName, commit.repositoryBranch);
+            const repository : Repository = Repositories.get(commit.location.repositoryService(), commit.location.repositoryName(), commit.location.repositoryBranch());
 
-            this._commit(repository, fileType, commit.filePath, commit.fileName, fileInfo, commit.message, obj);
+            this._commit(repository, fileType, commit.location.repositoryPath(), commit.location.repositoryFileName(), fileInfo, commit.message, obj);
 
             resolve();
         });
@@ -2987,7 +2987,7 @@ export class Eagle {
         }
 
         // check repository name
-        const repository : Repository = Repositories.get(commit.repositoryService, commit.repositoryName, commit.repositoryBranch);
+        const repository : Repository = Repositories.get(commit.location.repositoryService(), commit.location.repositoryName(), commit.location.repositoryBranch());
         if (repository === null){
             console.log("Abort commit");
             return;
@@ -2996,7 +2996,7 @@ export class Eagle {
         // get access token for this type of repository
         let token : string;
 
-        switch (commit.repositoryService){
+        switch (commit.location.repositoryService()){
             case Repository.Service.GitHub:
                 token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
                 break;
@@ -3014,8 +3014,6 @@ export class Eagle {
             return;
         }
 
-        const fullFileName : string = Utils.joinPath(commit.filePath, commit.fileName);
-
         // clone the palette
         const p_clone : Palette = palette.clone();
         p_clone.fileInfo().updateEagleInfo();
@@ -3026,10 +3024,10 @@ export class Eagle {
         // convert to json
         const jsonString: string = Palette.toJsonString(p_clone, version);
 
-        const commitJsonString: string = Utils.createCommitJsonString(jsonString, repository, token, fullFileName, commit.message);
+        const commitJsonString: string = Utils.createCommitJsonString(jsonString, repository, token, commit.location.fullPath(), commit.message);
 
         try {
-            await this.saveFileToRemote(repository, commit.filePath, commit.fileName, Eagle.FileType.Palette, palette.fileInfo, commitJsonString);
+            await this.saveFileToRemote(repository, commit.location.repositoryPath(), commit.location.repositoryFileName(), Eagle.FileType.Palette, palette.fileInfo, commitJsonString);
         } catch (error){
             console.log(error);
         }
