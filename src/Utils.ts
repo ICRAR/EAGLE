@@ -1848,6 +1848,11 @@ export class Utils {
         const usage1 = field1.getUsage();
         const newUsage = Utils._mergeUsage(usage0, usage1);
 
+        // add all field1 edge to the field0 edges
+        for (const edge of field1.getEdges()){
+            field0.addEdge(edge);
+        }
+
         // remove field1
         node.removeFieldById(field1.getId());
 
@@ -1855,7 +1860,7 @@ export class Utils {
         field0.setUsage(newUsage);
 
         // update all edges to use new field
-        Utils._mergeEdges(eagle, field1.getId(), field0.getId());
+        Utils._mergeEdges(eagle, field1, field0);
     }
 
     static _mergeUsage(usage0: Daliuge.FieldUsage, usage1: Daliuge.FieldUsage) : Daliuge.FieldUsage {
@@ -1877,17 +1882,17 @@ export class Utils {
         return result;
     }
 
-    static _mergeEdges(eagle: Eagle, oldFieldId: FieldId, newFieldId: FieldId){
+    static _mergeEdges(eagle: Eagle, oldField: Field, newField: Field){
         // update all edges to use new field
         for (const edge of eagle.logicalGraph().getEdges()){
             // update src port
-            if (edge.getSrcPort().getId() === oldFieldId){
-                edge.getSrcPort().setId(newFieldId);
+            if (edge.getSrcPort().getId() === oldField.getId()){
+                edge.setSrcPort(newField);
             }
 
             // update dest port
-            if (edge.getDestPort().getId() === oldFieldId){
-                edge.getDestPort().setId(newFieldId);
+            if (edge.getDestPort().getId() === oldField.getId()){
+                edge.setDestPort(newField);
             }
         }
     }

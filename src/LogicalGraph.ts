@@ -1264,8 +1264,15 @@ export class LogicalGraph {
                 continue;
             }
 
-            if (typeof edge.getSrcPort().getEdgeById(id) === 'undefined' && typeof edge.getDestPort().getEdgeById(id) === 'undefined'){
-                const issue: Errors.Issue = Errors.Show("Edge (" + id + ") is not present in source or destination port edges list", function(){Utils.showEdge(eagle, edge)});
+            // check source port
+            if (typeof edge.getSrcPort().getEdgeById(id) === 'undefined'){
+                const issue: Errors.Issue = Errors.Show("Edge (" + id + ") is not present in source port edges list", function(){Utils.showEdge(eagle, edge)});
+                graph.issues.push({issue:issue, validity: Errors.Validity.Error});
+            }
+
+            // check destination port
+            if (typeof edge.getDestPort().getEdgeById(id) === 'undefined'){
+                const issue: Errors.Issue = Errors.Show("Edge (" + id + ") is not present in destination port edges list", function(){Utils.showEdge(eagle, edge)});
                 graph.issues.push({issue:issue, validity: Errors.Validity.Error});
             }
         }
