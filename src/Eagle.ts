@@ -62,6 +62,7 @@ import { UiModeSystem } from './UiModes';
 import { Utils } from './Utils';
 import { GraphUpdater } from "./GraphUpdater";
 import { versions } from "./Versions";
+import { Visual } from "./Visual";
 
 
 export class Eagle {
@@ -3733,7 +3734,7 @@ export class Eagle {
         }
     }
 
-    private _deleteSelection = (deleteChildren: boolean, data: (Node | Edge)[], location: Eagle.FileType) : void => {
+    private _deleteSelection = (deleteChildren: boolean, data: (Node | Edge | Visual)[], location: Eagle.FileType) : void => {
         switch(location){
             case Eagle.FileType.Graph:
                 // if not deleting children, move them to different parents first
@@ -3756,6 +3757,13 @@ export class Eagle {
                 for (const object of data){
                     if (object instanceof Node){
                         this.logicalGraph().removeNode(object);
+                    }
+                }
+
+                // delete the visuals
+                for (const object of data){
+                    if (object instanceof Visual){
+                        this.logicalGraph().removeVisualById(object.getId());
                     }
                 }
 
@@ -4645,6 +4653,23 @@ export class Eagle {
 
             // reply with one of the edges
             resolve(firstEdge);
+        });
+    }
+
+    addVisual = async (visual: Visual): Promise<Visual> => {
+
+        return new Promise(async(resolve, reject) => {
+            // check that graph editing is allowed
+            if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+                reject("Unable to Add Visual: Graph Editing is disabled");
+                return;
+            }
+
+            this.logicalGraph().addVisual(visual);
+            this.undo().pushSnapshot(this, "Add Visual");
+            this.logicalGraph().fileInfo().modified = true;
+            this.logicalGraph.valueHasMutated();
+            resolve(visual);
         });
     }
 

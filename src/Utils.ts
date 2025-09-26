@@ -2333,6 +2333,27 @@ export class Utils {
         console.table(tableData);
     }
 
+    static printVisualsTable() : void {
+        const tableData : any[] = [];
+        const eagle : Eagle = Eagle.getInstance();
+
+        // add logical graph nodes to table
+        for (const visual of eagle.logicalGraph().getVisuals()){
+            tableData.push({
+                "id":visual.getId(),
+                "position":visual.getPosition(),
+                "width":visual.getWidth(),
+                "height":visual.getHeight(),
+                "type":visual.getType(),
+                "text":visual.getText(),
+                "target":visual.getTarget(),
+                "targetLocation":visual.getTargetLocation()
+            });
+        }
+
+        console.table(tableData);
+    }
+
     static printNodeFieldsTable(nodeId: NodeId) : void {
         const tableData : any[] = [];
         const eagle : Eagle = Eagle.getInstance();

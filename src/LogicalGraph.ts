@@ -579,6 +579,15 @@ export class LogicalGraph {
         return this.edges().get(id);
     }
 
+    addVisual = (visual : Visual) => {
+        this.visuals().set(visual.getId(), visual);
+        this.visuals.valueHasMutated();
+    }
+
+    getVisuals = () : MapIterator<Visual> => {
+        return this.visuals().values();
+    }
+
     getVisualById = (id: VisualId): Visual | undefined => {
         return this.visuals().get(id);
     }
@@ -925,6 +934,18 @@ export class LogicalGraph {
             this.edges().delete(edgeId);
         }
         this.edges.valueHasMutated();
+    }
+
+    removeVisualById = (id: VisualId) : void => {
+        const visual = this.visuals().get(id);
+
+        if (typeof visual === 'undefined'){
+            console.warn("removeVisualById(): Could not find visual with id", id);
+            return;
+        }
+
+        this.visuals().delete(id);
+        this.visuals.valueHasMutated();
     }
 
     removeFieldFromNodeById = (node : Node, fieldId: FieldId) : void => {
