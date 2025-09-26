@@ -1861,6 +1861,9 @@ export class Utils {
 
         // update all edges to use new field
         Utils._mergeEdges(eagle, field1, field0);
+
+        // force re-draw of node
+        node.redraw()
     }
 
     static _mergeUsage(usage0: Daliuge.FieldUsage, usage1: Daliuge.FieldUsage) : Daliuge.FieldUsage {
