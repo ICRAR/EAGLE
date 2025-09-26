@@ -125,6 +125,13 @@ export class LogicalGraph {
             result.linkDataArray.push(linkData);
         }
 
+        // add visuals
+        result.visualDataArray = [];
+        for (const visual of graph.visuals().values()){
+            const visualData : any = Visual.toJson(visual);
+            result.visualDataArray.push(visualData);
+        }
+
         // add graph configurations
         result.graphConfigurations = {};
         for (const gc of graph.graphConfigs().values()){
@@ -172,7 +179,7 @@ export class LogicalGraph {
         // visuals
         result.visuals = {};
         for (const [id, visual] of graph.visuals()){
-            const visualData : any = Visual.toV4Json(visual);
+            const visualData : any = Visual.toJson(visual);
             result.visuals[id] = visualData;
         }
 
@@ -338,6 +345,18 @@ export class LogicalGraph {
             newEdge.getDestPort().addEdge(newEdge);
         }
 
+        // add visuals
+        for (const visualData of dataObject.visualDataArray){       
+            const newVisual = Visual.fromJson(visualData, result, errorsWarnings);
+
+            if (newVisual === null){
+                continue;
+            }
+
+            result.visuals().set(newVisual.getId(), newVisual);
+            result.visuals.valueHasMutated();
+        }
+
         // load configs (if present)
         if (typeof dataObject.graphConfigurations !== 'undefined'){
             for (const gcId in dataObject["graphConfigurations"]){
@@ -456,7 +475,7 @@ export class LogicalGraph {
 
         // add visuals
         for (const [visualId, visualData] of Object.entries(dataObject.visuals)){
-            const visual = Visual.fromV4Json(visualData, result, errorsWarnings);
+            const visual = Visual.fromJson(visualData, result, errorsWarnings);
 
             if (visual === null){
                 continue;

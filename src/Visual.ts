@@ -126,7 +126,7 @@ export class Visual {
         return this;
     }
 
-    static fromV4Json(visualData: any, lg: LogicalGraph, errorsWarnings: Errors.ErrorsWarnings) : Visual {
+    static fromJson(visualData: any, lg: LogicalGraph, errorsWarnings: Errors.ErrorsWarnings) : Visual {
         const id: VisualId = visualData.id as VisualId;
         const x: number = visualData.x;
         const y: number = visualData.y;
@@ -155,7 +155,7 @@ export class Visual {
         .setTargetLocation(targetLocation);
     }
 
-    static toV4Json(visual: Visual) : object {
+    static toJson(visual: Visual) : object {
         return {
             id: visual.getId(),
             x: visual.x(),
@@ -168,7 +168,7 @@ export class Visual {
             targetLocation: visual.targetLocation()
         }
     }
-
+    
     isValid = () : boolean => {
 
         //if target is set but doesnt exist, invalid
