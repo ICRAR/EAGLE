@@ -89,6 +89,11 @@ export class Utils {
         return Utils._uuidv4() as RepositoryFileId;
     }
 
+    static generateVisualId(): VisualId {
+        return Utils._uuidv4() as VisualId;
+    }
+
+
     /**
      * Generates a UUID.
      * See https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript

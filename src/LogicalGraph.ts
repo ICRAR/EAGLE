@@ -28,6 +28,7 @@ import { Category } from './Category';
 import { Eagle } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { Edge } from './Edge';
+import { Visual } from './Visual';
 import { Errors } from './Errors';
 import { Field } from './Field';
 import { FileInfo } from './FileInfo';
@@ -43,6 +44,7 @@ export class LogicalGraph {
     fileInfo : ko.Observable<FileInfo>;
     private nodes : ko.Observable<Map<NodeId, Node>>;
     private edges : ko.Observable<Map<EdgeId, Edge>>;
+    private visuals : ko.Observable<Map<VisualId, Visual>>;
     private graphConfigs : ko.Observable<Map<GraphConfigId, GraphConfig>>;
     private activeGraphConfigId : ko.Observable<GraphConfigId>;
 
@@ -56,6 +58,7 @@ export class LogicalGraph {
         this.fileInfo().builtIn = false;
         this.nodes = ko.observable(new Map<NodeId, Node>());
         this.edges = ko.observable(new Map<EdgeId, Edge>());
+        this.visuals = ko.observable(new Map<VisualId, Visual>());
         this.graphConfigs = ko.observable(new Map<GraphConfigId, GraphConfig>());
         this.activeGraphConfigId = ko.observable(null); // can be null, or an id (can't be undefined)
         this.issues = ko.observableArray([])
@@ -164,6 +167,13 @@ export class LogicalGraph {
         for (const [id, edge] of graph.edges()){
             const edgeData : any = Edge.toV4Json(edge);
             result.edges[id] = edgeData;
+        }
+
+        // visuals
+        result.visuals = {};
+        for (const [id, visual] of graph.visuals()){
+            const visualData : any = Visual.toV4Json(visual);
+            result.visuals[id] = visualData;
         }
 
         // add graph configurations
@@ -444,6 +454,18 @@ export class LogicalGraph {
             result.edges.valueHasMutated();
         }
 
+        // add visuals
+        for (const [visualId, visualData] of Object.entries(dataObject.visuals)){
+            const visual = Visual.fromV4Json(visualData, result, errorsWarnings);
+
+            if (visual === null){
+                continue;
+            }
+
+            result.visuals().set(visualId as VisualId, visual);
+            result.visuals.valueHasMutated();
+        }
+
         // load configs
         for (const [gcId, gcData] of Object.entries(dataObject.graphConfigurations)){
             const gc = GraphConfig.fromJson(gcData, result, errorsWarnings);
@@ -536,6 +558,10 @@ export class LogicalGraph {
 
     getEdgeById = (id: EdgeId): Edge | undefined => {
         return this.edges().get(id);
+    }
+
+    getVisualById = (id: VisualId): Visual | undefined => {
+        return this.visuals().get(id);
     }
 
     getCommentNodes = () : Node[] => {
