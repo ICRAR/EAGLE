@@ -16,6 +16,7 @@
     --nodeInputColor:red;
     visibility:hidden;
     --edgeSVGSize: 200px;
+    --edgeThickness: 1px;
 }
 
 #logicalGraph {
@@ -38,7 +39,7 @@
 }
 
 #logicalGraph svg path {
-    stroke-width:4;
+    stroke-width: var(--edgeThickness);
     fill:transparent; 
     stroke:var(--edgeColor);
     pointer-events: all;
