@@ -794,9 +794,10 @@ export class GraphRenderer {
 
         //determining if the edge's length is below a certain threshold. if it is we will draw the edge straight and remove the arrow
         const isShortEdge: boolean = edgeLength < EagleConfig.STRAIGHT_EDGE_SWITCH_DISTANCE;
+        const hideArrow: boolean = edgeLength < EagleConfig.EDGE_DISTANCE_ARROW_VISIBILITY;
 
         if (edge !== null){
-            edge.setIsShortEdge(isShortEdge)
+            edge.setIsShortEdge(hideArrow)
         }
 
         
@@ -830,10 +831,29 @@ export class GraphRenderer {
             }
 
             //we are hiding the arrows if the edge is too short
-            if(!isShortEdge){
-                //were adding the position and shape of the arrow to the edges
-                const arrowPosX =  GraphRenderer.getCoordinateOnBezier(0.5,x1,c1x,c2x,x2)
-                const arrowPosY =  GraphRenderer.getCoordinateOnBezier(0.5,y1,c1y,c2y,y2)
+            if(!hideArrow){
+                let arrowAngle = 0
+                let arrowPosX = 0
+                let arrowPosY = 0
+                if(!isShortEdge){
+                    //if the edge is not short we will draw a bezier curve and calculate the arrow position and angle based on the curve
+                    //were adding the position and shape of the arrow to the edges
+                    arrowPosX =  GraphRenderer.getCoordinateOnBezier(0.5,x1,c1x,c2x,x2)
+                    arrowPosY =  GraphRenderer.getCoordinateOnBezier(0.5,y1,c1y,c2y,y2)
+
+                    //we are calculating the angle the arrow should be pointing by getting two positions on either side of the center of the bezier curve then calculating the angle 
+                    const  anglePos1x =  GraphRenderer.getCoordinateOnBezier(0.45,x1,c1x,c2x,x2)
+                    const  anglePos1y =  GraphRenderer.getCoordinateOnBezier(0.45,y1,c1y,c2y,y2)
+                    const  anglePos2x =  GraphRenderer.getCoordinateOnBezier(0.55,x1,c1x,c2x,x2)
+                    const  anglePos2y =  GraphRenderer.getCoordinateOnBezier(0.55,y1,c1y,c2y,y2)
+
+                    arrowAngle = GraphRenderer.calculateConnectionAngle({x:anglePos1x,y:anglePos1y}, {x:anglePos2x,y:anglePos2y})
+                }else{
+                    //if the edge is short we will draw a straight line and calculate the arrow position and angle based on the line
+                    arrowAngle = GraphRenderer.calculateConnectionAngle({x:x1,y:y1}, {x:x2,y:y2})
+                    arrowPosX = (x2 + x1) / 2
+                    arrowPosY = (y1 + y2) / 2
+                }
 
                 //generating the points for the arrow polygon
                 const P1x = arrowPosX+EagleConfig.EDGE_ARROW_SIZE
@@ -842,14 +862,6 @@ export class GraphRenderer {
                 const P2y = arrowPosY+EagleConfig.EDGE_ARROW_SIZE
                 const P3x = arrowPosX-EagleConfig.EDGE_ARROW_SIZE
                 const P3y = arrowPosY-EagleConfig.EDGE_ARROW_SIZE
-
-                //we are calculating the angle the arrow should be pointing by getting two positions on either side of the center of the bezier curve then calculating the angle 
-                const  anglePos1x =  GraphRenderer.getCoordinateOnBezier(0.45,x1,c1x,c2x,x2)
-                const  anglePos1y =  GraphRenderer.getCoordinateOnBezier(0.45,y1,c1y,c2y,y2)
-                const  anglePos2x =  GraphRenderer.getCoordinateOnBezier(0.55,x1,c1x,c2x,x2)
-                const  anglePos2y =  GraphRenderer.getCoordinateOnBezier(0.55,y1,c1y,c2y,y2)
-
-                const arrowAngle = GraphRenderer.calculateConnectionAngle({x:anglePos1x,y:anglePos1y}, {x:anglePos2x,y:anglePos2y})
                 
                 arrowContainer.show()
                 arrowContainer.attr('points', P1x +','+P1y+', '+ P2x +','+P2y +', '+ P3x +','+P3y)
