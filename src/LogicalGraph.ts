@@ -1149,7 +1149,7 @@ export class LogicalGraph {
         // clear old issues
         graph.issues([]);
 
-        //if the graph has been user created but does not have a description, warn the user
+        //if the graph has been user created but does not have a short description, warn the user
         if (graph.fileInfo().isInitiated() && graph.fileInfo().shortDescription === ''){
             const issue: Errors.Issue = Errors.Show(
                 "Graph does not have a short description.",
@@ -1158,7 +1158,7 @@ export class LogicalGraph {
             graph.issues.push({issue : issue, validity : Errors.Validity.Warning})
         }
 
-        //if the graph has been user created but does not have a description, warn the user
+        //if the graph has been user created but does not have a detailed description, warn the user
         if (graph.fileInfo().isInitiated() && graph.fileInfo().detailedDescription === ''){
             const issue: Errors.Issue = Errors.Show(
                 "Graph does not have a detailed description.",
@@ -1198,7 +1198,7 @@ export class LogicalGraph {
             }
         }
 
-        // loop over graph edges
+        // loop over graph edges to check that all edge ids are unique
         for (const [id, edge] of graph.edges()){
             if (ids.includes(id)){
                 const issue: Errors.Issue = Errors.ShowFix(
@@ -1248,7 +1248,7 @@ export class LogicalGraph {
                 continue;
             }
 
-            if (edge.getSrcPort().getEdgeById(id) === null && edge.getDestPort().getEdgeById(id) === null){
+            if (typeof edge.getSrcPort().getEdgeById(id) === 'undefined' && typeof edge.getDestPort().getEdgeById(id) === 'undefined'){
                 const issue: Errors.Issue = Errors.Show("Edge (" + id + ") is not present in source or destination port edges list", function(){Utils.showEdge(eagle, edge)});
                 graph.issues.push({issue:issue, validity: Errors.Validity.Error});
             }
