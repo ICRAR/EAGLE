@@ -4661,6 +4661,9 @@ export class Eagle {
 
         fileInfo.shortDescription = description;
         fileInfo.modified = true;
+
+        // check graph (hopefully the 'missing short description' warning will go away)
+        this.checkGraph();
     }
 
     editDetailedDescription = async(fileInfo: FileInfo): Promise<void> => {
@@ -4676,6 +4679,9 @@ export class Eagle {
 
         fileInfo.detailedDescription = description;
         fileInfo.modified = true;
+
+        // check graph (hopefully the 'missing detailed description' warning will go away)
+        this.checkGraph();
     }
 
     editNodeDescription = async (node?: Node): Promise<void> => {
