@@ -2401,10 +2401,10 @@ export class Eagle {
                 if (Utils.newerEagleVersion(eagleVersion, (<any>window).version)){
                     const confirmed = await Utils.requestUserConfirm("Newer EAGLE Version", "File " + file.name + " was written with EAGLE version " + eagleVersion + ", whereas the current EAGLE version is " + (<any>window).version + ". Do you wish to load the file anyway?", "Yes", "No", null);
                     if (confirmed){
-                        this._loadGraph(dataObject, file);
+                        this._loadGraph(data, file);
                     }
                 } else {
-                    this._loadGraph(dataObject, file);
+                    this._loadGraph(data, file);
                 }
                 break;
             }
@@ -2427,14 +2427,11 @@ export class Eagle {
         this.resetEditor();
     };
 
-    _loadGraph = (dataObject: any, file: RepositoryFile) : void => {
-        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
-
+    _loadGraph = (data: string, file: RepositoryFile) : void => {
         // load graph
-        this.logicalGraph(LogicalGraph.fromOJSJson(dataObject, file, errorsWarnings));
-
-        // show errors/warnings
-        this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
+        this._loadGraphJSON(data, file.path, (lg: LogicalGraph) => {
+            this.logicalGraph(lg);
+        });
 
         this._postLoadGraph(file);
     }
@@ -2921,7 +2918,7 @@ export class Eagle {
 
     saveAsFileToDisk = async (file: LogicalGraph | Palette | GraphConfig): Promise<void> => {
         // get extension for fileType
-        let extension: string = Utils.getDiagramExtension(file.fileInfo().type);
+        const extension: string = Utils.getDiagramExtension(file.fileInfo().type);
 
         let defaultFilename = file.fileInfo().name;
 
@@ -5058,7 +5055,7 @@ export class Eagle {
     }
 
     slowScroll = (data:any, event: JQuery.TriggeredEvent) : void => {
-        let target = event.currentTarget;//gets the element that has the event binding
+        const target = event.currentTarget;//gets the element that has the event binding
 
         $(target).scrollTop($(target).scrollTop() + (event.originalEvent as WheelEvent).deltaY * 0.5);
     }

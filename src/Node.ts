@@ -1382,6 +1382,11 @@ export class Node {
         return this;
     }
 
+    redraw = () : Node => {
+        this.radius.valueHasMutated();
+        return this;
+    }
+
     static match(node0: Node, node1: Node) : boolean {
         // first just check if they have matching ids
         if (node0.getId() === node1.getId()){

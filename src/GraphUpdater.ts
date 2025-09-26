@@ -85,6 +85,11 @@ export class GraphUpdater {
     }
 
     static usesNodeKeys(graphObject: any): boolean {
+        // abort if no nodeDataArray
+        if (typeof graphObject["nodeDataArray"] === 'undefined'){
+            return false;
+        }
+
         for (const node of graphObject["nodeDataArray"]){
             if (typeof node.key !== 'undefined'){
                 return true;
