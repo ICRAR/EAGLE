@@ -2087,7 +2087,7 @@ export class Utils {
 
     static postFixFunc(eagle: Eagle){
         eagle.selectedObjects.valueHasMutated();
-        eagle.logicalGraph().fileInfo().modified = true;
+        eagle.logicalGraph().fileInfo().flagAsModified();
 
         eagle.checkGraph();
         eagle.undo().pushSnapshot(eagle, "Fix");
