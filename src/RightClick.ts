@@ -567,6 +567,7 @@ export class RightClick {
                 $('#customContextMenu').append(`<a class='rightClickPerpetual' onclick="Utils.showModelDataModal('Graph Info', eagle.logicalGraph().fileInfo());">Show Graph Info</a>`)
                 $('#customContextMenu').append(`<a class='rightClickPerpetual' onclick="ParameterTable.openTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.Normal);">Graph Attributes Table</a>`)
                 $('#customContextMenu').append(`<a class='rightClickPerpetual' onclick="eagle.copyGraphUrl();">Copy Graph URL</a>`)
+                $('#customContextMenu').append(`<a class='rightClickPerpetual' onclick="eagle.addVisualToLogicalGraph(null,'comment', 'ContextMenu');">Add Comment Visual</a>`)
 
 //edge drop menu options
             }else if(passedObjectClass === 'edgeDropCreate'){

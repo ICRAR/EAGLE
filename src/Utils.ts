@@ -2341,7 +2341,7 @@ export class Utils {
         for (const visual of eagle.logicalGraph().getVisuals()){
             tableData.push({
                 "id":visual.getId(),
-                "position":visual.getPosition(),
+                "position":visual.getPosition().x + "," + visual.getPosition().y,
                 "width":visual.getWidth(),
                 "height":visual.getHeight(),
                 "type":visual.getType(),

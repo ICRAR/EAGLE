@@ -310,10 +310,6 @@ export class Hierarchy {
             }
         }
 
-        if (!eagle.showDataNodes() && node.isData() && nodeHasConnectedInput && nodeHasConnectedOutput){
-            return 'visible';
-        }
-
         return 'hidden';
     }
 }

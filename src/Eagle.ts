@@ -104,7 +104,6 @@ export class Eagle {
     currentFileInfo : ko.Observable<FileInfo>;
     currentFileInfoTitle : ko.Observable<string>;
 
-    showDataNodes : ko.Observable<boolean>;
     snapToGrid : ko.Observable<boolean>;
     dropdownMenuHoverTimeout : number = 0;
 
@@ -180,13 +179,12 @@ export class Eagle {
         this.currentFileInfo = ko.observable(null);
         this.currentFileInfoTitle = ko.observable("");
 
-        this.showDataNodes = ko.observable(true);
         this.snapToGrid = ko.observable(false);
         this.dropdownMenuHoverTimeout = null;
 
         this.selectedObjects.subscribe(function(){
             //TODO check if the selectedObjects array has changed, if not, abort
-            GraphRenderer.nodeData = GraphRenderer.depthFirstTraversalOfNodes(this.logicalGraph(), this.showDataNodes());
+            GraphRenderer.nodeData = GraphRenderer.depthFirstTraversalOfNodes(this.logicalGraph());
             Hierarchy.updateDisplay()
             Hierarchy.scrollToNode()
         }, this)
@@ -279,16 +277,6 @@ export class Eagle {
 
         return result;
     }, this);
-
-    // TODO: not used, remove?
-    toggleShowDataNodes = () : void => {
-        // when we switch show/hide data nodes, some of the selected objects may become invisible,
-        // and some of the selected objects may have not existed in the first place,
-        // so it seems easier to just empty the selection
-        this.selectedObjects([]);
-
-        this.showDataNodes(!this.showDataNodes());
-    }
 
     toggleSnapToGrid = () : void => {
         this.snapToGrid(!this.snapToGrid());
@@ -3619,12 +3607,6 @@ export class Eagle {
             return;
         }
 
-        // if in "hide data nodes" mode, then recommend the user delete edges in "show data nodes" mode instead
-        if (!this.showDataNodes()){
-            Utils.showNotification("Warning", "Unable to delete selection: Editor is in 'hide data nodes' mode, and the current selection may be ambiguous. Please use 'show data nodes' mode before deleting.", "warning");
-            return;
-        }
-
         // skip confirmation if setting dictates
         if (!Setting.find(Setting.CONFIRM_DELETE_OBJECTS).value() || suppressUserConfirmationRequest){
             this._deleteSelection(deleteChildren, data, location);
@@ -3753,15 +3735,13 @@ export class Eagle {
                     }
                 }
 
-                // delete the nodes
                 for (const object of data){
+                    // delete the nodes
                     if (object instanceof Node){
                         this.logicalGraph().removeNode(object);
                     }
-                }
 
-                // delete the visuals
-                for (const object of data){
+                    // delete the visuals
                     if (object instanceof Visual){
                         this.logicalGraph().removeVisualById(object.getId());
                     }
@@ -4105,6 +4085,42 @@ export class Eagle {
         }
 
         return p;
+    }
+
+    addVisualToLogicalGraph = async (visual: Visual, type: Visual.Type, mode: Eagle.AddNodeMode) : Promise<Visual> => {
+        return new Promise(async(resolve, reject) => {
+        
+            // get reference to the logical graph
+            const logicalGraph = this.logicalGraph();
+            let newVisual: Visual;
+
+            let pos : {x:number, y:number};
+            pos = {x:0,y:0}
+
+            // check that graph editing is allowed
+            if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+                reject("Unable to Add Component. Graph Editing is disabled");
+                return;
+            }
+
+            if(mode === Eagle.AddNodeMode.ContextMenu){
+
+                // create a new visual of the requested type
+                newVisual =  new Visual(type, '');
+
+                // use the position where the right click occurred
+                pos = Eagle.selectedRightClickPosition;
+
+                RightClick.closeCustomContextMenu(true);
+            }
+
+
+            const visual = new Visual(type, '');
+            // add the visual to the logical graph
+            logicalGraph.addVisual(visual);
+
+            return visual;
+        });
     }
 
     fetchDockerHTML = () : void => {
@@ -4657,7 +4673,6 @@ export class Eagle {
     }
 
     addVisual = async (visual: Visual): Promise<Visual> => {
-
         return new Promise(async(resolve, reject) => {
             // check that graph editing is allowed
             if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){

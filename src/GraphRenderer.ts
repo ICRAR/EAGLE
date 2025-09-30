@@ -1327,7 +1327,7 @@ export class GraphRenderer {
     static findNodesInRegion(left: number, right: number, top: number, bottom: number): Node[] {
         const eagle = Eagle.getInstance();
         const result: Node[] = [];
-        const nodeData : Node[] = GraphRenderer.depthFirstTraversalOfNodes(eagle.logicalGraph(), eagle.showDataNodes());
+        const nodeData : Node[] = GraphRenderer.depthFirstTraversalOfNodes(eagle.logicalGraph());
 
         // re-assign left, right, top, bottom in case selection region was not dragged in the typical NW->SE direction
         const realLeft = left <= right ? left : right;
@@ -1912,8 +1912,7 @@ export class GraphRenderer {
         return (y+eagle.globalOffsetY())*eagle.globalScale()+83.77
     }
 
-    // TODO: the showDataNodes parameter is not able to be toggled in EAGLE, it is always true, so maybe remove it
-    static depthFirstTraversalOfNodes(graph: LogicalGraph, showDataNodes: boolean) : Node[] {
+    static depthFirstTraversalOfNodes(graph: LogicalGraph) : Node[] {
         // TODO: think about changing this to idPlusDepths (as above, re-use possible?)
         const indexPlusDepths : {index:number, depth:number}[] = [];
         const result : Node[] = [];
@@ -1933,11 +1932,6 @@ export class GraphRenderer {
                 if (edge.getSrcNode().getId() === node.getId()){
                     nodeHasConnectedOutput = true;
                 }
-            }
-
-            // skip data nodes, if showDataNodes is false
-            if (!showDataNodes && node.isData() && nodeHasConnectedInput && nodeHasConnectedOutput){
-                continue;
             }
 
             const depth = GraphRenderer.findDepthOfNode(i, Array.from(graph.getNodes()));

@@ -346,15 +346,17 @@ export class LogicalGraph {
         }
 
         // add visuals
-        for (const visualData of dataObject.visualDataArray){       
-            const newVisual = Visual.fromJson(visualData, result, errorsWarnings);
+        if (typeof dataObject.visualDataArray !== 'undefined'){
+            for (const visualData of dataObject.visualDataArray){       
+                const newVisual = Visual.fromJson(visualData, result, errorsWarnings);
 
-            if (newVisual === null){
-                continue;
+                if (newVisual === null){
+                    continue;
+                }
+
+                result.visuals().set(newVisual.getId(), newVisual);
+                result.visuals.valueHasMutated();
             }
-
-            result.visuals().set(newVisual.getId(), newVisual);
-            result.visuals.valueHasMutated();
         }
 
         // load configs (if present)
@@ -474,15 +476,17 @@ export class LogicalGraph {
         }
 
         // add visuals
-        for (const [visualId, visualData] of Object.entries(dataObject.visuals)){
-            const visual = Visual.fromJson(visualData, result, errorsWarnings);
+        if (typeof dataObject.visuals !== 'undefined'){
+            for (const [visualId, visualData] of Object.entries(dataObject.visuals)){
+                const visual = Visual.fromJson(visualData, result, errorsWarnings);
 
-            if (visual === null){
-                continue;
+                if (visual === null){
+                    continue;
+                }
+
+                result.visuals().set(visualId as VisualId, visual);
+                result.visuals.valueHasMutated();
             }
-
-            result.visuals().set(visualId as VisualId, visual);
-            result.visuals.valueHasMutated();
         }
 
         // load configs
