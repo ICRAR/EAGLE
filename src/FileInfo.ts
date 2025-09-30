@@ -135,10 +135,6 @@ export class FileInfo {
         return this._modified();
     }
 
-    set modified(modified : boolean){
-        this._modified(modified);
-    }
-
     get generatorVersion() : string{
         return this._generatorVersion();
     }
@@ -465,6 +461,11 @@ export class FileInfo {
 
         return ""
     }, this);
+
+    flagAsModified = () : void => {
+        this._modified(true);
+        this.lastModifiedDatetime = Date.now();
+    }
 
     static toOJSJson(fileInfo : FileInfo) : object {
         return {
