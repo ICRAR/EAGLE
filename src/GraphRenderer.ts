@@ -796,10 +796,6 @@ export class GraphRenderer {
         const isShortEdge: boolean = edgeLength < EagleConfig.STRAIGHT_EDGE_SWITCH_DISTANCE;
         const hideArrow: boolean = edgeLength < EagleConfig.EDGE_DISTANCE_ARROW_VISIBILITY;
 
-        if (edge !== null){
-            edge.setIsShortEdge(hideArrow)
-        }
-
         
         // -------------generate bezier curve control points---------------
         
