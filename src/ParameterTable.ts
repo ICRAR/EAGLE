@@ -330,11 +330,11 @@ export class ParameterTable {
 
                 const containingPalette: Palette = eagle.findPaletteContainingNode(paletteNode.getId());
 
-                containingPalette.fileInfo().flagAsModified()
+                containingPalette.fileInfo().flagAsModified();
                 break;
             }
             case Eagle.FileType.Graph:
-                eagle.logicalGraph().fileInfo().modified = true;
+                eagle.logicalGraph().fileInfo().flagAsModified();
 
                 eagle.checkGraph();
                 break;
@@ -457,7 +457,7 @@ export class ParameterTable {
 
             //set the graph as modified and take an undo snapshot
             Eagle.getInstance().undo().pushSnapshot(Eagle.getInstance(), "Added field " + currentField.getDisplayText() + ' to config ' + graphConfig.getName());
-            Eagle.getInstance().logicalGraph().flagAsModified();
+            Eagle.getInstance().logicalGraph().fileInfo().flagAsModified();
         }
     }
 

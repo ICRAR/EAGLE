@@ -318,7 +318,7 @@ export class Eagle {
     // TODO: remove?
     flagActiveFileModified = () : void => {
         if (this.logicalGraph()){
-            this.logicalGraph().fileInfo().modified = true;
+            this.logicalGraph().fileInfo().flagAsModified();
         }
     }
 
@@ -1538,7 +1538,7 @@ export class Eagle {
         p.fileInfo().name = filename;
 
         // mark the palette as modified and readwrite
-        p.fileInfo().modified = true;
+        p.fileInfo().flagAsModified();
         p.fileInfo().readonly = false;
 
         // add to palettes
@@ -1626,7 +1626,7 @@ export class Eagle {
         GraphConfigurationsTable.openTable();
 
         this.undo().pushSnapshot(this, "New graph configuration added");
-        this.logicalGraph().fileInfo().modified = true;
+        this.logicalGraph().fileInfo().flagAsModified();
 
         //focus on and select the name field of the newly added config in the configurations table, ready to rename. this requires a little wait, to allow the ui to update
         setTimeout(() => {
@@ -3371,7 +3371,7 @@ export class Eagle {
             }
 
             // mark the palette as modified
-            destinationPalette.fileInfo().modified = true;
+            destinationPalette.fileInfo().flagAsModified();
         }
     }
 
@@ -3573,7 +3573,7 @@ export class Eagle {
                 }
 
                 // flag LG has changed
-                this.logicalGraph().fileInfo().modified = true;
+                this.logicalGraph().fileInfo().flagAsModified();
 
                 this.checkGraph();
                 this.undo().pushSnapshot(this, "Delete Selection");
@@ -3587,7 +3587,7 @@ export class Eagle {
                             palette.removeNodeById(object.getId());
 
                             // TODO: only flag palette has changed if a node was removed
-                            palette.fileInfo().modified = true;
+                            palette.fileInfo().flagAsModified();
                         }
                     }
 
@@ -3639,7 +3639,7 @@ export class Eagle {
         // check, undo, modified etc
         this.checkGraph();
         this.undo().pushSnapshot(this, "Add edge " + edge.getId());
-        this.logicalGraph().fileInfo().modified = true;
+        this.logicalGraph().fileInfo().flagAsModified();
         this.logicalGraph.valueHasMutated();
     }
 
@@ -3856,7 +3856,7 @@ export class Eagle {
         }
 
         // mark the palette as modified
-        destinationPalette.fileInfo().modified = true;
+        destinationPalette.fileInfo().flagAsModified();
     }
 
     private buildWritablePaletteNamesList = () : string[] => {
@@ -4065,7 +4065,7 @@ export class Eagle {
         // refresh the display
         this.checkGraph();
         this.undo().pushSnapshot(this, "Change Node Parent");
-        this.logicalGraph().fileInfo().modified = true;
+        this.logicalGraph().fileInfo().flagAsModified();
         this.selectedObjects.valueHasMutated();
         this.logicalGraph.valueHasMutated();
     }
@@ -4156,7 +4156,7 @@ export class Eagle {
 
             // add to destination palette
             destinationPalette.addNode(sourceComponent, true);
-            destinationPalette.fileInfo().modified = true;
+            destinationPalette.fileInfo().flagAsModified();
         }
     }
 
@@ -4473,7 +4473,7 @@ export class Eagle {
         }
 
         fileInfo.shortDescription = description;
-        fileInfo.modified = true;
+        fileInfo.flagAsModified();
     }
 
     editDetailedDescription = async(fileInfo: FileInfo): Promise<void> => {
@@ -4488,7 +4488,7 @@ export class Eagle {
         }
 
         fileInfo.detailedDescription = description;
-        fileInfo.modified = true;
+        fileInfo.flagAsModified();
     }
 
     editNodeDescription = async (node?: Node): Promise<void> => {
@@ -4622,7 +4622,7 @@ export class Eagle {
         this.flagActiveFileModified();
         this.checkGraph();
         this.undo().pushSnapshot(this, "Edit Node Category");
-        this.logicalGraph().fileInfo().modified = true;
+        this.logicalGraph().fileInfo().flagAsModified();
         this.logicalGraph.valueHasMutated();
 
         // refresh the ParameterTable, since fields may have been added/removed
@@ -4639,7 +4639,7 @@ export class Eagle {
         this.logicalGraph().addNodeComplete(newNode);
 
         // flag that the logical graph has been modified
-        this.logicalGraph().fileInfo().modified = true;
+        this.logicalGraph().fileInfo().flagAsModified();
         this.logicalGraph().fileInfo.valueHasMutated();
 
         // check if node was added to an empty graph, if so prompt user to specify graph name
@@ -4695,7 +4695,7 @@ export class Eagle {
 
         // make undo snapshot, recheck graph, mark as modified etc
         this.logicalGraph.valueHasMutated();
-        this.logicalGraph().fileInfo().modified = true;
+        this.logicalGraph().fileInfo().flagAsModified();
         this.logicalGraph().fileInfo.valueHasMutated();
         this.checkGraph();
         this.undo().pushSnapshot(this, "Check for Component Updates");
@@ -4746,7 +4746,7 @@ export class Eagle {
 
         // make undo snapshot, recheck graph, mark as modified etc
         this.logicalGraph.valueHasMutated();
-        this.logicalGraph().fileInfo().modified = true;
+        this.logicalGraph().fileInfo().flagAsModified();
         this.logicalGraph().fileInfo.valueHasMutated();
         this.checkGraph();
         const updatedNodeNames = updatedNodes.map(n => n.getName()).join(", ");
@@ -4810,7 +4810,7 @@ export class Eagle {
 
         // make undo snapshot, recheck graph, mark as modified etc
         this.logicalGraph.valueHasMutated();
-        this.logicalGraph().fileInfo().modified = true;
+        this.logicalGraph().fileInfo().flagAsModified();
         this.logicalGraph().fileInfo.valueHasMutated();
         this.checkGraph();
         const updatedNodeNames = updatedNodes.map(n => n.getName()).join(", ");
@@ -4875,7 +4875,7 @@ export class Eagle {
     }
 
     slowScroll = (data:any, event: JQuery.TriggeredEvent) : void => {
-        let target = event.currentTarget;//gets the element that has the event binding
+        const target = event.currentTarget;//gets the element that has the event binding
 
         $(target).scrollTop($(target).scrollTop() + (event.originalEvent as WheelEvent).deltaY * 0.5);
     }

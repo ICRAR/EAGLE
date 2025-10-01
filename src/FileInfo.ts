@@ -135,6 +135,10 @@ export class FileInfo {
         return this._modified();
     }
 
+    set modified(modified : boolean){
+        this._modified(modified);
+    }
+
     get generatorVersion() : string{
         return this._generatorVersion();
     }
@@ -289,7 +293,7 @@ export class FileInfo {
         result.repositoryService = this._repositoryService();
         result.repositoryBranch = this._repositoryBranch();
         result.repositoryName = this._repositoryName();
-        result.modified = this._modified();
+        result._modified(this._modified());
         result.generatorVersion = this._generatorVersion();
         result.generatorCommitHash = this._generatorCommitHash();
         result.generatorName = this._generatorName();
@@ -465,6 +469,8 @@ export class FileInfo {
     flagAsModified = () : void => {
         this._modified(true);
         this.lastModifiedDatetime = Date.now();
+
+        // TODO: set lastModifiedName and lastModifiedEmail from user settings?
     }
 
     static toOJSJson(fileInfo : FileInfo) : object {

@@ -1297,7 +1297,7 @@ export class GraphRenderer {
             }
             
             if(parentingSuccessful){
-                eagle.logicalGraph().fileInfo().modified = true;
+                eagle.logicalGraph().fileInfo().flagAsModified();
                 return
             }
         }
@@ -2225,7 +2225,7 @@ export class GraphRenderer {
         await eagle.addEdge(srcNode, srcPort, destNode, destPort, loopAware, closesLoop);
         eagle.checkGraph();
         eagle.undo().pushSnapshot(eagle, "Added edge from " + srcNode.getName() + " to " + destNode.getName());
-        eagle.logicalGraph().fileInfo().modified = true;
+        eagle.logicalGraph().fileInfo().flagAsModified();
         eagle.logicalGraph.valueHasMutated();
         GraphRenderer.clearEdgeVars();
     }

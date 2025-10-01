@@ -594,7 +594,7 @@ export class LogicalGraph {
         // duplicate, set active and graph as modified
         this.addGraphConfig(clone)
         this.activeGraphConfigId(clone.getId())
-        this.fileInfo().modified = true;
+        this.fileInfo().flagAsModified();
 
         Utils.showNotification("Duplicated Config", "as '" + clone.getName() + "' and set to active config", "success");
 
