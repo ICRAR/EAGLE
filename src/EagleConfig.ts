@@ -69,9 +69,10 @@ export class EagleConfig {
     public static readonly COMMENT_NODE_WIDTH : number = 100;
 
     //edge settings
-    public static readonly EDGE_ARROW_SIZE : number = 8;
-    public static readonly EDGE_DISTANCE_ARROW_VISIBILITY : number = 100; //how long does an edge have to be to show the direction arrows
-    public static readonly STRAIGHT_EDGE_SWITCH_DISTANCE : number = 120 //the length of the edge at which it will switch between bezier and straight
+    public static readonly EDGE_THICKNESS : number = 3;
+    public static readonly EDGE_ARROW_SIZE : number = 6;
+    public static readonly EDGE_DISTANCE_ARROW_VISIBILITY : number = 30; //how long does an edge have to be to show the direction arrows
+    public static readonly STRAIGHT_EDGE_SWITCH_DISTANCE : number = 90 //the length of the edge at which it will switch between bezier and straight
     public static readonly EDGE_BEZIER_CURVE_MULT : number = 0.4 //this affects how far away from the start and end of the edge the curve transform handles are
     public static readonly EDGE_COMMENT_OFFSET_X : number = 2 //how far is the edge comment offset from the center
     public static readonly EDGE_COMMENT_OFFSET_Y : number = 10 //how far is the edge comment offset from the center
@@ -119,6 +120,7 @@ export class EagleConfig {
         style.setProperty("--nodeOutputColor", EagleConfig.getColor('nodeOutputPort'));
         style.setProperty("--nodeInputColor", EagleConfig.getColor('nodeInputPort'));
         style.setProperty("--edgeSVGSize", EagleConfig.EDGE_SVG_SIZE+'px');
+        style.setProperty("--edgeThickness", EagleConfig.EDGE_THICKNESS+'px');
         $("html").get(0).style.setProperty("--hoverHighlight", EagleConfig.getColor('hoverHighlight'));
     }
 }
