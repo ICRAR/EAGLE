@@ -4096,6 +4096,7 @@ export class Eagle {
 
             let pos : {x:number, y:number};
             pos = {x:0,y:0}
+            let searchAreaExtended = false; //used if we cant find space on the canvas, we then extend the search area for space and center the graph after adding to bring new nodes into view
 
             // check that graph editing is allowed
             if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
@@ -4113,9 +4114,23 @@ export class Eagle {
 
                 RightClick.closeCustomContextMenu(true);
             }
+            
+            //if pos is 0 0 then we are not using drop location nor right click location. so we try to determine a logical place to put it
+            if(pos.x === 0 && pos.y === 0){
+                // get new position for node
+                if (Eagle.nodeDropLocation.x === 0 && Eagle.nodeDropLocation.y === 0){
+                    const result = this.getNewNodePosition(newVisual.getWidth());
+                    searchAreaExtended = result.extended
+                    pos = {x:result.x,y:result.y}
+                } else {
+                    pos = Eagle.nodeDropLocation;
+                }
+            }
 
 
             const visual = new Visual(type, '');
+            visual.setPosition(pos.x, pos.y);
+
             // add the visual to the logical graph
             logicalGraph.addVisual(visual);
 

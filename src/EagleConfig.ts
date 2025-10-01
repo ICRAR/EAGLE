@@ -76,6 +76,12 @@ export class EagleConfig {
     public static readonly EDGE_COMMENT_OFFSET_X : number = 2 //how far is the edge comment offset from the center
     public static readonly EDGE_COMMENT_OFFSET_Y : number = 10 //how far is the edge comment offset from the center
 
+    //visual settings
+    public static readonly VISUAL_DEFAULT_WIDTH : number = 150;
+    public static readonly VISUAL_DEFAULT_HEIGHT : number = 100;
+    public static readonly VISUAL_MINIMUM_WIDTH : number = 50;
+    public static readonly VISUAL_MINIMUM_HEIGHT : number = 30
+
     // when creating a new construct to enclose a selection, or shrinking a node to enclose its children,
     // this is the default margin that should be left on each side
     public static readonly CONSTRUCT_MARGIN: number = 30;
