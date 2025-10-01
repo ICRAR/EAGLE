@@ -162,22 +162,6 @@ export class Edge {
         this.selectionRelative = !this.selectionRelative;
     }
 
-    setIsShortEdge = (value:boolean) : void => {
-        this.isShortEdge(value)
-    }
-
-    getIsShortEdge = () : boolean => {
-        return this.isShortEdge()
-    }
-
-    getArrowVisibility = () : string => {
-        if (this.isShortEdge()){
-            return 'hidden' 
-        }else{
-            return 'visible'
-        }
-    }
-
     isPath = () : boolean => {
         const srcPort = this.getSrcPort();
         const destPort = this.getDestPort();

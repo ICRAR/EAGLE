@@ -122,7 +122,7 @@
                                 <g data-bind="attr:{id:$data.getId()}">
                                     <path data-bind="attr:{d: GraphRenderer.getPath($data)},style:{'stroke':GraphRenderer.edgeGetStrokeColor($data), 'stroke-dasharray': GraphRenderer.edgeGetStrokeType($data)}"></path>
                                     <path class="edgeClickTarget" data-bind="attr:{d: GraphRenderer.getPath($data)},click:function(viewModel, event){GraphRenderer.selectEdge(viewModel, event)},eagleRightClick: {data:$data,type:'rightClick_graphEdge'}"></path>
-                                    <polygon data-bind="style:{'visibility': $data.getArrowVisibility(), 'fill':GraphRenderer.edgeGetStrokeColor($data)}"></polygon>
+                                    <polygon data-bind="style:{'fill':GraphRenderer.edgeGetStrokeColor($data)}"></polygon>
                                 </g>
                             <!-- /ko -->
                             <!-- ko if: GraphRenderer.renderDraggingPortEdge -->
