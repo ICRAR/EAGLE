@@ -125,6 +125,23 @@ export class Visual {
         this.targetLocation(location);
         return this;
     }
+    
+    isComment = () : boolean => {
+        return this.type() === Visual.Type.Comment;
+    }
+
+    isGroup = () : boolean => {
+        return this.type() === Visual.Type.Group;
+    }
+
+    clone = () : Visual => {
+        const result = new Visual(this.type(), this.text())
+            .setPosition(this.x(), this.y())
+            .setWidth(this.width())
+            .setHeight(this.height())
+            .setTargetLocation(this.targetLocation());
+        return result;
+    }
 
     static fromJson(visualData: any, lg: LogicalGraph, errorsWarnings: Errors.ErrorsWarnings) : Visual {
         const id: VisualId = visualData.id as VisualId;

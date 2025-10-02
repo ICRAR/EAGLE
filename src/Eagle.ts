@@ -78,11 +78,11 @@ export class Eagle {
     rightWindow : ko.Observable<SideWindow>;
     bottomWindow : ko.Observable<SideWindow>;
 
-    selectedObjects : ko.ObservableArray<Node|Edge>;
+    selectedObjects : ko.ObservableArray<Node|Edge|Visual>;
     static selectedLocation : ko.Observable<Eagle.FileType>;
     currentField :ko.Observable<Field>;
 
-    static selectedRightClickObject : ko.Observable<Node|Edge>;
+    static selectedRightClickObject : ko.Observable<Node|Edge|Visual>;
     static selectedRightClickLocation : ko.Observable<Eagle.FileType>;
     static selectedRightClickPosition : {x: number, y: number} = {x:0, y:0}
 
@@ -638,7 +638,7 @@ export class Eagle {
         }
     }, this);
 
-    setSelection = (selection : Node | Edge, selectedLocation: Eagle.FileType) : void => {
+    setSelection = (selection : Node | Edge | Visual, selectedLocation: Eagle.FileType) : void => {
         Eagle.selectedLocation(selectedLocation);
         GraphRenderer.clearPortPeek()
 
@@ -652,6 +652,7 @@ export class Eagle {
                 GraphRenderer.setPortPeekForEdge(selection,true)
             }
 
+            //trigger redraw of parameter table
             if(selection instanceof Node){
                 ParameterTable.updateContent(selection);
             }
@@ -725,7 +726,7 @@ export class Eagle {
         }
     }
 
-    objectIsSelected = (object: Node | Edge): boolean => {
+    objectIsSelected = (object: Node | Edge | Visual): boolean => {
         if (object instanceof Node){
             for (const o of this.selectedObjects()){
                 if (o instanceof Node && o.getId() === object.getId()){
@@ -739,6 +740,16 @@ export class Eagle {
         if (object instanceof Edge){
             for (const o of this.selectedObjects()){
                 if (o instanceof Edge && o.getId() === object.getId()){
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        if (object instanceof Visual){
+            for (const o of this.selectedObjects()){
+                if (o instanceof Visual && o.getId() === object.getId()){
                     return true;
                 }
             }
@@ -3207,7 +3218,7 @@ export class Eagle {
         }
         
         let location: string;
-        let incomingNodes: (Node | Edge)[] = [];
+        let incomingNodes: (Node | Edge | Visual)[] = [];
 
         if(mode === 'normal'){
             location = Eagle.selectedLocation()
@@ -3228,6 +3239,7 @@ export class Eagle {
 
                     const nodes : Node[] = [];
                     const edges : Edge[] = [];
+                    const visuals : Visual[] = [];
                     const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
                     // split objects into nodes and edges
@@ -3239,6 +3251,10 @@ export class Eagle {
                         if (object instanceof Edge){
                             edges.push(object);
                         }
+
+                        if (object instanceof Visual){
+                            visuals.push(object);
+                        }
                     }
 
                     // remove embedded nodes that are already selected
@@ -3247,6 +3263,11 @@ export class Eagle {
 
                     // duplicate nodes and edges
                     await this.insertGraph(nodesToDuplicate, edges, null, errorsWarnings);
+                    // duplicate visuals
+                    for (const visual of visuals){
+                        const visualClone = visual.clone();
+                        this.logicalGraph().addVisual(visualClone);
+                    }
 
                     // re-check graph, set undo snapshot and trigger re-render
                     this.checkGraph();
@@ -3582,7 +3603,7 @@ export class Eagle {
     }
 
     deleteSelection = async (rightClick: boolean, suppressUserConfirmationRequest: boolean, deleteChildren: boolean): Promise<void> => {
-        let data: (Node | Edge)[] = [];
+        let data: (Node | Edge | Visual)[] = [];
         let location: Eagle.FileType = Eagle.FileType.Unknown;
 
         GraphRenderer.clearPortPeek()
@@ -4101,7 +4122,7 @@ export class Eagle {
             // check that graph editing is allowed
             if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
                 reject("Unable to Add Component. Graph Editing is disabled");
-                return;
+                return null;
             }
 
             if(mode === Eagle.AddNodeMode.ContextMenu){

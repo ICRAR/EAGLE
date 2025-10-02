@@ -1,0 +1,5 @@
+<div class="node" data-bind="attr:{id:$data.getId()},nodeRenderHandler:$data, style: {left: $data.x(), top: $data.y()}">
+    <!-- ko if:!$data.isComment() -->
+        {% include 'comment_visual.html' %}
+    <!-- /ko -->
+</div>

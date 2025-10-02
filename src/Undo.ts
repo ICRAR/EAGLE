@@ -201,7 +201,7 @@ export class Undo {
     // in this function, we use the ids of the old selectedObjects, and attempt to add the matching objects in the new snapshot to the selectedObjects list
     _updateSelection = () : void => {
         const eagle: Eagle = Eagle.getInstance();
-        const objectIds: (NodeId | EdgeId)[] = [];
+        const objectIds: (NodeId | EdgeId | VisualId)[] = [];
 
         // build a list of the ids of the selected objects
         for (const object of eagle.selectedObjects()){
