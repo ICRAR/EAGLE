@@ -220,7 +220,8 @@ export class LogicalGraph {
         }
 
         result += '"nodeDataArray": ' + JSON.stringify(json.nodeDataArray, null, EagleConfig.JSON_INDENT) + ",\n";
-        result += '"linkDataArray": ' + JSON.stringify(json.linkDataArray, null, EagleConfig.JSON_INDENT) + "\n";
+        result += '"linkDataArray": ' + JSON.stringify(json.linkDataArray, null, EagleConfig.JSON_INDENT) + ",\n";
+        result += '"visualDataArray": ' + JSON.stringify(json.visualDataArray, null, EagleConfig.JSON_INDENT) + "\n";
         result += "}\n";
 
         return result;
@@ -252,7 +253,8 @@ export class LogicalGraph {
         }
 
         result += '"nodes": ' + JSON.stringify(json.nodes, null, EagleConfig.JSON_INDENT) + ",\n";
-        result += '"edges": ' + JSON.stringify(json.edges, null, EagleConfig.JSON_INDENT) + "\n";
+        result += '"edges": ' + JSON.stringify(json.edges, null, EagleConfig.JSON_INDENT) + ",\n";
+        result += '"visuals": ' + JSON.stringify(json.visuals, null, EagleConfig.JSON_INDENT) + "\n";
         result += "}\n";
 
         return result;
@@ -742,6 +744,12 @@ export class LogicalGraph {
 
             edge.getSrcPort().addEdge(edge);
             edge.getDestPort().addEdge(edge);
+        }
+
+        // copy visuals
+        for (const [id, visual] of this.visuals()){
+            result.visuals().set(id, visual.clone());
+            result.visuals.valueHasMutated();
         }
 
         // copy graph configs

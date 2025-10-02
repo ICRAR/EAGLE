@@ -125,7 +125,7 @@ export class Visual {
         this.targetLocation(location);
         return this;
     }
-    
+
     isComment = () : boolean => {
         return this.type() === Visual.Type.Comment;
     }
@@ -139,6 +139,7 @@ export class Visual {
             .setPosition(this.x(), this.y())
             .setWidth(this.width())
             .setHeight(this.height())
+            .setTarget(this.target())
             .setTargetLocation(this.targetLocation());
         return result;
     }
