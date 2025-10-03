@@ -114,12 +114,12 @@ export class FileLocation {
         url += "/?service=" + fileLocation.repositoryService();
 
         if (fileLocation.repositoryService() === Repository.Service.Url){
-            url += "&url=" + fileLocation.downloadUrl;
+            url += "&url=" + fileLocation.downloadUrl();
         } else {
             url += "&repository=" + fileLocation.repositoryName();
             url += "&branch=" + fileLocation.repositoryBranch();
             url += "&path=" + encodeURI(fileLocation.repositoryPath());
-            url += "&filename=" + encodeURI(fileLocation.repositoryFileName());
+            url += "&filename=" + encodeURI(fileLocation.repositoryFileName()); 
         }
 
         return url;

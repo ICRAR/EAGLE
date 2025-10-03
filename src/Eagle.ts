@@ -906,6 +906,7 @@ export class Eagle {
     private _handleLoadingErrors = (errorsWarnings: Errors.ErrorsWarnings, fileName: string, service: Repository.Service) : void => {
         const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
         this.hideEagleIsLoading()
+
         // show errors (if found)
         if (Errors.hasErrors(errorsWarnings) || Errors.hasWarnings(errorsWarnings)){
             if (showErrors){
@@ -1884,13 +1885,11 @@ export class Eagle {
     /**
      * Saves a file to the remote server repository.
      */
-    saveFileToRemote = async (repository : Repository, filePath : string, fileName : string, fileType : Eagle.FileType, fileInfo: ko.Observable<FileInfo>, jsonString : string): Promise<void> => {
+    saveFileToRemote = async (file: RepositoryFile, fileInfo: ko.Observable<FileInfo>, jsonString : string): Promise<void> => {
         return new Promise(async(resolve, reject) => {
-            console.log("saveFileToRemote() repository.name", repository.name, "repository.service", repository.service);
-
             let url : string;
 
-            switch (repository.service){
+            switch (file.repository.service){
                 case Repository.Service.GitHub:
                     url = '/saveFileToRemoteGithub';
                     break;
@@ -1898,7 +1897,7 @@ export class Eagle {
                     url = '/saveFileToRemoteGitlab';
                     break;
                 default:
-                    Utils.showUserMessage("Error", "Unknown repository service : " + repository.service);
+                    Utils.showUserMessage("Error", "Unknown repository service : " + file.repository.service);
                     return;
             }
 
@@ -1906,7 +1905,7 @@ export class Eagle {
             try {
                 data = await Utils.httpPostJSONString(url, jsonString);
             } catch (error){
-                Utils.showUserMessage("Error", data + "<br/><br/>These error messages provided by " + repository.service + " are not very helpful. Please contact EAGLE admin to help with further investigation.");
+                Utils.showUserMessage("Error", data + "<br/><br/>These error messages provided by " + file.repository.service + " are not very helpful. Please contact EAGLE admin to help with further investigation.");
                 console.error("Error: " + JSON.stringify(error, null, EagleConfig.JSON_INDENT) + " Data: " + data);
                 reject(error);
                 return;
@@ -1914,7 +1913,7 @@ export class Eagle {
 
             // we have to refresh this whole path, since any part of it might be new
             try {
-                await repository.refreshPath(filePath);
+                await file.repository.refreshPath(file.path);
             } catch (error){
                 console.log("error during refreshPath", error);
             }
@@ -1923,35 +1922,17 @@ export class Eagle {
             this.changeRightWindowMode(Eagle.RightWindowMode.Repository);
 
             // Show success message
-            if (repository.service === Repository.Service.GitHub){
+            if (file.repository.service === Repository.Service.GitHub){
                 Utils.showNotification("Success", "The file has been saved to GitHub repository.", "success");
             }
-            if (repository.service === Repository.Service.GitLab){
+            if (file.repository.service === Repository.Service.GitLab){
                 Utils.showNotification("Success", "The file has been saved to GitLab repository.", "success");
             }
 
             // Mark file as non-modified.
             fileInfo().modified = false;
 
-            fileInfo().location.repositoryService(repository.service);
-            fileInfo().location.repositoryName(repository.name);
-            fileInfo().location.repositoryBranch(repository.branch);
-            fileInfo().location.repositoryPath(filePath);
-            fileInfo().type = fileType;
-
-            // Adding file extension to the title if it does not have it.
-            if (!Utils.verifyFileExtension(fileName)) {
-                fileName = fileName + "." + Utils.getDiagramExtension(fileType);
-            }
-
-            // Change the title name.
-            fileInfo().name = fileName;
-
-            // set the EAGLE version etc according to this running version
-            fileInfo().updateEagleInfo();
-
-            // flag fileInfo object as modified
-            fileInfo.valueHasMutated();
+            Utils.updateFileInfo(fileInfo, file);
 
             resolve();
         });
@@ -2033,7 +2014,10 @@ export class Eagle {
             // check repository name
             const repository : Repository = Repositories.get(commit.repositoryService, commit.repositoryName, commit.repositoryBranch);
 
-            this._commit(repository, fileType, commit.filePath, commit.fileName, fileInfo, commit.message, obj);
+            // TODO: a bit of a kludge here to have to create a new RepositoryFile object just to pass to _commit()
+            const file: RepositoryFile = new RepositoryFile(repository, commit.filePath, commit.fileName);
+            file.type = fileType;
+            this._commit(file, fileInfo, commit.message, obj);
 
             resolve();
         });
@@ -2104,7 +2088,10 @@ export class Eagle {
             const repository = Repositories.getByLocation(fileInfo().location);
 
             try {
-                await this._commit(repository, fileType, fileInfo().location.repositoryPath(), fileInfo().location.repositoryFileName(), fileInfo, commitMessage, obj);
+                // TODO: a bit of a kludge here to have to create a new RepositoryFile object just to pass to _commit()
+                const file: RepositoryFile = new RepositoryFile(repository, fileInfo().location.repositoryPath(), fileInfo().location.repositoryFileName());
+                file.type = fileType;
+                await this._commit(file, fileInfo, commitMessage, obj);
             } catch (error) {
                 reject(error);
                 return;
@@ -2114,12 +2101,12 @@ export class Eagle {
         });
     }
 
-    _commit = async (repository: Repository, fileType: Eagle.FileType, filePath: string, fileName: string, fileInfo: ko.Observable<FileInfo>, commitMessage: string, obj: LogicalGraph | Palette | GraphConfig) : Promise<void> => {
+    _commit = async (file: RepositoryFile, fileInfo: ko.Observable<FileInfo>, commitMessage: string, obj: LogicalGraph | Palette | GraphConfig) : Promise<void> => {
         return new Promise(async(resolve, reject) => {
             // check that repository was found, if not try "save as"!
-            if (repository === null){
+            if (file.repository === null){
                 try {
-                    await this.commitToGitAs(fileType);
+                    await this.commitToGitAs(file.type);
                 } catch (error){
                     reject(error);
                     return;
@@ -2129,7 +2116,7 @@ export class Eagle {
             }
 
             try {
-                await this.saveDiagramToGit(repository, fileType, filePath, fileName, fileInfo, commitMessage, obj);
+                await this.saveDiagramToGit(file, fileInfo, commitMessage, obj);
             } catch (error) {
                 reject(error);
                 return;
@@ -2141,9 +2128,9 @@ export class Eagle {
     /**
      * Saves a graph/palette file to the GitHub repository.
      */
-    saveDiagramToGit = (repository : Repository, fileType : Eagle.FileType, filePath : string, fileName : string, fileInfo: ko.Observable<FileInfo>, commitMessage : string, obj: LogicalGraph | Palette | GraphConfig) : Promise<void> => {
+    saveDiagramToGit = (file: RepositoryFile, fileInfo: ko.Observable<FileInfo>, commitMessage : string, obj: LogicalGraph | Palette | GraphConfig) : Promise<void> => {
         return new Promise(async(resolve, reject) => {
-            console.log("saveDiagramToGit() repositoryName", repository.name, "fileType", fileType, "filePath", filePath, "fileName", fileName, "commitMessage", commitMessage);
+            console.log("saveDiagramToGit() repositoryName", file.repository.name, "fileType", file.type, "filePath", file.path, "fileName", file.name, "commitMessage", commitMessage);
 
             const clone: LogicalGraph | Palette | GraphConfig = obj.clone();
             clone.fileInfo().updateEagleInfo();
@@ -2151,7 +2138,7 @@ export class Eagle {
             const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
 
             let jsonString: string = "";
-            switch (fileType){
+            switch (file.type){
                 case Eagle.FileType.Graph:
                     jsonString = LogicalGraph.toJsonString(<LogicalGraph>clone, false, version);
                     break;
@@ -2164,7 +2151,7 @@ export class Eagle {
             }
 
             try {
-                await this._saveDiagramToGit(repository, fileType, filePath, fileName, fileInfo, commitMessage, jsonString, version);
+                await this._saveDiagramToGit(file, fileInfo, commitMessage, jsonString, version);
             } catch (error){
                 reject(error);
                 return;
@@ -2174,15 +2161,15 @@ export class Eagle {
         });
     }
 
-    _saveDiagramToGit = async (repository : Repository, fileType : Eagle.FileType, filePath : string, fileName : string, fileInfo: ko.Observable<FileInfo>, commitMessage : string, jsonString: string, version: Setting.SchemaVersion) : Promise<void> => {
+    _saveDiagramToGit = async (file: RepositoryFile, fileInfo: ko.Observable<FileInfo>, commitMessage : string, jsonString: string, version: Setting.SchemaVersion) : Promise<void> => {
         return new Promise(async(resolve, reject) => {
             // generate filename
-            const fullFileName : string = Utils.joinPath(filePath, fileName);
+            const fullFileName : string = Utils.joinPath(file.path, file.name);
 
             // get access token for this type of repository
             let token : string;
 
-            switch (repository.service){
+            switch (file.repository.service){
                 case Repository.Service.GitHub:
                     token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
                     break;
@@ -2201,12 +2188,12 @@ export class Eagle {
             }
 
             // validate json
-            Utils.validateJSON(jsonString, fileType, version);
+            Utils.validateJSON(jsonString, file.type, version);
 
-            const commitJsonString: string = Utils.createCommitJsonString(jsonString, repository, token, fullFileName, commitMessage);
+            const commitJsonString: string = Utils.createCommitJsonString(jsonString, file.repository, token, fullFileName, commitMessage);
 
             try {
-                await this.saveFileToRemote(repository, filePath, fileName, fileType, fileInfo, commitJsonString);
+                await this.saveFileToRemote(file, fileInfo, commitJsonString);
             } catch (error){
                 reject(error);
                 return;
@@ -2296,13 +2283,15 @@ export class Eagle {
                         // attempt to determine schema version from FileInfo
                         const schemaVersion: Setting.SchemaVersion = Utils.determineSchemaVersion(paletteData);
                         let palette: Palette;
+                        const file = new RepositoryFile(new Repository(Repository.Service.Url, "", "", false), "", paletteList[i].name);
+                        file.type = Eagle.FileType.Palette;
                         switch (schemaVersion){
                             case Setting.SchemaVersion.OJS:
                             case Setting.SchemaVersion.Unknown:
-                                palette = Palette.fromOJSJson(paletteData, new RepositoryFile(Repository.dummy(), "", paletteList[i].name), errorsWarnings);
+                                palette = Palette.fromOJSJson(paletteData, file, errorsWarnings);
                                 break;
                             case Setting.SchemaVersion.V4:
-                                palette = Palette.fromV4Json(paletteData, new RepositoryFile(Repository.dummy(), "", paletteList[i].name), errorsWarnings);
+                                palette = Palette.fromV4Json(paletteData, file, errorsWarnings);
                                 break;
                         }
                         
@@ -2448,7 +2437,7 @@ export class Eagle {
         this.undo().pushSnapshot(this, "Loaded " + file.name);
 
         // if the fileType is the same as the current mode, update the activeFileInfo with details of the repository the file was loaded from
-        this.updateLogicalGraphFileInfo(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
+        Utils.updateFileInfo(this.logicalGraph().fileInfo, file);
     }
 
     _loadGraphConfig = async (dataObject: any, file: RepositoryFile): Promise<void> => {
@@ -2655,7 +2644,7 @@ export class Eagle {
     }
 
     private _remotePaletteLoaded = async (file : RepositoryFile, data : string): Promise<void> => {
-        // load the remote palette into EAGLE's palettes object.
+        // load the remote palette into EAGLE's palettes object
 
         // check palette is not already loaded
         const alreadyLoadedPalette : Palette = this.findPaletteByFile(file);
@@ -2677,9 +2666,24 @@ export class Eagle {
             this.closePalette(palette);
         }
 
+        // determine schema version from FileInfo
+        const schemaVersion: Setting.SchemaVersion = Utils.determineSchemaVersion(JSON.parse(data));
+
         // load the new palette
         const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
-        const newPalette = Palette.fromOJSJson(data, file, errorsWarnings);
+        let newPalette: Palette;
+        switch (schemaVersion){
+            case Setting.SchemaVersion.OJS:
+            case Setting.SchemaVersion.Unknown:
+                newPalette = Palette.fromOJSJson(data, file, errorsWarnings);
+                break;
+            case Setting.SchemaVersion.V4:
+                newPalette = Palette.fromV4Json(data, file, errorsWarnings);
+                break;
+            default:
+                errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
+                return;
+        }
 
         if (file.repository.service === Repository.Service.Url){
             newPalette.fileInfo().location.repositoryService(Repository.Service.Url);
@@ -2697,24 +2701,6 @@ export class Eagle {
         this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
 
         Utils.showNotification("Success", file.name + " has been loaded.", "success");
-    }
-
-    private updateLogicalGraphFileInfo = (repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, path : string, name : string) : void => {
-        // update the activeFileInfo with details of the repository the file was loaded from
-        this.logicalGraph().fileInfo().location.repositoryName(repositoryName);
-        this.logicalGraph().fileInfo().location.repositoryBranch(repositoryBranch);
-        this.logicalGraph().fileInfo().location.repositoryService(repositoryService);
-        this.logicalGraph().fileInfo().location.repositoryPath(path);
-        this.logicalGraph().fileInfo().location.repositoryFileName(name);
-
-        // set url
-        if (repositoryService === Repository.Service.Url){
-            this.logicalGraph().fileInfo().location.downloadUrl(name);
-        }
-
-        // communicate to knockout that the value of the fileInfo has been modified (so it can update UI)
-        this.logicalGraph().fileInfo.valueHasMutated();
-
     }
 
     findPaletteByFile = (file : RepositoryFile) : Palette => {
@@ -2820,7 +2806,7 @@ export class Eagle {
             // since changes are now stored locally, the file will have become out of sync with the GitHub repository, so the association should be broken
             // clear the modified flag
             palette.fileInfo().modified = false;
-            palette.fileInfo().location.repositoryService(Repository.Service.Unknown);
+            palette.fileInfo().location.repositoryService(Repository.Service.File);
             palette.fileInfo().location.repositoryName("");
             palette.fileInfo().repositoryUrl = "";
             palette.fileInfo().location.commitHash("");
@@ -3014,7 +3000,10 @@ export class Eagle {
         const commitJsonString: string = Utils.createCommitJsonString(jsonString, repository, token, fullFileName, commit.message);
 
         try {
-            await this.saveFileToRemote(repository, commit.filePath, commit.fileName, Eagle.FileType.Palette, palette.fileInfo, commitJsonString);
+            // TODO: a bit of a kludge here to have to create a new RepositoryFile object just to pass to _commit()
+            const file: RepositoryFile = new RepositoryFile(repository, commit.filePath, commit.fileName);
+            file.type = Eagle.FileType.Palette;
+            await this.saveFileToRemote(file, palette.fileInfo, commitJsonString);
         } catch (error){
             console.log(error);
         }
