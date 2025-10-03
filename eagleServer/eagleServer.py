@@ -447,7 +447,7 @@ def save_git_hub_file():
     Save a file to a GitHub repository. The POST request content is a JSON string containing the file name, repository name, branch, access token, the graph data in JSON format and a commit message.
     """
     # Extract parameters and file content from json.
-    content = request.get_json(silent=True)
+    content = request.get_json()
     filename = content["filename"]
     repo_name = content["repositoryName"]
     repo_branch = content["repositoryBranch"]
@@ -694,8 +694,9 @@ def open_git_hub_file():
 
         # for palettes, put downloadUrl in every component
         if extension == ".palette":
-            for component in graph["nodeDataArray"]:
-                component["paletteDownloadUrl"] = download_url
+            if "nodeDataArray" in graph:
+                for component in graph["nodeDataArray"]:
+                    component["paletteDownloadUrl"] = download_url
 
         json_data = json.dumps(graph, indent=4)
 
