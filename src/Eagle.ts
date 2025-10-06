@@ -920,6 +920,8 @@ export class Eagle {
             } else {
                 Utils.showNotification("Error", "Errors occurred while loading " + fileName + " from " + service + ".", "danger");
             }
+        } else {
+            Utils.showNotification("Success", fileName + " has been loaded from " + service + ".", "success");
         }
     }
 
@@ -2697,8 +2699,6 @@ export class Eagle {
 
         // show errors/warnings
         this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
-
-        Utils.showNotification("Success", file.name + " has been loaded.", "success");
     }
 
     findPaletteByFile = (file : RepositoryFile) : Palette => {
