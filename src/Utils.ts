@@ -54,15 +54,17 @@ export class Utils {
         "diagram",
         "graph",
         "palette",
-        "cfg", // for graph config files
+        "graphConfig", // for graph config files
         "md", // for markdown e.g. README.md
         "daliuge", "dlg" // for logical graphs templates containing graph configurations
     ];
 
     static ojsGraphSchema : object = {};
     static ojsPaletteSchema : object = {};
+    static ojsGraphConfigSchema : object = {};
     static v4GraphSchema : object = {};
     static v4PaletteSchema : object = {};
+    static v4GraphConfigSchema : object = {};
 
     static generateNodeId(): NodeId {
         return Utils._uuidv4() as NodeId;
@@ -166,18 +168,7 @@ export class Utils {
 
     // NOTE: used for sorting files by filetype
     static getFileTypeNum(fileType: Eagle.FileType) : number {
-        switch (fileType){
-            case Eagle.FileType.Palette:
-                return 0;
-            case Eagle.FileType.Graph:
-                return 1;
-            case Eagle.FileType.JSON:
-                return 2;
-            case Eagle.FileType.Markdown:
-                return 3;
-            case Eagle.FileType.Unknown:
-                return 4;
-        }
+        return Object.values(Eagle.FileType).indexOf(fileType);
     }
 
     /**
@@ -247,6 +238,8 @@ export class Utils {
             return "graph";
         } else if (fileType == Eagle.FileType.Palette) {
             return "palette";
+        } else if (fileType == Eagle.FileType.GraphConfig) {
+            return "graphConfig";
         } else {
             console.error("Utils.getDiagramExtension() : Unknown file type! (" + fileType + ")");
             return "";
@@ -262,6 +255,9 @@ export class Utils {
 
         if (fileType.toLowerCase() === "graph"){
             return Eagle.FileType.Graph;
+        }
+        if (fileType.toLowerCase() === "graphconfig"){
+            return Eagle.FileType.GraphConfig;
         }
         if (fileType.toLowerCase() === "palette"){
             return Eagle.FileType.Palette;
@@ -719,7 +715,7 @@ export class Utils {
         });
     }
 
-    static async requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string, confirmSetting: Setting): Promise<void> {
+    static async requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string, confirmSetting: Setting): Promise<boolean> {
         return new Promise(async(resolve, reject) => {
             $('#confirmModalTitle').text(title);
             $('#confirmModalMessage').html(message);
@@ -742,15 +738,35 @@ export class Utils {
                 })
             }
 
-            $('#confirmModal').data('callback', function(completed: boolean){
-                if (completed){
-                    resolve();
-                } else {
-                    reject("Utils.requestUserConfirm() aborted by user");
-                }
+            $('#confirmModal').data('callback', function(completed: boolean, confirmed: boolean): void {
+                resolve(completed && confirmed);
             });
 
             $('#confirmModal').modal("show");
+        });
+    }
+
+    static async requestUserOptions(title: string, message: string, option0: string, option1: string, option2: string, defaultOptionIndex: number): Promise<string> {
+        return new Promise(async(resolve, reject) => {
+            $('#optionsModalTitle').text(title);
+            $('#optionsModalMessage').html(message);
+            $('#optionsModalOption0').text(option0);
+            $('#optionsModalOption1').text(option1);
+            $('#optionsModalOption2').text(option2);
+
+            $('#optionsModalOption0').toggleClass('btn-primary', defaultOptionIndex === 0);
+            $('#optionsModalOption0').toggleClass('btn-secondary', defaultOptionIndex !== 0);
+            $('#optionsModalOption1').toggleClass('btn-primary', defaultOptionIndex === 1);
+            $('#optionsModalOption1').toggleClass('btn-secondary', defaultOptionIndex !== 1);
+            $('#optionsModalOption2').toggleClass('btn-primary', defaultOptionIndex === 2);
+            $('#optionsModalOption2').toggleClass('btn-secondary', defaultOptionIndex !== 2);
+
+            $('#optionsModal').data('callback', function(selectedOptionIndex: number){
+                const selectedOption = [option0, option1, option2][selectedOptionIndex];
+                resolve(selectedOption);
+            });
+
+            $('#optionsModal').modal("show");
         });
     }
 
@@ -918,9 +934,9 @@ export class Utils {
         palette.fileInfo().name = paletteListItem.name;
         palette.fileInfo().readonly = paletteListItem.readonly;
         palette.fileInfo().builtIn = true;
-        palette.fileInfo().downloadUrl = paletteListItem.filename;
+        palette.fileInfo().location.downloadUrl(paletteListItem.filename);
         palette.fileInfo().type = Eagle.FileType.Palette;
-        palette.fileInfo().repositoryService = Repository.Service.Url;
+        palette.fileInfo().location.repositoryService(Repository.Service.Url);
 
         palette.expanded(paletteListItem.expanded);
     }
@@ -1362,8 +1378,14 @@ export class Utils {
 
     static determineFileType(data: any): Eagle.FileType {
         if (typeof data.modelData !== 'undefined'){
+            // find type of OJS files
             if (typeof data.modelData.fileType !== 'undefined'){
                 return Utils.translateStringToFileType(data.modelData.fileType);
+            }
+
+            // find type of V4 files
+            if (typeof data.modelData.type !== 'undefined'){
+                return Utils.translateStringToFileType(data.modelData.type);
             }
         }
 
@@ -1599,6 +1621,9 @@ export class Utils {
                     case Eagle.FileType.Palette:
                         valid = ajv.validate(Utils.ojsPaletteSchema, json) as boolean;
                         break;
+                    case Eagle.FileType.GraphConfig:
+                        valid = ajv.validate(Utils.ojsGraphConfigSchema, json) as boolean;
+                        break;
                     default:
                         console.warn("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");
                         valid = true;
@@ -1612,6 +1637,9 @@ export class Utils {
                         break;
                     case Eagle.FileType.Palette:
                         valid = ajv.validate(Utils.v4PaletteSchema, json) as boolean;
+                        break;
+                    case Eagle.FileType.GraphConfig:
+                        valid = ajv.validate(Utils.v4GraphConfigSchema, json) as boolean;
                         break;
                     default:
                         console.warn("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");
@@ -1829,16 +1857,39 @@ export class Utils {
     }
 
     // NOTE: merges field1 into field0
-    static fixNodeMergeFields(eagle: Eagle, node: Node, field0: Field, field1: Field){
-        // abort if one or more of the fields is not found
-        if (!node.hasField(field0.getId()) || !node.hasField(field1.getId())){
-            console.warn("fixNodeMergeFields(): Aborted, could not find one or more specified field(s).");
+    static fixNodeMergeFields(eagle: Eagle, node: Node, fieldId0: FieldId, fieldId1: FieldId){
+        if (fieldId0 === fieldId1){
+            console.warn("fixNodeMergeFields(): Aborted, field ids are the same.");
+            return;
+        }
+
+        const field0 = node.getFieldById(fieldId0);
+        const field1 = node.getFieldById(fieldId1);
+
+        // abort if either field not found
+        if (typeof field0 === 'undefined'){
+            console.warn("fixNodeMergeFields(): Aborted, field0 not found:", fieldId0);
+            return;
+        }
+        if (typeof field1 === 'undefined'){
+            console.warn("fixNodeMergeFields(): Aborted, field1 not found:", fieldId1);
+            return;
+        }
+
+        // abort if fields are the same
+        if (field0.getId() === field1.getId()){
+            console.warn("fixNodeMergeFields(): Aborted, fields are the same.");
             return;
         }
 
         const usage0 = field0.getUsage();
         const usage1 = field1.getUsage();
         const newUsage = Utils._mergeUsage(usage0, usage1);
+
+        // add all field1 edge to the field0 edges
+        for (const edge of field1.getEdges()){
+            field0.addEdge(edge);
+        }
 
         // remove field1
         node.removeFieldById(field1.getId());
@@ -1847,7 +1898,10 @@ export class Utils {
         field0.setUsage(newUsage);
 
         // update all edges to use new field
-        Utils._mergeEdges(eagle, field1.getId(), field0.getId());
+        Utils._mergeEdges(eagle, field1, field0);
+
+        // force re-draw of node
+        node.redraw()
     }
 
     static _mergeUsage(usage0: Daliuge.FieldUsage, usage1: Daliuge.FieldUsage) : Daliuge.FieldUsage {
@@ -1869,17 +1923,17 @@ export class Utils {
         return result;
     }
 
-    static _mergeEdges(eagle: Eagle, oldFieldId: FieldId, newFieldId: FieldId){
+    static _mergeEdges(eagle: Eagle, oldField: Field, newField: Field){
         // update all edges to use new field
         for (const edge of eagle.logicalGraph().getEdges()){
             // update src port
-            if (edge.getSrcPort().getId() === oldFieldId){
-                edge.getSrcPort().setId(newFieldId);
+            if (edge.getSrcPort().getId() === oldField.getId()){
+                edge.setSrcPort(newField);
             }
 
             // update dest port
-            if (edge.getDestPort().getId() === oldFieldId){
-                edge.getDestPort().setId(newFieldId);
+            if (edge.getDestPort().getId() === oldField.getId()){
+                edge.setDestPort(newField);
             }
         }
     }
@@ -2188,7 +2242,7 @@ export class Utils {
 
         // highlight the name of the graph config
         setTimeout(() => {
-            $('#tableRow_' + graphConfig.getName()).focus().select()
+            $('#tableRow_' + graphConfig.fileInfo().name).focus().select()
         }, 100);
     }
 
@@ -2487,6 +2541,10 @@ export class Utils {
             Utils.v4PaletteSchema = schema;
 
             // TODO: hack to introduce difference between palette and graph schemas
+
+            // TODO: use the 'graphConfig' part of the schema for graphConfigs
+            //Utils.v4GraphConfigSchema = (<any>schema).properties.graphConfigurations.patternProperties["[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"];
+            Utils.v4GraphConfigSchema = {};
         }
 
         const _fetchSchema = async function(url: string, localStorageKey: string, setFunc: (schema: object) => void){
@@ -2629,10 +2687,10 @@ export class Utils {
     }
 
     static generateGraphConfigName(config:GraphConfig): string {
-        if (config.getName() === ""){
+        if (config.fileInfo().name === ""){
             return "Default Configuration";
         } else {
-            return config.getName() + " (Copy)";
+            return config.fileInfo().name + " (Copy)";
         }
     }
 

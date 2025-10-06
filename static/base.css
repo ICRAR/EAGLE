@@ -178,6 +178,14 @@ body {
     color: white;
 }
 
+#navBarToolBar .navbarGroup button:last-child{
+    margin-right: 2px;
+}
+
+#navBarToolBar .navbarGroup button:first-child{
+    margin-left: 2px;
+}
+
 #navBarToolBar .navbarGroup i{
     font-size: 20px;
 }
@@ -1653,8 +1661,8 @@ select.form-control{
     font-size: 20px;
 }
 
-.navbar-center .navbar-btn.navbar-btn-active{
-    color: #002349 !important;
+#navBarToolBar .navbar-btn.navbar-btn-active{
+    color: #002349;
     background: rgb(211, 211, 211);
 }
 
@@ -2290,9 +2298,13 @@ ul.nav.navbar-nav .dropdown-item:hover,ul.nav.navbar-nav .dropdown-item:focus{
 }
 
 .tooltip-inner p {
-    font-size: 1rem;
+    font-size: 14px;
     font-weight: 300;
     margin-bottom: 10px;
+}
+
+.tooltip-inner .tooltipBtn{
+    cursor:pointer;
 }
 
 .tooltip-inner{

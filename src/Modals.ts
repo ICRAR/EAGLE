@@ -244,29 +244,67 @@ export class Modals {
 
         // #confirmModal - requestUserConfirm()
         $('#confirmModalAffirmativeButton').on('click', function(){
-            const callback : (confirmed : boolean) => void = $('#confirmModal').data('callback');
-            if (callback){
-                callback(true);
-            } else {
-                console.error("No 'callback' data attribute found on modal");
-            }
-
-            // remove data stored on the modal
-            $('#confirmModal').removeData('callback');
+            $('#confirmModal').data('completed', true);
+            $('#confirmModal').data('confirmed', true);
         });
         $('#confirmModalNegativeButton').on('click', function(){
-            const callback : (confirmed : boolean) => void = $('#confirmModal').data('callback');
-            if (callback){
-                callback(false);
-            } else {
-                console.error("No 'callback' data attribute found on modal");
-            }
-
-            // remove data stored on the modal
-            $('#confirmModal').removeData('callback');
+            $('#confirmModal').data('completed', true);
+            $('#confirmModal').data('confirmed', false);
         });
         $('#confirmModal').on('shown.bs.modal', function(){
             $('#confirmModalAffirmativeButton').trigger("focus");
+        });
+        $('#confirmModal').on('hidden.bs.modal', function(){
+            const callback : (completed: boolean, confirmed: boolean) => void = $('#confirmModal').data('callback');
+            if (!callback){
+                console.error("No 'callback' data attribute found on modal");
+            } else {
+                const completed: boolean = $('#confirmModal').data('completed');
+                const confirmed: boolean = $('#confirmModal').data('confirmed');
+
+                callback(completed, confirmed);
+            }
+
+            // remove data stored on the modal
+            $('#confirmModal').removeData(['callback', 'completed', 'confirmed']);
+        });
+
+        // #optionsModal - requestUserOptions()
+        $('#optionsModalOption0').on('click', function(){
+            const callback : (selectedOptionIndex: number) => void = $('#optionsModal').data('callback');
+            if (callback){
+                callback(0);
+            } else {
+                console.error("No 'callback' data attribute found on modal");
+            }
+
+            // remove data stored on the modal
+            $('#optionsModal').removeData('callback');
+        });
+        $('#optionsModalOption1').on('click', function(){
+            const callback : (selectedOptionIndex: number) => void = $('#optionsModal').data('callback');
+            if (callback){
+                callback(1);
+            } else {
+                console.error("No 'callback' data attribute found on modal");
+            }
+
+            // remove data stored on the modal
+            $('#optionsModal').removeData('callback');
+        });
+        $('#optionsModalOption2').on('click', function(){
+            const callback : (selectedOptionIndex: number) => void = $('#optionsModal').data('callback');
+            if (callback){
+                callback(2);
+            } else {
+                console.error("No 'callback' data attribute found on modal");
+            }
+
+            // remove data stored on the modal
+            $('#optionsModal').removeData('callback');
+        });
+        $('#optionsModal').on('shown.bs.modal', function(){
+            $('#optionsModalOption0').trigger("focus");
         });
 
         // #gitCommitModal - requestUserGitCommit()
@@ -497,7 +535,8 @@ export class Modals {
         
         const isValid = (fileType === Eagle.FileType.Unknown) ||
             (fileType === Eagle.FileType.Graph && inputElement.val().toString().endsWith(".graph")) ||
-            (fileType === Eagle.FileType.Palette && inputElement.val().toString().endsWith(".palette"));
+            (fileType === Eagle.FileType.Palette && inputElement.val().toString().endsWith(".palette")) ||
+            (fileType === Eagle.FileType.GraphConfig && inputElement.val().toString().endsWith(".graphConfig"));
 
         Modals._setValidClasses(inputElement, isValid);
     }

@@ -211,6 +211,30 @@
     </div>
 </div>
 
+<!-- Request User Options Modal -->
+<div class="modal fade" id="optionsModal" tabindex="-1" role="dialog" aria-labelledby="optionsModalTitle">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="optionsModalTitle">Title</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div class="row">
+                        <p id="optionsModalMessage">Message</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="optionsModalOption0" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn btn-primary" id="optionsModalOption1" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn btn-primary" id="optionsModalOption2" data-bs-dismiss="modal"></button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Request User Git Commit Modal -->
 <div class="modal fade" id="gitCommitModal" tabindex="-1" role="dialog" aria-labelledby="gitCommitModalTitle">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
@@ -261,7 +285,7 @@
                             <div class="input-group mb-3">
                                 <input type="text" class="form-control" id="gitCommitModalFileNameInput" data-bind="event: {input: Modals.validateCommitModalFileNameInputText}">
                                 <div id="validationFeedback" class="invalid-feedback">
-                                    Graph file name must end with '.graph', Palette with '.palette', Graph config with '.cfg'.
+                                    Graph file name must end with '.graph', Palette with '.palette', Graph config with '.graphConfig'.
                                 </div>
                             </div>
                         </div>

@@ -37,6 +37,7 @@ import { Edge } from './Edge';
 import { Errors } from './Errors';
 import { Field } from './Field';
 import { FileInfo } from './FileInfo';
+import { FileLocation } from "./FileLocation";
 import { GitHub } from './GitHub';
 import { GitLab } from './GitLab';
 import { GraphConfig } from "./GraphConfig";
@@ -60,7 +61,6 @@ import { Undo } from './Undo';
 import { UiModeSystem } from './UiModes';
 import { Utils } from './Utils';
 import { GraphUpdater } from "./GraphUpdater";
-import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 import { versions } from "./Versions";
 
 
@@ -381,7 +381,7 @@ export class Eagle {
             return "";
         }
 
-        return fileInfo.getHtml();
+        return fileInfo.location.getHtml();
     }, this);
 
     activeConfigHtml : ko.PureComputed<string> = ko.pureComputed(() => {
@@ -389,7 +389,7 @@ export class Eagle {
             return "";
         }
 
-        return  "<strong>Config:</strong> " +this.logicalGraph().getActiveGraphConfig().getName()
+        return  "<strong>Config:</strong> " + this.logicalGraph().getActiveGraphConfig().fileInfo().name;
     }, this);
 
     // TODO: move to SideWindow.ts?
@@ -636,7 +636,7 @@ export class Eagle {
     
     getTranslatorColor : ko.PureComputed<string> = ko.pureComputed(() : string => {
         // check if current graph comes from a supported git service
-        const serviceIsGit: boolean = [Repository.Service.GitHub, Repository.Service.GitLab].includes(this.logicalGraph().fileInfo().repositoryService);
+        const serviceIsGit: boolean = [Repository.Service.GitHub, Repository.Service.GitLab].includes(this.logicalGraph().fileInfo().location.repositoryService());
 
         if(!serviceIsGit){
             return 'dodgerblue'
@@ -883,7 +883,7 @@ export class Eagle {
                 const data: string = evt.target.result.toString();
 
                 eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
-                    const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().getText(), "", Category.SubGraph);
+                    const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().location.getText(), "", Category.SubGraph);
     
                     eagle.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges()), parentNode, errorsWarnings);
     
@@ -1243,7 +1243,7 @@ export class Eagle {
 
                 eagle._loadPaletteJSON(data, fileFullPath);
 
-                eagle.palettes()[0].fileInfo().repositoryService = Repository.Service.File;
+                eagle.palettes()[0].fileInfo().location.repositoryService(Repository.Service.File);
                 eagle.palettes()[0].fileInfo.valueHasMutated();
             }
             reader.onerror = function (evt) {
@@ -1281,12 +1281,11 @@ export class Eagle {
     }
 
     /**
-     * Loads a custom daliuge "project" from a file.
+     * Loads a custom graph config from a file.
      */
-    loadLocalDaliugeFile = () : void => {
-        const daliugeFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("daliugeFileToLoad");
-        const fileFullPath : string = daliugeFileInputElement.value;
-        const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+    loadLocalGraphConfigFile = () : void => {
+        const graphConfigFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("graphConfigFileToLoad");
+        const fileFullPath : string = graphConfigFileInputElement.value;
         const eagle: Eagle = this;
 
         // abort if value is empty string
@@ -1295,7 +1294,7 @@ export class Eagle {
         }
 
         // get a reference to the file in the html element
-        const file = daliugeFileInputElement.files[0];
+        const file = graphConfigFileInputElement.files[0];
         
         // read the file
         if (file) {
@@ -1303,18 +1302,17 @@ export class Eagle {
             reader.readAsText(file, "UTF-8");
             reader.onload = function (evt) {
                 const data: string = evt.target.result.toString();
+                let dataObject;
 
-                eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
-                    const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().getText(), "", Category.SubGraph);
-    
-                    eagle.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges()), parentNode, errorsWarnings);
-    
-                    // TODO: handle errors and warnings
-    
-                    eagle.checkGraph();
-                    eagle.undo().pushSnapshot(eagle, "Insert Logical Graph");
-                    eagle.logicalGraph.valueHasMutated();
-                });
+                try {
+                    dataObject = JSON.parse(data);
+                }
+                catch(err){
+                    Utils.showUserMessage("Error parsing file JSON", err.message);
+                    return;
+                }
+
+                eagle._loadGraphConfig(dataObject, new RepositoryFile(Repository.dummy(), "", Utils.getFileNameFromFullPath(fileFullPath)));
             }
             reader.onerror = function (evt) {
                 console.error("error reading file", evt);
@@ -1322,7 +1320,7 @@ export class Eagle {
         }
         
         // reset file selection element
-        daliugeFileInputElement.value = "";
+        graphConfigFileInputElement.value = "";
     }
 
     /**
@@ -1354,6 +1352,15 @@ export class Eagle {
         }
 
         document.getElementById("paletteFileToLoad").click();
+    }
+
+    getGraphConfigFileToLoad = () : void => {
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Load Graph Config");
+            return;
+        }
+
+        document.getElementById("graphConfigFileToLoad").click();
     }
 
     /**
@@ -1478,7 +1485,7 @@ export class Eagle {
         }
     }
 
-    displayObjectAsJson = (fileType: Eagle.FileType, object: LogicalGraph | Palette) : void => {
+    displayObjectAsJson = (fileType: Eagle.FileType, object: LogicalGraph | Palette | GraphConfig) : void => {
         let jsonString: string;
         const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
         
@@ -1488,6 +1495,9 @@ export class Eagle {
                 break;
             case Eagle.FileType.Palette:
                 jsonString = Palette.toJsonString(object as Palette, version);
+                break;
+            case Eagle.FileType.GraphConfig:
+                jsonString = GraphConfig.toJsonString(object as GraphConfig);
                 break;
             default:
                 console.error("displayObjectAsJson(): Un-handled fileType", fileType);
@@ -1576,18 +1586,18 @@ export class Eagle {
          // remove palette
          this.closePalette(palette);
 
-         switch (fileInfo.repositoryService){
+         switch (fileInfo.location.repositoryService()){
              case Repository.Service.File:
                 // load palette
                 this.getPaletteFileToLoad();
                 break;
             case Repository.Service.GitLab:
             case Repository.Service.GitHub:
-                Repositories.selectFile(new RepositoryFile(new Repository(fileInfo.repositoryService, fileInfo.repositoryName, fileInfo.repositoryBranch, false), fileInfo.path, fileInfo.name));
+                Repositories.selectFile(new RepositoryFile(new Repository(fileInfo.location.repositoryService(), fileInfo.location.repositoryName(), fileInfo.location.repositoryBranch(), false), fileInfo.location.repositoryPath(), fileInfo.location.repositoryFileName()));
                 break;
             case Repository.Service.Url:
                 const {palettes, errorsWarnings} = await this.loadPalettes([
-                    {name:palette.fileInfo().name, filename:palette.fileInfo().downloadUrl, readonly:palette.fileInfo().readonly, expanded: true}
+                    {name:palette.fileInfo().name, filename:palette.fileInfo().location.downloadUrl(), readonly:palette.fileInfo().readonly, expanded: true}
                 ]);
 
                 for (const palette of palettes){
@@ -1614,31 +1624,31 @@ export class Eagle {
         }
 
         const c: GraphConfig = new GraphConfig();
-        c.setName('newConfig');
+        c.fileInfo().name = 'newConfig';
+        c.fileInfo().type = Eagle.FileType.GraphConfig;
+        c.fileInfo().schemaVersion = Setting.SchemaVersion.V4;
+        c.fileInfo().readonly = false;
 
-        // adding a new graph config to the array, then setting it as active
+        // adding a new graph config to the array
         this.logicalGraph().addGraphConfig(c)
-        this.logicalGraph().setActiveGraphConfig(c.getId());
+    }
 
-        Utils.showNotification("New Graph Config Created", 'newConfig', "success");
+    duplicateGraphConfig = (config: GraphConfig): void => {
+        const newConfigName = Utils.generateGraphConfigName(config);
+        const clone = config
+            .clone()
+            .setId(Utils.generateGraphConfigId());
+        clone.fileInfo().name = newConfigName;
 
-        // open the graph configurations table
-        GraphConfigurationsTable.openTable();
-
-        this.undo().pushSnapshot(this, "New graph configuration added");
-        this.logicalGraph().fileInfo().modified = true;
-
-        //focus on and select the name field of the newly added config in the configurations table, ready to rename. this requires a little wait, to allow the ui to update
-        setTimeout(() => {
-            $('#graphConfigurationsTableWrapper .activeConfig .column-name input').focus().select()
-        }, 100);
+        // add duplicate to LG
+        this.logicalGraph().addGraphConfig(clone);
     }
 
     saveGraph = async () : Promise<void> => {
         return new Promise(async(resolve, reject) => {
             const eagle: Eagle = Eagle.getInstance();
 
-            switch (eagle.logicalGraph().fileInfo().repositoryService){
+            switch (eagle.logicalGraph().fileInfo().location.repositoryService()){
                 case Repository.Service.File:
                     try {
                         await eagle.saveFileToLocal(Eagle.FileType.Graph);
@@ -1672,7 +1682,7 @@ export class Eagle {
 
     saveGraphAs = async () : Promise<void> => {
         return new Promise(async(resolve, reject) => {
-            const isLocalFile = this.logicalGraph().fileInfo().repositoryService === Repository.Service.File;
+            const isLocalFile = this.logicalGraph().fileInfo().location.repositoryService() === Repository.Service.File;
 
             const userChoice: string = await Utils.requestUserChoice("Save Graph As", "Please choose where to save the graph", ["Local File", "Remote Git Repository"], isLocalFile?0:1, false, "");
 
@@ -1702,15 +1712,88 @@ export class Eagle {
         });
     }
 
+    saveGraphConfigAs = async (graphConfig: GraphConfig) : Promise<void> => {
+        return new Promise(async(resolve, reject) => {
+            try {
+                // Robust null/invalid check
+                if (!graphConfig || typeof graphConfig !== "object" || Object.keys(graphConfig).length === 0) {
+                    Utils.showNotification("Invalid Graph Config", "The graph configuration is missing or invalid. Please check your input and try again.", "danger");
+                    reject(new Error("GraphConfig is null or invalid"));
+                    return;
+                }
+
+                // check whether the GraphConfig has the same modelData location as the LogicalGraph
+                const configMatch = FileLocation.match(graphConfig.fileInfo().graphLocation, this.logicalGraph().fileInfo().location);
+                if (!configMatch) {
+                    Utils.showNotification("Invalid Graph Config", "The graph configuration's parent location does not match the current graph's location. Try fixing graph errors " + KeyboardShortcut.idToKeysText('fix_all', true) + " before saving.", "danger");
+                    reject(new Error("GraphConfig location mismatch"));
+                    return;
+                }
+
+                const isLocalFile = this.logicalGraph().fileInfo().location.repositoryService() === Repository.Service.File;
+
+                const userChoice: string = await Utils.requestUserChoice("Save Graph Config As", "Please choose where to save the graph config", ["Local File", "Remote Git Repository"], isLocalFile?0:1, false, "");
+
+                if (userChoice === null){
+                    Utils.showNotification("Save Cancelled", "No save location was selected.", "danger");
+                    reject(new Error("User cancelled save"));
+                    return;
+                }
+
+                if (userChoice === "Local File"){
+                    try {
+                        this.saveAsFileToLocal(Eagle.FileType.GraphConfig, graphConfig);
+                        resolve();
+                    } catch (error) {
+                        Utils.showNotification("Save Failed", "Failed to save graph config locally: " + error.message, "danger");
+                        reject(error);
+                        return;
+                    }
+                } else {
+                    try {
+                        this.commitToGitAs(Eagle.FileType.GraphConfig, graphConfig);
+                        resolve();
+                    } catch(error) {
+                        Utils.showNotification("Save Failed", "Failed to save graph config to remote repository: " + error.message, "danger");
+                        reject(error);
+                        return;
+                    }
+                }
+            } catch (err) {
+                Utils.showNotification("Unexpected Error", "An unexpected error occurred: " + err.message, "danger");
+                reject(err);
+            }
+        });
+    }
+
+    saveActiveGraphConfig = async (): Promise<void> => {
+        const activeGraphConfig = this.logicalGraph().getActiveGraphConfig();
+
+        if (typeof activeGraphConfig === "undefined") {
+            Utils.showNotification("Error", "No active graph config", "danger");
+            return;
+        }
+
+        await this.saveGraphConfigAs(activeGraphConfig);
+    }
+
     /**
      * Saves the file to a local download folder.
      */
-    saveFileToLocal = async (fileType : Eagle.FileType) : Promise<void> => {
+    saveFileToLocal = async (fileType : Eagle.FileType, graphConfig: GraphConfig | null = null) : Promise<void> => {
         return new Promise(async(resolve, reject) => {
             switch (fileType){
                 case Eagle.FileType.Graph:
                     try {
-                        await this.saveGraphToDisk(this.logicalGraph());
+                        await this.saveGraphToDisk(this.logicalGraph(), this.logicalGraph().fileInfo().name);
+                    } catch(error) {
+                        reject(error);
+                        return;
+                    }
+                    break;
+                case Eagle.FileType.GraphConfig:
+                    try {
+                        await this.saveGraphConfigToDisk(graphConfig, graphConfig.fileInfo().name);
                     } catch(error) {
                         reject(error);
                         return;
@@ -1732,7 +1815,7 @@ export class Eagle {
                     }
 
                     try {
-                        await this.savePaletteToDisk(destinationPalette);
+                        await this.savePaletteToDisk(destinationPalette, destinationPalette.fileInfo().name);
                     } catch (error){
                         reject(error);
                         return;
@@ -1747,13 +1830,21 @@ export class Eagle {
         });
     }
 
-    saveAsFileToLocal = async (fileType: Eagle.FileType): Promise<void> => {
+    saveAsFileToLocal = async (fileType: Eagle.FileType, graphConfig: GraphConfig | null = null): Promise<void> => {
         return new Promise(async(resolve, reject) => {
             switch (fileType){
                 case Eagle.FileType.Graph:
                     try {
                         await this.saveAsFileToDisk(this.logicalGraph());
                     } catch (error){
+                        reject(error);
+                        return;
+                    }
+                    break;
+                case Eagle.FileType.GraphConfig:
+                    try {
+                        await this.saveAsFileToDisk(graphConfig);
+                    } catch(error) {
                         reject(error);
                         return;
                     }
@@ -1842,10 +1933,10 @@ export class Eagle {
             // Mark file as non-modified.
             fileInfo().modified = false;
 
-            fileInfo().repositoryService = repository.service;
-            fileInfo().repositoryName = repository.name;
-            fileInfo().repositoryBranch = repository.branch;
-            fileInfo().path = filePath;
+            fileInfo().location.repositoryService(repository.service);
+            fileInfo().location.repositoryName(repository.name);
+            fileInfo().location.repositoryBranch(repository.branch);
+            fileInfo().location.repositoryPath(filePath);
             fileInfo().type = fileType;
 
             // Adding file extension to the title if it does not have it.
@@ -1869,16 +1960,20 @@ export class Eagle {
     /**
      * Performs a Git commit of a graph/palette. Asks user for a file name before saving.
      */
-    commitToGitAs = async (fileType : Eagle.FileType) : Promise<void> => {
+    commitToGitAs = async (fileType : Eagle.FileType, graphConfig: GraphConfig | null = null) : Promise<void> => {
         return new Promise(async(resolve, reject) => {
             let fileInfo : ko.Observable<FileInfo>;
-            let obj : LogicalGraph | Palette;
+            let obj : LogicalGraph | Palette | GraphConfig;
 
             // determine which object of the given filetype we are committing
             switch (fileType){
                 case Eagle.FileType.Graph:
                     fileInfo = this.logicalGraph().fileInfo;
                     obj = this.logicalGraph();
+                    break;
+                case Eagle.FileType.GraphConfig:
+                    fileInfo = graphConfig.fileInfo;
+                    obj = graphConfig;
                     break;
                 case Eagle.FileType.Palette: {
                     const paletteNames: string[] = this.buildReadablePaletteNamesList();
@@ -1905,7 +2000,7 @@ export class Eagle {
             if (this.logicalGraph()){
                 // if the repository service is unknown (or file), probably because the graph hasn't been saved before, then
                 // just use any existing repo
-                if (fileInfo().repositoryService === Repository.Service.Unknown || fileInfo().repositoryService === Repository.Service.File){
+                if (fileInfo().location.repositoryService() === Repository.Service.Unknown || fileInfo().location.repositoryService() === Repository.Service.File){
                     const gitHubRepoList : Repository[] = Repositories.getList(Repository.Service.GitHub);
                     const gitLabRepoList : Repository[] = Repositories.getList(Repository.Service.GitLab);
 
@@ -1923,13 +2018,13 @@ export class Eagle {
                         defaultRepository = new Repository(Repository.Service.GitHub, "", "", false);
                     }
                 } else {
-                    defaultRepository = new Repository(fileInfo().repositoryService, fileInfo().repositoryName, fileInfo().repositoryBranch, false);
+                    defaultRepository = new Repository(fileInfo().location.repositoryService(), fileInfo().location.repositoryName(), fileInfo().location.repositoryBranch(), false);
                 }
             }
 
             let commit: RepositoryCommit;
             try {
-                commit = await Utils.requestUserGitCommit(defaultRepository, Repositories.getList(defaultRepository.service), fileInfo().path, fileInfo().name, fileType);
+                commit = await Utils.requestUserGitCommit(defaultRepository, Repositories.getList(defaultRepository.service), fileInfo().location.repositoryPath(), fileInfo().location.repositoryFileName(), fileType);
             } catch (error){
                 reject(error);
                 return;
@@ -1976,15 +2071,12 @@ export class Eagle {
                     break;
             }
 
-            console.log("fileInfo().repositoryService", fileInfo().repositoryService);
-            console.log("fileInfo().repositoryName", fileInfo().repositoryName);
+            console.log("fileInfo().repositoryService", fileInfo().location.repositoryService());
+            console.log("fileInfo().repositoryName", fileInfo().location.repositoryName());
 
             // if there is no git repository or filename defined for this file. Please use 'save as' instead!
             if (
-                fileInfo().repositoryService === Repository.Service.Unknown ||
-                fileInfo().repositoryService === Repository.Service.File ||
-                fileInfo().repositoryService === Repository.Service.Url ||
-                fileInfo().repositoryName === null
+                [Repository.Service.Unknown, Repository.Service.File, Repository.Service.Url].includes(fileInfo().location.repositoryService()) || fileInfo().location.repositoryName() === null
             ) {
                 await this.commitToGitAs(fileType);
                 return;
@@ -2009,10 +2101,10 @@ export class Eagle {
             // set the EAGLE version etc according to this running version
             fileInfo().updateEagleInfo();
 
-            const repository = Repositories.get(fileInfo().repositoryService, fileInfo().repositoryName, fileInfo().repositoryBranch);
+            const repository = Repositories.getByLocation(fileInfo().location);
 
             try {
-                await this._commit(repository, fileType, fileInfo().path, fileInfo().name, fileInfo, commitMessage, obj);
+                await this._commit(repository, fileType, fileInfo().location.repositoryPath(), fileInfo().location.repositoryFileName(), fileInfo, commitMessage, obj);
             } catch (error) {
                 reject(error);
                 return;
@@ -2022,7 +2114,7 @@ export class Eagle {
         });
     }
 
-    _commit = async (repository: Repository, fileType: Eagle.FileType, filePath: string, fileName: string, fileInfo: ko.Observable<FileInfo>, commitMessage: string, obj: LogicalGraph | Palette) : Promise<void> => {
+    _commit = async (repository: Repository, fileType: Eagle.FileType, filePath: string, fileName: string, fileInfo: ko.Observable<FileInfo>, commitMessage: string, obj: LogicalGraph | Palette | GraphConfig) : Promise<void> => {
         return new Promise(async(resolve, reject) => {
             // check that repository was found, if not try "save as"!
             if (repository === null){
@@ -2049,11 +2141,11 @@ export class Eagle {
     /**
      * Saves a graph/palette file to the GitHub repository.
      */
-    saveDiagramToGit = (repository : Repository, fileType : Eagle.FileType, filePath : string, fileName : string, fileInfo: ko.Observable<FileInfo>, commitMessage : string, obj: LogicalGraph | Palette) : Promise<void> => {
+    saveDiagramToGit = (repository : Repository, fileType : Eagle.FileType, filePath : string, fileName : string, fileInfo: ko.Observable<FileInfo>, commitMessage : string, obj: LogicalGraph | Palette | GraphConfig) : Promise<void> => {
         return new Promise(async(resolve, reject) => {
             console.log("saveDiagramToGit() repositoryName", repository.name, "fileType", fileType, "filePath", filePath, "fileName", fileName, "commitMessage", commitMessage);
 
-            const clone: LogicalGraph | Palette | Eagle = obj.clone();
+            const clone: LogicalGraph | Palette | GraphConfig = obj.clone();
             clone.fileInfo().updateEagleInfo();
 
             const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
@@ -2062,6 +2154,9 @@ export class Eagle {
             switch (fileType){
                 case Eagle.FileType.Graph:
                     jsonString = LogicalGraph.toJsonString(<LogicalGraph>clone, false, version);
+                    break;
+                case Eagle.FileType.GraphConfig:
+                    jsonString = GraphConfig.toJsonString(<GraphConfig>clone);
                     break;
                 case Eagle.FileType.Palette:
                     jsonString = Palette.toJsonString(<Palette>clone, version);
@@ -2304,20 +2399,21 @@ export class Eagle {
 
                 // warn user if file newer than EAGLE
                 if (Utils.newerEagleVersion(eagleVersion, (<any>window).version)){
-                    try {
-                        await Utils.requestUserConfirm("Newer EAGLE Version", "File " + file.name + " was written with EAGLE version " + eagleVersion + ", whereas the current EAGLE version is " + (<any>window).version + ". Do you wish to load the file anyway?", "Yes", "No", null);
-                    } catch (error){
-                        console.error(error);
-                        return;
+                    const confirmed = await Utils.requestUserConfirm("Newer EAGLE Version", "File " + file.name + " was written with EAGLE version " + eagleVersion + ", whereas the current EAGLE version is " + (<any>window).version + ". Do you wish to load the file anyway?", "Yes", "No", null);
+                    if (confirmed){
+                        this._loadGraph(data, file);
                     }
-                    this._loadGraph(dataObject, file);
                 } else {
-                    this._loadGraph(dataObject, file);
+                    this._loadGraph(data, file);
                 }
                 break;
             }
             case Eagle.FileType.Palette:
                 this._remotePaletteLoaded(file, data);
+                break;
+
+            case Eagle.FileType.GraphConfig:
+                this._loadGraphConfig(dataObject, file);
                 break;
 
             case Eagle.FileType.Markdown:
@@ -2331,14 +2427,11 @@ export class Eagle {
         this.resetEditor();
     };
 
-    _loadGraph = (dataObject: any, file: RepositoryFile) : void => {
-        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
-
+    _loadGraph = (data: string, file: RepositoryFile) : void => {
         // load graph
-        this.logicalGraph(LogicalGraph.fromOJSJson(dataObject, file, errorsWarnings));
-
-        // show errors/warnings
-        this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
+        this._loadGraphJSON(data, file.path, (lg: LogicalGraph) => {
+            this.logicalGraph(lg);
+        });
 
         this._postLoadGraph(file);
     }
@@ -2356,6 +2449,79 @@ export class Eagle {
 
         // if the fileType is the same as the current mode, update the activeFileInfo with details of the repository the file was loaded from
         this.updateLogicalGraphFileInfo(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
+    }
+
+    _loadGraphConfig = async (dataObject: any, file: RepositoryFile): Promise<void> => {
+        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+
+        const graphConfig = GraphConfig.fromJson(dataObject, this.logicalGraph(), errorsWarnings);
+
+        // abort if graphConfig does not belong to this graph
+        const configMatch = FileLocation.match(graphConfig.fileInfo().graphLocation, this.logicalGraph().fileInfo().location);
+        if (!configMatch) {
+            // first determine how many fields within the config can be found in the current graph
+            let foundCount = 0;
+
+            for (const gcNode of graphConfig.getNodes()) {
+                for (const gcField of gcNode.getFields()) {
+                    const lgNode = gcNode.getNode();
+                    const lgField = gcField.getField();
+
+                    // skip if no node found
+                    if (lgNode === null) {
+                        continue;
+                    }
+
+                    // skip if no field found
+                    if (lgField === null) {
+                        continue;
+                    }
+
+                    foundCount++;
+                }
+            }
+
+            let locationTableHtml = "<table class='eagleTableWrapper'><tr><th></th><th>GraphConfig Parent Location</th><th>Current Graph Location</th></tr>";
+            locationTableHtml += "<tr><td>Repository Service</td><td>" + graphConfig.fileInfo().graphLocation.repositoryService() + "</td><td>" + this.logicalGraph().fileInfo().location.repositoryService() + "</td></tr>";
+            locationTableHtml += "<tr><td>Repository Name</td><td>" + graphConfig.fileInfo().graphLocation.repositoryName() + "</td><td>" + this.logicalGraph().fileInfo().location.repositoryName() + "</td></tr>";
+            locationTableHtml += "<tr><td>Repository Branch</td><td>" + graphConfig.fileInfo().graphLocation.repositoryBranch() + "</td><td>" + this.logicalGraph().fileInfo().location.repositoryBranch() + "</td></tr>";
+            locationTableHtml += "<tr><td>Repository Path</td><td>" + graphConfig.fileInfo().graphLocation.repositoryPath() + "</td><td>" + this.logicalGraph().fileInfo().location.repositoryPath() + "</td></tr>";
+            locationTableHtml += "<tr><td>Repository FileName</td><td>" + graphConfig.fileInfo().graphLocation.repositoryFileName() + "</td><td>" + this.logicalGraph().fileInfo().location.repositoryFileName() + "</td></tr>";
+            locationTableHtml += "<tr><td>Commit Hash</td><td>" + graphConfig.fileInfo().graphLocation.commitHash() + "</td><td>" + this.logicalGraph().fileInfo().location.commitHash() + "</td></tr>";
+            locationTableHtml += "<tr><td>Download Url</td><td>" + graphConfig.fileInfo().graphLocation.downloadUrl() + "</td><td>" + this.logicalGraph().fileInfo().location.downloadUrl() + "</td></tr>";
+
+            locationTableHtml += "<tr><td>Matching Fields</td><td colspan='2'>" + foundCount + "/" + graphConfig.numFields() + "</td></tr>";
+            locationTableHtml += "</table>";
+
+            try {
+                await Utils.requestUserConfirm("Error", "Graph config does not belong to this graph! Do you wish to load it anyway?" + locationTableHtml, "Yes", "No", null);
+            } catch (error){
+                console.error(error);
+                return;
+            }
+        }
+
+        // check if graphConfig already exists in this graph
+        const configAlreadyExists: boolean = this.logicalGraph().getGraphConfigById(graphConfig.getId()) !== undefined;
+
+        if (configAlreadyExists){
+            const userOption = await Utils.requestUserOptions("Graph Config Already Exists", "A graph config with the same id already exists in this graph. Do you wish to overwrite it, or load the new one with a different name?", "Overwrite", "Load as Separate Config", "Cancel", 0);
+
+            if (userOption === "Overwrite"){
+                this.logicalGraph().addGraphConfig(graphConfig);
+            } else if (userOption === "Load as Separate Config"){
+                graphConfig.fileInfo().name = graphConfig.fileInfo().name + " (copy)";
+                graphConfig.setId(Utils.generateGraphConfigId());
+                this.logicalGraph().addGraphConfig(graphConfig);
+            } else {
+                // do nothing
+            }
+        } else {
+            this.logicalGraph().addGraphConfig(graphConfig);
+        }
+
+        // show errors/warnings
+        this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
     }
 
     insertRemoteFile = async (file : RepositoryFile): Promise<void> => {
@@ -2434,7 +2600,7 @@ export class Eagle {
         }
 
         // create parent node
-        const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().getText(), "", Category.SubGraph);
+        const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().location.getText(), "", Category.SubGraph);
 
         // perform insert
         this.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges()), parentNode, errorsWarnings);
@@ -2450,13 +2616,10 @@ export class Eagle {
 
     deleteRemoteFile = async (file : RepositoryFile): Promise<void> => {
         // request confirmation from user
-        try {
-            await Utils.requestUserConfirm("Delete?", "Are you sure you wish to delete '" + file.name + "' from this repository?", "Yes", "No", Setting.find(Setting.CONFIRM_DELETE_FILES));
-        } catch (error) {
-            console.error(error);
-            return;
+        const confirmed = await Utils.requestUserConfirm("Delete?", "Are you sure you wish to delete '" + file.name + "' from this repository?", "Yes", "No", Setting.find(Setting.CONFIRM_DELETE_FILES));
+        if (confirmed){
+            this._deleteRemoteFile(file);
         }
-        this._deleteRemoteFile(file);
     }
 
     private _deleteRemoteFile = async (file: RepositoryFile): Promise<void> => {
@@ -2499,13 +2662,10 @@ export class Eagle {
 
         // if dictated by settings, reload the palette immediately
         if (alreadyLoadedPalette !== null && Setting.findValue(Setting.CONFIRM_RELOAD_PALETTES)){
-            try {
-                await Utils.requestUserConfirm("Reload Palette?", "This palette (" + file.name + ") is already loaded, do you wish to load it again?", "Yes", "No", Setting.find(Setting.CONFIRM_RELOAD_PALETTES));
-            } catch (error){
-                console.error(error);
-                return;
+            const confirmed = await Utils.requestUserConfirm("Reload Palette?", "This palette (" + file.name + ") is already loaded, do you wish to load it again?", "Yes", "No", Setting.find(Setting.CONFIRM_RELOAD_PALETTES));
+            if (confirmed){
+                this._reloadPalette(file, data, alreadyLoadedPalette);
             }
-            this._reloadPalette(file, data, alreadyLoadedPalette);
         } else {
             this._reloadPalette(file, data, alreadyLoadedPalette);
         }
@@ -2522,8 +2682,8 @@ export class Eagle {
         const newPalette = Palette.fromOJSJson(data, file, errorsWarnings);
 
         if (file.repository.service === Repository.Service.Url){
-            newPalette.fileInfo().repositoryService = Repository.Service.Url;
-            newPalette.fileInfo().downloadUrl = file.name;
+            newPalette.fileInfo().location.repositoryService(Repository.Service.Url);
+            newPalette.fileInfo().location.downloadUrl(file.name);
             newPalette.fileInfo.valueHasMutated();
         }
 
@@ -2541,15 +2701,15 @@ export class Eagle {
 
     private updateLogicalGraphFileInfo = (repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, path : string, name : string) : void => {
         // update the activeFileInfo with details of the repository the file was loaded from
-        this.logicalGraph().fileInfo().repositoryName = repositoryName;
-        this.logicalGraph().fileInfo().repositoryBranch = repositoryBranch;
-        this.logicalGraph().fileInfo().repositoryService = repositoryService;
-        this.logicalGraph().fileInfo().path = path;
-        this.logicalGraph().fileInfo().name = name;
+        this.logicalGraph().fileInfo().location.repositoryName(repositoryName);
+        this.logicalGraph().fileInfo().location.repositoryBranch(repositoryBranch);
+        this.logicalGraph().fileInfo().location.repositoryService(repositoryService);
+        this.logicalGraph().fileInfo().location.repositoryPath(path);
+        this.logicalGraph().fileInfo().location.repositoryFileName(name);
 
         // set url
         if (repositoryService === Repository.Service.Url){
-            this.logicalGraph().fileInfo().downloadUrl = name;
+            this.logicalGraph().fileInfo().location.downloadUrl(name);
         }
 
         // communicate to knockout that the value of the fileInfo has been modified (so it can update UI)
@@ -2571,17 +2731,15 @@ export class Eagle {
         for (let i = 0 ; i < this.palettes().length ; i++){
             const p = this.palettes()[i];
 
+            // TODO: can we use a palette id here, to be sure the correct palette is closed?
             if (p.fileInfo().name === palette.fileInfo().name){
 
                 // check if the palette is modified, and if so, ask the user to confirm they wish to close
                 if (p.fileInfo().modified && Setting.findValue(Setting.CONFIRM_DISCARD_CHANGES)){
-                    try {
-                        await Utils.requestUserConfirm("Close Modified Palette", "Are you sure you wish to close this modified palette?", "Close", "Cancel", null);
-                    } catch (error){
-                        console.error(error);
-                        return;
+                    const confirmed = await Utils.requestUserConfirm("Close Modified Palette", "Are you sure you wish to close this modified palette?", "Close", "Cancel", null);
+                    if (confirmed){
+                        this.palettes.splice(i, 1);
                     }
-                    this.palettes.splice(i, 1);
                 } else {
                     this.palettes.splice(i, 1);
                 }
@@ -2629,70 +2787,60 @@ export class Eagle {
     }
 
     // TODO: shares some code with saveFileToLocal(), we should try to factor out the common stuff at some stage
-    savePaletteToDisk = async (palette : Palette) : Promise<void> => {
-        // TODO: promise
-        console.log("savePaletteToDisk()", palette.fileInfo().name, palette.fileInfo().type);
+    savePaletteToDisk = async (palette : Palette, fileName: string) : Promise<void> => {
+        return new Promise(async (resolve, reject) => {
+            console.log("savePaletteToDisk()", fileName);
 
-        let fileName = palette.fileInfo().name;
+            // clone the palette and remove github info ready for local save
+            const p_clone : Palette = palette.clone();
+            p_clone.fileInfo().removeGitInfo();
+            p_clone.fileInfo().updateEagleInfo();
 
-        // Adding file extension to the title if it does not have it.
-        if (!Utils.verifyFileExtension(fileName)) {
-            fileName = fileName + "." + Utils.getDiagramExtension(Eagle.FileType.Palette);
-        }
+            // get version
+            const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
 
-        // clone the palette and remove github info ready for local save
-        const p_clone : Palette = palette.clone();
-        p_clone.fileInfo().removeGitInfo();
-        p_clone.fileInfo().updateEagleInfo();
+            // convert to json
+            const jsonString: string = Palette.toJsonString(p_clone, version);
 
-        // get version
-        const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
+            // validate json
+            Utils.validateJSON(jsonString, Eagle.FileType.Palette, version);
 
-        // convert to json
-        const jsonString: string = Palette.toJsonString(p_clone, version);
+            let data: any;
+            try {
+                data = await Utils.httpPostJSONString('/saveFileToLocal', jsonString);
+            } catch (error){
+                Utils.showUserMessage("Error", "Error saving the file! " + error);
+                console.error(error);
+                reject(error);
+                return;
+            }
 
-        // validate json
-        Utils.validateJSON(jsonString, Eagle.FileType.Palette, version);
+            Utils.downloadFile(data, fileName);
 
-        let data: any;
-        try {
-            data = await Utils.httpPostJSONString('/saveFileToLocal', jsonString);
-        } catch (error){
-            Utils.showUserMessage("Error", "Error saving the file! " + error);
-            console.error(error);
-            return;
-        }
+            // since changes are now stored locally, the file will have become out of sync with the GitHub repository, so the association should be broken
+            // clear the modified flag
+            palette.fileInfo().modified = false;
+            palette.fileInfo().location.repositoryService(Repository.Service.Unknown);
+            palette.fileInfo().location.repositoryName("");
+            palette.fileInfo().repositoryUrl = "";
+            palette.fileInfo().location.commitHash("");
+            palette.fileInfo().location.downloadUrl("");
+            palette.fileInfo.valueHasMutated();
 
-        Utils.downloadFile(data, fileName);
-
-        // since changes are now stored locally, the file will have become out of sync with the GitHub repository, so the association should be broken
-        // clear the modified flag
-        palette.fileInfo().modified = false;
-        palette.fileInfo().repositoryService = Repository.Service.Unknown;
-        palette.fileInfo().repositoryName = "";
-        palette.fileInfo().repositoryUrl = "";
-        palette.fileInfo().commitHash = "";
-        palette.fileInfo().downloadUrl = "";
-        palette.fileInfo.valueHasMutated();
+            resolve();
+        });
     }
 
     /**
      * Saves the file to a local download folder.
      */
-    saveGraphToDisk = async (graph : LogicalGraph): Promise<void> => {
+    saveGraphToDisk = async (graph : LogicalGraph, fileName: string): Promise<void> => {
         return new Promise(async(resolve, reject) => {
-            console.log("saveGraphToDisk()", graph.fileInfo().name, graph.fileInfo().type);
+            console.log("saveGraphToDisk()", fileName);
 
             // check that the fileType has been set for the logicalGraph
             if (graph.fileInfo().type !== Eagle.FileType.Graph){
                 Utils.showUserMessage("Error", "Graph fileType not set correctly. Could not save file.");
-                return;
-            }
-
-            // abort if graph has no filename
-            if (!graph.fileInfo().isInitiated()) {
-                // abort and notify user
-                Utils.showNotification("Unable to save Graph with no name", "Please name the graph before saving", "danger");
                 return;
             }
 
@@ -2725,7 +2873,7 @@ export class Eagle {
             }
 
             try {
-                await Utils.downloadFile(data, graph.fileInfo().name);
+                await Utils.downloadFile(data, fileName);
             } catch (error){
                 reject(error);
                 return;
@@ -2734,35 +2882,75 @@ export class Eagle {
             // since changes are now stored locally, the file will have become out of sync with the GitHub repository, so the association should be broken
             // clear the modified flag
             graph.fileInfo().modified = false;
-            graph.fileInfo().repositoryService = Repository.Service.File;
-            graph.fileInfo().repositoryName = "";
+            graph.fileInfo().location.repositoryService(Repository.Service.File);
+            graph.fileInfo().location.repositoryName("");
             graph.fileInfo().repositoryUrl = "";
-            graph.fileInfo().commitHash = "";
-            graph.fileInfo().downloadUrl = "";
+            graph.fileInfo().location.commitHash("");
+            graph.fileInfo().location.downloadUrl("");
             graph.fileInfo.valueHasMutated();
 
             resolve();
         });
     }
 
-    saveAsFileToDisk = async (file: LogicalGraph | Palette): Promise<void> => {
+    saveGraphConfigToDisk = async (graphConfig: GraphConfig, fileName: string): Promise<void> => {
+        return new Promise(async(resolve, reject) => {
+            console.log("saveGraphConfigToDisk()", fileName);
+
+            // get version
+            const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
+
+            // convert to json
+            const jsonString: string = GraphConfig.toJsonString(graphConfig);
+
+            // validate json
+            Utils.validateJSON(jsonString, Eagle.FileType.GraphConfig, version);
+
+            try {
+                await Utils.downloadFile(jsonString, fileName);
+            } catch (error) {
+                reject(error);
+                return;
+            }
+            resolve();
+        });
+    }
+
+    saveAsFileToDisk = async (file: LogicalGraph | Palette | GraphConfig): Promise<void> => {
+        // get extension for fileType
+        const extension: string = Utils.getDiagramExtension(file.fileInfo().type);
+
+        let defaultFilename = file.fileInfo().name;
+
+        // check whether existing name ends with the file extension
+        if (!defaultFilename.endsWith("." + extension)) {
+            defaultFilename += "." + extension;
+        }
+
         let userString: string;
         try {
-            userString = await Utils.requestUserString("Save As", "Please enter a filename for the " + file.fileInfo().type, file.fileInfo().name, false);
+            userString = await Utils.requestUserString("Save As", "Please enter a filename for the " + file.fileInfo().type, defaultFilename, false);
         } catch (error) {
             console.error(error);
             return;
         }
 
-
-        file.fileInfo().name = userString;
+        // abort if user entered empty string
+        if (userString === "") {
+            // abort and notify user
+            Utils.showNotification("Unable to save file with no name", "Please name the file before saving", "danger");
+            return;
+        }
 
         switch(file.fileInfo().type){
             case Eagle.FileType.Graph:
-                this.saveGraphToDisk(file as LogicalGraph);
+                this.saveGraphToDisk(file as LogicalGraph, userString);
+                break;
+            case Eagle.FileType.GraphConfig:
+                this.saveGraphConfigToDisk(file as GraphConfig, userString);
                 break;
             case Eagle.FileType.Palette:
-                this.savePaletteToDisk(file as Palette);
+                this.savePaletteToDisk(file as Palette, userString);
                 break;
             default:
                 console.warn("saveAsFileToDisk(): fileType", file.fileInfo().type, "not implemented, aborting.");
@@ -2773,11 +2961,11 @@ export class Eagle {
     savePaletteToGit = async (palette: Palette): Promise<void> => {
         console.log("savePaletteToGit()", palette.fileInfo().name, palette.fileInfo().type);
 
-        const defaultRepository: Repository = new Repository(palette.fileInfo().repositoryService, palette.fileInfo().repositoryName, palette.fileInfo().repositoryBranch, false);
+        const defaultRepository: Repository = new Repository(palette.fileInfo().location.repositoryService(), palette.fileInfo().location.repositoryName(), palette.fileInfo().location.repositoryBranch(), false);
 
         let commit: RepositoryCommit;
         try {
-            commit = await Utils.requestUserGitCommit(defaultRepository, Repositories.getList(Repository.Service.GitHub),  palette.fileInfo().path, palette.fileInfo().name, Eagle.FileType.Palette);
+            commit = await Utils.requestUserGitCommit(defaultRepository, Repositories.getList(Repository.Service.GitHub),  palette.fileInfo().location.repositoryPath(), palette.fileInfo().name, Eagle.FileType.Palette);
         } catch (error) {
             console.error(error);
             return;
@@ -3531,14 +3719,10 @@ export class Eagle {
         }
 
         // request confirmation from user
-        try {
-            await Utils.requestUserConfirm("Delete?", confirmMessage, "Yes", "No", Setting.find(Setting.CONFIRM_DELETE_OBJECTS));
-        } catch (error) {
-            console.error(error);
-            return;
+        const confirmed = await Utils.requestUserConfirm("Delete?", confirmMessage, "Yes", "No", Setting.find(Setting.CONFIRM_DELETE_OBJECTS));
+        if (confirmed){
+            this._deleteSelection(deleteChildren, data, location);
         }
-
-        this._deleteSelection(deleteChildren, data, location);
 
         // if we're NOT in rightClick mode, empty the selected objects, should have all been deleted
         if(!rightClick){
@@ -4285,13 +4469,13 @@ export class Eagle {
 
         // if we don't know where this file came from then we can't build a URL
         // for example, if the graph was loaded from local disk, then we can't build a URL for others to reach it
-        if (fileInfo.repositoryService === Repository.Service.Unknown || fileInfo.repositoryService === Repository.Service.File){
+        if (fileInfo.location.repositoryService() === Repository.Service.Unknown || fileInfo.location.repositoryService() === Repository.Service.File){
             Utils.showNotification("Graph URL", "Source of graph is a local file or unknown, unable to create URL for graph.", "danger");
             return;
         }
 
         // build graph url
-        const graph_url: string = FileInfo.generateUrl(fileInfo);
+        const graph_url: string = FileLocation.generateUrl(fileInfo.location);
  
         // copy to clipboard
         navigator.clipboard.writeText(graph_url);
@@ -4474,6 +4658,9 @@ export class Eagle {
 
         fileInfo.shortDescription = description;
         fileInfo.modified = true;
+
+        // check graph (hopefully the 'missing short description' warning will go away)
+        this.checkGraph();
     }
 
     editDetailedDescription = async(fileInfo: FileInfo): Promise<void> => {
@@ -4489,20 +4676,23 @@ export class Eagle {
 
         fileInfo.detailedDescription = description;
         fileInfo.modified = true;
+
+        // check graph (hopefully the 'missing detailed description' warning will go away)
+        this.checkGraph();
     }
 
-    editNodeDescription = async (): Promise<void> => {
+    editNodeDescription = async (node?: Node): Promise<void> => {
         const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
-        const node = this.selectedNode();
+        const targetNode = node || this.selectedNode();
         let nodeDescription: string;
         try {
-            nodeDescription = await Utils.requestUserMarkdown("Node Description", node.getDescription(), markdownEditingEnabled);
+            nodeDescription = await Utils.requestUserMarkdown(targetNode.getDisplayName() + " - Description", targetNode.getDescription(), markdownEditingEnabled);
         } catch (error) {
             console.error(error);
             return;
         }
 
-        node.setDescription(nodeDescription);
+        targetNode.setDescription(nodeDescription);
     }
 
     editNodeComment = async (): Promise<void> => {
@@ -4517,7 +4707,7 @@ export class Eagle {
 
         let nodeComment: string;
         try {
-            nodeComment = await Utils.requestUserMarkdown("Node Comment", node?.getComment(), markdownEditingEnabled);
+            nodeComment = await Utils.requestUserMarkdown(node.getDisplayName() + " - Comment", node?.getComment(), markdownEditingEnabled);
         } catch (error) {
             console.error(error);
             return;
@@ -4570,14 +4760,10 @@ export class Eagle {
         // request confirmation from user
         // old request if 'confirm' setting is true AND we're not going to keep the old fields
         if (confirmNodeCategoryChanges && !keepOldFields){
-            try {
-                await Utils.requestUserConfirm("Change Category?", 'Changing a nodes category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category', "Yes", "No", Setting.find(Setting.CONFIRM_NODE_CATEGORY_CHANGES));
-            } catch (error){
-                //we need to reset the input select to the previous value
-                $(event.target).val(this.selectedNode().getCategory())
-                return;
+            const confirmed = await Utils.requestUserConfirm("Change Category?", 'Changing a nodes category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category', "Yes", "No", Setting.find(Setting.CONFIRM_NODE_CATEGORY_CHANGES));
+            if (confirmed){
+                this.inspectorChangeNodeCategory(event)
             }
-            this.inspectorChangeNodeCategory(event)
         }else{
             this.inspectorChangeNodeCategory(event)
         }
@@ -4875,7 +5061,7 @@ export class Eagle {
     }
 
     slowScroll = (data:any, event: JQuery.TriggeredEvent) : void => {
-        let target = event.currentTarget;//gets the element that has the event binding
+        const target = event.currentTarget;//gets the element that has the event binding
 
         $(target).scrollTop($(target).scrollTop() + (event.originalEvent as WheelEvent).deltaY * 0.5);
     }
@@ -4911,6 +5097,7 @@ export namespace Eagle
 
     export enum FileType {
         Graph = "Graph",
+        GraphConfig = "GraphConfig",
         Palette = "Palette",
         JSON = "JSON",
         Markdown = "Markdown",

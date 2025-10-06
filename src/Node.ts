@@ -1287,6 +1287,10 @@ export class Node {
         return CategoryData.getCategoryData(this.category()).icon;
     }
 
+    graphNodeTitleIsHidden = () : boolean => {
+        return this.isData() && Setting.findValue(Setting.HIDE_DATA_NODE_TITLES);
+    }
+
     //get icon color
     getGraphIconAttr = () : string => {
         const attr = "font-size: 44px; color:" + CategoryData.getCategoryData(this.category()).color
@@ -1364,6 +1368,11 @@ export class Node {
 
     setKeepExpanded = (value : boolean): Node => {
         this.keepExpanded(value);
+        return this;
+    }
+
+    redraw = () : Node => {
+        this.radius.valueHasMutated();
         return this;
     }
 

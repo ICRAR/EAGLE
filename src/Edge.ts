@@ -162,22 +162,6 @@ export class Edge {
         this.selectionRelative = !this.selectionRelative;
     }
 
-    setIsShortEdge = (value:boolean) : void => {
-        this.isShortEdge(value)
-    }
-
-    getIsShortEdge = () : boolean => {
-        return this.isShortEdge()
-    }
-
-    getArrowVisibility = () : string => {
-        if (this.isShortEdge()){
-            return 'hidden' 
-        }else{
-            return 'visible'
-        }
-    }
-
     isPath = () : boolean => {
         const srcPort = this.getSrcPort();
         const destPort = this.getDestPort();
@@ -390,6 +374,7 @@ export class Edge {
         const loopAware: boolean = edgeData.loopAware;
         const closesLoop: boolean = edgeData.closesLoop;
 
+        const edgeId: EdgeId = edgeData.id;
         const srcNode: Node = lg.getNodeById(edgeData.srcNodeId);
         const destNode: Node = lg.getNodeById(edgeData.destNodeId);
 
@@ -422,7 +407,10 @@ export class Edge {
             return null;
         }
 
-        return new Edge(comment, srcNode, srcPort, destNode, destPort, loopAware, closesLoop, false);
+        const e = new Edge(comment, srcNode, srcPort, destNode, destPort, loopAware, closesLoop, false);
+        e.setId(edgeId)
+
+        return e;
     }
 
     static isValid(eagle: Eagle, draggingPortMode: boolean, edgeId: EdgeId, sourceNodeId: NodeId, sourcePortId: FieldId, destinationNodeId: NodeId, destinationPortId: FieldId, loopAware: boolean, closesLoop: boolean, showNotification: boolean, showConsole: boolean, errorsWarnings: Errors.ErrorsWarnings) : Errors.Validity {

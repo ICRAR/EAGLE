@@ -363,6 +363,10 @@ export class Field {
         return this.edges().get(id);
     }
 
+    getNumEdges = () : number => {
+        return this.edges().size;
+    }
+
     getErrorsWarnings : ko.PureComputed<Errors.ErrorsWarnings> = ko.pureComputed(() => {
         const errorsWarnings : Errors.ErrorsWarnings = {warnings: [], errors: []};
         
@@ -447,6 +451,8 @@ export class Field {
         this.id(null);
         this.isEvent(false);
         this.node(null);
+        this.edges().clear();
+
         return this;
     }
 
@@ -460,6 +466,10 @@ export class Field {
         f.encoding(this.encoding());
         f.isEvent(this.isEvent());
         f.node(this.node());
+        f.edges(new Map<EdgeId, Edge>());
+        for (const edge of this.edges().values()) {
+            f.edges().set(edge.getId(), edge.clone());
+        }
         return f;
     }
 
@@ -482,6 +492,7 @@ export class Field {
         f.encoding = this.encoding;
         f.isEvent = this.isEvent;
         f.node = this.node;
+        f.edges = this.edges;
 
         return f;
     }
@@ -1013,17 +1024,17 @@ export class Field {
 
         // check that the field has a unique display text on the node
         for (const field1 of node.getFields()){
-            if(field === field1){
+            if(field.getId() === field1.getId()){
                 continue
             }
 
             if (field.getDisplayText() === field1.getDisplayText() && field.getParameterType() === field1.getParameterType()){
                 if (field.getId() === field1.getId()){
-                    const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") has multiple attributes with the same display text and id (" + field.getDisplayText() + ").", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixNodeMergeFields(eagle, node, field, field1)}, "Merge fields");
+                    const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") has multiple attributes with the same display text and id (" + field.getDisplayText() + ").", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixNodeMergeFields(eagle, node, field.getId(), field1.getId())}, "Merge fields");
                     field.issues().push({issue:issue,validity:Errors.Validity.Warning})
                     // errorsWarnings.warnings.push(issue);
                 } else {
-                    const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") has multiple attributes with the same display text (" + field.getDisplayText() + ").", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixNodeMergeFields(eagle, node, field, field1)}, "Merge fields");
+                    const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") has multiple attributes with the same display text (" + field.getDisplayText() + ").", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixNodeMergeFields(eagle, node, field.getId(), field1.getId())}, "Merge fields");
                     field.issues().push({issue:issue,validity:Errors.Validity.Warning})
                     // errorsWarnings.warnings.push(issue);
                 }

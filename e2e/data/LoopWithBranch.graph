@@ -2,11 +2,42 @@
     "activeGraphConfigId": "0e0aea98-8189-491f-ab5e-8c50adfef79e",
     "graphConfigurations": {
         "0e0aea98-8189-491f-ab5e-8c50adfef79e": {
-            "description": "",
-            "lastModifiedDatetime": 0,
-            "lastModifiedEmail": "",
-            "lastModifiedName": "",
-            "name": "Default Configuration",
+            "id": "0e0aea98-8189-491f-ab5e-8c50adfef79e",
+            "modelData": {
+                "detailedDescription": "",
+                "generatorCommitHash": "",
+                "generatorName": "",
+                "generatorVersion": "",
+                "graphLocation": {
+                    "commitHash": "",
+                    "downloadUrl": "",
+                    "repositoryBranch": "",
+                    "repositoryFileName": "",
+                    "repositoryName": "",
+                    "repositoryPath": "",
+                    "repositoryService": "Unknown"
+                },
+                "lastModifiedDatetime": 0,
+                "lastModifiedEmail": "",
+                "lastModifiedName": "",
+                "location": {
+                    "commitHash": "",
+                    "downloadUrl": "",
+                    "repositoryBranch": "",
+                    "repositoryFileName": "",
+                    "repositoryName": "",
+                    "repositoryPath": "",
+                    "repositoryService": "Unknown"
+                },
+                "name": "simple",
+                "numLGNodes": 0,
+                "readonly": true,
+                "repositoryUrl": "",
+                "schemaVersion": "Unknown",
+                "shortDescription": "Default Configuration",
+                "signature": "",
+                "type": "GraphConfig"
+            },
             "nodes": {
                 "0da87122-24bc-4ae0-8f13-987dd892907f": {
                     "fields": {
@@ -138,22 +169,17 @@
         }
     ],
     "modelData": {
-        "commitHash": "",
         "detailedDescription": "The graph is generating an array of random numbers and decides whether to continue the loop depending on whether the currently picked value of the array is smaller than a certain value.",
-        "downloadUrl": "",
         "filePath": "LoopWithBranch.graph",
         "fileType": "Graph",
         "generatorCommitHash": "8566c0d3db3eb8ddca7b3342a6eecc023269b147",
         "generatorName": "EAGLE",
         "generatorVersion": "v6.8.0",
-        "lastModifiedDatetime": 1758001946.933798,
+        "lastModifiedDatetime": 1756452875.962764,
         "lastModifiedEmail": "",
         "lastModifiedName": "",
         "numLGNodes": 11,
         "readonly": true,
-        "repo": "",
-        "repoBranch": "",
-        "repoService": "Unknown",
         "repositoryUrl": "",
         "schemaVersion": "OJS",
         "shortDescription": "Graph using actual data and the Branch App.",

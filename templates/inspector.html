@@ -344,8 +344,8 @@
                                 <i class="material-symbols-outlined interactive" data-bs-placement="right" data-bind="eagleTooltip: $root.logicalGraph().fileInfo().fullPath()" data-bs-toggle="tooltip" data-html="true">link</i>
 
                                 <i id="inspectorGraphInfoBtn" class="material-symbols-outlined filled interactive clickable iconHoverEffect" data-bind="eagleTooltip: 'View Graph Model Data', click: function(){Utils.showModelDataModal('Graph Info', $root.logicalGraph().fileInfo());}" data-bs-toggle="tooltip" data-html="true">info</i>
-                                <i id="shortDescriptionEditBtn" class="material-symbols-outlined filled interactive clickable iconHoverEffect" data-bind="style:{'color': $root.logicalGraph().fileInfo().getShortDescriptionBtnColor()}, eagleTooltip: $root.logicalGraph().getInspectorShortDescriptionHTML(), click: $root.editGraphShortDescription" data-bs-toggle="tooltip" data-html="true">sticky_note_2</i>
-                                <i id="detailedDescriptionEditBtn" class="material-symbols-outlined filled interactive clickable iconHoverEffect" data-bind="style:{'color': $root.logicalGraph().fileInfo().getDetailedDescriptionBtnColor()}, eagleTooltip: $root.logicalGraph().getInspectorDetailedDescriptionHTML(), click: $root.editGraphDetailedDescription" data-bs-toggle="tooltip" data-html="true">library_books</i>
+                                <i id="shortDescriptionEditBtn" class="material-symbols-outlined filled interactive clickable iconHoverEffect" data-bind="style:{'color': $root.logicalGraph().fileInfo().getShortDescriptionBtnColor()}, eagleTooltip: $root.logicalGraph().getInspectorShortDescriptionHTML(), click: function(){$root.editShortDescription($root.logicalGraph().fileInfo())}" data-bs-toggle="tooltip" data-html="true">sticky_note_2</i>
+                                <i id="detailedDescriptionEditBtn" class="material-symbols-outlined filled interactive clickable iconHoverEffect" data-bind="style:{'color': $root.logicalGraph().fileInfo().getDetailedDescriptionBtnColor()}, eagleTooltip: $root.logicalGraph().getInspectorDetailedDescriptionHTML(), click: function(){$root.editDetailedDescription($root.logicalGraph().fileInfo())}" data-bs-toggle="tooltip" data-html="true">library_books</i>
                             </div>
                             <div class="col-6 col text-right">
                                 <i class="icon-config_table interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: 'View graph configurations table', click: GraphConfigurationsTable.openTable" data-bs-toggle="tooltip" data-html="true"></i>
@@ -382,7 +382,7 @@
                                 <h5>Active Config: </h5>
                             </div>  
                             <div class="col-6 col contentObjectValue">
-                                <span data-bind="text:$root.logicalGraph().getActiveGraphConfig()?.getName(), eagleTooltip:$root.logicalGraph().getActiveGraphConfig()?.getDescription()"></span>
+                                <span data-bind="text:$root.logicalGraph().getActiveGraphConfig()?.fileInfo().name, eagleTooltip:$root.logicalGraph().getActiveGraphConfig()?.getDescription()"></span>
                             </div>
                         </div>
                         <div class="row inspectorEdgeSrcNodeId contentObject">
