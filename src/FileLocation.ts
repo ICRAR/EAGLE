@@ -119,7 +119,7 @@ export class FileLocation {
             url += "&repository=" + fileLocation.repositoryName();
             url += "&branch=" + fileLocation.repositoryBranch();
             url += "&path=" + encodeURI(fileLocation.repositoryPath());
-            url += "&filename=" + encodeURI(fileLocation.repositoryFileName()); 
+            url += "&filename=" + encodeURI(fileLocation.repositoryFileName());
         }
 
         return url;

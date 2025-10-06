@@ -920,8 +920,6 @@ export class Eagle {
             } else {
                 Utils.showNotification("Error", "Errors occurred while loading " + fileName + " from " + service + ".", "danger");
             }
-        } else {
-            Utils.showNotification("Success", fileName + " has been loaded from " + service + ".", "success");
         }
     }
 

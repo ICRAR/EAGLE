@@ -447,7 +447,7 @@ def save_git_hub_file():
     Save a file to a GitHub repository. The POST request content is a JSON string containing the file name, repository name, branch, access token, the graph data in JSON format and a commit message.
     """
     # Extract parameters and file content from json.
-    content = request.get_json()
+    content = request.get_json(silent=True)
     filename = content["filename"]
     repo_name = content["repositoryName"]
     repo_branch = content["repositoryBranch"]

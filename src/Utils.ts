@@ -2766,19 +2766,8 @@ export class Utils {
 
         // communicate to knockout that the value of the fileInfo has been modified (so it can update UI)
         fileInfo.valueHasMutated();
-    
-        /*
-            // Adding file extension to the title if it does not have it.
-            if (!Utils.verifyFileExtension(fileName)) {
-                fileName = fileName + "." + Utils.getDiagramExtension(fileType);
-            }
 
-            // Change the title name.
-            fileInfo().name = fileName;
-
-            // set the EAGLE version etc according to this running version
-            fileInfo().updateEagleInfo();
-        */
-
+        // set the EAGLE version etc according to this running version
+        //fileInfo().updateEagleInfo();
     }
 }
