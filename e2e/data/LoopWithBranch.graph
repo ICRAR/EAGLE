@@ -163,7 +163,7 @@
         {
             "category": "Loop",
             "categoryType": "Construct",
-            "color": "rgb(227 189 100)",
+            "color": "#e3bd64",
             "comment": "",
             "commitHash": "",
             "dataHash": "",
