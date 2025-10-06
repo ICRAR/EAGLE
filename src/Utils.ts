@@ -843,7 +843,7 @@ export class Utils {
 
             $('#editFieldModal').data('completed', false);
 
-            const callback: Modals.UserFieldCallback = function(completed: boolean, field: Field): void {
+            const callback: Modals.UserFieldCallback = function(field: Field): void {
                 resolve(field);
             }
             $('#editFieldModal').data('callback', callback);

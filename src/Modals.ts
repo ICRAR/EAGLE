@@ -68,7 +68,7 @@ export class Modals {
             $('#inputTextModal').data('completed', true);
         });
         $('#inputTextModal').on('hidden.bs.modal', function(){
-            const callback: Modals.UserStringCallback = $('#inputTextModal').data('callback');
+            const callback: Modals.UserTextCallback = $('#inputTextModal').data('callback');
 
             if (!callback){
                 console.log("No callback called when #inputTextModal hidden");
@@ -155,7 +155,7 @@ export class Modals {
             $('#inputMarkdownModal').data('completed', true);
         });
         $('#inputMarkdownModal').on('hidden.bs.modal', function(){
-            const callback: Modals.UserStringCallback = $('#inputMarkdownModal').data('callback');
+            const callback: Modals.UserMarkdownCallback = $('#inputMarkdownModal').data('callback');
 
             if (!callback){
                 console.log("No callback called when #inputMarkdownModal hidden");
@@ -397,11 +397,11 @@ export class Modals {
                 // check if the modal was completed (user clicked OK), if not, return false
                 const completed : boolean = $('#gitCustomRepositoryModal').data('completed');
                 if (!completed){
-                    callback(false, "", "", "");
+                    callback(false, Repository.Service.Unknown, "", "");
                 } else {
 
                     // check selected option in select tag
-                    const repositoryService : string = $('#gitCustomRepositoryModalRepositoryServiceSelect').val().toString();
+                    const repositoryService : Repository.Service = <Repository.Service>$('#gitCustomRepositoryModalRepositoryServiceSelect').val();
                     const repositoryName : string = $('#gitCustomRepositoryModalRepositoryNameInput').val().toString();
                     const repositoryBranch : string = $('#gitCustomRepositoryModalRepositoryBranchInput').val().toString();
 
@@ -462,9 +462,9 @@ export class Modals {
                 // check if the modal was completed (user clicked OK), if not, return false
                 const completed : boolean = $('#editFieldModal').data('completed');
                 if (!completed){
-                    callback(false, null);
+                    callback(null);
                 } else {
-                    callback(true, eagle.currentField());
+                    callback(eagle.currentField());
                 }
             }
 
@@ -648,7 +648,7 @@ export class Modals {
 export namespace Modals {
     export type UserStringCallback = (completed: boolean, userString: string) => void;
     export type UserTextCallback = (completed: boolean, userText: string) => void;
-    export type UserFieldCallback = (completed: boolean, field: Field) => void;
+    export type UserFieldCallback = (field: Field) => void; // NOTE: completed is not required, since all changes happen to the field directly (immediately)
     export type UserConfirmCallback = (completed: boolean) => void;
     export type UserOptionsCallback = (selectedOptionIndex: number) => void;
     export type UserMarkdownCallback = (completed : boolean, userMarkdown : string) => void;
@@ -656,5 +656,5 @@ export namespace Modals {
     export type UserChoiceCallback = (completed: boolean, choice: string) => void;
 
     export type GitCommitCallback = (completed: boolean, location: FileLocation, commitMessage: string) => void;
-    export type GitCustomRepositoryCallback = (completed: boolean, repositoryService: string, repositoryName: string, repositoryBranch: string) => void;
+    export type GitCustomRepositoryCallback = (completed: boolean, repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string) => void;
 }
