@@ -2766,8 +2766,5 @@ export class Utils {
 
         // communicate to knockout that the value of the fileInfo has been modified (so it can update UI)
         fileInfo.valueHasMutated();
-
-        // set the EAGLE version etc according to this running version
-        //fileInfo().updateEagleInfo();
     }
 }
