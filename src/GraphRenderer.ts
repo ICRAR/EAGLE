@@ -36,6 +36,7 @@ import { Utils } from './Utils';
 import { Setting } from './Setting';
 import { RightClick } from "./RightClick";
 import { ParameterTable } from "./ParameterTable";
+import { Visual } from "./Visual";
 
 ko.bindingHandlers.nodeRenderHandler = {
     // TODO: element any (more around)
@@ -1014,7 +1015,7 @@ export class GraphRenderer {
         event.stopPropagation()
     }
 
-    static startDrag(node: Node, event: MouseEvent) : void {
+    static startDrag(object: Node | Visual, event: MouseEvent) : void {
         //if we click on the title of a node, cancel the drag handler
         if($(event.target).parent().parent().hasClass('header') || $(event.target).parent().hasClass('edgeComments') || $(event.target).parent().hasClass('commentIcons')){
             event.preventDefault()
@@ -1036,22 +1037,22 @@ export class GraphRenderer {
         GraphRenderer.shiftSelect = event.shiftKey
 
         // if no node is selected, or we are dragging using middle mouse, then we are dragging the background
-        if(node === null || event.button === 1){
+        if(object === null || event.button === 1){
             GraphRenderer.dragSelectionHandled(true)
             GraphRenderer.isDragging(true);
-        } else if(!node.isEmbedded()){
+        } else if(object instanceof Node && !object.isEmbedded()){
             // embedded nodes, aka input and output applications of constructs, cant be dragged
             //initiating node dragging
             GraphRenderer.isDragging(true);
-            GraphRenderer.draggingNode(node);
+            GraphRenderer.draggingNode(object);
             GraphRenderer.nodeDragElement = event.target
-            GraphRenderer.nodeDragNode = node
+            GraphRenderer.nodeDragNode = object
             GraphRenderer.dragStartPosition = {x:event.pageX,y:event.pageY}
             GraphRenderer.dragCurrentPosition = {x:event.pageX,y:event.pageY}
             
             //checking if the node is inside of a construct, if so, fetching it's parent
-            if(node.getParent() !== null){
-                const parentNode = node.getParent();
+            if(object.getParent() !== null){
+                const parentNode = object.getParent();
                 if (parentNode !== null){
                     $('#'+parentNode.getId()).removeClass('transition')
                     GraphRenderer.nodeParentRadiusPreDrag = parentNode.getRadius()
@@ -1060,20 +1061,20 @@ export class GraphRenderer {
         }
 
         // select handlers
-        if(node !== null && event.button != 1 && !event.shiftKey){
+        if(object !== null && event.button != 1 && !event.shiftKey){
             //double click and alt + clicking has highest priority
             if(GraphRenderer.dragSelectionDoubleClick || event.altKey) {
-                eagle.setSelection(node, Eagle.FileType.Graph);
+                eagle.setSelection(object, Eagle.FileType.Graph);
             }   
 
             //check that we are not alt + clicking, add the target node and its children to the selection
-            else if(event.button != 2 && !event.altKey && node.isGroup() && !eagle.objectIsSelected(node)){
-                GraphRenderer.selectNodeAndChildren(node,GraphRenderer.shiftSelect)
+            else if(object instanceof Node && event.button != 2 && !event.altKey && object.isGroup() && !eagle.objectIsSelected(object)){
+                GraphRenderer.selectNodeAndChildren(object,GraphRenderer.shiftSelect)
             }
 
             //normal node selection
-            else if(!eagle.objectIsSelected(node)) {
-                eagle.setSelection(node, Eagle.FileType.Graph);
+            else if(!eagle.objectIsSelected(object)) {
+                eagle.setSelection(object, Eagle.FileType.Graph);
             }
 
             //switch back to the node parameter table if a node is selected

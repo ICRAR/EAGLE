@@ -39,18 +39,18 @@ export class Visual {
     private height : ko.Observable<number>;
 
     private type : ko.Observable<Visual.Type>;
-    private text : ko.Observable<string>;
+    private content : ko.Observable<string>;
     private target : ko.Observable<Node | Edge | Visual | null>; // the id of the node or edge this comment is attached to, or null if it's free-floating
     private targetLocation : ko.Observable<{x:number, y:number}>; // the location on the target where the comment is attached, in target-local coordinates
 
-    constructor(type: Visual.Type, text: string) {
+    constructor(type: Visual.Type, content: string) {
         this.id = ko.observable(Utils.generateVisualId());
         this.x = ko.observable(0);
         this.y = ko.observable(0);
         this.width = ko.observable(0);
         this.height = ko.observable(0);
         this.type = ko.observable(type);
-        this.text = ko.observable(text);
+        this.content = ko.observable(content);
         this.target = ko.observable(null);
         this.targetLocation = ko.observable(null);
     }
@@ -64,12 +64,12 @@ export class Visual {
         return this;
     }
 
-    getText = () : string => {
-        return this.text();
+    getContent = () : string => {
+        return this.content();
     }
 
-    setText = (text: string) : void => {
-        this.text(text);
+    setContent = (content: string) : void => {
+        this.content(content);
     }
 
     getPosition = () : {x:number, y:number} => {
@@ -126,8 +126,8 @@ export class Visual {
         return this;
     }
 
-    isComment = () : boolean => {
-        return this.type() === Visual.Type.Comment;
+    isText = () : boolean => {
+        return this.type() === Visual.Type.Text;
     }
 
     isGroup = () : boolean => {
@@ -135,7 +135,7 @@ export class Visual {
     }
 
     clone = () : Visual => {
-        const result = new Visual(this.type(), this.text())
+        const result = new Visual(this.type(), this.content())
             .setPosition(this.x(), this.y())
             .setWidth(this.width())
             .setHeight(this.height())
@@ -151,7 +151,7 @@ export class Visual {
         const width: number = visualData.width;
         const height: number = visualData.height;
         const type: Visual.Type = visualData.type;
-        const text: string = visualData.text || '';
+        const content: string = visualData.content || '';
         const targetId: string = visualData.targetId || null;
         const targetLocation: {x:number, y:number} = visualData.targetLocation || null;
 
@@ -164,7 +164,7 @@ export class Visual {
             return null;
         }
 
-        return new Visual(type, text)
+        return new Visual(type, content)
         .setId(id)
         .setPosition(x, y)
         .setWidth(width)
@@ -181,7 +181,7 @@ export class Visual {
             width: visual.width(),
             height: visual.height(),
             type: visual.type(),
-            text: visual.text(),
+            content: visual.content(),
             targetId: visual.target() ? visual.target().getId() : null,
             targetLocation: visual.targetLocation()
         }
@@ -196,7 +196,7 @@ export class Visual {
 
 export namespace Visual {
     export enum Type {
-        Comment = "Comment",
+        Text = "Text",
         Group = "Group",
     }
 }

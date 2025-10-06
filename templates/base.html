@@ -84,7 +84,7 @@
                         <!-- ko foreach: $root.logicalGraph().getNodesDrawOrdered() -->
                             {% include 'node.html' %}
                         <!-- /ko -->
-                        <!-- ko foreach: $root.logicalGraph().getVisuals() -->
+                        <!-- ko foreach: Array.from($root.logicalGraph().getVisuals()) -->
                             {% include 'visual.html' %}
                         <!-- /ko -->
                         <div id="portContainer">

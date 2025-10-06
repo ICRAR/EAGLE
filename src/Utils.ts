@@ -2345,7 +2345,7 @@ export class Utils {
                 "width":visual.getWidth(),
                 "height":visual.getHeight(),
                 "type":visual.getType(),
-                "text":visual.getText(),
+                "content":visual.getContent(),
                 "target":visual.getTarget(),
                 "targetLocation":visual.getTargetLocation()
             });
