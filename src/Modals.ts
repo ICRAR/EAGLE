@@ -244,29 +244,29 @@ export class Modals {
 
         // #confirmModal - requestUserConfirm()
         $('#confirmModalAffirmativeButton').on('click', function(){
-            const callback: Modals.UserConfirmCallback = $('#confirmModal').data('callback');
-            if (callback){
-                callback(true);
-            } else {
-                console.error("No 'callback' data attribute found on modal");
-            }
-
-            // remove data stored on the modal
-            $('#confirmModal').removeData('callback');
+            $('#confirmModal').data('completed', true);
+            $('#confirmModal').data('confirmed', true);
         });
         $('#confirmModalNegativeButton').on('click', function(){
-            const callback: Modals.UserConfirmCallback = $('#confirmModal').data('callback');
-            if (callback){
-                callback(false);
-            } else {
-                console.error("No 'callback' data attribute found on modal");
-            }
-
-            // remove data stored on the modal
-            $('#confirmModal').removeData('callback');
+            $('#confirmModal').data('completed', true);
+            $('#confirmModal').data('confirmed', false);
         });
         $('#confirmModal').on('shown.bs.modal', function(){
             $('#confirmModalAffirmativeButton').trigger("focus");
+        });
+        $('#confirmModal').on('hidden.bs.modal', function(){
+            const callback: Modals.UserConfirmCallback = $('#confirmModal').data('callback');
+            if (!callback){
+                console.error("No 'callback' data attribute found on modal");
+            } else {
+                const completed: boolean = $('#confirmModal').data('completed');
+                const confirmed: boolean = $('#confirmModal').data('confirmed');
+
+                callback(completed, confirmed);
+            }
+
+            // remove data stored on the modal
+            $('#confirmModal').removeData(['callback', 'completed', 'confirmed']);
         });
 
         // #optionsModal - requestUserOptions()
@@ -497,7 +497,7 @@ export class Modals {
             $('#browseDockerHubModalAffirmativeButton').trigger("focus");
         });
         $('#browseDockerHubModal').on('hidden.bs.modal', function(){
-            const callback: Modals.UserConfirmCallback = $('#browseDockerHubModal').data('callback');
+            const callback: Modals.UserDockerHubCallback = $('#browseDockerHubModal').data('callback');
 
             if (!callback){
                 console.error("No 'callback' data attribute found on modal");
@@ -549,7 +549,7 @@ export class Modals {
         Modals._setValidClasses(inputElement, isValid);
     }
 
-    static showBrowseDockerHub(image: string, tag: string, callback: Modals.UserConfirmCallback ) : void {
+    static showBrowseDockerHub(image: string, tag: string, callback: Modals.UserDockerHubCallback ) : void {
         const dockerHubBrowser = Eagle.getInstance().dockerHubBrowser();
 
         // check if supplied values are usable, populate the UI,
@@ -649,7 +649,8 @@ export namespace Modals {
     export type UserStringCallback = (completed: boolean, userString: string) => void;
     export type UserTextCallback = (completed: boolean, userText: string) => void;
     export type UserFieldCallback = (field: Field) => void; // NOTE: completed is not required, since all changes happen to the field directly (immediately)
-    export type UserConfirmCallback = (completed: boolean) => void;
+    export type UserConfirmCallback = (completed: boolean, confirmed: boolean) => void;
+    export type UserDockerHubCallback = (completed: boolean) => void;
     export type UserOptionsCallback = (selectedOptionIndex: number) => void;
     export type UserMarkdownCallback = (completed : boolean, userMarkdown : string) => void;
     export type UserNumberCallback = (completed: boolean, userNumber: number) => void;

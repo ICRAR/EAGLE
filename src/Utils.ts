@@ -726,7 +726,7 @@ export class Utils {
         });
     }
 
-    static async requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string, confirmSetting: Setting): Promise<void> {
+    static async requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string, confirmSetting: Setting): Promise<boolean> {
         return new Promise(async(resolve, reject) => {
             $('#confirmModalTitle').text(title);
             $('#confirmModalMessage').html(message);
@@ -749,13 +749,9 @@ export class Utils {
                 })
             }
 
-            const callback: Modals.UserConfirmCallback = (completed: boolean) => {
-                if (completed){
-                    resolve();
-                } else {
-                    reject("Utils.requestUserConfirm() aborted by user");
-                }
-            }
+            const callback: Modals.UserConfirmCallback = (completed: boolean, confirmed: boolean) => {
+                resolve(completed && confirmed);
+            };
             $('#confirmModal').data('callback', callback);
 
             $('#confirmModal').modal("show");
@@ -1845,16 +1841,39 @@ export class Utils {
     }
 
     // NOTE: merges field1 into field0
-    static fixNodeMergeFields(eagle: Eagle, node: Node, field0: Field, field1: Field){
-        // abort if one or more of the fields is not found
-        if (!node.hasField(field0.getId()) || !node.hasField(field1.getId())){
-            console.warn("fixNodeMergeFields(): Aborted, could not find one or more specified field(s).");
+    static fixNodeMergeFields(eagle: Eagle, node: Node, fieldId0: FieldId, fieldId1: FieldId){
+        if (fieldId0 === fieldId1){
+            console.warn("fixNodeMergeFields(): Aborted, field ids are the same.");
+            return;
+        }
+
+        const field0 = node.getFieldById(fieldId0);
+        const field1 = node.getFieldById(fieldId1);
+
+        // abort if either field not found
+        if (typeof field0 === 'undefined'){
+            console.warn("fixNodeMergeFields(): Aborted, field0 not found:", fieldId0);
+            return;
+        }
+        if (typeof field1 === 'undefined'){
+            console.warn("fixNodeMergeFields(): Aborted, field1 not found:", fieldId1);
+            return;
+        }
+
+        // abort if fields are the same
+        if (field0.getId() === field1.getId()){
+            console.warn("fixNodeMergeFields(): Aborted, fields are the same.");
             return;
         }
 
         const usage0 = field0.getUsage();
         const usage1 = field1.getUsage();
         const newUsage = Utils._mergeUsage(usage0, usage1);
+
+        // add all field1 edge to the field0 edges
+        for (const edge of field1.getEdges()){
+            field0.addEdge(edge);
+        }
 
         // remove field1
         node.removeFieldById(field1.getId());
@@ -1863,7 +1882,10 @@ export class Utils {
         field0.setUsage(newUsage);
 
         // update all edges to use new field
-        Utils._mergeEdges(eagle, field1.getId(), field0.getId());
+        Utils._mergeEdges(eagle, field1, field0);
+
+        // force re-draw of node
+        node.redraw()
     }
 
     static _mergeUsage(usage0: Daliuge.FieldUsage, usage1: Daliuge.FieldUsage) : Daliuge.FieldUsage {
@@ -1885,17 +1907,17 @@ export class Utils {
         return result;
     }
 
-    static _mergeEdges(eagle: Eagle, oldFieldId: FieldId, newFieldId: FieldId){
+    static _mergeEdges(eagle: Eagle, oldField: Field, newField: Field){
         // update all edges to use new field
         for (const edge of eagle.logicalGraph().getEdges()){
             // update src port
-            if (edge.getSrcPort().getId() === oldFieldId){
-                edge.getSrcPort().setId(newFieldId);
+            if (edge.getSrcPort().getId() === oldField.getId()){
+                edge.setSrcPort(newField);
             }
 
             // update dest port
-            if (edge.getDestPort().getId() === oldFieldId){
-                edge.getDestPort().setId(newFieldId);
+            if (edge.getDestPort().getId() === oldField.getId()){
+                edge.setDestPort(newField);
             }
         }
     }

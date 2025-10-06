@@ -2399,15 +2399,12 @@ export class Eagle {
 
                 // warn user if file newer than EAGLE
                 if (Utils.newerEagleVersion(eagleVersion, (<any>window).version)){
-                    try {
-                        await Utils.requestUserConfirm("Newer EAGLE Version", "File " + file.name + " was written with EAGLE version " + eagleVersion + ", whereas the current EAGLE version is " + (<any>window).version + ". Do you wish to load the file anyway?", "Yes", "No", null);
-                    } catch (error){
-                        console.error(error);
-                        return;
+                    const confirmed = await Utils.requestUserConfirm("Newer EAGLE Version", "File " + file.name + " was written with EAGLE version " + eagleVersion + ", whereas the current EAGLE version is " + (<any>window).version + ". Do you wish to load the file anyway?", "Yes", "No", null);
+                    if (confirmed){
+                        this._loadGraph(data, file);
                     }
-                    this._loadGraph(dataObject, file);
                 } else {
-                    this._loadGraph(dataObject, file);
+                    this._loadGraph(data, file);
                 }
                 break;
             }
@@ -2430,14 +2427,11 @@ export class Eagle {
         this.resetEditor();
     };
 
-    _loadGraph = (dataObject: any, file: RepositoryFile) : void => {
-        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
-
+    _loadGraph = (data: string, file: RepositoryFile) : void => {
         // load graph
-        this.logicalGraph(LogicalGraph.fromOJSJson(dataObject, file, errorsWarnings));
-
-        // show errors/warnings
-        this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
+        this._loadGraphJSON(data, file.path, (lg: LogicalGraph) => {
+            this.logicalGraph(lg);
+        });
 
         this._postLoadGraph(file);
     }
@@ -2622,13 +2616,10 @@ export class Eagle {
 
     deleteRemoteFile = async (file : RepositoryFile): Promise<void> => {
         // request confirmation from user
-        try {
-            await Utils.requestUserConfirm("Delete?", "Are you sure you wish to delete '" + file.name + "' from this repository?", "Yes", "No", Setting.find(Setting.CONFIRM_DELETE_FILES));
-        } catch (error) {
-            console.error(error);
-            return;
+        const confirmed = await Utils.requestUserConfirm("Delete?", "Are you sure you wish to delete '" + file.name + "' from this repository?", "Yes", "No", Setting.find(Setting.CONFIRM_DELETE_FILES));
+        if (confirmed){
+            this._deleteRemoteFile(file);
         }
-        this._deleteRemoteFile(file);
     }
 
     private _deleteRemoteFile = async (file: RepositoryFile): Promise<void> => {
@@ -2671,13 +2662,10 @@ export class Eagle {
 
         // if dictated by settings, reload the palette immediately
         if (alreadyLoadedPalette !== null && Setting.findValue(Setting.CONFIRM_RELOAD_PALETTES)){
-            try {
-                await Utils.requestUserConfirm("Reload Palette?", "This palette (" + file.name + ") is already loaded, do you wish to load it again?", "Yes", "No", Setting.find(Setting.CONFIRM_RELOAD_PALETTES));
-            } catch (error){
-                console.error(error);
-                return;
+            const confirmed = await Utils.requestUserConfirm("Reload Palette?", "This palette (" + file.name + ") is already loaded, do you wish to load it again?", "Yes", "No", Setting.find(Setting.CONFIRM_RELOAD_PALETTES));
+            if (confirmed){
+                this._reloadPalette(file, data, alreadyLoadedPalette);
             }
-            this._reloadPalette(file, data, alreadyLoadedPalette);
         } else {
             this._reloadPalette(file, data, alreadyLoadedPalette);
         }
@@ -2748,13 +2736,10 @@ export class Eagle {
 
                 // check if the palette is modified, and if so, ask the user to confirm they wish to close
                 if (p.fileInfo().modified && Setting.findValue(Setting.CONFIRM_DISCARD_CHANGES)){
-                    try {
-                        await Utils.requestUserConfirm("Close Modified Palette", "Are you sure you wish to close this modified palette?", "Close", "Cancel", null);
-                    } catch (error){
-                        console.error(error);
-                        return;
+                    const confirmed = await Utils.requestUserConfirm("Close Modified Palette", "Are you sure you wish to close this modified palette?", "Close", "Cancel", null);
+                    if (confirmed){
+                        this.palettes.splice(i, 1);
                     }
-                    this.palettes.splice(i, 1);
                 } else {
                     this.palettes.splice(i, 1);
                 }
@@ -2933,7 +2918,7 @@ export class Eagle {
 
     saveAsFileToDisk = async (file: LogicalGraph | Palette | GraphConfig): Promise<void> => {
         // get extension for fileType
-        let extension: string = Utils.getDiagramExtension(file.fileInfo().type);
+        const extension: string = Utils.getDiagramExtension(file.fileInfo().type);
 
         let defaultFilename = file.fileInfo().name;
 
@@ -3732,14 +3717,10 @@ export class Eagle {
         }
 
         // request confirmation from user
-        try {
-            await Utils.requestUserConfirm("Delete?", confirmMessage, "Yes", "No", Setting.find(Setting.CONFIRM_DELETE_OBJECTS));
-        } catch (error) {
-            console.error(error);
-            return;
+        const confirmed = await Utils.requestUserConfirm("Delete?", confirmMessage, "Yes", "No", Setting.find(Setting.CONFIRM_DELETE_OBJECTS));
+        if (confirmed){
+            this._deleteSelection(deleteChildren, data, location);
         }
-
-        this._deleteSelection(deleteChildren, data, location);
 
         // if we're NOT in rightClick mode, empty the selected objects, should have all been deleted
         if(!rightClick){
@@ -4675,6 +4656,9 @@ export class Eagle {
 
         fileInfo.shortDescription = description;
         fileInfo.modified = true;
+
+        // check graph (hopefully the 'missing short description' warning will go away)
+        this.checkGraph();
     }
 
     editDetailedDescription = async(fileInfo: FileInfo): Promise<void> => {
@@ -4690,6 +4674,9 @@ export class Eagle {
 
         fileInfo.detailedDescription = description;
         fileInfo.modified = true;
+
+        // check graph (hopefully the 'missing detailed description' warning will go away)
+        this.checkGraph();
     }
 
     editNodeDescription = async (node?: Node): Promise<void> => {
@@ -4771,14 +4758,10 @@ export class Eagle {
         // request confirmation from user
         // old request if 'confirm' setting is true AND we're not going to keep the old fields
         if (confirmNodeCategoryChanges && !keepOldFields){
-            try {
-                await Utils.requestUserConfirm("Change Category?", 'Changing a nodes category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category', "Yes", "No", Setting.find(Setting.CONFIRM_NODE_CATEGORY_CHANGES));
-            } catch (error){
-                //we need to reset the input select to the previous value
-                $(event.target).val(this.selectedNode().getCategory())
-                return;
+            const confirmed = await Utils.requestUserConfirm("Change Category?", 'Changing a nodes category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category', "Yes", "No", Setting.find(Setting.CONFIRM_NODE_CATEGORY_CHANGES));
+            if (confirmed){
+                this.inspectorChangeNodeCategory(event)
             }
-            this.inspectorChangeNodeCategory(event)
         }else{
             this.inspectorChangeNodeCategory(event)
         }
@@ -5076,7 +5059,7 @@ export class Eagle {
     }
 
     slowScroll = (data:any, event: JQuery.TriggeredEvent) : void => {
-        let target = event.currentTarget;//gets the element that has the event binding
+        const target = event.currentTarget;//gets the element that has the event binding
 
         $(target).scrollTop($(target).scrollTop() + (event.originalEvent as WheelEvent).deltaY * 0.5);
     }
