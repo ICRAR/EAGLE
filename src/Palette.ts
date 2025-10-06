@@ -412,9 +412,6 @@ export class Palette {
     }
 
     copyUrl = (): void => {
-        // debug
-        console.log("Palette.copyUrl(), fileInfo.location.repositoryService:", this.fileInfo().location.repositoryService());
-
         // get reference to the LG fileInfo object
         const fileInfo: FileInfo = this.fileInfo();
 

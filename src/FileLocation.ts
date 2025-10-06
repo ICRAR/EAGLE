@@ -20,11 +20,6 @@ export class FileLocation {
         this.repositoryFileName = ko.observable("");
         this.commitHash = ko.observable("");
         this.downloadUrl = ko.observable("");
-
-        // debug
-        this.repositoryService.subscribe((newValue) => {
-            console.log("FileLocation: repositoryService changed to", newValue);
-        });
     }
 
     clear = () : void => {
