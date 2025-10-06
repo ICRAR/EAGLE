@@ -2751,7 +2751,7 @@ export class Utils {
     }
     
     static updateFileInfo = (fileInfo: ko.Observable<FileInfo>, repositoryFile: RepositoryFile) : void => {
-        console.log("Updating file info to", repositoryFile);
+        console.log("Updating file info to", repositoryFile.name, "fileType", repositoryFile.type, "repositoryService", repositoryFile.repository.service);
 
         fileInfo().location.repositoryName(repositoryFile.repository.name);
         fileInfo().location.repositoryBranch(repositoryFile.repository.branch);
