@@ -604,7 +604,7 @@ export class Utils {
             // so that the info is available to event handlers
             $('#inputCodeModal').data('completed', false);
 
-            const callback = (completed : boolean, userText : string) => {
+            const callback: Modals.UserTextCallback = (completed : boolean, userText : string) => {
                 if (!completed){
                     reject("Utils.requestUserCode() aborted by user");
                 } else {
