@@ -15,7 +15,6 @@ import { Utils } from './Utils';
 export class Field {
     private displayText : ko.Observable<string>; // user-facing name
     private value : ko.Observable<string>; // the current value
-    private defaultValue : ko.Observable<string>;  // default value
     private description : ko.Observable<string>;
     private readonly : ko.Observable<boolean>;
     private type : ko.Observable<Daliuge.DataType>; // NOTE: this is a little unusual (type can have more values than just the enum)
@@ -46,10 +45,9 @@ export class Field {
 
     private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}>//keeps track of issues on the field
 
-    constructor(id: FieldId, displayText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: Daliuge.DataType, precious: boolean, options: string[], positional: boolean, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage){
+    constructor(id: FieldId, displayText: string, value: string, description: string, readonly: boolean, type: Daliuge.DataType, precious: boolean, options: string[], positional: boolean, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage){
         this.displayText = ko.observable(displayText);
         this.value = ko.observable(value);
-        this.defaultValue = ko.observable(defaultValue);
         this.description = ko.observable(description);
         this.readonly = ko.observable(readonly);
         this.type = ko.observable(type);
@@ -107,19 +105,6 @@ export class Field {
         return this;
     }
 
-    getDefaultValue = () : string => {
-        return this.defaultValue();
-    }
-
-    setDefaultValue = (value: string): Field => {
-        this.defaultValue(value);
-        return this;
-    }
-
-    hasDefaultValue = () : boolean => {
-        return this.value() === this.defaultValue();
-    }
-
     getDescription = () : string => {
         return this.description();
     }
@@ -130,7 +115,7 @@ export class Field {
     }
 
     getDescriptionText : ko.PureComputed<string> = ko.pureComputed(() => {
-        return this.description() == "" ? "No description available" + " (" + this.type() + ", default value:'" + this.defaultValue() + "')" : this.description() + " (" + this.type() + ", default value:'" + this.defaultValue() + "')";
+        return this.description() == "" ? "No description available" + " (" + this.type() + ")" : this.description();
     }, this);
 
     getInputPosition = () : {x:number, y:number} => {
@@ -213,11 +198,6 @@ export class Field {
 
     toggle = (): Field => {
         this.value((!Utils.asBool(this.value())).toString());
-        return this;
-    }
-
-    toggleDefault = (): Field => {
-        this.defaultValue((!Utils.asBool(this.defaultValue())).toString());
         return this;
     }
 
