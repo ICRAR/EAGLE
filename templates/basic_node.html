@@ -1,6 +1,6 @@
 <div class="nodeContent basic_node">
     <div class="container" data-bind="css: {selected: $root.objectIsSelected($data)},attr:{id:$data.getId()}">
-        <div class="header" data-bind=" css:{'graphDataNode':$data.isData()}">
+        <div class="header" data-bind=" css:{'graphDataNode':$data.isData() || $data.isGlobal()}">
             <div data-bind="eagleTooltip: {content: $data.getHelpHTML(),size: '650px', node: $data, buttonAction: 'descriptionEdit'}, style: {transform: 'scale('+$root.getGraphTextScale()+')'}">
                 <div class="header-name" data-bind="html: $data.name, event: {click: GraphRenderer.editNodeTitleInGraph}, css:{hiddenDataName: $data.graphNodeTitleIsHidden()}"></div>
                 <input type="text" onmousedown="GraphRenderer.preventBubbling()" onmousemove="GraphRenderer.preventBubbling()" onmouseup="GraphRenderer.preventBubbling()" data-bind="value:$data.name, readonly: $data.isLocked, event:{click:function(){$(event.target).focus()}, keyup:GraphRenderer.nodeNameEditorKeybinds}, css:{hiddenDataName: $data.graphNodeTitleIsHidden()}" class="header-input">
@@ -11,10 +11,10 @@
         </div>
     
         <div class="body" data-bind="eagleRightClick: {data:$data,type:'rightClick_graphNode'}, event: {mouseenter: function(){$data.setPeek(true)},mouseleave:function(){$data.setPeek(false)},mousedown: function(object,event){GraphRenderer.startDrag(object,event);}, mouseup: function(){GraphRenderer.endDrag($data);}}, mousedownBubble: false, mouseupBubble: false, style:{'border-color':$data.getBorderColor(),'background-color':$data.getBackgroundColor()}">
-            <!-- ko if: $data.isData() -->
+            <!-- ko if: $data.isData() || $data.isGlobal() -->
                 <span data-bind="class: $data.getIcon(), style:{'color':$data.color,'font-size': '55px'}"></span>
             <!-- /ko -->
-            <!-- ko ifnot: $data.isData() -->
+            <!-- ko ifnot: $data.isData() && $data.isGlobal() -->
                 <span data-bind="class: $data.getIcon(), style:{'color':$data.color}"></span>
             <!-- /ko -->
         </div>

@@ -598,6 +598,10 @@ export class Node {
         return this.categoryType() === Category.Type.Data;
     }
 
+    isGlobal = () : boolean => {
+        return this.categoryType() === Category.Type.Global;
+    }
+
     isConstruct = () : boolean => {
         return this.categoryType() === Category.Type.Construct;
     }
@@ -1288,7 +1292,7 @@ export class Node {
     }
 
     graphNodeTitleIsHidden = () : boolean => {
-        return this.isData() && Setting.findValue(Setting.HIDE_DATA_NODE_TITLES);
+        return (this.isData() || this.isGlobal()) && Setting.findValue(Setting.HIDE_DATA_NODE_TITLES);
     }
 
     //get icon color

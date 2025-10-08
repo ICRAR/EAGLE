@@ -1272,7 +1272,7 @@ export class Utils {
     }
 
     static getRadiusForNode(node: Node) : number {
-        if(node.isData()){
+        if(node.isData() || node.isGlobal()){
             return EagleConfig.DATA_NODE_RADIUS;
         }else if (node.isBranch()){
             return EagleConfig.BRANCH_NODE_RADIUS;

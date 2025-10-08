@@ -42,7 +42,7 @@ ko.bindingHandlers.nodeRenderHandler = {
     init: function(element:any, valueAccessor) {
         const node: Node = ko.unwrap(valueAccessor())
         
-        if(node.isData()){
+        if(node.isData() || node.isGlobal()){
             $(element).find('.body').css('background-color:#575757','color:white')
         }
     },
