@@ -14,7 +14,7 @@
             <!-- ko if: $data.isData() || $data.isGlobal() -->
                 <span data-bind="class: $data.getIcon(), style:{'color':$data.color,'font-size': '55px'}"></span>
             <!-- /ko -->
-            <!-- ko ifnot: $data.isData() && $data.isGlobal() -->
+            <!-- ko ifnot: $data.isData() || $data.isGlobal() -->
                 <span data-bind="class: $data.getIcon(), style:{'color':$data.color}"></span>
             <!-- /ko -->
         </div>
