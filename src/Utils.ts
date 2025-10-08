@@ -29,6 +29,7 @@ import { Category } from './Category';
 import { CategoryData } from "./CategoryData";
 import { Daliuge } from './Daliuge';
 import { Eagle } from './Eagle';
+import { EagleConfig } from "./EagleConfig";
 import { Edge } from './Edge';
 import { Errors } from './Errors';
 import { Field } from './Field';
@@ -1253,12 +1254,47 @@ export class Utils {
         fields.push(field);
     }
 
+    // return undefined if no update required, null if no direct update available (but should update), or the new category if a direct update is available
+    static getLegacyCategoryUpdate(node: Node): Category | undefined {
+        // first check for the special case of PythonApp, which should be upgraded to either a DALiuGEApp or a PyFuncApp, depending on the dropclass field value
+        if (node.getCategory() === Category.PythonApp){
+            const dropClassField = node.getFieldByDisplayText(Daliuge.FieldName.DROP_CLASS);
+
+            // by default, update PythonApp to a DALiuGEApp, unless dropclass field value indicates it is a PyFuncApp
+            if (dropClassField && dropClassField.getValue() === Daliuge.DEFAULT_PYFUNCAPP_DROPCLASS_VALUE){
+                return Category.PyFuncApp;
+            } else {
+                return Category.DALiuGEApp;
+            }
+        }
+
+        // otherwise, check the standard legacy categories map
+        const newCategory: Category | undefined = CategoryData.LEGACY_CATEGORIES_UPGRADES.get(node.getCategory());
+        return newCategory;
+    }
+
     static isKnownCategory(category : string) : boolean {
         return typeof CategoryData.cData[category] !== 'undefined';
     }
 
-    static getColorForNode(category : Category) : string {
-        return CategoryData.getCategoryData(category).color;
+    static getColorForNode(node: Node) : string {
+        return CategoryData.getCategoryData(node.getCategory()).color;
+    }
+
+    static getRadiusForNode(node: Node) : number {
+        if(node.isData() || node.isGlobal()){
+            return EagleConfig.DATA_NODE_RADIUS;
+        }else if (node.isBranch()){
+            return EagleConfig.BRANCH_NODE_RADIUS;
+        }else if (node.isConstruct()){
+            return EagleConfig.NORMAL_NODE_RADIUS;
+        }else if (node.isConstruct()){
+            return EagleConfig.MINIMUM_CONSTRUCT_RADIUS;
+        }else if (node.isComment()){
+            return EagleConfig.COMMENT_NODE_WIDTH;
+        }else{
+            return EagleConfig.NORMAL_NODE_RADIUS;
+        }
     }
 
     static getRightWindowWidth() : number {
@@ -1826,6 +1862,8 @@ export class Utils {
     static fixNodeCategory(eagle: Eagle, node: Node, category: Category, categoryType: Category.Type){
         node.setCategory(category);
         node.setCategoryType(categoryType);
+        node.setRadius(Utils.getRadiusForNode(node));
+        node.setColor(Utils.getColorForNode(node));
     }
 
     // NOTE: merges field1 into field0
