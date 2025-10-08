@@ -225,12 +225,10 @@ export class Field {
     }
 
     editOption = (optionIndex: number, newVal: string) : Field => {
-        //if the option we are editing is selected well update the value or default value
+        // TODO: double check this, not sure I understand it fully
+        //if the option we are editing is selected well update the value
         if(this.options()[optionIndex] === this.value()){
             this.value(newVal)
-        }
-        if(this.options()[optionIndex] === this.defaultValue()){
-            this.defaultValue(newVal)
         }
 
         this.options()[optionIndex] = newVal
@@ -263,12 +261,8 @@ export class Field {
 
         //checking if a selected option is being deleted
         let valueDeleted = false
-        let defaultValueDeleted = false;
         if(this.options()[index] === this.value()){
             valueDeleted = true
-        }
-        if(this.options()[index] === this.defaultValue()){
-            defaultValueDeleted = true
         }
 
         //deleting the option
@@ -277,9 +271,6 @@ export class Field {
         //if either the selected value or selected default value option was deleted we set it to the first option on the select
         if(valueDeleted){
             this.value(this.options()[0])
-        }
-        if(defaultValueDeleted){
-            this.defaultValue(this.options()[0])
         }
         this.options.valueHasMutated()
         return this;
@@ -417,7 +408,6 @@ export class Field {
     clear = () : Field => {
         this.displayText("");
         this.value("");
-        this.defaultValue("");
         this.description("");
         this.readonly(false);
         this.type(Daliuge.DataType.Unknown);
@@ -442,7 +432,7 @@ export class Field {
             options.push(option);
         }
 
-        const f = new Field(this.id(), this.displayText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), options, this.positional(), this.parameterType(), this.usage());
+        const f = new Field(this.id(), this.displayText(), this.value(), this.description(), this.readonly(), this.type(), this.precious(), options, this.positional(), this.parameterType(), this.usage());
         f.encoding(this.encoding());
         f.isEvent(this.isEvent());
         f.node(this.node());
@@ -454,12 +444,11 @@ export class Field {
     }
 
     shallowCopy = () : Field => {
-        const f = new Field(this.id(), this.displayText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional(), this.parameterType(), this.usage());
+        const f = new Field(this.id(), this.displayText(), this.value(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional(), this.parameterType(), this.usage());
 
         f.id = this.id;
         f.displayText = this.displayText;
         f.value = this.value;
-        f.defaultValue = this.defaultValue;
         f.description = this.description;
         f.readonly = this.readonly;
         f.type = this.type;
@@ -477,10 +466,13 @@ export class Field {
         return f;
     }
 
+    // resetToDefault will have to behave differently, it should remove the field from the config
+    /*
     resetToDefault = () : Field => {
         this.value(this.defaultValue());
         return this;
     }
+    */
 
     // TODO: rename this slightly so that it is more obvious that it is a user-facing version of the value
     //       as it is I get confused between this and getValue() when auto-completing
@@ -495,7 +487,6 @@ export class Field {
     copyWithIds = (src: Field, node: Node, id: FieldId) : Field => {
         this.displayText(src.displayText());
         this.value(src.value());
-        this.defaultValue(src.defaultValue());
         this.description(src.description());
         this.readonly(src.readonly());
         this.type(src.type());
