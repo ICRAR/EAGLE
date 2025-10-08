@@ -694,8 +694,9 @@ def open_git_hub_file():
 
         # for palettes, put downloadUrl in every component
         if extension == ".palette":
-            for component in graph["nodeDataArray"]:
-                component["paletteDownloadUrl"] = download_url
+            if "nodeDataArray" in graph:
+                for component in graph["nodeDataArray"]:
+                    component["paletteDownloadUrl"] = download_url
 
         json_data = json.dumps(graph, indent=4)
 

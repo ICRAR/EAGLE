@@ -34,17 +34,19 @@ import { Errors } from './Errors';
 import { Field } from './Field';
 import { FileInfo } from "./FileInfo";
 import { GraphConfig } from "./GraphConfig";
+import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
+import { GraphRenderer } from "./GraphRenderer";
 import { KeyboardShortcut } from './KeyboardShortcut';
 import { LogicalGraph } from './LogicalGraph';
 import { Modals } from "./Modals";
 import { Node } from './Node';
 import { Palette } from './Palette';
+import { ParameterTable } from "./ParameterTable";
 import { Repository, RepositoryCommit } from './Repository';
+import { RepositoryFile } from './RepositoryFile';
 import { Setting } from './Setting';
 import { UiModeSystem } from "./UiModes";
-import { ParameterTable } from "./ParameterTable";
-import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
-import { GraphRenderer } from "./GraphRenderer";
+
 
 export class Utils {
     // Allowed file extensions
@@ -381,6 +383,15 @@ export class Utils {
 
     static async httpPostJSONString(url : string, jsonString : string): Promise<string> {
         return new Promise((resolve, reject) => {
+            // first make sure the jsonString is parsable as JSON
+            try {
+                JSON.parse(jsonString);
+            } catch (e) {
+                reject("Attempting to send an invalid JSON string");
+                return;
+            }
+
+            // send the JSON string
             $.ajax({
                 url: url,
                 type: 'POST',
@@ -935,7 +946,6 @@ export class Utils {
         palette.fileInfo().builtIn = true;
         palette.fileInfo().location.downloadUrl(paletteListItem.filename);
         palette.fileInfo().type = Eagle.FileType.Palette;
-        palette.fileInfo().location.repositoryService(Repository.Service.Url);
 
         palette.expanded(paletteListItem.expanded);
     }
@@ -2738,5 +2748,23 @@ export class Utils {
     // https://stackoverflow.com/questions/6832596/how-can-i-compare-software-version-number-using-javascript-only-numbers
     static compareVersions(version1: string, version2: string): number {
         return version1.localeCompare(version2, undefined, { numeric: true, sensitivity: 'base' });
+    }
+    
+    static updateFileInfo = (fileInfo: ko.Observable<FileInfo>, repositoryFile: RepositoryFile) : void => {
+        fileInfo().location.repositoryName(repositoryFile.repository.name);
+        fileInfo().location.repositoryBranch(repositoryFile.repository.branch);
+        fileInfo().location.repositoryService(repositoryFile.repository.service);
+        fileInfo().location.repositoryPath(repositoryFile.path);
+        fileInfo().location.repositoryFileName(repositoryFile.name);
+        fileInfo().type = repositoryFile.type;
+        fileInfo().name = repositoryFile.name;
+
+        // set url
+        if (repositoryFile.repository.service === Repository.Service.Url){
+            fileInfo().location.downloadUrl(repositoryFile.name);
+        }
+
+        // communicate to knockout that the value of the fileInfo has been modified (so it can update UI)
+        fileInfo.valueHasMutated();
     }
 }

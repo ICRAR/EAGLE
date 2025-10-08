@@ -341,7 +341,7 @@
                                 <!-- ko if: $root.logicalGraph().fileInfo().repositoryService === Repository.Service.GitHub || $root.logicalGraph().fileInfo().repositoryService === Repository.Service.GitLab -->
                                     <i class="material-symbols-outlined interactive" data-bs-placement="right" data-bind="eagleTooltip: 'This is a Graph File from GitHub or GitLab'" data-bs-toggle="tooltip" data-html="true">account_tree</i>
                                 <!-- /ko -->
-                                <i class="material-symbols-outlined interactive" data-bs-placement="right" data-bind="eagleTooltip: $root.logicalGraph().fileInfo().fullPath()" data-bs-toggle="tooltip" data-html="true">link</i>
+                                <i class="material-symbols-outlined interactive" data-bs-placement="right" data-bind="eagleTooltip: $root.logicalGraph().fileInfo().location.fullPath()" data-bs-toggle="tooltip" data-html="true">link</i>
 
                                 <i id="inspectorGraphInfoBtn" class="material-symbols-outlined filled interactive clickable iconHoverEffect" data-bind="eagleTooltip: 'View Graph Model Data', click: function(){Utils.showModelDataModal('Graph Info', $root.logicalGraph().fileInfo());}" data-bs-toggle="tooltip" data-html="true">info</i>
                                 <i id="shortDescriptionEditBtn" class="material-symbols-outlined filled interactive clickable iconHoverEffect" data-bind="style:{'color': $root.logicalGraph().fileInfo().getShortDescriptionBtnColor()}, eagleTooltip: $root.logicalGraph().getInspectorShortDescriptionHTML(), click: function(){$root.editShortDescription($root.logicalGraph().fileInfo())}" data-bs-toggle="tooltip" data-html="true">sticky_note_2</i>

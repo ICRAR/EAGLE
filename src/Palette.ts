@@ -105,6 +105,8 @@ export class Palette {
         errorsWarnings.errors.push(...checkResult.errors);
         errorsWarnings.warnings.push(...checkResult.warnings);
 
+        Utils.updateFileInfo(result.fileInfo, file);
+
         return result;
     }
 
@@ -117,31 +119,34 @@ export class Palette {
         result.fileInfo(FileInfo.fromV4Json(dataObject.modelData, errorsWarnings));
 
         // add nodes
-        for (let i = 0 ; i < dataObject.nodeDataArray.length ; i++){
-            const nodeData = dataObject.nodeDataArray[i];
+        for (const [nodeId, nodeData] of Object.entries(dataObject.nodes)){
+            const node = Node.fromV4Json(nodeData, errorsWarnings, false);
 
-            // read node
-            const newNode : Node = Node.fromV4Json(nodeData, errorsWarnings, true);
-
-            // check that node has no group
-            if (newNode.getParent() !== null){
-                const error : string = file.name + " Node " + i + " has parent: " + newNode.getParent().getName() + ". Setting parentKey to null.";
-                errorsWarnings.warnings.push(Errors.Message(error));
-
-                newNode.setParent(null);
-            }
-
-            // check that x, y, position is the default
-            if (newNode.getPosition().x !== 0 || newNode.getPosition().y !== 0){
-                const error : string = file.name + " Node " + i + " has non-default position: (" + newNode.getPosition().x + "," + newNode.getPosition().y + "). Setting to default.";
-                errorsWarnings.warnings.push(Errors.Message(error));
-
-                newNode.setPosition(0, 0);
-            }
-
-            // add node to palette
-            result.nodes().set(newNode.getId(), newNode);
+            result.nodes().set(nodeId as NodeId, node);
             result.nodes.valueHasMutated();
+        }
+
+        // second pass through the nodes
+        // used to set parent, embed, subject, inputApplication, outputApplication
+        for (const [nodeId, nodeData] of Object.entries(dataObject.nodes)){
+            const embed: Node = result.getNodeById((<any>nodeData).embedId);
+            const parent: Node = result.getNodeById((<any>nodeData).parentId);
+            const inputApplication: Node = result.getNodeById((<any>nodeData).inputApplicationId);
+            const outputApplication: Node = result.getNodeById((<any>nodeData).outputApplicationId);
+
+            const node: Node = result.getNodeById(nodeId as NodeId);
+            if (typeof embed !== 'undefined'){
+                node.setEmbed(embed);
+            }
+            if (typeof parent !== 'undefined'){
+                node.setParent(parent);
+            }
+            if (typeof inputApplication !== 'undefined'){
+                node.setInputApplication(inputApplication);
+            }
+            if (typeof outputApplication !== 'undefined'){
+                node.setOutputApplication(outputApplication);
+            }
         }
 
         // check for missing name
@@ -156,6 +161,8 @@ export class Palette {
         const checkResult = Utils.checkPalette(result);
         errorsWarnings.errors.push(...checkResult.errors);
         errorsWarnings.warnings.push(...checkResult.warnings);
+
+        Utils.updateFileInfo(result.fileInfo, file);
 
         return result;
     }
@@ -205,21 +212,10 @@ export class Palette {
         return result;
     }
 
-    static toJsonString(palette: Palette, version: Setting.SchemaVersion) : string {
+    static toOJSJsonString(palette: Palette) : string {
         let result: string = "";
 
-        let json: any;
-        switch(version){
-            case Setting.SchemaVersion.OJS:
-                json = Palette.toOJSJson(palette);
-                break;
-            case Setting.SchemaVersion.V4:
-                json = Palette.toV4Json(palette);
-                break;
-            default:
-                console.error("Unsupported graph format! (" + version + ")");
-                return "";
-        }
+        const json: any = Palette.toOJSJson(palette);
 
         // manually build the JSON so that we can enforce ordering of attributes (modelData first)
         result += "{\n";
@@ -227,6 +223,38 @@ export class Palette {
         result += '"nodeDataArray": ' + JSON.stringify(json.nodeDataArray, null, EagleConfig.JSON_INDENT) + ",\n";
         result += '"linkDataArray": ' + JSON.stringify(json.linkDataArray, null, EagleConfig.JSON_INDENT) + "\n";
         result += "}\n";
+
+        return result;
+    }
+
+    static toV4JsonString(palette: Palette) : string {
+        let result: string = "";
+
+        const json: any = Palette.toV4Json(palette);
+
+        // manually build the JSON so that we can enforce ordering of attributes (modelData first)
+        result += "{\n";
+        result += '"modelData": ' + JSON.stringify(json.modelData, null, EagleConfig.JSON_INDENT) + ",\n";
+        result += '"nodes": ' + JSON.stringify(json.nodes, null, EagleConfig.JSON_INDENT) + "\n";
+        result += "}\n";
+
+        return result;
+    }
+
+    static toJsonString(palette: Palette, version: Setting.SchemaVersion) : string {
+        let result: string = "";
+
+        switch(version){
+            case Setting.SchemaVersion.OJS:
+                result = Palette.toOJSJsonString(palette);
+                break;
+            case Setting.SchemaVersion.V4:
+                result = Palette.toV4JsonString(palette);
+                break;
+            default:
+                console.error("Unsupported graph format! (" + version + ")");
+                return "";
+        }
 
         return result;
     }
