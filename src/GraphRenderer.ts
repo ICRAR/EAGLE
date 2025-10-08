@@ -1944,7 +1944,7 @@ export class GraphRenderer {
             }
 
             // skip data nodes, if showDataNodes is false
-            if (!showDataNodes && node.isData() && nodeHasConnectedInput && nodeHasConnectedOutput){
+            if (!showDataNodes && (node.isData() || node.isGlobal()) && nodeHasConnectedInput && nodeHasConnectedOutput){
                 continue;
             }
 
