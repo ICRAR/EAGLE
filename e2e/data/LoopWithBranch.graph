@@ -174,7 +174,9 @@
         }
     ],
     "modelData": {
+        "commitHash": "",
         "detailedDescription": "The graph is generating an array of random numbers and decides whether to continue the loop depending on whether the currently picked value of the array is smaller than a certain value.",
+        "downloadUrl": "",
         "filePath": "LoopWithBranch.graph",
         "fileType": "Graph",
         "generatorCommitHash": "8566c0d3db3eb8ddca7b3342a6eecc023269b147",
@@ -185,6 +187,9 @@
         "lastModifiedName": "",
         "numLGNodes": 11,
         "readonly": true,
+        "repo", "",
+        "repoBranch": "",
+        "repoService": "Unknown",
         "repositoryUrl": "",
         "schemaVersion": "OJS",
         "shortDescription": "Graph using actual data and the Branch App.",
