@@ -28,7 +28,7 @@ export enum Category {
     Data = "Data",
 
     ParameterSet = "ParameterSet",
-    EnvironmentVariables = "EnvironmentVariables",
+    GlobalVariable = "GlobalVariable",
 
     Service = "Service",
     ExclusiveForceNode = "ExclusiveForceNode",
@@ -44,7 +44,8 @@ export enum Category {
     // legacy only
     Component = "Component",
     Description = "Description",
-    PythonApp = "PythonApp"
+    PythonApp = "PythonApp",
+    EnvironmentVariables = "EnvironmentVariables",
 }
 
 export namespace Category {
@@ -61,8 +62,7 @@ export namespace Category {
         canHaveApplicationArguments: boolean,
         canHaveConstructParameters: boolean, 
         icon: string,
-        color: string,
-        sortOrder: number
+        color: string
     };
 
     // TODO: add to CategoryData somehow? use in Node.isData() etc?
@@ -71,6 +71,7 @@ export namespace Category {
         Construct = "Construct",
         Container = "Container",
         Data = "Data",
+        Global = "Global",
         Other = "Other",
         Service = "Service",
         Socket = "Socket",
@@ -79,24 +80,13 @@ export namespace Category {
 
     export enum Color {
         Application = "#0059a5",
-        Construct = "rgb(227 189 100)",
-        Data = "#2c2c2c",
-        Description = "rgb(157 43 96)",
-        Error = "#FF66CC",
-        Legacy = "#FF66CC",
-        Object = "#00bfa6",
-        Service = "purple"
-    }
-
-    // by default, these enums are given ascending integer values, so the sort order is implicit in the ordering of items
-    export enum SortOrder {
-        Application,
-        Object,
-        Data,
-        Construct,
-        Documentation,
-        Service,
-        Other,
-        Legacy
+        Construct   = "#e3bd64",
+        Data        = "#2c2c2c",
+        Description = "#9d2b60",
+        Error       = "#ff66cc",
+        Global      = "#228b22",
+        Legacy      = "#ff66cc",
+        Object      = "#00bfa6",
+        Service     = "#800080"
     }
 }

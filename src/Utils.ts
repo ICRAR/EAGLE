@@ -29,23 +29,26 @@ import { Category } from './Category';
 import { CategoryData } from "./CategoryData";
 import { Daliuge } from './Daliuge';
 import { Eagle } from './Eagle';
+import { EagleConfig } from "./EagleConfig";
 import { Edge } from './Edge';
 import { Errors } from './Errors';
 import { Field } from './Field';
 import { FileInfo } from "./FileInfo";
 import { FileLocation } from "./FileLocation";
 import { GraphConfig } from "./GraphConfig";
+import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
+import { GraphRenderer } from "./GraphRenderer";
 import { KeyboardShortcut } from './KeyboardShortcut';
 import { LogicalGraph } from './LogicalGraph';
 import { Modals } from "./Modals";
 import { Node } from './Node';
 import { Palette } from './Palette';
+import { ParameterTable } from "./ParameterTable";
 import { Repository, RepositoryCommit } from './Repository';
+import { RepositoryFile } from './RepositoryFile';
 import { Setting } from './Setting';
 import { UiModeSystem } from "./UiModes";
-import { ParameterTable } from "./ParameterTable";
-import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
-import { GraphRenderer } from "./GraphRenderer";
+
 
 export class Utils {
     // Allowed file extensions
@@ -382,6 +385,15 @@ export class Utils {
 
     static async httpPostJSONString(url : string, jsonString : string): Promise<string> {
         return new Promise((resolve, reject) => {
+            // first make sure the jsonString is parsable as JSON
+            try {
+                JSON.parse(jsonString);
+            } catch (e) {
+                reject("Attempting to send an invalid JSON string");
+                return;
+            }
+
+            // send the JSON string
             $.ajax({
                 url: url,
                 type: 'POST',
@@ -957,7 +969,6 @@ export class Utils {
         palette.fileInfo().builtIn = true;
         palette.fileInfo().location.downloadUrl(paletteListItem.filename);
         palette.fileInfo().type = Eagle.FileType.Palette;
-        palette.fileInfo().location.repositoryService(Repository.Service.Url);
 
         palette.expanded(paletteListItem.expanded);
     }
@@ -1265,12 +1276,47 @@ export class Utils {
         fields.push(field);
     }
 
+    // return undefined if no update required, null if no direct update available (but should update), or the new category if a direct update is available
+    static getLegacyCategoryUpdate(node: Node): Category | undefined {
+        // first check for the special case of PythonApp, which should be upgraded to either a DALiuGEApp or a PyFuncApp, depending on the dropclass field value
+        if (node.getCategory() === Category.PythonApp){
+            const dropClassField = node.getFieldByDisplayText(Daliuge.FieldName.DROP_CLASS);
+
+            // by default, update PythonApp to a DALiuGEApp, unless dropclass field value indicates it is a PyFuncApp
+            if (dropClassField && dropClassField.getValue() === Daliuge.DEFAULT_PYFUNCAPP_DROPCLASS_VALUE){
+                return Category.PyFuncApp;
+            } else {
+                return Category.DALiuGEApp;
+            }
+        }
+
+        // otherwise, check the standard legacy categories map
+        const newCategory: Category | undefined = CategoryData.LEGACY_CATEGORIES_UPGRADES.get(node.getCategory());
+        return newCategory;
+    }
+
     static isKnownCategory(category : string) : boolean {
         return typeof CategoryData.cData[category] !== 'undefined';
     }
 
-    static getColorForNode(category : Category) : string {
-        return CategoryData.getCategoryData(category).color;
+    static getColorForNode(node: Node) : string {
+        return CategoryData.getCategoryData(node.getCategory()).color;
+    }
+
+    static getRadiusForNode(node: Node) : number {
+        if(node.isData() || node.isGlobal()){
+            return EagleConfig.DATA_NODE_RADIUS;
+        }else if (node.isBranch()){
+            return EagleConfig.BRANCH_NODE_RADIUS;
+        }else if (node.isConstruct()){
+            return EagleConfig.NORMAL_NODE_RADIUS;
+        }else if (node.isConstruct()){
+            return EagleConfig.MINIMUM_CONSTRUCT_RADIUS;
+        }else if (node.isComment()){
+            return EagleConfig.COMMENT_NODE_WIDTH;
+        }else{
+            return EagleConfig.NORMAL_NODE_RADIUS;
+        }
     }
 
     static getRightWindowWidth() : number {
@@ -1838,6 +1884,8 @@ export class Utils {
     static fixNodeCategory(eagle: Eagle, node: Node, category: Category, categoryType: Category.Type){
         node.setCategory(category);
         node.setCategoryType(categoryType);
+        node.setRadius(Utils.getRadiusForNode(node));
+        node.setColor(Utils.getColorForNode(node));
     }
 
     // NOTE: merges field1 into field0
@@ -2760,5 +2808,23 @@ export class Utils {
     // https://stackoverflow.com/questions/6832596/how-can-i-compare-software-version-number-using-javascript-only-numbers
     static compareVersions(version1: string, version2: string): number {
         return version1.localeCompare(version2, undefined, { numeric: true, sensitivity: 'base' });
+    }
+    
+    static updateFileInfo = (fileInfo: ko.Observable<FileInfo>, repositoryFile: RepositoryFile) : void => {
+        fileInfo().location.repositoryName(repositoryFile.repository.name);
+        fileInfo().location.repositoryBranch(repositoryFile.repository.branch);
+        fileInfo().location.repositoryService(repositoryFile.repository.service);
+        fileInfo().location.repositoryPath(repositoryFile.path);
+        fileInfo().location.repositoryFileName(repositoryFile.name);
+        fileInfo().type = repositoryFile.type;
+        fileInfo().name = repositoryFile.name;
+
+        // set url
+        if (repositoryFile.repository.service === Repository.Service.Url){
+            fileInfo().location.downloadUrl(repositoryFile.name);
+        }
+
+        // communicate to knockout that the value of the fileInfo has been modified (so it can update UI)
+        fileInfo.valueHasMutated();
     }
 }

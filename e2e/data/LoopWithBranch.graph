@@ -189,7 +189,7 @@
         {
             "category": "Loop",
             "categoryType": "Construct",
-            "color": "rgb(227 189 100)",
+            "color": "#e3bd64",
             "comment": "",
             "commitHash": "",
             "dataHash": "",
@@ -263,7 +263,7 @@
             "y": 741.4116653614483
         },
         {
-            "category": "PythonApp",
+            "category": "DALiuGEApp",
             "categoryType": "Application",
             "color": "#0059a5",
             "comment": "",
@@ -475,7 +475,7 @@
             "y": 877.1183847647113
         },
         {
-            "category": "PythonApp",
+            "category": "DALiuGEApp",
             "categoryType": "Application",
             "color": "#0059a5",
             "comment": "",
@@ -1034,7 +1034,7 @@
             "y": 691.8176116474392
         },
         {
-            "category": "PythonApp",
+            "category": "DALiuGEApp",
             "categoryType": "Application",
             "color": "#0059a5",
             "comment": "",
@@ -1657,7 +1657,7 @@
             "y": 775.7032356294532
         },
         {
-            "category": "PythonApp",
+            "category": "DALiuGEApp",
             "categoryType": "Application",
             "color": "#0059a5",
             "comment": "",
