@@ -22,6 +22,7 @@ test('Undo', async ({ page }) => {
     // agree to create a new graph with it's auto-generated name
     await page.waitForTimeout(500);
     await page.getByRole('button', { name: 'OK' }).click();
+    await page.waitForTimeout(500);
 
     // check that number of nodes is 1
     const nodeCount2 = await TestHelpers.getNodeCount(page);
