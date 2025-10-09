@@ -1024,17 +1024,17 @@ export class Field {
 
         // check that the field has a unique display text on the node
         for (const field1 of node.getFields()){
-            if(field === field1){
+            if(field.getId() === field1.getId()){
                 continue
             }
 
             if (field.getDisplayText() === field1.getDisplayText() && field.getParameterType() === field1.getParameterType()){
                 if (field.getId() === field1.getId()){
-                    const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") has multiple attributes with the same display text and id (" + field.getDisplayText() + ").", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixNodeMergeFields(eagle, node, field, field1)}, "Merge fields");
+                    const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") has multiple attributes with the same display text and id (" + field.getDisplayText() + ").", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixNodeMergeFields(eagle, node, field.getId(), field1.getId())}, "Merge fields");
                     field.issues().push({issue:issue,validity:Errors.Validity.Warning})
                     // errorsWarnings.warnings.push(issue);
                 } else {
-                    const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") has multiple attributes with the same display text (" + field.getDisplayText() + ").", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixNodeMergeFields(eagle, node, field, field1)}, "Merge fields");
+                    const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") has multiple attributes with the same display text (" + field.getDisplayText() + ").", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixNodeMergeFields(eagle, node, field.getId(), field1.getId())}, "Merge fields");
                     field.issues().push({issue:issue,validity:Errors.Validity.Warning})
                     // errorsWarnings.warnings.push(issue);
                 }

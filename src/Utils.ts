@@ -29,22 +29,26 @@ import { Category } from './Category';
 import { CategoryData } from "./CategoryData";
 import { Daliuge } from './Daliuge';
 import { Eagle } from './Eagle';
+import { EagleConfig } from "./EagleConfig";
 import { Edge } from './Edge';
 import { Errors } from './Errors';
 import { Field } from './Field';
 import { FileInfo } from "./FileInfo";
+import { FileLocation } from "./FileLocation";
 import { GraphConfig } from "./GraphConfig";
+import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
+import { GraphRenderer } from "./GraphRenderer";
 import { KeyboardShortcut } from './KeyboardShortcut';
 import { LogicalGraph } from './LogicalGraph';
 import { Modals } from "./Modals";
 import { Node } from './Node';
 import { Palette } from './Palette';
+import { ParameterTable } from "./ParameterTable";
 import { Repository, RepositoryCommit } from './Repository';
+import { RepositoryFile } from './RepositoryFile';
 import { Setting } from './Setting';
 import { UiModeSystem } from "./UiModes";
-import { ParameterTable } from "./ParameterTable";
-import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
-import { GraphRenderer } from "./GraphRenderer";
+
 
 export class Utils {
     // Allowed file extensions
@@ -386,6 +390,15 @@ export class Utils {
 
     static async httpPostJSONString(url : string, jsonString : string): Promise<string> {
         return new Promise((resolve, reject) => {
+            // first make sure the jsonString is parsable as JSON
+            try {
+                JSON.parse(jsonString);
+            } catch (e) {
+                reject("Attempting to send an invalid JSON string");
+                return;
+            }
+
+            // send the JSON string
             $.ajax({
                 url: url,
                 type: 'POST',
@@ -537,13 +550,15 @@ export class Utils {
             // store data about the choices, callback, result on the modal HTML element
             // so that the info is available to event handlers
             $('#inputModal').data('completed', false);
-            $('#inputModal').data('callback', (completed : boolean, userString : string): void => {
+
+            const callback: Modals.UserStringCallback = (completed : boolean, userString : string) => {
                 if (!completed){
                     reject("Utils.requestUserString() aborted by user");
                 } else {
                     resolve(userString);
                 }
-            });
+            };
+            $('#inputModal').data('callback', callback);
             $('#inputModal').data('returnType', "string");
 
             $('#inputModal').modal("show");
@@ -561,14 +576,15 @@ export class Utils {
             // store the callback, result on the modal HTML element
             // so that the info is available to event handlers
             $('#inputTextModal').data('completed', false);
-            $('#inputTextModal').data('callback', (completed : boolean, userText : string) => {
+
+            const callback: Modals.UserTextCallback = (completed : boolean, userText : string) => {
                 if (!completed){
                     reject("Utils.requestUserText() aborted by user");
                 } else {
                     resolve(userText);
                 }
-            });
-
+            };
+            $('#inputTextModal').data('callback', callback);
             $('#inputTextModal').modal("show");
         });
     }
@@ -604,13 +620,15 @@ export class Utils {
             // store the callback, result on the modal HTML element
             // so that the info is available to event handlers
             $('#inputCodeModal').data('completed', false);
-            $('#inputCodeModal').data('callback', (completed : boolean, userText : string) => {
+
+            const callback: Modals.UserTextCallback = (completed : boolean, userText : string) => {
                 if (!completed){
                     reject("Utils.requestUserCode() aborted by user");
                 } else {
                     resolve(userText);
                 }
-            });
+            };
+            $('#inputCodeModal').data('callback', callback);
 
             $('#inputCodeModal').modal("show");
         })
@@ -633,13 +651,15 @@ export class Utils {
             // store the callback, result on the modal HTML element
             // so that the info is available to event handlers
             $('#inputMarkdownModal').data('completed', false);
-            $('#inputMarkdownModal').data('callback', (completed : boolean, userMarkdown : string) => {
+
+            const callback: Modals.UserMarkdownCallback = (completed : boolean, userMarkdown : string) => {
                 if (!completed){
                     reject("Utils.requestUserMarkdown() aborted by user");
                 } else {
                     resolve(userMarkdown);
                 }
-            });
+            };
+            $('#inputMarkdownModal').data('callback', callback);
 
             $('#inputMarkdownModal').modal("show");
         });
@@ -654,13 +674,15 @@ export class Utils {
             // store data about the choices, callback, result on the modal HTML element
             // so that the info is available to event handlers
             $('#inputModal').data('completed', false);
-            $('#inputModal').data('callback', (completed : boolean, userNumber : number) => {
+
+            const callback: Modals.UserNumberCallback = (completed : boolean, userNumber : number) => {
                 if (!completed){
                     reject("Utils.requestUserNumber() aborted by user");
                 } else {
                     resolve(userNumber);
                 }
-            });
+            }
+            $('#inputModal').data('callback', callback);
             $('#inputModal').data('returnType', "number");
 
             $('#inputModal').modal("show");
@@ -703,13 +725,15 @@ export class Utils {
             // store data about the choices, callback, result on the modal HTML element
             // so that the info is available to event handlers
             $('#choiceModal').data('completed', false);
-            $('#choiceModal').data('callback', function(completed: boolean, choice: string): void {
+
+            const callback: Modals.UserChoiceCallback = (completed: boolean, choice: string): void =>{
                 if (completed){
                     resolve(choice);
                 } else {
                     reject("Utils.requestUserChoice() aborted by user");
                 }
-            });
+            };
+            $('#choiceModal').data('callback', callback);
             $('#choiceModal').data('choices', choices);
 
             // trigger the change event, so that the event handler runs and disables the custom text entry field if appropriate
@@ -742,9 +766,10 @@ export class Utils {
                 })
             }
 
-            $('#confirmModal').data('callback', function(completed: boolean, confirmed: boolean): void {
+            const callback: Modals.UserConfirmCallback = (completed: boolean, confirmed: boolean) => {
                 resolve(completed && confirmed);
-            });
+            };
+            $('#confirmModal').data('callback', callback);
 
             $('#confirmModal').modal("show");
         });
@@ -765,10 +790,11 @@ export class Utils {
             $('#optionsModalOption2').toggleClass('btn-primary', defaultOptionIndex === 2);
             $('#optionsModalOption2').toggleClass('btn-secondary', defaultOptionIndex !== 2);
 
-            $('#optionsModal').data('callback', function(selectedOptionIndex: number){
+            const callback: Modals.UserOptionsCallback = (selectedOptionIndex: number) => {
                 const selectedOption = [option0, option1, option2][selectedOptionIndex];
                 resolve(selectedOption);
-            });
+            };
+            $('#optionsModal').data('callback', callback);
 
             $('#optionsModal').modal("show");
         });
@@ -779,13 +805,16 @@ export class Utils {
         return new Promise(async(resolve, reject) => {
             $('#gitCommitModal').data('completed', false);
             $('#gitCommitModal').data('fileType', fileType);
-            $('#gitCommitModal').data('callback', function(completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string): void {
+
+            const callback: Modals.GitCommitCallback = function(completed: boolean, location: FileLocation, commitMessage: string): void {
                 if (completed){
-                    resolve(new RepositoryCommit(repositoryService, repositoryName, repositoryBranch, filePath, fileName, commitMessage));
+                    resolve(new RepositoryCommit(location, commitMessage));
                 } else {
                     reject("Utils.requestUserGitCommit() aborted by user");
                 }
-            });
+            };
+
+            $('#gitCommitModal').data('callback', callback);
             $('#gitCommitModal').data('repositories', repositories);
             $('#gitCommitModal').modal("show");
 
@@ -826,9 +855,11 @@ export class Utils {
             eagle.currentField(field);
 
             $('#editFieldModal').data('completed', false);
-            $('#editFieldModal').data('callback', (completed: boolean, field: Field): void => {
+
+            const callback: Modals.UserFieldCallback = function(field: Field): void {
                 resolve(field);
-            });
+            }
+            $('#editFieldModal').data('callback', callback);
             $("#editFieldModalTitle").html(title);
             $('#editFieldModal').data('choices', choices);
             $('#editFieldModal').modal("show");
@@ -841,13 +872,16 @@ export class Utils {
             $('#gitCustomRepositoryModalRepositoryBranchInput').val("");
 
             $('#gitCustomRepositoryModal').data('completed', false);
-            $('#gitCustomRepositoryModal').data('callback', (completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string) => {
+
+            const callback: Modals.GitCustomRepositoryCallback = function(completed: boolean, repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string): void {
                 if (!completed){
                     reject("Utils.requestUserAddCustomRepository aborted by user");
                 } else {
                     resolve(new Repository(repositoryService, repositoryName, repositoryBranch, false));
                 }
-            });
+            };
+
+            $('#gitCustomRepositoryModal').data('callback', callback);
             $('#gitCustomRepositoryModal').modal("show");
         });
     }
@@ -940,7 +974,6 @@ export class Utils {
         palette.fileInfo().builtIn = true;
         palette.fileInfo().location.downloadUrl(paletteListItem.filename);
         palette.fileInfo().type = Eagle.FileType.Palette;
-        palette.fileInfo().location.repositoryService(Repository.Service.Url);
 
         palette.expanded(paletteListItem.expanded);
     }
@@ -1248,12 +1281,47 @@ export class Utils {
         fields.push(field);
     }
 
+    // return undefined if no update required, null if no direct update available (but should update), or the new category if a direct update is available
+    static getLegacyCategoryUpdate(node: Node): Category | undefined {
+        // first check for the special case of PythonApp, which should be upgraded to either a DALiuGEApp or a PyFuncApp, depending on the dropclass field value
+        if (node.getCategory() === Category.PythonApp){
+            const dropClassField = node.getFieldByDisplayText(Daliuge.FieldName.DROP_CLASS);
+
+            // by default, update PythonApp to a DALiuGEApp, unless dropclass field value indicates it is a PyFuncApp
+            if (dropClassField && dropClassField.getValue() === Daliuge.DEFAULT_PYFUNCAPP_DROPCLASS_VALUE){
+                return Category.PyFuncApp;
+            } else {
+                return Category.DALiuGEApp;
+            }
+        }
+
+        // otherwise, check the standard legacy categories map
+        const newCategory: Category | undefined = CategoryData.LEGACY_CATEGORIES_UPGRADES.get(node.getCategory());
+        return newCategory;
+    }
+
     static isKnownCategory(category : string) : boolean {
         return typeof CategoryData.cData[category] !== 'undefined';
     }
 
-    static getColorForNode(category : Category) : string {
-        return CategoryData.getCategoryData(category).color;
+    static getColorForNode(node: Node) : string {
+        return CategoryData.getCategoryData(node.getCategory()).color;
+    }
+
+    static getRadiusForNode(node: Node) : number {
+        if(node.isData() || node.isGlobal()){
+            return EagleConfig.DATA_NODE_RADIUS;
+        }else if (node.isBranch()){
+            return EagleConfig.BRANCH_NODE_RADIUS;
+        }else if (node.isConstruct()){
+            return EagleConfig.NORMAL_NODE_RADIUS;
+        }else if (node.isConstruct()){
+            return EagleConfig.MINIMUM_CONSTRUCT_RADIUS;
+        }else if (node.isComment()){
+            return EagleConfig.COMMENT_NODE_WIDTH;
+        }else{
+            return EagleConfig.NORMAL_NODE_RADIUS;
+        }
     }
 
     static getRightWindowWidth() : number {
@@ -1821,19 +1889,44 @@ export class Utils {
     static fixNodeCategory(eagle: Eagle, node: Node, category: Category, categoryType: Category.Type){
         node.setCategory(category);
         node.setCategoryType(categoryType);
+        node.setRadius(Utils.getRadiusForNode(node));
+        node.setColor(Utils.getColorForNode(node));
     }
 
     // NOTE: merges field1 into field0
-    static fixNodeMergeFields(eagle: Eagle, node: Node, field0: Field, field1: Field){
-        // abort if one or more of the fields is not found
-        if (!node.hasField(field0.getId()) || !node.hasField(field1.getId())){
-            console.warn("fixNodeMergeFields(): Aborted, could not find one or more specified field(s).");
+    static fixNodeMergeFields(eagle: Eagle, node: Node, fieldId0: FieldId, fieldId1: FieldId){
+        if (fieldId0 === fieldId1){
+            console.warn("fixNodeMergeFields(): Aborted, field ids are the same.");
+            return;
+        }
+
+        const field0 = node.getFieldById(fieldId0);
+        const field1 = node.getFieldById(fieldId1);
+
+        // abort if either field not found
+        if (typeof field0 === 'undefined'){
+            console.warn("fixNodeMergeFields(): Aborted, field0 not found:", fieldId0);
+            return;
+        }
+        if (typeof field1 === 'undefined'){
+            console.warn("fixNodeMergeFields(): Aborted, field1 not found:", fieldId1);
+            return;
+        }
+
+        // abort if fields are the same
+        if (field0.getId() === field1.getId()){
+            console.warn("fixNodeMergeFields(): Aborted, fields are the same.");
             return;
         }
 
         const usage0 = field0.getUsage();
         const usage1 = field1.getUsage();
         const newUsage = Utils._mergeUsage(usage0, usage1);
+
+        // add all field1 edge to the field0 edges
+        for (const edge of field1.getEdges()){
+            field0.addEdge(edge);
+        }
 
         // remove field1
         node.removeFieldById(field1.getId());
@@ -1842,7 +1935,10 @@ export class Utils {
         field0.setUsage(newUsage);
 
         // update all edges to use new field
-        Utils._mergeEdges(eagle, field1.getId(), field0.getId());
+        Utils._mergeEdges(eagle, field1, field0);
+
+        // force re-draw of node
+        node.redraw()
     }
 
     static _mergeUsage(usage0: Daliuge.FieldUsage, usage1: Daliuge.FieldUsage) : Daliuge.FieldUsage {
@@ -1864,17 +1960,17 @@ export class Utils {
         return result;
     }
 
-    static _mergeEdges(eagle: Eagle, oldFieldId: FieldId, newFieldId: FieldId){
+    static _mergeEdges(eagle: Eagle, oldField: Field, newField: Field){
         // update all edges to use new field
         for (const edge of eagle.logicalGraph().getEdges()){
             // update src port
-            if (edge.getSrcPort().getId() === oldFieldId){
-                edge.getSrcPort().setId(newFieldId);
+            if (edge.getSrcPort().getId() === oldField.getId()){
+                edge.setSrcPort(newField);
             }
 
             // update dest port
-            if (edge.getDestPort().getId() === oldFieldId){
-                edge.getDestPort().setId(newFieldId);
+            if (edge.getDestPort().getId() === oldField.getId()){
+                edge.setDestPort(newField);
             }
         }
     }
@@ -2738,5 +2834,23 @@ export class Utils {
     // https://stackoverflow.com/questions/6832596/how-can-i-compare-software-version-number-using-javascript-only-numbers
     static compareVersions(version1: string, version2: string): number {
         return version1.localeCompare(version2, undefined, { numeric: true, sensitivity: 'base' });
+    }
+    
+    static updateFileInfo = (fileInfo: ko.Observable<FileInfo>, repositoryFile: RepositoryFile) : void => {
+        fileInfo().location.repositoryName(repositoryFile.repository.name);
+        fileInfo().location.repositoryBranch(repositoryFile.repository.branch);
+        fileInfo().location.repositoryService(repositoryFile.repository.service);
+        fileInfo().location.repositoryPath(repositoryFile.path);
+        fileInfo().location.repositoryFileName(repositoryFile.name);
+        fileInfo().type = repositoryFile.type;
+        fileInfo().name = repositoryFile.name;
+
+        // set url
+        if (repositoryFile.repository.service === Repository.Service.Url){
+            fileInfo().location.downloadUrl(repositoryFile.name);
+        }
+
+        // communicate to knockout that the value of the fileInfo has been modified (so it can update UI)
+        fileInfo.valueHasMutated();
     }
 }

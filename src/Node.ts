@@ -108,20 +108,10 @@ export class Node {
         this.keepExpanded = ko.observable(false);
         this.peek = ko.observable(false);
 
-        this.color = ko.observable(Utils.getColorForNode(category));
+        this.color = ko.observable(Utils.getColorForNode(this));
         this.drawOrderHint = ko.observable(0);
 
-        if(this.isData()){
-            this.radius = ko.observable(EagleConfig.DATA_NODE_RADIUS);
-        }else if (this.isBranch()){
-            this.radius = ko.observable(EagleConfig.BRANCH_NODE_RADIUS);
-        }else if (this.isGroup()){
-            this.radius = ko.observable(EagleConfig.MINIMUM_CONSTRUCT_RADIUS);
-        }else if (this.isComment()){
-            this.radius = ko.observable(EagleConfig.COMMENT_NODE_WIDTH);
-        }else{
-            this.radius = ko.observable(EagleConfig.NORMAL_NODE_RADIUS);
-        }
+        this.radius = ko.observable(Utils.getRadiusForNode(this));
     }
 
     getId = () : NodeId => {
@@ -566,7 +556,6 @@ export class Node {
 
     setCategory = (category: Category) : Node => {
         this.category(category);
-        this.color(Utils.getColorForNode(category));
         return this;
     }
 
@@ -607,6 +596,10 @@ export class Node {
 
     isData = () : boolean => {
         return this.categoryType() === Category.Type.Data;
+    }
+
+    isGlobal = () : boolean => {
+        return this.categoryType() === Category.Type.Global;
     }
 
     isConstruct = () : boolean => {
@@ -1299,7 +1292,7 @@ export class Node {
     }
 
     graphNodeTitleIsHidden = () : boolean => {
-        return this.isData() && Setting.findValue(Setting.HIDE_DATA_NODE_TITLES);
+        return (this.isData() || this.isGlobal()) && Setting.findValue(Setting.HIDE_DATA_NODE_TITLES);
     }
 
     //get icon color
@@ -1379,6 +1372,11 @@ export class Node {
 
     setKeepExpanded = (value : boolean): Node => {
         this.keepExpanded(value);
+        return this;
+    }
+
+    redraw = () : Node => {
+        this.radius.valueHasMutated();
         return this;
     }
 
@@ -2093,9 +2091,31 @@ export class Node {
         }
 
         // check if this category of node is a legacy node
-        if (cData.sortOrder === Category.SortOrder.Legacy){
-            const message: string = "Node (" + node.getName() + ") has a legacy category (" + node.getCategory() + ").  Consider updating to a more modern node category.";
-            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
+        const updatedCategory = Utils.getLegacyCategoryUpdate(node);
+        if (typeof updatedCategory !== 'undefined'){
+            let updateMessage: string;
+            let updatedCategoryType: Category.Type = null;
+            let issue: Errors.Issue;
+
+            if (updatedCategory === null){
+                updateMessage = "Consider updating to a more modern node category.";
+            } else {
+                updateMessage = "Please update the component to use the new category (" + updatedCategory + ").";
+                updatedCategoryType = CategoryData.getCategoryData(updatedCategory).categoryType;
+            }
+
+            const message: string = "Node (" + node.getName() + ") has a legacy category (" + node.getCategory() + "). " + updateMessage;
+
+            if (updatedCategory === null){
+                issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
+            } else {
+                issue = Errors.ShowFix(
+                    message,
+                    function(){Utils.showNode(eagle, location, node)},
+                    function(){Utils.fixNodeCategory(eagle, node, updatedCategory, updatedCategoryType)},
+                    "Change node category from " + node.getCategory() + " to " + updatedCategory
+                );
+            }
             node.issues().push({issue:issue,validity:Errors.Validity.Warning})
         }
 
@@ -2118,7 +2138,7 @@ export class Node {
 
         // check if a node is completely disconnected from the graph, which is sometimes an indicator of something wrong
         // only check this if the component has been selected in the graph. If it was selected from the palette, it doesn't make sense to complain that it is not connected.
-        if (!isConnected && !(cData.maxInputs === 0 && cData.maxOutputs === 0) && location === Eagle.FileType.Graph){
+        if (!isConnected && !(cData.maxInputs === 0 && cData.maxOutputs === 0) && location === Eagle.FileType.Graph && node.getCategory() !== Category.GlobalVariable){
             const issue: Errors.Issue = Errors.Show("Node (" + node.getName() + ") has no connected edges. It should be connected to the graph in some way", function(){Utils.showNode(eagle, location, node)});
             node.issues().push({issue:issue,validity:Errors.Validity.Warning})
         }
@@ -2155,25 +2175,6 @@ export class Node {
         if (node.getCategory() === Category.Service && node.hasInputApplication() && node.getInputApplication().getOutputPorts().length > 0){
             const issue : Errors.Issue = Errors.Message("Node (" + node.getName() + ") is a Service node, but has an input application with at least one output.")
             node.issues().push({issue:issue,validity:Errors.Validity.Error});
-        }
-
-        // check if this category of node is an old PythonApp node
-        if (node.getCategory() === Category.PythonApp){
-            let newCategory: Category = Category.DALiuGEApp;
-            const dropClassField = node.getFieldByDisplayText(Daliuge.FieldName.DROP_CLASS);
-
-            // by default, update PythonApp to a DALiuGEApp, unless dropclass field value indicates it is a PyFuncApp
-            if (dropClassField && dropClassField.getValue() === Daliuge.DEFAULT_PYFUNCAPP_DROPCLASS_VALUE){
-                newCategory = Category.PyFuncApp;
-            }
-
-            const issue : Errors.Issue = Errors.ShowFix(
-                "Node (" + node.getName() + ") is a " + node.getCategory() + " node, which is a legacy category. The node should be updated to a " + newCategory + " node.",
-                function(){Utils.showNode(eagle, location, node)},
-                function(){Utils.fixNodeCategory(eagle, node, newCategory, node.getCategoryType())},
-                "Change node category from " + node.getCategory() + " to " + newCategory
-            );
-            node.issues().push({issue:issue,validity:Errors.Validity.Warning});
         }
 
         // check that this category of node contains all the fields it requires

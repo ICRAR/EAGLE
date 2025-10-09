@@ -287,29 +287,4 @@ export class Hierarchy {
         
         eagle.logicalGraph.valueHasMutated();
     }
-
-    static nodeIsHidden(id: NodeId) : string {
-        const eagle: Eagle = Eagle.getInstance();
-        const node = eagle.logicalGraph().getNodeById(id);
-
-        if (typeof node === 'undefined'){
-            return 'hidden';
-        }
-
-        let nodeHasConnectedInput: boolean = false;
-        let nodeHasConnectedOutput: boolean = false;
-
-        // check if node has connected input and output
-        for (const edge of eagle.logicalGraph().getEdges()){
-            if (edge.getDestNode().getId() === node.getId()){
-                nodeHasConnectedInput = true;
-            }
-
-            if (edge.getSrcNode().getId() === node.getId()){
-                nodeHasConnectedOutput = true;
-            }
-        }
-
-        return 'hidden';
-    }
 }

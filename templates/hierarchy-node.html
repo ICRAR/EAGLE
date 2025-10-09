@@ -2,7 +2,7 @@
 <li>
     <div class="hierarchyNode rightClick_hierarchyNode" data-bind="class: Hierarchy.isNodeSelected($root.objectIsSelectedById($data.id())), css:{'hierarchyCollapsed':$data.expanded()===false}, attr: {id:'hierarchy-node-'+$data.id()} , click:function(node, e){Hierarchy.selectNode($data, e);}, clickBubble:false,  eagleRightClick: {data:$data,type:'rightClick_hierarchyNode'}">
         <div class="hierarchyNodeColor" data-bind=" style: {'background-color': color}"></div>
-        <div class="hierarchyNodeVisibilityIcon" data-bind="style: {'visibility': Hierarchy.nodeIsHidden($data.id())}">
+        <div class="hierarchyNodeVisibilityIcon">
             <i class="material-symbols-outlined md-18">visibility_off</i>
         </div>
             <!-- ko if: isGroup() -->

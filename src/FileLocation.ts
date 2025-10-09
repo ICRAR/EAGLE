@@ -114,7 +114,7 @@ export class FileLocation {
         url += "/?service=" + fileLocation.repositoryService();
 
         if (fileLocation.repositoryService() === Repository.Service.Url){
-            url += "&url=" + fileLocation.downloadUrl;
+            url += "&url=" + fileLocation.downloadUrl();
         } else {
             url += "&repository=" + fileLocation.repositoryName();
             url += "&branch=" + fileLocation.repositoryBranch();
@@ -134,4 +134,6 @@ export class FileLocation {
                (fl0.commitHash() === fl1.commitHash()) &&
                (fl0.downloadUrl() === fl1.downloadUrl());
     }
+
+    static Unknown: FileLocation = new FileLocation();
 }

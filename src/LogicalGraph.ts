@@ -445,7 +445,6 @@ export class LogicalGraph {
         // used to set parent, embed, subject, inputApplication, outputApplication
         for (const [nodeId, nodeData] of Object.entries(dataObject.nodes)){
             const embed: Node = result.getNodeById((<any>nodeData).embedId);
-            const subject: Node = result.getNodeById((<any>nodeData).subjectId);
             const parent: Node = result.getNodeById((<any>nodeData).parentId);
             const inputApplication: Node = result.getNodeById((<any>nodeData).inputApplicationId);
             const outputApplication: Node = result.getNodeById((<any>nodeData).outputApplicationId);
@@ -475,6 +474,10 @@ export class LogicalGraph {
 
             result.edges().set(edgeId as EdgeId, edge);
             result.edges.valueHasMutated();
+
+            // add edge to source and destination port edge dicts
+            edge.getSrcPort().addEdge(edge);
+            edge.getDestPort().addEdge(edge);
         }
 
         // add visuals
@@ -1227,7 +1230,7 @@ export class LogicalGraph {
         // clear old issues
         graph.issues([]);
 
-        //if the graph has been user created but does not have a description, warn the user
+        //if the graph has been user created but does not have a short description, warn the user
         if (graph.fileInfo().isInitiated() && graph.fileInfo().shortDescription === ''){
             const issue: Errors.Issue = Errors.Show(
                 "Graph does not have a short description.",
@@ -1236,7 +1239,7 @@ export class LogicalGraph {
             graph.issues.push({issue : issue, validity : Errors.Validity.Warning})
         }
 
-        //if the graph has been user created but does not have a description, warn the user
+        //if the graph has been user created but does not have a detailed description, warn the user
         if (graph.fileInfo().isInitiated() && graph.fileInfo().detailedDescription === ''){
             const issue: Errors.Issue = Errors.Show(
                 "Graph does not have a detailed description.",
@@ -1276,7 +1279,7 @@ export class LogicalGraph {
             }
         }
 
-        // loop over graph edges
+        // loop over graph edges to check that all edge ids are unique
         for (const [id, edge] of graph.edges()){
             if (ids.includes(id)){
                 const issue: Errors.Issue = Errors.ShowFix(
@@ -1305,6 +1308,19 @@ export class LogicalGraph {
             ids.push(graphConfig.getId());
         }
 
+        // check that all nodes in the nodes dict have a key that matches the id inside the node
+        for (const [id, node] of graph.nodes()){
+            if (node.getId() !== id){
+                const issue: Errors.Issue = Errors.ShowFix(
+                    "Node (" + id + ") id does not match the key in the nodes dictionary",
+                    function(){Utils.showNode(eagle, Eagle.FileType.Graph, node)},
+                    function(){node.setId(id)},
+                    "Set node id to match key in nodes dictionary"
+                );
+                graph.issues.push({issue : issue, validity : Errors.Validity.Error})
+            }
+        }
+
         // loop over the graph configs to check that the graphLocation in fileInfo matches the location of the graph itself
         for (const graphConfig of graph.getGraphConfigs()){
             if (!FileLocation.match(graphConfig.fileInfo().graphLocation, graph.fileInfo().location)){
@@ -1326,9 +1342,29 @@ export class LogicalGraph {
                 continue;
             }
 
-            if (edge.getSrcPort().getEdgeById(id) === null && edge.getDestPort().getEdgeById(id) === null){
-                const issue: Errors.Issue = Errors.Show("Edge (" + id + ") is not present in source or destination port edges list", function(){Utils.showEdge(eagle, edge)});
+            // check source port
+            if (typeof edge.getSrcPort().getEdgeById(id) === 'undefined'){
+                const issue: Errors.Issue = Errors.Show("Edge (" + id + ") is not present in source port edges list", function(){Utils.showEdge(eagle, edge)});
                 graph.issues.push({issue:issue, validity: Errors.Validity.Error});
+            }
+
+            // check destination port
+            if (typeof edge.getDestPort().getEdgeById(id) === 'undefined'){
+                const issue: Errors.Issue = Errors.Show("Edge (" + id + ") is not present in destination port edges list", function(){Utils.showEdge(eagle, edge)});
+                graph.issues.push({issue:issue, validity: Errors.Validity.Error});
+            }
+        }
+
+        // check that all edges in the edges dict have a key that matches the id inside the edge
+        for (const [id, edge] of graph.edges()){
+            if (edge.getId() !== id){
+                const issue: Errors.Issue = Errors.ShowFix(
+                    "Edge (" + id + ") id does not match the key in the edges dictionary",
+                    function(){Utils.showEdge(eagle, edge)},
+                    function(){edge.setId(id)},
+                    "Set edge id to match key in edges dictionary"
+                );
+                graph.issues.push({issue : issue, validity : Errors.Validity.Error})
             }
         }
 
