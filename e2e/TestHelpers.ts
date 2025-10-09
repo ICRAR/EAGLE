@@ -120,6 +120,20 @@ export class TestHelpers {
         await page.waitForTimeout(500);
     }
 
+    static async getNodeCount(page): Promise<number> {
+        return await page.evaluate( () => {
+            return (window as any).eagle.logicalGraph().nodes().size;
+        });
+    }
+
+    static async undo(page): Promise<void> {
+        return await page.press('body','z');
+    }
+
+    static async redo(page): Promise<void> {
+        return await page.press('body','Shift+z');
+    }
+
     // Check if an object is empty
     static isEmpty(o) {
         for (const p in o) {

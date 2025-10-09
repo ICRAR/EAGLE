@@ -4806,14 +4806,7 @@ export class Eagle {
         // copy node
         const newNode: Node = Utils.duplicateNode(node);
 
-        newNode.setPosition(x, y);
-        this.logicalGraph().addNodeComplete(newNode);
-
-        // flag that the logical graph has been modified
-        this.logicalGraph().fileInfo().modified = true;
-        this.logicalGraph().fileInfo.valueHasMutated();
-
-        // check if node was added to an empty graph, if so prompt user to specify graph name
+        // check if node will be added to an empty graph, if so prompt user to specify graph name
         if (this.logicalGraph().fileInfo().name === ""){
             let filename: string;
             try {
@@ -4824,10 +4817,17 @@ export class Eagle {
             }
             this.logicalGraph().fileInfo().name = filename;
             this.checkGraph();
-            this.undo().pushSnapshot(this, "Named Logical Graph");
+            this.undo().pushSnapshot(this, "Specify Logical Graph name");
             this.logicalGraph.valueHasMutated();
             Utils.showNotification("Graph named", filename, "success");
         }
+
+        newNode.setPosition(x, y);
+        this.logicalGraph().addNodeComplete(newNode);
+
+        // flag that the logical graph has been modified
+        this.logicalGraph().fileInfo().modified = true;
+        this.logicalGraph().fileInfo.valueHasMutated();
 
         return newNode;
     }

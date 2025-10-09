@@ -114,7 +114,12 @@ export class Undo {
             return;
         }
 
+        const prevIndex = (this.current() + Undo.MEMORY_SIZE - 1) % Undo.MEMORY_SIZE;
         const prevprevIndex = (this.current() + Undo.MEMORY_SIZE - 2) % Undo.MEMORY_SIZE;
+
+        // user notification
+        const description = this.memory()[prevIndex].description();
+        Utils.showNotification("Undo", description, "info", false);
 
         this._loadFromIndex(prevprevIndex, eagle);
         this.current((this.current() + Undo.MEMORY_SIZE - 1) % Undo.MEMORY_SIZE);
@@ -141,6 +146,10 @@ export class Undo {
             Utils.showNotification("Unable to Redo", "No further history available", "warning");
             return;
         }
+
+        // user notification
+        const description = this.memory()[this.current()].description();
+        Utils.showNotification("Redo", description, "info", false);
 
         this._loadFromIndex(this.current(), eagle);
         this.current((this.current() + 1) % Undo.MEMORY_SIZE);
