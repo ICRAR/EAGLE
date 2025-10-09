@@ -4,9 +4,7 @@
         "0e0aea98-8189-491f-ab5e-8c50adfef79e": {
             "id": "0e0aea98-8189-491f-ab5e-8c50adfef79e",
             "modelData": {
-                "commitHash": "",
                 "detailedDescription": "",
-                "downloadUrl": "",
                 "generatorCommitHash": "",
                 "generatorName": "",
                 "generatorVersion": "",
@@ -34,9 +32,6 @@
                 "name": "simple",
                 "numLGNodes": 0,
                 "readonly": true,
-                "repo": "",
-                "repoBranch": "",
-                "repoService": "Unknown",
                 "repositoryUrl": "",
                 "schemaVersion": "Unknown",
                 "shortDescription": "Default Configuration",
