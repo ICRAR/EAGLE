@@ -2012,10 +2012,10 @@ export class Eagle {
             }
 
             // check repository name
-            const repository : Repository = Repositories.get(commit.repositoryService, commit.repositoryName, commit.repositoryBranch);
+            const repository : Repository = Repositories.get(commit.location.repositoryService(), commit.location.repositoryName(), commit.location.repositoryBranch());
 
             // TODO: a bit of a kludge here to have to create a new RepositoryFile object just to pass to _commit()
-            const file: RepositoryFile = new RepositoryFile(repository, commit.filePath, commit.fileName);
+            const file: RepositoryFile = new RepositoryFile(repository, commit.location.repositoryPath(), commit.location.repositoryFileName());
             file.type = fileType;
             this._commit(file, fileInfo, commit.message, obj);
 
@@ -2956,7 +2956,7 @@ export class Eagle {
         }
 
         // check repository name
-        const repository : Repository = Repositories.get(commit.repositoryService, commit.repositoryName, commit.repositoryBranch);
+        const repository : Repository = Repositories.get(commit.location.repositoryService(), commit.location.repositoryName(), commit.location.repositoryBranch());
         if (repository === null){
             console.log("Abort commit");
             return;
@@ -2965,7 +2965,7 @@ export class Eagle {
         // get access token for this type of repository
         let token : string;
 
-        switch (commit.repositoryService){
+        switch (commit.location.repositoryService()){
             case Repository.Service.GitHub:
                 token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
                 break;
@@ -2983,8 +2983,6 @@ export class Eagle {
             return;
         }
 
-        const fullFileName : string = Utils.joinPath(commit.filePath, commit.fileName);
-
         // clone the palette
         const p_clone : Palette = palette.clone();
         p_clone.fileInfo().updateEagleInfo();
@@ -2995,11 +2993,11 @@ export class Eagle {
         // convert to json
         const jsonString: string = Palette.toJsonString(p_clone, version);
 
-        const commitJsonString: string = Utils.createCommitJsonString(jsonString, repository, token, fullFileName, commit.message);
+        const commitJsonString: string = Utils.createCommitJsonString(jsonString, repository, token, commit.location.fullPath(), commit.message);
 
         try {
             // TODO: a bit of a kludge here to have to create a new RepositoryFile object just to pass to _commit()
-            const file: RepositoryFile = new RepositoryFile(repository, commit.filePath, commit.fileName);
+            const file: RepositoryFile = new RepositoryFile(repository, commit.location.repositoryPath(), commit.location.repositoryFileName());
             file.type = Eagle.FileType.Palette;
             await this.saveFileToRemote(file, palette.fileInfo, commitJsonString);
         } catch (error){

@@ -34,6 +34,7 @@ import { Edge } from './Edge';
 import { Errors } from './Errors';
 import { Field } from './Field';
 import { FileInfo } from "./FileInfo";
+import { FileLocation } from "./FileLocation";
 import { GraphConfig } from "./GraphConfig";
 import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 import { GraphRenderer } from "./GraphRenderer";
@@ -544,13 +545,15 @@ export class Utils {
             // store data about the choices, callback, result on the modal HTML element
             // so that the info is available to event handlers
             $('#inputModal').data('completed', false);
-            $('#inputModal').data('callback', (completed : boolean, userString : string): void => {
+
+            const callback: Modals.UserStringCallback = (completed : boolean, userString : string) => {
                 if (!completed){
                     reject("Utils.requestUserString() aborted by user");
                 } else {
                     resolve(userString);
                 }
-            });
+            };
+            $('#inputModal').data('callback', callback);
             $('#inputModal').data('returnType', "string");
 
             $('#inputModal').modal("show");
@@ -568,14 +571,15 @@ export class Utils {
             // store the callback, result on the modal HTML element
             // so that the info is available to event handlers
             $('#inputTextModal').data('completed', false);
-            $('#inputTextModal').data('callback', (completed : boolean, userText : string) => {
+
+            const callback: Modals.UserTextCallback = (completed : boolean, userText : string) => {
                 if (!completed){
                     reject("Utils.requestUserText() aborted by user");
                 } else {
                     resolve(userText);
                 }
-            });
-
+            };
+            $('#inputTextModal').data('callback', callback);
             $('#inputTextModal').modal("show");
         });
     }
@@ -611,13 +615,15 @@ export class Utils {
             // store the callback, result on the modal HTML element
             // so that the info is available to event handlers
             $('#inputCodeModal').data('completed', false);
-            $('#inputCodeModal').data('callback', (completed : boolean, userText : string) => {
+
+            const callback: Modals.UserTextCallback = (completed : boolean, userText : string) => {
                 if (!completed){
                     reject("Utils.requestUserCode() aborted by user");
                 } else {
                     resolve(userText);
                 }
-            });
+            };
+            $('#inputCodeModal').data('callback', callback);
 
             $('#inputCodeModal').modal("show");
         })
@@ -640,13 +646,15 @@ export class Utils {
             // store the callback, result on the modal HTML element
             // so that the info is available to event handlers
             $('#inputMarkdownModal').data('completed', false);
-            $('#inputMarkdownModal').data('callback', (completed : boolean, userMarkdown : string) => {
+
+            const callback: Modals.UserMarkdownCallback = (completed : boolean, userMarkdown : string) => {
                 if (!completed){
                     reject("Utils.requestUserMarkdown() aborted by user");
                 } else {
                     resolve(userMarkdown);
                 }
-            });
+            };
+            $('#inputMarkdownModal').data('callback', callback);
 
             $('#inputMarkdownModal').modal("show");
         });
@@ -661,13 +669,15 @@ export class Utils {
             // store data about the choices, callback, result on the modal HTML element
             // so that the info is available to event handlers
             $('#inputModal').data('completed', false);
-            $('#inputModal').data('callback', (completed : boolean, userNumber : number) => {
+
+            const callback: Modals.UserNumberCallback = (completed : boolean, userNumber : number) => {
                 if (!completed){
                     reject("Utils.requestUserNumber() aborted by user");
                 } else {
                     resolve(userNumber);
                 }
-            });
+            }
+            $('#inputModal').data('callback', callback);
             $('#inputModal').data('returnType', "number");
 
             $('#inputModal').modal("show");
@@ -710,13 +720,15 @@ export class Utils {
             // store data about the choices, callback, result on the modal HTML element
             // so that the info is available to event handlers
             $('#choiceModal').data('completed', false);
-            $('#choiceModal').data('callback', function(completed: boolean, choice: string): void {
+
+            const callback: Modals.UserChoiceCallback = (completed: boolean, choice: string): void =>{
                 if (completed){
                     resolve(choice);
                 } else {
                     reject("Utils.requestUserChoice() aborted by user");
                 }
-            });
+            };
+            $('#choiceModal').data('callback', callback);
             $('#choiceModal').data('choices', choices);
 
             // trigger the change event, so that the event handler runs and disables the custom text entry field if appropriate
@@ -749,9 +761,10 @@ export class Utils {
                 })
             }
 
-            $('#confirmModal').data('callback', function(completed: boolean, confirmed: boolean): void {
+            const callback: Modals.UserConfirmCallback = (completed: boolean, confirmed: boolean) => {
                 resolve(completed && confirmed);
-            });
+            };
+            $('#confirmModal').data('callback', callback);
 
             $('#confirmModal').modal("show");
         });
@@ -772,10 +785,11 @@ export class Utils {
             $('#optionsModalOption2').toggleClass('btn-primary', defaultOptionIndex === 2);
             $('#optionsModalOption2').toggleClass('btn-secondary', defaultOptionIndex !== 2);
 
-            $('#optionsModal').data('callback', function(selectedOptionIndex: number){
+            const callback: Modals.UserOptionsCallback = (selectedOptionIndex: number) => {
                 const selectedOption = [option0, option1, option2][selectedOptionIndex];
                 resolve(selectedOption);
-            });
+            };
+            $('#optionsModal').data('callback', callback);
 
             $('#optionsModal').modal("show");
         });
@@ -786,13 +800,16 @@ export class Utils {
         return new Promise(async(resolve, reject) => {
             $('#gitCommitModal').data('completed', false);
             $('#gitCommitModal').data('fileType', fileType);
-            $('#gitCommitModal').data('callback', function(completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string): void {
+
+            const callback: Modals.GitCommitCallback = function(completed: boolean, location: FileLocation, commitMessage: string): void {
                 if (completed){
-                    resolve(new RepositoryCommit(repositoryService, repositoryName, repositoryBranch, filePath, fileName, commitMessage));
+                    resolve(new RepositoryCommit(location, commitMessage));
                 } else {
                     reject("Utils.requestUserGitCommit() aborted by user");
                 }
-            });
+            };
+
+            $('#gitCommitModal').data('callback', callback);
             $('#gitCommitModal').data('repositories', repositories);
             $('#gitCommitModal').modal("show");
 
@@ -833,9 +850,11 @@ export class Utils {
             eagle.currentField(field);
 
             $('#editFieldModal').data('completed', false);
-            $('#editFieldModal').data('callback', (completed: boolean, field: Field): void => {
+
+            const callback: Modals.UserFieldCallback = function(field: Field): void {
                 resolve(field);
-            });
+            }
+            $('#editFieldModal').data('callback', callback);
             $("#editFieldModalTitle").html(title);
             $('#editFieldModal').data('choices', choices);
             $('#editFieldModal').modal("show");
@@ -848,13 +867,16 @@ export class Utils {
             $('#gitCustomRepositoryModalRepositoryBranchInput').val("");
 
             $('#gitCustomRepositoryModal').data('completed', false);
-            $('#gitCustomRepositoryModal').data('callback', (completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string) => {
+
+            const callback: Modals.GitCustomRepositoryCallback = function(completed: boolean, repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string): void {
                 if (!completed){
                     reject("Utils.requestUserAddCustomRepository aborted by user");
                 } else {
                     resolve(new Repository(repositoryService, repositoryName, repositoryBranch, false));
                 }
-            });
+            };
+
+            $('#gitCustomRepositoryModal').data('callback', callback);
             $('#gitCustomRepositoryModal').modal("show");
         });
     }

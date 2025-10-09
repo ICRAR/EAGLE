@@ -134,4 +134,6 @@ export class FileLocation {
                (fl0.commitHash() === fl1.commitHash()) &&
                (fl0.downloadUrl() === fl1.downloadUrl());
     }
+
+    static Unknown: FileLocation = new FileLocation();
 }
