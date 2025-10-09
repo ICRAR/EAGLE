@@ -29,6 +29,7 @@ import { LogicalGraph } from "./LogicalGraph";
 import { Edge } from "./Edge";
 import { Node } from "./Node";
 import { Errors } from "./Errors";
+import { EagleConfig } from "./EagleConfig";
 
 export class Visual {
     private id: ko.Observable<VisualId>;
@@ -47,8 +48,8 @@ export class Visual {
         this.id = ko.observable(Utils.generateVisualId());
         this.x = ko.observable(0);
         this.y = ko.observable(0);
-        this.width = ko.observable(0);
-        this.height = ko.observable(0);
+        this.width = ko.observable(EagleConfig.TEXT_VISUAL_DEFAULT_WIDTH);
+        this.height = ko.observable(EagleConfig.TEXT_VISUAL_DEFAULT_HEIGHT);
         this.type = ko.observable(type);
         this.content = ko.observable(content);
         this.target = ko.observable(null);
@@ -79,6 +80,12 @@ export class Visual {
     setPosition = (x: number, y: number): Visual => {
         this.x(x)
         this.y(y)
+        return this;
+    }
+
+    changePosition = (dx : number, dy : number) : Visual => {
+        this.x(this.x()+dx)
+        this.y(this.y()+dy)
         return this;
     }
 

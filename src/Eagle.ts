@@ -659,7 +659,7 @@ export class Eagle {
         }
     }
 
-    editSelection = (selection : Node | Edge, selectedLocation: Eagle.FileType) : void => {
+    editSelection = (selection : Node | Edge | Visual, selectedLocation: Eagle.FileType) : void => {
         // check that location is the same, otherwise default back to set
         if (selectedLocation !== Eagle.selectedLocation() && this.selectedObjects().length > 0){
             Utils.showNotification("Selection Error", "Can't add object from " + selectedLocation + " to existing selected objects in " + Eagle.selectedLocation(), "warning");

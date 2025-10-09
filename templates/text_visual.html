@@ -1,4 +1,4 @@
-<div class="nodeContent comment_node">
+<div class="nodeContent comment_node" data-bind="style: {width: $data.getWidth() + 'px', height: $data.getHeight() + 'px'}">
     <div class="container" data-bind="css: {selected: $root.objectIsSelected($data)}">
         <div class="commentIcons">
             <button class="parameterTableEditParam icon-pencil iconHoverEffect" data-bind="click:function(data,event){$root.editNodeComment()}"></button>

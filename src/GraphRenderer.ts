@@ -275,7 +275,7 @@ export class GraphRenderer {
 
     // TODO: group all the dragging variables. move into a structure?
     static isDragging : ko.Observable<boolean> = ko.observable(false);
-    static draggingNode : ko.Observable<Node> = ko.observable(null);
+    static draggingObject : ko.Observable<Node | Visual> = ko.observable(null);
     static draggingPaletteNode : boolean = false;
 
     //port drag handler globals
@@ -297,7 +297,6 @@ export class GraphRenderer {
     //node drag handler globals
     static nodeParentRadiusPreDrag : number = null;
     static nodeDragElement : any = null
-    static nodeDragNode : Node = null
     static dragStartPosition : any = null
     static dragCurrentPosition : any = null
     static dragSelectionHandled : any = ko.observable(true)
@@ -1040,18 +1039,18 @@ export class GraphRenderer {
         if(object === null || event.button === 1){
             GraphRenderer.dragSelectionHandled(true)
             GraphRenderer.isDragging(true);
-        } else if(object instanceof Node && !object.isEmbedded()){
+        } else if(object instanceof Node && !object.isEmbedded() || object instanceof Visual){
+            console.log('dragging node or visual' , object)
             // embedded nodes, aka input and output applications of constructs, cant be dragged
             //initiating node dragging
             GraphRenderer.isDragging(true);
-            GraphRenderer.draggingNode(object);
+            GraphRenderer.draggingObject(object);
             GraphRenderer.nodeDragElement = event.target
-            GraphRenderer.nodeDragNode = object
             GraphRenderer.dragStartPosition = {x:event.pageX,y:event.pageY}
             GraphRenderer.dragCurrentPosition = {x:event.pageX,y:event.pageY}
             
             //checking if the node is inside of a construct, if so, fetching it's parent
-            if(object.getParent() !== null){
+            if(object instanceof Node && object.getParent() !== null){
                 const parentNode = object.getParent();
                 if (parentNode !== null){
                     $('#'+parentNode.getId()).removeClass('transition')
@@ -1112,7 +1111,7 @@ export class GraphRenderer {
         GraphRenderer.dragCurrentPosition = {x:e.pageX,y:e.pageY}
 
         if (GraphRenderer.isDragging()){
-            if (GraphRenderer.draggingNode() !== null && !GraphRenderer.isDraggingSelectionRegion ){
+            if (GraphRenderer.draggingObject() !== null && !GraphRenderer.isDraggingSelectionRegion ){
                 //check and note if the mouse has moved
                 GraphRenderer.simpleSelect = GraphRenderer.dragStartPosition.x - moveDistance.x < 5 && GraphRenderer.dragStartPosition.y - moveDistance.y < 5
                 
@@ -1122,7 +1121,7 @@ export class GraphRenderer {
                 // move node if the mouse has moved during the drag event
                 if(!GraphRenderer.simpleSelect){
                     eagle.selectedObjects().forEach(function(obj){
-                        if(obj instanceof Node){
+                        if(obj instanceof Node || obj instanceof Visual){
                             obj.changePosition(moveDistance.x/eagle.globalScale(), moveDistance.y/eagle.globalScale());
                         }
                     })
@@ -1148,7 +1147,7 @@ export class GraphRenderer {
         }
     }
 
-    static endDrag(node: Node) : void {
+    static endDrag(object: Node | Visual) : void {
         const eagle = Eagle.getInstance();
 
         // if we dragged a selection region
@@ -1157,10 +1156,10 @@ export class GraphRenderer {
             
             //checking if there was no drag distance, if so we are clicking a single object and we will toggle its selection
             if(Math.abs(GraphRenderer.selectionRegionStart.x-GraphRenderer.selectionRegionEnd.x)+Math.abs(GraphRenderer.selectionRegionStart.y - GraphRenderer.selectionRegionEnd.y)<3){
-                if(!GraphRenderer.altSelect){
-                    GraphRenderer.selectNodeAndChildren(node,GraphRenderer.shiftSelect)
+                if(!GraphRenderer.altSelect && object instanceof Node){
+                    GraphRenderer.selectNodeAndChildren(object,GraphRenderer.shiftSelect)
                 }
-                eagle.editSelection(node,Eagle.FileType.Graph);
+                eagle.editSelection(object,Eagle.FileType.Graph);
             }else{
                 GraphRenderer.selectInRegion(nodes);
             }
@@ -1185,8 +1184,10 @@ export class GraphRenderer {
         // if we aren't multi selecting and the node has moved by a larger amount
         if (!GraphRenderer.isDraggingSelectionRegion && !GraphRenderer.simpleSelect){
             // check if moving whole graph, or just a single node
-            if (node !== null){
-                eagle.undo().pushSnapshot(eagle, "Move '" + node.getName() + "' node");
+            if (object !== null && object instanceof Node){
+                eagle.undo().pushSnapshot(eagle, "Move '" + object.getName() + "' node");
+            }else if(object !== null && object instanceof Visual){
+                eagle.undo().pushSnapshot(eagle, "Move '" + object.getType() + "' visual. id: " + object.getId());
             }
         }
 
@@ -1194,7 +1195,7 @@ export class GraphRenderer {
         GraphRenderer.simpleSelect = true;
         GraphRenderer.dragSelectionHandled(true)
         GraphRenderer.isDragging(false);
-        GraphRenderer.draggingNode(null);
+        GraphRenderer.draggingObject(null);
         
         //this is to make affected constructs re calculate their size
         eagle.selectedObjects.valueHasMutated()
