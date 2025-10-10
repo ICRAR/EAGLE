@@ -579,10 +579,7 @@ export class Modals {
 
         //reset value fields dataType specific attributes
         $('#editFieldModalValueInputNumber').removeClass('inputNoArrows')
-        $('#editFieldModalDefaultValueInputNumber').removeClass('inputNoArrows')
         $('#editFieldModalValueInputNumber').removeAttr('min').removeAttr('step').removeAttr('onfocus').removeAttr( 'onkeydown').removeAttr( 'oninput')
-        $('#editFieldModalDefaultValueInputNumber').removeAttr('min').removeAttr('step').removeAttr('onfocus').removeAttr( 'onkeydown').removeAttr( 'oninput')
-        
 
         //toggle on the correct value input fields depending on type
         $('#editFieldModalValueInputText').toggle(dataType !== Daliuge.DataType.Boolean && dataType !== Daliuge.DataType.Select && dataType !== Daliuge.DataType.Float && dataType !== Daliuge.DataType.Integer);
@@ -590,19 +587,11 @@ export class Modals {
         $('#editFieldModalValueInputCheckbox').parent().toggle(dataType === Daliuge.DataType.Boolean);
         $('#editFieldModalValueInputSelect').toggle(dataType === Daliuge.DataType.Select);
 
-        $('#editFieldModalDefaultValueInputText').toggle(dataType !== Daliuge.DataType.Boolean && dataType !== Daliuge.DataType.Select && dataType !== Daliuge.DataType.Float && dataType !== Daliuge.DataType.Integer);
-        $('#editFieldModalDefaultValueInputNumber').toggle(dataType === Daliuge.DataType.Float || dataType === Daliuge.DataType.Integer);
-        $('#editFieldModalDefaultValueInputCheckbox').parent().toggle(dataType === Daliuge.DataType.Boolean);
-        $('#editFieldModalDefaultValueInputSelect').toggle(dataType === Daliuge.DataType.Select);
-
         //setting up number value input specific things that are different for integers of floats 
         if(dataType === Daliuge.DataType.Integer){
             $('#editFieldModalValueInputNumber').attr('min',"0").attr('step',"1").attr('onfocus',"this.previousValue = this.value").attr( 'onkeydown', "this.previousValue = this.value").attr( 'oninput',"validity.valid || (value = this.previousValue)")
-            $('#editFieldModalDefaultValueInputNumber').attr('min',"0").attr('step',"1").attr('onfocus',"this.previousValue = this.value").attr( 'onkeydown', "this.previousValue = this.value").attr( 'oninput',"validity.valid || (value = this.previousValue)")
-
         }else if (dataType === Daliuge.DataType.Float){
             $('#editFieldModalValueInputNumber').addClass('inputNoArrows')
-            $('#editFieldModalDefaultValueInputNumber').addClass('inputNoArrows')
         }
     }
 

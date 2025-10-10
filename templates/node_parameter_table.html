@@ -38,7 +38,6 @@
             <div class="dropdown-menu dropdown-menu-right dropdown-area">
                 <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleKeyAttribute()}"><span>Key Parameter</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().keyAttribute()"></div>
                 <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleFieldId()}"><span>Field ID</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().fieldId()"></div>
-                <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleDefaultValue()}"><span>Default Value</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().defaultValue()"></div>
                 <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleDescription()}"><span>Description</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().description()"></div>
                 <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleType()}"><span>Type</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().type()"></div>
                 <div class="dropdown-item" data-bind="click:function(){ParameterTable.getActiveColumnVisibility().toggleFlags()}"><span>Flags</span><input type="checkbox" data-bind="checked:ParameterTable.getActiveColumnVisibility().flags()"></div>
@@ -116,13 +115,6 @@
                                             <i id="tableSort_value" class="md-18 tableSortIcon icon-tableSortNone"></i>
                                             Value
                                             <div data-bind="click: function() { },clickBubble: false, css: {resizer: ParameterTable.setUpColumnResizer('parameter_table_value') === true}"></div>
-                                        </th>
-                                    <!-- /ko -->
-                                    <!-- ko if: ParameterTable.getActiveColumnVisibility().defaultValue() -->
-                                        <th class="parameter_table_default_value" data-bind="click: function(){ParameterTable.sortTableBy('defaultValue')}, eagleTooltip:'The default value of this parameter before user modifications'" data-bs-placement="top">
-                                            <i id="tableSort_defaultValue" class="md-18 tableSortIcon icon-tableSortNone"></i>
-                                            Default Value
-                                            <div data-bind="click: function() { },clickBubble: false, css: {resizer: ParameterTable.setUpColumnResizer('parameter_table_default_value') === true}"></div>
                                         </th>
                                     <!-- /ko -->
                                     <!-- ko if: ParameterTable.getActiveColumnVisibility().description() -->
@@ -279,58 +271,6 @@
                                                                     <select aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="disabled: ParameterTable.getCurrentParamValueReadonly($data), options: $data.options, value: $data.value">
                                                                         <!-- options are added dynamically -->
                                                                     </select>
-                                                                </div>
-                                                            </div>
-                                                        <!-- /ko -->
-                                                    <!-- /ko -->
-                                                </td>
-                                            <!-- /ko -->
-                                             
-<!-- default value cell -->
- 
-                                            <!-- ko if: ParameterTable.getActiveColumnVisibility().defaultValue() -->
-                                                <td class='columnCell column_DefaultValue' data-bind="css: {selectedTableParameter: ParameterTable.isSelected('defaultValue', $data) }">
-
-                                                    <!-- integer -->
-                                                    <!-- ko if: $data.isIntegerValueType() -->
-                                                        <input class="tableParameter" type="number" step="1" onfocus="this.previousValue = this.value" onkeydown="this.previousValue = this.value" oninput="validity.valid || (value = this.previousValue)" data-bind="disabled: ParameterTable.getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $data, $index())}, click: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $data, $index())}}">
-                                                    <!-- /ko -->
-
-                                                    <!-- ko if: $data.isFloatValueType() -->
-                                                        <input class="tableParameter" type="number"  step="0.1" data-bind="disabled: ParameterTable.getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $data, $index())}, click: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $data, $index())}}">
-                                                    <!-- /ko -->
-
-                                                    <!-- string -->
-                                                    <!-- ko if: $data.isStringValueType() -->
-                                                        <textarea  style="resize: none;" type="text" class="tableParameter inputNoArrows" data-bind="disabled: ParameterTable.getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, event: {change: ParameterTable.fieldValueChanged, keyup: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $data, $index())}, click: function(event, data){ParameterTable.select($data.defaultValue(), 'defaultValue', $data, $index())}}"></textarea>
-                                                        <button class="parameterTableEditParam icon-pencil iconHoverEffect" data-bind="click:function(data,event){ParameterTable.requestEditValueField($data, true)}"></button>
-                                                    <!-- /ko -->
-                                                     
-                                                    <!-- boolean -->
-                                                    <!-- ko if: $data.isBooleanValueType() -->
-                                                        <input class="tableParameter" tabindex='-1' type="checkbox" onclick="$(this).val(this.checked ? true : false)" data-bind="checked: valIsTrue($data.defaultValue()), disabled: ParameterTable.getNodeLockedState($data), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, event: {change: ParameterTable.fieldValueChanged}">
-                                                    <!-- /ko -->
-
-                                                    <!-- selection input -->
-                                                    <!-- ko if: $data.isSelectValueType() -->
-                                                        <!-- ko ifnot: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING) -->
-                                                            <select aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="disabled: ParameterTable.getNodeLockedState($data), event: {change: ParameterTable.fieldValueChanged}, options: $data.options, value: $data.defaultValue">
-                                                                <!-- options are added dynamically -->
-                                                            </select>
-                                                        <!-- /ko -->
-                                                        <!-- ko if: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING) -->
-                                                            <div class="dropdown parameterTableTypeCustomSelect">
-                                                                <a class="dropdown-toggle dropdown-control" data-bind="text:$data.defaultValue, disabled: ParameterTable.getNodeLockedState($data)" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
-                                                                <div class="dropdown-menu dropdown-menu-right dropdown-area" aria-labelledby="parameterTableTpeCustomSelect" data-bind="event:{mousewheel: $root.slowScroll}">
-                                                                    <!-- ko foreach:$data.options()-->
-                                                                        <div class="dropdown-item" data-bind="click:function(data, event){$parent.setDefaultValue($data);}">
-                                                                            <input data-bind="value:$data, event: {change:function(data,event){$parent.editOption($index(),$(event.target).val())}}" type="text">
-                                                                            <button class="typeSelectDelete" data-bind="clickBubble:false, click: function(){$parent.removeOption($index())}"><i class="material-symbols-outlined md-24 iconHoverEffect">delete</i></button>
-                                                                        </div>
-                                                                    <!-- /ko -->
-                                                                    <div class="dropdown-item add" data-bind="click:function(data,event){event.stopPropagation();addOption('')}">
-                                                                        <i class="material-symbols-outlined iconHoverEffect">add</i>
-                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         <!-- /ko -->

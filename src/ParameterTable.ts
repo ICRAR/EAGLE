@@ -1084,7 +1084,7 @@ export class ColumnVisibilities {
 }
 
 
-// name, keyAttribute,displayText,value,readOnly,defaultValue,description,type,parameterType,usage,flags,actions
+// name, keyAttribute,displayText,value,readOnly,description,type,parameterType,usage,flags,actions
 const columnVisibilities : ColumnVisibilities[] = [
     new ColumnVisibilities("Student", false, true,false,true,true,false,false,false,false,false,false,false),
     new ColumnVisibilities("Minimal", true, true,false,true,true,false,false,false,false,false,true,false),
