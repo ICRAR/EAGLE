@@ -466,14 +466,6 @@ export class Field {
         return f;
     }
 
-    // resetToDefault will have to behave differently, it should remove the field from the config
-    /*
-    resetToDefault = () : Field => {
-        this.value(this.defaultValue());
-        return this;
-    }
-    */
-
     // TODO: rename this slightly so that it is more obvious that it is a user-facing version of the value
     //       as it is I get confused between this and getValue() when auto-completing
     getFieldValue = () : string => {

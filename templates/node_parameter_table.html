@@ -433,7 +433,6 @@
  
                                             <!-- ko if: ParameterTable.getActiveColumnVisibility().actions() -->
                                                 <td class="columnCell column_Actions">
-                                                    <button class="resetDefaults iconHoverEffect" onclick="$(this).val(this.checked ? true : false)" data-bind="click: function(){$data.resetToDefault();$root.selectedObjects.valueHasMutated();$root.flagActiveFileModified();}, disabled: ParameterTable.getCurrentParamReadonly($data), eagleTooltip:'Reset To Default'"><i class="material-symbols-outlined">upload_file</i></button>
                                                     <!-- ko ifnot: ParameterTable.getNodeLockedState($data) -->
                                                         <button class="edit iconHoverEffect" onclick="$(this).val(this.checked ? true : false)" data-bind="click: $root.editField, disabled: ParameterTable.getCurrentParamReadonly($data), eagleTooltip:'Edit'"><i class="material-symbols-outlined">edit</i></button>
                                                         <button class="duplicate iconHoverEffect" onclick="$(this).val(this.checked ? true : false)" data-bind="click: ParameterTable.duplicateTableRow, disabled: ParameterTable.getNodeLockedState($data), eagleTooltip:'Duplicate'"><i class="material-symbols-outlined">content_copy</i></button>
