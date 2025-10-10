@@ -197,7 +197,6 @@
             "drawOrderHint": 0,
             "fields": [
                 {
-                    "defaultValue": "false",
                     "description": "Specifies whether this data component contains data that should not be deleted after execution",
                     "encoding": "pickle",
                     "id": "81ac13b6-6d48-49fd-b661-9c60b5479a92",
@@ -212,7 +211,6 @@
                     "value": false
                 },
                 {
-                    "defaultValue": "false",
                     "description": "Specifies whether this data component streams input and output data",
                     "encoding": "pickle",
                     "id": "442e9bb2-712b-4a12-b13f-331797a9f14a",
@@ -227,7 +225,6 @@
                     "value": false
                 },
                 {
-                    "defaultValue": "1",
                     "description": "",
                     "encoding": "pickle",
                     "id": "06a01138-3c97-4455-b8ba-33692e806262",
@@ -273,7 +270,6 @@
             "drawOrderHint": 0,
             "fields": [
                 {
-                    "defaultValue": "false",
                     "description": "Specifies whether this data component contains data that should not be deleted after execution",
                     "encoding": "pickle",
                     "id": "c19c21c5-720e-4479-9539-510c25173c28",
@@ -288,7 +284,6 @@
                     "value": false
                 },
                 {
-                    "defaultValue": "false",
                     "description": "Specifies whether this data component streams input and output data",
                     "encoding": "pickle",
                     "id": "793e8c74-6788-48cc-9e8e-9639e55538f3",
@@ -303,7 +298,6 @@
                     "value": false
                 },
                 {
-                    "defaultValue": "0",
                     "description": "Estimate of execution time (in seconds) for this application.",
                     "encoding": "pickle",
                     "id": "a6e9b6ac-1d10-4d7a-8f48-c237307248ae",
@@ -318,7 +312,6 @@
                     "value": 5
                 },
                 {
-                    "defaultValue": "0",
                     "description": "Number of CPUs used for this application.",
                     "encoding": "pickle",
                     "id": "7277f675-1944-40eb-a5a8-975a2585bf15",
@@ -333,7 +326,6 @@
                     "value": 1
                 },
                 {
-                    "defaultValue": "false",
                     "description": "Is this node the start of a group?",
                     "encoding": "pickle",
                     "id": "b6023fc5-2692-4933-973c-2f6d98210b57",
@@ -348,7 +340,6 @@
                     "value": false
                 },
                 {
-                    "defaultValue": "",
                     "description": "The python class that implements this application",
                     "encoding": "pickle",
                     "id": "8ecdd652-1c5b-47ca-bd2a-f6bab3446cac",
@@ -363,7 +354,6 @@
                     "value": "dlg.apps.simple.SleepApp"
                 },
                 {
-                    "defaultValue": "",
                     "description": "",
                     "encoding": "pickle",
                     "id": "adca4562-2239-4100-a31c-d784ed5c56d4",
@@ -378,7 +368,6 @@
                     "value": ""
                 },
                 {
-                    "defaultValue": "",
                     "description": "",
                     "encoding": "pickle",
                     "id": "66d8030d-85e5-4489-ab31-bc0be6fe0acf",
@@ -393,7 +382,6 @@
                     "value": ""
                 },
                 {
-                    "defaultValue": "5",
                     "description": "",
                     "encoding": "pickle",
                     "id": "8c0bf11e-f5cb-4ece-9f6b-29cac3a4de74",
@@ -408,7 +396,6 @@
                     "value": 5
                 },
                 {
-                    "defaultValue": "1",
                     "description": "",
                     "encoding": "pickle",
                     "id": "d9f56aa4-8cec-4435-9b4c-701155f214a5",
@@ -423,7 +410,6 @@
                     "value": 1
                 },
                 {
-                    "defaultValue": "def func_name(args): return args",
                     "description": "Python function code",
                     "encoding": "pickle",
                     "id": "3a0ba670-6e94-4762-b48b-227e72e28048",
@@ -438,7 +424,6 @@
                     "value": ""
                 },
                 {
-                    "defaultValue": "func_name",
                     "description": "Python function name",
                     "encoding": "pickle",
                     "id": "ad336a6d-9f36-4e81-a283-9ab1134a457c",
@@ -485,7 +470,6 @@
             "drawOrderHint": 0,
             "fields": [
                 {
-                    "defaultValue": "100",
                     "description": "The size of the array",
                     "encoding": "pickle",
                     "id": "0f875278-1ea6-4eaa-ae5b-ba5745ff2e6d",
@@ -500,7 +484,6 @@
                     "value": 10
                 },
                 {
-                    "defaultValue": "0",
                     "description": "Low value of range in array [inclusive]",
                     "encoding": "pickle",
                     "id": "03c4c994-b720-4484-9037-41245a5ace3b",
@@ -515,7 +498,6 @@
                     "value": 0
                 },
                 {
-                    "defaultValue": "1",
                     "description": "High value of range of array [exclusive]",
                     "encoding": "pickle",
                     "id": "9424b089-c307-4366-b085-b2f6c47bcd39",
@@ -530,7 +512,6 @@
                     "value": 1
                 },
                 {
-                    "defaultValue": "True",
                     "description": "Generate integer array?",
                     "encoding": "pickle",
                     "id": "68435e7d-a179-4ffa-b3c4-b719f8501feb",
@@ -545,7 +526,6 @@
                     "value": false
                 },
                 {
-                    "defaultValue": "dlg.apps.simple.RandomArrayApp",
                     "description": "Application class",
                     "encoding": "pickle",
                     "id": "f7a18a0e-21d2-4c6c-b7d6-50a2aedf9e67",
@@ -560,7 +540,6 @@
                     "value": "dlg.apps.simple.RandomArrayApp"
                 },
                 {
-                    "defaultValue": "simple",
                     "description": "Base name of application class",
                     "encoding": "pickle",
                     "id": "426c5c49-b6af-489d-8e9d-170c1dc676bd",
@@ -575,7 +554,6 @@
                     "value": "simple"
                 },
                 {
-                    "defaultValue": "5",
                     "description": "Estimated execution time",
                     "encoding": "pickle",
                     "id": "777e9f09-7c17-4969-922f-f67dc998f557",
@@ -590,7 +568,6 @@
                     "value": 5
                 },
                 {
-                    "defaultValue": "1",
                     "description": "Number of cores used",
                     "encoding": "pickle",
                     "id": "ab862ba7-3b47-4b0a-ab02-b09087cf4ba5",
@@ -605,7 +582,6 @@
                     "value": 1
                 },
                 {
-                    "defaultValue": "False",
                     "description": "Is this node the start of a group?",
                     "encoding": "pickle",
                     "id": "45e1fa61-1330-4c2b-bc52-b263f117de9d",
@@ -620,7 +596,6 @@
                     "value": false
                 },
                 {
-                    "defaultValue": "",
                     "description": "random array",
                     "encoding": "pickle",
                     "id": "25bf5b38-439c-49c9-b7cc-7905d34eed3a",
@@ -635,7 +610,6 @@
                     "value": ""
                 },
                 {
-                    "defaultValue": "def func_name(args): return args",
                     "description": "Python function code",
                     "encoding": "pickle",
                     "id": "5597ca69-cc61-4664-a1ff-015face1268e",
@@ -650,7 +624,6 @@
                     "value": ""
                 },
                 {
-                    "defaultValue": "func_name",
                     "description": "Python function name",
                     "encoding": "pickle",
                     "id": "e51b112a-5b05-4045-b490-69c323d758c9",
@@ -696,7 +669,6 @@
             "drawOrderHint": 0,
             "fields": [
                 {
-                    "defaultValue": "",
                     "description": "",
                     "encoding": "pickle",
                     "id": "935017d0-297b-4865-9e80-857c9abb160c",
@@ -711,7 +683,6 @@
                     "value": ""
                 },
                 {
-                    "defaultValue": "",
                     "description": "File path for this file. In many cases this does not need to be specified. If it has a \\/ at the end it will be treated as a directory name and the filename will be generated. If it does not have a \\/, the last part will be treated as a filename. If filepath does not start with \\/ (relative path) then the session directory will be prepended to make the path absolute.\"",
                     "encoding": "pickle",
                     "id": "a50129d4-c3c0-4fb0-b852-318804d612a4",
@@ -726,7 +697,6 @@
                     "value": ""
                 },
                 {
-                    "defaultValue": "False",
                     "description": "Perform a check to make sure the file path exists before proceeding with the application",
                     "encoding": "pickle",
                     "id": "847ed852-08f9-487a-b0a1-bf4ded4b007e",
@@ -741,7 +711,6 @@
                     "value": false
                 },
                 {
-                    "defaultValue": "dlg.data.drops.file.FileDROP",
                     "description": "Drop class",
                     "encoding": "pickle",
                     "id": "5c7836b9-615d-4699-95d3-32e0bb6001ef",
@@ -756,7 +725,6 @@
                     "value": "dlg.data.drops.file.FileDROP"
                 },
                 {
-                    "defaultValue": "file",
                     "description": "Base name of application class",
                     "encoding": "pickle",
                     "id": "35df7f9d-ae4f-4958-95b2-c0c7da26e1f7",
@@ -771,7 +739,6 @@
                     "value": "file"
                 },
                 {
-                    "defaultValue": "False",
                     "description": "Specifies whether this data component streams input and output data",
                     "encoding": "pickle",
                     "id": "5b2301af-3dab-4808-9390-b11c1fc24abd",
@@ -786,7 +753,6 @@
                     "value": false
                 },
                 {
-                    "defaultValue": "True",
                     "description": "Specifies whether this data component contains data that should not be deleted after execution",
                     "encoding": "pickle",
                     "id": "bd8f873e-c42c-429b-b271-9be0e7a3e937",
@@ -801,7 +767,6 @@
                     "value": true
                 },
                 {
-                    "defaultValue": "5",
                     "description": "Estimated size of the data contained in this node",
                     "encoding": "pickle",
                     "id": "aa3916b7-9655-47dd-9bb4-d19e735681a5",
@@ -816,7 +781,6 @@
                     "value": 5
                 },
                 {
-                    "defaultValue": "False",
                     "description": "Is this node the end of a group?",
                     "encoding": "pickle",
                     "id": "cafce87c-a4fc-4577-b3d9-12db2ecf94bc",
@@ -862,7 +826,6 @@
             "drawOrderHint": 0,
             "fields": [
                 {
-                    "defaultValue": "condition",
                     "description": "Python conditional function name. This can also be a valid import path to an importable function.",
                     "encoding": "pickle",
                     "id": "0cf1f143-b2ae-48e8-845c-c5710db34e83",
@@ -877,7 +840,6 @@
                     "value": "condition"
                 },
                 {
-                    "defaultValue": "condition(x): return (x > 0)",
                     "description": "Python function code for the branch condition. Modify as required. Note that func_name above needs to match the defined name here.",
                     "encoding": "pickle",
                     "id": "ebc131a6-c386-41e5-b415-1457cabfedf9",
@@ -892,7 +854,6 @@
                     "value": "def condition(x): return (x < 0.25)"
                 },
                 {
-                    "defaultValue": "",
                     "description": "Port carrying the input which is also used in the condition function. Note that the name of the parameter has to match the argument of the condition function.",
                     "encoding": "pickle",
                     "id": "84f8fa25-f087-491a-ab35-f47488fa423d",
@@ -907,7 +868,6 @@
                     "value": ""
                 },
                 {
-                    "defaultValue": "",
                     "description": "If condition is true the input will be copied to this port",
                     "encoding": "pickle",
                     "id": "8d74d420-7837-45c3-8b78-bb860cab8a5e",
@@ -922,7 +882,6 @@
                     "value": ""
                 },
                 {
-                    "defaultValue": "",
                     "description": "If condition is false the input will be copied to this port",
                     "encoding": "pickle",
                     "id": "6c139138-141c-4132-89b8-7879dda3c4ea",
@@ -937,7 +896,6 @@
                     "value": ""
                 },
                 {
-                    "defaultValue": "dlg.apps.simple.Branch",
                     "description": "Application class",
                     "encoding": "pickle",
                     "id": "c8ed89b2-41d1-4d79-be00-6fc5fac853eb",
@@ -952,7 +910,6 @@
                     "value": "dlg.apps.simple.Branch"
                 },
                 {
-                    "defaultValue": "simple",
                     "description": "Base name of application class",
                     "encoding": "pickle",
                     "id": "1d817943-bfd4-464e-a045-e5ea41faeb24",
@@ -967,7 +924,6 @@
                     "value": "simple"
                 },
                 {
-                    "defaultValue": "5",
                     "description": "Estimated execution time",
                     "encoding": "pickle",
                     "id": "548f1b6e-a83a-47c0-ba89-eda164b48ef3",
@@ -982,7 +938,6 @@
                     "value": 5
                 },
                 {
-                    "defaultValue": "1",
                     "description": "Number of cores used",
                     "encoding": "pickle",
                     "id": "05d74b2a-b5cf-4b74-8d9e-13a08e5cdfc8",
@@ -997,7 +952,6 @@
                     "value": 1
                 },
                 {
-                    "defaultValue": "False",
                     "description": "Is this node the start of a group?",
                     "encoding": "pickle",
                     "id": "5be2be09-576d-40b6-9cb4-79e14922b237",
@@ -1044,7 +998,6 @@
             "drawOrderHint": 0,
             "fields": [
                 {
-                    "defaultValue": "5",
                     "description": "The number of seconds to sleep",
                     "encoding": "pickle",
                     "id": "ca5dc087-30da-4ead-9350-672030fd2808",
@@ -1059,7 +1012,6 @@
                     "value": "5"
                 },
                 {
-                    "defaultValue": "",
                     "description": "",
                     "encoding": "pickle",
                     "id": "98a5f4a6-52cc-4720-bc79-ddab2c23594f",
@@ -1074,7 +1026,6 @@
                     "value": ""
                 },
                 {
-                    "defaultValue": "dlg.apps.simple.SleepAndCopyApp",
                     "description": "Application class",
                     "encoding": "pickle",
                     "id": "7394b3af-561f-4de8-af04-d83f6ae761ba",
@@ -1089,7 +1040,6 @@
                     "value": "dlg.apps.simple.SleepApp"
                 },
                 {
-                    "defaultValue": "simple",
                     "description": "Base name of application class",
                     "encoding": "pickle",
                     "id": "077459a2-b2dd-45ae-a01e-ed6eb0890188",
@@ -1104,7 +1054,6 @@
                     "value": "simple"
                 },
                 {
-                    "defaultValue": "5",
                     "description": "Estimated execution time",
                     "encoding": "pickle",
                     "id": "367ff7db-528d-41d6-928c-cd41be49403a",
@@ -1119,7 +1068,6 @@
                     "value": 5
                 },
                 {
-                    "defaultValue": "1",
                     "description": "Number of cores used",
                     "encoding": "pickle",
                     "id": "e5e4f74b-3416-44e4-9edc-5278598563e1",
@@ -1134,7 +1082,6 @@
                     "value": 1
                 },
                 {
-                    "defaultValue": "False",
                     "description": "Is this node the start of a group?",
                     "encoding": "pickle",
                     "id": "5ec6ffed-a310-4022-bdf7-981dbf5078f0",
@@ -1149,7 +1096,6 @@
                     "value": false
                 },
                 {
-                    "defaultValue": "def func_name(args): return args",
                     "description": "Python function code",
                     "encoding": "pickle",
                     "id": "ca272a37-ec63-418f-8cda-b33f8a03033c",
@@ -1164,7 +1110,6 @@
                     "value": ""
                 },
                 {
-                    "defaultValue": "func_name",
                     "description": "Python function name",
                     "encoding": "pickle",
                     "id": "a277e839-13f1-47ea-8c99-ea790c58d738",
@@ -1211,7 +1156,6 @@
             "drawOrderHint": 0,
             "fields": [
                 {
-                    "defaultValue": "",
                     "description": "",
                     "encoding": "pickle",
                     "id": "62927f63-3d46-41ff-8c3f-b2442c358d9d",
@@ -1226,7 +1170,6 @@
                     "value": ""
                 },
                 {
-                    "defaultValue": "None",
                     "description": "Data to be loaded into memory",
                     "encoding": "pickle",
                     "id": "9872088f-8c8a-4b61-b94e-c6c0de49fd95",
@@ -1241,7 +1184,6 @@
                     "value": "None"
                 },
                 {
-                    "defaultValue": "False",
                     "description": "Specifies whether this data component contains data that should not be deleted after execution",
                     "encoding": "pickle",
                     "id": "b21b9172-ee1e-42df-8c2a-9734cfcd8edc",
@@ -1256,7 +1198,6 @@
                     "value": false
                 },
                 {
-                    "defaultValue": "5",
                     "description": "Estimated size of the data contained in this node",
                     "encoding": "pickle",
                     "id": "e9ddc3e4-9b8a-4d2c-87c8-4c6e473cfe91",
@@ -1271,7 +1212,6 @@
                     "value": 5
                 },
                 {
-                    "defaultValue": "False",
                     "description": "Is this node the end of a group?",
                     "encoding": "pickle",
                     "id": "20b68fd0-18b5-4f4c-941e-8fede73e94a1",
@@ -1286,7 +1226,6 @@
                     "value": false
                 },
                 {
-                    "defaultValue": "False",
                     "description": "Specifies whether this data component streams input and output data",
                     "encoding": "pickle",
                     "id": "9a301468-9ceb-489f-b8ff-d148c30ffe0e",
@@ -1301,7 +1240,6 @@
                     "value": false
                 },
                 {
-                    "defaultValue": "dlg.data.drops.memory.InMemoryDROP",
                     "description": "Drop class",
                     "encoding": "pickle",
                     "id": "8fdbe6b0-225b-412a-a26b-626d3ea0bfc6",
@@ -1316,7 +1254,6 @@
                     "value": "dlg.data.drops.memory.InMemoryDROP"
                 },
                 {
-                    "defaultValue": "memory",
                     "description": "Base name of application class",
                     "encoding": "pickle",
                     "id": "f185eb01-fe2c-4438-8012-f2d16d4f2bc3",
@@ -1363,7 +1300,6 @@
             "drawOrderHint": 0,
             "fields": [
                 {
-                    "defaultValue": "None",
                     "description": "Data to be loaded into memory",
                     "encoding": "pickle",
                     "id": "314bc1a0-1efe-4e5f-895c-2870e6f1077f",
@@ -1378,7 +1314,6 @@
                     "value": "None"
                 },
                 {
-                    "defaultValue": "",
                     "description": "Dummy port",
                     "encoding": "pickle",
                     "id": "3eba1903-0a29-4d04-be3f-ce626cb098b8",
@@ -1393,7 +1328,6 @@
                     "value": ""
                 },
                 {
-                    "defaultValue": "False",
                     "description": "Specifies whether this data component contains data that should not be deleted after execution",
                     "encoding": "pickle",
                     "id": "82c40573-986f-4664-a409-facd4c1e0a89",
@@ -1408,7 +1342,6 @@
                     "value": false
                 },
                 {
-                    "defaultValue": "5",
                     "description": "Estimated size of the data contained in this node",
                     "encoding": "pickle",
                     "id": "fb87ae43-c385-4325-ae49-d0b8ee9a145f",
@@ -1423,7 +1356,6 @@
                     "value": 5
                 },
                 {
-                    "defaultValue": "False",
                     "description": "Is this node the end of a group?",
                     "encoding": "pickle",
                     "id": "b44b1d5a-89c5-4472-bc5f-69fd33e44b44",
@@ -1438,7 +1370,6 @@
                     "value": false
                 },
                 {
-                    "defaultValue": "False",
                     "description": "Specifies whether this data component streams input and output data",
                     "encoding": "pickle",
                     "id": "e6107615-09e4-4e1f-be0e-18c85a304431",
@@ -1453,7 +1384,6 @@
                     "value": false
                 },
                 {
-                    "defaultValue": "dlg.data.drops.memory.InMemoryDROP",
                     "description": "Drop class",
                     "encoding": "pickle",
                     "id": "06864a55-6e7e-4223-9a03-4f52d24fc3f8",
@@ -1468,7 +1398,6 @@
                     "value": "dlg.data.drops.memory.InMemoryDROP"
                 },
                 {
-                    "defaultValue": "memory",
                     "description": "Base name of application class",
                     "encoding": "pickle",
                     "id": "790aac93-9fb1-4884-894c-6e8d23f60537",
@@ -1515,7 +1444,6 @@
             "drawOrderHint": 0,
             "fields": [
                 {
-                    "defaultValue": "None",
                     "description": "Data to be loaded into memory",
                     "encoding": "pickle",
                     "id": "10da6df8-2d0b-4c59-95ed-885915d938e7",
@@ -1530,7 +1458,6 @@
                     "value": "None"
                 },
                 {
-                    "defaultValue": "",
                     "description": "Dummy port",
                     "encoding": "pickle",
                     "id": "0f87c684-95b4-4819-927a-9f04af8e86f8",
@@ -1545,7 +1472,6 @@
                     "value": ""
                 },
                 {
-                    "defaultValue": "False",
                     "description": "Specifies whether this data component contains data that should not be deleted after execution",
                     "encoding": "pickle",
                     "id": "c1742c4e-a078-45cb-8a72-ce9ec146f374",
@@ -1560,7 +1486,6 @@
                     "value": false
                 },
                 {
-                    "defaultValue": "5",
                     "description": "Estimated size of the data contained in this node",
                     "encoding": "pickle",
                     "id": "eb14b48c-5868-4e1f-8e6e-62cef2d80bd4",
@@ -1575,7 +1500,6 @@
                     "value": 5
                 },
                 {
-                    "defaultValue": "False",
                     "description": "Is this node the end of a group?",
                     "encoding": "pickle",
                     "id": "be3607c5-795d-4cbc-9d30-fa18f5a0013b",
@@ -1590,7 +1514,6 @@
                     "value": false
                 },
                 {
-                    "defaultValue": "False",
                     "description": "Specifies whether this data component streams input and output data",
                     "encoding": "pickle",
                     "id": "0ac29b09-6664-431f-8348-2888d6614d14",
@@ -1605,7 +1528,6 @@
                     "value": false
                 },
                 {
-                    "defaultValue": "dlg.data.drops.memory.InMemoryDROP",
                     "description": "Drop class",
                     "encoding": "pickle",
                     "id": "e642a41d-1a73-4a95-9016-b96db50423fd",
@@ -1620,7 +1542,6 @@
                     "value": "dlg.data.drops.memory.InMemoryDROP"
                 },
                 {
-                    "defaultValue": "memory",
                     "description": "Base name of application class",
                     "encoding": "pickle",
                     "id": "5c23495e-b8b5-4ea1-8a0b-58f04d4f71a1",
@@ -1667,7 +1588,6 @@
             "drawOrderHint": 0,
             "fields": [
                 {
-                    "defaultValue": "false",
                     "description": "Specifies whether this data component contains data that should not be deleted after execution",
                     "encoding": "pickle",
                     "id": "64a71ddc-680f-405b-a7d8-38ebf70cce57",
@@ -1682,7 +1602,6 @@
                     "value": false
                 },
                 {
-                    "defaultValue": "false",
                     "description": "Specifies whether this data component streams input and output data",
                     "encoding": "pickle",
                     "id": "f3a68c4d-a95f-4fa8-b3f7-bc014d9ed8cd",
@@ -1697,7 +1616,6 @@
                     "value": false
                 },
                 {
-                    "defaultValue": "0",
                     "description": "Estimate of execution time (in seconds) for this application.",
                     "encoding": "pickle",
                     "id": "73b3f4a6-ca9c-4976-bb40-a42d4ceb5381",
@@ -1712,7 +1630,6 @@
                     "value": 5
                 },
                 {
-                    "defaultValue": "0",
                     "description": "Number of CPUs used for this application.",
                     "encoding": "pickle",
                     "id": "debb7f2a-cd5e-4457-818e-df6439409b09",
@@ -1727,7 +1644,6 @@
                     "value": 1
                 },
                 {
-                    "defaultValue": "false",
                     "description": "Is this node the start of a group?",
                     "encoding": "pickle",
                     "id": "0bdf3e66-7b88-42e2-86f8-53731acc9ddc",
@@ -1742,7 +1658,6 @@
                     "value": true
                 },
                 {
-                    "defaultValue": "",
                     "description": "The python class that implements this application",
                     "encoding": "pickle",
                     "id": "2badab56-c9b5-405d-87b1-5ca54239fca8",
@@ -1757,7 +1672,6 @@
                     "value": "dlg.apps.simple.PickOne"
                 },
                 {
-                    "defaultValue": "",
                     "description": " Port for the rest of the array",
                     "encoding": "pickle",
                     "id": "081da0e5-84ce-4177-94c8-f2c32882369a",
@@ -1772,7 +1686,6 @@
                     "value": ""
                 },
                 {
-                    "defaultValue": "",
                     "description": " Port for the rest of the array",
                     "encoding": "pickle",
                     "id": "491b1606-d7a0-4209-a06c-99a1ee208e2c",
@@ -1787,7 +1700,6 @@
                     "value": ""
                 },
                 {
-                    "defaultValue": "def func_name(args): return args",
                     "description": "Python function code",
                     "encoding": "pickle",
                     "id": "335ec082-937b-45c0-a189-bab92692a27b",
@@ -1802,7 +1714,6 @@
                     "value": ""
                 },
                 {
-                    "defaultValue": "func_name",
                     "description": "Python function name",
                     "encoding": "pickle",
                     "id": "9e267433-f046-45d8-94f6-99612a1acd56",
@@ -1849,7 +1760,6 @@
             "drawOrderHint": 0,
             "fields": [
                 {
-                    "defaultValue": "None",
                     "description": "Data to be loaded into memory",
                     "encoding": "pickle",
                     "id": "c7879ac6-bb24-4a43-b87c-703b20bb9cb0",
@@ -1864,7 +1774,6 @@
                     "value": "None"
                 },
                 {
-                    "defaultValue": "",
                     "description": "Dummy port",
                     "encoding": "pickle",
                     "id": "1278eace-cb28-4ba3-a445-e70899b6093f",
@@ -1879,7 +1788,6 @@
                     "value": ""
                 },
                 {
-                    "defaultValue": "False",
                     "description": "Specifies whether this data component contains data that should not be deleted after execution",
                     "encoding": "pickle",
                     "id": "10bf61df-8f5c-40e2-915c-72f828daa242",
@@ -1894,7 +1802,6 @@
                     "value": true
                 },
                 {
-                    "defaultValue": "5",
                     "description": "Estimated size of the data contained in this node",
                     "encoding": "pickle",
                     "id": "3d5647bc-bdb1-4aa3-b2db-7ab97c8c3803",
@@ -1909,7 +1816,6 @@
                     "value": 5
                 },
                 {
-                    "defaultValue": "False",
                     "description": "Is this node the end of a group?",
                     "encoding": "pickle",
                     "id": "57c0686c-ea6d-43d5-a295-6c526124a76f",
@@ -1924,7 +1830,6 @@
                     "value": true
                 },
                 {
-                    "defaultValue": "False",
                     "description": "Specifies whether this data component streams input and output data",
                     "encoding": "pickle",
                     "id": "52c6867b-c121-41f7-9e82-d6975b98020e",
@@ -1939,7 +1844,6 @@
                     "value": false
                 },
                 {
-                    "defaultValue": "dlg.data.drops.memory.InMemoryDROP",
                     "description": "Drop class",
                     "encoding": "pickle",
                     "id": "4639bc05-58b3-4e97-9af9-db903bd49145",
@@ -1954,7 +1858,6 @@
                     "value": "dlg.data.drops.memory.InMemoryDROP"
                 },
                 {
-                    "defaultValue": "memory",
                     "description": "Base name of application class",
                     "encoding": "pickle",
                     "id": "6787d5bd-fa47-48b1-8182-bd1c40194d70",
@@ -1969,7 +1872,6 @@
                     "value": "memory"
                 },
                 {
-                    "defaultValue": "",
                     "description": "",
                     "encoding": "pickle",
                     "id": "65a9447a-b45f-4706-a85e-9b1e411c75a6",
