@@ -97,8 +97,6 @@ export class ParameterTable {
             selectedForm.setDisplayText(value)
         } else if(selected === 'value'){
             selectedForm.setValue(value)
-        } else if(selected === 'defaultValue'){
-            selectedForm.setDefaultValue(value)
         } else if(selected === 'description'){
             selectedForm.setDescription(value)
         }
@@ -144,7 +142,7 @@ export class ParameterTable {
                         const lgNode = lg.getNodeById(graphConfigNode.getNode().getId());
 
                         if (typeof lgNode === 'undefined'){
-                            const dummyField: Field = new Field(graphConfigField.getField().getId(), "<Missing Node:" + graphConfigNode.getNode().getId() +">", graphConfigField.getValue(), "?", graphConfigField.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
+                            const dummyField: Field = new Field(graphConfigField.getField().getId(), "<Missing Node:" + graphConfigNode.getNode().getId() +">", graphConfigField.getValue(), graphConfigField.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
                             dummyField.setNode(lgNode);
                             displayedFields.push(dummyField);
                             continue;
@@ -153,7 +151,7 @@ export class ParameterTable {
                         const lgField = lgNode.getFieldById(graphConfigField.getField().getId());
         
                         if (typeof lgField === 'undefined'){
-                            const dummyField: Field = new Field(graphConfigField.getField().getId(), "<Missing Field: " + graphConfigField.getField().getId() + ">", graphConfigField.getValue(), "?", graphConfigField.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
+                            const dummyField: Field = new Field(graphConfigField.getField().getId(), "<Missing Field: " + graphConfigField.getField().getId() + ">", graphConfigField.getValue(), graphConfigField.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
                             dummyField.setNode(lgNode);
                             displayedFields.push(dummyField);
                             continue;
@@ -201,9 +199,6 @@ export class ParameterTable {
         }else if(ParameterTable.sortingColumn === 'value'){
             valA = a.getValue()
             valB = b.getValue()
-        }else if(ParameterTable.sortingColumn === 'defaultValue'){
-            valA = a.getDefaultValue()
-            valB = b.getDefaultValue()
         }else if(ParameterTable.sortingColumn === 'description'){
             valA = a.getDescription()
             valB = b.getDescription()
@@ -489,32 +484,28 @@ export class ParameterTable {
         field.setDescription(fieldDescription);
     }
 
-    static async requestEditValueField(field:Field, defaultValue: boolean) : Promise<void> {
+    static async requestEditValueField(field:Field) : Promise<void> {
         const eagle: Eagle = Eagle.getInstance();
         const node: Node = eagle.selectedNode();
 
         let editingField: Field | GraphConfigField // this will either be the normal field or the configured field if applicable
-        let editingValue: string // this will either be the value or default value or configured value
 
-        //checking if the field is a configured field
-        if(!defaultValue && field.getGraphConfigField()){
-            editingField = field.getGraphConfigField()
-            editingValue = editingField.getValue()
+        // look for a field in the GraphConfig matching this field
+        const graphConfigField: GraphConfigField = field.getGraphConfigField();
+
+        // checking if the field is a configured field
+        if(graphConfigField){
+            editingField = graphConfigField
         }else{
             editingField = field
-            if(defaultValue){
-                editingValue = editingField.getDefaultValue()
-            }else{
-                editingValue = editingField.getValue()
-            }
         }
 
         let fieldValue: string;
         try {
             if (this.isCodeField(field.getDisplayText())){ 
-                fieldValue = await Utils.requestUserCode("python", "Edit Value  |  Node: " + node.getName() + " - Field: " + field.getDisplayText(), editingValue, false);
+                fieldValue = await Utils.requestUserCode("python", "Edit Value  |  Node: " + node.getName() + " - Field: " + field.getDisplayText(), editingField.getValue(), false);
             }else {
-                fieldValue = await Utils.requestUserText("Edit Value  |  Node: " + node.getName() + " - Field: " + field.getDisplayText(), "Please edit the value for: " + node.getName() + ' - ' + field.getDisplayText(), editingValue, false);
+                fieldValue = await Utils.requestUserText("Edit Value  |  Node: " + node.getName() + " - Field: " + field.getDisplayText(), "Please edit the value for: " + node.getName() + ' - ' + field.getDisplayText(), editingField.getValue(), false);
             }
         } catch (error) {
             console.error(error);
@@ -522,11 +513,7 @@ export class ParameterTable {
         }
 
         // set the Value on the field
-        if(defaultValue && editingField instanceof Field){
-            editingField.setDefaultValue(fieldValue);
-        }else{
-            editingField.setValue(fieldValue);
-        }
+        editingField.setValue(fieldValue);
     }
 
     static async requestEditCommentInModal(currentField:Field): Promise<void> {
@@ -861,7 +848,6 @@ export class ColumnVisibilities {
     private fieldId:ko.Observable<boolean>
     private value:ko.Observable<boolean>
     private readOnly:ko.Observable<boolean>
-    private defaultValue:ko.Observable<boolean>
     private description:ko.Observable<boolean>
     private type:ko.Observable<boolean>
     private parameterType:ko.Observable<boolean>
@@ -870,7 +856,7 @@ export class ColumnVisibilities {
     private flags:ko.Observable<boolean>
     private actions:ko.Observable<boolean>
 
-    constructor(uiModeName:string, keyAttribute:boolean, displayText:boolean,fieldId:boolean,value:boolean,readOnly:boolean,defaultValue:boolean,description:boolean,type:boolean,parameterType:boolean,usage:boolean,encoding:boolean,flags:boolean,actions:boolean){
+    constructor(uiModeName:string, keyAttribute:boolean, displayText:boolean,fieldId:boolean,value:boolean,readOnly:boolean,description:boolean,type:boolean,parameterType:boolean,usage:boolean,encoding:boolean,flags:boolean,actions:boolean){
 
         this.uiModeName = uiModeName;
         this.keyAttribute = ko.observable(keyAttribute);
@@ -878,7 +864,6 @@ export class ColumnVisibilities {
         this.fieldId = ko.observable(fieldId);
         this.value = ko.observable(value);
         this.readOnly = ko.observable(readOnly);
-        this.defaultValue = ko.observable(defaultValue);
         this.description = ko.observable(description);
         this.type = ko.observable(type);
         this.parameterType = ko.observable(parameterType);
@@ -935,10 +920,6 @@ export class ColumnVisibilities {
         this.readOnly(value);
     }
 
-    private setDefaultValue = (value:boolean) : void => {
-        this.defaultValue(value);
-    }
-
     private setDescription = (value:boolean) : void => {
         this.description(value);
     }
@@ -993,11 +974,6 @@ export class ColumnVisibilities {
         this.saveToLocalStorage()
     }
 
-    private toggleDefaultValue = () : void => {
-        this.defaultValue(!this.defaultValue());
-        this.saveToLocalStorage()
-    }
-
     private toggleDescription = () : void => {
         this.description(!this.description());
         this.saveToLocalStorage()
@@ -1043,7 +1019,6 @@ export class ColumnVisibilities {
                 fieldId : columnVis.fieldId(),
                 value : columnVis.value(),
                 readOnly : columnVis.readOnly(),
-                defaultValue : columnVis.defaultValue(),
                 description : columnVis.description(),
                 type : columnVis.type(),
                 parameterType : columnVis.parameterType(),
@@ -1082,9 +1057,6 @@ export class ColumnVisibilities {
                 if(columnVisibility.readOnly != null){
                     columnVisActual.setReadOnly(columnVisibility.readOnly)
                 }
-                if(columnVisibility.defaultValue != null){
-                    columnVisActual.setDefaultValue(columnVisibility.defaultValue)
-                }
                 if(columnVisibility.description != null){
                     columnVisActual.setDescription(columnVisibility.description)
                 }
@@ -1114,9 +1086,9 @@ export class ColumnVisibilities {
 
 // name, keyAttribute,displayText,value,readOnly,defaultValue,description,type,parameterType,usage,flags,actions
 const columnVisibilities : ColumnVisibilities[] = [
-    new ColumnVisibilities("Student", false, true,false,true,true,false,false,false,false,false,false,false,false),
-    new ColumnVisibilities("Minimal", true, true,false,true,true,false,false,false,false,false,false,true,false),
-    new ColumnVisibilities("Graph", true, true,false,true,true,true,false,true,true,true,false,true,true),
-    new ColumnVisibilities("Component", true, true,false,true,true,true,true,true,true,true,false,true,true),
-    new ColumnVisibilities("Expert", true, true,false,true,true,true,true,true,true,true,true,true,true)
+    new ColumnVisibilities("Student", false, true,false,true,true,false,false,false,false,false,false,false),
+    new ColumnVisibilities("Minimal", true, true,false,true,true,false,false,false,false,false,true,false),
+    new ColumnVisibilities("Graph", true, true,false,true,true,false,true,true,true,false,true,true),
+    new ColumnVisibilities("Component", true, true,false,true,true,true,true,true,true,false,true,true),
+    new ColumnVisibilities("Expert", true, true,false,true,true,true,true,true,true,true,true,true)
 ]

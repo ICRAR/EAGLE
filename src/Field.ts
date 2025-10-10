@@ -711,7 +711,6 @@ export class Field {
         return {
             name:field.displayText(),
             value:Field.stringAsType(field.value(), field.type()),
-            defaultValue:field.defaultValue(),
             description:field.description(),
             readonly:field.readonly(),
             type:field.isEvent() ? "Event" : field.type(),
@@ -729,7 +728,6 @@ export class Field {
         return {
             name:field.displayText(),
             value:Field.stringAsType(field.value(), field.type()),
-            defaultValue:field.defaultValue(),
             description:field.description(),
             readonly:field.readonly(),
             type:field.isEvent() ? "Event" : field.type(),
@@ -751,7 +749,6 @@ export class Field {
         let readonly: boolean = false;
         let type: Daliuge.DataType = Daliuge.DataType.Unknown;
         let value: string = "";
-        let defaultValue: string = "";
         let precious: boolean = false;
         let options: string[] = [];
         let positional: boolean = false;
@@ -780,8 +777,6 @@ export class Field {
         }
         if (typeof data.value !== 'undefined' && data.value !== null)
             value = data.value.toString();
-        if (typeof data.defaultValue !== 'undefined' && data.defaultValue !== null)
-            defaultValue = data.defaultValue.toString();
         if (typeof data.precious !== 'undefined')
             precious = data.precious;
         if (typeof data.options !== 'undefined')
@@ -829,7 +824,7 @@ export class Field {
             isEvent = data.event;
         if (typeof data.encoding !== 'undefined')
             encoding = data.encoding;
-        const result = new Field(id, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage);
+        const result = new Field(id, name, value, description, readonly, type, precious, options, positional, parameterType, usage);
         result.isEvent(isEvent);
         result.encoding(encoding);
         return result;
@@ -858,7 +853,7 @@ export class Field {
             name = data.IdText;
         }
      
-        const f = new Field(data.Id, name, "", "", description, false, type, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
+        const f = new Field(data.Id, name, "", description, false, type, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
         f.isEvent(event);
         f.encoding(encoding);
         return f;
@@ -868,7 +863,6 @@ export class Field {
         let id: FieldId;
         let name: string;
         let value: string;
-        let defaultValue: string;
         let description: string;
         let readonly: boolean;
         let type: Daliuge.DataType;
@@ -887,8 +881,6 @@ export class Field {
             name = data.name;
         if (typeof data.value !== 'undefined')
             value = data.value.toString();
-        if (typeof data.defaultValue !== 'undefined')
-            defaultValue = data.defaultValue.toString();
         if (typeof data.description !== 'undefined')
             description = data.description;
         if (typeof data.readonly !== 'undefined')
@@ -911,7 +903,7 @@ export class Field {
         if (typeof data.encoding !== 'undefined')
             encoding = data.encoding;
 
-        const f = new Field(id, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage);
+        const f = new Field(id, name, value, description, readonly, type, precious, options, positional, parameterType, usage);
         f.isEvent(event);
         f.encoding(encoding);
         return f;
