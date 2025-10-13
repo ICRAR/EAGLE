@@ -311,7 +311,6 @@ export class Setting {
     static readonly CONFIRM_DISCARD_CHANGES : string = "ConfirmDiscardChanges";
     static readonly CONFIRM_NODE_CATEGORY_CHANGES : string = "ConfirmNodeCategoryChanges";
     static readonly CONFIRM_REMOVE_REPOSITORIES : string = "ConfirmRemoveRepositories";
-    static readonly CONFIRM_RELOAD_PALETTES : string = "ConfirmReloadPalettes";
     static readonly CONFIRM_DELETE_FILES : string = "ConfirmDeleteFiles";
     static readonly CONFIRM_DELETE_OBJECTS : string = "ConfirmDeleteObjects";
     static readonly TEST_TRANSLATE_MODE : string = "TestTranslateMode";
@@ -409,7 +408,6 @@ const settings : SettingsGroup[] = [
             new Setting(false, "Confirm Discard Changes", Setting.CONFIRM_DISCARD_CHANGES, "Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.",false, Setting.Type.Boolean, true, true,true,true,true),
             new Setting(false, "Confirm Node Category Changes", Setting.CONFIRM_NODE_CATEGORY_CHANGES, "Prompt user to confirm that changing the node category may break the node.",false, Setting.Type.Boolean, true, true,true,true,true),
             new Setting(false, "Confirm Remove Repositories", Setting.CONFIRM_REMOVE_REPOSITORIES, "Prompt user to confirm removing a repository from the list of known repositories.",false , Setting.Type.Boolean, true,true,true,true,true),
-            new Setting(false, "Confirm Reload Palettes", Setting.CONFIRM_RELOAD_PALETTES, "Prompt user to confirm when loading a palette that is already loaded.",false , Setting.Type.Boolean,true,true,true,true,true),
             new Setting(false, "Confirm Delete Files", Setting.CONFIRM_DELETE_FILES, "Prompt user to confirm when deleting files from a repository.", false, Setting.Type.Boolean, true,true,true,true,true),
             new Setting(false, "Confirm Delete Objects", Setting.CONFIRM_DELETE_OBJECTS, "Prompt user to confirm when deleting node(s) or edge(s) from a graph.",false , Setting.Type.Boolean, true,true,true,true,true),
             new Setting(false, "Open " + Palette.BUILTIN_PALETTE_NAME + " Palette on Startup", Setting.OPEN_BUILTIN_PALETTE, "Open the '" + Palette.BUILTIN_PALETTE_NAME + "' palette on startup.", true, Setting.Type.Boolean, false, false, false, false, false),

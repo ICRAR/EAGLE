@@ -34,23 +34,6 @@ export class Repositories {
             case Eagle.FileType.Palette: {
                 const palette: Palette = eagle.findPalette(file.name, false);
                 isModified = palette !== null && palette.fileInfo().modified;
-
-                /*
-                // check palette is not already loaded
-                // TODO: maybe we're always going to find the palette here, as we add a placeholder to the list of palettes before fetching the palette?
-                const alreadyLoadedPalette : Palette = eagle.findPaletteByFile(file);
-
-                // if dictated by settings, reload the palette immediately
-                if (alreadyLoadedPalette !== null && Setting.findValue(Setting.CONFIRM_RELOAD_PALETTES)){
-                    const confirmed = await Utils.requestUserConfirm("Reload Palette?", "This palette (" + file.name + ") is already loaded, do you wish to load it again?", "Yes", "No", Setting.find(Setting.CONFIRM_RELOAD_PALETTES));
-                    if (confirmed){
-                        this._reloadPalette(file, data, destinationPalette);
-                    }
-                } else {
-                    this._reloadPalette(file, data, destinationPalette);
-                }
-                */
-
                 break;
             }
             case Eagle.FileType.JSON:

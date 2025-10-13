@@ -2763,7 +2763,6 @@ export class Eagle {
         Setting.setValue(Setting.CONFIRM_DELETE_OBJECTS,true)
         Setting.setValue(Setting.CONFIRM_DISCARD_CHANGES,true)
         Setting.setValue(Setting.CONFIRM_NODE_CATEGORY_CHANGES,true)
-        Setting.setValue(Setting.CONFIRM_RELOAD_PALETTES,true)
         Setting.setValue(Setting.CONFIRM_REMOVE_REPOSITORIES,true)
         Utils.showNotification("Success", "Confirmation message pop ups re-enabled", "success");
     }
