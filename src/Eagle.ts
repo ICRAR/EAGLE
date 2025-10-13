@@ -2771,6 +2771,11 @@ export class Eagle {
     // TODO: shares some code with saveFileToLocal(), we should try to factor out the common stuff at some stage
     savePaletteToDisk = async (palette : Palette, fileName: string) : Promise<void> => {
         return new Promise(async (resolve, reject) => {
+            // generate a fileName, if the supplied filename is null or empty
+            if (fileName === null || fileName === ""){
+                fileName = palette.fileInfo().name;
+            }
+
             console.log("savePaletteToDisk()", fileName);
 
             // clone the palette and remove github info ready for local save

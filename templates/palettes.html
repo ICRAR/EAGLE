@@ -32,7 +32,7 @@
                     <a href="#" data-bind="click: function(){$root.reloadPalette($data, $index())}" data-html="true"><span>Reload</span></a>
                     <!-- /ko -->
                     <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
-                        <a href="#" data-bind="click: $root.savePaletteToDisk" data-html="true"><span>Save Locally</span></a>
+                        <a href="#" data-bind="click: function(){$root.savePaletteToDisk($data, null)}" data-html="true"><span>Save Locally</span></a>
                         <a href="#" data-bind="click: $root.savePaletteToGit" data-html="true"><span>Save To Git</span></a>
                     <!-- /ko -->
                     <!-- ko if: $data.searchExclude() -->
