@@ -608,6 +608,22 @@ export class Eagle {
         }
     }, this);
 
+    // if selectedObjects contains nothing but one node, return the node, else null
+    selectedVisual : ko.PureComputed<Visual> = ko.pureComputed(() : Visual => {
+        if (this.selectedObjects().length !== 1){
+            return null;
+        }
+
+        const object = this.selectedObjects()[0];
+
+        if (object instanceof Visual){
+            return object;
+        } else {
+            return null;
+        }
+    }, this);
+
+
     // if selectedObjects contains nothing but one edge, return the edge, else null
     selectedEdge : ko.PureComputed<Edge> = ko.pureComputed(() : Edge => {
         if (this.selectedObjects().length !== 1){
@@ -4756,19 +4772,19 @@ export class Eagle {
         targetNode.setDescription(nodeDescription);
     }
 
-    editNodeComment = async (): Promise<void> => {
+    editNodeComment = async (node? : Node): Promise<void> => {
         const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
-        const node = this.selectedNode()
+        const targetNode = node || this.selectedNode();
 
         // abort if no node is selected
-        if (node === null) {
+        if (targetNode === null) {
             console.warn("No node selected");
             return;
         }
 
         let nodeComment: string;
         try {
-            nodeComment = await Utils.requestUserMarkdown(node.getDisplayName() + " - Comment", node?.getComment(), markdownEditingEnabled);
+            nodeComment = await Utils.requestUserMarkdown(targetNode.getDisplayName() + " - Comment", targetNode?.getComment(), markdownEditingEnabled);
         } catch (error) {
             console.error(error);
             return;
@@ -4796,6 +4812,27 @@ export class Eagle {
         }
 
         edge.setComment(edgeComment);
+    }
+
+    editTextVisualContent = async (visual ?: Visual): Promise<void> => {
+        const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
+        const thisVisual : Visual = visual || this.selectedVisual();
+
+        // abort if no node is selected
+        if (thisVisual === null) {
+            console.warn("No node selected");
+            return;
+        }
+
+        let visualContent: string;
+        try {
+            visualContent = await Utils.requestUserMarkdown("Text Visual - Content", thisVisual?.getContent(), markdownEditingEnabled);
+        } catch (error) {
+            console.error(error);
+            return;
+        }
+
+        thisVisual.setContent(visualContent);
     }
 
     getEligibleNodeCategories : ko.PureComputed<Category[]> = ko.pureComputed(() => {
