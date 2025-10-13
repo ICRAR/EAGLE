@@ -2327,6 +2327,12 @@ export class Eagle {
         // flag file as being fetched
         file.isFetching(true);
 
+        // check palette is not already loaded
+        const alreadyLoadedPalette : Palette = this.findPaletteByFile(file);
+        if (alreadyLoadedPalette !== null){
+            this.closePalette(alreadyLoadedPalette);
+        }
+
         // if this is a palette, create the destination palette and add to list of palettes so that it shows in the UI
         let destinationPalette: Palette = null;
         if (file.type === Eagle.FileType.Palette){
@@ -2660,7 +2666,7 @@ export class Eagle {
 
     private _reloadPalette = (file : RepositoryFile, data : string, palette : Palette) : void => {
         // close the existing version of the open palette
-        if (palette !== null){
+        if (palette !== null && !palette.isFetching()){
             this.closePalette(palette);
         }
 
@@ -2692,8 +2698,8 @@ export class Eagle {
         // all new (or reloaded) palettes should have 'expanded' flag set to true
         newPalette.expanded(true);
 
-        // add to list of palettes
-        this.palettes.unshift(newPalette);
+        // copy content of fetched palette into the destination palette that is already in the list of palettes
+        palette.copy(newPalette);
 
         // show errors/warnings
         this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
