@@ -446,10 +446,6 @@ export class Utils {
         }
     }
 
-    static fieldTextToFieldName(text : string) : string {
-        return text.toLowerCase().replace(' ', '_');
-    }
-
     // build full file path from path and filename
     static joinPath (path : string, fileName : string) : string {
         let fullFileName : string = fileName;
@@ -2836,4 +2832,11 @@ export class Utils {
 
     // a wait/delay for a given number of milliseconds (used for debugging)
     static delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+    // sanitize a string to be used as a filename
+    static sanitizeFileName = (name: string): string => {
+        // Replace invalid filename characters with underscores
+        // This regex covers most OS restrictions (Windows, macOS, Linux)
+        return name.replace(/[^a-zA-Z0-9_\-\.]/g, "_");
+    }
 }

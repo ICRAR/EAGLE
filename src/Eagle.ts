@@ -2773,10 +2773,10 @@ export class Eagle {
         return new Promise(async (resolve, reject) => {
             // generate a fileName, if the supplied filename is null or empty
             if (fileName === null || fileName === ""){
-                fileName = palette.fileInfo().name;
+                const rawName = palette.fileInfo().name;
+                const sanitizedName = Utils.sanitizeFileName(rawName);
+                fileName = sanitizedName.length > 0 ? sanitizedName : "palette";
             }
-
-            console.log("savePaletteToDisk()", fileName);
 
             // clone the palette and remove github info ready for local save
             const p_clone : Palette = palette.clone();
