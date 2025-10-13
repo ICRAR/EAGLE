@@ -312,6 +312,8 @@ export class Palette {
 
     copy = (source: Palette) : void => {
         this.clear();
+        this.isFetching(source.isFetching());
+        this.expanded(source.expanded());
 
         this.fileInfo(source.fileInfo().clone());
 
