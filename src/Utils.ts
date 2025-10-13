@@ -1458,7 +1458,13 @@ export class Utils {
     static determineSchemaVersion(data: any): Setting.SchemaVersion {
         if (typeof data.modelData !== 'undefined'){
             if (typeof data.modelData.schemaVersion !== 'undefined'){
-                return data.modelData.schemaVersion;
+                // check whether the value of data.modelData.schemaVersion is a valid SchemaVersion enum value
+                if (Object.values(Setting.SchemaVersion).includes(data.modelData.schemaVersion)){
+                    return data.modelData.schemaVersion;
+                } else {
+                    console.warn("Unknown schema version:", data.modelData.schemaVersion);
+                    return Setting.SchemaVersion.Unknown;
+                }
             }
         }
 
@@ -2827,4 +2833,7 @@ export class Utils {
         // communicate to knockout that the value of the fileInfo has been modified (so it can update UI)
         fileInfo.valueHasMutated();
     }
+
+    // a wait/delay for a given number of milliseconds (used for debugging)
+    static delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 }

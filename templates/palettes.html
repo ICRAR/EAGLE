@@ -18,7 +18,10 @@
     <div class="accordion">
         <div data-bind="foreach: palettes">
             <div class="paletteCardWrapper">
-                <button type="button" class="material-symbols-outlined md-18 dropdown-toggle dropdown-control paletteTripleDot iconHoverEffect" data-bs-toggle="dropdown" >more_vert</button>
+                <!-- ko if: isFetching -->
+                    <div class="spinner-border spinner-border-sm paletteFetching" role="status"></div>
+                <!-- /ko -->
+                <button type="button" class="material-symbols-outlined md-18 dropdown-toggle dropdown-control paletteTripleDot iconHoverEffect" data-bs-toggle="dropdown">more_vert</button>
                 <div class="dropdown-menu dropdown-area">
                     <a href="#" data-bind="click: function(){Utils.showModelDataModal('Palette Info', fileInfo());}"><span>Show Palette Info</span></a>
                     <a href="#" data-bind="click: $root.selectAllInPalette" data-html="true"><span>Select All</span></a>
