@@ -463,7 +463,7 @@ export class RightClick {
     // TODO: perhaps break this function up into a top-level handler, that uses 'passedObjectClass' to call one of several sub-functions
     // TODO: make the passedObjectClass an enumerated type
     // data can be a Edge, Node, Palette?, Eagle, Node[], and the passedObjectClass variable tells the function what to do with it
-    static requestCustomContextMenu = (data: any, passedObjectClass: "edgeDropCreate" | "rightClick_graphNode" | "rightClick_graphEdge" | "rightClick_hierarchyNode" | "rightClick_paletteComponent" | "rightClick_logicalGraph" | "addEmbeddedInputApp" | "addEmbeddedOutputApp") : void => {
+    static requestCustomContextMenu = (data: any, passedObjectClass: "edgeDropCreate" | "rightClick_graphNode" | "rightClick_graphEdge" | "rightClick_hierarchyNode" | "rightClick_paletteComponent" | "rightClick_logicalGraph" | "addEmbeddedInputApp" | "addEmbeddedOutputApp" | "rightClick_textVisual") : void => {
         // getting the mouse event for positioning the right click menu at the cursor location
         const eagle: Eagle = Eagle.getInstance();
 
@@ -661,6 +661,10 @@ export class RightClick {
                 $('#customContextMenu').append('<a onclick=eagle.updateSelection()>Update</a>')
                 $('#customContextMenu').append('<a onclick=eagle.fixSelection()>Fix</a>')
 
+//text visual right click options
+            }else if(passedObjectClass === 'rightClick_textVisual'){
+                $('#customContextMenu').append('<a onclick=eagle.editTextVisualContent()>Edit Content</a>')
+                
 //graph edge right click options
             }else if(passedObjectClass === 'rightClick_graphEdge'){
                 $('#customContextMenu').append('<a onclick=Eagle.selectedRightClickObject().toggleLoopAware()>Toggle Loop Aware</a>')

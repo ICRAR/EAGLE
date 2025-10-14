@@ -474,6 +474,20 @@ export class Eagle {
                 maxY = node.getPosition().y + node.getRadius();
             }
         }
+        for (const visual of that.logicalGraph().getVisuals()){
+            if (visual.getPosition().x - visual.getWidth() < minX){
+                minX = visual.getPosition().x - visual.getWidth();
+            }
+            if (visual.getPosition().y - visual.getHeight() < minY){
+                minY = visual.getPosition().y - visual.getHeight();
+            }
+            if (visual.getPosition().x + visual.getWidth() > maxX){
+                maxX = visual.getPosition().x + visual.getWidth();
+            }
+            if (visual.getPosition().y + visual.getHeight() > maxY){
+                maxY = visual.getPosition().y + visual.getHeight();
+            }
+        }
         // determine the centroid of the graph
         const centroidX = minX + ((maxX - minX) / 2);
         const centroidY = minY + ((maxY - minY) / 2);
