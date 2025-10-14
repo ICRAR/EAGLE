@@ -502,6 +502,11 @@ export class Field {
         return this;
     }
 
+    clearEdges = () : Field => {
+        this.edges().clear();
+        return this;
+    }
+
     // TODO: rename this slightly so that it is more obvious that it is a user-facing version of the value
     //       as it is I get confused between this and getValue() when auto-completing
     getFieldValue = () : string => {

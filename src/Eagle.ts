@@ -1087,6 +1087,7 @@ export class Eagle {
         // create map of inserted graph keys to final graph nodes, and of inserted port ids to final graph ports
         const nodeMap: Map<NodeId, Node> = new Map();
         const portMap: Map<FieldId, Field> = new Map();
+        const edgeMap: Map<EdgeId, Edge> = new Map();
         let parentNodePosition;
 
         // add the parent node to the logical graph
@@ -1202,7 +1203,34 @@ export class Eagle {
             }
 
             // add edge
-            this.addEdge(srcNode, portMap.get(edge.getSrcPort().getId()), destNode, portMap.get(edge.getDestPort().getId()), edge.isLoopAware(), edge.isClosesLoop());
+            const newEdge: Edge = await this.addEdge(srcNode, portMap.get(edge.getSrcPort().getId()), destNode, portMap.get(edge.getDestPort().getId()), edge.isLoopAware(), edge.isClosesLoop());
+
+            // save mapping for edge itself
+            edgeMap.set(edge.getId(), newEdge);
+        }
+
+        // go through all the edges in the edge list of every field, of every node in the inserted graph
+        for (const node of nodes){
+            const insertedNode: Node = nodeMap.get(node.getId());
+
+            for (const field of insertedNode.getFields()){
+                // copy list of old edge ids
+                const oldEdgeIds: EdgeId[] = Array.from(field.getEdges()).map(edge => edge.getId());
+
+                // clear edges from field
+                field.clearEdges();
+
+                // re-add edges to field using the new edge instances
+                for (const oldEdgeId of oldEdgeIds){
+                    const mappedEdge: Edge = edgeMap.get(oldEdgeId);
+                    if (typeof mappedEdge === "undefined"){
+                        errorsWarnings.warnings.push(Errors.Message("Unable to map edge " + oldEdgeId + " to its new instance."));
+                        continue;
+                    }
+
+                    field.addEdge(mappedEdge);
+                }
+            }
         }
 
         //used if we cant find space on the canvas, we then extend the search area for space and center the graph after adding to bring new nodes into view
