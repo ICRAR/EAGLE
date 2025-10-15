@@ -1453,16 +1453,16 @@ export class Eagle {
             return;
         }
 
-        let userText: string;
+        let userCode: string;
         try {
-            userText = await Utils.requestUserText("Insert Graph from JSON", "Enter the JSON below", "");
+            userCode = await Utils.requestUserCode("json", "Insert Graph from JSON", "");
         } catch (error) {
             console.error(error);
             return;
         }
 
         // parse JSON
-        const dataObject = JSON.parse(userText);
+        const dataObject = JSON.parse(userCode);
 
         // read as LogicalGraph
         const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
