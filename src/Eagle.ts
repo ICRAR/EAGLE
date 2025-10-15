@@ -1446,6 +1446,37 @@ export class Eagle {
         this.resetEditor()
     }
 
+    insertGraphFromJson = async (): Promise<void> => {
+        // check that graph editing is permitted
+        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Insert Graph from JSON");
+            return;
+        }
+
+        let userText: string;
+        try {
+            userText = await Utils.requestUserText("Insert Graph from JSON", "Enter the JSON below", "");
+        } catch (error) {
+            console.error(error);
+            return;
+        }
+
+        // parse JSON
+        const dataObject = JSON.parse(userText);
+
+        // read as LogicalGraph
+        const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
+        const lg: LogicalGraph = LogicalGraph.fromOJSJson(dataObject, null, errorsWarnings);
+
+        // insert
+        const nodes = Array.from(lg.getNodes());
+        const edges = Array.from(lg.getEdges());
+        this.insertGraph(nodes, edges, null, errorsWarnings);
+
+        // display notification to user
+        Utils.showNotification("Inserted Graph from JSON", "Inserted " + nodes.length + " nodes and " + edges.length + " edges.", "info");
+    }
+
     addToGraphFromJson = async (): Promise<void> => {
         // check that graph editing is permitted
         if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
