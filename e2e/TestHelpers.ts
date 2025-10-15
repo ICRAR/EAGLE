@@ -92,6 +92,30 @@ export class TestHelpers {
         await page.locator('div[data-notify="container"]').waitFor({state: 'detached'});
     }
 
+    // Load a graph from a string into the app via the modal
+    static async insertGraphFromString(page, s: string) {
+        // click 'create new graph from JSON' from the 'Graph' menu
+        await page.locator('#navbarDropdownGraph').click();
+        await page.locator('#navbarDropdownGraphEdit').hover();
+        await page.locator('#insertGraphFromJson').click();
+        await page.waitForTimeout(500);
+
+        // set the content of the editor in the modal
+        await page.evaluate(TestHelpers.setEditorContent, s);
+        await page.waitForTimeout(500);
+
+        // click 'OK' to save the graph
+        await page.locator('#inputCodeModal .modal-footer button.btn-primary').click();
+        await page.waitForTimeout(500);
+
+        // wait for the notification to appear and then dismiss it
+        await page.locator('div[data-notify="container"]').waitFor({state: 'attached'});
+        await page.locator('button[data-notify="dismiss"]').click();
+
+        // wait for the notification to be dismissed
+        await page.locator('div[data-notify="container"]').waitFor({state: 'detached'});
+    }
+
     static async saveGraphToString(page): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
             // click 'display as JSON' from the 'Graph' menu
@@ -146,5 +170,11 @@ export class TestHelpers {
         }
         }
         return ret;
+    }
+
+    static async getNumWarningsErrors(page): Promise<number> {
+        return await page.evaluate(() => {
+            return (window as any).eagle.graphWarnings().length + (window as any).eagle.graphErrors().length;
+        });
     }
 }
