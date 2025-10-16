@@ -347,7 +347,7 @@ export class LogicalGraph {
         }
 
         // check for missing name
-        if (result.fileInfo().name === ""){
+        if (result.fileInfo().name === "" && file !== null){
             const error : string = "FileInfo.name is empty. Setting name to " + file.name;
             errorsWarnings.warnings.push(Errors.Message(error));
 
@@ -604,7 +604,7 @@ export class LogicalGraph {
         Utils.showNotification("Graph Config added to Logical Graph", config.fileInfo().name, "success");
 
         const eagle: Eagle = Eagle.getInstance();
-        eagle.undo().pushSnapshot(eagle, "Added a new graph config (" + config.fileInfo().name + ")");
+        eagle.undo().pushSnapshot(eagle, "Added a new graph configuration (" + config.fileInfo().name + ")");
         eagle.checkGraph();
     }
 
