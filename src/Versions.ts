@@ -23,7 +23,7 @@ export const versions = [
       `Moved EnvironmentVariables component to Legacy. Added GlobalVariable component. Added Directory component`,
       `Added mode to hide titles of Data nodes, accessible via a button in the navbar`,
       `Improved comment system and added icon to nodes with comments`,
-      `Added new modal dialog to allow users to chose between 'overwrite','load as separate config','cancel' options when loading a GraphConfig that already exists`,
+      `Added new modal dialog to allow users to choose between 'overwrite','load as separate config','cancel' options when loading a GraphConfig that already exists`,
       `Improved graph edge styling and rendering`,
       `Better "fix function" to merge fields within a node`,
       `Minor improvements to Undo/Redo system`,
