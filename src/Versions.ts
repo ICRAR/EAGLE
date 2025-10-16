@@ -1,5 +1,35 @@
 export const versions = [
   {
+    version: 'v6.9.0',
+    date: new Date("2025-10-16"),
+    changes: [
+      `New internal data structures`,
+      `New menu item in node right click menu to fix all issues with the node`,
+      `Removed "Explore Palettes" feature`,
+      `Fixed EAGLE loading animation and favicon`,
+      `Better display of palette descriptions`,
+      `New actions in Graph Configurations table to save, view JSON and view file information`,
+      `Graph Configuration files now appear in the repository browser`,
+      `Graph Configurations can now be de-activated`,
+      `Improved selection of nodes, allows double click`,
+      `Improved status bar information`,
+      `Reduced scroll sensitivity in Parameter Table "types" dropdown menu`,
+      `Removed the "Config" menu from the navbar. Useful items moved to a dropdown in the "Graph" menu`,
+      `Removed the "Apply Config before Translation" setting. Graph Configurations are now applied on the DALiuGE side`,
+      `Updated version of "V4" file format schema`,
+      `Improved tooltips and wider node description tooltips`,
+      `Descriptions of palette nodes can now be edited`,
+      `Added Discord invite to Help menu`,
+      `Moved EnvironmentVariables component to Legacy. Added GlobalVariable component. Added Directory component`,
+      `Added mode to hide titles of Data nodes, accessible via a button in the navbar`,
+      `Improved comment system and added icon to nodes with comments`,
+      `Added new modal dialog to allow users to chose between 'overwrite','load as separate config','cancel' options when loading a GraphConfig that already exists`,
+      `Improved graph edge styling and rendering`,
+      `Better "fix function" to merge fields within a node`,
+      `Minor improvements to Undo/Redo system`,
+    ]
+  },
+  {
     version: 'v6.8.0',
     date: new Date("2025-08-13"),
     changes: [
