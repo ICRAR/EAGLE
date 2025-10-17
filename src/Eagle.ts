@@ -2211,8 +2211,8 @@ export class Eagle {
         builtinPaletteExpanded = builtinPaletteExpanded === null ? false : builtinPaletteExpanded;
 
         const {palettes, errorsWarnings} = await this.loadPalettes([
-            {name:Palette.BUILTIN_PALETTE_NAME, filename:Daliuge.PALETTE_URL, readonly:true, expanded: builtinPaletteExpanded},
-            {name:Palette.TEMPLATE_PALETTE_NAME, filename:Daliuge.TEMPLATE_URL, readonly:true, expanded: templatePaletteExpanded}
+            {name:Palette.TEMPLATE_PALETTE_NAME, filename:Daliuge.TEMPLATE_URL, readonly:true, expanded: templatePaletteExpanded},
+            {name:Palette.BUILTIN_PALETTE_NAME, filename:Daliuge.PALETTE_URL, readonly:true, expanded: builtinPaletteExpanded}
         ]);
         
         const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
@@ -2257,7 +2257,7 @@ export class Eagle {
 
                 // keep reference to the placeholder palette so that it can be replaced when the palette is loaded
                 destinationPalettes.push(palette);
-                this.palettes.push(palette);
+                this.palettes.unshift(palette);
             }
 
             // start trying to load the palettes
@@ -2340,7 +2340,7 @@ export class Eagle {
             destinationPalette.isFetching(true);
             destinationPalette.fileInfo().name = file.name;
             destinationPalette.expanded(false);
-            this.palettes.push(destinationPalette);
+            this.palettes.unshift(destinationPalette);
         }
 
         // check the service required to fetch the file
