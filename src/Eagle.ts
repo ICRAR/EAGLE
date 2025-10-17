@@ -2211,8 +2211,8 @@ export class Eagle {
         builtinPaletteExpanded = builtinPaletteExpanded === null ? false : builtinPaletteExpanded;
 
         const {palettes, errorsWarnings} = await this.loadPalettes([
-            {name:Palette.BUILTIN_PALETTE_NAME, filename:Daliuge.PALETTE_URL, readonly:true, expanded: builtinPaletteExpanded},
-            {name:Palette.TEMPLATE_PALETTE_NAME, filename:Daliuge.TEMPLATE_URL, readonly:true, expanded: templatePaletteExpanded}
+            {name:Palette.TEMPLATE_PALETTE_NAME, filename:Daliuge.TEMPLATE_URL, readonly:true, expanded: templatePaletteExpanded},
+            {name:Palette.BUILTIN_PALETTE_NAME, filename:Daliuge.PALETTE_URL, readonly:true, expanded: builtinPaletteExpanded}
         ]);
         
         const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
@@ -2226,38 +2226,38 @@ export class Eagle {
             this.errorsMode(Errors.Mode.Loading);
             Utils.showErrorsModal("Loading File");
         }
-
-        for (const palette of palettes){
-            if (palette !== null){
-                this.palettes.push(palette);
-            }
-        }
     }
 
     loadPalettes = async (paletteList: {name:string, filename:string, readonly:boolean, expanded:boolean}[]): Promise<{palettes: Palette[], errorsWarnings: Errors.ErrorsWarnings}> => {
         return new Promise(async(resolve, reject) => {
-            const results: Palette[] = [];
-            const complete: boolean[] = [];
+            const destinationPalettes: Palette[] = [];
             const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
             // define a function to check if all requests are now complete, if so we can return the list of palettes
             function _checkAllPalettesComplete() : void {
                 let allComplete = true;
 
-                for (const requestComplete of complete){
-                    if (!requestComplete){
+                for (const palette of destinationPalettes){
+                    if (palette.isFetching()){
                         allComplete = false;
                     }
                 }
                 if (allComplete){
-                    resolve({palettes: results, errorsWarnings: errorsWarnings});
+                    resolve({palettes: destinationPalettes, errorsWarnings: errorsWarnings});
                 }
             }
 
             // initialise the state
             for (let i = 0 ; i < paletteList.length ; i++){
-                results.push(null);
-                complete.push(false);
+                // create placeholder palette to show in the UI while the palette is being fetched
+                const palette = new Palette();
+                palette.isFetching(true);
+                palette.fileInfo().name = paletteList[i].name;
+                palette.expanded(false);
+
+                // keep reference to the placeholder palette so that it can be replaced when the palette is loaded
+                destinationPalettes.push(palette);
+                this.palettes.unshift(palette);
             }
 
             // start trying to load the palettes
@@ -2297,13 +2297,14 @@ export class Eagle {
                         
                         Utils.preparePalette(palette, paletteList[i]);
 
-                        results[index] = palette;
+                        destinationPalettes[index].copy(palette);
                     }
 
                     _checkAllPalettesComplete();
                     return;
                 } finally {
-                    complete[index] = true;
+                    destinationPalettes[index].isFetching(false);
+                    destinationPalettes[index].expanded(paletteList[index].expanded);
                 }
 
                 // palette fetched successfully
@@ -2311,8 +2312,8 @@ export class Eagle {
                 const palette: Palette = Palette.fromOJSJson(data, repositoryFile, errorsWarnings);
                 Utils.preparePalette(palette, paletteList[index]);
 
-                // add to results
-                results[index] = palette;
+                // copy loaded palette into the destination palette that is already in the list of palettes
+                destinationPalettes[index].copy(palette);
 
                 // save to localStorage
                 localStorage.setItem(paletteList[index].filename, data);
@@ -2325,6 +2326,22 @@ export class Eagle {
     openRemoteFile = async (file : RepositoryFile): Promise<void> => {
         // flag file as being fetched
         file.isFetching(true);
+
+        // check palette is not already loaded
+        const alreadyLoadedPalette : Palette = this.findPaletteByFile(file);
+        if (alreadyLoadedPalette !== null){
+            this.closePalette(alreadyLoadedPalette);
+        }
+
+        // if this is a palette, create the destination palette and add to list of palettes so that it shows in the UI
+        let destinationPalette: Palette = null;
+        if (file.type === Eagle.FileType.Palette){
+            destinationPalette = new Palette();
+            destinationPalette.isFetching(true);
+            destinationPalette.fileInfo().name = file.name;
+            destinationPalette.expanded(false);
+            this.palettes.unshift(destinationPalette);
+        }
 
         // check the service required to fetch the file
         let openRemoteFileFunc: (repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string, filePath: string, fileName: string) => Promise<string>;
@@ -2398,7 +2415,7 @@ export class Eagle {
                 break;
             }
             case Eagle.FileType.Palette:
-                this._remotePaletteLoaded(file, data);
+                this._remotePaletteLoaded(file, data, destinationPalette);
                 break;
 
             case Eagle.FileType.GraphConfig:
@@ -2643,26 +2660,13 @@ export class Eagle {
         file.repository.deleteFile(file);
     }
 
-    private _remotePaletteLoaded = async (file : RepositoryFile, data : string): Promise<void> => {
-        // load the remote palette into EAGLE's palettes object
-
-        // check palette is not already loaded
-        const alreadyLoadedPalette : Palette = this.findPaletteByFile(file);
-
-        // if dictated by settings, reload the palette immediately
-        if (alreadyLoadedPalette !== null && Setting.findValue(Setting.CONFIRM_RELOAD_PALETTES)){
-            const confirmed = await Utils.requestUserConfirm("Reload Palette?", "This palette (" + file.name + ") is already loaded, do you wish to load it again?", "Yes", "No", Setting.find(Setting.CONFIRM_RELOAD_PALETTES));
-            if (confirmed){
-                this._reloadPalette(file, data, alreadyLoadedPalette);
-            }
-        } else {
-            this._reloadPalette(file, data, alreadyLoadedPalette);
-        }
+    private _remotePaletteLoaded = async (file : RepositoryFile, data : string, destinationPalette: Palette): Promise<void> => {
+        this._reloadPalette(file, data, destinationPalette);
     }
 
     private _reloadPalette = (file : RepositoryFile, data : string, palette : Palette) : void => {
         // close the existing version of the open palette
-        if (palette !== null){
+        if (palette !== null && !palette.isFetching()){
             this.closePalette(palette);
         }
 
@@ -2694,8 +2698,8 @@ export class Eagle {
         // all new (or reloaded) palettes should have 'expanded' flag set to true
         newPalette.expanded(true);
 
-        // add to list of palettes
-        this.palettes.unshift(newPalette);
+        // copy content of fetched palette into the destination palette that is already in the list of palettes
+        palette.copy(newPalette);
 
         // show errors/warnings
         this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
@@ -2765,7 +2769,6 @@ export class Eagle {
         Setting.setValue(Setting.CONFIRM_DELETE_OBJECTS,true)
         Setting.setValue(Setting.CONFIRM_DISCARD_CHANGES,true)
         Setting.setValue(Setting.CONFIRM_NODE_CATEGORY_CHANGES,true)
-        Setting.setValue(Setting.CONFIRM_RELOAD_PALETTES,true)
         Setting.setValue(Setting.CONFIRM_REMOVE_REPOSITORIES,true)
         Utils.showNotification("Success", "Confirmation message pop ups re-enabled", "success");
     }
@@ -2773,7 +2776,12 @@ export class Eagle {
     // TODO: shares some code with saveFileToLocal(), we should try to factor out the common stuff at some stage
     savePaletteToDisk = async (palette : Palette, fileName: string) : Promise<void> => {
         return new Promise(async (resolve, reject) => {
-            console.log("savePaletteToDisk()", fileName);
+            // generate a fileName, if the supplied filename is null or empty
+            if (fileName === null || fileName === ""){
+                const rawName = palette.fileInfo().name;
+                const sanitizedName = Utils.sanitizeFileName(rawName);
+                fileName = sanitizedName.length > 0 ? sanitizedName : "palette";
+            }
 
             // clone the palette and remove github info ready for local save
             const p_clone : Palette = palette.clone();

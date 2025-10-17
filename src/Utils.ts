@@ -446,10 +446,6 @@ export class Utils {
         }
     }
 
-    static fieldTextToFieldName(text : string) : string {
-        return text.toLowerCase().replace(' ', '_');
-    }
-
     // build full file path from path and filename
     static joinPath (path : string, fileName : string) : string {
         let fullFileName : string = fileName;
@@ -1458,7 +1454,13 @@ export class Utils {
     static determineSchemaVersion(data: any): Setting.SchemaVersion {
         if (typeof data.modelData !== 'undefined'){
             if (typeof data.modelData.schemaVersion !== 'undefined'){
-                return data.modelData.schemaVersion;
+                // check whether the value of data.modelData.schemaVersion is a valid SchemaVersion enum value
+                if (Object.values(Setting.SchemaVersion).includes(data.modelData.schemaVersion)){
+                    return data.modelData.schemaVersion;
+                } else {
+                    console.warn("Unknown schema version:", data.modelData.schemaVersion);
+                    return Setting.SchemaVersion.Unknown;
+                }
             }
         }
 
@@ -2826,5 +2828,15 @@ export class Utils {
 
         // communicate to knockout that the value of the fileInfo has been modified (so it can update UI)
         fileInfo.valueHasMutated();
+    }
+
+    // a wait/delay for a given number of milliseconds (used for debugging)
+    static delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+    // sanitize a string to be used as a filename
+    static sanitizeFileName = (name: string): string => {
+        // Replace invalid filename characters with underscores
+        // This regex covers most OS restrictions (Windows, macOS, Linux)
+        return name.replace(/[^a-zA-Z0-9_\-\.]/g, "_");
     }
 }
