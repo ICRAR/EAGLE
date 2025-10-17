@@ -2230,7 +2230,7 @@ export class GraphRenderer {
             return;
         }
 
-        await eagle.addEdge(srcNode, srcPort, destNode, destPort, loopAware, closesLoop, false);
+        await eagle.addEdge(srcNode, srcPort, destNode, destPort, loopAware, closesLoop);
         eagle.checkGraph();
         eagle.undo().pushSnapshot(eagle, "Added edge from " + srcNode.getName() + " to " + destNode.getName());
         eagle.logicalGraph().fileInfo().modified = true;
