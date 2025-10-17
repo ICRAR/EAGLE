@@ -2056,6 +2056,18 @@ export class Utils {
         }
     }
 
+    static fixFieldEdges(eagle: Eagle, field: Field){
+        // clear all edges from field
+        field.clearEdges();
+
+        // re-add all edges that reference this field
+        for (const edge of eagle.logicalGraph().getEdges()){
+            if (edge.getSrcPort().getId() === field.getId() || edge.getDestPort().getId() === field.getId()){
+                field.addEdge(edge);
+            }
+        }
+    }
+
     static addSourcePortToSourceNode(eagle: Eagle, edge: Edge){
         const srcNode = edge.getSrcNode();
         const destPort = edge.getDestPort();

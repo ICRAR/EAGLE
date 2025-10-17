@@ -3,7 +3,7 @@ import { TestHelpers } from './TestHelpers';
 
 const INPUT_GRAPH_LOCATION: string = "data/LoopWithBranch.graph";
 
-test('V4 Format JSON Match', async ({ page }) => {
+test('Insert Graph', async ({ page }) => {
     await page.goto('http://localhost:8888/?tutorial=none');
 
     // set 'Expert' UI mode

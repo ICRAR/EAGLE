@@ -1102,12 +1102,12 @@ export class Field {
         // check that all edges on this field actually start or end on the field
         for (const edge of field.edges().values()){
             if (edge.getSrcPort().getId() !== field.getId() && edge.getDestPort().getId() !== field.getId()){
-                const issue: Errors.Issue = Errors.Show("Node (" + node.getName() + ") field (" + field.getDisplayText() + ") has edge that isn't connected to the field", function(){Utils.showNode(eagle, location, field.getNode())});
+                const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") field (" + field.getDisplayText() + ") has edge that isn't connected to the field", function(){Utils.showNode(eagle, location, field.getNode())}, function(){Utils.fixFieldEdges(eagle, field)}, "Regenerate the list of edges for this field");
                 field.issues().push({issue:issue, validity:Errors.Validity.Error});
             }
 
             if (edge.getSrcNode().getId() !== field.getNode().getId() && edge.getDestNode().getId() !== field.getNode().getId()){
-                const issue: Errors.Issue = Errors.Show("Node (" + node.getName() + ") field (" + field.getDisplayText() + ") has edge that isn't connected to the field", function(){Utils.showNode(eagle, location, field.getNode())});
+                const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") field (" + field.getDisplayText() + ") has edge that isn't connected to the field", function(){Utils.showNode(eagle, location, field.getNode())}, function(){Utils.fixFieldEdges(eagle, field)}, "Regenerate the list of edges for this field");
                 field.issues().push({issue:issue, validity:Errors.Validity.Error});
             }
         }
