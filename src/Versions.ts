@@ -15,6 +15,7 @@ export const versions = [
       `Added mode to hide titles of Data nodes, accessible via a button in the navbar`,
       `Improved comment system and added icon to nodes with comments`,
       `Added new modal dialog to allow users to choose between 'overwrite' or 'load as separate config' when loading a graph configuration.`,
+      `New Setting in Advanced Editing - switch off auto-renaming of ports and nodes when drawing edges to existing nodes.`
     ]
   },
   {
