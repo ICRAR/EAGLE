@@ -15,7 +15,6 @@ import { Utils } from './Utils';
 export class Field {
     private displayText : ko.Observable<string>; // user-facing name
     private value : ko.Observable<string>; // the current value
-    private defaultValue : ko.Observable<string>;  // default value
     private description : ko.Observable<string>;
     private readonly : ko.Observable<boolean>;
     private type : ko.Observable<Daliuge.DataType>; // NOTE: this is a little unusual (type can have more values than just the enum)
@@ -46,10 +45,9 @@ export class Field {
 
     private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}>//keeps track of issues on the field
 
-    constructor(id: FieldId, displayText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: Daliuge.DataType, precious: boolean, options: string[], positional: boolean, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage){
+    constructor(id: FieldId, displayText: string, value: string, description: string, readonly: boolean, type: Daliuge.DataType, precious: boolean, options: string[], positional: boolean, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage){
         this.displayText = ko.observable(displayText);
         this.value = ko.observable(value);
-        this.defaultValue = ko.observable(defaultValue);
         this.description = ko.observable(description);
         this.readonly = ko.observable(readonly);
         this.type = ko.observable(type);
@@ -107,19 +105,6 @@ export class Field {
         return this;
     }
 
-    getDefaultValue = () : string => {
-        return this.defaultValue();
-    }
-
-    setDefaultValue = (value: string): Field => {
-        this.defaultValue(value);
-        return this;
-    }
-
-    hasDefaultValue = () : boolean => {
-        return this.value() === this.defaultValue();
-    }
-
     getDescription = () : string => {
         return this.description();
     }
@@ -130,7 +115,7 @@ export class Field {
     }
 
     getDescriptionText : ko.PureComputed<string> = ko.pureComputed(() => {
-        return this.description() == "" ? "No description available" + " (" + this.type() + ", default value:'" + this.defaultValue() + "')" : this.description() + " (" + this.type() + ", default value:'" + this.defaultValue() + "')";
+        return this.description() == "" ? "No description available" + " (" + this.type() + ")" : this.description();
     }, this);
 
     getInputPosition = () : {x:number, y:number} => {
@@ -216,11 +201,6 @@ export class Field {
         return this;
     }
 
-    toggleDefault = (): Field => {
-        this.defaultValue((!Utils.asBool(this.defaultValue())).toString());
-        return this;
-    }
-
     setType = (type: Daliuge.DataType) : Field => {
         this.type(type);
         return this;
@@ -245,12 +225,10 @@ export class Field {
     }
 
     editOption = (optionIndex: number, newVal: string) : Field => {
-        //if the option we are editing is selected well update the value or default value
+        // TODO: double check this, not sure I understand it fully
+        //if the option we are editing is selected well update the value
         if(this.options()[optionIndex] === this.value()){
             this.value(newVal)
-        }
-        if(this.options()[optionIndex] === this.defaultValue()){
-            this.defaultValue(newVal)
         }
 
         this.options()[optionIndex] = newVal
@@ -283,12 +261,8 @@ export class Field {
 
         //checking if a selected option is being deleted
         let valueDeleted = false
-        let defaultValueDeleted = false;
         if(this.options()[index] === this.value()){
             valueDeleted = true
-        }
-        if(this.options()[index] === this.defaultValue()){
-            defaultValueDeleted = true
         }
 
         //deleting the option
@@ -297,9 +271,6 @@ export class Field {
         //if either the selected value or selected default value option was deleted we set it to the first option on the select
         if(valueDeleted){
             this.value(this.options()[0])
-        }
-        if(defaultValueDeleted){
-            this.defaultValue(this.options()[0])
         }
         this.options.valueHasMutated()
         return this;
@@ -437,7 +408,6 @@ export class Field {
     clear = () : Field => {
         this.displayText("");
         this.value("");
-        this.defaultValue("");
         this.description("");
         this.readonly(false);
         this.type(Daliuge.DataType.Unknown);
@@ -462,7 +432,7 @@ export class Field {
             options.push(option);
         }
 
-        const f = new Field(this.id(), this.displayText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), options, this.positional(), this.parameterType(), this.usage());
+        const f = new Field(this.id(), this.displayText(), this.value(), this.description(), this.readonly(), this.type(), this.precious(), options, this.positional(), this.parameterType(), this.usage());
         f.encoding(this.encoding());
         f.isEvent(this.isEvent());
         f.node(this.node());
@@ -474,12 +444,11 @@ export class Field {
     }
 
     shallowCopy = () : Field => {
-        const f = new Field(this.id(), this.displayText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional(), this.parameterType(), this.usage());
+        const f = new Field(this.id(), this.displayText(), this.value(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional(), this.parameterType(), this.usage());
 
         f.id = this.id;
         f.displayText = this.displayText;
         f.value = this.value;
-        f.defaultValue = this.defaultValue;
         f.description = this.description;
         f.readonly = this.readonly;
         f.type = this.type;
@@ -497,11 +466,6 @@ export class Field {
         return f;
     }
 
-    resetToDefault = () : Field => {
-        this.value(this.defaultValue());
-        return this;
-    }
-
     // TODO: rename this slightly so that it is more obvious that it is a user-facing version of the value
     //       as it is I get confused between this and getValue() when auto-completing
     getFieldValue = () : string => {
@@ -515,7 +479,6 @@ export class Field {
     copyWithIds = (src: Field, node: Node, id: FieldId) : Field => {
         this.displayText(src.displayText());
         this.value(src.value());
-        this.defaultValue(src.defaultValue());
         this.description(src.description());
         this.readonly(src.readonly());
         this.type(src.type());
@@ -740,7 +703,6 @@ export class Field {
         return {
             name:field.displayText(),
             value:Field.stringAsType(field.value(), field.type()),
-            defaultValue:field.defaultValue(),
             description:field.description(),
             readonly:field.readonly(),
             type:field.isEvent() ? "Event" : field.type(),
@@ -758,7 +720,6 @@ export class Field {
         return {
             name:field.displayText(),
             value:Field.stringAsType(field.value(), field.type()),
-            defaultValue:field.defaultValue(),
             description:field.description(),
             readonly:field.readonly(),
             type:field.isEvent() ? "Event" : field.type(),
@@ -780,7 +741,6 @@ export class Field {
         let readonly: boolean = false;
         let type: Daliuge.DataType = Daliuge.DataType.Unknown;
         let value: string = "";
-        let defaultValue: string = "";
         let precious: boolean = false;
         let options: string[] = [];
         let positional: boolean = false;
@@ -809,8 +769,6 @@ export class Field {
         }
         if (typeof data.value !== 'undefined' && data.value !== null)
             value = data.value.toString();
-        if (typeof data.defaultValue !== 'undefined' && data.defaultValue !== null)
-            defaultValue = data.defaultValue.toString();
         if (typeof data.precious !== 'undefined')
             precious = data.precious;
         if (typeof data.options !== 'undefined')
@@ -858,7 +816,7 @@ export class Field {
             isEvent = data.event;
         if (typeof data.encoding !== 'undefined')
             encoding = data.encoding;
-        const result = new Field(id, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage);
+        const result = new Field(id, name, value, description, readonly, type, precious, options, positional, parameterType, usage);
         result.isEvent(isEvent);
         result.encoding(encoding);
         return result;
@@ -887,7 +845,7 @@ export class Field {
             name = data.IdText;
         }
      
-        const f = new Field(data.Id, name, "", "", description, false, type, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
+        const f = new Field(data.Id, name, "", description, false, type, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
         f.isEvent(event);
         f.encoding(encoding);
         return f;
@@ -897,7 +855,6 @@ export class Field {
         let id: FieldId;
         let name: string;
         let value: string;
-        let defaultValue: string;
         let description: string;
         let readonly: boolean;
         let type: Daliuge.DataType;
@@ -916,8 +873,6 @@ export class Field {
             name = data.name;
         if (typeof data.value !== 'undefined')
             value = data.value.toString();
-        if (typeof data.defaultValue !== 'undefined')
-            defaultValue = data.defaultValue.toString();
         if (typeof data.description !== 'undefined')
             description = data.description;
         if (typeof data.readonly !== 'undefined')
@@ -940,7 +895,7 @@ export class Field {
         if (typeof data.encoding !== 'undefined')
             encoding = data.encoding;
 
-        const f = new Field(id, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage);
+        const f = new Field(id, name, value, description, readonly, type, precious, options, positional, parameterType, usage);
         f.isEvent(event);
         f.encoding(encoding);
         return f;
