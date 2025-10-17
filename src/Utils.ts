@@ -2133,7 +2133,7 @@ export class Utils {
         const destPort: Field = edge.getDestPort();
 
         eagle.logicalGraph().removeEdgeById(edge.getId());
-        eagle.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop())
+        eagle.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop(), false)
     }
 
     static addMissingRequiredField(eagle: Eagle, node: Node, requiredField: Field){

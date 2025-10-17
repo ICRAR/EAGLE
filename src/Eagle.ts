@@ -1202,7 +1202,7 @@ export class Eagle {
             }
 
             // add edge
-            this.addEdge(srcNode, portMap.get(edge.getSrcPort().getId()), destNode, portMap.get(edge.getDestPort().getId()), edge.isLoopAware(), edge.isClosesLoop());
+            this.addEdge(srcNode, portMap.get(edge.getSrcPort().getId()), destNode, portMap.get(edge.getDestPort().getId()), edge.isLoopAware(), edge.isClosesLoop(), false);
         }
 
         //used if we cant find space on the canvas, we then extend the search area for space and center the graph after adding to bring new nodes into view
@@ -3799,9 +3799,9 @@ export class Eagle {
         // create edge (in correct direction)
         let edge: Edge;
         if (!RightClick.edgeDropSrcIsInput){
-            edge = await this.addEdge(realSourceNode, realSourcePort, realDestNode, realDestPort, false, false);
+            edge = await this.addEdge(realSourceNode, realSourcePort, realDestNode, realDestPort, false, false, true);
         } else {
-            edge = await this.addEdge(realDestNode, realDestPort, realSourceNode, realSourcePort, false, false);
+            edge = await this.addEdge(realDestNode, realDestPort, realSourceNode, realSourcePort, false, false, true);
 
         }
 
@@ -3946,7 +3946,7 @@ export class Eagle {
                 pythonObjectNode.addField(inputOutputPort);
 
                 // add edge to Logical Graph (connecting the PythonMemberFunction and the automatically-generated PythonObject)
-                this.addEdge(newNode, sourcePort, pythonObjectNode, inputOutputPort, false, false);
+                this.addEdge(newNode, sourcePort, pythonObjectNode, inputOutputPort, false, false, true);
             }
 
             // select the new node
@@ -4496,7 +4496,7 @@ export class Eagle {
         }
     }
 
-    addEdge = async (srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean): Promise<Edge> => {
+    addEdge = async (srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean, addNodeAndConnect: boolean): Promise<Edge> => {
         return new Promise(async(resolve, reject) => {
             // check that none of the supplied nodes and ports are null
             if (srcNode === null){
@@ -4547,18 +4547,20 @@ export class Eagle {
                 this.logicalGraph().addEdgeComplete(edge);
 
                 // re-name node and port according to the port name of the Application node
-                if (srcNode.isApplication()){
-                    const newName = srcPort.getDisplayText();
-                    const newDescription = srcPort.getDescription();
-                    destNode.setName(newName);
-                    destPort.setDisplayText(newName);
-                    destPort.setDescription(newDescription);
-                } else {
-                    const newName = destPort.getDisplayText();
-                    const newDescription = destPort.getDescription();
-                    srcNode.setName(newName);
-                    srcPort.setDisplayText(newName);
-                    srcPort.setDescription(newDescription);
+                if (!Setting.findValue(Setting.DISABLE_RENAME_ON_EDGE_CONNECT) || addNodeAndConnect){
+                    if (srcNode.isApplication()){
+                        const newName = srcPort.getDisplayText();
+                        const newDescription = srcPort.getDescription();
+                        destNode.setName(newName);
+                        destPort.setDisplayText(newName);
+                        destPort.setDescription(newDescription);
+                    } else {
+                        const newName = destPort.getDisplayText();
+                        const newDescription = destPort.getDescription();
+                        srcNode.setName(newName);
+                        srcPort.setDisplayText(newName);
+                        srcPort.setDescription(newDescription);
+                    }
                 }
 
                 setTimeout(() => {
