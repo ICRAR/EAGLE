@@ -132,6 +132,24 @@ export class Utils {
         return fileType.toString() + "-" + Utils.generateDateTimeString() + "." + Utils.getDiagramExtension(fileType);
     }
 
+    static generateFilenameForGraphConfig(logicalGraph: LogicalGraph, graphConfig: GraphConfig): string {
+        let graphName = logicalGraph.fileInfo().name;
+        let configName = graphConfig.fileInfo().name;
+        const extension = Utils.getDiagramExtension(Eagle.FileType.GraphConfig);
+
+        // if graphName ends with ".graph", remove that
+        if (graphName.endsWith(".graph")){
+            graphName = graphName.substring(0, graphName.length - 6);
+        }
+
+        // if configName ends with ".graphConfig", remove that
+        if (configName.endsWith(".graphConfig")){
+            configName = configName.substring(0, configName.length - 12);
+        }
+
+        return `${graphName}-${configName}.${extension}`;
+    }
+
     // TODO: check if this is even necessary. it may only have been necessary when we were setting keys (not ids)
     static setEmbeddedApplicationNodeIds(lg: LogicalGraph): void {
         // loop through nodes, look for embedded nodes with null id, create new id

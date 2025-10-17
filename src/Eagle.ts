@@ -1733,7 +1733,7 @@ export class Eagle {
 
                 const isLocalFile = this.logicalGraph().fileInfo().location.repositoryService() === Repository.Service.File;
 
-                const userChoice: string = await Utils.requestUserChoice("Save Graph Config As", "Please choose where to save the graph config", ["Local File", "Remote Git Repository"], isLocalFile?0:1, false, "");
+                const userChoice: string = await Utils.requestUserChoice("Save Graph Configuration As", "Please choose where to save the graph configuration", ["Local File", "Remote Git Repository"], isLocalFile?0:1, false, "");
 
                 if (userChoice === null){
                     Utils.showNotification("Save Cancelled", "No save location was selected.", "danger");
@@ -2003,9 +2003,15 @@ export class Eagle {
                 }
             }
 
+            // determine a default filename
+            let defaultFilename: string = fileInfo().location.repositoryFileName();
+            if (fileType === Eagle.FileType.GraphConfig){
+                defaultFilename = Utils.generateFilenameForGraphConfig(this.logicalGraph(), graphConfig);
+            }
+
             let commit: RepositoryCommit;
             try {
-                commit = await Utils.requestUserGitCommit(defaultRepository, Repositories.getList(defaultRepository.service), fileInfo().location.repositoryPath(), fileInfo().location.repositoryFileName(), fileType);
+                commit = await Utils.requestUserGitCommit(defaultRepository, Repositories.getList(defaultRepository.service), fileInfo().location.repositoryPath(), defaultFilename, fileType);
             } catch (error){
                 reject(error);
                 return;
@@ -2913,6 +2919,11 @@ export class Eagle {
         const extension: string = Utils.getDiagramExtension(file.fileInfo().type);
 
         let defaultFilename = file.fileInfo().name;
+
+        // if the file is a GraphConfig, then prepend the parent graph name to the default filename
+        if (file.fileInfo().type === Eagle.FileType.GraphConfig){
+            defaultFilename = Utils.generateFilenameForGraphConfig(this.logicalGraph(), file as GraphConfig);
+        }
 
         // check whether existing name ends with the file extension
         if (!defaultFilename.endsWith("." + extension)) {
