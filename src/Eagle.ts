@@ -1087,7 +1087,6 @@ export class Eagle {
         // create map of inserted graph keys to final graph nodes, and of inserted port ids to final graph ports
         const nodeMap: Map<NodeId, Node> = new Map();
         const portMap: Map<FieldId, Field> = new Map();
-        const edgeMap: Map<EdgeId, Edge> = new Map();
         let parentNodePosition;
 
         // add the parent node to the logical graph
@@ -1166,6 +1165,11 @@ export class Eagle {
             for (let j = 0 ; j < node.getOutputPorts().length; j++){
                 portMap.set(node.getOutputPorts()[j].getId(), insertedNode.getOutputPorts()[j]);
             }
+
+            // clear edge lists within fields of inserted node
+            for (const field of insertedNode.getFields()){
+                field.clearEdges();
+            }
         }
 
         // update some other details of the nodes are updated correctly
@@ -1192,45 +1196,34 @@ export class Eagle {
             }
         }
 
+        // debug - prior to insert edges, check whether fields have non-empty edges array
+        for (const node of nodes){
+            const insertedNode: Node = nodeMap.get(node.getId());
+            for (const field of insertedNode.getFields()){
+                if (field.getNumEdges() !== 0){
+                    console.warn("Field " + field.getId() + " has " + field.getNumEdges() + " edges");
+                }
+            }
+        }
+        // debug
+
         // insert edges from lg into the existing logicalGraph
         for (const edge of edges){
             const srcNode = nodeMap.get(edge.getSrcNode().getId());
             const destNode = nodeMap.get(edge.getDestNode().getId());
+            const srcPort = portMap.get(edge.getSrcPort().getId());
+            const destPort = portMap.get(edge.getDestPort().getId());
+            const loopAware = edge.isLoopAware();
+            const closesLoop = edge.isClosesLoop();
 
             if (typeof srcNode === "undefined" || typeof destNode === "undefined"){
                 errorsWarnings.warnings.push(Errors.Message("Unable to insert edge " + edge.getId() + " source node or destination node could not be found."));
                 continue;
             }
 
-            // add edge
-            const newEdge: Edge = await this.addEdge(srcNode, portMap.get(edge.getSrcPort().getId()), destNode, portMap.get(edge.getDestPort().getId()), edge.isLoopAware(), edge.isClosesLoop());
-
-            // save mapping for edge itself
-            edgeMap.set(edge.getId(), newEdge);
-        }
-
-        // go through all the edges in the edge list of every field, of every node in the inserted graph
-        for (const node of nodes){
-            const insertedNode: Node = nodeMap.get(node.getId());
-
-            for (const field of insertedNode.getFields()){
-                // copy list of old edge ids
-                const oldEdgeIds: EdgeId[] = Array.from(field.getEdges()).map(edge => edge.getId());
-
-                // clear edges from field
-                field.clearEdges();
-
-                // re-add edges to field using the new edge instances
-                for (const oldEdgeId of oldEdgeIds){
-                    const mappedEdge: Edge = edgeMap.get(oldEdgeId);
-                    if (typeof mappedEdge === "undefined"){
-                        errorsWarnings.warnings.push(Errors.Message("Unable to map edge " + oldEdgeId + " to its new instance."));
-                        continue;
-                    }
-
-                    field.addEdge(mappedEdge);
-                }
-            }
+            // add new edge
+            const newEdge : Edge = new Edge('', srcNode, srcPort, destNode, destPort, loopAware, closesLoop, false);
+            this.logicalGraph().addEdgeComplete(newEdge);
         }
 
         //used if we cant find space on the canvas, we then extend the search area for space and center the graph after adding to bring new nodes into view
@@ -2651,7 +2644,7 @@ export class Eagle {
         const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().location.getText(), "", Category.SubGraph);
 
         // perform insert
-        this.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges()), parentNode, errorsWarnings);
+        await this.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges()), parentNode, errorsWarnings);
 
         // trigger re-render
         this.logicalGraph.valueHasMutated();
