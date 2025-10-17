@@ -1,7 +1,7 @@
 export const versions = [
   {
     version: 'v6.9.0',
-    date: new Date("2025-10-16"),
+    date: new Date("2025-10-17"),
     changes: [
       `New menu item in node right click menu to fix all issues with that node`,
       `New actions in Graph Configurations table to save, view JSON and view file information`,
