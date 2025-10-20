@@ -692,6 +692,18 @@ def open_git_hub_file():
         graph["modelData"]["lastModifiedEmail"] = most_recent_commit.commit.committer.email
         graph["modelData"]["lastModifiedDatetime"] = most_recent_commit.commit.committer.date.timestamp()
 
+        # replace some data in the headers of the graphConfigurations within the file
+        if "graphConfigurations" in graph:
+            for id, graphConfig in graph["graphConfigurations"].items():
+                #print(graphConfig["modelData"])
+                graphLocation = graphConfig["modelData"]["graphLocation"]
+                graphLocation["repositoryUrl"] = "TODO"
+                graphLocation["commitHash"] = most_recent_commit.sha
+                graphLocation["downloadUrl"] = download_url
+                graphLocation["lastModifiedName"] = most_recent_commit.commit.committer.name
+                graphLocation["lastModifiedEmail"] = most_recent_commit.commit.committer.email
+                graphLocation["lastModifiedDatetime"] = most_recent_commit.commit.committer.date.timestamp()
+
         # for palettes, put downloadUrl in every component
         if extension == ".palette":
             if "nodeDataArray" in graph:
