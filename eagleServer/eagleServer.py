@@ -25,6 +25,7 @@ This is the main module of the EAGLE server side code.
 import argparse
 import base64
 import datetime
+from fileinput import filename
 import json
 import logging
 import os
@@ -488,18 +489,7 @@ def save_git_hub_file():
     # get SHA from branch
     branch_sha = branch_ref.object.sha
 
-    # Add repo and file name in the graph.
-    graph["modelData"]["repo"] = repo_name
-    graph["modelData"]["repoBranch"] = repo_branch
-    graph["modelData"]["repoService"] = "GitHub"
-    graph["modelData"]["filePath"] = filename
-    # Clean the GitHub file reference.
-    graph["modelData"]["repositoryUrl"] = ""
-    graph["modelData"]["commitHash"] = ""
-    graph["modelData"]["downloadUrl"] = ""
-    graph["modelData"]["lastModifiedName"] = ""
-    graph["modelData"]["lastModifiedEmail"] = ""
-    graph["modelData"]["lastModifiedDatetime"] = 0
+    set_metadata_for_ingress(graph, "GitHub", repo_name, repo_branch, filename)
 
     # The 'indent=4' option is used for nice formatting. Without it the file is stored as a single line.
     json_data = json.dumps(graph, indent=4)
@@ -560,17 +550,8 @@ def save_git_lab_file():
     project = gl.projects.get(repo_name)
 
     # Add repo and file name in the graph.
-    graph["modelData"]["repo"] = repo_name
-    graph["modelData"]["repoBranch"] = repo_branch
-    graph["modelData"]["repoService"] = "GitLab"
-    graph["modelData"]["filePath"] = filename
-    # Clean the GitHub file reference.
-    graph["modelData"]["repositoryUrl"] = ""
-    graph["modelData"]["commitHash"] = ""
-    graph["modelData"]["downloadUrl"] = ""
-    graph["modelData"]["lastModifiedName"] = ""
-    graph["modelData"]["lastModifiedEmail"] = ""
-    graph["modelData"]["lastModifiedDatetime"] = 0
+    set_metadata_for_ingress(graph, "GitLab", repo_name, repo_branch, filename)
+    
 
     # The 'indent=4' option is used for nice formatting. Without it the file is stored as a single line.
     json_data = json.dumps(graph, indent=4)
@@ -605,6 +586,47 @@ def save_git_lab_file():
 
     return "ok"
 
+
+def set_metadata_for_ingress(graph, repo_service, repo_name, repo_branch, filename):
+    # Add repo and file name in the graph.
+    graph["modelData"]["repo"] = repo_name
+    graph["modelData"]["repoBranch"] = repo_branch
+    graph["modelData"]["repoService"] = repo_service
+    graph["modelData"]["filePath"] = filename
+    # Clean the GitHub file reference.
+    graph["modelData"]["repositoryUrl"] = ""
+    graph["modelData"]["commitHash"] = ""
+    graph["modelData"]["downloadUrl"] = ""
+    graph["modelData"]["lastModifiedName"] = ""
+    graph["modelData"]["lastModifiedEmail"] = ""
+    graph["modelData"]["lastModifiedDatetime"] = 0
+
+
+def set_metadata_for_egress(graph, repo_service, repo_name, repo_branch, commit_hash, last_modified_name, last_modified_email, last_modified_datetime, filename, download_url):
+        # replace some data in the header (modelData) of the file with info from git
+        graph["modelData"]["repo"] = repo_name
+        graph["modelData"]["repoBranch"] = repo_branch
+        graph["modelData"]["repoService"] = repo_service
+        graph["modelData"]["filePath"] = filename
+
+        graph["modelData"]["repositoryUrl"] = "TODO"
+        graph["modelData"]["commitHash"] = commit_hash
+        graph["modelData"]["downloadUrl"] = download_url
+        graph["modelData"]["lastModifiedName"] = last_modified_name
+        graph["modelData"]["lastModifiedEmail"] = last_modified_email
+        graph["modelData"]["lastModifiedDatetime"] = last_modified_datetime
+
+        # replace some data in the headers of the graphConfigurations within the file
+        if "graphConfigurations" in graph:
+            for id, graphConfig in graph["graphConfigurations"].items():
+                #print(graphConfig["modelData"])
+                graphLocation = graphConfig["modelData"]["graphLocation"]
+                graphLocation["repositoryUrl"] = "TODO"
+                graphLocation["commitHash"] = commit_hash
+                graphLocation["downloadUrl"] = download_url
+                graphLocation["lastModifiedName"] = last_modified_name
+                graphLocation["lastModifiedEmail"] = last_modified_email
+                graphLocation["lastModifiedDatetime"] = last_modified_datetime
 
 @app.route("/openRemoteGithubFile", methods=["POST"])
 def open_git_hub_file():
@@ -679,30 +701,8 @@ def open_git_hub_file():
         if not "modelData" in graph:
             graph["modelData"] = {}
 
-        # replace some data in the header (modelData) of the file with info from git
-        graph["modelData"]["repo"] = repo_name
-        graph["modelData"]["repoBranch"] = repo_branch
-        graph["modelData"]["repoService"] = "GitHub"
-        graph["modelData"]["filePath"] = filename
-
-        graph["modelData"]["repositoryUrl"] = "TODO"
-        graph["modelData"]["commitHash"] = most_recent_commit.sha
-        graph["modelData"]["downloadUrl"] = download_url
-        graph["modelData"]["lastModifiedName"] = most_recent_commit.commit.committer.name
-        graph["modelData"]["lastModifiedEmail"] = most_recent_commit.commit.committer.email
-        graph["modelData"]["lastModifiedDatetime"] = most_recent_commit.commit.committer.date.timestamp()
-
-        # replace some data in the headers of the graphConfigurations within the file
-        if "graphConfigurations" in graph:
-            for id, graphConfig in graph["graphConfigurations"].items():
-                #print(graphConfig["modelData"])
-                graphLocation = graphConfig["modelData"]["graphLocation"]
-                graphLocation["repositoryUrl"] = "TODO"
-                graphLocation["commitHash"] = most_recent_commit.sha
-                graphLocation["downloadUrl"] = download_url
-                graphLocation["lastModifiedName"] = most_recent_commit.commit.committer.name
-                graphLocation["lastModifiedEmail"] = most_recent_commit.commit.committer.email
-                graphLocation["lastModifiedDatetime"] = most_recent_commit.commit.committer.date.timestamp()
+        # add the repository information
+        set_metadata_for_egress(graph, "GitHub", repo_name, repo_branch, most_recent_commit.sha, most_recent_commit.commit.committer.name, most_recent_commit.commit.committer.email, most_recent_commit.commit.committer.date.timestamp(), filename, download_url)
 
         # for palettes, put downloadUrl in every component
         if extension == ".palette":
@@ -814,18 +814,7 @@ def open_git_lab_file():
             graph["modelData"] = {}
 
         # add the repository information
-        graph["modelData"]["repo"] = repo_name
-        graph["modelData"]["repoBranch"] = repo_branch
-        graph["modelData"]["repoService"] = "GitLab"
-        graph["modelData"]["filePath"] = filename
-
-        # TODO: Add the GitLab file information
-        graph["modelData"]["repositoryUrl"] = "TODO"
-        graph["modelData"]["commitHash"] = f.commit_id
-        graph["modelData"]["downloadUrl"] = "TODO"
-        graph["modelData"]["lastModifiedName"] = ""
-        graph["modelData"]["lastModifiedEmail"] = ""
-        graph["modelData"]["lastModifiedDatetime"] = 0
+        set_metadata_for_egress( graph, "GitLab", repo_name, repo_branch, f.commit_id, "", "", 0, filename, "TODO")
 
         # for palettes, put downloadUrl in every component
         if extension == ".palette":
