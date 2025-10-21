@@ -82,6 +82,20 @@ export class FileLocation {
         }
     }
 
+    toString = () : string => {
+        let s = "";
+
+        s += "Repository Service:" + this.repositoryService();
+        s += " Repository Branch:" + this.repositoryBranch();
+        s += " Repository Name:" + this.repositoryName();
+        s += " Repository Path:" + this.repositoryPath();
+        s += " Repository File Name:" + this.repositoryFileName();
+        s += " Commit Hash:" + this.commitHash();
+        s += " Download URL:" + this.downloadUrl();
+
+        return s;
+    }
+
     static toJson(fileLocation: FileLocation) : object {
         return {
             repositoryService: fileLocation.repositoryService(),

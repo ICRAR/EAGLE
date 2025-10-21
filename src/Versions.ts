@@ -1,5 +1,24 @@
 export const versions = [
   {
+    version: 'v6.9.0',
+    date: new Date("2025-10-17"),
+    changes: [
+      `New menu item in node right click menu to fix all issues with that node`,
+      `New actions in Graph Configurations table to save, view JSON and view file information`,
+      `Graph Configuration files now appear in the repository browser`,
+      `Graph Configurations can now be de-activated`,
+      `Improved selection of nodes, allows double click`,
+      `Removed the "Config" menu from the navbar. Useful items moved to a dropdown in the "Graph" menu`,
+      `Removed the "Apply Config before Translation" setting. Graph Configurations are now applied on the DALiuGE side`,
+      `Added Discord invite to Help menu`,
+      `Moved EnvironmentVariables component to Legacy. Added GlobalVariable component. Added Directory component`,
+      `Added mode to hide titles of Data nodes, accessible via a button in the navbar`,
+      `Improved comment system and added icon to nodes with comments`,
+      `Added new modal dialog to allow users to choose between 'overwrite' or 'load as separate config' when loading a graph configuration.`,
+      `New Setting in Advanced Editing - switch off auto-renaming of ports and nodes when drawing edges to existing nodes.`
+    ]
+  },
+  {
     version: 'v6.8.0',
     date: new Date("2025-08-13"),
     changes: [

@@ -132,6 +132,24 @@ export class Utils {
         return fileType.toString() + "-" + Utils.generateDateTimeString() + "." + Utils.getDiagramExtension(fileType);
     }
 
+    static generateFilenameForGraphConfig(logicalGraph: LogicalGraph, graphConfig: GraphConfig): string {
+        let graphName = logicalGraph.fileInfo().name;
+        let configName = graphConfig.fileInfo().name;
+        const extension = Utils.getDiagramExtension(Eagle.FileType.GraphConfig);
+
+        // if graphName ends with ".graph", remove that
+        if (graphName.endsWith(".graph")){
+            graphName = graphName.substring(0, graphName.length - 6);
+        }
+
+        // if configName ends with ".graphConfig", remove that
+        if (configName.endsWith(".graphConfig")){
+            configName = configName.substring(0, configName.length - 12);
+        }
+
+        return `${graphName}-${configName}.${extension}`;
+    }
+
     // TODO: check if this is even necessary. it may only have been necessary when we were setting keys (not ids)
     static setEmbeddedApplicationNodeIds(lg: LogicalGraph): void {
         // loop through nodes, look for embedded nodes with null id, create new id
@@ -444,10 +462,6 @@ export class Utils {
         } else {
             return "Uncaught Error. " + xhr.responseText;
         }
-    }
-
-    static fieldTextToFieldName(text : string) : string {
-        return text.toLowerCase().replace(' ', '_');
     }
 
     // build full file path from path and filename
@@ -1458,7 +1472,13 @@ export class Utils {
     static determineSchemaVersion(data: any): Setting.SchemaVersion {
         if (typeof data.modelData !== 'undefined'){
             if (typeof data.modelData.schemaVersion !== 'undefined'){
-                return data.modelData.schemaVersion;
+                // check whether the value of data.modelData.schemaVersion is a valid SchemaVersion enum value
+                if (Object.values(Setting.SchemaVersion).includes(data.modelData.schemaVersion)){
+                    return data.modelData.schemaVersion;
+                } else {
+                    console.warn("Unknown schema version:", data.modelData.schemaVersion);
+                    return Setting.SchemaVersion.Unknown;
+                }
             }
         }
 
@@ -2863,5 +2883,15 @@ export class Utils {
             }
             resolve(logicalGraph.fileInfo().name);
         });
+    }
+
+    // a wait/delay for a given number of milliseconds (used for debugging)
+    static delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+    // sanitize a string to be used as a filename
+    static sanitizeFileName = (name: string): string => {
+        // Replace invalid filename characters with underscores
+        // This regex covers most OS restrictions (Windows, macOS, Linux)
+        return name.replace(/[^a-zA-Z0-9_\-\.]/g, "_");
     }
 }

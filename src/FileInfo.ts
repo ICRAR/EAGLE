@@ -414,9 +414,9 @@ export class FileInfo {
             shortDescription: fileInfo.shortDescription,
             detailedDescription: fileInfo.detailedDescription,
 
-            repoService: fileInfo.location.repositoryService,
-            repoBranch: fileInfo.location.repositoryBranch,
-            repo: fileInfo.location.repositoryName,
+            repoService: fileInfo.location.repositoryService(),
+            repoBranch: fileInfo.location.repositoryBranch(),
+            repo: fileInfo.location.repositoryName(),
 
             generatorVersion: fileInfo.generatorVersion,
             generatorCommitHash: fileInfo.generatorCommitHash,
@@ -425,8 +425,8 @@ export class FileInfo {
             readonly: fileInfo.readonly,
 
             repositoryUrl: fileInfo.repositoryUrl,
-            commitHash: fileInfo.location.commitHash,
-            downloadUrl: fileInfo.location.downloadUrl,
+            commitHash: fileInfo.location.commitHash(),
+            downloadUrl: fileInfo.location.downloadUrl(),
             signature: fileInfo.signature,
 
             lastModifiedName: fileInfo.lastModifiedName,

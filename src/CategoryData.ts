@@ -43,7 +43,7 @@ export class CategoryData {
         RDBMS                : {categoryType: Category.Type.Service, isGroup: false, minInputs: 0, maxInputs: 1, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-database", color: Category.Color.Service},
         Service              : {categoryType: Category.Type.Service, isGroup: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: 0, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-database", color: Category.Color.Service},
 
-        GlobalVariable       : {categoryType: Category.Type.Global, isGroup: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveComponentParameters: true, canHaveApplicationArguments: false, canHaveConstructParameters: false, icon: "icon-tune", color: Category.Color.Global},
+        GlobalVariables      : {categoryType: Category.Type.Global, isGroup: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveComponentParameters: true, canHaveApplicationArguments: false, canHaveConstructParameters: false, icon: "icon-tune", color: Category.Color.Global},
 
         Unknown              : {categoryType: Category.Type.Unknown, isGroup: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-question_mark", color: Category.Color.Error},
         None                 : {categoryType: Category.Type.Unknown, isGroup: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveComponentParameters: false, canHaveApplicationArguments: false, canHaveConstructParameters: false, icon: "icon-none", color: Category.Color.Error},
@@ -58,7 +58,7 @@ export class CategoryData {
     static readonly LEGACY_CATEGORIES_UPGRADES: Map<Category, Category> = new Map([
         [Category.Component, Category.PyFuncApp],
         [Category.Description, Category.Comment],
-        [Category.EnvironmentVariables, Category.GlobalVariable],
+        [Category.EnvironmentVariables, Category.GlobalVariables],
     ]);
 
     static getCategoryData(category : Category) : Category.CategoryData {
