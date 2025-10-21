@@ -1103,13 +1103,11 @@ export class Field {
         for (const edge of field.edges().values()){
             if (edge.getSrcPort().getId() !== field.getId() && edge.getDestPort().getId() !== field.getId()){
                 const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") field (" + field.getDisplayText() + ") has edge that isn't connected to the field", function(){Utils.showNode(eagle, location, field.getNode())}, function(){Utils.fixFieldEdges(eagle, field)}, "Regenerate the list of edges for this field");
-                console.trace("1 node name:", node.getName(), "field name:", field.getDisplayText(), "field id:", field.getId(), "edge src port id:", edge.getSrcPort().getId(), "edge dest port id:", edge.getDestPort().getId());
                 field.issues().push({issue:issue, validity:Errors.Validity.Error});
             }
 
             if (edge.getSrcNode().getId() !== field.getNode().getId() && edge.getDestNode().getId() !== field.getNode().getId()){
                 const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") field (" + field.getDisplayText() + ") has edge that isn't connected to the field", function(){Utils.showNode(eagle, location, field.getNode())}, function(){Utils.fixFieldEdges(eagle, field)}, "Regenerate the list of edges for this field");
-                console.trace("2 node name:", node.getName(), "field name:", field.getDisplayText(), "field id:", field.getId(), "edge src port id:", edge.getSrcPort().getId(), "edge dest port id:", edge.getDestPort().getId());
                 field.issues().push({issue:issue, validity:Errors.Validity.Error});
             }
         }

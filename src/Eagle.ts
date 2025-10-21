@@ -1116,45 +1116,6 @@ export class Eagle {
             if (insertedNode.getParent() === null && parentNode !== null){
                 insertedNode.setParent(parentNode);
             }
-            
-            // copy embedded input application
-            if (node.hasInputApplication()){
-                const oldInputApplication : Node = node.getInputApplication();
-                const newInputApplication : Node = await this.addNode(oldInputApplication, 0, 0);
-                insertedNode.setInputApplication(newInputApplication);
-                
-                nodeMap.set(oldInputApplication.getId(), newInputApplication);
-
-                // save mapping for input ports
-                for (let j = 0 ; j < oldInputApplication.getInputPorts().length; j++ ){
-                    portMap.set(oldInputApplication.getInputPorts()[j].getId(), newInputApplication.getInputPorts()[j]);
-                    
-                }
-
-                // save mapping for output ports
-                for (let j = 0 ; j < oldInputApplication.getOutputPorts().length; j++){
-                    portMap.set(oldInputApplication.getOutputPorts()[j].getId(), newInputApplication.getOutputPorts()[j]);
-                }
-            }
-
-            // copy embedded output application
-            if (node.hasOutputApplication()){
-                const oldOutputApplication : Node = node.getOutputApplication();
-                const newOutputApplication : Node = await this.addNode(oldOutputApplication, 0, 0);
-                insertedNode.setOutputApplication(newOutputApplication);
-                
-                nodeMap.set(oldOutputApplication.getId(), newOutputApplication);
-                
-                // save mapping for input ports
-                for (let j = 0 ; j < oldOutputApplication.getInputPorts().length; j++){
-                    portMap.set(oldOutputApplication.getInputPorts()[j].getId(), newOutputApplication.getInputPorts()[j]);
-                }
-
-                // save mapping for output ports
-                for (let j = 0 ; j < oldOutputApplication.getOutputPorts().length; j++){
-                    portMap.set(oldOutputApplication.getOutputPorts()[j].getId(), newOutputApplication.getOutputPorts()[j]);
-                }
-            }
 
             // save mapping for input ports
             for (let j = 0 ; j < node.getInputPorts().length; j++){
@@ -1169,6 +1130,72 @@ export class Eagle {
             // clear edge lists within fields of inserted node
             for (const field of insertedNode.getFields()){
                 field.clearEdges();
+            }
+        }
+
+        // copy embedded applications
+        for (const node of nodes){
+            const insertedNode: Node = nodeMap.get(node.getId());
+
+            // copy embedded input application
+            if (node.hasInputApplication()){
+                const oldInputApplication : Node = node.getInputApplication();
+                const newInputApplication : Node = nodeMap.get(oldInputApplication.getId());
+
+                if (typeof newInputApplication === "undefined"){
+                    console.error("Error: could not find mapping for input application " + oldInputApplication.getName() + " " + oldInputApplication.getId());
+                    continue;
+                }
+
+                insertedNode.setInputApplication(newInputApplication);
+                
+                nodeMap.set(oldInputApplication.getId(), newInputApplication);
+
+                // save mapping for input ports
+                for (let j = 0 ; j < oldInputApplication.getInputPorts().length; j++ ){
+                    portMap.set(oldInputApplication.getInputPorts()[j].getId(), newInputApplication.getInputPorts()[j]);
+                    
+                }
+
+                // save mapping for output ports
+                for (let j = 0 ; j < oldInputApplication.getOutputPorts().length; j++){
+                    portMap.set(oldInputApplication.getOutputPorts()[j].getId(), newInputApplication.getOutputPorts()[j]);
+                }
+
+                // clear edge lists within fields of the old input application
+                for (const field of oldInputApplication.getFields()){
+                    field.clearEdges();
+                }
+            }
+
+            // copy embedded output application
+            if (node.hasOutputApplication()){
+                const oldOutputApplication : Node = node.getOutputApplication();
+                const newOutputApplication : Node = nodeMap.get(oldOutputApplication.getId());
+
+                if (typeof newOutputApplication === "undefined"){
+                    console.error("Error: could not find mapping for output application " + oldOutputApplication.getName() + " " + oldOutputApplication.getId());
+                    continue;
+                }
+
+                insertedNode.setOutputApplication(newOutputApplication);
+                
+                nodeMap.set(oldOutputApplication.getId(), newOutputApplication);
+                
+                // save mapping for input ports
+                for (let j = 0 ; j < oldOutputApplication.getInputPorts().length; j++){
+                    portMap.set(oldOutputApplication.getInputPorts()[j].getId(), newOutputApplication.getInputPorts()[j]);
+                }
+
+                // save mapping for output ports
+                for (let j = 0 ; j < oldOutputApplication.getOutputPorts().length; j++){
+                    portMap.set(oldOutputApplication.getOutputPorts()[j].getId(), newOutputApplication.getOutputPorts()[j]);
+                }
+
+                // clear edge lists within fields of the old output application
+                for (const field of oldOutputApplication.getFields()){
+                    field.clearEdges();
+                }
             }
         }
 
@@ -1195,17 +1222,6 @@ export class Eagle {
                 }
             }
         }
-
-        // debug - prior to insert edges, check whether fields have non-empty edges array
-        for (const node of nodes){
-            const insertedNode: Node = nodeMap.get(node.getId());
-            for (const field of insertedNode.getFields()){
-                if (field.getNumEdges() !== 0){
-                    console.warn("Field " + field.getId() + " has " + field.getNumEdges() + " edges");
-                }
-            }
-        }
-        // debug
 
         // insert edges from lg into the existing logicalGraph
         for (const edge of edges){
@@ -1509,7 +1525,7 @@ export class Eagle {
             edges.push(edge);
         }
 
-        this.insertGraph(nodes, edges, null, errorsWarnings);
+        await this.insertGraph(nodes, edges, null, errorsWarnings);
 
         // display notification to user
         Utils.showNotification("Added to Graph from JSON", "Added " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
@@ -3496,7 +3512,7 @@ export class Eagle {
             }
         }
 
-        this.insertGraph(nodes, edges, null, errorsWarnings);
+        await this.insertGraph(nodes, edges, null, errorsWarnings);
 
         // display notification to user
         if (!Errors.hasErrors(errorsWarnings) && !Errors.hasWarnings(errorsWarnings)){
