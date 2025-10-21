@@ -322,6 +322,11 @@ export class GraphRenderer {
 
     static renderDraggingPortEdge : ko.Observable<boolean> = ko.observable(false);
 
+    //visual resize handler globals
+    static isResizingVisual : ko.Observable<boolean> = ko.observable(false);
+    static visualResizeCurrentPos : {x:number,y:number} = {x:0,y:0};
+    static visualBeingResized : Visual = null;
+
     static averageAngles(angles: number[]) : number {
         let x: number = 0;
         let y: number = 0;
@@ -1140,11 +1145,14 @@ export class GraphRenderer {
                 eagle.globalOffsetX(eagle.globalOffsetX() + moveDistance.x/eagle.globalScale());
                 eagle.globalOffsetY(eagle.globalOffsetY() + moveDistance.y/eagle.globalScale());
             }
+        }else if(GraphRenderer.draggingPort){
+            GraphRenderer.portDragging()
+        }else if(GraphRenderer.isResizingVisual()){
+            moveDistance = {x:e.pageX - GraphRenderer.visualResizeCurrentPos?.x, y: e.pageY - GraphRenderer.visualResizeCurrentPos?.y}
+            GraphRenderer.visualResizeCurrentPos = {x:e.pageX,y:e.pageY}
+            GraphRenderer.visualBeingResized.changePosition(moveDistance.x/eagle.globalScale(), moveDistance.y/eagle.globalScale())
         }
 
-        if(GraphRenderer.draggingPort){
-            GraphRenderer.portDragging()
-        }
     }
 
     static endDrag(object: Node | Visual) : void {
@@ -1890,7 +1898,25 @@ export class GraphRenderer {
             return false
         }
     }
-    
+
+    static startVisualResize(visual: Visual) : void {
+        console.log('start',visual)
+        GraphRenderer.visualBeingResized = visual
+        GraphRenderer.isResizingVisual = ko.observable(true)
+
+        //take note of the start resize position
+        GraphRenderer.visualResizeCurrentPos = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null),y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)}
+    }
+
+    static stopVisualResize() : void {
+        GraphRenderer.isResizingVisual = ko.observable(false)
+        GraphRenderer.visualBeingResized = null
+        GraphRenderer.visualResizeCurrentPos = {x:0,y:0};
+
+        Eagle.getInstance().undo().pushSnapshot(Eagle.getInstance(), "Resize visual");
+        
+    }
+
     static SCREEN_TO_GRAPH_POSITION_X(x:number) : number {
         const eagle = Eagle.getInstance();
         if(x===null && GraphRenderer.dragCurrentPosition){
