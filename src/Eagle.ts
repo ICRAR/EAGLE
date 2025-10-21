@@ -949,7 +949,6 @@ export class Eagle {
         const schemaVersion: Setting.SchemaVersion = Utils.determineSchemaVersion(dataObject);
 
         const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
-        const dummyFile: RepositoryFile = new RepositoryFile(Repository.dummy(), "", fileFullPath);
 
         // use the correct parsing function based on schema version
         switch (schemaVersion){
@@ -960,10 +959,10 @@ export class Eagle {
                     GraphUpdater.updateKeysToIds(dataObject);
                 }
 
-                loadFunc(LogicalGraph.fromOJSJson(dataObject, dummyFile, errorsWarnings));
+                loadFunc(LogicalGraph.fromOJSJson(dataObject, "", errorsWarnings));
                 break;
             case Setting.SchemaVersion.V4:
-                loadFunc(LogicalGraph.fromV4Json(dataObject, dummyFile, errorsWarnings));
+                loadFunc(LogicalGraph.fromV4Json(dataObject, "", errorsWarnings));
                 break;
             default:
                 errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
@@ -2646,15 +2645,18 @@ export class Eagle {
         switch (schemaVersion){
             case Setting.SchemaVersion.OJS:
             case Setting.SchemaVersion.Unknown:
-                lg = LogicalGraph.fromOJSJson(dataObject, file, errorsWarnings);
+                lg = LogicalGraph.fromOJSJson(dataObject, file.name, errorsWarnings);
                 break;
             case Setting.SchemaVersion.V4:
-                lg = LogicalGraph.fromV4Json(dataObject, file, errorsWarnings);
+                lg = LogicalGraph.fromV4Json(dataObject, file.name, errorsWarnings);
                 break;
             default:
                 errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
                 return;
         }
+
+        // check that graph has been named, if not, name the graph before inserting
+        await Utils.checkGraphIsNamed(this.logicalGraph());
 
         // create parent node
         const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().location.getText(), "", Category.SubGraph);
@@ -4882,6 +4884,7 @@ export class Eagle {
         this.logicalGraph().fileInfo.valueHasMutated();
 
         // check if node was added to an empty graph, if so prompt user to specify graph name
+        // TODO: replace with Utils.checkGraphIsNamed(), or move outside, to where addNode() is called from
         if (this.logicalGraph().fileInfo().name === ""){
             let filename: string;
             try {

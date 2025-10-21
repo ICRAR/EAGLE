@@ -2839,4 +2839,29 @@ export class Utils {
         // communicate to knockout that the value of the fileInfo has been modified (so it can update UI)
         fileInfo.valueHasMutated();
     }
+
+    // check if graph is named, if not, prompt user to specify graph name
+    static async checkGraphIsNamed(logicalGraph: LogicalGraph){
+        return new Promise<string>(async (resolve, reject) => {
+            if (logicalGraph.fileInfo().name === ""){
+                let filename: string;
+                try {
+                    filename = await Utils.requestDiagramFilename(Eagle.FileType.Graph);
+                } catch (error){
+                    console.warn(error);
+                    reject("User cancelled filename input");
+                    return;
+                }
+
+                const eagle: Eagle = Eagle.getInstance();
+                logicalGraph.fileInfo().name = filename;
+                eagle.checkGraph();
+                eagle.undo().pushSnapshot(eagle, "Named Logical Graph");
+                eagle.logicalGraph.valueHasMutated();
+                resolve(filename);
+                return;
+            }
+            resolve(logicalGraph.fileInfo().name);
+        });
+    }
 }
