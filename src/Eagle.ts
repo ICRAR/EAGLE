@@ -1410,24 +1410,17 @@ export class Eagle {
             return;
         }
 
-        let filename: string;
-        try {
-            filename = await Utils.requestDiagramFilename(Eagle.FileType.Graph);
-        } catch (error) {
-            Utils.showNotification("Error", error, "danger");
-            return;
-        }
-
-        this.logicalGraph(new LogicalGraph());
-        this.logicalGraph().fileInfo().name = filename;
-        this.logicalGraph().fileInfo().location.repositoryFileName(filename);
-        this.checkGraph();
+        // reset EAGLE state
+        this.resetEditor();
         this.undo().clear();
-        this.undo().pushSnapshot(this, "New Logical Graph");
-        this.logicalGraph.valueHasMutated();
-        Utils.showNotification("New Graph Created", filename, "success");
 
-        this.resetEditor()
+        // create new logical graph
+        this.logicalGraph(new LogicalGraph());
+
+        // name the new graph
+        const filename:string = await Utils.checkGraphIsNamed(this.logicalGraph());
+
+        Utils.showNotification("New Graph Created", filename, "success");
     }
 
     /**
