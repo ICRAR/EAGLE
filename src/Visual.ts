@@ -107,6 +107,12 @@ export class Visual {
         return this;
     }
 
+    changeSize = (dWidth : number, dHeight : number) : Visual => {
+        this.width(this.width()+dWidth)
+        this.height(this.height()+dHeight)
+        return this;
+    }
+
     getType = () : Visual.Type => {
         return this.type();
     }

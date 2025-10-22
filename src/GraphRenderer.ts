@@ -1115,7 +1115,7 @@ export class GraphRenderer {
         
         GraphRenderer.dragCurrentPosition = {x:e.pageX,y:e.pageY}
 
-        if (GraphRenderer.isDragging()){
+        if (GraphRenderer.isDragging() && !GraphRenderer.isResizingVisual()){
             if (GraphRenderer.draggingObject() !== null && !GraphRenderer.isDraggingSelectionRegion ){
                 //check and note if the mouse has moved
                 GraphRenderer.simpleSelect = GraphRenderer.dragStartPosition.x - moveDistance.x < 5 && GraphRenderer.dragStartPosition.y - moveDistance.y < 5
@@ -1150,9 +1150,9 @@ export class GraphRenderer {
         }else if(GraphRenderer.isResizingVisual()){
             moveDistance = {x:e.pageX - GraphRenderer.visualResizeCurrentPos?.x, y: e.pageY - GraphRenderer.visualResizeCurrentPos?.y}
             GraphRenderer.visualResizeCurrentPos = {x:e.pageX,y:e.pageY}
-            GraphRenderer.visualBeingResized.changePosition(moveDistance.x/eagle.globalScale(), moveDistance.y/eagle.globalScale())
+            //The visual resizes in both directions from the center, halving the size change relative to the mouse movement. We multiply by 2 to keep the mouse on top of the resize handle
+            GraphRenderer.visualBeingResized.changeSize((moveDistance.x/eagle.globalScale())*2, (moveDistance.y/eagle.globalScale())*2)
         }
-
     }
 
     static endDrag(object: Node | Visual) : void {
@@ -1899,13 +1899,21 @@ export class GraphRenderer {
         }
     }
 
-    static startVisualResize(visual: Visual) : void {
+    static startVisualResize(visual: Visual, event: MouseEvent) : void {
         console.log('start',visual)
+
+        //preventing defaults
+        event.stopPropagation();
+        event.preventDefault();
+
         GraphRenderer.visualBeingResized = visual
         GraphRenderer.isResizingVisual = ko.observable(true)
 
         //take note of the start resize position
-        GraphRenderer.visualResizeCurrentPos = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null),y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)}
+        GraphRenderer.visualResizeCurrentPos = {x:event.pageX,y:event.pageY}
+
+        //adding an event listener to track mouseup to stop resizing
+        $('#logicalGraphParent').on('mouseup.visualResize',function(){GraphRenderer.stopVisualResize()})
     }
 
     static stopVisualResize() : void {
@@ -1915,6 +1923,8 @@ export class GraphRenderer {
 
         Eagle.getInstance().undo().pushSnapshot(Eagle.getInstance(), "Resize visual");
         
+        //removing the event listener tracking mouseup to stop resizing
+        $('#logicalGraphParent').off('mouseup.visualResize')
     }
 
     static SCREEN_TO_GRAPH_POSITION_X(x:number) : number {

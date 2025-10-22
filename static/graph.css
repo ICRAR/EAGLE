@@ -265,6 +265,21 @@
     font-size: 9px;
 }
 
+.node .comment_node .resizeHandle{
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    transform: rotate(-45deg) translate(0%, 31%);
+    z-index: 10;
+    color: #2e3192;
+    cursor: nwse-resize;
+    display: none;
+}
+
+.node .comment_node .container.selected .resizeHandle{
+    display: block;
+}
+
 .node .innerRing {
     background-color: var(--nodeBackground);
     border-radius: 50%;

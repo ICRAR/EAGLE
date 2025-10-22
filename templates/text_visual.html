@@ -8,6 +8,6 @@
 
             </div>
         </div>
-        <div class="resizeHandle material-symbols-outlined" data-bind="event:{ mousedown: function($data,event){GraphRenderer.startVisualResize($data,event);}, mouseup: function(){GraphRenderer.stopVisualResize($data);}}">drag_handle</div>
+        <div class="resizeHandle material-symbols-outlined" data-bind="event:{ mousedown: function($data,event){GraphRenderer.startVisualResize($data,event);}, mousedownBubble: false, mouseupBubble: false}, clickBubble: false">drag_handle</div>
     </div>
 </div>
