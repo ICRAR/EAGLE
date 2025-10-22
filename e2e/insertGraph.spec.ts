@@ -9,7 +9,14 @@ test('Insert Graph', async ({ page }) => {
     // set 'Expert' UI mode
     await TestHelpers.setUIMode(page, 'Expert');
 
-    // 1 - read input graph from file, and load it into the app
+    // 0 - create a new graph
+    await TestHelpers.createNewGraph(page);
+
+    // 1 - set the descriptions of the new graph
+    await TestHelpers.setShortDescription(page, "Some short description");
+    await TestHelpers.setDetailedDescription(page, "Some detailed description");
+
+    // 2 - read input graph from file, and load it into the app
     const inputOJS = await TestHelpers.readGraph(INPUT_GRAPH_LOCATION);
     await TestHelpers.insertGraphFromString(page, inputOJS);
 

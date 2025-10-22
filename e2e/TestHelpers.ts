@@ -18,6 +18,36 @@ export class TestHelpers {
         await page.waitForTimeout(500);
     }
 
+    static async createNewGraph(page): Promise<void> {
+        // click 'New Graph' from the 'File' menu
+        await page.locator('#navbarDropdownGraph').click();
+        await page.locator('#navbarDropdownGraphNew').hover();
+        await page.locator('#createNewGraph').click();
+        await page.waitForTimeout(500);
+
+        // agree to create a new graph with it's auto-generated name
+        await page.getByRole('button', { name: 'OK' }).click();
+        await page.waitForTimeout(500);
+
+        // wait for the notification to appear and then dismiss it
+        await page.locator('div[data-notify="container"]').waitFor({state: 'attached'});
+        await page.locator('button[data-notify="dismiss"]').click();
+    }
+
+    static async setShortDescription(page, description: string): Promise<void> {
+        await page.evaluate( (description: string) => {
+            (window as any).eagle.logicalGraph().fileInfo().shortDescription = description;
+            (window as any).eagle.checkGraph();
+        }, description);
+    }
+
+    static async setDetailedDescription(page, description: string): Promise<void> {
+        await page.evaluate( (description: string) => {
+            (window as any).eagle.logicalGraph().fileInfo().detailedDescription = description;
+            (window as any).eagle.checkGraph();
+        }, description);
+    }
+
     // Set the content of the editor in the modal
     static setEditorContent(content): void {
         const editor = $('#inputCodeModal').data('editor');
