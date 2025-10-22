@@ -1044,8 +1044,8 @@ export class GraphRenderer {
         if(object === null || event.button === 1){
             GraphRenderer.dragSelectionHandled(true)
             GraphRenderer.isDragging(true);
+            
         } else if(object instanceof Node && !object.isEmbedded() || object instanceof Visual){
-            console.log('dragging node or visual' , object)
             // embedded nodes, aka input and output applications of constructs, cant be dragged
             //initiating node dragging
             GraphRenderer.isDragging(true);
@@ -1900,8 +1900,6 @@ export class GraphRenderer {
     }
 
     static startVisualResize(visual: Visual, event: MouseEvent) : void {
-        console.log('start',visual)
-
         //preventing defaults
         event.stopPropagation();
         event.preventDefault();
