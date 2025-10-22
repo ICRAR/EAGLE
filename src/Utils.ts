@@ -2076,6 +2076,18 @@ export class Utils {
         }
     }
 
+    static fixFieldEdges(eagle: Eagle, field: Field){
+        // clear all edges from field
+        field.clearEdges();
+
+        // re-add all edges that reference this field
+        for (const edge of eagle.logicalGraph().getEdges()){
+            if (edge.getSrcPort().getId() === field.getId() || edge.getDestPort().getId() === field.getId()){
+                field.addEdge(edge);
+            }
+        }
+    }
+
     static addSourcePortToSourceNode(eagle: Eagle, edge: Edge){
         const srcNode = edge.getSrcNode();
         const destPort = edge.getDestPort();
@@ -2846,6 +2858,32 @@ export class Utils {
 
         // communicate to knockout that the value of the fileInfo has been modified (so it can update UI)
         fileInfo.valueHasMutated();
+    }
+
+    // check if graph is named, if not, prompt user to specify graph name
+    static async checkGraphIsNamed(logicalGraph: LogicalGraph){
+        return new Promise<string>(async (resolve, reject) => {
+            if (logicalGraph.fileInfo().name === ""){
+                let filename: string;
+                try {
+                    filename = await Utils.requestDiagramFilename(Eagle.FileType.Graph);
+                } catch (error){
+                    console.warn(error);
+                    reject("User cancelled filename input");
+                    return;
+                }
+
+                const eagle: Eagle = Eagle.getInstance();
+                logicalGraph.fileInfo().name = filename;
+                logicalGraph.fileInfo().location.repositoryFileName(filename);
+                eagle.checkGraph();
+                eagle.undo().pushSnapshot(eagle, "Named Logical Graph");
+                eagle.logicalGraph.valueHasMutated();
+                resolve(filename);
+                return;
+            }
+            resolve(logicalGraph.fileInfo().name);
+        });
     }
 
     // a wait/delay for a given number of milliseconds (used for debugging)

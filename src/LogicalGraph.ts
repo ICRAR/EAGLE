@@ -259,13 +259,14 @@ export class LogicalGraph {
         return result;
     }
 
-    static fromOJSJson(dataObject : any, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph {
+    static fromOJSJson(dataObject : any, filename: string, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph {
         // create new logical graph object
         const result : LogicalGraph = new LogicalGraph();
         const nodeDataIdToNodeId: Map<string, NodeId> = new Map();
 
         // copy modelData into fileInfo
-        result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData, errorsWarnings));
+        const fileInfo: FileInfo = FileInfo.fromOJSJson(dataObject.modelData, errorsWarnings);
+        result.fileInfo(fileInfo);
 
         // add nodes
         for (const nodeData of dataObject.nodeDataArray){
@@ -347,11 +348,12 @@ export class LogicalGraph {
         }
 
         // check for missing name
-        if (result.fileInfo().name === "" && file !== null){
-            const error : string = "FileInfo.name is empty. Setting name to " + file.name;
+        if (result.fileInfo().name === "" && filename !== null){
+            const error : string = "FileInfo.name is empty. Setting name to " + filename;
             errorsWarnings.warnings.push(Errors.Message(error));
 
-            result.fileInfo().name = file.name;
+            result.fileInfo().name = filename;
+            result.fileInfo().location.repositoryFileName(filename);
         }
 
         // add a step here to check that no edges are incident on constructs, and move any edges found to the embedded applications
@@ -393,7 +395,7 @@ export class LogicalGraph {
         return result;
     }
 
-    static fromV4Json(dataObject : any, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph {
+    static fromV4Json(dataObject : any, filename: string, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph {
         // create new logical graph object
         const result : LogicalGraph = new LogicalGraph();
 
