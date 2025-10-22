@@ -2875,6 +2875,7 @@ export class Utils {
 
                 const eagle: Eagle = Eagle.getInstance();
                 logicalGraph.fileInfo().name = filename;
+                logicalGraph.fileInfo().location.repositoryFileName(filename);
                 eagle.checkGraph();
                 eagle.undo().pushSnapshot(eagle, "Named Logical Graph");
                 eagle.logicalGraph.valueHasMutated();

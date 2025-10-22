@@ -1420,6 +1420,7 @@ export class Eagle {
 
         this.logicalGraph(new LogicalGraph());
         this.logicalGraph().fileInfo().name = filename;
+        this.logicalGraph().fileInfo().location.repositoryFileName(filename);
         this.checkGraph();
         this.undo().clear();
         this.undo().pushSnapshot(this, "New Logical Graph");
@@ -1614,6 +1615,7 @@ export class Eagle {
         }
         const p: Palette = new Palette();
         p.fileInfo().name = filename;
+        p.fileInfo().location.repositoryFileName(filename);
 
         // mark the palette as modified and readwrite
         p.fileInfo().modified = true;
@@ -4909,6 +4911,7 @@ export class Eagle {
                 return newNode;
             }
             this.logicalGraph().fileInfo().name = filename;
+            this.logicalGraph().fileInfo().location.repositoryFileName(filename);
             this.checkGraph();
             this.undo().pushSnapshot(this, "Specify Logical Graph name");
             this.logicalGraph.valueHasMutated();

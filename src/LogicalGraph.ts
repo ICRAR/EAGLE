@@ -353,6 +353,7 @@ export class LogicalGraph {
             errorsWarnings.warnings.push(Errors.Message(error));
 
             result.fileInfo().name = filename;
+            result.fileInfo().location.repositoryFileName(filename);
         }
 
         // add a step here to check that no edges are incident on constructs, and move any edges found to the embedded applications
