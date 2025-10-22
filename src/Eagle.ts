@@ -1480,7 +1480,7 @@ export class Eagle {
         // insert
         const nodes = Array.from(lg.getNodes());
         const edges = Array.from(lg.getEdges());
-        this.insertGraph(nodes, edges, null, errorsWarnings);
+        await this.insertGraph(nodes, edges, null, errorsWarnings);
 
         // display notification to user
         Utils.showNotification("Inserted Graph from JSON", "Inserted " + nodes.length + " nodes and " + edges.length + " edges.", "info");
