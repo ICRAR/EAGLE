@@ -4,10 +4,10 @@
             <button class="parameterTableEditParam icon-pencil iconHoverEffect" data-bind="click:function(data,event){$root.editTextVisualContent($data)}"></button>
         </div>
         <div class="body"  data-bind="eagleRightClick: {data:$data,type:'rightClick_textVisual'}, event: {mousedown: function(object,event){GraphRenderer.startDrag(object,event);}, mouseup: function(){GraphRenderer.endDrag($data);}}, mousedownBubble: false, mouseupBubble: false">
-            <div class="content" data-bind="html: $data.getContent()">
+            <div class="content" data-bind="html: $data.getContentHtml()">
 
             </div>
         </div>
-        <div class="resizeHandle material-symbols-outlined" data-bind="event:{ mousedown: function($data,event){GraphRenderer.startVisualResize($data,event);}, mousedownBubble: false, mouseupBubble: false}, clickBubble: false">drag_handle</div>
+        <div class="resizeHandle" data-bind="event:{ mousedown: function($data,event){GraphRenderer.startVisualResize($data,event);}, mousedownBubble: false, mouseupBubble: false}, clickBubble: false"></div>
     </div>
 </div>

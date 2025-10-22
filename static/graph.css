@@ -257,23 +257,25 @@
 
 .node .comment_node .body .content p{
     margin-bottom: 2px;
-    font-size: 9px;
+    font-size: 13px;
 }
 
 .node .comment_node .body .content h1{
     margin-bottom: 2px;
-    font-size: 9px;
+    font-size: 16px;
 }
 
 .node .comment_node .resizeHandle{
     position: absolute;
     bottom: 0px;
-    right: 0px;
-    transform: rotate(-45deg) translate(0%, 31%);
+    right: -1px;
     z-index: 10;
-    color: #2e3192;
-    cursor: nwse-resize;
+    color: #2e319266;
+    cursor: ew-resize;
     display: none;
+    height: 100%;
+    border-left: 4px double;
+    width: 7px;
 }
 
 .node .comment_node .container.selected .resizeHandle{

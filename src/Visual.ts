@@ -73,6 +73,15 @@ export class Visual {
         this.content(content);
     }
 
+    getContentHtml = () : string => {
+        let contentHtml = this.content()
+        if (contentHtml === undefined || contentHtml === null || contentHtml === ""){
+            contentHtml = "Click on edit icon to add comment";
+        }
+
+        return Utils.markdown2html(contentHtml);
+    }
+
     getPosition = () : {x:number, y:number} => {
         return {x: this.x(), y: this.y()};
     }
