@@ -2468,9 +2468,23 @@ export class Eagle {
 
         const graphConfig = GraphConfig.fromJson(dataObject, this.logicalGraph(), errorsWarnings);
 
-        // abort if graphConfig does not belong to this graph
+        let graphLoaded: boolean = this.logicalGraph().fileInfo().name !== "";
+
+        if (!graphLoaded){
+            const repository = new Repository(graphConfig.fileInfo().graphLocation.repositoryService(), graphConfig.fileInfo().graphLocation.repositoryName(), graphConfig.fileInfo().graphLocation.repositoryBranch(), false);
+            const repositoryFile = new RepositoryFile(repository, graphConfig.fileInfo().graphLocation.repositoryPath(), graphConfig.fileInfo().graphLocation.repositoryFileName());
+            repositoryFile.type = Eagle.FileType.GraphConfig;
+
+            // load graph first
+            await this.openRemoteFile(repositoryFile);
+
+            graphLoaded = true;
+        }
+
         const configMatch = FileLocation.match(graphConfig.fileInfo().graphLocation, this.logicalGraph().fileInfo().location);
-        if (!configMatch) {
+
+        // abort if graphConfig does not belong to this graph
+        if (graphLoaded && !configMatch) {
             // first determine how many fields within the config can be found in the current graph
             let foundCount = 0;
 
@@ -2516,7 +2530,7 @@ export class Eagle {
         // check if graphConfig already exists in this graph
         const configAlreadyExists: boolean = this.logicalGraph().getGraphConfigById(graphConfig.getId()) !== undefined;
 
-        if (configAlreadyExists){
+        if (graphLoaded && configMatch && configAlreadyExists){
             const userOption = await Utils.requestUserOptions("Graph Config Already Exists", "A graph config with the same id already exists in this graph. Do you wish to overwrite it, or load the new one with a different name?", "Overwrite", "Load as Separate Config", "Cancel", 0);
 
             if (userOption === "Overwrite"){
@@ -2528,7 +2542,9 @@ export class Eagle {
             } else {
                 // do nothing
             }
-        } else {
+        }
+
+        if (graphLoaded && configMatch && !configAlreadyExists){
             this.logicalGraph().addGraphConfig(graphConfig);
         }
 
