@@ -4787,10 +4787,9 @@ export class Eagle {
         // try to find new node category in palettes
         let oldCategoryTemplate: Node = Utils.getPaletteComponentByName(oldNode.getCategory(), true);
         const newCategoryTemplate: Node = Utils.getPaletteComponentByName(newNodeCategory, true);
-        console.log("oldCategoryTemplate:", oldCategoryTemplate, "newCategoryTemplate:", newCategoryTemplate);
 
         // check that new category prototype was found, if not, skip transform node
-        if (newCategoryTemplate === null){
+        if (typeof newCategoryTemplate === "undefined"){
             Utils.showNotification(newNodeCategory + " prototype not found in palettes", "Can't intelligently transform old node into new node, will just set new category.", "warning");
         } else {
             // check that old category prototype was found, if not, use 'Unknown' as a placeholder for transform node
