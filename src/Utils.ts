@@ -1172,14 +1172,14 @@ export class Utils {
         return matchingCategories;
     }
 
-    static getPaletteComponentByName(name: string) : Node | undefined {
+    static getPaletteComponentByName(name: string, useCaseInsensitiveMatch: boolean = false) : Node | undefined {
         const eagle: Eagle = Eagle.getInstance();
 
         // add all data components (except ineligible)
         for (const palette of eagle.palettes()){
             for (const node of palette.getNodes()){
                 // skip nodes that are not data components
-                if (node.getName() === name){
+                if (node.getName() === name || (useCaseInsensitiveMatch && node.getName().toLowerCase() === name.toLowerCase())){
                     return node;
                 }
             }
