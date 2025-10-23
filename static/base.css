@@ -350,6 +350,10 @@ color: #00bb00;}
     background: rgba(255, 255, 255, 0.171);
 }
 
+#objectInspectorCategorySelect{
+    width: 100%;
+}
+
 #inspector .container{
     padding: 5px 0px;
     height: 100%;
