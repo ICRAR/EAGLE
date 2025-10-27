@@ -918,7 +918,7 @@ export class Eagle {
                 this.errorsMode(Errors.Mode.Loading);
                 Utils.showErrorsModal("Loading File");
             } else {
-                Utils.showNotification("Error", "Errors occurred while loading " + fileName + " from " + service + ".", "danger");
+                Utils.showNotification("Warning", "File (" + fileName + ") loaded successfully but contains one or more warnings or errors.", "warning");
             }
         } else {
             Utils.showNotification("Success", fileName + " has been loaded from " + service + ".", "success");
@@ -1313,8 +1313,16 @@ export class Eagle {
             return;
         }
 
+        // create a destination palette and add to palettes list
+        const palette = new Palette();
+        palette.fileInfo().location.repositoryService(Repository.Service.File);
+        palette.fileInfo().location.repositoryPath(Utils.getFilePathFromFullPath(fileFullPath));
+        palette.fileInfo().location.repositoryFileName(Utils.getFileNameFromFullPath(fileFullPath));
+        palette.isFetching(true);
+        this.palettes.unshift(palette);
+
         // load the palette, handle errors and add palettes list
-        this._reloadPalette(new RepositoryFile(Repository.dummy(), "", Utils.getFileNameFromFullPath(fileFullPath)), data, null);
+        this._reloadPalette(new RepositoryFile(Repository.dummy(), "", Utils.getFileNameFromFullPath(fileFullPath)), data, palette);
     }
 
     /**
