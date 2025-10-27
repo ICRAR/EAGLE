@@ -1277,8 +1277,16 @@ export class Eagle {
             return;
         }
 
+        // create a destination palette and add to palettes list
+        const palette = new Palette();
+        palette.fileInfo().location.repositoryService(Repository.Service.File);
+        palette.fileInfo().location.repositoryPath(Utils.getFilePathFromFullPath(fileFullPath));
+        palette.fileInfo().location.repositoryFileName(Utils.getFileNameFromFullPath(fileFullPath));
+        palette.isFetching(true);
+        this.palettes.push(palette);
+
         // load the palette, handle errors and add palettes list
-        this._reloadPalette(new RepositoryFile(Repository.dummy(), "", Utils.getFileNameFromFullPath(fileFullPath)), data, null);
+        this._reloadPalette(new RepositoryFile(Repository.dummy(), "", Utils.getFileNameFromFullPath(fileFullPath)), data, palette);
     }
 
     /**
