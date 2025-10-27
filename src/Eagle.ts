@@ -918,7 +918,7 @@ export class Eagle {
                 this.errorsMode(Errors.Mode.Loading);
                 Utils.showErrorsModal("Loading File");
             } else {
-                Utils.showNotification("Error", "Errors occurred while loading " + fileName + " from " + service + ".", "danger");
+                Utils.showNotification("Warning", "File (" + fileName + ") loaded successfully but contains one or more warnings or errors.", "warning");
             }
         } else {
             Utils.showNotification("Success", fileName + " has been loaded from " + service + ".", "success");
