@@ -346,14 +346,25 @@ export class GraphRenderer {
     static calculateInputPortPositionX(field: Field) : number {
         return GraphRenderer._calculatePortPosition(field.getInputPosition().x, field.getNode().getPosition().x, field.getNode().getRadius());
     }
+
     static calculateInputPortPositionY(field: Field) : number {
         return GraphRenderer._calculatePortPosition(field.getInputPosition().y, field.getNode().getPosition().y, field.getNode().getRadius());
     }
+
     static calculateOutputPortPositionX(field: Field) : number {
         return GraphRenderer._calculatePortPosition(field.getOutputPosition().x, field.getNode().getPosition().x, field.getNode().getRadius());
     }
+
     static calculateOutputPortPositionY(field: Field) : number {
         return GraphRenderer._calculatePortPosition(field.getOutputPosition().y, field.getNode().getPosition().y, field.getNode().getRadius());
+    }
+
+    static calculateTextVisualPortPositionX(visual:Visual) : number {
+        return visual.getPosition().x + visual.getWidth()/2;
+    }
+
+    static calculateTextVisualPortPositionY(visual:Visual) : number {
+        return visual.getPosition().y + visual.getHeight()/2;
     }
 
     static calculateEdgeCommentPosX (edge:Edge) : number {
@@ -1884,18 +1895,23 @@ export class GraphRenderer {
         }
     }
 
-    static showPort(node: Node, field: Field) : boolean {
+    static showPort(object : Node | Visual, field?: Field) : boolean {
         const eagle = Eagle.getInstance();
-        if(!GraphRenderer.dragSelectionHandled()){
-            return false
-        }else if(node.isPeek()){
-            return true
-        }else if(eagle.objectIsSelected(node)){
-            return true
-        }else if(field.isInputPeek() || field.isOutputPeek()){
-            return true
+        if(object instanceof Node){
+            if(!GraphRenderer.dragSelectionHandled()){
+                return false
+            }else if(object.isPeek()){
+                return true
+            }else if(eagle.objectIsSelected(object)){
+                return true
+            }else if(field.isInputPeek() || field.isOutputPeek()){
+                return true
+            }else{
+                return false
+            }
         }else{
-            return false
+            //if the object is a visual we only show the port if the visual is selected
+            return eagle.objectIsSelected(object);
         }
     }
 
