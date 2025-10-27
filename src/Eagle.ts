@@ -1283,7 +1283,7 @@ export class Eagle {
         palette.fileInfo().location.repositoryPath(Utils.getFilePathFromFullPath(fileFullPath));
         palette.fileInfo().location.repositoryFileName(Utils.getFileNameFromFullPath(fileFullPath));
         palette.isFetching(true);
-        this.palettes.push(palette);
+        this.palettes.unshift(palette);
 
         // load the palette, handle errors and add palettes list
         this._reloadPalette(new RepositoryFile(Repository.dummy(), "", Utils.getFileNameFromFullPath(fileFullPath)), data, palette);
