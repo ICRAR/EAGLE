@@ -1438,7 +1438,9 @@ export class Node {
 
         // if category is not known, then add error
         if (!Utils.isKnownCategory(category)){
-            errorsWarnings.errors.push(Errors.Message("Node with name " + name + " has unknown category: " + category));
+            if (errorsWarnings !== null){
+                errorsWarnings.errors.push(Errors.Message("Node with name " + name + " has unknown category: " + category));
+            }
         }
 
         const node : Node = new Node(name, "", "", category);
