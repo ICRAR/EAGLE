@@ -1479,57 +1479,6 @@ export class Eagle {
         Utils.showNotification("Inserted Graph from JSON", "Inserted " + nodes.length + " nodes and " + edges.length + " edges.", "info");
     }
 
-    addToGraphFromJson = async (): Promise<void> => {
-        // check that graph editing is permitted
-        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
-            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Add to Graph from JSON");
-            return;
-        }
-
-        let userText: string;
-        try {
-            userText = await Utils.requestUserText("Add to Graph from JSON", "Enter the JSON below", "");
-        } catch (error) {
-            console.error(error);
-            return;
-        }
-
-        let clipboard = null;
-        try {
-            clipboard = JSON.parse(userText);
-        } catch(e) {
-            Utils.showNotification(e.name, e.message, "danger");
-            return;
-        }
-
-        const nodes : Node[] = [];
-        const edges : Edge[] = [];
-        const errorsWarnings : Errors.ErrorsWarnings = {"errors": [], "warnings": []};
-
-        for (const n of clipboard.nodes){
-            const node = Node.fromOJSJson(n, null, false);
-
-            nodes.push(node);
-        }
-
-        for (const e of clipboard.edges){
-            const edge = Edge.fromOJSJson(e, nodes, null);
-
-            edges.push(edge);
-        }
-
-        await this.insertGraph(nodes, edges, null, errorsWarnings);
-
-        // display notification to user
-        Utils.showNotification("Added to Graph from JSON", "Added " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
-        // TODO: show errors
-
-        // ensure changes are reflected in display
-        this.checkGraph();
-        this.undo().pushSnapshot(this, "Added from JSON");
-        this.logicalGraph.valueHasMutated();
-    }
-
     loadFileFromUrl = async(fileType: Eagle.FileType): Promise<void> => {
         let url: string;
         try {
