@@ -1160,14 +1160,13 @@ export class Utils {
         const matchingNodes = builtinPalette.getNodesByCategoryType(categoryType)
         const matchingCategories : Category[] = []
 
-        matchingNodes.forEach(function(node){
-            for(const x of matchingCategories){
-                if(node.getCategory() === x){
-                    continue
-                }
+        for (const node of matchingNodes){
+            // skip nodes whose category is already in the list
+            if (matchingCategories.includes(node.getCategory())){
+                continue;
             }
             matchingCategories.push(node.getCategory())
-        })
+        }
 
         return matchingCategories;
     }
@@ -1311,6 +1310,17 @@ export class Utils {
 
     static isKnownCategory(category : string) : boolean {
         return typeof CategoryData.cData[category] !== 'undefined';
+    }
+
+    static isKnownCategoryType(categoryType : string) : boolean {
+        return Object.values(Category.Type).includes(categoryType as Category.Type);
+    }
+
+    static isValidCategoryAndType(category: string, categoryType: string) : boolean {
+        return this.isKnownCategory(category) &&
+            this.isKnownCategoryType(categoryType) &&
+            ![Category.Unknown, Category.UnknownApplication].map(x => x as string).includes(category) &&
+            ![Category.Type.Unknown].map(x => x as string).includes(categoryType);
     }
 
     static getColorForNode(node: Node) : string {

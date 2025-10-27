@@ -4752,7 +4752,7 @@ export class Eagle {
         }
 
         // if selectedNode categoryType is Unknown, return list of all categories
-        if (categoryType === Category.Type.Unknown){
+        if (categoryType === Category.Type.Unknown || !Utils.isKnownCategoryType(categoryType)){
             return Utils.buildComponentList((cData: CategoryData) => {return true});
         }
 
