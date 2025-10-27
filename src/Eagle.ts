@@ -41,6 +41,7 @@ import { FileLocation } from "./FileLocation";
 import { GitHub } from './GitHub';
 import { GitLab } from './GitLab';
 import { GraphConfig } from "./GraphConfig";
+import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 import { GraphRenderer } from "./GraphRenderer";
 import { Hierarchy } from './Hierarchy';
 import { KeyboardShortcut } from './KeyboardShortcut';
@@ -2468,9 +2469,23 @@ export class Eagle {
 
         const graphConfig = GraphConfig.fromJson(dataObject, this.logicalGraph(), errorsWarnings);
 
-        let graphLoaded: boolean = this.logicalGraph().fileInfo().name !== "";
+        const graphModified: boolean = this.logicalGraph().fileInfo().modified;
+        let someGraphAlreadyLoaded: boolean = this.logicalGraph().fileInfo().name !== ""; // true if there is already a graph loaded
+        let graphAutoLoaded: boolean = false; // true if we auto-loaded a graph to match the graphConfig
 
-        if (!graphLoaded){
+        // check if graphConfig belongs to this graph
+        let configMatch = FileLocation.match(graphConfig.fileInfo().graphLocation, this.logicalGraph().fileInfo().location);
+
+        // check if LogicalGraph is modified, if so warn user that loading a GraphConfig may overwrite unsaved changes
+        if (graphModified){
+            const confirmed = await Utils.requestUserConfirm("Graph Modified", "The current graph has unsaved changes. Loading a GraphConfig may overwrite some of these changes. Do you wish to continue?", "Yes", "No", null);
+
+            if (!confirmed) {
+                return;
+            }
+        }
+
+        if (!someGraphAlreadyLoaded){
             const repository = new Repository(graphConfig.fileInfo().graphLocation.repositoryService(), graphConfig.fileInfo().graphLocation.repositoryName(), graphConfig.fileInfo().graphLocation.repositoryBranch(), false);
             const repositoryFile = new RepositoryFile(repository, graphConfig.fileInfo().graphLocation.repositoryPath(), graphConfig.fileInfo().graphLocation.repositoryFileName());
             repositoryFile.type = Eagle.FileType.GraphConfig;
@@ -2478,13 +2493,13 @@ export class Eagle {
             // load graph first
             await this.openRemoteFile(repositoryFile);
 
-            graphLoaded = true;
+            someGraphAlreadyLoaded = true;
+            configMatch = true;
+            graphAutoLoaded = true;
         }
 
-        const configMatch = FileLocation.match(graphConfig.fileInfo().graphLocation, this.logicalGraph().fileInfo().location);
-
         // abort if graphConfig does not belong to this graph
-        if (graphLoaded && !configMatch) {
+        if (someGraphAlreadyLoaded && !configMatch) {
             // first determine how many fields within the config can be found in the current graph
             let foundCount = 0;
 
@@ -2530,7 +2545,14 @@ export class Eagle {
         // check if graphConfig already exists in this graph
         const configAlreadyExists: boolean = this.logicalGraph().getGraphConfigById(graphConfig.getId()) !== undefined;
 
-        if (graphLoaded && configMatch && configAlreadyExists){
+        if (someGraphAlreadyLoaded && configMatch && configAlreadyExists){
+
+            // if we auto-loaded the graph, and it already contains the graphConfig we were trying to load, then just skip loading it again
+            if (graphAutoLoaded){
+                GraphConfigurationsTable.openTable();
+                return;
+            }
+
             const userOption = await Utils.requestUserOptions("Graph Config Already Exists", "A graph config with the same id already exists in this graph. Do you wish to overwrite it, or load the new one with a different name?", "Overwrite", "Load as Separate Config", "Cancel", 0);
 
             if (userOption === "Overwrite"){
@@ -2544,7 +2566,7 @@ export class Eagle {
             }
         }
 
-        if (graphLoaded && configMatch && !configAlreadyExists){
+        if (someGraphAlreadyLoaded && configMatch && !configAlreadyExists){
             this.logicalGraph().addGraphConfig(graphConfig);
         }
 
