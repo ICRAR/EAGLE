@@ -949,7 +949,6 @@ export class Eagle {
         const schemaVersion: Setting.SchemaVersion = Utils.determineSchemaVersion(dataObject);
 
         const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
-        const dummyFile: RepositoryFile = new RepositoryFile(Repository.dummy(), "", fileFullPath);
 
         // use the correct parsing function based on schema version
         switch (schemaVersion){
@@ -960,10 +959,10 @@ export class Eagle {
                     GraphUpdater.updateKeysToIds(dataObject);
                 }
 
-                loadFunc(LogicalGraph.fromOJSJson(dataObject, dummyFile, errorsWarnings));
+                loadFunc(LogicalGraph.fromOJSJson(dataObject, "", errorsWarnings));
                 break;
             case Setting.SchemaVersion.V4:
-                loadFunc(LogicalGraph.fromV4Json(dataObject, dummyFile, errorsWarnings));
+                loadFunc(LogicalGraph.fromV4Json(dataObject, "", errorsWarnings));
                 break;
             default:
                 errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
@@ -1116,11 +1115,37 @@ export class Eagle {
             if (insertedNode.getParent() === null && parentNode !== null){
                 insertedNode.setParent(parentNode);
             }
-            
+
+            // save mapping for input ports
+            for (let j = 0 ; j < node.getInputPorts().length; j++){
+                portMap.set(node.getInputPorts()[j].getId(), insertedNode.getInputPorts()[j]);
+            }
+
+            // save mapping for output ports
+            for (let j = 0 ; j < node.getOutputPorts().length; j++){
+                portMap.set(node.getOutputPorts()[j].getId(), insertedNode.getOutputPorts()[j]);
+            }
+
+            // clear edge lists within fields of inserted node
+            for (const field of insertedNode.getFields()){
+                field.clearEdges();
+            }
+        }
+
+        // copy embedded applications
+        for (const node of nodes){
+            const insertedNode: Node = nodeMap.get(node.getId());
+
             // copy embedded input application
             if (node.hasInputApplication()){
                 const oldInputApplication : Node = node.getInputApplication();
-                const newInputApplication : Node = await this.addNode(oldInputApplication, 0, 0);
+                const newInputApplication : Node = nodeMap.get(oldInputApplication.getId());
+
+                if (typeof newInputApplication === "undefined"){
+                    console.error("Error: could not find mapping for input application " + oldInputApplication.getName() + " " + oldInputApplication.getId());
+                    continue;
+                }
+
                 insertedNode.setInputApplication(newInputApplication);
                 
                 nodeMap.set(oldInputApplication.getId(), newInputApplication);
@@ -1135,12 +1160,23 @@ export class Eagle {
                 for (let j = 0 ; j < oldInputApplication.getOutputPorts().length; j++){
                     portMap.set(oldInputApplication.getOutputPorts()[j].getId(), newInputApplication.getOutputPorts()[j]);
                 }
+
+                // clear edge lists within fields of the old input application
+                for (const field of oldInputApplication.getFields()){
+                    field.clearEdges();
+                }
             }
 
             // copy embedded output application
             if (node.hasOutputApplication()){
                 const oldOutputApplication : Node = node.getOutputApplication();
-                const newOutputApplication : Node = await this.addNode(oldOutputApplication, 0, 0);
+                const newOutputApplication : Node = nodeMap.get(oldOutputApplication.getId());
+
+                if (typeof newOutputApplication === "undefined"){
+                    console.error("Error: could not find mapping for output application " + oldOutputApplication.getName() + " " + oldOutputApplication.getId());
+                    continue;
+                }
+
                 insertedNode.setOutputApplication(newOutputApplication);
                 
                 nodeMap.set(oldOutputApplication.getId(), newOutputApplication);
@@ -1154,16 +1190,11 @@ export class Eagle {
                 for (let j = 0 ; j < oldOutputApplication.getOutputPorts().length; j++){
                     portMap.set(oldOutputApplication.getOutputPorts()[j].getId(), newOutputApplication.getOutputPorts()[j]);
                 }
-            }
 
-            // save mapping for input ports
-            for (let j = 0 ; j < node.getInputPorts().length; j++){
-                portMap.set(node.getInputPorts()[j].getId(), insertedNode.getInputPorts()[j]);
-            }
-
-            // save mapping for output ports
-            for (let j = 0 ; j < node.getOutputPorts().length; j++){
-                portMap.set(node.getOutputPorts()[j].getId(), insertedNode.getOutputPorts()[j]);
+                // clear edge lists within fields of the old output application
+                for (const field of oldOutputApplication.getFields()){
+                    field.clearEdges();
+                }
             }
         }
 
@@ -1195,14 +1226,19 @@ export class Eagle {
         for (const edge of edges){
             const srcNode = nodeMap.get(edge.getSrcNode().getId());
             const destNode = nodeMap.get(edge.getDestNode().getId());
+            const srcPort = portMap.get(edge.getSrcPort().getId());
+            const destPort = portMap.get(edge.getDestPort().getId());
+            const loopAware = edge.isLoopAware();
+            const closesLoop = edge.isClosesLoop();
 
             if (typeof srcNode === "undefined" || typeof destNode === "undefined"){
                 errorsWarnings.warnings.push(Errors.Message("Unable to insert edge " + edge.getId() + " source node or destination node could not be found."));
                 continue;
             }
 
-            // add edge
-            this.addEdge(srcNode, portMap.get(edge.getSrcPort().getId()), destNode, portMap.get(edge.getDestPort().getId()), edge.isLoopAware(), edge.isClosesLoop());
+            // add new edge
+            const newEdge : Edge = new Edge('', srcNode, srcPort, destNode, destPort, loopAware, closesLoop, false);
+            this.logicalGraph().addEdgeComplete(newEdge);
         }
 
         //used if we cant find space on the canvas, we then extend the search area for space and center the graph after adding to bring new nodes into view
@@ -1374,23 +1410,17 @@ export class Eagle {
             return;
         }
 
-        let filename: string;
-        try {
-            filename = await Utils.requestDiagramFilename(Eagle.FileType.Graph);
-        } catch (error) {
-            Utils.showNotification("Error", error, "danger");
-            return;
-        }
-
-        this.logicalGraph(new LogicalGraph());
-        this.logicalGraph().fileInfo().name = filename;
-        this.checkGraph();
+        // reset EAGLE state
+        this.resetEditor();
         this.undo().clear();
-        this.undo().pushSnapshot(this, "New Logical Graph");
-        this.logicalGraph.valueHasMutated();
-        Utils.showNotification("New Graph Created", filename, "success");
 
-        this.resetEditor()
+        // create new logical graph
+        this.logicalGraph(new LogicalGraph());
+
+        // name the new graph
+        const filename:string = await Utils.checkGraphIsNamed(this.logicalGraph());
+
+        Utils.showNotification("New Graph Created", filename, "success");
     }
 
     /**
@@ -1418,55 +1448,35 @@ export class Eagle {
         this.resetEditor()
     }
 
-    addToGraphFromJson = async (): Promise<void> => {
+    insertGraphFromJson = async (): Promise<void> => {
         // check that graph editing is permitted
         if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
-            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Add to Graph from JSON");
+            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Insert Graph from JSON");
             return;
         }
 
-        let userText: string;
+        let userCode: string;
         try {
-            userText = await Utils.requestUserText("Add to Graph from JSON", "Enter the JSON below", "");
+            userCode = await Utils.requestUserCode("json", "Insert Graph from JSON", "");
         } catch (error) {
             console.error(error);
             return;
         }
 
-        let clipboard = null;
-        try {
-            clipboard = JSON.parse(userText);
-        } catch(e) {
-            Utils.showNotification(e.name, e.message, "danger");
-            return;
-        }
+        // parse JSON
+        const dataObject = JSON.parse(userCode);
 
-        const nodes : Node[] = [];
-        const edges : Edge[] = [];
-        const errorsWarnings : Errors.ErrorsWarnings = {"errors": [], "warnings": []};
+        // read as LogicalGraph
+        const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
+        const lg: LogicalGraph = LogicalGraph.fromOJSJson(dataObject, null, errorsWarnings);
 
-        for (const n of clipboard.nodes){
-            const node = Node.fromOJSJson(n, null, false);
-
-            nodes.push(node);
-        }
-
-        for (const e of clipboard.edges){
-            const edge = Edge.fromOJSJson(e, nodes, null);
-
-            edges.push(edge);
-        }
-
-        this.insertGraph(nodes, edges, null, errorsWarnings);
+        // insert
+        const nodes = Array.from(lg.getNodes());
+        const edges = Array.from(lg.getEdges());
+        await this.insertGraph(nodes, edges, null, errorsWarnings);
 
         // display notification to user
-        Utils.showNotification("Added to Graph from JSON", "Added " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
-        // TODO: show errors
-
-        // ensure changes are reflected in display
-        this.checkGraph();
-        this.undo().pushSnapshot(this, "Added from JSON");
-        this.logicalGraph.valueHasMutated();
+        Utils.showNotification("Inserted Graph from JSON", "Inserted " + nodes.length + " nodes and " + edges.length + " edges.", "info");
     }
 
     loadFileFromUrl = async(fileType: Eagle.FileType): Promise<void> => {
@@ -1547,6 +1557,7 @@ export class Eagle {
         }
         const p: Palette = new Palette();
         p.fileInfo().name = filename;
+        p.fileInfo().location.repositoryFileName(filename);
 
         // mark the palette as modified and readwrite
         p.fileInfo().modified = true;
@@ -2601,21 +2612,24 @@ export class Eagle {
         switch (schemaVersion){
             case Setting.SchemaVersion.OJS:
             case Setting.SchemaVersion.Unknown:
-                lg = LogicalGraph.fromOJSJson(dataObject, file, errorsWarnings);
+                lg = LogicalGraph.fromOJSJson(dataObject, file.name, errorsWarnings);
                 break;
             case Setting.SchemaVersion.V4:
-                lg = LogicalGraph.fromV4Json(dataObject, file, errorsWarnings);
+                lg = LogicalGraph.fromV4Json(dataObject, file.name, errorsWarnings);
                 break;
             default:
                 errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
                 return;
         }
 
+        // check that graph has been named, if not, name the graph before inserting
+        await Utils.checkGraphIsNamed(this.logicalGraph());
+
         // create parent node
         const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().location.getText(), "", Category.SubGraph);
 
         // perform insert
-        this.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges()), parentNode, errorsWarnings);
+        await this.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges()), parentNode, errorsWarnings);
 
         // trigger re-render
         this.logicalGraph.valueHasMutated();
@@ -3463,7 +3477,7 @@ export class Eagle {
             }
         }
 
-        this.insertGraph(nodes, edges, null, errorsWarnings);
+        await this.insertGraph(nodes, edges, null, errorsWarnings);
 
         // display notification to user
         if (!Errors.hasErrors(errorsWarnings) && !Errors.hasWarnings(errorsWarnings)){
@@ -4829,6 +4843,7 @@ export class Eagle {
         const newNode: Node = Utils.duplicateNode(node);
 
         // check if node will be added to an empty graph, if so prompt user to specify graph name
+        // TODO: replace with Utils.checkGraphIsNamed(), or move outside, to where addNode() is called from
         if (this.logicalGraph().fileInfo().name === ""){
             let filename: string;
             try {
@@ -4838,6 +4853,7 @@ export class Eagle {
                 return newNode;
             }
             this.logicalGraph().fileInfo().name = filename;
+            this.logicalGraph().fileInfo().location.repositoryFileName(filename);
             this.checkGraph();
             this.undo().pushSnapshot(this, "Specify Logical Graph name");
             this.logicalGraph.valueHasMutated();
