@@ -1341,7 +1341,7 @@ export class Node {
     }
 
     addEmptyField = () : Node => {
-        const newField = new Field(Utils.generateFieldId(), "New Parameter", "", "", "", false, Daliuge.DataType.String, false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.NoPort);
+        const newField = new Field(Utils.generateFieldId(), "New Parameter", "", "", false, Daliuge.DataType.String, false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.NoPort);
         this.addField(newField);
         return this;
     }

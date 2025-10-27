@@ -174,9 +174,6 @@
                                         "value": {
                                             "type": ["string", "boolean", "number", "null"]
                                         },
-                                        "defaultValue": {
-                                            "type": ["string", "boolean", "number", "null"]
-                                        },
                                         "description": {
                                             "type": "string"
                                         },
@@ -225,7 +222,6 @@
                                         "description",
                                         "name",
                                         "value",
-                                        "defaultValue",
                                         "readonly",
                                         "type",
                                         "precious",

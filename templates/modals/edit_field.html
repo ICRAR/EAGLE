@@ -66,65 +66,6 @@
                                 </div>
                             </div>
 
-<!-- default value -->
-                            <div class="row" id="editFieldModalDefaultValue">
-                                <div class="col-3">
-                                    <p>Default Value:</p>
-                                </div>
-                                <div class="col">
-                                    <div class="input-group mb-3">
-
-                                        <!-- string -->
-                                        <!-- ko if: $data.isStringValueType() --> 
-                                            <textarea type="text" class="form-control" id="editFieldModalDefaultValueInputText" data-bind="checked: valIsTrue($data.defaultValue()), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, event: {change: function(){$root.selectedObjects.valueHasMutated()},keyup:function(data,event){Modals.validateFieldModalValueInputText(data,event)}}"></textarea>
-                                        <!-- /ko -->
-
-                                        <!-- float -->
-                                        <!-- ko if: $data.isFloatValueType() -->
-                                            <input type="number" id="editFieldModalDefaultValueInputNumber" class="form-control" data-bind="checked: valIsTrue($data.defaultValue()), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, event: {change: function(){$root.selectedObjects.valueHasMutated()}}">
-                                        <!-- /ko -->
-
-                                        <!-- integer -->
-                                        <!-- ko if: $data.isIntegerValueType() -->
-                                            <input type="number" id="editFieldModalDefaultValueInputNumber" class="form-control" step="1" onfocus="this.previousValue = this.value" onkeydown="this.previousValue = this.value" oninput="validity.valid || (value = this.previousValue)" data-bind="checked: valIsTrue($data.defaultValue()), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, event: {change: function(){$root.selectedObjects.valueHasMutated()}}">
-                                        <!-- /ko -->
-
-                                        <!-- boolean -->
-                                        <!-- ko if: $data.isBooleanValueType() -->
-                                            <div class="input-group componentCheckbox" id="componentDefaultValueCheckbox" data-bind="click:$data.toggleDefault">
-                                                <span class="noselect" data-bind="text:defaultValue"></span>
-                                                <input type="checkbox" tabindex='-1' class="form-control form-check-input" id="editFieldModalDefaultValueInputCheckbox" data-bind="checked: valIsTrue($data.defaultValue()), valueUpdate: ['afterkeydown', 'input'], value: defaultValue, event: {change: function(){$data.toggleDefault(); $root.selectedObjects.valueHasMutated();}}">
-                                            </div>
-                                        <!-- /ko -->
-
-                                        <!-- select -->
-                                        <!-- ko if: $data.isSelectValueType() -->
-                                            <!-- ko ifnot: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING) -->
-                                                <select class="form-control" id="editFieldModalDefaultValueInputSelect" aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="event: {change: function(){$root.selectedObjects.valueHasMutated();}}, options: $data.options, value: $data.defaultValue">
-                                                    <!-- options are added dynamically -->
-                                                </select>
-                                            <!-- /ko --> 
-                                            <!-- ko if: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING) -->
-                                                <div class="dropdown parameterTableTypeCustomSelect">
-                                                    <a class="dropdown-toggle dropdown-control" data-bind="text:$data.defaultValue" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
-                                                    <div class="dropdown-menu dropdown-menu-right dropdown-area" aria-labelledby="parameterTableTpeCustomSelect">
-                                                        <!-- ko foreach:$data.options()-->
-                                                            <div class="dropdown-item" data-bind="click:function(data, event){$parent.setDefaultValue($data);}">
-                                                                <input class="defaultSelectCustom" data-bind="value:$data, event: {change:function(data,event){$parent.editOption($index(),$(event.target).val())}}" type="text">
-                                                                <button class="typeSelectDelete" data-bind="clickBubble:false, click: function(){$parent.removeOption($index())}"><i class="material-symbols-outlined md-24">delete</i></button>
-                                                            </div>
-                                                        <!-- /ko --> 
-                                                        <div class="dropdown-item add" data-bind="click:function(data,event){event.stopPropagation();addOption('')}">
-                                                            <i class="material-symbols-outlined">add</i>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            <!-- /ko --> 
-                                        <!-- /ko --> 
-                                    </div>
-                                </div>
-                            </div>
-
 <!-- description -->
                             <div class="row">
                                 <div class="col-3">
@@ -214,7 +155,6 @@
                         </div>
                     </div>
                     <div class="modal-footer" style="justify-content:space-between;">
-                        <button type="button" class="btn btn-secondary" id="editFieldModalResetToDefaultButton" data-bind="click:function(){$data.resetToDefault()}"><span>Reset to Default</span></button>
                         <button type="button" class="btn btn-primary" id="editFieldModalAffirmativeButton" data-bs-dismiss="modal" data-bind="click:function(){$('#editFieldModal').data('completed', true);}"><span id="editFieldModalAffirmativeAnswer">OK</span></button>
                     </div>
                 <!-- /ko -->
