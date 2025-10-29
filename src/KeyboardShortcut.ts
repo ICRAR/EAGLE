@@ -339,7 +339,18 @@ export class KeyboardShortcut {
             run: (eagle): void => {eagle.saveGraphAs()}
         }),
         // TODO: two for palettes
-
+        new KeyboardShortcut({
+            id: "load_config",
+            text: "Load Graph Configuration",
+            tags: ['load','configuration'],
+            run: (eagle): void => {eagle.getGraphConfigFileToLoad();}
+        }),
+        new KeyboardShortcut({
+            id: "save_config",
+            text: "Save Graph Configuration",
+            tags: ['save','configuration'],
+            run: (eagle): void => {eagle.saveActiveGraphConfig();}
+        }),
         // misc
         new KeyboardShortcut({
             id: "add_graph_nodes_to_palette",
