@@ -1,5 +1,16 @@
 export const versions = [
   {
+    version: 'v6.9.1',
+    date: new Date("2025-10-27"),
+    changes: [
+      `Fix for Graph Insert, Undo/Redo`,
+      `Fix for issues with incorrect commit hashes when loading graphs from git repositories`,
+      `Fix for issues when loading palettes from local files`,
+      `Automatic loading of associated Logical Graph when loading a Graph Configuration`,
+      `Improvements to selection of node 'Category' in inspector`
+    ]
+  },
+  {
     version: 'v6.9.0',
     date: new Date("2025-10-17"),
     changes: [
