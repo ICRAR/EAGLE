@@ -731,7 +731,7 @@ export class Node {
 
         // check if name and category are the same (or similar except for capitalisation and whitespace)
         // if so, only use the name, the category is redundant
-        if (this.getName().split(" ").join("").toLowerCase() === this.getCategory().toLowerCase()){
+        if (typeof this.getCategory() === "undefined" || this.getName().split(" ").join("").toLowerCase() === this.getCategory().toLowerCase()){
             return "||| <h3>"+ this.getName() + "</h3> ||| " + this.getDescription();
         } else {
             return "||| <h3>" + this.getCategory() + " : " + this.getName() + "</h3> ||| " +this.getDescription();
@@ -1438,7 +1438,9 @@ export class Node {
 
         // if category is not known, then add error
         if (!Utils.isKnownCategory(category)){
-            errorsWarnings.errors.push(Errors.Message("Node with name " + name + " has unknown category: " + category));
+            if (errorsWarnings !== null){
+                errorsWarnings.errors.push(Errors.Message("Node with name " + name + " has unknown category: " + category));
+            }
         }
 
         const node : Node = new Node(name, "", "", category);
@@ -2066,9 +2068,17 @@ export class Node {
             }
         }
 
-        // check that node has correct number of inputs and outputs
+        // get the category data for this node
         const cData: Category.CategoryData = CategoryData.getCategoryData(node.getCategory());
 
+        // check if the categoryType is set correctly for this category
+        if (node.getCategoryType() !== cData.categoryType){
+            const message: string = "Node (" + node.getName() + ") has incorrect category type. Expected: " + cData.categoryType + ", Actual: " + node.getCategoryType();
+            const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, location, node)}, function(){node.setCategoryType(cData.categoryType)}, "Set category type to " + cData.categoryType);
+            node.issues().push({issue:issue, validity:Errors.Validity.Error});
+        }
+
+        // check that node has correct number of inputs and outputs
         if (node.getInputPorts().length < cData.minInputs){
             const message: string = "Node (" + node.getName() + ") may have too few input ports. A " + node.getCategory() + " component would typically have at least " + cData.minInputs;
             const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});

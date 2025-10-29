@@ -1160,26 +1160,29 @@ export class Utils {
         const matchingNodes = builtinPalette.getNodesByCategoryType(categoryType)
         const matchingCategories : Category[] = []
 
-        matchingNodes.forEach(function(node){
-            for(const x of matchingCategories){
-                if(node.getCategory() === x){
-                    continue
-                }
+        for (const node of matchingNodes){
+            // skip nodes whose category is already in the list
+            if (matchingCategories.includes(node.getCategory())){
+                continue;
             }
             matchingCategories.push(node.getCategory())
-        })
+        }
 
         return matchingCategories;
     }
 
-    static getPaletteComponentByName(name: string) : Node | undefined {
+    static getPaletteComponentByName(name: string, useCaseInsensitiveMatch: boolean = false) : Node | undefined {
         const eagle: Eagle = Eagle.getInstance();
+
+        if (name === null || typeof name === 'undefined' || name.trim() === ""){
+            return undefined;
+        }
 
         // add all data components (except ineligible)
         for (const palette of eagle.palettes()){
             for (const node of palette.getNodes()){
                 // skip nodes that are not data components
-                if (node.getName() === name){
+                if (node.getName() === name || (useCaseInsensitiveMatch && node.getName().toLowerCase() === name.toLowerCase())){
                     return node;
                 }
             }
@@ -1311,6 +1314,17 @@ export class Utils {
 
     static isKnownCategory(category : string) : boolean {
         return typeof CategoryData.cData[category] !== 'undefined';
+    }
+
+    static isKnownCategoryType(categoryType : string) : boolean {
+        return Object.values(Category.Type).includes(categoryType as Category.Type);
+    }
+
+    static isValidCategoryAndType(category: string, categoryType: string) : boolean {
+        return this.isKnownCategory(category) &&
+            this.isKnownCategoryType(categoryType) &&
+            ![Category.Unknown, Category.UnknownApplication].map(x => x as string).includes(category) &&
+            ![Category.Type.Unknown].map(x => x as string).includes(categoryType);
     }
 
     static getColorForNode(node: Node) : string {

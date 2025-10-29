@@ -4761,14 +4761,16 @@ export class Eagle {
     }
 
     getEligibleNodeCategories : ko.PureComputed<Category[]> = ko.pureComputed(() => {
+        let category : Category = Category.Unknown;
         let categoryType: Category.Type = Category.Type.Unknown;
 
         if (this.selectedNode() !== null){
+            category = this.selectedNode().getCategory();
             categoryType = this.selectedNode().getCategoryType();
         }
 
         // if selectedNode categoryType is Unknown, return list of all categories
-        if (categoryType === Category.Type.Unknown){
+        if (category === Category.Unknown || !Utils.isKnownCategory(category) || categoryType === Category.Type.Unknown || !Utils.isKnownCategoryType(categoryType)){
             return Utils.buildComponentList((cData: CategoryData) => {return true});
         }
 
@@ -4786,6 +4788,9 @@ export class Eagle {
             const confirmed = await Utils.requestUserConfirm("Change Category?", 'Changing a nodes category could destroy some data (parameters, ports, etc) that are not appropriate for a node with the selected category', "Yes", "No", Setting.find(Setting.CONFIRM_NODE_CATEGORY_CHANGES));
             if (confirmed){
                 this.inspectorChangeNodeCategory(event)
+            } else {
+                // reset the category selection in the inspector to match the node's actual category
+                $('#objectInspectorCategorySelect').val(this.selectedNode().getCategory());
             }
         }else{
             this.inspectorChangeNodeCategory(event)
@@ -4793,40 +4798,32 @@ export class Eagle {
     }
 
     inspectorChangeNodeCategory = (event: Event) : void => {
-        const newNodeCategory: Category = $(event.target).val() as Category
+        const newNodeCategory: Category = $(event.target).val() as Category;
+        const newNodeCategoryType: Category.Type = CategoryData.getCategoryData(newNodeCategory).categoryType;
         const oldNode = this.selectedNode();
 
-        // get a reference to the builtin palette
-        const builtinPalette: Palette = this.findPalette(Palette.BUILTIN_PALETTE_NAME, false);
+        // try to find new node category in palettes
+        let oldCategoryTemplate: Node = Utils.getPaletteComponentByName(oldNode.getCategory(), true);
+        const newCategoryTemplate: Node = Utils.getPaletteComponentByName(newNodeCategory, true);
 
-        // if no built-in palette can be found, then we can't use an example node from the built-in palette as a basis for the category change
-        // instead, we just blindly change the category. It is the best we can do
-        if (builtinPalette === null){
-            Utils.showNotification(Palette.BUILTIN_PALETTE_NAME + " palette not found", "Unable to transform node according to a template. Instead just changing category.", "warning");
+        // check that new category prototype was found, if not, skip transform node
+        if (typeof newCategoryTemplate === "undefined"){
+            Utils.showNotification(newNodeCategory + " prototype not found in palettes", "Can't intelligently transform old node into new node, will just set new category.", "warning");
         } else {
-            // find node with new type in builtinPalette
-            let oldCategoryTemplate: Node = builtinPalette.findNodeByNameAndCategory(oldNode.getCategory());
-            const newCategoryTemplate: Node = builtinPalette.findNodeByNameAndCategory(newNodeCategory);
-
-            // check that new category prototype was found, if not, skip transform node
-            if (newCategoryTemplate === null){
-                console.warn("Prototype for new category (" + newNodeCategory + ") could not be found in palettes. Can't intelligently transform old node into new node, will just set new category.");
-                return;
-            } else {
-                // check that old category prototype was found, if not, use 'Unknown' as a placeholder for transform node
-                if (oldCategoryTemplate === null){
-                    console.warn("Prototype for old category (" + oldNode.getCategory() + ") could not be found in palettes. Using existing node as template to transform into new node.");
-                    oldCategoryTemplate = oldNode;
-                }
-
-                // consult user setting - whether they want to remove old fields
-                const keepOldFields: boolean = Setting.findValue(Setting.KEEP_OLD_FIELDS_DURING_CATEGORY_CHANGE);
-
-                Utils.transformNodeFromTemplates(oldNode, oldCategoryTemplate, newCategoryTemplate, keepOldFields);
+            // check that old category prototype was found, if not, use 'Unknown' as a placeholder for transform node
+            if (typeof oldCategoryTemplate === "undefined"){
+                console.warn("Prototype for old category (" + oldNode.getCategory() + ") could not be found in palettes. Using existing node as template to transform into new node.");
+                oldCategoryTemplate = oldNode;
             }
+
+            // consult user setting - whether they want to remove old fields
+            const keepOldFields: boolean = Setting.findValue(Setting.KEEP_OLD_FIELDS_DURING_CATEGORY_CHANGE);
+
+            Utils.transformNodeFromTemplates(oldNode, oldCategoryTemplate, newCategoryTemplate, keepOldFields);
         }
 
         oldNode.setCategory(newNodeCategory);
+        oldNode.setCategoryType(newNodeCategoryType);
 
         this.flagActiveFileModified();
         this.checkGraph();
