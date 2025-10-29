@@ -1174,6 +1174,10 @@ export class Utils {
     static getPaletteComponentByName(name: string, useCaseInsensitiveMatch: boolean = false) : Node | undefined {
         const eagle: Eagle = Eagle.getInstance();
 
+        if (name === null || typeof name === 'undefined' || name.trim() === ""){
+            return undefined;
+        }
+
         // add all data components (except ineligible)
         for (const palette of eagle.palettes()){
             for (const node of palette.getNodes()){
