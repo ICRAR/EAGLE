@@ -41,6 +41,7 @@ import { FileLocation } from "./FileLocation";
 import { GitHub } from './GitHub';
 import { GitLab } from './GitLab';
 import { GraphConfig } from "./GraphConfig";
+import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 import { GraphRenderer } from "./GraphRenderer";
 import { Hierarchy } from './Hierarchy';
 import { KeyboardShortcut } from './KeyboardShortcut';
@@ -2487,55 +2488,46 @@ export class Eagle {
 
         const graphConfig = GraphConfig.fromJson(dataObject, this.logicalGraph(), errorsWarnings);
 
-        // abort if graphConfig does not belong to this graph
-        const configMatch = FileLocation.match(graphConfig.fileInfo().graphLocation, this.logicalGraph().fileInfo().location);
-        if (!configMatch) {
-            // first determine how many fields within the config can be found in the current graph
-            let foundCount = 0;
+        const graphModified: boolean = this.logicalGraph().fileInfo().modified;
+        let someGraphAlreadyLoaded: boolean = this.logicalGraph().fileInfo().name !== ""; // true if there is already a graph loaded
+        let graphAutoLoaded: boolean = false; // true if we auto-loaded a graph to match the graphConfig
 
-            for (const gcNode of graphConfig.getNodes()) {
-                for (const gcField of gcNode.getFields()) {
-                    const lgNode = gcNode.getNode();
-                    const lgField = gcField.getField();
+        // check if graphConfig belongs to this graph
+        let configMatch = FileLocation.match(graphConfig.fileInfo().graphLocation, this.logicalGraph().fileInfo().location);
 
-                    // skip if no node found
-                    if (lgNode === null) {
-                        continue;
-                    }
+        // check if LogicalGraph is modified, if so warn user that loading a GraphConfig may overwrite unsaved changes
+        if (graphModified && !configMatch){
+            const confirmed = await Utils.requestUserConfirm("Graph Modified", "The current graph has unsaved changes. Loading a GraphConfig may overwrite some of these changes. Do you wish to continue?", "Yes", "No", null);
 
-                    // skip if no field found
-                    if (lgField === null) {
-                        continue;
-                    }
-
-                    foundCount++;
-                }
-            }
-
-            let locationTableHtml = "<table class='eagleTableWrapper'><tr><th></th><th>GraphConfig Parent Location</th><th>Current Graph Location</th></tr>";
-            locationTableHtml += "<tr><td>Repository Service</td><td>" + graphConfig.fileInfo().graphLocation.repositoryService() + "</td><td>" + this.logicalGraph().fileInfo().location.repositoryService() + "</td></tr>";
-            locationTableHtml += "<tr><td>Repository Name</td><td>" + graphConfig.fileInfo().graphLocation.repositoryName() + "</td><td>" + this.logicalGraph().fileInfo().location.repositoryName() + "</td></tr>";
-            locationTableHtml += "<tr><td>Repository Branch</td><td>" + graphConfig.fileInfo().graphLocation.repositoryBranch() + "</td><td>" + this.logicalGraph().fileInfo().location.repositoryBranch() + "</td></tr>";
-            locationTableHtml += "<tr><td>Repository Path</td><td>" + graphConfig.fileInfo().graphLocation.repositoryPath() + "</td><td>" + this.logicalGraph().fileInfo().location.repositoryPath() + "</td></tr>";
-            locationTableHtml += "<tr><td>Repository FileName</td><td>" + graphConfig.fileInfo().graphLocation.repositoryFileName() + "</td><td>" + this.logicalGraph().fileInfo().location.repositoryFileName() + "</td></tr>";
-            locationTableHtml += "<tr><td>Commit Hash</td><td>" + graphConfig.fileInfo().graphLocation.commitHash() + "</td><td>" + this.logicalGraph().fileInfo().location.commitHash() + "</td></tr>";
-            locationTableHtml += "<tr><td>Download Url</td><td>" + graphConfig.fileInfo().graphLocation.downloadUrl() + "</td><td>" + this.logicalGraph().fileInfo().location.downloadUrl() + "</td></tr>";
-
-            locationTableHtml += "<tr><td>Matching Fields</td><td colspan='2'>" + foundCount + "/" + graphConfig.numFields() + "</td></tr>";
-            locationTableHtml += "</table>";
-
-            try {
-                await Utils.requestUserConfirm("Error", "Graph config does not belong to this graph! Do you wish to load it anyway?" + locationTableHtml, "Yes", "No", null);
-            } catch (error){
-                console.error(error);
+            if (!confirmed) {
                 return;
             }
+        }
+
+        if (!someGraphAlreadyLoaded || !configMatch){
+            const repository = new Repository(graphConfig.fileInfo().graphLocation.repositoryService(), graphConfig.fileInfo().graphLocation.repositoryName(), graphConfig.fileInfo().graphLocation.repositoryBranch(), false);
+            const repositoryFile = new RepositoryFile(repository, graphConfig.fileInfo().graphLocation.repositoryPath(), graphConfig.fileInfo().graphLocation.repositoryFileName());
+            repositoryFile.type = Eagle.FileType.GraphConfig;
+
+            // load graph first
+            await this.openRemoteFile(repositoryFile);
+
+            someGraphAlreadyLoaded = true;
+            configMatch = true;
+            graphAutoLoaded = true;
         }
 
         // check if graphConfig already exists in this graph
         const configAlreadyExists: boolean = this.logicalGraph().getGraphConfigById(graphConfig.getId()) !== undefined;
 
-        if (configAlreadyExists){
+        if (someGraphAlreadyLoaded && configMatch && configAlreadyExists){
+
+            // if we auto-loaded the graph, and it already contains the graphConfig we were trying to load, then just skip loading it again
+            if (graphAutoLoaded){
+                GraphConfigurationsTable.openTable();
+                return;
+            }
+
             const userOption = await Utils.requestUserOptions("Graph Config Already Exists", "A graph config with the same id already exists in this graph. Do you wish to overwrite it, or load the new one with a different name?", "Overwrite", "Load as Separate Config", "Cancel", 0);
 
             if (userOption === "Overwrite"){
@@ -2547,7 +2539,9 @@ export class Eagle {
             } else {
                 // do nothing
             }
-        } else {
+        }
+
+        if (someGraphAlreadyLoaded && configMatch && !configAlreadyExists){
             this.logicalGraph().addGraphConfig(graphConfig);
         }
 
