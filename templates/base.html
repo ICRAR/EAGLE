@@ -114,7 +114,7 @@
                             <!-- /ko -->
                             <!-- ko foreach: Array.from($root.logicalGraph().getVisuals()) -->
                                 <div data-bind="class:$data.getId(), attr:{id:$data.getId()}">
-                                    <div class="inputPort port" data-bind="css: {selected: function(){return GraphRenderer.showPort($data)}()}, style:{'left':GraphRenderer.calculateTextVisualPortPositionX($data), 'top':GraphRenderer.calculateTextVisualPortPositionY($data)}, event:{mousedown:function(){GraphRenderer.portDragStart($data,'input')}, mouseenter:function(){GraphRenderer.mouseEnterPort('input', $data)}, mouseleave:function(){GraphRenderer.mouseLeavePort($data)}}">
+                                    <div class="textVisualPort port" data-bind="css: {selected: function(){return GraphRenderer.showPort($data)}()}, style:{'left':GraphRenderer.calculateTextVisualPortPositionX($data), 'top':GraphRenderer.calculateTextVisualPortPositionY($data)}, event:{mousedown:function(){GraphRenderer.portDragStart($data,'input')}, mouseenter:function(){GraphRenderer.mouseEnterPort('input', $data)}, mouseleave:function(){GraphRenderer.mouseLeavePort($data)}}">
                                         <div>
                                             <div class="portTitle">Connect to Node</div>
                                         </div>

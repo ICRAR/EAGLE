@@ -14,6 +14,7 @@
     --matchingEdgeColor:red;
     --nodeOutputColor:red;
     --nodeInputColor:red;
+    --textVisualPortColor:red;
     visibility:hidden;
     --edgeSVGSize: 200px;
     --edgeThickness: 1px;
@@ -365,6 +366,10 @@
     background-color: var(--nodeInputColor);
 }
 
+#portContainer .port.textVisualPort{
+    background-color: var(--textVisualPortColor);
+}
+
 #portContainer div{
     position: relative;
 }
@@ -387,6 +392,11 @@
      0    0.3px 0 #ffffff,
     -0.3px  0.3px 0 #ffffff,
     -0.3px  0   0 #ffffff;
+}
+
+#portContainer .textVisualPort .portTitle{
+    top: 5px;
+    left: 12px;
 }
 
 #portContainer .selected div .portTitle{

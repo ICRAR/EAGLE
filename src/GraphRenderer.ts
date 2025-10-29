@@ -360,11 +360,14 @@ export class GraphRenderer {
     }
 
     static calculateTextVisualPortPositionX(visual:Visual) : number {
-        return visual.getPosition().x + visual.getWidth()/2;
+        return visual.getPosition().x;
     }
 
     static calculateTextVisualPortPositionY(visual:Visual) : number {
-        return visual.getPosition().y + visual.getHeight()/2;
+        //the height of text visuals is automatic based on content using css, so we need to get the height of the element here
+        const halfHeight = $('#' + visual.getId()+ ' .body').height() / 2 + 6; //+6 is adding half of the port height to center it properly
+
+        return visual.getPosition().y + halfHeight;
     }
 
     static calculateEdgeCommentPosX (edge:Edge) : number {

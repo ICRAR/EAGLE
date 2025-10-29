@@ -18,6 +18,9 @@ const colors: ColorMap = {
     errorBackground:             '#ffdcdc',
     warningBackground:           '#ffeac4',
 
+    // visual colors
+    textVisualPortColor:        '#986b7fff',
+
     // edge colors
     edgeDefault:                 '#58595b',
     edgeDefaultSelected:         '#4247df',
@@ -117,6 +120,7 @@ export class EagleConfig {
         style.setProperty("--matchingEdgeColor", EagleConfig.getColor('edgeAutoComplete'));
         style.setProperty("--nodeOutputColor", EagleConfig.getColor('nodeOutputPort'));
         style.setProperty("--nodeInputColor", EagleConfig.getColor('nodeInputPort'));
+        style.setProperty("--textVisualPortColor", EagleConfig.getColor('textVisualPortColor'));
         style.setProperty("--edgeSVGSize", EagleConfig.EDGE_SVG_SIZE+'px');
         style.setProperty("--edgeThickness", EagleConfig.EDGE_THICKNESS+'px');
         $("html").get(0).style.setProperty("--hoverHighlight", EagleConfig.getColor('hoverHighlight'));
