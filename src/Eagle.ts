@@ -4745,14 +4745,16 @@ export class Eagle {
     }
 
     getEligibleNodeCategories : ko.PureComputed<Category[]> = ko.pureComputed(() => {
+        let category : Category = Category.Unknown;
         let categoryType: Category.Type = Category.Type.Unknown;
 
         if (this.selectedNode() !== null){
+            category = this.selectedNode().getCategory();
             categoryType = this.selectedNode().getCategoryType();
         }
 
         // if selectedNode categoryType is Unknown, return list of all categories
-        if (categoryType === Category.Type.Unknown || !Utils.isKnownCategoryType(categoryType)){
+        if (category === Category.Unknown || !Utils.isKnownCategory(category) || categoryType === Category.Type.Unknown || !Utils.isKnownCategoryType(categoryType)){
             return Utils.buildComponentList((cData: CategoryData) => {return true});
         }
 

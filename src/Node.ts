@@ -2068,9 +2068,17 @@ export class Node {
             }
         }
 
-        // check that node has correct number of inputs and outputs
+        // get the category data for this node
         const cData: Category.CategoryData = CategoryData.getCategoryData(node.getCategory());
 
+        // check if the categoryType is set correctly for this category
+        if (node.getCategoryType() !== cData.categoryType){
+            const message: string = "Node (" + node.getName() + ") has incorrect category type. Expected: " + cData.categoryType + ", Actual: " + node.getCategoryType();
+            const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, location, node)}, function(){node.setCategoryType(cData.categoryType)}, "Set category type to " + cData.categoryType);
+            node.issues().push({issue:issue, validity:Errors.Validity.Error});
+        }
+
+        // check that node has correct number of inputs and outputs
         if (node.getInputPorts().length < cData.minInputs){
             const message: string = "Node (" + node.getName() + ") may have too few input ports. A " + node.getCategory() + " component would typically have at least " + cData.minInputs;
             const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
