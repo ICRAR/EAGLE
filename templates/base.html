@@ -91,7 +91,7 @@
                             <!-- ko foreach: $root.logicalGraph().getAllNodes() -->
                                 <div data-bind="class:$data.getId(), attr:{id:$data.getName()}">
                                     <!-- ko foreach: $data.getInputPorts() -->
-                                        <div class="inputPort port" data-bind="css: {selected: function(){return GraphRenderer.showPort($parent, $data)}(), match:$data.isInputPeek()},eagleTooltip:$data.getHelpHtml(), style:{'background-color':$data.getBackgroundColor(),'left':GraphRenderer.calculateInputPortPositionX($data),'top':GraphRenderer.calculateInputPortPositionY($data)},graphRendererPortPosition:{n:$parent,f:$data,type:'inputPort'},event:{mousedown:function(){GraphRenderer.portDragStart($data,'input')}, mouseenter:function(){GraphRenderer.mouseEnterPort('input', $data)}, mouseleave:function(){GraphRenderer.mouseLeavePort($data)}}">
+                                        <div class="inputPort port" data-bind="css: {selected: function(){return GraphRenderer.showPort($parent, $data)}(), match:$data.isInputPeek()},eagleTooltip:$data.getHelpHtml(), style:{'background-color':$data.getBackgroundColor(),'left':GraphRenderer.calculateInputPortPositionX($data),'top':GraphRenderer.calculateInputPortPositionY($data)},graphRendererPortPosition:{n:$parent,f:$data,type:'inputPort'},event:{mousedown:function(){GraphRenderer.portDragStart('input', null, $data)}, mouseenter:function(){GraphRenderer.mouseEnterPort('input', $data)}, mouseleave:function(){GraphRenderer.mouseLeavePort($data)}}">
                                             <!-- ko if: $data.getIsEvent() -->
                                                 <i class="material-symbols-outlined">alarm_on</i> 
                                             <!-- /ko -->
@@ -101,7 +101,7 @@
                                         </div>
                                         <!-- /ko -->
                                     <!-- ko foreach: $data.getOutputPorts() -->
-                                        <div class="outputPort port" data-bind="css: {selected: function(){return GraphRenderer.showPort($parent, $data)}(), match:$data.isOutputPeek()},eagleTooltip:$data.getHelpHtml(), style:{'border-color':$data.getBackgroundColor(),'left':GraphRenderer.calculateOutputPortPositionX($data),'top':GraphRenderer.calculateOutputPortPositionY($data)},graphRendererPortPosition:{n:$parent,f:$data,type:'outputPort'},event:{mousedown:function(){GraphRenderer.portDragStart($data,'output')}, mouseenter:function(){GraphRenderer.mouseEnterPort('output',$data)}, mouseleave:function(){GraphRenderer.mouseLeavePort($data)}}">
+                                        <div class="outputPort port" data-bind="css: {selected: function(){return GraphRenderer.showPort($parent, $data)}(), match:$data.isOutputPeek()},eagleTooltip:$data.getHelpHtml(), style:{'border-color':$data.getBackgroundColor(),'left':GraphRenderer.calculateOutputPortPositionX($data),'top':GraphRenderer.calculateOutputPortPositionY($data)},graphRendererPortPosition:{n:$parent,f:$data,type:'outputPort'},event:{mousedown:function(){GraphRenderer.portDragStart('output', null, $data)}, mouseenter:function(){GraphRenderer.mouseEnterPort('output',$data)}, mouseleave:function(){GraphRenderer.mouseLeavePort($data)}}">
                                             <!-- ko if: $data.getIsEvent() -->
                                                 <i class="material-symbols-outlined">alarm_on</i> 
                                             <!-- /ko -->
@@ -114,7 +114,7 @@
                             <!-- /ko -->
                             <!-- ko foreach: Array.from($root.logicalGraph().getVisuals()) -->
                                 <div data-bind="class:$data.getId(), attr:{id:$data.getId()}">
-                                    <div class="textVisualPort port" data-bind="css: {selected: function(){return GraphRenderer.showPort($data)}()}, style:{'left':GraphRenderer.calculateTextVisualPortPositionX($data), 'top':GraphRenderer.calculateTextVisualPortPositionY($data)}, event:{mousedown:function(){GraphRenderer.portDragStart($data,'input')}, mouseenter:function(){GraphRenderer.mouseEnterPort('input', $data)}, mouseleave:function(){GraphRenderer.mouseLeavePort($data)}}">
+                                    <div class="textVisualPort port" data-bind="css: {selected: function(){return GraphRenderer.showPort($data)}()}, style:{'left':GraphRenderer.calculateTextVisualPortPositionX($data), 'top':GraphRenderer.calculateTextVisualPortPositionY($data)}, event:{mousedown:function(){GraphRenderer.portDragStart('textVisual', $data)}}">
                                         <div>
                                             <div class="portTitle">Connect to Node</div>
                                         </div>

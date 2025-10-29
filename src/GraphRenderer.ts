@@ -283,7 +283,6 @@ export class GraphRenderer {
     static isDraggingPortValid: ko.Observable<Errors.Validity> = ko.observable(Errors.Validity.Unknown);
     static destinationNode : Node = null;
     static destinationPort : Field = null;
-    
     static portDragSourceNode : ko.Observable<Node> = ko.observable(null);
     static portDragSourcePort : ko.Observable<Field> = ko.observable(null);
     static portDragSourcePortIsInput: boolean = false;
@@ -293,6 +292,9 @@ export class GraphRenderer {
     static portDragSuggestionValidity : ko.Observable<Errors.Validity> = ko.observable(Errors.Validity.Unknown) // this is necessary because we cannot keep the validity on the ege as it does not exist
     static createEdgeSuggestedPorts : {field:Field,node:Node,validity: Errors.Validity}[] = []
     static portMatchCloseEnough :ko.Observable<boolean> = ko.observable(false);
+
+    static draggingTextVisualPort : boolean = false;
+    static textVisualPortDragSourceVisual : ko.Observable<Visual> = ko.observable(null);
 
     //node drag handler globals
     static nodeParentRadiusPreDrag : number = null;
@@ -1677,7 +1679,7 @@ export class GraphRenderer {
     }
 
     // TODO: can we use the Daliuge.FieldUsage type here for the 'usage' parameter?
-    static portDragStart(port:Field, usage: "input" | "output") : void {
+    static portDragStart(usage: "input" | "output" | "textVisual", visual?:Visual, port?:Field) : void {
         const eagle = Eagle.getInstance();
         const e:any = event; //somehow the event here will always log in the console as a mouseevent. this allows the following line to access the button attribute.
         //furter down we are calling stopPropagation on the same event object and it works, eventhough stopPropagation shouldnt exist on a mouseEvent. this is why i created a constant of type any. its working as it should but i dont kow how.
@@ -1691,29 +1693,36 @@ export class GraphRenderer {
         //prevents moving the node when dragging the port
         e.stopPropagation();
         
-        //preparing necessary port info
-        GraphRenderer.draggingPort = true
-        GraphRenderer.portDragSourceNode(port.getNode());
-        GraphRenderer.portDragSourcePort(port);
-        GraphRenderer.portDragSourcePortIsInput = usage === 'input';      
-        GraphRenderer.renderDraggingPortEdge(true);
-        GraphRenderer.createEdgeSuggestedPorts = []
-        
-        //take not of the start drag position
-        GraphRenderer.portDragStartPos = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null),y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)}
-
         //setting up the port event listeners
         $('#logicalGraphParent').on('mouseup.portDrag',function(){GraphRenderer.portDragEnd()})
         $('.node .body').on('mouseup.portDrag',function(){GraphRenderer.portDragEnd()})
 
-        if(GraphRenderer.portDragSourcePortIsInput){
-            port.setInputPeek(true)
+        if(usage === 'textVisual' && visual){
+            GraphRenderer.draggingTextVisualPort = true
+            GraphRenderer.textVisualPortDragSourceVisual(visual);
+            GraphRenderer.renderDraggingPortEdge(true);
+            
         }else{
-            port.setOutputPeek(true)
-        }
 
-        // build the list of all ports in the graph that are a valid end-point for an edge starting at this port
-        GraphRenderer.createEdgeSuggestedPorts = GraphRenderer.findMatchingPorts(GraphRenderer.portDragSourceNode(), GraphRenderer.portDragSourcePort());
+            //preparing necessary port info
+            GraphRenderer.draggingPort = true
+            GraphRenderer.portDragSourceNode(port.getNode());
+            GraphRenderer.portDragSourcePort(port);
+            GraphRenderer.portDragSourcePortIsInput = usage === 'input';      
+            GraphRenderer.createEdgeSuggestedPorts = []
+            
+            //take not of the start drag position
+            GraphRenderer.portDragStartPos = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null),y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)}
+
+            if(GraphRenderer.portDragSourcePortIsInput){
+                port.setInputPeek(true)
+            }else{
+                port.setOutputPeek(true)
+            }
+
+            // build the list of all ports in the graph that are a valid end-point for an edge starting at this port
+            GraphRenderer.createEdgeSuggestedPorts = GraphRenderer.findMatchingPorts(GraphRenderer.portDragSourceNode(), GraphRenderer.portDragSourcePort());
+        }
     }
 
     static portDragging() : void {
@@ -1730,6 +1739,22 @@ export class GraphRenderer {
             GraphRenderer.portDragSuggestedNode(null);
             GraphRenderer.portDragSuggestedField(null);
             GraphRenderer.portDragSuggestionValidity(Errors.Validity.Unknown)
+        }
+    }
+
+    static textVisualPortDragging() : void {
+        GraphRenderer.updateMousePos();
+
+        const element = document.elementFromPoint(GraphRenderer.mousePosX(), GraphRenderer.mousePosY());
+        if (element) {
+            const data = ko.dataFor(element);
+            if (data instanceof Node) {
+                console.log("hovering node")
+                GraphRenderer.textVisualPortDragSourceVisual(null);
+            }else if (data instanceof Edge){
+                console.log("hovering edge")
+                GraphRenderer.textVisualPortDragSourceVisual(null);
+            }
         }
     }
 
