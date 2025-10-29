@@ -2477,7 +2477,7 @@ export class Eagle {
         let configMatch = FileLocation.match(graphConfig.fileInfo().graphLocation, this.logicalGraph().fileInfo().location);
 
         // check if LogicalGraph is modified, if so warn user that loading a GraphConfig may overwrite unsaved changes
-        if (graphModified){
+        if (graphModified && !configMatch){
             const confirmed = await Utils.requestUserConfirm("Graph Modified", "The current graph has unsaved changes. Loading a GraphConfig may overwrite some of these changes. Do you wish to continue?", "Yes", "No", null);
 
             if (!confirmed) {
@@ -2485,7 +2485,7 @@ export class Eagle {
             }
         }
 
-        if (!someGraphAlreadyLoaded){
+        if (!someGraphAlreadyLoaded || !configMatch){
             const repository = new Repository(graphConfig.fileInfo().graphLocation.repositoryService(), graphConfig.fileInfo().graphLocation.repositoryName(), graphConfig.fileInfo().graphLocation.repositoryBranch(), false);
             const repositoryFile = new RepositoryFile(repository, graphConfig.fileInfo().graphLocation.repositoryPath(), graphConfig.fileInfo().graphLocation.repositoryFileName());
             repositoryFile.type = Eagle.FileType.GraphConfig;
@@ -2496,50 +2496,6 @@ export class Eagle {
             someGraphAlreadyLoaded = true;
             configMatch = true;
             graphAutoLoaded = true;
-        }
-
-        // abort if graphConfig does not belong to this graph
-        if (someGraphAlreadyLoaded && !configMatch) {
-            // first determine how many fields within the config can be found in the current graph
-            let foundCount = 0;
-
-            for (const gcNode of graphConfig.getNodes()) {
-                for (const gcField of gcNode.getFields()) {
-                    const lgNode = gcNode.getNode();
-                    const lgField = gcField.getField();
-
-                    // skip if no node found
-                    if (lgNode === null) {
-                        continue;
-                    }
-
-                    // skip if no field found
-                    if (lgField === null) {
-                        continue;
-                    }
-
-                    foundCount++;
-                }
-            }
-
-            let locationTableHtml = "<table class='eagleTableWrapper'><tr><th></th><th>GraphConfig Parent Location</th><th>Current Graph Location</th></tr>";
-            locationTableHtml += "<tr><td>Repository Service</td><td>" + graphConfig.fileInfo().graphLocation.repositoryService() + "</td><td>" + this.logicalGraph().fileInfo().location.repositoryService() + "</td></tr>";
-            locationTableHtml += "<tr><td>Repository Name</td><td>" + graphConfig.fileInfo().graphLocation.repositoryName() + "</td><td>" + this.logicalGraph().fileInfo().location.repositoryName() + "</td></tr>";
-            locationTableHtml += "<tr><td>Repository Branch</td><td>" + graphConfig.fileInfo().graphLocation.repositoryBranch() + "</td><td>" + this.logicalGraph().fileInfo().location.repositoryBranch() + "</td></tr>";
-            locationTableHtml += "<tr><td>Repository Path</td><td>" + graphConfig.fileInfo().graphLocation.repositoryPath() + "</td><td>" + this.logicalGraph().fileInfo().location.repositoryPath() + "</td></tr>";
-            locationTableHtml += "<tr><td>Repository FileName</td><td>" + graphConfig.fileInfo().graphLocation.repositoryFileName() + "</td><td>" + this.logicalGraph().fileInfo().location.repositoryFileName() + "</td></tr>";
-            locationTableHtml += "<tr><td>Commit Hash</td><td>" + graphConfig.fileInfo().graphLocation.commitHash() + "</td><td>" + this.logicalGraph().fileInfo().location.commitHash() + "</td></tr>";
-            locationTableHtml += "<tr><td>Download Url</td><td>" + graphConfig.fileInfo().graphLocation.downloadUrl() + "</td><td>" + this.logicalGraph().fileInfo().location.downloadUrl() + "</td></tr>";
-
-            locationTableHtml += "<tr><td>Matching Fields</td><td colspan='2'>" + foundCount + "/" + graphConfig.numFields() + "</td></tr>";
-            locationTableHtml += "</table>";
-
-            try {
-                await Utils.requestUserConfirm("Error", "Graph config does not belong to this graph! Do you wish to load it anyway?" + locationTableHtml, "Yes", "No", null);
-            } catch (error){
-                console.error(error);
-                return;
-            }
         }
 
         // check if graphConfig already exists in this graph
