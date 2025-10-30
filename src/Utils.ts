@@ -2263,6 +2263,27 @@ export class Utils {
         eagle.undo().pushSnapshot(eagle, "Fix");
     }
 
+    static newNodeId(graph: LogicalGraph, nodeId: NodeId){
+        graph.updateNodeId(nodeId, Utils.generateNodeId());
+    }
+
+    static newEdgeId(graph: LogicalGraph, edgeId: EdgeId){
+        const newEdgeId = Utils.generateEdgeId();
+
+        // loop through all fields and update any edges that reference this edge id
+        for (const node of graph.getNodes()){
+            for (const field of node.getFields()){
+                for (const edge of field.getEdges()){
+                    if (edge.getId() === edgeId){
+                        field.updateEdgeId(edgeId, newEdgeId);
+                    }
+                }
+            }
+        }
+
+        graph.updateEdgeId(edgeId, newEdgeId);
+    }
+
     static newFieldId(eagle: Eagle, node: Node, field: Field): void {
         const oldId = field.getId();
         const newId: FieldId = Utils.generateFieldId();
@@ -2280,9 +2301,13 @@ export class Utils {
         }
 
         // update the field
-        field.setId(newId);
+        node.updateFieldId(oldId, newId);
     }
     
+    static newGraphConfigId(graph: LogicalGraph, graphConfigId: GraphConfigId): void {
+        graph.updateGraphConfigId(graphConfigId, Utils.generateGraphConfigId());
+    }
+
     static showEdge(eagle: Eagle, edge: Edge): void {
         // close errors modal if visible
         $('#issuesDisplay').modal("hide");
