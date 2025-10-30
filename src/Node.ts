@@ -1032,6 +1032,13 @@ export class Node {
         return this;
     }
 
+    updateFieldId(oldId: FieldId, newId: FieldId): void {
+        const field = this.fields().get(oldId);
+        this.fields().delete(oldId);
+        field.setId(newId);
+        this.fields().set(newId, field);
+    }
+
     setGroupStart = (value: boolean) : Node => {
         if (!this.hasFieldWithDisplayText(Daliuge.FieldName.GROUP_START)){
             // create a new groupStart field (clone from Daliuge)

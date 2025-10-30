@@ -767,6 +767,27 @@ export class LogicalGraph {
         return null;
     }
 
+    updateNodeId(oldId: NodeId, newId: NodeId): void {
+        const node = this.nodes().get(oldId);
+        this.nodes().delete(oldId);
+        node.setId(newId);
+        this.nodes().set(newId, node);
+    }
+
+    updateEdgeId(oldId: EdgeId, newId: EdgeId): void {
+        const edge = this.edges().get(oldId);
+        this.edges().delete(oldId);
+        edge.setId(newId);
+        this.edges().set(newId, edge);
+    }
+
+    updateGraphConfigId(oldId: GraphConfigId, newId: GraphConfigId): void {
+        const graphConfig = this.graphConfigs().get(oldId);
+        this.graphConfigs().delete(oldId);
+        graphConfig.setId(newId);
+        this.graphConfigs().set(newId, graphConfig);
+    }
+
     removeNode = (node: Node) : void => {
         const id = node.getId();
 
@@ -1181,7 +1202,7 @@ export class LogicalGraph {
                 const issue: Errors.Issue = Errors.ShowFix(
                     "Node (" + node.getName() + ") does not have a unique id",
                     function(){Utils.showNode(eagle, Eagle.FileType.Graph, node)},
-                    function(){node.setId(Utils.generateNodeId())},
+                    function(){Utils.newNodeId(graph, nodeId)},
                     "Assign node a new id"
                 );
                 graph.issues.push({issue : issue, validity : Errors.Validity.Error})
@@ -1209,7 +1230,7 @@ export class LogicalGraph {
                 const issue: Errors.Issue = Errors.ShowFix(
                     "Edge (" + id + ") does not have a unique id",
                     function(){Utils.showEdge(eagle, edge)},
-                    function(){edge.setId(Utils.generateEdgeId())},
+                    function(){Utils.newEdgeId(graph, id)},
                     "Assign edge a new id"
                 );
                 graph.issues.push({issue : issue, validity : Errors.Validity.Error})
@@ -1218,12 +1239,12 @@ export class LogicalGraph {
         }
 
         // loop over the graph configs to check that all graph config ids are unique
-        for (const graphConfig of graph.getGraphConfigs()){
-            if (ids.includes(graphConfig.getId())){
+        for (const [id, graphConfig] of graph.graphConfigs()){
+            if (ids.includes(id)){
                 const issue: Errors.Issue = Errors.ShowFix(
                     "Graph Config (" + graphConfig.getId() + ") does not have a unique id",
-                    function(){Utils.showGraphConfig(eagle, graphConfig.getId())},
-                    function(){graphConfig.setId(Utils.generateGraphConfigId())},
+                    function(){Utils.showGraphConfig(eagle, id)},
+                    function(){Utils.newGraphConfigId(graph, id)},
                     "Assign graph config a new id"
                 );
                 graph.issues.push({issue : issue, validity : Errors.Validity.Error})
