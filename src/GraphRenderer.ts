@@ -1710,6 +1710,7 @@ export class GraphRenderer {
             GraphRenderer.portDragSourcePort(port);
             GraphRenderer.portDragSourcePortIsInput = usage === 'input';      
             GraphRenderer.createEdgeSuggestedPorts = []
+            GraphRenderer.renderDraggingPortEdge(true);
             
             //take not of the start drag position
             GraphRenderer.portDragStartPos = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null),y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)}
