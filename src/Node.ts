@@ -1034,6 +1034,12 @@ export class Node {
 
     updateFieldId(oldId: FieldId, newId: FieldId): void {
         const field = this.fields().get(oldId);
+
+        if (typeof field === 'undefined'){
+            console.warn("updateFieldId(): Could not find field with id", oldId);
+            return;
+        }
+
         this.fields().delete(oldId);
         field.setId(newId);
         this.fields().set(newId, field);

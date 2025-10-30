@@ -242,6 +242,12 @@ export class Field {
 
     updateEdgeId(oldId: EdgeId, newId: EdgeId): void {
         const edge = this.edges().get(oldId);
+
+        if (typeof edge === 'undefined') {
+            console.warn("Could not find edge with id:", oldId);
+            return;
+        }
+
         this.edges().delete(oldId);
         edge.setId(newId);
         this.edges().set(newId, edge);

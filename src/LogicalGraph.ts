@@ -769,6 +769,12 @@ export class LogicalGraph {
 
     updateNodeId(oldId: NodeId, newId: NodeId): void {
         const node = this.nodes().get(oldId);
+
+        if (typeof node === 'undefined'){
+            console.warn("updateNodeId(): Could not find node with id", oldId);
+            return;
+        }
+
         this.nodes().delete(oldId);
         node.setId(newId);
         this.nodes().set(newId, node);
@@ -776,6 +782,12 @@ export class LogicalGraph {
 
     updateEdgeId(oldId: EdgeId, newId: EdgeId): void {
         const edge = this.edges().get(oldId);
+
+        if (typeof edge === 'undefined'){
+            console.warn("updateEdgeId(): Could not find edge with id", oldId);
+            return;
+        }
+
         this.edges().delete(oldId);
         edge.setId(newId);
         this.edges().set(newId, edge);
@@ -783,6 +795,12 @@ export class LogicalGraph {
 
     updateGraphConfigId(oldId: GraphConfigId, newId: GraphConfigId): void {
         const graphConfig = this.graphConfigs().get(oldId);
+
+        if (typeof graphConfig === 'undefined'){
+            console.warn("updateGraphConfigId(): Could not find graph config with id", oldId);
+            return;
+        }
+
         this.graphConfigs().delete(oldId);
         graphConfig.setId(newId);
         this.graphConfigs().set(newId, graphConfig);
