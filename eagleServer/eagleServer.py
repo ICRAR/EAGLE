@@ -36,6 +36,7 @@ import subprocess
 
 import urllib.request
 import ssl
+import requests
 
 import github
 import gitlab
@@ -721,6 +722,35 @@ def open_git_hub_file():
         )
     
     return response
+
+
+@app.route("/openRemoteGithubFilePublic", methods=["POST"])
+def open_git_hub_file_public():
+    """
+    FLASK POST routing method for '/openRemoteGithubFilePublic'
+
+    Reads a file from a GitHub repository. The POST request content is a JSON string containing the file name, repository name, branch, access token.
+    """
+    content = request.get_json(silent=True)
+    repo_name = content["repositoryName"]
+    repo_branch = content["repositoryBranch"]
+    #repo_service = content["repositoryService"]
+    #repo_token = content["token"]
+    filename = content["filename"]
+    #extension = os.path.splitext(filename)[1]
+
+    request_url = f"https://api.github.com/repos/{repo_name}/contents/{filename}?ref={repo_branch}"
+    print("request_url:", request_url)
+
+    r = requests.get(request_url,
+                     timeout=15)
+    content = json.loads(r.content)
+    decoded_content = base64.b64decode(content['content']).decode()
+    if r.status_code != 200:
+        print(f"Things went wrong with {request_url}!")
+        print(f"{decoded_content}")
+        sys.exit(1)
+    return decoded_content
 
 
 @app.route("/deleteRemoteGithubFile", methods=["POST"])

@@ -207,10 +207,12 @@ export class GitHub {
     static async openRemoteFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string): Promise<string> {
         return new Promise(async(resolve, reject) => {
             const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
+            let url: string = "";
 
             if (token === null || token === "") {
-                reject("The GitHub access token is not set! To open GitHub repositories, set the token via settings.");
-                return;
+                url = "/openRemoteGithubFilePublic";
+            } else {
+                url = "/openRemoteGithubFile";
             }
 
             const fullFileName : string = Utils.joinPath(filePath, fileName);
@@ -226,7 +228,7 @@ export class GitHub {
 
             let data: any;
             try {
-                data = await Utils.httpPostJSON('/openRemoteGithubFile', jsonData);
+                data = await Utils.httpPostJSON(url, jsonData);
             } catch (error){
                 reject(error);
                 return;
