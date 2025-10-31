@@ -64,12 +64,6 @@ export class GitLab {
         return new Promise(async(resolve, reject) => {
             const token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY);
 
-            if (token === null || token === "") {
-                Utils.showUserMessage("Access Token", "The GitLab access token is not set! To access GitLab repository, set the token via settings.");
-                reject("The GitLab access token is not set! To access GitLab repository, set the token via settings.");
-                return;
-            }
-
             // get location
             const location: Repository | RepositoryFolder = repository.findPath(path);
 
@@ -176,11 +170,6 @@ export class GitLab {
     static async openRemoteFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string): Promise<string> {
         return new Promise(async(resolve, reject) => {
             const token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY);
-
-            if (token === null || token === "") {
-                reject("The GitLab access token is not set! To open GitLab repositories, set the token via settings.");
-                return;
-            }
 
             const fullFileName : string = Utils.joinPath(filePath, fileName);
 

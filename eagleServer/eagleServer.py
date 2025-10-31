@@ -356,6 +356,7 @@ def get_git_lab_files_all():
 
     Returns the list files in a GitLab repository. The POST request content is a JSON string containing repository, branch and token.
     """
+    print("get_git_lab_files_all() called")
     content = request.get_json(silent=True)
 
     try:
@@ -367,13 +368,15 @@ def get_git_lab_files_all():
         print("KeyError {1}: {0}".format(str(ke), repo_name))
         return jsonify({"error":"Repository, Branch or Token not specified in request"})
 
-    gl = gitlab.Gitlab('https://gitlab.com', private_token=repo_token, api_version=4)
-
-    try:
-        gl.auth()
-    except gitlab.exceptions.GitlabAuthenticationError as gae:
-        print("GitlabAuthenticationError {1}: {0}".format(str(gae), repo_name))
-        return jsonify({"error": "Gitlab Authentication Error. Access token may be invalid." + "\n" + str(gae)})
+    if repo_token:
+        gl = gitlab.Gitlab('https://gitlab.com', private_token=repo_token, api_version=4)
+        try:
+            gl.auth()
+        except gitlab.exceptions.GitlabAuthenticationError as gae:
+            print("GitlabAuthenticationError {1}: {0}".format(str(gae), repo_name))
+            return jsonify({"error": "Gitlab Authentication Error. Access token may be invalid." + "\n" + str(gae)})
+    else:
+        gl = gitlab.Gitlab('https://gitlab.com', api_version=4)
 
     try:
         project = gl.projects.get(repo_name)
@@ -792,13 +795,15 @@ def open_git_lab_file():
     #print("folder_name", folder_name, "repo_name", repo_name, "filename", filename)
 
     # get the data from gitlab
-    gl = gitlab.Gitlab('https://gitlab.com', private_token=repo_token, api_version=4)
-
-    try:
-        gl.auth()
-    except Exception as e:
-        print(e)
-        return app.response_class(response=json.dumps({"error":str(e)}), status=404, mimetype="application/json")
+    if repo_token:
+        gl = gitlab.Gitlab('https://gitlab.com', private_token=repo_token, api_version=4)
+        try:
+            gl.auth()
+        except Exception as e:
+            print(e)
+            return app.response_class(response=json.dumps({"error":str(e)}), status=404, mimetype="application/json")
+    else:
+        gl = gitlab.Gitlab('https://gitlab.com', api_version=4)
 
     project = gl.projects.get(repo_name)
 
