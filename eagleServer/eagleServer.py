@@ -239,73 +239,6 @@ def extract_folder_and_repo_names(repo_name):
     return folder_name, repo_name
 
 
-# NOTE: largely made obsolete by get_git_hub_files_all()
-@app.route("/getGitHubFiles", methods=["POST"])
-def get_git_hub_files():
-    """
-    FLASK POST routing method for '/getGitHubFiles'
-
-    Returns a JSON list of files in a GitHub repository. Both the repository name and the access token have to passed in the POST content.
-    """
-    content = request.get_json(silent=True)
-    repo_name = content["repository"]
-    repo_token = content["token"]
-
-    # Extracting the true repo name and repo folder.
-    folder_name, repo_name = extract_folder_and_repo_names(repo_name)
-
-    # authenticate or not
-    g = github.Github(repo_token) if repo_token else github.Github()
-
-    repo = g.get_repo(repo_name)
-
-    # Set branch to master.
-    try:
-        master_ref = repo.get_git_ref("heads/master")
-        master_sha = master_ref.object.sha
-    except github.GithubException as e:
-        # repository might be empty
-        print(
-            "Error getting ref to git repo! Repo: {0} Status: {1} Data: {2}".format(
-                str(repo_name), e.status, e.data
-            )
-        )
-        return jsonify({"": []})
-
-    # Getting repository file list.
-    base_tree = repo.get_git_tree(master_sha, recursive=False)
-
-    # Building a dictionary of repository's content {path: filename}.
-    d = {}
-    for el in base_tree.tree:
-        # Flag for whether it is a path in the given repository folder.
-        is_in_folder = el.path.startswith(folder_name + "/")
-        # Only show files that are located in the given repository folder.
-        if folder_name == "" or is_in_folder:
-            elpath = el.path
-            if is_in_folder:
-                # Extract path inside the given folder.
-                elpath = elpath.split(folder_name + "/", 1)[1]
-
-            # Folder.
-            if el.type == "tree":
-                path = elpath
-                if not (path in d.keys()):
-                    d[path] = list()
-
-            # File.
-            if el.type == "blob":
-                path = os.path.dirname(elpath)
-                filename = os.path.basename(elpath)
-                if path in d.keys():
-                    d[path].append(filename)
-                else:
-                    d[path] = list()
-                    d[path].append(filename)
-
-    return jsonify(d)
-
-
 @app.route("/getGitHubFilesAll", methods=["POST"])
 def get_git_hub_files_all():
     """
@@ -626,7 +559,8 @@ def set_metadata_for_egress(graph, repo_service, repo_name, repo_branch, commit_
         # replace some data in the headers of the graphConfigurations within the file
         if "graphConfigurations" in graph:
             for id, graphConfig in graph["graphConfigurations"].items():
-                #print(graphConfig["modelData"])
+                if "modelData" not in graphConfig:
+                    continue
                 graphLocation = graphConfig["modelData"]["graphLocation"]
                 graphLocation["repositoryUrl"] = "TODO"
                 graphLocation["commitHash"] = commit_hash
