@@ -294,7 +294,8 @@ export class GraphRenderer {
     static portMatchCloseEnough :ko.Observable<boolean> = ko.observable(false);
 
     static draggingTextVisualPort : boolean = false;
-    static textVisualPortDragSourceVisual : ko.Observable<Visual> = ko.observable(null);
+    static textVisualPortDragSource : ko.Observable<Visual> = ko.observable(null);
+    static textVisualPortDragTarget : ko.Observable<Node | Edge> = ko.observable(null);
 
     //node drag handler globals
     static nodeParentRadiusPreDrag : number = null;
@@ -920,25 +921,42 @@ export class GraphRenderer {
     }
 
     static getPathDraggingEdge : ko.PureComputed<string> = ko.pureComputed(() => {
-        if (GraphRenderer.portDragSourceNode() === null){
-            return '';
-        }
+        if(GraphRenderer.draggingPort){
+            if (GraphRenderer.portDragSourceNode() === null){
+                return '';
+            }
+            const srcNodeRadius: number = GraphRenderer.portDragSourceNode().getRadius();
+            const destNodeRadius: number = 0;
+            const srcX: number = GraphRenderer.portDragSourceNode().getPosition().x - srcNodeRadius;
+            const srcY: number = GraphRenderer.portDragSourceNode().getPosition().y - srcNodeRadius;
+            const destX: number = GraphRenderer.mousePosX();
+            const destY: number = GraphRenderer.mousePosY();
 
-        const srcNodeRadius: number = GraphRenderer.portDragSourceNode().getRadius();
-        const destNodeRadius: number = 0;
-        const srcX: number = GraphRenderer.portDragSourceNode().getPosition().x - srcNodeRadius;
-        const srcY: number = GraphRenderer.portDragSourceNode().getPosition().y - srcNodeRadius;
-        const destX: number = GraphRenderer.mousePosX();
-        const destY: number = GraphRenderer.mousePosY();
+            const srcField: Field = GraphRenderer.portDragSourcePort();
+            const destField: Field = null;
 
-        const srcField: Field = GraphRenderer.portDragSourcePort();
-        const destField: Field = null;
+            //if we are dragging from an input port well pass the dragSrcPort(the input port) as the destination of edge. this is so the flow arrow on the edge is point in the correct direction in terms of graph flow
+            if(GraphRenderer.portDragSourcePortIsInput){
+                return GraphRenderer.createBezier(false,true, null, destNodeRadius, srcNodeRadius, {x:destX, y:destY}, {x:srcX, y:srcY}, destField, srcField, !GraphRenderer.portDragSourcePortIsInput);
+            }else{
+                return GraphRenderer.createBezier(false,true, null, srcNodeRadius, destNodeRadius, {x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField, GraphRenderer.portDragSourcePortIsInput);
+            }
+        }else if(GraphRenderer.draggingTextVisualPort){
+            if (GraphRenderer.textVisualPortDragSource() === null){
+                return '';
+            }
 
-        //if we are dragging from an input port well pass the dragSrcPort(the input port) as the destination of edge. this is so the flow arrow on the edge is point in the correct direction in terms of graph flow
-        if(GraphRenderer.portDragSourcePortIsInput){
-            return GraphRenderer.createBezier(false,true, null, destNodeRadius, srcNodeRadius, {x:destX, y:destY}, {x:srcX, y:srcY}, destField, srcField, !GraphRenderer.portDragSourcePortIsInput);
-        }else{
-            return GraphRenderer.createBezier(false,true, null, srcNodeRadius, destNodeRadius, {x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField, GraphRenderer.portDragSourcePortIsInput);
+            const srcX: number = GraphRenderer.calculateTextVisualPortPositionX(GraphRenderer.textVisualPortDragSource());
+            const srcY: number = GraphRenderer.calculateTextVisualPortPositionY(GraphRenderer.textVisualPortDragSource());
+            const destX: number = GraphRenderer.mousePosX();
+            const destY: number = GraphRenderer.mousePosY();
+
+
+            return GraphRenderer.createBezier(false,false, null, 0, 0, {x:destX, y:destY}, {x:srcX, y:srcY}, null, null, !GraphRenderer.portDragSourcePortIsInput);
+
+
+
+
         }
     }, this);
 
@@ -1163,6 +1181,8 @@ export class GraphRenderer {
             }
         }else if(GraphRenderer.draggingPort){
             GraphRenderer.portDragging()
+        }else if(GraphRenderer.draggingTextVisualPort){
+            GraphRenderer.textVisualPortDragging()
         }else if(GraphRenderer.isResizingVisual()){
             moveDistance = {x:e.pageX - GraphRenderer.visualResizeCurrentPos?.x, y: e.pageY - GraphRenderer.visualResizeCurrentPos?.y}
             GraphRenderer.visualResizeCurrentPos = {x:e.pageX,y:e.pageY}
@@ -1699,7 +1719,7 @@ export class GraphRenderer {
 
         if(usage === 'textVisual' && visual){
             GraphRenderer.draggingTextVisualPort = true
-            GraphRenderer.textVisualPortDragSourceVisual(visual);
+            GraphRenderer.textVisualPortDragSource(visual);
             GraphRenderer.renderDraggingPortEdge(true);
             
         }else{
@@ -1746,15 +1766,21 @@ export class GraphRenderer {
     static textVisualPortDragging() : void {
         GraphRenderer.updateMousePos();
 
-        const element = document.elementFromPoint(GraphRenderer.mousePosX(), GraphRenderer.mousePosY());
+        //calculate mouse position in screen co-ordinates using our saved mouse position in graph co-ordinates
+        const posX = GraphRenderer.GRAPH_TO_SCREEN_POSITION_X(GraphRenderer.mousePosX());
+        const posY = GraphRenderer.GRAPH_TO_SCREEN_POSITION_Y(GraphRenderer.mousePosY());
+
+        //get the element under the mouse
+        const element = document.elementFromPoint(posX, posY);
+
         if (element) {
+            //grab the ko $data of the element under the mouse
             const data = ko.dataFor(element);
+
             if (data instanceof Node) {
-                console.log("hovering node")
-                GraphRenderer.textVisualPortDragSourceVisual(null);
+                GraphRenderer.textVisualPortDragTarget(data);
             }else if (data instanceof Edge){
-                console.log("hovering edge")
-                GraphRenderer.textVisualPortDragSourceVisual(null);
+                GraphRenderer.textVisualPortDragTarget(data);
             }
         }
     }
@@ -1762,57 +1788,72 @@ export class GraphRenderer {
     static portDragEnd() : void {
         const eagle = Eagle.getInstance();
 
-        GraphRenderer.draggingPort = false;
+        // GraphRenderer.draggingPort = false;
         // cleaning up the port drag event listeners
         $('#logicalGraphParent').off('mouseup.portDrag')
         $('.node .body').off('mouseup.portDrag')
-
+        console.log('port drag end called', GraphRenderer.textVisualPortDragTarget());
         //here
-        if(Math.abs(GraphRenderer.portDragStartPos.x - GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null))+Math.abs(GraphRenderer.portDragStartPos.y - GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null))<3){
-            //identify a click, if we click a port, we will open the parameter table and highlight the port
-            ParameterTable.openTableAndSelectField(GraphRenderer.portDragSourceNode(), GraphRenderer.portDragSourcePort())
-            GraphRenderer.clearEdgeVars();
-        }else{
-            if ((GraphRenderer.destinationPort !== null || GraphRenderer.portDragSuggestedField() !== null) && GraphRenderer.portMatchCloseEnough()){
-                const srcNode: Node = GraphRenderer.portDragSourceNode();
-                const srcPort: Field = GraphRenderer.portDragSourcePort();
-    
-                let destNode: Node = null;
-                let destPort: Field = null;
-    
-                if (GraphRenderer.destinationPort !== null){
-                    destNode = GraphRenderer.destinationNode;
-                    destPort = GraphRenderer.destinationPort;
-                } else {
-                    destNode = GraphRenderer.portDragSuggestedNode();
-                    destPort = GraphRenderer.portDragSuggestedField();
-                }
-    
-                GraphRenderer.createEdge(srcNode, srcPort, destNode, destPort);
-    
-                // we can stop rendering the dragging edge
-                GraphRenderer.renderDraggingPortEdge(false);
+        if(GraphRenderer.draggingPort){
+            //for node port drag events
+            if(Math.abs(GraphRenderer.portDragStartPos.x - GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null))+Math.abs(GraphRenderer.portDragStartPos.y - GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null))<3){
+                //identify a click, if we click a port, we will open the parameter table and highlight the port
+                ParameterTable.openTableAndSelectField(GraphRenderer.portDragSourceNode(), GraphRenderer.portDragSourcePort())
                 GraphRenderer.clearEdgeVars();
-            } else {
-                if (GraphRenderer.destinationPort === null){
-                    GraphRenderer.showUserNodeSelectionContextMenu();
-                } else {
-                    // connect to destination port
+            }else{
+                if ((GraphRenderer.destinationPort !== null || GraphRenderer.portDragSuggestedField() !== null) && GraphRenderer.portMatchCloseEnough()){
                     const srcNode: Node = GraphRenderer.portDragSourceNode();
                     const srcPort: Field = GraphRenderer.portDragSourcePort();
-                    const destNode: Node = GraphRenderer.destinationNode;
-                    const destPort: Field = GraphRenderer.destinationPort;
-    
+        
+                    let destNode: Node = null;
+                    let destPort: Field = null;
+        
+                    if (GraphRenderer.destinationPort !== null){
+                        destNode = GraphRenderer.destinationNode;
+                        destPort = GraphRenderer.destinationPort;
+                    } else {
+                        destNode = GraphRenderer.portDragSuggestedNode();
+                        destPort = GraphRenderer.portDragSuggestedField();
+                    }
+        
                     GraphRenderer.createEdge(srcNode, srcPort, destNode, destPort);
-    
-                    // we can stop rendering the dragging edge
-                    GraphRenderer.renderDraggingPortEdge(false);
-                    GraphRenderer.clearEdgeVars();
+        
+                } else {
+                    if (GraphRenderer.destinationPort === null){
+                        GraphRenderer.showUserNodeSelectionContextMenu();
+                    } else {
+                        // connect to destination port
+                        const srcNode: Node = GraphRenderer.portDragSourceNode();
+                        const srcPort: Field = GraphRenderer.portDragSourcePort();
+                        const destNode: Node = GraphRenderer.destinationNode;
+                        const destPort: Field = GraphRenderer.destinationPort;
+        
+                        GraphRenderer.createEdge(srcNode, srcPort, destNode, destPort);
+                    }
                 }
+                GraphRenderer.portDragSourcePort()?.setInputPeek(false)
+                GraphRenderer.portDragSourcePort()?.setOutputPeek(false)
             }
-            GraphRenderer.portDragSourcePort()?.setInputPeek(false)
-            GraphRenderer.portDragSourcePort()?.setOutputPeek(false)
+        }else{
+            //for text visual port drag events
+            if(GraphRenderer.textVisualPortDragTarget() !== null && (GraphRenderer.textVisualPortDragTarget() instanceof Node || GraphRenderer.textVisualPortDragTarget() instanceof Edge)){
+                const visual: Visual = GraphRenderer.textVisualPortDragSource();
+                const target = GraphRenderer.textVisualPortDragTarget();
+
+                visual.setTarget(target);
+
+                eagle.undo().pushSnapshot(eagle, "Set Text Visual target to " + (target instanceof Node ? "Node '" + target.getName() + "'" : "Edge from '" + target.getSrcNode().getName() + "' to '" + target.getDestNode().getName() + "'"));
+            }
         }
+        
+
+        //reset defaults
+        GraphRenderer.textVisualPortDragSource(null);
+        GraphRenderer.textVisualPortDragTarget(null);
+        GraphRenderer.renderDraggingPortEdge(false);
+        GraphRenderer.clearEdgeVars();
+        GraphRenderer.draggingTextVisualPort = false;
+        GraphRenderer.draggingPort = false;
 
         //resetting some global cached variables
         GraphRenderer.createEdgeSuggestedPorts.forEach(function(matchingPort){
