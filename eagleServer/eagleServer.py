@@ -270,7 +270,7 @@ def get_git_hub_files_all():
         return jsonify({"error":uoe.message})
     except github.GithubException as ge:
         print("GithubException {1}: {0}".format(str(ge), repo_name))
-        return jsonify({"error":ge.data["message"]})
+        return jsonify({"error":ge.data.get("message", str(ge))})
 
     # get results
     d = parse_github_folder(repo, repo_path, repo_branch)
@@ -415,7 +415,7 @@ def save_git_hub_file():
                 "heads/" + repo_branch, str(repo_name), e.status, e.data
             )
         )
-        return jsonify({"error": e.data["message"]}), 400
+        return jsonify({"error": e.data.get("message", str(e))}), 400
 
     # Set branch
     try:
@@ -427,7 +427,7 @@ def save_git_hub_file():
                 "heads/" + repo_branch, str(repo_name), e.status, e.data
             )
         )
-        return jsonify({"error": e.data["message"]}), 400
+        return jsonify({"error": e.data.get("message", str(e))}), 400
 
     # get SHA from branch
     branch_sha = branch_ref.object.sha
@@ -456,7 +456,7 @@ def save_git_hub_file():
                 "heads/" + repo_branch, str(repo_name), e.status, e.data
             )
         )
-        return jsonify({"error": e.data["message"]}), 400
+        return jsonify({"error": e.data.get("message", str(e))}), 400
 
     new_commit = repo.create_git_commit(
         message=commit_message, parents=[latest_commit], tree=new_tree
@@ -877,7 +877,7 @@ def parse_github_folder(repo, path, branch):
         contents = repo.get_contents(path, ref=branch)
     except github.GithubException as ghe:
         print("GitHubException {1} ({2}): {0}".format(str(ghe), repo.full_name, branch))
-        return ghe.data["message"]
+        return ghe.data.get("message", str(ghe))
 
     while contents:
         file_content = contents.pop(0)
@@ -920,7 +920,7 @@ def find_github_palettes(repo, path, branch):
         contents = repo.get_contents(path, ref=branch)
     except github.GithubException as ghe:
         print("GitHubException {1} ({2}): {0}".format(str(ghe), repo.full_name, branch))
-        return ghe.data["message"]
+        return ghe.data.get("message", str(ghe))
 
     while contents:
         file_content = contents.pop(0)
