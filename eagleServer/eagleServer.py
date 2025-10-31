@@ -36,7 +36,6 @@ import subprocess
 
 import urllib.request
 import ssl
-import requests
 
 import github
 import gitlab

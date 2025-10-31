@@ -214,7 +214,7 @@ export class GitHub {
 
             let data: any;
             try {
-                data = await Utils.httpPostJSON("/openRemoteGithubFile", jsonData);
+                data = await Utils.httpPostJSON('/openRemoteGithubFile', jsonData);
             } catch (error){
                 reject(error);
                 return;
