@@ -268,6 +268,9 @@ def get_git_hub_files_all():
     except github.UnknownObjectException as uoe:
         print("UnknownObjectException {1}: {0}".format(str(uoe), repo_name))
         return jsonify({"error":uoe.message})
+    except github.GithubException as ge:
+        print("GithubException {1}: {0}".format(str(ge), repo_name))
+        return jsonify({"error":ge.data["message"]})
 
     # get results
     d = parse_github_folder(repo, repo_path, repo_branch)
