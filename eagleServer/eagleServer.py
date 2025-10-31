@@ -255,7 +255,9 @@ def get_git_hub_files():
     # Extracting the true repo name and repo folder.
     folder_name, repo_name = extract_folder_and_repo_names(repo_name)
 
-    g = github.Github(repo_token)
+    # authenticate or not
+    g = github.Github(repo_token) if repo_token else github.Github()
+
     repo = g.get_repo(repo_name)
 
     # Set branch to master.
@@ -325,7 +327,9 @@ def get_git_hub_files_all():
 
     # Extracting the true repo name and repo folder.
     folder_name, repo_name = extract_folder_and_repo_names(repo_name)
-    g = github.Github(repo_token)
+
+    # authenticate or not
+    g = github.Github(repo_token) if repo_token else github.Github()
 
     try:
         repo = g.get_repo(repo_name)
@@ -629,6 +633,7 @@ def set_metadata_for_egress(graph, repo_service, repo_name, repo_branch, commit_
                 graphLocation["lastModifiedEmail"] = last_modified_email
                 graphLocation["lastModifiedDatetime"] = last_modified_datetime
 
+
 @app.route("/openRemoteGithubFile", methods=["POST"])
 def open_git_hub_file():
     """
@@ -639,23 +644,23 @@ def open_git_hub_file():
     content = request.get_json(silent=True)
     repo_name = content["repositoryName"]
     repo_branch = content["repositoryBranch"]
-    repo_service = content["repositoryService"]
     repo_token = content["token"]
     filename = content["filename"]
     extension = os.path.splitext(filename)[1]
 
-    #print("open_git_hub_file()", "repo_name", repo_name, "repo_service", repo_service, "repo_branch", repo_branch, "repo_token", repo_token, "filename", filename, "extension:" + extension + ":")
+    #print("open_git_hub_file()", "repo_name", repo_name, "repo_branch", repo_branch, "repo_token", repo_token, "filename", filename, "extension:" + extension + ":")
 
     # Extracting the true repo name and repo folder.
     folder_name, repo_name = extract_folder_and_repo_names(repo_name)
     if folder_name != "":
         filename = folder_name + "/" + filename
 
-    g = github.Github(repo_token)
+    # use authentication or not
+    g = github.Github(repo_token) if repo_token else github.Github()
+
     try:
         repo = g.get_repo(repo_name)
     except Exception as e:
-        print(e)
         return app.response_class(response=json.dumps({"error":str(e)}), status=404, mimetype="application/json")
 
 
@@ -722,35 +727,6 @@ def open_git_hub_file():
         )
     
     return response
-
-
-@app.route("/openRemoteGithubFilePublic", methods=["POST"])
-def open_git_hub_file_public():
-    """
-    FLASK POST routing method for '/openRemoteGithubFilePublic'
-
-    Reads a file from a GitHub repository. The POST request content is a JSON string containing the file name, repository name, branch, access token.
-    """
-    content = request.get_json(silent=True)
-    repo_name = content["repositoryName"]
-    repo_branch = content["repositoryBranch"]
-    #repo_service = content["repositoryService"]
-    #repo_token = content["token"]
-    filename = content["filename"]
-    #extension = os.path.splitext(filename)[1]
-
-    request_url = f"https://api.github.com/repos/{repo_name}/contents/{filename}?ref={repo_branch}"
-    print("request_url:", request_url)
-
-    r = requests.get(request_url,
-                     timeout=15)
-    content = json.loads(r.content)
-    decoded_content = base64.b64decode(content['content']).decode()
-    if r.status_code != 200:
-        print(f"Things went wrong with {request_url}!")
-        print(f"{decoded_content}")
-        sys.exit(1)
-    return decoded_content
 
 
 @app.route("/deleteRemoteGithubFile", methods=["POST"])
