@@ -144,18 +144,18 @@ export class ParameterTable {
                         const lgNode = lg.getNodeById(graphConfigNode.getNode().getId());
 
                         if (typeof lgNode === 'undefined'){
-                            const dummyField: Field = new Field(graphConfigField.getField().getId(), "<Missing Node:" + graphConfigNode.getNode().getId() +">", graphConfigField.getValue(), "?", graphConfigField.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
-                            dummyField.setNode(lgNode);
-                            displayedFields.push(dummyField);
+                            const missingNodeField: Field = new Field(graphConfigField.getField().getId(), "<Missing Node:" + graphConfigNode.getNode().getId() +">", graphConfigField.getValue(), "?", graphConfigField.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
+                            missingNodeField.setNode(lgNode);
+                            displayedFields.push(missingNodeField);
                             continue;
                         }
 
                         const lgField = lgNode.getFieldById(graphConfigField.getField().getId());
         
                         if (typeof lgField === 'undefined'){
-                            const dummyField: Field = new Field(graphConfigField.getField().getId(), "<Missing Field: " + graphConfigField.getField().getId() + ">", graphConfigField.getValue(), "?", graphConfigField.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
-                            dummyField.setNode(lgNode);
-                            displayedFields.push(dummyField);
+                            const missingField: Field = new Field(graphConfigField.getField().getId(), "<Missing Field: " + graphConfigField.getField().getId() + ">", graphConfigField.getValue(), "?", graphConfigField.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
+                            missingField.setNode(lgNode);
+                            displayedFields.push(missingField);
                             continue;
                         }
         

@@ -2194,30 +2194,11 @@ export class Utils {
             }
         }
 
-        // get max number of input and output ports allowed for this node
-        const categoryData: Category.CategoryData = CategoryData.getCategoryData(node.getCategory());
-
-        // the new (or existing) field that will be used for the required field
-        let field: Field;
-
-        // if adding a field would exceed the maximum allowed fields, then replace an existing field
-        if (requiredField.isInputPort() && node.getInputPorts().length >= categoryData.maxInputs ||
-            requiredField.isOutputPort() && node.getOutputPorts().length >= categoryData.maxOutputs){
-            // check if the node has a dummy field (we'll replace that)
-            const dummyField = Utils.findDummyField(node, requiredField.isInputPort());
-            if (dummyField){
-                field = dummyField;
-                field.copyWithIds(requiredField, field.getNode(), field.getId());
-            }
-        }
-
-        // otherwise, if not found, just add a clone of the required field
-        if (!field){
-            field = requiredField
+        // create the new field that will be used for the required field
+        const field: Field = requiredField
                 .clone()
                 .setId(Utils.generateFieldId());
-            node.addField(field);
-        }
+        node.addField(field);
 
         // try to set a reasonable default value for some known fields
         switch(field.getDisplayText()){
@@ -2235,19 +2216,6 @@ export class Utils {
 
                 break;
         }
-    }
-
-    static findDummyField(node: Node, isInput: boolean): Field {
-        const dummyFieldNames = ["dummy", "dummy0", "dummy1"];
-
-        for (const dummyFieldName of dummyFieldNames){
-            const field = node.findPortByDisplayText(dummyFieldName, isInput, false);
-            if (field){
-                return field;
-            }
-        }
-
-        return null;
     }
 
     static callFixFunc(eagle: Eagle, fixFunc: () => void){

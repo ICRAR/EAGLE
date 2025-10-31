@@ -79,9 +79,6 @@ export namespace Daliuge {
         TRUE = "true",
         FALSE = "false",
 
-        // dummy
-        DUMMY = "dummy",
-
         // python
         FUNC_CODE = "func_code",
         FUNC_NAME = "func_name",
