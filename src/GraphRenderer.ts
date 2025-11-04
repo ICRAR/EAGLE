@@ -951,13 +951,9 @@ export class GraphRenderer {
             const destX: number = GraphRenderer.mousePosX();
             const destY: number = GraphRenderer.mousePosY();
 
-
             return GraphRenderer.createBezier(false,false, null, 0, 0, {x:destX, y:destY}, {x:srcX, y:srcY}, null, null, !GraphRenderer.portDragSourcePortIsInput);
-
-
-
-
         }
+        return '';
     }, this);
 
     static getPathSuggestedEdge : ko.PureComputed<string> = ko.pureComputed(() => {
@@ -1239,6 +1235,7 @@ export class GraphRenderer {
         GraphRenderer.simpleSelect = true;
         GraphRenderer.dragSelectionHandled(true)
         GraphRenderer.isDragging(false);
+        GraphRenderer.draggingTextVisualPort = false;
         GraphRenderer.draggingObject(null);
         
         //this is to make affected constructs re calculate their size
