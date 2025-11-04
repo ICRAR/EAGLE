@@ -92,12 +92,6 @@ export class GitHub {
         return new Promise(async(resolve, reject) => {
             const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
 
-            if (token === null || token === "") {
-                Utils.showUserMessage("Access Token", "The GitHub access token is not set! To access GitHub repository, set the token via settings.");
-                reject("The GitHub access token is not set! To access GitHub repository, set the token via settings.");
-                return;
-            }
-
             // get location
             const location: Repository | RepositoryFolder = repository.findPath(path);
 
@@ -207,12 +201,6 @@ export class GitHub {
     static async openRemoteFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string): Promise<string> {
         return new Promise(async(resolve, reject) => {
             const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
-
-            if (token === null || token === "") {
-                reject("The GitHub access token is not set! To open GitHub repositories, set the token via settings.");
-                return;
-            }
-
             const fullFileName : string = Utils.joinPath(filePath, fileName);
 
             // Add parameters in json data.
