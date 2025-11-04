@@ -223,9 +223,9 @@ export class Repository {
         }
     }
 
-    // a dummy repository
+    // a placeholder repository
     // used by some functions when a repository is not actually required, but a placeholder is required for the input arguments
-    public static dummy(){
+    public static placeholder(){
         return new Repository(Repository.Service.Unknown, "", "", false);
     }
 

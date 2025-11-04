@@ -1811,10 +1811,6 @@ export class GraphRenderer {
         GraphRenderer.portDragSuggestedNode(null)
         GraphRenderer.portDragSuggestedField(null)
 
-        // check if source port is a 'dummy' port
-        // if so, consider all components as eligible, to ease the creation of new graphs
-        const sourcePortIsDummy: boolean = GraphRenderer.portDragSourcePort().getDisplayText() === Daliuge.FieldName.DUMMY;
-
         let eligibleComponents: Node[];
 
         // get all nodes with at least one port with opposite "direction" (input/output) from the source node

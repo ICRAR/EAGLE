@@ -1323,7 +1323,7 @@ export class Eagle {
         this.palettes.unshift(palette);
 
         // load the palette, handle errors and add palettes list
-        this._reloadPalette(new RepositoryFile(Repository.dummy(), "", Utils.getFileNameFromFullPath(fileFullPath)), data, palette);
+        this._reloadPalette(new RepositoryFile(Repository.placeholder(), "", Utils.getFileNameFromFullPath(fileFullPath)), data, palette);
     }
 
     /**
@@ -1358,7 +1358,7 @@ export class Eagle {
                     return;
                 }
 
-                eagle._loadGraphConfig(dataObject, new RepositoryFile(Repository.dummy(), "", Utils.getFileNameFromFullPath(fileFullPath)));
+                eagle._loadGraphConfig(dataObject, new RepositoryFile(Repository.placeholder(), "", Utils.getFileNameFromFullPath(fileFullPath)));
             }
             reader.onerror = function (evt) {
                 console.error("error reading file", evt);
