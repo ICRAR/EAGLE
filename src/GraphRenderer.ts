@@ -367,6 +367,10 @@ export class GraphRenderer {
     }
 
     static calculateTextVisualPortPositionY(visual:Visual) : number {
+        //these two references are needed to trigger re-calculation when position or size changes
+        const width = visual.getWidth();
+        const content = visual.getContent();
+
         //the height of text visuals is automatic based on content using css, so we need to get the height of the element here
         const halfHeight = $('#' + visual.getId()+ ' .body').height() / 2 + 6; //+6 is adding half of the port height to center it properly
 
@@ -1311,6 +1315,41 @@ export class GraphRenderer {
         objects.forEach(function(element){
             eagle.editSelection(element, Eagle.FileType.Graph )
         })
+    }
+
+    static getVisualsWithEdges() : Visual[] {
+        const eagle = Eagle.getInstance();
+        const visualsWithEdges: Visual[] = [];
+
+        Array.from(eagle.logicalGraph().getVisuals()).forEach(function(visual){
+            if(visual.getTarget() !== null){
+                visualsWithEdges.push(visual);
+                console.log("Visual with edge found:", visual.getContent());
+            }
+        });
+        return visualsWithEdges;
+    }
+
+    static getVisualEdgePath(textVisual: Visual) : string {
+        const lg: LogicalGraph = Eagle.getInstance().logicalGraph();
+
+        const srcVisual: Visual = textVisual;
+        const srcX: number = GraphRenderer.calculateTextVisualPortPositionX(srcVisual);
+        const srcY: number = GraphRenderer.calculateTextVisualPortPositionY(srcVisual);
+
+        const destObject: Node | Edge | Visual = textVisual.getTarget();
+        let destObjectRadius: number = 0;
+        let destX = 0;
+        let destY = 0;
+
+        if (destObject instanceof Node){
+            destObjectRadius = destObject.getRadius();
+            destX = destObject.getPosition().x - destObjectRadius;
+            destY = destObject.getPosition().y - destObjectRadius;
+        }
+
+
+        return GraphRenderer.createBezier(false,false, null, 0, destObjectRadius,{x:srcX, y:srcY}, {x:destX, y:destY}, null, null, false)
     }
 
     static lookForParent() : void {

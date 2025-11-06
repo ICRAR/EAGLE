@@ -137,6 +137,9 @@
                                     <polygon data-bind="style:{'fill':GraphRenderer.edgeGetStrokeColor($data)}"></polygon>
                                 </g>
                             <!-- /ko -->
+                            <!-- ko foreach: GraphRenderer.getVisualsWithEdges() -->
+                                <path class="commentEdge" data-bind="attr:{d: GraphRenderer.getVisualEdgePath($data)}"></path>
+                            <!-- /ko -->
                             <!-- ko if: GraphRenderer.renderDraggingPortEdge -->
                                 <g data-bind="attr:{id:'draggingEdge'}">
                                     <path data-bind="attr:{d: GraphRenderer.getPathDraggingEdge()},style:{'stroke':GraphRenderer.draggingEdgeGetStrokeColor(), 'stroke-dasharray': GraphRenderer.draggingEdgeGetStrokeType}"></path>
