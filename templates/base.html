@@ -138,7 +138,10 @@
                                 </g>
                             <!-- /ko -->
                             <!-- ko foreach: GraphRenderer.getVisualsWithEdges() -->
-                                <path class="commentEdge" data-bind="attr:{d: GraphRenderer.getVisualEdgePath($data)}"></path>
+                                <g class="textVisualEdges">
+                                    <path class="commentEdge" data-bind="attr:{d: GraphRenderer.getVisualEdgePath($data)}"></path>
+                                    <path class="edgeClickTarget" data-bind="attr:{d: GraphRenderer.getVisualEdgePath($data)}, eagleRightClick: {data:$data,type:'rightClick_graphVisualEdge'}, click:GraphRenderer.visualEdgeClick"></path>
+                                </g>
                             <!-- /ko -->
                             <!-- ko if: GraphRenderer.renderDraggingPortEdge -->
                                 <g data-bind="attr:{id:'draggingEdge'}">

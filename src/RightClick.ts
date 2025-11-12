@@ -10,6 +10,7 @@ import { Setting } from './Setting';
 import { ParameterTable } from './ParameterTable';
 import { Daliuge } from './Daliuge';
 import { EagleConfig } from './EagleConfig';
+import { Visual } from './Visual';
 
 
 export class RightClick {
@@ -459,6 +460,16 @@ export class RightClick {
         ParameterTable.requestEditValueField(funcCodeField, false)
     }
 
+    static rightClickDeleteTextVisualConnection(){
+        // resetting text visual targets removes the edge
+        const visual = Eagle.selectedRightClickObject()
+        
+        if(visual != null && visual instanceof Visual){
+            visual.setTarget(null)
+            visual.setTargetLocation({x:0,y:0})
+        }
+    }
+
     // TODO: event var used in function is the deprecated global, we should get access to the event via some other method
     // TODO: perhaps break this function up into a top-level handler, that uses 'passedObjectClass' to call one of several sub-functions
     // TODO: make the passedObjectClass an enumerated type
@@ -471,7 +482,7 @@ export class RightClick {
         let mouseX = thisEvent.clientX+2 //small margin to prevent the cursor from hovering on the menu right on the corner, making the experience fiddly
         let mouseY = thisEvent.clientY+2
 
-        if(data instanceof Node||data instanceof Edge){
+        if(data instanceof Node||data instanceof Edge || data instanceof Visual){
             Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
             Eagle.selectedRightClickObject(data)
         }
@@ -664,6 +675,8 @@ export class RightClick {
 //text visual right click options
             }else if(passedObjectClass === 'rightClick_textVisual'){
                 $('#customContextMenu').append('<a onclick=eagle.editTextVisualContent()>Edit Content</a>')
+                $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("contextMenuRequest")>Duplicate</a>')
+                $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,false)>Delete</a>')
                 
 //graph edge right click options
             }else if(passedObjectClass === 'rightClick_graphEdge'){
@@ -671,6 +684,10 @@ export class RightClick {
                 $('#customContextMenu').append('<a onclick=eagle.toggleEdgeClosesLoop()>Toggle Closes Loop</a>')
                 $('#customContextMenu').append('<a onclick="eagle.editEdgeComment()">Edit Comment</a>')
                 $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,false)>Delete</a>')
+
+//graph visual edge right click options
+            }else if(passedObjectClass === 'rightClick_graphVisualEdge'){
+                $('#customContextMenu').append('<a onclick=RightClick.rightClickDeleteTextVisualConnection()>Delete</a>')
             }
         }
         // adding a listener to function options that closes the menu if an option is clicked

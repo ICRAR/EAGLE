@@ -293,7 +293,7 @@ export class GraphRenderer {
     static createEdgeSuggestedPorts : {field:Field,node:Node,validity: Errors.Validity}[] = []
     static portMatchCloseEnough :ko.Observable<boolean> = ko.observable(false);
 
-    static draggingTextVisualPort : boolean = false;
+    static draggingTextVisualPort : ko.Observable<boolean> = ko.observable(false);
     static textVisualPortDragSource : ko.Observable<Visual> = ko.observable(null);
     static textVisualPortDragTarget : ko.Observable<Node | Edge> = ko.observable(null);
 
@@ -945,7 +945,7 @@ export class GraphRenderer {
             }else{
                 return GraphRenderer.createBezier(false,true, null, srcNodeRadius, destNodeRadius, {x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField, GraphRenderer.portDragSourcePortIsInput);
             }
-        }else if(GraphRenderer.draggingTextVisualPort){
+        }else if(GraphRenderer.draggingTextVisualPort()){
             if (GraphRenderer.textVisualPortDragSource() === null){
                 return '';
             }
@@ -1181,7 +1181,7 @@ export class GraphRenderer {
             }
         }else if(GraphRenderer.draggingPort){
             GraphRenderer.portDragging()
-        }else if(GraphRenderer.draggingTextVisualPort){
+        }else if(GraphRenderer.draggingTextVisualPort()){
             GraphRenderer.textVisualPortDragging()
         }else if(GraphRenderer.isResizingVisual()){
             moveDistance = {x:e.pageX - GraphRenderer.visualResizeCurrentPos?.x, y: e.pageY - GraphRenderer.visualResizeCurrentPos?.y}
@@ -1239,7 +1239,7 @@ export class GraphRenderer {
         GraphRenderer.simpleSelect = true;
         GraphRenderer.dragSelectionHandled(true)
         GraphRenderer.isDragging(false);
-        GraphRenderer.draggingTextVisualPort = false;
+        GraphRenderer.draggingTextVisualPort(false);
         GraphRenderer.draggingObject(null);
         
         //this is to make affected constructs re calculate their size
@@ -1324,7 +1324,6 @@ export class GraphRenderer {
         Array.from(eagle.logicalGraph().getVisuals()).forEach(function(visual){
             if(visual.getTarget() !== null){
                 visualsWithEdges.push(visual);
-                console.log("Visual with edge found:", visual.getContent());
             }
         });
         return visualsWithEdges;
@@ -1350,6 +1349,12 @@ export class GraphRenderer {
 
 
         return GraphRenderer.createBezier(false,false, null, 0, destObjectRadius,{x:srcX, y:srcY}, {x:destX, y:destY}, null, null, false)
+    }
+
+    static visualEdgeClick(data:Visual,event:any){
+        //trigger right click on visual edge when left clicking it. 
+        //these edges cant be selected so we want to give the user other possible interactions
+        $(event.target).trigger("contextmenu");
     }
 
     static lookForParent() : void {
@@ -1754,7 +1759,7 @@ export class GraphRenderer {
         $('.node .body').on('mouseup.portDrag',function(){GraphRenderer.portDragEnd()})
 
         if(usage === 'textVisual' && visual){
-            GraphRenderer.draggingTextVisualPort = true
+            GraphRenderer.draggingTextVisualPort(true)
             GraphRenderer.textVisualPortDragSource(visual);
             GraphRenderer.renderDraggingPortEdge(true);
             
@@ -1828,7 +1833,7 @@ export class GraphRenderer {
         // cleaning up the port drag event listeners
         $('#logicalGraphParent').off('mouseup.portDrag')
         $('.node .body').off('mouseup.portDrag')
-        console.log('port drag end called', GraphRenderer.textVisualPortDragTarget());
+
         //here
         if(GraphRenderer.draggingPort){
             //for node port drag events
@@ -1888,7 +1893,7 @@ export class GraphRenderer {
         GraphRenderer.textVisualPortDragTarget(null);
         GraphRenderer.renderDraggingPortEdge(false);
         GraphRenderer.clearEdgeVars();
-        GraphRenderer.draggingTextVisualPort = false;
+        GraphRenderer.draggingTextVisualPort(false);
         GraphRenderer.draggingPort = false;
 
         //resetting some global cached variables

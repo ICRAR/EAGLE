@@ -3278,6 +3278,8 @@ export class Eagle {
                     // duplicate visuals
                     for (const visual of visuals){
                         const visualClone = visual.clone();
+                        //offset the new clone a bit so it is visible
+                        visualClone.changePosition(visualClone.getWidth()/4, visualClone.getHeight()/4)
                         this.logicalGraph().addVisual(visualClone);
                     }
 
