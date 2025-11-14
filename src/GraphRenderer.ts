@@ -1345,7 +1345,11 @@ export class GraphRenderer {
             destObjectRadius = destObject.getRadius();
             destX = destObject.getPosition().x - destObjectRadius;
             destY = destObject.getPosition().y - destObjectRadius;
+        }else if(destObject instanceof Edge){
+            destX = destObject.getPosition().x;
+            destY = destObject.getPosition().y;
         }
+        
 
 
         return GraphRenderer.createBezier(false,false, null, 0, destObjectRadius,{x:srcX, y:srcY}, {x:destX, y:destY}, null, null, false)

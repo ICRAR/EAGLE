@@ -4793,7 +4793,8 @@ export class Eagle {
         const targetNode = node || this.selectedNode();
 
         // abort if no node is selected
-        if (targetNode === null) {
+        console.log(targetNode, !(targetNode instanceof Node))
+        if (targetNode === null || !(targetNode instanceof Node)) {
             console.warn("No node selected");
             return;
         }
@@ -4806,7 +4807,7 @@ export class Eagle {
             return;
         }
 
-        node.setComment(nodeComment);
+        targetNode.setComment(nodeComment);
     }
 
     editEdgeComment = async (): Promise<void> => {

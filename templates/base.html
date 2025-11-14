@@ -123,7 +123,7 @@
                             <!-- /ko -->
                         </div>
                         <div class="edgeComments">
-                            <!-- ko foreach: $root.logicalGraph().getEdges() -->
+                            <!-- ko foreach:  Array.from($root.logicalGraph().getEdges()) -->
                                 <!-- ko if: $data.getComment() != '' -->
                                     <i class="material-symbols-outlined filled interactive clickable iconHoverEffect graphComment" data-bs-placement="right" data-bind="eagleTooltip: $data.getComment(), click: $root.graphEditComment, style:{'left': GraphRenderer.calculateEdgeCommentPosX($data), 'top':GraphRenderer.calculateEdgeCommentPosY($data),transform: 'scale('+$root.getGraphTextScale()+')'}">chat</i>
                                 <!-- /ko -->
