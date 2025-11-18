@@ -143,7 +143,7 @@
                                     <path class="edgeClickTarget" data-bind="attr:{d: GraphRenderer.getVisualEdgePath($data)}, eagleRightClick: {data:$data,type:'rightClick_graphVisualEdge'}, click:GraphRenderer.visualEdgeClick"></path>
                                 </g>
                             <!-- /ko -->
-                            <!-- ko if: GraphRenderer.renderDraggingPortEdge -->
+                            <!-- ko if: GraphRenderer.renderDraggingPortEdge() -->
                                 <g data-bind="attr:{id:'draggingEdge'}">
                                     <path data-bind="attr:{d: GraphRenderer.getPathDraggingEdge()},style:{'stroke':GraphRenderer.draggingEdgeGetStrokeColor(), 'stroke-dasharray': GraphRenderer.draggingEdgeGetStrokeType}"></path>
                                     <polygon data-bind="style:{ 'fill':GraphRenderer.draggingEdgeGetStrokeColor()}"></polygon>

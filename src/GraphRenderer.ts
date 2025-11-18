@@ -924,7 +924,7 @@ export class GraphRenderer {
         return GraphRenderer._getPath(edge, srcNode, destNode, srcField, destField);
     }
 
-    static getPathDraggingEdge : ko.PureComputed<string> = ko.pureComputed(() => {
+    static getPathDraggingEdge() : string {
         if(GraphRenderer.draggingPort){
             if (GraphRenderer.portDragSourceNode() === null){
                 return '';
@@ -958,7 +958,7 @@ export class GraphRenderer {
             return GraphRenderer.createBezier(false,false, null, 0, 0, {x:destX, y:destY}, {x:srcX, y:srcY}, null, null, !GraphRenderer.portDragSourcePortIsInput);
         }
         return '';
-    }, this);
+    };
 
     static getPathSuggestedEdge : ko.PureComputed<string> = ko.pureComputed(() => {
         if (GraphRenderer.portDragSuggestedNode() === null){
