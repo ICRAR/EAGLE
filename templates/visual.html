@@ -2,4 +2,7 @@
     <!-- ko if:$data.isText() -->
         {% include 'text_visual.html' %}
     <!-- /ko -->
+    <!-- ko if:$data.isGroup() -->
+        {% include 'group_visual.html' %}
+    <!-- /ko -->
 </div>

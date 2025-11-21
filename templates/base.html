@@ -113,13 +113,15 @@
                                 </div>
                             <!-- /ko -->
                             <!-- ko foreach: Array.from($root.logicalGraph().getVisuals()) -->
-                                <div data-bind="class:$data.getId(), attr:{id:$data.getId()}">
-                                    <div class="textVisualPort port" data-bind="css: {selected: function(){return GraphRenderer.showPort($data)}()}, style:{'left':GraphRenderer.calculateTextVisualPortPositionX($data), 'top':GraphRenderer.calculateTextVisualPortPositionY($data)}, event:{mousedown:function(){GraphRenderer.portDragStart('textVisual', $data)}}">
-                                        <div>
-                                            <div class="portTitle">Connect to Node</div>
+                                <!-- ko if: $data.isText() -->
+                                    <div data-bind="class:$data.getId(), attr:{id:$data.getId()}">
+                                        <div class="textVisualPort port" data-bind="css: {selected: function(){return GraphRenderer.showPort($data)}()}, style:{'left':GraphRenderer.calculateTextVisualPortPositionX($data), 'top':GraphRenderer.calculateTextVisualPortPositionY($data)}, event:{mousedown:function(){GraphRenderer.portDragStart('textVisual', $data)}}">
+                                            <div>
+                                                <div class="portTitle">Connect to Node</div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                <!-- /ko -->
                             <!-- /ko -->
                         </div>
                         <div class="edgeComments">

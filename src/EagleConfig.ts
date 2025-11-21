@@ -83,6 +83,9 @@ export class EagleConfig {
     //visual settings
     public static readonly TEXT_VISUAL_DEFAULT_WIDTH : number = 150;
     public static readonly TEXT_VISUAL_DEFAULT_HEIGHT : number = 100;
+    public static readonly GROUP_VISUAL_DEFAULT_WIDTH : number = 100;
+    public static readonly GROUP_VISUAL_DEFAULT_HEIGHT : number = 100;
+
 
     // when creating a new construct to enclose a selection, or shrinking a node to enclose its children,
     // this is the default margin that should be left on each side

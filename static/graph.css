@@ -220,12 +220,12 @@
     height: auto;
 }
 
-.node .comment_node .commentIcons{
+.node .comment_node .commentIcons, .node .groupVisual .commentIcons{
     position: absolute;
     inset: 0px 0px auto 0px;
 }
 
-.node .comment_node .commentIcons button{
+.node .comment_node .commentIcons button, .node .groupVisual .commentIcons button{
     position: absolute;
     top: 4px;
     right: 10px;
@@ -248,7 +248,7 @@
     padding:5px;
 }
 
-.node .comment_node .container.selected:hover .commentIcons button{
+.node .comment_node .container.selected:hover .commentIcons button, .node .groupVisual .container.selected:hover .commentIcons button{
     display: block;
 }
 
@@ -279,8 +279,34 @@
     width: 7px;
 }
 
-.node .comment_node .container.selected .resizeHandle{
+.node .groupVisual .resizeHandle{
+    position: absolute;
+    bottom: -4px;
+    right: -1px;
+    color: #2e319266;
+    cursor: nwse-resize;
+    display: none;
+    z-index: 16;
+    height: 13px;
+    border-left: 4px double;
+    width: 7px;
+    transform: rotate(45deg);
+    pointer-events: all;
+}
+
+.node .comment_node .container.selected .resizeHandle, .node .groupVisual .container.selected .resizeHandle{
     display: block;
+}
+
+.node .groupVisual .container{
+    z-index: 1;
+}
+
+.node .groupVisual .body{
+    border: none;
+    border-radius: 5px;
+    box-shadow: none;
+    background-color: #2bb673;
 }
 
 .node .innerRing {
@@ -496,14 +522,14 @@
     
     /* white outer border, a bit ugly but the only way i found to do it */
     text-shadow:
-    -0.6px -0.6px 0 #ffffff,
-     0   -0.6px 0 #ffffff,
-     0.6px -0.6px 0 #ffffff,
-     0.6px  0   0 #ffffff,
-     0.6px  0.6px 0 #ffffff,
-     0    0.6px 0 #ffffff,
-    -0.6px  0.6px 0 #ffffff,
-    -0.6px  0   0 #ffffff;
+    -1px -1px 0 #ffffff,
+     0   -1px 0 #ffffff,
+     1px -1px 0 #ffffff,
+     1px  0   0 #ffffff,
+     1px  1px 0 #ffffff,
+     0    1px 0 #ffffff,
+    -1px  1px 0 #ffffff,
+    -1px  0   0 #ffffff;
 }
 
 .construct_node .header .header-name{

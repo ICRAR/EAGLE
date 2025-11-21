@@ -48,8 +48,13 @@ export class Visual {
         this.id = ko.observable(Utils.generateVisualId());
         this.x = ko.observable(0);
         this.y = ko.observable(0);
-        this.width = ko.observable(EagleConfig.TEXT_VISUAL_DEFAULT_WIDTH);
-        this.height = ko.observable(EagleConfig.TEXT_VISUAL_DEFAULT_HEIGHT);
+        if(type === Visual.Type.Text){
+            this.width = ko.observable(EagleConfig.TEXT_VISUAL_DEFAULT_WIDTH);
+            this.height = ko.observable(EagleConfig.TEXT_VISUAL_DEFAULT_HEIGHT);
+        }else if(type === Visual.Type.Group){
+            this.width = ko.observable(EagleConfig.GROUP_VISUAL_DEFAULT_WIDTH);
+            this.height = ko.observable(EagleConfig.GROUP_VISUAL_DEFAULT_HEIGHT);
+        }
         this.type = ko.observable(type);
         this.content = ko.observable(content);
         this.target = ko.observable(null);

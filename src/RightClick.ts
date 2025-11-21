@@ -474,7 +474,7 @@ export class RightClick {
     // TODO: perhaps break this function up into a top-level handler, that uses 'passedObjectClass' to call one of several sub-functions
     // TODO: make the passedObjectClass an enumerated type
     // data can be a Edge, Node, Palette?, Eagle, Node[], and the passedObjectClass variable tells the function what to do with it
-    static requestCustomContextMenu = (data: any, passedObjectClass: "edgeDropCreate" | "rightClick_graphNode" | "rightClick_graphEdge" | "rightClick_hierarchyNode" | "rightClick_paletteComponent" | "rightClick_logicalGraph" | "addEmbeddedInputApp" | "addEmbeddedOutputApp" | "rightClick_textVisual") : void => {
+    static requestCustomContextMenu = (data: any, passedObjectClass: "edgeDropCreate" | "rightClick_graphNode" | "rightClick_graphEdge" | "rightClick_hierarchyNode" | "rightClick_paletteComponent" | "rightClick_logicalGraph" | "addEmbeddedInputApp" | "addEmbeddedOutputApp" | "rightClick_textVisual" | "rightClick_groupVisual") : void => {
         // getting the mouse event for positioning the right click menu at the cursor location
         const eagle: Eagle = Eagle.getInstance();
 
@@ -579,6 +579,7 @@ export class RightClick {
                 $('#customContextMenu').append(`<a class='rightClickPerpetual' onclick="ParameterTable.openTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.Normal);">Graph Attributes Table</a>`)
                 $('#customContextMenu').append(`<a class='rightClickPerpetual' onclick="eagle.copyGraphUrl();">Copy Graph URL</a>`)
                 $('#customContextMenu').append(`<a class='rightClickPerpetual' onclick="eagle.addVisualToLogicalGraph(null,'Text', 'ContextMenu');">Add Text Visual</a>`)
+                $('#customContextMenu').append(`<a class='rightClickPerpetual' onclick="eagle.addVisualToLogicalGraph(null,'Group', 'ContextMenu');">Add Group Visual</a>`)
 
 //edge drop menu options
             }else if(passedObjectClass === 'edgeDropCreate'){
@@ -675,6 +676,11 @@ export class RightClick {
 //text visual right click options
             }else if(passedObjectClass === 'rightClick_textVisual'){
                 $('#customContextMenu').append('<a onclick=eagle.editTextVisualContent()>Edit Content</a>')
+                $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("contextMenuRequest")>Duplicate</a>')
+                $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,false)>Delete</a>')
+                
+//text visual right click options
+            }else if(passedObjectClass === 'rightClick_groupVisual'){
                 $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("contextMenuRequest")>Duplicate</a>')
                 $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,false)>Delete</a>')
                 
