@@ -155,17 +155,20 @@ export class Utils {
         // loop through nodes, look for embedded nodes with null id, create new id
         for (const node of lg.getNodes()){
 
+            const inputApplication = node.getInputApplication();
+            const outputApplication = node.getOutputApplication();
+
             // if this node has inputApp, set the inputApp id
-            if (node.hasInputApplication()){
-                if (node.getInputApplication().getId() === null){
-                    node.getInputApplication().setId(Utils.generateNodeId());
+            if (inputApplication !== null){
+                if (inputApplication.getId() === null){
+                    inputApplication.setId(Utils.generateNodeId());
                 }
             }
 
             // if this node has outputApp, set the outputApp id
-            if (node.hasOutputApplication()){
-                if (node.getOutputApplication().getId() === null){
-                    node.getOutputApplication().setId(Utils.generateNodeId());
+            if (outputApplication !== null){
+                if (outputApplication.getId() === null){
+                    outputApplication.setId(Utils.generateNodeId());
                 }
             }
         }
@@ -226,9 +229,14 @@ export class Utils {
      * @param path File name.
      */
     static getFileExtension(path : string) : string {
-        const basename = path.split(/[\\/]/).pop(),  // extract file name from full path ...
-                                                   // (supports `\\` and `/` separators)
-        pos = basename.lastIndexOf(".");           // get last position of `.`
+        const basename = path.split(/[\\/]/).pop();  // extract file name from full path ...
+                                                     // (supports `\\` and `/` separators)
+
+        if (typeof basename === 'undefined'){
+            return "";
+        }
+
+        const pos = basename.lastIndexOf(".");           // get last position of `.`
 
         if (basename === "" || pos < 1)            // if file name is empty or ...
             return "";                             //  `.` not found (-1) or comes first (0)
@@ -1040,17 +1048,20 @@ export class Utils {
                 }
             }
 
+            const inputApplication = node.getInputApplication();
+            const outputApplication = node.getOutputApplication();
+
             // add input application input and output ports
-            if (node.hasInputApplication()){
+            if (inputApplication !== null){
                 // input ports
-                for (const port of node.getInputApplication().getInputPorts()) {
+                for (const port of inputApplication.getInputPorts()) {
                     if (!port.getIsEvent()) {
                         Utils._addFieldIfUnique(uniquePorts, port.clone());
                     }
                 }
 
                 // output ports
-                for (const port of node.getInputApplication().getOutputPorts()) {
+                for (const port of inputApplication.getOutputPorts()) {
                     if (!port.getIsEvent()) {
                         Utils._addFieldIfUnique(uniquePorts, port.clone());
                     }
@@ -1058,16 +1069,16 @@ export class Utils {
             }
 
             // add output application input and output ports
-            if (node.hasOutputApplication()){
+            if (outputApplication !== null){
                 // input ports
-                for (const port of node.getOutputApplication().getInputPorts()) {
+                for (const port of outputApplication.getInputPorts()) {
                     if (!port.getIsEvent()) {
                         Utils._addFieldIfUnique(uniquePorts, port.clone());
                     }
                 }
 
                 // output ports
-                for (const port of node.getOutputApplication().getOutputPorts()) {
+                for (const port of outputApplication.getOutputPorts()) {
                     if (!port.getIsEvent()) {
                         Utils._addFieldIfUnique(uniquePorts, port.clone());
                     }
@@ -1297,7 +1308,7 @@ export class Utils {
     static getLegacyCategoryUpdate(node: Node): Category | undefined {
         // first check for the special case of PythonApp, which should be upgraded to either a DALiuGEApp or a PyFuncApp, depending on the dropclass field value
         if (node.getCategory() === Category.PythonApp){
-            const dropClassField = node.getFieldByDisplayText(Daliuge.FieldName.DROP_CLASS);
+            const dropClassField = node.findFieldByDisplayText(Daliuge.FieldName.DROP_CLASS);
 
             // by default, update PythonApp to a DALiuGEApp, unless dropclass field value indicates it is a PyFuncApp
             if (dropClassField && dropClassField.getValue() === Daliuge.DEFAULT_PYFUNCAPP_DROPCLASS_VALUE){
@@ -1351,11 +1362,18 @@ export class Utils {
         if(Eagle.getInstance().eagleIsReady() && !Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE)){
             return 0
         }
-        return Setting.findValue(Setting.RIGHT_WINDOW_WIDTH)
+
+        const rightWindowWidth = Setting.findValue(Setting.RIGHT_WINDOW_WIDTH) as number;
+
+        if (typeof rightWindowWidth === 'undefined'){
+            return 0;
+        }
+
+        return rightWindowWidth;
     }
 
     static setRightWindowWidth(width : number) : void {
-        Setting.find(Setting.RIGHT_WINDOW_WIDTH).setValue(width)
+        Setting.setValue(Setting.RIGHT_WINDOW_WIDTH, width);
         UiModeSystem.saveToLocalStorage()
     }
 
@@ -1365,56 +1383,88 @@ export class Utils {
         if(Eagle.getInstance().eagleIsReady() && !Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) || leftWindowDisabled){
             return 0
         }
-        return Setting.findValue(Setting.LEFT_WINDOW_WIDTH)
+
+        const leftWindowWidth = Setting.findValue(Setting.LEFT_WINDOW_WIDTH) as number;
+
+        if (typeof leftWindowWidth === 'undefined'){
+            return 0;
+        }
+
+        return leftWindowWidth
     }
 
     static setLeftWindowWidth(width : number) : void {
-        Setting.find(Setting.LEFT_WINDOW_WIDTH).setValue(width)
+        Setting.setValue(Setting.LEFT_WINDOW_WIDTH, width);
         UiModeSystem.saveToLocalStorage()
     }
 
     static calculateBottomWindowHeight() : number {
         //this function exists to prevent the bottom window height value from exceeding its max height value. 
-        //if eagle isnt ready or the window is hidden just return 0
-        //TODO This function is only needed for the transition perdiod from pixels to vh. We can get rid of this in the future.
+        //if eagle isn't ready or the window is hidden just return 0
+        //TODO This function is only needed for the transition period from pixels to vh. We can get rid of this in the future.
         if(!Eagle.getInstance().eagleIsReady()){
             return 0
         }
 
+        const bottomWindowHeight = Setting.findValue(Setting.BOTTOM_WINDOW_HEIGHT) as number;
+
+        if (typeof bottomWindowHeight === 'undefined'){
+            return 0;
+        }
+
         //if the bottom window height set is too large, just return the max allowed height
-        if(Setting.findValue(Setting.BOTTOM_WINDOW_HEIGHT)>80){
+        if(bottomWindowHeight > 80){
             return 80
         }
 
         //else return the actual height
-        return Setting.findValue(Setting.BOTTOM_WINDOW_HEIGHT)
+        return bottomWindowHeight;
     }
 
     static getBottomWindowHeight() : number {
         if(Eagle.getInstance().eagleIsReady() && !Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE)){
             return 0
         }
-        return Setting.findValue(Setting.BOTTOM_WINDOW_HEIGHT)
+
+        const bottomWindowHeight = Setting.findValue(Setting.BOTTOM_WINDOW_HEIGHT) as number;
+
+        if (typeof bottomWindowHeight === 'undefined'){
+            return 0;
+        }
+
+        return bottomWindowHeight;
     }
 
+    // TODO: I don't think this is needed, since Setting.setValue() will already save to local storage
     static setBottomWindowHeight(height : number) : void {
-        Setting.find(Setting.BOTTOM_WINDOW_HEIGHT).setValue(height)
+        Setting.setValue(Setting.BOTTOM_WINDOW_HEIGHT, height);
         UiModeSystem.saveToLocalStorage()
     }
 
     static getInspectorOffset() : number {
         const offset = 10
-        const statusBarAndOffsetHeightVH = ((($('#statusBar').height() + offset) / window.innerHeight)*100)
+        let statusBarElementHeight: number = 0;
+        const statusBarElement = $('#statusBar')
+        
+        if (statusBarElement.length) {
+            const height = statusBarElement.height();
+            if (typeof height === 'number') {
+                statusBarElementHeight = height;
+            }
+        }
+
+        const statusBarAndOffsetHeightVH = ((statusBarElementHeight + offset) / window.innerHeight)*100
         return this.getBottomWindowHeight() + statusBarAndOffsetHeightVH
     }
 
-    static getLocalStorageKey(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string) : string {
+    static getLocalStorageKey(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string) : string | null{
         switch (repositoryService){
             case Repository.Service.GitHub:
                 return repositoryName + "|" + repositoryBranch + ".github_repository_and_branch";
             case Repository.Service.GitLab:
                 return repositoryName + "|" + repositoryBranch + ".gitlab_repository_and_branch";
             default:
+                console.warn("Utils.getLocalStorageKey(): unknown repository service:", repositoryService);
                 return null;
         }
     }
@@ -1613,28 +1663,31 @@ export class Utils {
 
         //gather all the errors
         //from nodes
-        for(const node of graph.getNodes()){
+        for (const node of graph.getNodes()){
             graphIssues.push(...node.getIssues())
             
             //from fields
-            for(const field of node.getFields()){
+            for (const field of node.getFields()){
                 graphIssues.push(...field.getIssues())
             }
 
+            const inputApplication = node.getInputApplication();
+            const outputApplication = node.getOutputApplication();
+
             //embedded input applications and their fields
-            if(node.hasInputApplication()){
-                graphIssues.push(...node.getInputApplication().getIssues().values())
-                
-                for(const field of node.getInputApplication().getFields()){
+            if (inputApplication !== null){
+                graphIssues.push(...inputApplication.getIssues().values())
+
+                for (const field of inputApplication.getFields()){
                     graphIssues.push(...field.getIssues())
                 }
             }
 
             //embedded output applications and their fields
-            if(node.hasOutputApplication()){
-                graphIssues.push(...node.getOutputApplication().getIssues().values())
-                
-                for( const field of node.getOutputApplication().getFields()){
+            if (outputApplication !== null){
+                graphIssues.push(...outputApplication.getIssues().values())
+
+                for (const field of outputApplication.getFields()){
                     graphIssues.push(...field.getIssues())
                 }
             }
@@ -2009,10 +2062,10 @@ export class Utils {
     }
 
     static fixFieldValue(eagle: Eagle, node: Node, exampleField: Field, value: string){
-        let field : Field = node.getFieldByDisplayText(exampleField.getDisplayText());
+        let field = node.findFieldByDisplayText(exampleField.getDisplayText());
 
         // if a field was not found, clone one from the example and add to node
-        if (field === null){
+        if (typeof field === 'undefined'){
             field = exampleField
                 .clone()
                 .setId(Utils.generateFieldId());
@@ -2185,11 +2238,10 @@ export class Utils {
     static addMissingRequiredField(eagle: Eagle, node: Node, requiredField: Field){
         // if requiredField is "dropclass", and node already contains an "appclass" field, then just rename it
         if (requiredField.getDisplayText() === Daliuge.FieldName.DROP_CLASS){
-            const appClassField = node.getFieldByDisplayText("appclass");
+            const appClassField = node.findFieldByDisplayText("appclass");
 
-            if (appClassField !== null){
+            if (typeof appClassField !== 'undefined'){
                 appClassField.setDisplayText(Daliuge.FieldName.DROP_CLASS);
-
                 return;
             }
         }
@@ -2205,10 +2257,14 @@ export class Utils {
             case Daliuge.FieldName.DROP_CLASS:
 
                 // look up component in palette
-                const paletteComponent: Node = Utils.getPaletteComponentByName(node.getCategory());
+                const paletteComponent = Utils.getPaletteComponentByName(node.getCategory());
 
-                if (paletteComponent !== null){
-                    const dropClassField: Field = paletteComponent.findFieldByDisplayText(Daliuge.FieldName.DROP_CLASS);
+                if (typeof paletteComponent !== 'undefined'){
+                    const dropClassField = paletteComponent.findFieldByDisplayText(Daliuge.FieldName.DROP_CLASS);
+                    if (typeof dropClassField === 'undefined'){
+                        console.warn("Could not find dropclass field in palette component:", paletteComponent.getName());
+                        break;
+                    }
 
                     field.setValue(dropClassField.getDefaultValue());
                     field.setDefaultValue(dropClassField.getDefaultValue());
@@ -2289,7 +2345,7 @@ export class Utils {
 
         // check that we found the node
         if (node === null){
-            console.warn("Could not show node with id", node.getId());
+            console.warn("Could not show null node");
             return;
         }
         
@@ -2309,7 +2365,12 @@ export class Utils {
         // open the graph configs table
         GraphConfigurationsTable.openTable();
 
-        const graphConfig: GraphConfig = eagle.logicalGraph().getGraphConfigById(graphConfigId);
+        const graphConfig = eagle.logicalGraph().getGraphConfigById(graphConfigId);
+
+        if (typeof graphConfig === 'undefined'){
+            console.warn("Could not find graph config with id:", graphConfigId);
+            return;
+        }
 
         // highlight the name of the graph config
         setTimeout(() => {
@@ -2380,11 +2441,18 @@ export class Utils {
                 numFieldIssues += field.getIssues().length;
             }
 
+            const parent = node.getParent();
+            const embed = node.getEmbed();
+            const inputApplication = node.getInputApplication();
+            const outputApplication = node.getOutputApplication();
+            const inputApplicationEmbed = inputApplication === null ? null : inputApplication.getEmbed();
+            const outputApplicationEmbed = outputApplication === null ? null : outputApplication.getEmbed();
+
             tableData.push({
                 "name":node.getName(),
                 "id":node.getId(),
-                "parent":node.getParent() === null ? null : node.getParent().getId(),
-                "embed":node.getEmbed() === null ? null : node.getEmbed().getId(),
+                "parent":parent === null ? null : parent.getId(),
+                "embed":embed === null ? null : embed.getId(),
                 "comment":node.getComment(),
                 "children":children.toString(),
                 "category":node.getCategory(),
@@ -2394,12 +2462,12 @@ export class Utils {
                 "x":node.getPosition().x,
                 "y":node.getPosition().y,
                 "radius":node.getRadius(),
-                "inputAppId":node.getInputApplication() === null ? null : node.getInputApplication().getId(),
-                "inputAppCategory":node.getInputApplication() === null ? null : node.getInputApplication().getCategory(),
-                "inputAppEmbedId":node.getInputApplication() === null ? null : node.getInputApplication().getEmbed().getId(),
-                "outputAppId":node.getOutputApplication() === null ? null : node.getOutputApplication().getId(),
-                "outputAppCategory":node.getOutputApplication() === null ? null : node.getOutputApplication().getCategory(),
-                "outputAppEmbedId":node.getOutputApplication() === null ? null : node.getOutputApplication().getEmbed().getId(),
+                "inputAppId":inputApplication === null ? null : inputApplication.getId(),
+                "inputAppCategory":inputApplication === null ? null : inputApplication.getCategory(),
+                "inputAppEmbedId":inputApplicationEmbed === null ? null : inputApplicationEmbed.getId(),
+                "outputAppId":outputApplication === null ? null : outputApplication.getId(),
+                "outputAppCategory":outputApplication === null ? null : outputApplication.getCategory(),
+                "outputAppEmbedId":outputApplicationEmbed === null ? null : outputApplicationEmbed.getId(),
                 "nodeIssues": node.getIssues().length,
                 "fieldIssues": numFieldIssues
             });
@@ -2444,11 +2512,13 @@ export class Utils {
         // add logical graph nodes to table
         for (const palette of eagle.palettes()){
             for (const node of palette.getNodes()){
+                const embed = node.getEmbed();
+
                 tableData.push({
                     "id":node.getId(),
                     "palette":palette.fileInfo().name,
                     "name":node.getName(),
-                    "embedId":node.getEmbed().getId(),
+                    "embedId":embed === null ? null : embed.getId(),
                     "category":node.getCategory(),
                     "categoryType":node.getCategoryType(),
                     "numFields":node.getNumFields(),
@@ -2467,14 +2537,16 @@ export class Utils {
         const tableData : any[] = [];
         const eagle : Eagle = Eagle.getInstance();
 
+        const node = eagle.logicalGraph().getNodeById(nodeId);
+
         // check that node at nodeIndex exists
-        if (!eagle.logicalGraph().hasNode(nodeId)){
+        if (typeof node === 'undefined'){
             console.warn("Unable to print node fields table, node", nodeId, "does not exist.");
             return;
         }
 
         // add logical graph nodes to table
-        for (const field of eagle.logicalGraph().getNodeById(nodeId).getFields()){
+        for (const field of node.getFields()){
             tableData.push({
                 "id":field.getId(),
                 "displayText":field.getDisplayText(),
@@ -2495,11 +2567,16 @@ export class Utils {
     static printGraphConfigurationTable() : void {
         const tableData : any[] = [];
         const eagle : Eagle = Eagle.getInstance();
-        const activeConfig: GraphConfig = eagle.logicalGraph().getActiveGraphConfig();
+        const activeConfig = eagle.logicalGraph().getActiveGraphConfig();
+
+        if (typeof activeConfig === 'undefined'){
+            console.warn("No active graph configuration to print.");
+            return;
+        }
 
         // add logical graph nodes to table
         for (const graphConfigNode of activeConfig.getNodes()){
-            const graphNode: Node = eagle.logicalGraph().getNodeById(graphConfigNode.getNode().getId());
+            const graphNode = eagle.logicalGraph().getNodeById(graphConfigNode.getNode().getId());
 
             if (typeof graphNode === 'undefined'){
                 // TODO: what to do here? blank row, console warning?
@@ -2507,7 +2584,7 @@ export class Utils {
             }
 
             for (const graphConfigField of graphConfigNode.getFields()){
-                const graphField: Field = graphNode.getFieldById(graphConfigField.getField().getId());
+                const graphField = graphNode.getFieldById(graphConfigField.getField().getId());
 
                 if (typeof graphField === 'undefined'){
                     // TODO: what to do here? blank row, console warning?
@@ -2556,7 +2633,20 @@ export class Utils {
 
 
     static copyInputTextModalInput(): void {
-        navigator.clipboard.writeText($('#inputTextModalInput').val().toString());
+        const input = $('#inputTextModalInput');
+
+        if (typeof input === 'undefined'){
+            console.error("No input element found in modal");
+            return;
+        }
+
+        const inputValue = input.val();
+        if (typeof inputValue === 'undefined'){
+            console.error("No value found in modal input element");
+            return;
+        }
+
+        navigator.clipboard.writeText(inputValue.toString());
     }
 
     static copyInputCodeModalInput(): void {
@@ -2641,7 +2731,7 @@ export class Utils {
                 setFunc(dataObject);
 
                 // write to localStorage
-                localStorage.setItem(localStorageKey, data);
+                localStorage.setItem(localStorageKey, JSON.stringify(dataObject));
             }
         }
 
@@ -2651,7 +2741,9 @@ export class Utils {
     }
 
     static snapToGrid(coord: number, offset: number) : number {
-        const gridSize = Setting.findValue(Setting.SNAP_TO_GRID_SIZE);
+        const gridSizeSetting = Setting.find(Setting.SNAP_TO_GRID_SIZE);
+        const gridSize : number = gridSizeSetting ? gridSizeSetting.value() as number : 10;
+
         return (gridSize * Math.round((coord + offset)/gridSize)) - offset;
     }
     
@@ -2719,7 +2811,7 @@ export class Utils {
             let destField = node.findFieldByDisplayText(field.getDisplayText());
 
             // if dest field could not be found, then go ahead and add a NEW field to the dest node
-            if (destField === null){
+            if (typeof destField === 'undefined'){
                 destField = field.clone();
                 node.addField(destField);
             }
@@ -2787,7 +2879,7 @@ export class Utils {
             let destField = node.findFieldByDisplayText(field.getDisplayText());
 
             // if dest field could not be found, then go ahead and add a NEW field to the node
-            if (destField === null){
+            if (typeof destField === "undefined"){
                 destField = field.clone();
                 node.addField(destField);
             }
@@ -2816,9 +2908,17 @@ export class Utils {
 
         // search for custom repositories, and add them into the list.
         for (let i = 0; i < localStorage.length; i++) {
-            const key : string = localStorage.key(i);
-            const value : string = localStorage.getItem(key);
+            const key : string | null = localStorage.key(i);
+            if (key === null) {
+                continue;
+            }
+
             const keyExtension : string = key.substring(key.lastIndexOf('.') + 1);
+
+            const value : string | null = localStorage.getItem(key);
+            if (value === null) {
+                continue;
+            }
 
             // handle legacy repositories where the branch is not specified (assume master)
             if (keyExtension === "github_repository"){

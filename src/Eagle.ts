@@ -78,11 +78,11 @@ export class Eagle {
     rightWindow : ko.Observable<SideWindow>;
     bottomWindow : ko.Observable<SideWindow>;
 
-    selectedObjects : ko.ObservableArray<Node|Edge>;
+    selectedObjects : ko.ObservableArray<Node | Edge>;
     static selectedLocation : ko.Observable<Eagle.FileType>;
-    currentField :ko.Observable<Field>;
+    currentField :ko.Observable<Field | null>;
 
-    static selectedRightClickObject : ko.Observable<Node|Edge>;
+    static selectedRightClickObject : ko.Observable<Node | Edge | null>;
     static selectedRightClickLocation : ko.Observable<Eagle.FileType>;
     static selectedRightClickPosition : {x: number, y: number} = {x:0, y:0}
 
@@ -101,12 +101,12 @@ export class Eagle {
     graphErrors : ko.ObservableArray<Errors.Issue>;
     loadingWarnings : ko.ObservableArray<Errors.Issue>;
     loadingErrors : ko.ObservableArray<Errors.Issue>;
-    currentFileInfo : ko.Observable<FileInfo>;
+    currentFileInfo : ko.Observable<FileInfo | null>;
     currentFileInfoTitle : ko.Observable<string>;
 
     showDataNodes : ko.Observable<boolean>;
     snapToGrid : ko.Observable<boolean>;
-    dropdownMenuHoverTimeout : number = 0;
+    dropdownMenuHoverTimeout : number | undefined = undefined;
 
     static paletteComponentSearchString : ko.Observable<string>;
     static componentParamsSearchString : ko.Observable<string>;
@@ -121,8 +121,8 @@ export class Eagle {
     static lastClickTime : number = 0;
 
     static nodeDropLocation : {x: number, y: number} = {x:0, y:0}; // if this remains x=0,y=0, the button has been pressed and the getNodePosition function will be used to determine a location on the canvas. if not x:0, y:0, it has been over written by the nodeDrop function as the node has been dragged into the canvas. The node will then be placed into the canvas using these co-ordinates.
-    static nodeDragPaletteIndex : number;
-    static nodeDragComponentId : NodeId;
+    static nodeDragPaletteIndex : number | null;
+    static nodeDragComponentId : NodeId | null;
     static shortcutModalCooldown : number;
 
     constructor(){
@@ -131,7 +131,7 @@ export class Eagle {
         UiModeSystem.initialise()
 
         this.palettes = ko.observableArray();
-        this.logicalGraph = ko.observable(null);
+        this.logicalGraph = ko.observable(new LogicalGraph());
         this.eagleIsReady = ko.observable(false);
 
         this.leftWindow = ko.observable(new SideWindow(Utils.getLeftWindowWidth()));
@@ -142,7 +142,7 @@ export class Eagle {
         Eagle.selectedLocation = ko.observable(Eagle.FileType.Unknown);
         this.currentField = ko.observable(null);
 
-        Eagle.selectedRightClickObject = ko.observable();
+        Eagle.selectedRightClickObject = ko.observable(null);
         Eagle.selectedRightClickLocation = ko.observable(Eagle.FileType.Unknown);
 
         this.repositories = ko.observable(new Repositories());
@@ -182,11 +182,17 @@ export class Eagle {
 
         this.showDataNodes = ko.observable(true);
         this.snapToGrid = ko.observable(false);
-        this.dropdownMenuHoverTimeout = null;
+        this.dropdownMenuHoverTimeout = undefined;
 
         this.selectedObjects.subscribe(function(){
+            // abort if logicalGraph is null
+            const lg = this.logicalGraph();
+            if (lg === null){
+                return;
+            }
+
             //TODO check if the selectedObjects array has changed, if not, abort
-            GraphRenderer.nodeData = GraphRenderer.depthFirstTraversalOfNodes(this.logicalGraph(), this.showDataNodes());
+            GraphRenderer.nodeData = GraphRenderer.depthFirstTraversalOfNodes(lg, this.showDataNodes());
             Hierarchy.updateDisplay()
             Hierarchy.scrollToNode()
         }, this)
@@ -211,12 +217,17 @@ export class Eagle {
         return false;
     }
 
-    static selectedNodePalette() : Palette {
+    static selectedNodePalette() : Palette | null {
         const eagle : Eagle = Eagle.getInstance();
+        const selectedNode = eagle.selectedNode();
+
+        if (selectedNode === null){
+            return null;
+        }
 
         for (const palette of eagle.palettes()){
             for (const node of palette.getNodes()){
-                if (Node.match(node, eagle.selectedNode())){
+                if (Node.match(node, selectedNode)){
                     return palette;
                 }
             }
@@ -241,10 +252,12 @@ export class Eagle {
         // add additional custom types
         switch (Eagle.selectedLocation()){
             case Eagle.FileType.Palette:
-                // build a list from the selected component in the palettes
-                if(this.selectedNode() !== null){
+                const selectedNode = this.selectedNode();    
 
-                    for (const field of this.selectedNode().getFields()) {
+                // build a list from the selected component in the palettes
+                if(selectedNode !== null){
+
+                    for (const field of selectedNode.getFields()) {
                         Utils.addTypeIfUnique(result, field.getType());
                     }
                 }else{
@@ -259,16 +272,19 @@ export class Eagle {
                         Utils.addTypeIfUnique(result, field.getType());
                     }
 
+                    const inputApplication = node.getInputApplication();
+                    const outputApplication = node.getOutputApplication();
+
                     // also check for fields that belong to the inputApplication
-                    if (node.hasInputApplication()){
-                        for (const field of node.getInputApplication().getFields()){
+                    if (inputApplication !== null){
+                        for (const field of inputApplication.getFields()){
                             Utils.addTypeIfUnique(result, field.getType());
                         }
                     }
 
                     // also check for fields that belong to the outputApplication
-                    if (node.hasOutputApplication()){
-                        for (const field of node.getOutputApplication().getFields()){
+                    if (outputApplication !== null){
+                        for (const field of outputApplication.getFields()){
                             Utils.addTypeIfUnique(result, field.getType());
                         }
                     }
@@ -298,6 +314,7 @@ export class Eagle {
     }
 
     deployDefaultTranslationAlgorithm = async () => {
+
         const defaultTranslatorAlgorithmMethod : string = $('#'+Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT)+ ' .generatePgt').val().toString()
         try {
             await this.translator().genPGT(defaultTranslatorAlgorithmMethod, false);
@@ -386,11 +403,13 @@ export class Eagle {
     }, this);
 
     activeConfigHtml : ko.PureComputed<string> = ko.pureComputed(() => {
-        if (typeof this.logicalGraph().getActiveGraphConfig() === 'undefined'){
+        const activeGraphConfig = this.logicalGraph().getActiveGraphConfig();
+
+        if (typeof activeGraphConfig === 'undefined'){
             return "";
         }
 
-        return  "<strong>Config:</strong> " + this.logicalGraph().getActiveGraphConfig().fileInfo().name;
+        return  "<strong>Config:</strong> " + activeGraphConfig.fileInfo().name;
     }, this);
 
     // TODO: move to SideWindow.ts?
@@ -409,7 +428,7 @@ export class Eagle {
         SideWindow.setShown('bottom', setOpen);
     }
 
-    emptySearchBar = (target : ko.Observable,data:string, event : Event) => {
+    emptySearchBar = (target : ko.Observable, data:string, event : Event) => {
         target("")
         $(event.target).parent().hide()
     }
@@ -606,7 +625,7 @@ export class Eagle {
     }
 
     // if selectedObjects contains nothing but one node, return the node, else null
-    selectedNode : ko.PureComputed<Node> = ko.pureComputed(() : Node => {
+    selectedNode : ko.PureComputed<Node | null> = ko.pureComputed(() : Node | null => {
         if (this.selectedObjects().length !== 1){
             return null;
         }
@@ -621,7 +640,7 @@ export class Eagle {
     }, this);
 
     // if selectedObjects contains nothing but one edge, return the edge, else null
-    selectedEdge : ko.PureComputed<Edge> = ko.pureComputed(() : Edge => {
+    selectedEdge : ko.PureComputed<Edge | null> = ko.pureComputed(() : Edge | null => {
         if (this.selectedObjects().length !== 1){
             return null;
         }
@@ -650,7 +669,7 @@ export class Eagle {
         }
     }, this);
 
-    setSelection = (selection : Node | Edge, selectedLocation: Eagle.FileType) : void => {
+    setSelection = (selection : Node | Edge | null, selectedLocation: Eagle.FileType) : void => {
         Eagle.selectedLocation(selectedLocation);
         GraphRenderer.clearPortPeek()
 
@@ -717,7 +736,7 @@ export class Eagle {
     }, this);
 
     toggleInspectorCollapsedState = () : void => {
-        Setting.find(Setting.INSPECTOR_COLLAPSED_STATE).toggle()
+        Setting.toggle(Setting.INSPECTOR_COLLAPSED_STATE);
     };
 
     getGraphModifiedDateText = () : string => {
@@ -3150,8 +3169,8 @@ export class Eagle {
 
         this.checkGraph();
 
-        const groupStartValue = destNode.getFieldByDisplayText(Daliuge.FieldName.GROUP_START).getValue();
-        const groupEndValue = sourceNode.getFieldByDisplayText(Daliuge.FieldName.GROUP_END).getValue();
+        const groupStartValue = destNode.findFieldByDisplayText(Daliuge.FieldName.GROUP_START)?.getValue();
+        const groupEndValue = sourceNode.findFieldByDisplayText(Daliuge.FieldName.GROUP_END)?.getValue();
         Utils.showNotification(
             "Toggle edge closes loop",
             "Node " + sourceNode.getName() + " component parameter '" + Daliuge.FieldName.GROUP_END + "' set to " + groupEndValue + ". Node " + destNode.getName() + " component parameter '" + Daliuge.FieldName.GROUP_START + "' set to " + groupStartValue + ".", "success"
@@ -3914,18 +3933,21 @@ export class Eagle {
 
             // if the node is a construct, add the input and output applications, if they exist
             if (node.isGroup()){
+                const inputApplication = node.getInputApplication();
+                const outputApplication = node.getOutputApplication();
+
                 // check if the node has an input application, if so, add it
-                if (node.hasInputApplication()){
+                if (inputApplication !== null){
                     // add the input application to the logical graph
-                    const inputApp: Node = await this.addNode(node.getInputApplication(), 0, 0);
+                    const inputApp: Node = await this.addNode(inputApplication, 0, 0);
                     newNode.setInputApplication(inputApp);
                     result.push(inputApp);
                 }
                 // check if the node has an output application, if so, add it
-                if (node.hasOutputApplication()){
-                    // add the input application to the logical graph
-                    const outputApp: Node = await this.addNode(node.getOutputApplication(), 0, 0);
-                    newNode.setInputApplication(outputApp);
+                if (outputApplication !== null){
+                    // add the output application to the logical graph
+                    const outputApp: Node = await this.addNode(outputApplication, 0, 0);
+                    newNode.setInputApplication(outputApp); // TODO: bug? should this be setOutputApplication?`
                     result.push(outputApp);
                 }
             }
@@ -3939,14 +3961,14 @@ export class Eagle {
                 let poName: string = Daliuge.FieldName.SELF; // use this as a fall-back default
 
                 // use the dataType of the self field
-                const selfField = newNode.getFieldByDisplayText(Daliuge.FieldName.SELF);
-                if (selfField !== null){
+                const selfField = newNode.findFieldByDisplayText(Daliuge.FieldName.SELF);
+                if (typeof selfField !== 'undefined'){
                     poName = selfField.getType();
                 }
 
                 // get name of the "base" class from the PythonMemberFunction node,
-                const baseNameField = newNode.getFieldByDisplayText(Daliuge.FieldName.BASE_NAME);
-                if (baseNameField !== null){
+                const baseNameField = newNode.findFieldByDisplayText(Daliuge.FieldName.BASE_NAME);
+                if (typeof baseNameField !== 'undefined'){
                     poName = baseNameField.getValue();
                 }
 
@@ -4127,19 +4149,21 @@ export class Eagle {
         }
 
         // get imageName, tag, digest values in currently selected node
-        const imageField:  Field = selectedNode.getFieldByDisplayText(Daliuge.FieldName.IMAGE);
-        const tagField:    Field = selectedNode.getFieldByDisplayText(Daliuge.FieldName.TAG);
-        const digestField: Field = selectedNode.getFieldByDisplayText(Daliuge.FieldName.DIGEST);
-        let image, tag, digest: string = "";
+        const imageField  = selectedNode.findFieldByDisplayText(Daliuge.FieldName.IMAGE);
+        const tagField    = selectedNode.findFieldByDisplayText(Daliuge.FieldName.TAG);
+        const digestField = selectedNode.findFieldByDisplayText(Daliuge.FieldName.DIGEST);
+        let image: string = "";
+        let tag: string = "";
+        let digest: string = "";
 
         // set values for the fields
-        if (imageField !== null){
+        if (typeof imageField !== 'undefined'){
             image = imageField.getValue();
         }
-        if (tagField !== null){
+        if (typeof tagField !== 'undefined'){
             tag = tagField.getValue();
         }
-        if (digestField !== null){
+        if (typeof digestField !== 'undefined'){
             digest = digestField.getValue();
         }
 
@@ -4153,13 +4177,13 @@ export class Eagle {
             const digest = this.dockerHubBrowser().digest();
 
             // set values for the fields
-            if (imageField !== null){
+            if (typeof imageField !== 'undefined'){
                 imageField.setValue(imageName);
             }
-            if (tagField !== null){
+            if (typeof tagField !== 'undefined'){
                 tagField.setValue(tag);
             }
-            if (digestField !== null){
+            if (typeof digestField !== 'undefined'){
                 digestField.setValue(digest);
             }
 

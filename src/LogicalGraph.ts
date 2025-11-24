@@ -259,7 +259,7 @@ export class LogicalGraph {
         return result;
     }
 
-    static fromOJSJson(dataObject : any, filename: string, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph {
+    static fromOJSJson(dataObject : any, filename: string | null, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph {
         // create new logical graph object
         const result : LogicalGraph = new LogicalGraph();
         const nodeDataIdToNodeId: Map<string, NodeId> = new Map();
@@ -413,12 +413,18 @@ export class LogicalGraph {
         // second pass through the nodes
         // used to set parent, embed, subject, inputApplication, outputApplication
         for (const [nodeId, nodeData] of Object.entries(dataObject.nodes)){
-            const embed: Node = result.getNodeById((<any>nodeData).embedId);
-            const parent: Node = result.getNodeById((<any>nodeData).parentId);
-            const inputApplication: Node = result.getNodeById((<any>nodeData).inputApplicationId);
-            const outputApplication: Node = result.getNodeById((<any>nodeData).outputApplicationId);
+            const embed = result.getNodeById((<any>nodeData).embedId);
+            const parent = result.getNodeById((<any>nodeData).parentId);
+            const inputApplication = result.getNodeById((<any>nodeData).inputApplicationId);
+            const outputApplication = result.getNodeById((<any>nodeData).outputApplicationId);
 
-            const node: Node = result.getNodeById(nodeId as NodeId);
+            const node = result.getNodeById(nodeId as NodeId);
+
+            if (typeof node === 'undefined'){
+                console.error("No node found with id " + nodeId);
+                continue;
+            }
+
             if (typeof embed !== 'undefined'){
                 node.setEmbed(embed);
             }

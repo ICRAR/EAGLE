@@ -61,8 +61,8 @@ export class Translator {
 
     submit = (translatorURL : string, formElements : { [index: string]: string }) : void => {
         // consult EAGLE settings to determine whether to open the translator in a new tab
-        const translateInCurrentTab: boolean = Setting.findValue(Setting.OPEN_TRANSLATOR_IN_CURRENT_TAB);
-        const overwriteTranslationTab: boolean = Setting.findValue(Setting.OVERWRITE_TRANSLATION_TAB);
+        const translateInCurrentTab: boolean = Setting.findValueAsBoolean(Setting.OPEN_TRANSLATOR_IN_CURRENT_TAB);
+        const overwriteTranslationTab: boolean = Setting.findValueAsBoolean(Setting.OVERWRITE_TRANSLATION_TAB);
 
         // create form element
         const form = document.createElement("form");
@@ -148,7 +148,7 @@ export class Translator {
             }
         }
 
-        const translatorURL : string = Setting.findValue(Setting.TRANSLATOR_URL);
+        const translatorURL : string = Setting.findValueAsString(Setting.TRANSLATOR_URL);
         console.log("Eagle.getPGT() : ", "algorithm name:", algorithmName, "translator URL", translatorURL);
 
         this._genPGT(eagle, translatorURL, algorithmName, testingMode);
@@ -163,7 +163,7 @@ export class Translator {
         const lgClone: LogicalGraph = eagle.logicalGraph().clone();
 
         // get the version of JSON we are using
-        const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
+        const version: Setting.SchemaVersion = Setting.findValueAsString(Setting.DALIUGE_SCHEMA_VERSION) as Setting.SchemaVersion;
 
         // convert to JSON
         const jsonString: string = LogicalGraph.toJsonString(lgClone, true, version);
@@ -204,16 +204,16 @@ export class Translator {
     }
         
     setUrl = async () : Promise<void> => {
-        const translatorURLSetting : Setting = Setting.find(Setting.TRANSLATOR_URL);
+        const defaultUrl = Setting.findValueAsString(Setting.TRANSLATOR_URL);
 
         let userString: string;
         try {
-            userString = await Utils.requestUserString("Translator Url", "Enter the Translator Url", translatorURLSetting.value(), false);
+            userString = await Utils.requestUserString("Translator Url", "Enter the Translator Url", defaultUrl, false);
         } catch (error){
             console.error(error);
             return;
         }
 
-        translatorURLSetting.value(userString);
+        Setting.setValue(Setting.TRANSLATOR_URL, userString);
     };
 }

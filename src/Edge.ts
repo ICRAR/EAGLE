@@ -479,8 +479,8 @@ export class Edge {
             }
         }
 
-        const sourcePort : Field = sourceNode.getFieldById(sourcePortId);
-        const destinationPort : Field = destinationNode.getFieldById(destinationPortId);
+        const sourcePort = sourceNode.getFieldById(sourcePortId);
+        const destinationPort = destinationNode.getFieldById(destinationPortId);
 
         // check if source port was found
         if (typeof sourcePort === 'undefined') {
@@ -548,8 +548,8 @@ export class Edge {
 
         //checking the type of the parent nodes
         if(!isSibling){
-            const srcNodeParent: Node = sourceNode.getParent()
-            const destNodeParent: Node = destinationNode.getParent()
+            const srcNodeParent = sourceNode.getParent()
+            const destNodeParent = destinationNode.getParent()
 
             if(destNodeParent !== null && destNodeParent.getCategory() === Category.Loop || srcNodeParent !== null && srcNodeParent.getCategory() === Category.Loop){
                 associatedConstructType = Category.Loop
@@ -598,7 +598,7 @@ export class Edge {
         // - begin from a Data component
         // - end with a App component
         // - sourceNode has a 'group_end' field set to true
-        // - destNode has a 'group_start' field set to true
+        // - destNode has a 'group_start' field set to true 
         if (closesLoop){
             if (!sourceNode.isData()){
                 const x = Errors.Show("Closes Loop Edge does not start from a Data component.", function(){Utils.showEdge(eagle, edge);});
@@ -610,12 +610,15 @@ export class Edge {
                 Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Error, x, showNotification, showConsole, errorsWarnings);
             }
 
-            if (!sourceNode.hasFieldWithDisplayText(Daliuge.FieldName.GROUP_END) || !Utils.asBool(sourceNode.getFieldByDisplayText(Daliuge.FieldName.GROUP_END).getValue())){
+            const groupStartField = destinationNode.findFieldByDisplayText(Daliuge.FieldName.GROUP_START);
+            const groupEndField = sourceNode.findFieldByDisplayText(Daliuge.FieldName.GROUP_END);
+
+            if (typeof groupEndField === 'undefined' || !Utils.asBool(groupEndField.getValue())){
                 const x = Errors.ShowFix("'Closes Loop' Edge start node (" + sourceNode.getName() + ") does not have 'group_end' set to true.", function(){Utils.showEdge(eagle, edge);}, function(){Utils.fixFieldValue(eagle, sourceNode, Daliuge.groupEndField, "true")}, "Set 'group_end' to true");
                 Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Error, x, showNotification, showConsole, errorsWarnings);
             }
 
-            if (!destinationNode.hasFieldWithDisplayText(Daliuge.FieldName.GROUP_START) || !Utils.asBool(destinationNode.getFieldByDisplayText(Daliuge.FieldName.GROUP_START).getValue())){
+            if (typeof groupStartField === 'undefined' || !Utils.asBool(groupStartField.getValue())){
                 const x = Errors.ShowFix("'Closes Loop' Edge end node (" + destinationNode.getName() + ") does not have 'group_start' set to true.", function(){Utils.showEdge(eagle, edge);}, function(){Utils.fixFieldValue(eagle, destinationNode, Daliuge.groupStartField, "true")}, "Set 'group_start' to true");
                 Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Error, x, showNotification, showConsole, errorsWarnings);
             }

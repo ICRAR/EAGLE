@@ -817,7 +817,7 @@ export class ParameterTable {
         }
     }
 
-    static updateContent = (node: Node) : void => {
+    static updateContent = (node: Node | null) : void => {
         if (node === null){
             ParameterTable.copyFields([]);
         } else {

@@ -79,7 +79,7 @@ newTut.newTutStep("Graph Nodes", "Once added into your graph, the component is i
 newTut.newTutStep("Editing Components", "The inspector panel provides access to the complete set of specifications of a component.", function(){return $("#inspector")})
 .setWaitType(TutorialStep.Wait.Delay)
 .setDelayAmount(200)
-.setPreFunction(function(){Setting.find(Setting.INSPECTOR_COLLAPSED_STATE).setValue(false)})
+.setPreFunction(function(){Setting.setValue(Setting.INSPECTOR_COLLAPSED_STATE, false)})
 
 newTut.newTutStep("The Parameter Table", "<em>Click to open the node fields table and continue.</em>", function(){return $("#inspector #openNodeParamsTable")})
 .setWaitType(TutorialStep.Wait.Element)
