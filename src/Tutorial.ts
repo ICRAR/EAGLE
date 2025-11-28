@@ -149,7 +149,7 @@ export class Tutorial {
     }
 
     newTutStep = (title:string, description:string, selector:() => JQuery<HTMLElement>) : TutorialStep =>{
-        const x = new TutorialStep(title, description, TutorialStep.Type.Info, TutorialStep.Wait.None,null, selector, null, null,false,null,null,null)
+        const x = new TutorialStep(title, description, TutorialStep.Type.Info, TutorialStep.Wait.None,null, selector, null, null, false, "", null, null)
         this.tutorialSteps.push(x)
         return x
     }
@@ -218,7 +218,14 @@ export class Tutorial {
     waitForElementThenRun = (waitType: TutorialStep.Wait): void => {
         const tutStep = TutorialSystem.activeTutCurrentStep
         let elementAvailable: boolean = false
-        let targetElement: JQuery<HTMLElement> = tutStep.getTargetFunc()()
+        const targetFunc = tutStep.getTargetFunc()
+
+        if (targetFunc === null) {
+            console.warn('Tutorial.waitForElementThenRun(): no target function defined for this step');
+            return;
+        }
+
+        let targetElement: JQuery<HTMLElement> = targetFunc()
         let autoAlternateHighlightTarget = null // used for modals to automatically highlight the modal body, footer or header
 
         if (waitType === TutorialStep.Wait.Modal) {
@@ -263,9 +270,16 @@ export class Tutorial {
     }
 
     initiateStep = (tutStep: TutorialStep, autoAlternateHighlightTarget: JQuery<HTMLElement> | null): void => {
-        const that = this;
+        const that = this; // TODO: needed?
         $(':focus').trigger("blur");
-        tutStep.getTargetFunc()().trigger("focus");
+
+        const targetFunc = tutStep.getTargetFunc()
+        if (targetFunc === null) {
+            console.warn('Tutorial.initiateStep(): no target function defined for this step');
+            return;
+        }
+
+        targetFunc().trigger("focus");
 
         //call the correct function depending on which type of tutorial step this is
         if (tutStep.getType() === TutorialStep.Type.Info) {
@@ -285,7 +299,13 @@ export class Tutorial {
         if (autoAlternateHighlightTarget != null && autoAlternateHighlightTarget.length > 0) {
             this.highlightStepTarget(autoAlternateHighlightTarget)
         } else {
-            this.highlightStepTarget(tutStep.getTargetFunc()())
+            const targetFunc = tutStep.getTargetFunc()
+            if (targetFunc === null) {
+                console.warn('Tutorial.initiateInfoStep(): no target function defined for this step');
+                return;
+            }
+
+            this.highlightStepTarget(targetFunc())
         }
 
         //the little wait is waiting for the css animation of the highlighting system
@@ -297,7 +317,13 @@ export class Tutorial {
 
     //a selector press step
     initiatePressStep = (tutStep: TutorialStep, autoAlternateHighlightTarget: JQuery<HTMLElement> | null): void => {
-        const targetElement = tutStep.getTargetFunc()()
+        const targetFunc = tutStep.getTargetFunc()
+        if (targetFunc === null) {
+            console.warn('Tutorial.initiatePressStep(): no target function defined for this step');
+            return;
+        }
+
+        const targetElement = targetFunc()
         if (autoAlternateHighlightTarget != null) {
             this.highlightStepTarget(autoAlternateHighlightTarget)
         } else {
@@ -316,10 +342,16 @@ export class Tutorial {
 
     //these are ground work for future tutorial system functionality
     initiateInputStep = (tutStep: TutorialStep, autoAlternateHighlightTarget: JQuery<HTMLElement> | null): void => {
+        const targetFunc = tutStep.getTargetFunc()
+        if (targetFunc === null) {
+            console.warn('Tutorial.initiateInputStep(): no target function defined for this step');
+            return;
+        }
+
         if (autoAlternateHighlightTarget != null) {
             this.highlightStepTarget(autoAlternateHighlightTarget)
         } else {
-            this.highlightStepTarget(tutStep.getTargetFunc()())
+            this.highlightStepTarget(targetFunc())
         }
 
         //the little wait is waiting for the css animation of the highlighting system
@@ -329,7 +361,7 @@ export class Tutorial {
         }, 510);
 
         //attaching an input handler for checking input
-        tutStep.getTargetFunc()().on('keydown.tutInputCheckFunc',function(event: JQuery.TriggeredEvent){
+        targetFunc().on('keydown.tutInputCheckFunc',function(event: JQuery.TriggeredEvent){
             const e: KeyboardEvent = event.originalEvent as KeyboardEvent;
             TutorialSystem.activeTut?.tutInputCheckFunc(e, tutStep)
         })
@@ -339,7 +371,13 @@ export class Tutorial {
         if (autoAlternateHighlightTarget != null) {
             this.highlightStepTarget(autoAlternateHighlightTarget)
         } else {
-            this.highlightStepTarget(tutStep.getTargetFunc()())
+            const targetFunc = tutStep.getTargetFunc()
+            if (targetFunc === null) {
+                console.warn('Tutorial.initiateConditionStep(): no target function defined for this step');
+                return;
+            }
+
+            this.highlightStepTarget(targetFunc())
         }
 
         //the little wait is waiting for the css animation of the highlighting system
@@ -360,9 +398,14 @@ export class Tutorial {
             return
         }
 
-        if(TutorialSystem.activeTutCurrentStep.getAlternateHighlightTargetFunc() != null){
-            if(TutorialSystem.activeTutCurrentStep.getAlternateHighlightTargetFunc()().length > 0){
-                target = TutorialSystem.activeTutCurrentStep.getAlternateHighlightTargetFunc()()
+        //check for an alternate highlight target function
+        const alternateHighlightTargetFunc = TutorialSystem.activeTutCurrentStep.getAlternateHighlightTargetFunc()
+
+        if(alternateHighlightTargetFunc != null){
+            const alternateHighlightTarget = alternateHighlightTargetFunc()
+
+            if(alternateHighlightTarget.length > 0){
+                target = alternateHighlightTarget
             }else{
                 console.warn('alternate highlight target not found using main target instead')
             }
@@ -438,9 +481,15 @@ export class Tutorial {
     }
 
     openInfoPopUp = (): void => {
-
         const step = TutorialSystem.activeTutCurrentStep
-        const currentTarget: JQuery<HTMLElement> = step.getTargetFunc()()
+        const stepTargetFunc = step.getTargetFunc()
+
+        if (stepTargetFunc === null) {
+            console.warn('Tutorial.openInfoPopUp(): no target function defined for the current step');
+            return;
+        }
+
+        const currentTarget: JQuery<HTMLElement> = stepTargetFunc()
 
         if (currentTarget.length === 0) {
             console.warn('Tutorial.openInfoPopUp(): no target element found for the current step');
@@ -627,6 +676,12 @@ export class Tutorial {
             return
         }
 
+        const targetFunc = tutStep.getTargetFunc()
+        if (targetFunc === null) {
+            console.warn('Tutorial.tutInputCheckFunc(): no target function defined for this step');
+            return;
+        }
+
         if(tutStep.getExpectedInput() === ''||tutStep.getExpectedInput() === null){
             if(event.key === "Enter"){
                 event.preventDefault()
@@ -634,36 +689,32 @@ export class Tutorial {
                 if (TutorialSystem.activeTut !== null){
                     TutorialSystem.activeTut.tutButtonNext()
                 }
-                tutStep.getTargetFunc()().off('keydown.tutInputCheckFunc')
+                targetFunc().off('keydown.tutInputCheckFunc')
             }
         }else{
-            if(tutStep.getTargetFunc()().val() === tutStep.getExpectedInput()){
+            if(targetFunc().val() === tutStep.getExpectedInput()){
                 if (TutorialSystem.activeTut !== null){
                     TutorialSystem.activeTut.tutButtonNext()
                 }
-                tutStep.getTargetFunc()().off('keydown.tutInputCheckFunc')
+                targetFunc().off('keydown.tutInputCheckFunc')
             }
         }
     }
 
     checkConditionFunction = (tutStep: TutorialStep): void => {
-        const eagle = Eagle.getInstance()        
-        const conditionReturn: boolean = tutStep.getConditionFunction()(eagle)
+        const eagle = Eagle.getInstance()
+        const conditionFunc = tutStep.getConditionFunction()
+        if(conditionFunc === null){
+            console.warn('Tutorial.checkConditionFunction(): no condition function defined for this step');
+            return;
+        }     
+        const conditionReturn: boolean = conditionFunc(eagle)
 
         if(conditionReturn){
             clearTimeout(TutorialSystem.conditionCheck);
             TutorialSystem.conditionCheck = undefined;
             this.tutButtonNext()
         }
-    }
-
-    static targetParentAddClass(targetFunc: (() => JQuery<HTMLElement>) | null, className: string) {
-        if (targetFunc === null) {
-            return;
-        }
-
-        const target = targetFunc();
-        target.parent().addClass(className);
     }
 }
 
@@ -675,7 +726,7 @@ export class TutorialStep {
     private delayAmount : number | null;
     
     private targetFunc: (() => JQuery<HTMLElement>) | null;
-    private alternateHighlightTargetFunc: () => JQuery<HTMLElement>;
+    private alternateHighlightTargetFunc: (() => JQuery<HTMLElement>) | null;
     private preFunc: ((eagle: Eagle) => void) | null;
     private backPreFunc: ((eagle: Eagle) => void) | null;
     private conditionFunc : ((eagle: Eagle) => boolean) | null;
@@ -683,7 +734,7 @@ export class TutorialStep {
     private backSkip : boolean;
     private expectedInput : string;
 
-    constructor(title: string, text: string, type: TutorialStep.Type, waitType: TutorialStep.Wait, delayAmount: number | null, targetFunc: () => JQuery<HTMLElement>, preFunc: ((eagle: Eagle) => void) | null, backPreFunc: ((eagle: Eagle) => void) | null, backSkip:boolean, expectedInput:string, conditionFunc:((eagle: Eagle) => boolean) | null, alternateHighlightTargetFunc: () => JQuery<HTMLElement>) {
+    constructor(title: string, text: string, type: TutorialStep.Type, waitType: TutorialStep.Wait, delayAmount: number | null, targetFunc: () => JQuery<HTMLElement>, preFunc: ((eagle: Eagle) => void) | null, backPreFunc: ((eagle: Eagle) => void) | null, backSkip:boolean, expectedInput:string, conditionFunc:((eagle: Eagle) => boolean) | null, alternateHighlightTargetFunc: (() => JQuery<HTMLElement>) | null) {
         this.title = title;
         this.text = text;
         this.type = type;
@@ -744,7 +795,7 @@ export class TutorialStep {
         return this.conditionFunc;
     }
 
-    getAlternateHighlightTargetFunc = () : () => JQuery<HTMLElement> => {
+    getAlternateHighlightTargetFunc = () : (() => JQuery<HTMLElement>) | null => {
         return this.alternateHighlightTargetFunc;
     }
 
@@ -791,6 +842,17 @@ export class TutorialStep {
     setAlternateHighlightTargetFunc = (newAlternateHighlightTargetFunc:() => JQuery<HTMLElement>): this => {
         this.alternateHighlightTargetFunc = newAlternateHighlightTargetFunc;
         return this
+    }
+
+    forceShowTargetParent() {
+        const targetFunc = this.getTargetFunc();
+
+        if (targetFunc === null) {
+            console.warn('TutorialStep.forceShowTargetParent(): no target function defined');
+            return;
+        }
+
+        targetFunc().parent().addClass('forceShow');
     }
 }
 

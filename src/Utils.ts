@@ -760,7 +760,7 @@ export class Utils {
         });
     }
 
-    static async requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string, confirmSetting: Setting): Promise<boolean> {
+    static async requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string, confirmSetting: Setting | undefined): Promise<boolean> {
         return new Promise(async(resolve, reject) => {
             $('#confirmModalTitle').text(title);
             $('#confirmModalMessage').html(message);
@@ -768,7 +768,7 @@ export class Utils {
             $('#confirmModalNegativeAnswer').text(negativeAnswer);
 
             $('#confirmModalDontShowAgain button').off()
-            if(confirmSetting === null){
+            if(typeof confirmSetting === 'undefined'){
                 $('#confirmModalDontShowAgain').hide()
             }else{
                 $('#confirmModalDontShowAgain').show()

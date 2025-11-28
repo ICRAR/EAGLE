@@ -1885,7 +1885,7 @@ export class GraphRenderer {
         }
     }
     
-    static SCREEN_TO_GRAPH_POSITION_X(x:number) : number {
+    static SCREEN_TO_GRAPH_POSITION_X(x:number | null) : number {
         const eagle = Eagle.getInstance();
         if(x===null && GraphRenderer.dragCurrentPosition){
             x = GraphRenderer.dragCurrentPosition.x
@@ -1893,7 +1893,7 @@ export class GraphRenderer {
         return x/eagle.globalScale() - eagle.globalOffsetX();
     }
 
-    static SCREEN_TO_GRAPH_POSITION_Y(y:number) : number {
+    static SCREEN_TO_GRAPH_POSITION_Y(y:number | null) : number {
         const eagle = Eagle.getInstance();
         if(y===null && GraphRenderer.dragCurrentPosition){
             y = GraphRenderer.dragCurrentPosition.y

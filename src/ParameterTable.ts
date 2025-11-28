@@ -130,12 +130,12 @@ export class ParameterTable {
 
             case Eagle.BottomWindowMode.ConfigParameterTable:
                 const lg: LogicalGraph = eagle.logicalGraph();
-                const config: GraphConfig = lg.getActiveGraphConfig();
+                const config = lg.getActiveGraphConfig();
                 const displayedFields: Field[] = [];
 
                 console.log("ParameterTable.getTableFields(): Displaying fields for config:", config ? config.fileInfo().name : "<No Config>");
 
-                if (!config){
+                if (typeof config === 'undefined'){
                     return [];
                 }
 
@@ -1059,7 +1059,13 @@ export class ColumnVisibilities {
     }
 
     loadFromLocalStorage = () : void => {
-        const columnVisibilitiesObjArray : any[] = JSON.parse(localStorage.getItem('ColumnVisibilities'))
+        const columnVisibilities = localStorage.getItem('ColumnVisibilities')
+        if(columnVisibilities === null){
+            console.warn("No saved column visibilities found in local storage");
+            return;
+        }
+
+        const columnVisibilitiesObjArray : any[] = JSON.parse(columnVisibilities)
         const that = ParameterTable.getActiveColumnVisibility()
         if(columnVisibilitiesObjArray === null){
             return

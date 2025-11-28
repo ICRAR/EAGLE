@@ -34,7 +34,7 @@ export class KeyboardShortcut {
     eventType: string;
     tags: string[];           // tags or key words that are associated with the function to help searchability
     icon: string;
-    run: (eagle: Eagle, event: KeyboardEvent) => void;
+    run: (eagle: Eagle, event: KeyboardEvent | null) => void;
 
     constructor(options: KeyboardShortcut.Options){
         this.id = options.id;

@@ -25,7 +25,7 @@ export class SideWindow {
         }
 
         // don't allow toggle if palette and graph editing are disabled
-        const editingAllowed: boolean = Setting.findValue(Setting.ALLOW_PALETTE_EDITING) || Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
+        const editingAllowed: boolean = Setting.findValueAsBoolean(Setting.ALLOW_PALETTE_EDITING) || Setting.findValueAsBoolean(Setting.ALLOW_GRAPH_EDITING);
         if (window === "left" && !editingAllowed){
             Utils.notifyUserOfEditingIssue(Eagle.FileType.Unknown, "Toggle Window");
             return;
@@ -91,15 +91,23 @@ export class SideWindow {
         // retrieve data about the node being dragged
         // NOTE: I found that using $(e.target).data('palette-index'), using JQuery, sometimes retrieved a cached copy of the attribute value, which broke this functionality
         //       Using the native javascript works better, it always fetches the current value of the attribute
-        Eagle.nodeDragPaletteIndex = parseInt(e.target.getAttribute('data-palette-index'), 10);
-        Eagle.nodeDragComponentId = e.target.getAttribute('data-component-id');
+        const componentId = e.target.getAttribute('data-component-id');
+        const paletteIndex = e.target.getAttribute('data-palette-index');
+
+        if (componentId === null || paletteIndex === null){
+            console.warn("SideWindow.nodeDragStart(): data-component-id or data-palette-index is null!");
+            return false;
+        }
+
+        Eagle.nodeDragPaletteIndex = parseInt(paletteIndex, 10);
+        Eagle.nodeDragComponentId = componentId;
 
         //this is for dealing with drag and drop actions while there is already one or more palette components selected
         if (Eagle.selectedLocation() === Eagle.FileType.Palette){
-            const draggedNode = eagle.palettes()[Eagle.nodeDragPaletteIndex].getNodeById(Eagle.nodeDragComponentId);
+            const draggedNode = eagle.palettes()[Eagle.nodeDragPaletteIndex].getNodeById(componentId);
 
             if (typeof draggedNode === 'undefined'){
-                console.warn("Dragged node is undefined! Palette Index:", Eagle.nodeDragPaletteIndex, "Component ID:", Eagle.nodeDragComponentId);
+                console.warn("Dragged node is undefined! Palette Index:", paletteIndex, "Component ID:", componentId);
                 return false;
             }
 
@@ -114,7 +122,14 @@ export class SideWindow {
 
         // grab and set the node's icon and sets it as drag image.
         const drag = e.target.getElementsByClassName('input-group-prepend')[0] as HTMLElement;
-        (e.originalEvent as DragEvent).dataTransfer.setDragImage(drag, 0, 0);
+        const dataTransfer = (e.originalEvent as DragEvent).dataTransfer;
+
+        if (dataTransfer === null){
+            console.warn("SideWindow.nodeDragStart(): dataTransfer is null!");
+            return false;
+        }
+
+        dataTransfer.setDragImage(drag, 0, 0);
 
         return true;
     }
@@ -137,6 +152,10 @@ export class SideWindow {
     static rightWindowAdjustStart(eagle: Eagle, event: JQuery.TriggeredEvent) : boolean {
         const e: DragEvent = event.originalEvent as DragEvent;
 
+        if (e.target === null){
+            console.warn("SideWindow.rightWindowAdjustStart(): DragEvent is null!");
+            return false;
+        }
         $(e.target).addClass('windowDragging')
         eagle.leftWindow().adjusting(false);
         eagle.rightWindow().adjusting(true);
@@ -147,6 +166,11 @@ export class SideWindow {
     static leftWindowAdjustStart(eagle : Eagle, event : JQuery.TriggeredEvent) : boolean {
         const e: DragEvent = event.originalEvent as DragEvent;
 
+        if (e.target === null){
+            console.warn("SideWindow.leftWindowAdjustStart(): DragEvent is null!");
+            return false;
+        }
+
         $(e.target).addClass('windowDragging')
         eagle.leftWindow().adjusting(true);
         eagle.rightWindow().adjusting(false);
@@ -156,6 +180,11 @@ export class SideWindow {
 
     static bottomWindowAdjustStart(eagle: Eagle, event: JQuery.TriggeredEvent) : boolean {
         const e: DragEvent = event.originalEvent as DragEvent;
+
+        if (e.target === null){
+            console.warn("SideWindow.bottomWindowAdjustStart(): DragEvent is null!");
+            return false;
+        }
 
         $(e.target).addClass('windowDragging')
         eagle.leftWindow().adjusting(false);
@@ -170,6 +199,11 @@ export class SideWindow {
     // workaround to avoid left or right window adjusting on any and all drag events
     static sideWindowAdjustEnd = (eagle: Eagle, event: JQuery.TriggeredEvent) : boolean => {
         const e: DragEvent = event.originalEvent as DragEvent;
+
+        if (e.target === null){
+            console.warn("SideWindow.sideWindowAdjustEnd(): DragEvent is null!");
+            return false;
+        }
 
         $(e.target).removeClass('windowDragging')
         eagle.leftWindow().adjusting(false);

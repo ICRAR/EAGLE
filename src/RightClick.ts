@@ -14,14 +14,14 @@ import { EagleConfig } from './EagleConfig';
 
 export class RightClick {
 
-    static edgeDropSrcNode : Node
-    static edgeDropSrcPort : Field
+    static edgeDropSrcNode : Node | null
+    static edgeDropSrcPort : Field | null
     static edgeDropSrcIsInput : boolean
 
     constructor(){
         RightClick.edgeDropSrcNode = null;
         RightClick.edgeDropSrcPort = null;
-        RightClick.edgeDropSrcIsInput = null;
+        RightClick.edgeDropSrcIsInput = false;
     }
 
     static openSubMenu(menuElement: HTMLElement) : void {
@@ -34,17 +34,30 @@ export class RightClick {
 
     // TODO: global event
     static checkSearchField() : void {
-        const searchValue:string = $(event.target).val().toString().toLocaleLowerCase()
+        const searchField = $((event as any).target)
+
+        if (typeof searchField === 'undefined') {
+            console.warn('Search field not found in checkSearchField()');
+            return;
+        }
+
+        const searchFieldValue = searchField.val();
+
+        if (typeof searchFieldValue === 'undefined') {
+            console.warn('Search field value is undefined in checkSearchField()');
+            return;
+        }
+
+        const searchValue:string = searchFieldValue.toString().toLocaleLowerCase()
 
         let paletteNodesHtml = ''
         let graphNodesHtml = ''
 
-        
         $(".rightClickFocus").removeClass('rightClickFocus')
         if(searchValue !== ''){
             //if the search bar is not empty
             $('#rightClickPaletteList').hide()
-            $(event.target).parent().find('a').show()
+            $((event as any).target).parent().find('a').show()
             $('#paletteNodesSearchResult').remove()
             $('#customContextMenu .searchBarContainer').after("<div id='paletteNodesSearchResult'></div>")
 
@@ -52,10 +65,17 @@ export class RightClick {
             dropDownOptions.each(function(index,dropdownOption){
                 const dropdownNode = $(dropdownOption).text().toLocaleLowerCase();
                 if(dropdownNode.toLocaleLowerCase().includes(searchValue)){
+                    const option = $(dropdownOption).clone().get(0);
+
+                    if (typeof option === 'undefined') {
+                        console.warn('Could not clone dropdown option for search result:', dropdownOption);
+                        return;
+                    }
+
                     if($(dropdownOption).hasClass('graphNode')){
-                        graphNodesHtml= graphNodesHtml +$(dropdownOption).clone().get(0).outerHTML
+                        graphNodesHtml= graphNodesHtml + option.outerHTML
                     }else{                        
-                        paletteNodesHtml=paletteNodesHtml +$(dropdownOption).clone().get(0).outerHTML
+                        paletteNodesHtml=paletteNodesHtml + option.outerHTML
                     }
                 }
             })
@@ -70,7 +90,7 @@ export class RightClick {
             }
         } else{
             //if the search bar is empty
-            $(event.target).parent().find('a').hide()
+            $((event as any).target).parent().find('a').hide()
             $('#rightClickPaletteList').show()
             $('#paletteNodesSearchResult').remove()
         }
@@ -109,11 +129,11 @@ export class RightClick {
 
         // add nodes from each palette
         palettes.forEach(function(palette){
-            paletteList += RightClick.constructHtmlPaletteList(Array.from(palette.getNodes()),'addNode',null,palette.fileInfo().name,null)
+            paletteList += RightClick.constructHtmlPaletteList(Array.from(palette.getNodes()),'addNode', [], palette.fileInfo().name,null)
         })
 
         // add nodes from the logical graph
-        paletteList += RightClick.constructHtmlPaletteList(Array.from(eagle.logicalGraph().getNodes()),'addNode',null,'Graph',null)
+        paletteList += RightClick.constructHtmlPaletteList(Array.from(eagle.logicalGraph().getNodes()),'addNode', [], 'Graph',null)
 
         return paletteList
     }
@@ -132,7 +152,7 @@ export class RightClick {
         return paletteList
     }
 
-    static createHtmlEligibleEmbeddedNodesList(nodeType:Category.Type,passedObjectClass:string) : string {
+    static createHtmlEligibleEmbeddedNodesList(nodeType:Category.Type, passedObjectClass: "addEmbeddedOutputApp" | "addEmbeddedInputApp") : string {
         const eagle: Eagle = Eagle.getInstance();
 
         let paletteList:string = ''
@@ -147,7 +167,7 @@ export class RightClick {
                     paletteNodes.push(paletteNode)
                 }
             }
-            paletteList += RightClick.constructHtmlPaletteList(paletteNodes,'embedNode',null,palette.fileInfo().name,passedObjectClass)
+            paletteList += RightClick.constructHtmlPaletteList(paletteNodes,'embedNode', [], palette.fileInfo().name,passedObjectClass)
         }
 
         //sorting and adding compatible nodes from the graph
@@ -157,12 +177,13 @@ export class RightClick {
                 graphNodes.push(graphNode)
             }
         }
-        paletteList += RightClick.constructHtmlPaletteList(graphNodes,'embedNode',null,'Graph',passedObjectClass)
+        paletteList += RightClick.constructHtmlPaletteList(graphNodes,'embedNode', [], 'Graph',passedObjectClass)
 
         return paletteList
     }
 
-    static constructHtmlPaletteList(collectionOfNodes:Node[], mode: "addNode" | "addAndConnect" | "embedNode", compatibleNodesList:Node[],paletteName:string,embedMode:String) : string {
+    // TODO: include the "embed mode" options in the mode enum, since the embed mode is only relevant when mode is 'embedNode'
+    static constructHtmlPaletteList(collectionOfNodes:Node[], mode: "addNode" | "addAndConnect" | "embedNode", compatibleNodesList:Node[], paletteName:string, embedMode: "addEmbeddedOutputApp" | "addEmbeddedInputApp" | null) : string {
         let nodesHtml = ''
         let nodeFound = false
         let htmlPalette = "<span class='contextmenuPalette' onmouseover='RightClick.openSubMenu(this)' onmouseleave='RightClick.closeSubMenu(this)'>"+paletteName
@@ -441,10 +462,11 @@ export class RightClick {
 
     // TODO: event var used in function is the deprecated global, we should get access to the event via some other method
     static edgeDropCreateNode = (data: Node[]) : void => {
-        RightClick.requestCustomContextMenu(data, 'edgeDropCreate')
+        RightClick.requestCustomContextMenu(data, 'edgeDropCreate');
 
         // prevent bubbling events
-        event.stopPropagation();
+        // TODO: get event from somewhere instead of global
+        (event as any).stopPropagation();
     }
 
     static editNodeFuncCode = () : void => {
@@ -456,7 +478,12 @@ export class RightClick {
         }
 
         const funcCodeField = rightClickObject.findFieldByDisplayText(Daliuge.FieldName.FUNC_CODE);
-        ParameterTable.requestEditValueField(funcCodeField, false)
+
+        if (typeof funcCodeField === 'undefined'){
+            console.warn("editNodeFuncCode() could not find " + Daliuge.FieldName.FUNC_CODE + " field on node:", rightClickObject);
+        } else {
+            ParameterTable.requestEditValueField(funcCodeField, false)
+        }
     }
 
     // TODO: event var used in function is the deprecated global, we should get access to the event via some other method
@@ -489,13 +516,16 @@ export class RightClick {
         const minXMargin = 390 // this is the minimum amount of room we need on the right side of the click location to draw the context menu
         const minYMargin = 430 // this is the minimum amount of room we need on the bottom side of the click location to draw the context menu
 
+        const innerWidth = $(document).innerWidth() || 0
+        const innerHeight = $(document).innerHeight() || 0
+
         //checking for screen real estate to the right and bottom, if we are too close to the edges of the window, we expand left, up or both
-        if($(document).innerWidth()-mouseX<minXMargin){
+        if(innerWidth-mouseX<minXMargin){
             mouseX -= 4 // correcting the usability margin in the opposite direction
             $('#customContextMenu').addClass("leftBoundContextMenu")
         }
 
-        if($(document).innerHeight()-mouseY<minYMargin){
+        if(innerHeight-mouseY<minYMargin){
             mouseY -= 4 
             $('#customContextMenu').addClass("topBoundContextMenu")
         }
@@ -588,8 +618,12 @@ export class RightClick {
 //construct embedded app options
             }else if(passedObjectClass === 'addEmbeddedOutputApp' || passedObjectClass === 'addEmbeddedInputApp'){
                 if(Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
-
-                    $(thisEvent.target).addClass('fullOpacity')
+                    const target = thisEvent.target;
+                    if (target === null){
+                        console.warn("No target found for construct embedded app right click");
+                    } else {
+                        $(target).addClass('fullOpacity')
+                    }
 
                     //making sure the construct we are trying to add an embedded node to is selected
                     if(data instanceof Node){
@@ -669,6 +703,7 @@ export class RightClick {
             }
         }
         // adding a listener to function options that closes the menu if an option is clicked
-        $('#customContextMenu a').on('click',function(){if($(event.target).parents('.searchBarContainer').length){return}RightClick.closeCustomContextMenu(true)})
+        // TODO: get event from somewhere instead of global
+        $('#customContextMenu a').on('click',function(){if($((event as any).target).parents('.searchBarContainer').length){return}RightClick.closeCustomContextMenu(true)})
     }
 }

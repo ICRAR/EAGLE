@@ -42,9 +42,10 @@ export class Repositories {
         }
 
         // if the file is modified, get the user to confirm they want to overwrite changes
-        const confirmDiscardChanges: Setting = Setting.find(Setting.CONFIRM_DISCARD_CHANGES);
-        if (isModified && confirmDiscardChanges.value()){
-            const confirmed = await Utils.requestUserConfirm("Discard changes?", "Opening a new file will discard changes. Continue?", "OK", "Cancel", confirmDiscardChanges);
+        const confirmDiscardChangesSetting = Setting.find(Setting.CONFIRM_DISCARD_CHANGES);
+        const confirmDiscardChanges: boolean = confirmDiscardChangesSetting ? confirmDiscardChangesSetting.value() as boolean : true; // confirm by default if setting is undefined
+        if (isModified && confirmDiscardChanges){
+            const confirmed = await Utils.requestUserConfirm("Discard changes?", "Opening a new file will discard changes. Continue?", "OK", "Cancel", confirmDiscardChangesSetting);
             if (confirmed){
                 eagle.openRemoteFile(file);
             }
@@ -109,10 +110,11 @@ export class Repositories {
     }
 
     removeCustomRepository = async (repository : Repository): Promise<void> => {
-        const confirmRemoveRepositories: Setting = Setting.find(Setting.CONFIRM_REMOVE_REPOSITORIES);
+        const confirmRemoveRepositories = Setting.find(Setting.CONFIRM_REMOVE_REPOSITORIES);
+        const confirmRemoveRepositoriesValue: boolean = confirmRemoveRepositories ? confirmRemoveRepositories.value() as boolean : true; // confirm by default if setting is undefined
 
         // if settings dictates that we don't confirm with user, remove immediately
-        if (!confirmRemoveRepositories.value()){
+        if (!confirmRemoveRepositoriesValue){
             this._removeCustomRepository(repository);
             return;
         }
