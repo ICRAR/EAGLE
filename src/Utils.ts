@@ -2168,7 +2168,7 @@ export class Utils {
         const srcPortType = destPort.getType() === undefined ? Daliuge.DataType.Object : destPort.getType();
 
         // create new source port
-        const srcPort = new Field(edge.getSrcPort().getId(), destPort.getDisplayText(), "", "", "", false, srcPortType, false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.OutputPort);
+        const srcPort = new Field(srcNode, edge.getSrcPort().getId(), destPort.getDisplayText(), "", "", "", false, srcPortType, false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.OutputPort);
 
         // add port to source node
         srcNode.addField(srcPort);
@@ -2187,7 +2187,7 @@ export class Utils {
         const destPortType = srcPort.getType() === undefined ? Daliuge.DataType.Object : srcPort.getType();
 
         // create new destination port
-        const destPort = new Field(edge.getDestPort().getId(), srcPort.getDisplayText(), "", "", "", false, destPortType, false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.OutputPort);
+        const destPort = new Field(destNode, edge.getDestPort().getId(), srcPort.getDisplayText(), "", "", "", false, destPortType, false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.OutputPort);
 
         // add port to destination node
         destNode.addField(destPort);
@@ -2793,10 +2793,10 @@ export class Utils {
         }
 
         // find node with new type in builtinPalette
-        const newCategoryPrototype: Node = palette.findNodeByNameAndCategory(category);
+        const newCategoryPrototype = palette.findNodeByNameAndCategory(category);
 
         // check that category was found
-        if (newCategoryPrototype === null){
+        if (typeof newCategoryPrototype === 'undefined'){
             console.warn("Prototypes for new category could not be found in palettes", category);
             return;
         }

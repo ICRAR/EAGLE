@@ -46,7 +46,7 @@ export class Field {
 
     private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}>//keeps track of issues on the field
 
-    constructor(id: FieldId, displayText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: Daliuge.DataType, precious: boolean, options: string[], positional: boolean, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage){
+    constructor(node: Node, id: FieldId, displayText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: Daliuge.DataType, precious: boolean, options: string[], positional: boolean, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage){
         this.displayText = ko.observable(displayText);
         this.value = ko.observable(value);
         this.defaultValue = ko.observable(defaultValue);
@@ -62,7 +62,7 @@ export class Field {
         this.parameterType = ko.observable(parameterType);
         this.usage = ko.observable(usage);
         this.isEvent = ko.observable(false);
-        this.node = ko.observable(null);
+        this.node = ko.observable(node);
         this.edges = ko.observable(new Map<EdgeId, Edge>());
 
         //graph related things
