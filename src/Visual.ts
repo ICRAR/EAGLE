@@ -43,6 +43,7 @@ export class Visual {
     private content : ko.Observable<string>;
     private target : ko.Observable<Node | Edge | Visual | null>; // the id of the node or edge this comment is attached to, or null if it's free-floating
     private targetLocation : ko.Observable<{x:number, y:number}>; // the location on the target where the comment is attached, in target-local coordinates
+    private color : ko.Observable<string>; //used for the background of group visuals
 
     constructor(type: Visual.Type, content: string) {
         this.id = ko.observable(Utils.generateVisualId());
@@ -59,6 +60,7 @@ export class Visual {
         this.content = ko.observable(content);
         this.target = ko.observable(null);
         this.targetLocation = ko.observable(null);
+        this.color = ko.observable(EagleConfig.getColor('groupVisualBackgroundColor'))
     }
 
     getId = () : VisualId => {
@@ -153,6 +155,15 @@ export class Visual {
         return this;
     }
 
+    getColor = () : string => {
+        return this.color()
+    }
+
+    setColor = (color:string) : Visual => {
+        this.color(color)
+        return this
+    }
+
     isText = () : boolean => {
         return this.type() === Visual.Type.Text;
     }
@@ -167,7 +178,8 @@ export class Visual {
             .setWidth(this.width())
             .setHeight(this.height())
             .setTarget(this.target())
-            .setTargetLocation(this.targetLocation());
+            .setTargetLocation(this.targetLocation())
+            .setColor(this.color());
         return result;
     }
 
@@ -179,6 +191,7 @@ export class Visual {
         const height: number = visualData.height;
         const type: Visual.Type = visualData.type;
         const content: string = visualData.content || '';
+        const color: string = visualData.color;
         const targetId: string = visualData.targetId || null;
         const targetLocation: {x:number, y:number} = visualData.targetLocation || null;
 
@@ -197,6 +210,7 @@ export class Visual {
         .setWidth(width)
         .setHeight(height)
         .setTarget(target)
+        .setColor(color)
         .setTargetLocation(targetLocation);
     }
 
@@ -209,6 +223,7 @@ export class Visual {
             height: visual.height(),
             type: visual.type(),
             content: visual.content(),
+            color: visual.color(),
             targetId: visual.target() ? visual.target().getId() : null,
             targetLocation: visual.targetLocation()
         }

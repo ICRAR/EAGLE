@@ -1186,8 +1186,16 @@ export class GraphRenderer {
         }else if(GraphRenderer.isResizingVisual()){
             moveDistance = {x:e.pageX - GraphRenderer.visualResizeCurrentPos?.x, y: e.pageY - GraphRenderer.visualResizeCurrentPos?.y}
             GraphRenderer.visualResizeCurrentPos = {x:e.pageX,y:e.pageY}
-            //The visual resizes in both directions from the center, halving the size change relative to the mouse movement. We multiply by 2 to keep the mouse on top of the resize handle
-            GraphRenderer.visualBeingResized.changeSize((moveDistance.x/eagle.globalScale())*2, (moveDistance.y/eagle.globalScale())*2)
+            
+            GraphRenderer.visualBeingResized.changeSize((moveDistance.x/eagle.globalScale()), (moveDistance.y/eagle.globalScale()))
+
+            //we change the position of the visual because of the way the renderer centers nodes. if we did not do this, the scaling would happen in both directions around the center of the node.
+            if(GraphRenderer.visualBeingResized.isText()){
+                //text visuals only scale on the x axis since their y scaling is based on content.
+                GraphRenderer.visualBeingResized.changePosition((moveDistance.x/eagle.globalScale()/2), 0)
+            }else{
+                GraphRenderer.visualBeingResized.changePosition((moveDistance.x/eagle.globalScale()/2), (moveDistance.y/eagle.globalScale())/2)
+            }
         }
     }
 

@@ -1,9 +1,9 @@
 <div class="nodeContent groupVisual" data-bind="style: {width: $data.getWidth() + 'px', height: $data.getHeight() + 'px'}">
     <div class="container" data-bind="css: {selected: $root.objectIsSelected($data)}">
         <div class="commentIcons">
-            <button class="parameterTableEditParam icon-pencil iconHoverEffect" data-bind="click:function(data,event){$root.editTextVisualContent($data)}"></button>
+            <input type="color" data-bind="value:$data.color, valueUpdate: 'input'">
         </div>
-        <div class="body"  data-bind="eagleRightClick: {data:$data,type:'rightClick_groupVisual'}, event: {mousedown: function(object,event){GraphRenderer.startDrag(object,event);}, mouseup: function(){GraphRenderer.endDrag($data);}}, mousedownBubble: false, mouseupBubble: false">
+        <div class="body"  data-bind="style:{'background-color': $data.getColor()}, eagleRightClick: {data:$data,type:'rightClick_groupVisual'}, event: {mousedown: function(object,event){GraphRenderer.startDrag(object,event);}, mouseup: function(){GraphRenderer.endDrag($data);}}, mousedownBubble: false, mouseupBubble: false">
         </div>
         <div class="resizeHandle" data-bind="event:{ mousedown: function($data,event){GraphRenderer.startVisualResize($data,event);}, mousedownBubble: false, mouseupBubble: false}, clickBubble: false"></div>
     </div>
