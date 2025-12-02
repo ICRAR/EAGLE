@@ -72,6 +72,19 @@
                 <button id="checkForComponentUpdates" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: checkForComponentUpdates, eagleTooltip: KeyboardShortcut.idToFullText('check_for_component_updates')">
                     <i class="md-18 icon-component_update"></i>
                 </button>
+                <li class="nav-item dropdown iconDropdown">
+                    <a class="nav-link dropdown-toggle dropdown-control ms-auto iconHoverEffect" href="#" id="navbarDropdownGraph" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="md-18 icon-component_update"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right dropdown-area" aria-labelledby="navbarDropdownGraph">
+                        <button class="dropdown-item btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: function(){eagle.addVisualToLogicalGraph(null,'Text', null)}, eagleTooltip: 'Add Text Visual. Explain your graph and can be linked to objects.'">
+                            <i class="md-18 icon-component_update"></i>
+                        </button>
+                        <button class="dropdown-item btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: function(){eagle.addVisualToLogicalGraph(null,'Group', null)}, eagleTooltip: `Add Group Visual. Organise your graph with these coloured background shapes. These are purely visual and dont affect the graph's function.`">
+                            <i class="md-18 icon-component_update"></i>
+                        </button>
+                    </div>
+                </li>
             </div>
 
             <!-- navbar category -->

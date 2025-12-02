@@ -4139,11 +4139,10 @@ export class Eagle {
                 return null;
             }
 
+            // create a new visual of the requested type
+            newVisual =  new Visual(type, '');
+
             if(mode === Eagle.AddNodeMode.ContextMenu){
-
-                // create a new visual of the requested type
-                newVisual =  new Visual(type, '');
-
                 // use the position where the right click occurred
                 pos = Eagle.selectedRightClickPosition;
 
@@ -4168,6 +4167,9 @@ export class Eagle {
 
             // add the visual to the logical graph
             logicalGraph.addVisual(visual);
+
+            //select the new visual in the graph so it is easy to spot
+            this.setSelection(visual,Eagle.FileType.Graph)
 
             return visual;
         });
