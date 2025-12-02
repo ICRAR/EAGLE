@@ -86,7 +86,7 @@ export class DockerHubBrowser {
         this.fetchImages(image, tag);
     }
 
-    fetchImages = async (selectedImage: string, selectedTag: string): Promise<void> => {
+    fetchImages = async (selectedImage: string | null, selectedTag: string | null): Promise<void> => {
         // if already fetched, abort
         if (this.hasFetchedImages()){
             console.warn("Already fetched images");
@@ -135,7 +135,7 @@ export class DockerHubBrowser {
         this.fetchTags(selectedTag);
     }
 
-    fetchTags = async (selectedTag: string): Promise<void> => {
+    fetchTags = async (selectedTag: string | null): Promise<void> => {
         // if already fetched, abort
         if (this.hasFetchedTags()){
             console.warn("Already fetched tags");

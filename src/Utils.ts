@@ -937,7 +937,7 @@ export class Utils {
         return true;
     }
 
-    static updateGitCommitRepositoriesList(repositories: Repository[], defaultRepository: Repository) : void {
+    static updateGitCommitRepositoriesList(repositories: Repository[], defaultRepository: Repository | null) : void {
         // remove existing options from the repository name select tag
         $('#gitCommitModalRepositoryNameSelect').empty();
 
@@ -3001,5 +3001,10 @@ export class Utils {
         // Replace invalid filename characters with underscores
         // This regex covers most OS restrictions (Windows, macOS, Linux)
         return name.replace(/[^a-zA-Z0-9_\-\.]/g, "_");
+    }
+
+    static getUIValue(selector: string, defaultValue: string): string {
+        const value = $(selector).val();
+        return value ? value.toString() : defaultValue;
     }
 }

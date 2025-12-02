@@ -23,7 +23,8 @@ export class Modals {
         $('#inputModal').on('hidden.bs.modal', function(){
             const returnType = $('#inputModal').data('returnType');
             const completed: boolean = $('#inputModal').data('completed');
-            const input: string = $('#inputModalInput').val().toString();
+            const inputModalInputValue = $('#inputModalInput').val();
+            const input: string = inputModalInputValue ? inputModalInputValue.toString() : "";
 
             switch (returnType){
                 case "string": {
@@ -74,7 +75,8 @@ export class Modals {
                 console.log("No callback called when #inputTextModal hidden");
             } else {
                 const completed: boolean = $('#inputTextModal').data('completed');
-                const input: string = $('#inputTextModalInput').val().toString();
+                const inputModalInputValue = $('#inputTextModalInput').val();
+                const input: string = inputModalInputValue ? inputModalInputValue.toString() : "";
                 callback(completed, input);
             }
 
@@ -200,9 +202,11 @@ export class Modals {
                 } else {
                     // check selected option in select tag
                     const choices : string[] = $('#choiceModal').data('choices');
-                    const choiceIndex : number = parseInt($('#choiceModalSelect').val().toString(), 10);
+                    const choiceModalSelectValue = $('#choiceModalSelect').val();
+                    const choiceIndex : number = choiceModalSelectValue ? parseInt(choiceModalSelectValue.toString(), 10) : 0;
                     const choice = $('#choiceModalSelect option:selected').text();
-                    const customChoice = $('#choiceModalString').val().toString();
+                    const customChoiceValue = $('#choiceModalString').val();
+                    const customChoice = customChoiceValue ? customChoiceValue.toString() : "";
 
                     // if the last item in the select was selected, then return the custom value,
                     // otherwise return the selected choice
@@ -227,10 +231,11 @@ export class Modals {
         });
 
         $('#choiceModalSelect').on('change', function(){
-            const choice : number = parseInt($('#choiceModalSelect').val().toString(), 10);
+            const choiceModalSelectValue = $('#choiceModalSelect').val();
+            const choice : number = choiceModalSelectValue ? parseInt(choiceModalSelectValue.toString(), 10) : 0;
 
             //checking if the value of the select element is valid
-            if(!$('#choiceModalSelect').val() || choice > $('#choiceModalSelect option').length){
+            if(!choiceModalSelectValue || choice > $('#choiceModalSelect option').length){
                 $('#choiceModalSelect').val(0)
                 console.warn('Invalid selection value (', choice, '), resetting to 0');
             }
@@ -331,15 +336,15 @@ export class Modals {
                     // check selected option in select tag
                     const repositoryService : Repository.Service = <Repository.Service>$('#gitCommitModalRepositoryServiceSelect').val();
                     const repositories : Repository[] = $('#gitCommitModal').data('repositories');
-                    const repositoryNameChoice : number = parseInt($('#gitCommitModalRepositoryNameSelect').val().toString(), 10);
+                    const repositoryNameChoice : number = parseInt(Utils.getUIValue('#gitCommitModalRepositoryNameSelect', "0"), 10);
 
                     // split repository text (with form: "name (branch)") into name and branch strings
                     const repositoryName : string = repositories[repositoryNameChoice].name;
                     const repositoryBranch : string = repositories[repositoryNameChoice].branch;
 
-                    const filePath : string = $('#gitCommitModalFilePathInput').val().toString();
-                    let fileName : string = $('#gitCommitModalFileNameInput').val().toString();
-                    const commitMessage : string = $('#gitCommitModalCommitMessageInput').val().toString();
+                    const filePath : string = Utils.getUIValue('#gitCommitModalFilePathInput', "");
+                    let fileName : string = Utils.getUIValue('#gitCommitModalFileNameInput', "");
+                    const commitMessage : string = Utils.getUIValue('#gitCommitModalCommitMessageInput', "");
 
                     // ensure that the graph filename ends with ".graph" or ".palette" as appropriate
                     const fileType : Eagle.FileType = $('#gitCommitModal').data('fileType');
@@ -401,9 +406,9 @@ export class Modals {
                 } else {
 
                     // check selected option in select tag
-                    const repositoryService : Repository.Service = <Repository.Service>$('#gitCustomRepositoryModalRepositoryServiceSelect').val();
-                    const repositoryName : string = $('#gitCustomRepositoryModalRepositoryNameInput').val().toString();
-                    const repositoryBranch : string = $('#gitCustomRepositoryModalRepositoryBranchInput').val().toString();
+                    const repositoryService : Repository.Service = <Repository.Service>Utils.getUIValue('#gitCustomRepositoryModalRepositoryServiceSelect', Repository.Service.Unknown);
+                    const repositoryName : string = Utils.getUIValue('#gitCustomRepositoryModalRepositoryNameInput', "");
+                    const repositoryBranch : string = Utils.getUIValue('#gitCustomRepositoryModalRepositoryBranchInput', "");
 
                     callback(true, repositoryService, repositoryName, repositoryBranch);
                 }
@@ -521,30 +526,44 @@ export class Modals {
 
     static validateFieldModalValueInputText(data: Field, event: Event): void {
         const type: string = data.getType()
-        const value: any = $(event.target).val();
+        const eventTarget = event.target;
+
+        if (eventTarget === null){
+            console.error("Event target is null in validateFieldModalValueInputText");
+            return;
+        }
+
+        const value: any = $(eventTarget).val();
         const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
 
         // only validate Json fields
         if (realType !== Daliuge.DataType.Json){
-            $(event.target).removeClass('is-valid');
-            $(event.target).removeClass('is-invalid');
+            $(eventTarget).removeClass('is-valid');
+            $(eventTarget).removeClass('is-invalid');
             return;
         }
 
         const isValid = Utils.validateField(realType, value);
 
-        Modals._setValidClasses($(event.target), isValid);
+        Modals._setValidClasses($(eventTarget), isValid);
     }
 
     static validateCommitModalFileNameInputText(): void {
         const inputElement = $("#gitCommitModalFileNameInput");
+        const inputElementValue = inputElement.val();
+
+        if (typeof inputElementValue === "undefined"){
+            console.error("Input element value is undefined in validateCommitModalFileNameInputText");
+            return;
+        }
+
         const fileTypeData = $('#gitCommitModal').data('fileType');
         const fileType: Eagle.FileType = fileTypeData ? fileTypeData : Eagle.FileType.Unknown;
         
         const isValid = (fileType === Eagle.FileType.Unknown) ||
-            (fileType === Eagle.FileType.Graph && inputElement.val().toString().endsWith(".graph")) ||
-            (fileType === Eagle.FileType.Palette && inputElement.val().toString().endsWith(".palette")) ||
-            (fileType === Eagle.FileType.GraphConfig && inputElement.val().toString().endsWith(".graphConfig"));
+            (fileType === Eagle.FileType.Graph && inputElementValue.toString().endsWith(".graph")) ||
+            (fileType === Eagle.FileType.Palette && inputElementValue.toString().endsWith(".palette")) ||
+            (fileType === Eagle.FileType.GraphConfig && inputElementValue.toString().endsWith(".graphConfig"));
 
         Modals._setValidClasses(inputElement, isValid);
     }
@@ -648,7 +667,7 @@ export class Modals {
 export namespace Modals {
     export type UserStringCallback = (completed: boolean, userString: string) => void;
     export type UserTextCallback = (completed: boolean, userText: string) => void;
-    export type UserFieldCallback = (field: Field) => void; // NOTE: completed is not required, since all changes happen to the field directly (immediately)
+    export type UserFieldCallback = (field: Field | null) => void; // NOTE: completed is not required, since all changes happen to the field directly (immediately)
     export type UserConfirmCallback = (completed: boolean, confirmed: boolean) => void;
     export type UserDockerHubCallback = (completed: boolean) => void;
     export type UserOptionsCallback = (selectedOptionIndex: number) => void;

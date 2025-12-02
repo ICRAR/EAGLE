@@ -133,16 +133,14 @@ $(function(){
         }
 
         // hide the ?mode=x part of the url
-        window.history.replaceState(null, null, window.location.origin + window.location.pathname);
+        window.history.replaceState(null, "", window.location.origin + window.location.pathname);
     }
 
     // load the default palette
     eagle.loadDefaultPalettes();
 
     // set other state based on settings values
-    if (Setting.findValue(Setting.SNAP_TO_GRID)){
-        eagle.snapToGrid(Setting.findValue(Setting.SNAP_TO_GRID));
-    }
+    eagle.snapToGrid(Setting.findValueAsBoolean(Setting.SNAP_TO_GRID));
 
     // load schemas
     Utils.loadSchemas();
@@ -349,7 +347,7 @@ async function autoLoad() {
 
     // if developer setting enabled, fetch the repository that this graph belongs to (if the repository is in the list of known repositories)
     if (serviceIsGit && Setting.findValue(Setting.FETCH_REPOSITORY_FOR_URLS)){
-        let repo: Repository = Repositories.get(service, repository, branch);
+        let repo: Repository | null = Repositories.get(service, repository, branch);
 
         // check whether the source repository is already known to EAGLE
         if (repo === null){
