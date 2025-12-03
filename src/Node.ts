@@ -837,7 +837,7 @@ export class Node {
         return '- Git -</br>Url:&nbsp;' + url + '</br>Hash:&nbsp;' + hash;
     }, this);
 
-    findPortInApplicationsById = (portId: FieldId) : {node: Node | null, port: Field | null} => {
+    findPortInApplicationsById = (portId: FieldId) : {node: Node | undefined, port: Field | undefined} => {
         const inputApplication = this.inputApplication();
         const outputApplication = this.outputApplication();
 
@@ -869,7 +869,7 @@ export class Node {
             }
         }
 
-        return {node: null, port: null};
+        return {node: undefined, port: undefined};
     }
 
     findPortIndexById = (portId: FieldId) : number => {
