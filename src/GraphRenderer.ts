@@ -47,7 +47,7 @@ ko.bindingHandlers.nodeRenderHandler = {
         }
     },
     update: function (element:any, valueAccessor) {
-        let node: Node = ko.unwrap(valueAccessor());
+        const node: Node = ko.unwrap(valueAccessor());
 
         // set size
         $(element).css({'height':node.getRadius()*2+'px','width':node.getRadius()*2+'px'});
@@ -66,23 +66,30 @@ ko.bindingHandlers.nodeRenderHandler = {
         }
 
         const pos = node.getPosition() // this line is needed because referencing position here causes this update function to run when the node position gets updated aka. when we are dragging a node on the graph
-        if(node.isConstruct() || node.getParent() !== null ){
-            if(!node.isConstruct()){
-                node = node.getParent();
+        const nodeParent = node.getParent();
+        const isConstruct = node.isConstruct();
+
+        if (isConstruct){
+            GraphRenderer.resizeConstruct(node);
+        } else {
+            if (nodeParent !== null){
+                GraphRenderer.resizeConstruct(nodeParent);
             }
-            GraphRenderer.resizeConstruct(node)
         }
     },
 };
 
 ko.bindingHandlers.embeddedAppPosition = {
     update: function (element:any, valueAccessor) {
-        const eagle : Eagle = Eagle.getInstance();
         const applicationNode: Node = ko.utils.unwrapObservable(valueAccessor()).applicationNode;
         const input: boolean = ko.utils.unwrapObservable(valueAccessor()).input;
 
         // find the node in which the applicationNode has been embedded
-        const parentNode: Node = applicationNode.getEmbed();
+        const parentNode = applicationNode.getEmbed();
+        if (parentNode === null){
+            console.warn("embeddedAppPosition binding: application node " + applicationNode.getId() + " has no parent node");
+            return;
+        }
 
         // determine all the adjacent nodes
         // TODO: earlier abort if field is null
@@ -144,18 +151,10 @@ ko.bindingHandlers.graphRendererPortPosition = {
         const eagle : Eagle = Eagle.getInstance();
         const n: Node = ko.utils.unwrapObservable(valueAccessor()).n;
         const f: Field = ko.utils.unwrapObservable(valueAccessor()).f;
-        const dataType: string = ko.utils.unwrapObservable(valueAccessor()).type;
+        const dataType: "inputPort" | "outputPort" = ko.utils.unwrapObservable(valueAccessor()).type;
         // determine the 'node' and 'field' attributes (for this way of using this binding)
-        let node : Node 
-        let field : Field
-
-        switch(dataType){
-            case 'inputPort':
-            case 'outputPort':
-                node = f.getNode()
-                field = f
-                break;
-        }
+        const node : Node = f.getNode();
+        const field : Field = f;
 
         // determine all the adjacent nodes
         const adjacentNodes: Node[] = [];
@@ -235,6 +234,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
                     break;
                 default:
                     console.warn("disconnected field with dataType:", dataType);
+                    averageAngle = 0
                     break;
             }
         }
@@ -2259,14 +2259,17 @@ export class GraphRenderer {
         const eagle = Eagle.getInstance();
         for (const node of eagle.logicalGraph().getNodes()){
             if(node.isConstruct()){
-                if(node.getInputApplication() != null){
-                    for (const inputAppField of node.getInputApplication().getFields()){
+                const inputApplication = node.getInputApplication()
+                const outputApplication = node.getOutputApplication()
+
+                if(inputApplication !== null){
+                    for (const inputAppField of inputApplication.getFields()){
                        inputAppField.setInputPeek(false) 
                        inputAppField.setOutputPeek(false) 
                     }
                 }
-                if(node.getOutputApplication() != null){
-                    for (const outputAppField of node.getOutputApplication().getFields()){
+                if(outputApplication !== null){
+                    for (const outputAppField of outputApplication.getFields()){
                         outputAppField.setInputPeek(false) 
                         outputAppField.setOutputPeek(false) 
                     }

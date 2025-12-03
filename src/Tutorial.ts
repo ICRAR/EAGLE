@@ -95,7 +95,8 @@ export class TutorialSystem {
     }
 
     static initiateSimpleFindGraphNodeIdByNodeName(name:string) : string {
-        return Eagle.getInstance().logicalGraph().findNodeIdByNodeName(name)
+        const nodeId = Eagle.getInstance().logicalGraph().findNodeIdByNodeName(name)
+        return nodeId === null ? "<name not found" : nodeId;
     }
 
     static isRequestedNodeSelected(name:string) : boolean {
