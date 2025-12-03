@@ -403,15 +403,23 @@ export class LogicalGraph {
             // if source node or destination node is a construct, then something is wrong, constructs should not have ports
             if (sourceNode.getCategoryType() === Category.Type.Construct){
                 const srcIdAndPort = sourceNode.findPortInApplicationsById(edge.getSrcPort().getId());
-                const warning = "Updated source node of edge " + edge.getId() + " from construct " + edge.getSrcNode().getId() + " to embedded application " + srcIdAndPort.node.getId();
-                errorsWarnings.warnings.push(Errors.Message(warning));
-                edge.getSrcNode().setId(srcIdAndPort.node.getId());
+                if (srcIdAndPort.node === null){
+                    // TODO: add error
+                } else {
+                    const warning = "Updated source node of edge " + edge.getId() + " from construct " + edge.getSrcNode().getId() + " to embedded application " + srcIdAndPort.node.getId();
+                    errorsWarnings.warnings.push(Errors.Message(warning));
+                    edge.getSrcNode().setId(srcIdAndPort.node.getId());
+                }
             }
             if (destinationNode.getCategoryType() === Category.Type.Construct){
                 const destKeyAndPort = destinationNode.findPortInApplicationsById(edge.getDestPort().getId());
-                const warning = "Updated destination node of edge " + edge.getId() + " from construct " + edge.getDestNode().getId() + " to embedded application " + destKeyAndPort.node.getId();
-                errorsWarnings.warnings.push(Errors.Message(warning));
-                edge.getDestNode().setId(destKeyAndPort.node.getId());
+                if (destKeyAndPort.node === null){
+                    // TODO: add error
+                } else {
+                    const warning = "Updated destination node of edge " + edge.getId() + " from construct " + edge.getDestNode().getId() + " to embedded application " + destKeyAndPort.node.getId();
+                    errorsWarnings.warnings.push(Errors.Message(warning));
+                    edge.getDestNode().setId(destKeyAndPort.node.getId());
+                }
             }
         }
 
@@ -797,7 +805,7 @@ export class LogicalGraph {
         return newNode;
     }
 
-    findNodeIdByNodeName = (name: string): NodeId => {
+    findNodeIdByNodeName = (name: string): NodeId | null=> {
         for (const [id, node] of this.nodes()){
             if (node.getName() === name){
                 return id;
@@ -875,12 +883,15 @@ export class LogicalGraph {
         // delete edges incident on this node
         this.removeEdgesById(id);
 
+        const inputApplication = node.getInputApplication();
+        const outputApplication = node.getOutputApplication();
+
         // delete edges incident on the embedded apps of this node
-        if (node.hasInputApplication()){
-            this.removeEdgesById(node.getInputApplication().getId());
+        if (inputApplication !== null){
+            this.removeEdgesById(inputApplication.getId());
         }
-        if (node.hasOutputApplication()){
-            this.removeEdgesById(node.getOutputApplication().getId());
+        if (outputApplication !== null){
+            this.removeEdgesById(outputApplication.getId());
         }
 
         // search through nodes in graph, looking for one with the correct key
@@ -895,17 +906,20 @@ export class LogicalGraph {
                 break;
             }
 
+            const inputApplication = node.getInputApplication();
+            const outputApplication = node.getOutputApplication();
+
             // delete the input application
-            if (node.hasInputApplication() && node.getInputApplication().getId() === id){
-                this.nodes().delete(node.getInputApplication().getId());
+            if (inputApplication !== null && inputApplication.getId() === id){
+                this.nodes().delete(inputApplication.getId());
                 this.nodes.valueHasMutated();
                 node.setInputApplication(null);
                 break;
             }
 
             // delete the output application
-            if (node.hasOutputApplication() && node.getOutputApplication().getId() === id){
-                this.nodes().delete(node.getOutputApplication().getId());
+            if (outputApplication !== null && outputApplication.getId() === id){
+                this.nodes().delete(outputApplication.getId());
                 this.nodes.valueHasMutated();
                 node.setOutputApplication(null);
                 break;
@@ -918,12 +932,12 @@ export class LogicalGraph {
         }
 
         // remove inputApplication and outputApplication from the nodes map
-        if (node.hasInputApplication()){
-            this.nodes().delete(node.getInputApplication().getId());
+        if (inputApplication !== null){
+            this.nodes().delete(inputApplication.getId());
             this.nodes.valueHasMutated();
         }
-        if (node.hasOutputApplication()){
-            this.nodes().delete(node.getOutputApplication().getId());
+        if (outputApplication !== null){
+            this.nodes().delete(outputApplication.getId());
             this.nodes.valueHasMutated();
         }
     }
@@ -1111,7 +1125,13 @@ export class LogicalGraph {
     // TODO: we might be able to just make this findDepth(node: Node)
     findDepthById = (id: NodeId) : number => {
         const node = this.nodes().get(id);
-        let parent: Node = node.getParent();
+
+        if (typeof node === 'undefined'){
+            console.error("findDepthById(): could not find node with id", id);
+            return -1;
+        }
+
+        let parent = node.getParent();
         let depth = 0;
         let iterations = 0;
 
@@ -1404,7 +1424,7 @@ export class LogicalGraph {
                     const issue: Errors.Issue = Errors.Fix(
                         "Node in graph config (" + graphConfig.fileInfo().name + ") is not present in Logical Graph",
                         function(){
-                            graphConfig.removeNode(graphNode);
+                            graphConfig.removeNodeById(graphConfigNode.getNode().getId());
                         },
                         "Delete node from graph config"
                     );
