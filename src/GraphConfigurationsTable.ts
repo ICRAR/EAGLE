@@ -21,8 +21,8 @@ export class GraphConfigurationsTable {
         if($('.modal.show').length>0){
             $('.modal.show').modal('hide')
         }
-            
-        Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(Eagle.BottomWindowMode.GraphConfigsTable)
+        
+        Setting.setValue(Setting.BOTTOM_WINDOW_MODE, Eagle.BottomWindowMode.GraphConfigsTable)
         SideWindow.setShown('bottom',true)
     }
 }
