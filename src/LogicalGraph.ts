@@ -44,7 +44,7 @@ export class LogicalGraph {
     private nodes : ko.Observable<Map<NodeId, Node>>;
     private edges : ko.Observable<Map<EdgeId, Edge>>;
     private graphConfigs : ko.Observable<Map<GraphConfigId, GraphConfig>>;
-    private activeGraphConfigId : ko.Observable<GraphConfigId>;
+    private activeGraphConfigId : ko.Observable<GraphConfigId | null>;
 
     private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}> //keeps track of higher level errors on the graph
     
@@ -109,11 +109,13 @@ export class LogicalGraph {
             }
 
             // for OJS format, we actually store links using the node keys of the construct, not the node keys of the embedded applications
-            if (srcNode.isEmbedded()){
-                srcId = srcNode.getEmbed().getId();
+            const srcEmbed = srcNode.getEmbed();
+            const destEmbed = destNode.getEmbed();
+            if (srcEmbed){
+                srcId = srcEmbed.getId();
             }
-            if (destNode.isEmbedded()){
-                destId = destNode.getEmbed().getId();
+            if (destEmbed){
+                destId = destEmbed.getId();
             }
 
             linkData.from = srcId;
@@ -146,15 +148,16 @@ export class LogicalGraph {
             const nodeData : any = Node.toV4GraphJson(node);
             result.nodes[id] = nodeData;
 
+            const inputApplication = node.getInputApplication();
+            const outputApplication = node.getOutputApplication();
+
             // add input and output applications to the top-level nodes dict
-            if (node.hasInputApplication()){
-                const inputApp = node.getInputApplication();
-                result.nodes[inputApp.getId()] = Node.toV4GraphJson(inputApp);
+            if (inputApplication !== null){
+                result.nodes[inputApplication.getId()] = Node.toV4GraphJson(inputApplication);
             }
 
-            if (node.hasOutputApplication()){
-                const outputApp = node.getOutputApplication();
-                result.nodes[outputApp.getId()] = Node.toV4GraphJson(outputApp);
+            if (outputApplication !== null){
+                result.nodes[outputApplication.getId()] = Node.toV4GraphJson(outputApplication);
             }
         }
 
@@ -190,12 +193,13 @@ export class LogicalGraph {
         // if we are sending this graph for translation, then only provide the "active" graph configuration, or an empty array if none exist
         // otherwise, add all graph configurations
         if (forTranslation){
-            if (graph.activeGraphConfigId() === null){
+            const activeGraphConfig = graph.getActiveGraphConfig();
+
+            if (typeof activeGraphConfig === "undefined"){
                 result += '"graphConfigurations": {},\n';
             } else {
                 const graphConfigurations: any = {};
-                graphConfigurations[graph.activeGraphConfigId().toString()] = GraphConfig.toJson(graph.getActiveGraphConfig());
-
+                graphConfigurations[activeGraphConfig.getId()] = GraphConfig.toJson(activeGraphConfig);
                 result += '"graphConfigurations": ' + JSON.stringify(graphConfigurations, null, EagleConfig.JSON_INDENT) + ",\n";
             }
         } else {
@@ -222,12 +226,13 @@ export class LogicalGraph {
         // if we are sending this graph for translation, then only provide the "active" graph configuration, or an empty array if none exist
         // otherwise, add all graph configurations
         if (forTranslation){
-            if (graph.activeGraphConfigId() === null){
+            const activeGraphConfig = graph.getActiveGraphConfig();
+
+            if (typeof activeGraphConfig === "undefined"){
                 result += '"graphConfigurations": {},\n';
             } else {
                 const graphConfigurations: any = {};
-                graphConfigurations[graph.activeGraphConfigId().toString()] = GraphConfig.toJson(graph.getActiveGraphConfig());
-
+                graphConfigurations[activeGraphConfig.getId()] = GraphConfig.toJson(activeGraphConfig);
                 result += '"graphConfigurations": ' + JSON.stringify(graphConfigurations, null, EagleConfig.JSON_INDENT) + ",\n";
             }
         } else {
@@ -271,6 +276,11 @@ export class LogicalGraph {
         // add nodes
         for (const nodeData of dataObject.nodeDataArray){
             const nodeDataId = Node.determineNodeId(nodeData);
+
+            if (nodeDataId === null){
+                continue;
+            }
+
             const newNode = Node.fromOJSJson(nodeData, errorsWarnings, false);
 
             if (newNode === null){
@@ -280,12 +290,15 @@ export class LogicalGraph {
             result.nodes().set(newNode.getId(), newNode);
             nodeDataIdToNodeId.set(nodeDataId, newNode.getId());
 
+            const inputApplication = newNode.getInputApplication();
+            const outputApplication = newNode.getOutputApplication();
+
             // add input and output applications to the top-level nodes list
-            if (newNode.hasInputApplication()){
-                result.nodes().set(newNode.getInputApplication().getId(), newNode.getInputApplication());
+            if (inputApplication !== null){
+                result.nodes().set(inputApplication.getId(), inputApplication);
             }
-            if (newNode.hasOutputApplication()){
-                result.nodes().set(newNode.getOutputApplication().getId(), newNode.getOutputApplication());
+            if (outputApplication !== null){
+                result.nodes().set(outputApplication.getId(), outputApplication);
             }
 
             result.nodes.valueHasMutated();
@@ -305,11 +318,24 @@ export class LogicalGraph {
             }
 
             const nodeDataId = Node.determineNodeId(nodeData);
+
+            if (nodeDataId === null){
+                continue;
+            }
+
             const nodeId = nodeDataIdToNodeId.get(nodeDataId);
             const parentId = nodeDataIdToNodeId.get(parentDataId);
 
+            if (typeof nodeId === 'undefined' || typeof parentId === 'undefined'){
+                continue;
+            }
+
             const node = result.nodes().get(nodeId);
             const parent = result.nodes().get(parentId);
+
+            if (typeof node === 'undefined' || typeof parent === 'undefined'){
+                continue;
+            }
 
             node.setParent(parent);
         }
@@ -496,11 +522,14 @@ export class LogicalGraph {
         this.nodes().forEach(function(node: Node){
             nodes.push(node)
             if(node.isConstruct()){
-                if(node.getInputApplication()!= null){
-                    nodes.push(node.getInputApplication())
+                const inputApplication = node.getInputApplication();
+                const outputApplication = node.getOutputApplication();
+
+                if(inputApplication != null){
+                    nodes.push(inputApplication)
                 }
-                if(node.getOutputApplication() != null){
-                    nodes.push(node.getOutputApplication())
+                if(outputApplication != null){
+                    nodes.push(outputApplication)
                 }
             }
         })
@@ -634,10 +663,15 @@ export class LogicalGraph {
     }
 
     getActiveGraphConfig = (): GraphConfig | undefined => {
-        return this.getGraphConfigById(this.activeGraphConfigId())
+        const activeGraphConfigId = this.activeGraphConfigId();
+        if (activeGraphConfigId === null){
+            return undefined;
+        }
+
+        return this.getGraphConfigById(activeGraphConfigId);
     }
 
-    setActiveGraphConfig = (configId: GraphConfigId): void => {
+    setActiveGraphConfig = (configId: GraphConfigId | null): void => {
         this.activeGraphConfigId(configId)
     }
 
@@ -987,7 +1021,7 @@ export class LogicalGraph {
     }
 
     findMultiplicity = (node : Node) : number => {
-        let n : Node = node;
+        let n : Node | null = node;
         let result : number = 1;
         let iterations : number = 0;
 
@@ -1015,7 +1049,7 @@ export class LogicalGraph {
         return result;
     }
 
-    checkForNodeAt = (x: number, y: number, radius: number, findEligibleGroups: boolean = false) : Node => {
+    checkForNodeAt = (x: number, y: number, radius: number, findEligibleGroups: boolean = false) : Node | null => {
         const overlaps : Node[] = [];
         const eagle = Eagle.getInstance();
 
@@ -1060,7 +1094,7 @@ export class LogicalGraph {
 
         // once found all the overlaps, we return the most-leaf (highest depth) node
         let maxDepth: number = -1;
-        let maxDepthOverlap: Node = null;
+        let maxDepthOverlap: Node | null = null;
 
         for (const overlap of overlaps){
             const depth = this.findDepthById(overlap.getId());
@@ -1149,7 +1183,10 @@ export class LogicalGraph {
 
         // write nodes to result in sorted order
         for (const idPlusDepth of idPlusDepths){
-            result.push(this.nodes().get(idPlusDepth.id));
+            const n = this.nodes().get(idPlusDepth.id);
+            if (n !== undefined) {
+                result.push(n);    
+            }
         }
 
         return result;
@@ -1361,7 +1398,7 @@ export class LogicalGraph {
         for (const graphConfig of graph.getGraphConfigs()){
             for (const graphConfigNode of graphConfig.getNodes()){
                 // check that node exists in graph
-                const graphNode: Node = graph.nodes().get(graphConfigNode.getNode().getId());
+                const graphNode = graph.nodes().get(graphConfigNode.getNode().getId());
 
                 if (typeof graphNode === 'undefined'){
                     const issue: Errors.Issue = Errors.Fix(
@@ -1376,7 +1413,7 @@ export class LogicalGraph {
                 }
 
                 for (const graphConfigField of graphConfigNode.getFields()){
-                    const graphField: Field = graphNode.getFieldById(graphConfigField.getField().getId());
+                    const graphField = graphNode.getFieldById(graphConfigField.getField().getId());
 
                     if (typeof graphField === 'undefined'){
                         const issue: Errors.Issue = Errors.Fix(

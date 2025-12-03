@@ -270,33 +270,33 @@ ko.bindingHandlers.graphRendererPortPosition = {
 };
 
 export class GraphRenderer {
-    static nodeData : Node[] = null
+    static nodeData : Node[] | null = null
 
     // TODO: group all the dragging variables. move into a structure?
     static isDragging : ko.Observable<boolean> = ko.observable(false);
-    static draggingNode : ko.Observable<Node> = ko.observable(null);
+    static draggingNode : ko.Observable<Node | null> = ko.observable(null);
     static draggingPaletteNode : boolean = false;
 
     //port drag handler globals
     static draggingPort : boolean = false;
     static isDraggingPortValid: ko.Observable<Errors.Validity> = ko.observable(Errors.Validity.Unknown);
-    static destinationNode : Node = null;
-    static destinationPort : Field = null;
+    static destinationNode : Node | null = null;
+    static destinationPort : Field | null = null;
     
-    static portDragSourceNode : ko.Observable<Node> = ko.observable(null);
-    static portDragSourcePort : ko.Observable<Field> = ko.observable(null);
+    static portDragSourceNode : ko.Observable<Node | null> = ko.observable(null);
+    static portDragSourcePort : ko.Observable<Field | null> = ko.observable(null);
     static portDragSourcePortIsInput: boolean = false;
 
-    static portDragSuggestedNode : ko.Observable<Node> = ko.observable(null);
-    static portDragSuggestedField : ko.Observable<Field> = ko.observable(null);
+    static portDragSuggestedNode : ko.Observable<Node | null> = ko.observable(null);
+    static portDragSuggestedField : ko.Observable<Field | null> = ko.observable(null);
     static portDragSuggestionValidity : ko.Observable<Errors.Validity> = ko.observable(Errors.Validity.Unknown) // this is necessary because we cannot keep the validity on the ege as it does not exist
     static createEdgeSuggestedPorts : {field:Field,node:Node,validity: Errors.Validity}[] = []
     static portMatchCloseEnough :ko.Observable<boolean> = ko.observable(false);
 
     //node drag handler globals
-    static nodeParentRadiusPreDrag : number = null;
+    static nodeParentRadiusPreDrag : number | null = null;
     static nodeDragElement : any = null
-    static nodeDragNode : Node = null
+    static nodeDragNode : Node | null = null
     static dragStartPosition : any = null
     static dragCurrentPosition : any = null
     static dragSelectionHandled : any = ko.observable(true)
@@ -311,7 +311,7 @@ export class GraphRenderer {
     static isDraggingSelectionRegion :boolean = false;
     static selectionRegionStart = {x:0, y:0};
     static selectionRegionEnd = {x:0, y:0};
-    static ctrlDrag:boolean = null;
+    static ctrlDrag:boolean | null = null;
     static editNodeName:boolean = false;
     static portDragStartPos = {x:0, y:0};
     static simpleSelect : boolean = true; // used for node dragging/selecting. if the cursor position hasn't moved far when click/dragging a node. we wont update the node's position and handle it as a simple select action
@@ -1467,7 +1467,7 @@ export class GraphRenderer {
 
     // TODO: maybe move to LogicalGraph.ts
     // TODO: the graphNodes parameter probably should be a LogicalGraph
-    static centerConstruct(construct:Node, graphNodes:Node[]) : void {
+    static centerConstruct(construct:Node | null, graphNodes:Node[]) : void {
         if(!construct){
             Utils.showNotification('Error','A single Construct node must be selected!',"warning")
             return
