@@ -63,7 +63,8 @@ export class GraphConfig {
         }
 
         // otherwise add new node
-        const newNode: GraphConfigNode = new GraphConfigNode();
+        const newNode: GraphConfigNode = new GraphConfigNode(node);
+        // TODO: required? probably better to set this in GraphConfigNode constructor
         newNode.setNode(node);
         this.nodes().set(node.getId(), newNode);
         this.nodes.valueHasMutated();
@@ -264,14 +265,15 @@ export class GraphConfigNode {
         }
 
         // otherwise add new field
-        const newField: GraphConfigField = new GraphConfigField();
+        const newField: GraphConfigField = new GraphConfigField(field);
+        // TODO: required? probably better to set this in GraphConfigField constructor
         newField.setField(field);
         this.fields().set(field.getId(), newField);
         this.fields.valueHasMutated();
         return newField;
     }
 
-    getFieldById = (id: FieldId): GraphConfigField => {
+    getFieldById = (id: FieldId): GraphConfigField | undefined => {
         return this.fields().get(id);
     }
 
@@ -286,14 +288,21 @@ export class GraphConfigNode {
     }
 
     static fromJson(data: any, node: Node, errorsWarnings: Errors.ErrorsWarnings): GraphConfigNode {
-        const result = new GraphConfigNode();
+        const result = new GraphConfigNode(node);
 
         if (data.fields !== undefined){
             for (const fieldId in data.fields){
                 const fieldData = data.fields[fieldId];
-                const newField: GraphConfigField = GraphConfigField.fromJson(fieldData, errorsWarnings);
                 const lgField = node.getFieldById(fieldId as FieldId);
 
+                if (typeof lgField === 'undefined'){
+                    console.warn("GraphConfigNode.fromJson(): Could not find field", fieldId, "in node", node.getName());
+                    errorsWarnings.errors.push(Errors.Message("GraphConfigNode.fromJson(): Could not find field " + fieldId + " in node " + node.getName()));
+                    continue;
+                }
+
+                const newField: GraphConfigField = GraphConfigField.fromJson(fieldData, lgField, errorsWarnings);
+                // TODO: required? probably better to set this in GraphConfigField.fromJson()
                 newField.setField(lgField);
                 result.fields().set(lgField.getId(), newField);
                 result.fields.valueHasMutated();
@@ -309,7 +318,7 @@ export class GraphConfigNode {
         // add fields
         result.fields = {};
         for (const [id, field] of node.fields()){
-            const graphField: Field = graphNode.getFieldById(id);
+            const graphField = graphNode.getFieldById(id);
 
             if (typeof graphField === 'undefined'){
                 continue;
@@ -324,19 +333,19 @@ export class GraphConfigNode {
 
 export class GraphConfigField {
     private field: ko.Observable<Field>;
-    private value: ko.Observable<string>;
+    private value: ko.Observable<string | null>;
     private comment: ko.Observable<string>;
 
-    constructor(){
-        this.field = ko.observable(null);
+    constructor(field: Field){
+        this.field = ko.observable(field);
         this.value = ko.observable("");
         this.comment = ko.observable("");
     }
 
     clone = (): GraphConfigField => {
-        const result = new GraphConfigField();
+        const result = new GraphConfigField(this.field());
 
-        result.field(this.field());
+        //result.field(this.field());
         result.value(this.value());
         result.comment(this.comment());
 
@@ -357,12 +366,17 @@ export class GraphConfigField {
         return this;
     }
 
-    getValue = (): string => {
+    getValue = (): string | null => {
         return this.value();
     }
 
-    toggle = () : GraphConfigField => {        
-        this.value((!Utils.asBool(this.value())).toString());
+    toggle = () : GraphConfigField => {
+        let oldValue = this.value();
+        if (oldValue === null){
+            oldValue = "false";
+        }
+        
+        this.value((!Utils.asBool(oldValue)).toString());
         return this;
     }
 
@@ -375,8 +389,8 @@ export class GraphConfigField {
         return this.comment();
     }
 
-    static fromJson(data: any, errorsWarnings: Errors.ErrorsWarnings): GraphConfigField {
-        const result = new GraphConfigField();
+    static fromJson(data: any, field: Field, errorsWarnings: Errors.ErrorsWarnings): GraphConfigField {
+        const result = new GraphConfigField(field);
 
         if (typeof data.value !== 'undefined'){
             if (data.value === null){

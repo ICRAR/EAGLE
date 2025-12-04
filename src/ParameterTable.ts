@@ -523,9 +523,11 @@ export class ParameterTable {
         let editingField: Field | GraphConfigField // this will either be the normal field or the configured field if applicable
         let editingValue: string // this will either be the value or default value or configured value
 
+        const graphConfigField = field.getGraphConfigField();
+
         //checking if the field is a configured field
-        if(!defaultValue && field.getGraphConfigField()){
-            editingField = field.getGraphConfigField()
+        if(!defaultValue && graphConfigField){
+            editingField = graphConfigField
             editingValue = editingField.getValue()
         }else{
             editingField = field
@@ -566,7 +568,13 @@ export class ParameterTable {
             return;
         }
 
-        const configField: GraphConfigField = activeGraphConfig.getNodeById(currentNode.getId()).getFieldById(currentField.getId());
+        //TODO: can we use: const configField = currentField.getGraphConfigField();
+        const configField: GraphConfigField | undefined = activeGraphConfig?.getNodeById(currentNode.getId())?.getFieldById(currentField.getId());
+
+        if (typeof configField === 'undefined'){
+            console.warn("Could not find configuration field to edit comment in");
+            return;
+        }
 
         let fieldComment: string;
         try {

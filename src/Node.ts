@@ -1604,13 +1604,14 @@ export class Node {
         // add fields
         if (typeof nodeData.fields !== 'undefined'){
             for (const fieldData of nodeData.fields){
-                const field = Field.fromOJSJson(fieldData);
+                const field = Field.fromOJSJson(fieldData, node);
 
                 // if the parameter type is not specified, assume it is a ComponentParameter
                 if (field.getParameterType() === Daliuge.FieldType.Unknown){
                     field.setParameterType(Daliuge.FieldType.Component);
                 }
 
+                // TODO: required? probably better to set this in Field.fromOJSJson()
                 node.addField(field);
             }
         }
@@ -1618,7 +1619,7 @@ export class Node {
         // add application params
         if (typeof nodeData.applicationArgs !== 'undefined'){
             for (const paramData of nodeData.applicationArgs){
-                const field = Field.fromOJSJson(paramData);
+                const field = Field.fromOJSJson(paramData, node);
                 field.setParameterType(Daliuge.FieldType.Application);
                 node.addField(field);
             }
@@ -1630,7 +1631,7 @@ export class Node {
                 const inputApplication = node.inputApplication();
 
                 if (inputApplication !== null){
-                    const field = Field.fromOJSJson(fieldData);
+                    const field = Field.fromOJSJson(fieldData, inputApplication);
                     inputApplication.addField(field);
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Can't add input app field " + fieldData.text + " to node " + node.getName() + ". No input application."));
@@ -1644,7 +1645,7 @@ export class Node {
                 const outputApplication = node.outputApplication();
 
                 if (outputApplication !== null){
-                    const field = Field.fromOJSJson(fieldData);
+                    const field = Field.fromOJSJson(fieldData, outputApplication);
                     outputApplication.addField(field);
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Can't add output app field " + fieldData.text + " to node " + node.getName() + ". No output application."));
@@ -1655,7 +1656,7 @@ export class Node {
         // add input ports
         if (typeof nodeData.inputPorts !== 'undefined'){
             for (const inputPort of nodeData.inputPorts){
-                const port = Field.fromOJSJsonPort(inputPort);
+                const port = Field.fromOJSJsonPort(inputPort, node);
                 port.setParameterType(Daliuge.FieldType.Application);
                 port.setUsage(Daliuge.FieldUsage.InputPort);
 
@@ -1674,7 +1675,7 @@ export class Node {
         // add output ports
         if (typeof nodeData.outputPorts !== 'undefined'){
             for (const outputPort of nodeData.outputPorts){
-                const port = Field.fromOJSJsonPort(outputPort);
+                const port = Field.fromOJSJsonPort(outputPort, node);
                 port.setParameterType(Daliuge.FieldType.Application);
                 port.setUsage(Daliuge.FieldUsage.OutputPort);
 
@@ -1696,7 +1697,7 @@ export class Node {
                 const inputApplication = node.inputApplication();
 
                 if (inputApplication !== null){
-                    const port = Field.fromOJSJsonPort(inputLocalPort);
+                    const port = Field.fromOJSJsonPort(inputLocalPort, inputApplication);
                     port.setParameterType(Daliuge.FieldType.Application);
                     port.setUsage(Daliuge.FieldUsage.OutputPort);
 
@@ -1713,7 +1714,7 @@ export class Node {
                 const outputApplication = node.outputApplication();
 
                 if (outputApplication !== null){
-                    const port = Field.fromOJSJsonPort(outputLocalPort);
+                    const port = Field.fromOJSJsonPort(outputLocalPort, outputApplication);
                     port.setParameterType(Daliuge.FieldType.Application);
                     port.setUsage(Daliuge.FieldUsage.InputPort);
 
@@ -1766,7 +1767,8 @@ export class Node {
 
         // add fields
         for (const [id, fieldData] of Object.entries(nodeData.fields)){
-            const field = Field.fromV4Json(fieldData);
+            const field = Field.fromV4Json(fieldData, node);
+            // TODO: required? probably better to set this in Field.fromV4Json()
             node.addField(field);
         }
 
