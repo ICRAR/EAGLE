@@ -314,8 +314,12 @@ export class Eagle {
     }
 
     deployDefaultTranslationAlgorithm = async () => {
+        const translatorAlgorithmDefault = Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT);
+        if (typeof translatorAlgorithmDefault === 'undefined'){
+            console.warn("deployDefaultTranslationAlgorithm(): default translator algorithm setting is undefined");
+        }
 
-        const defaultTranslatorAlgorithmMethod : string = $('#'+Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT)+ ' .generatePgt').val().toString()
+        const defaultTranslatorAlgorithmMethod : string = Utils.getUIValue('#'+ translatorAlgorithmDefault + ' .generatePgt', "agl-1");
         try {
             await this.translator().genPGT(defaultTranslatorAlgorithmMethod, false);
         } catch (error){

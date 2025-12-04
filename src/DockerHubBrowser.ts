@@ -45,7 +45,7 @@ export class DockerHubBrowser {
     isValid: ko.Observable<boolean>; // true iff a valid selection has been made in the docker hub browser UI
 
     constructor(){
-        this.username = ko.observable(Setting.findValue(Setting.DOCKER_HUB_USERNAME));
+        this.username = ko.observable(Setting.findValueAsString(Setting.DOCKER_HUB_USERNAME));
         this.images = ko.observableArray([]);
         this.tags = ko.observableArray([]);
         this.digests = ko.observableArray([]);
@@ -63,7 +63,7 @@ export class DockerHubBrowser {
     }
 
     clear = () : void => {
-        this.username(Setting.findValue(Setting.DOCKER_HUB_USERNAME));
+        this.username(Setting.findValueAsString(Setting.DOCKER_HUB_USERNAME));
         this.images([]);
         this.tags([]);
         this.digests([]);
