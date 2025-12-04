@@ -433,8 +433,8 @@ export class Edge {
         }
 
         // get references to actual source and destination nodes (from the ids)
-        const sourceNode : Node = eagle.logicalGraph().getNodeById(sourceNodeId);
-        const destinationNode : Node = eagle.logicalGraph().getNodeById(destinationNodeId);
+        const sourceNode = eagle.logicalGraph().getNodeById(sourceNodeId);
+        const destinationNode = eagle.logicalGraph().getNodeById(destinationNodeId);
 
         if (typeof sourceNode === "undefined" || typeof destinationNode === "undefined"){
             return Errors.Validity.Unknown;
@@ -518,18 +518,22 @@ export class Edge {
         }
 
         // check relationship of destination Node in relation to source node
-        const sourceHasParent = sourceNode.getParent() !== null;
-        const sourceHasEmbed = sourceNode.getEmbed() !== null;
-        const destinationHasParent = destinationNode.getParent() !== null;
-        const destinationHasEmbed = destinationNode.getEmbed() !== null;
-        const isParentOfConstruct : boolean = sourceHasParent && destinationHasEmbed && sourceNode.getParent().getId() === destinationNode.getEmbed().getId(); // is the connection from a child of a construct to an embedded app of the same construct
-        const isChildOfConstruct : boolean = destinationHasParent && sourceHasEmbed && destinationNode.getParent().getId() === sourceNode.getEmbed().getId(); //is the connections from an embedded app of a construct to a child of that same construct
-        const isSibling : boolean = (sourceHasParent && destinationHasParent && sourceNode.getParent().getId() === destinationNode.getParent().getId()) || (!sourceHasParent && !destinationHasParent); // do the two nodes have the same parent
-        let associatedConstructType : Category = null; //the category type of the parent construct of the source or destination node
+        const sourceParent = sourceNode.getParent();
+        const destinationParent = destinationNode.getParent();
+        const sourceEmbed = sourceNode.getEmbed();
+        const destinationEmbed = destinationNode.getEmbed();
+        //const sourceHasParent = sourceNode.getParent() !== null;
+        //const sourceHasEmbed = sourceNode.getEmbed() !== null;
+        //const destinationHasParent = destinationNode.getParent() !== null;
+        //const destinationHasEmbed = destinationNode.getEmbed() !== null;
+        const isParentOfConstruct : boolean = sourceParent !== null && destinationEmbed !== null && sourceParent.getId() === destinationEmbed.getId(); // is the connection from a child of a construct to an embedded app of the same construct
+        const isChildOfConstruct : boolean = destinationParent !== null && sourceEmbed !== null && destinationParent.getId() === sourceEmbed.getId(); //is the connections from an embedded app of a construct to a child of that same construct
+        const isSibling : boolean = (sourceParent !== null && destinationParent !== null && sourceParent.getId() === destinationParent.getId()) || (sourceParent === null && destinationParent === null); // do the two nodes have the same parent
+        let associatedConstructType : Category = Category.Unknown; //the category type of the parent construct of the source or destination node
 
         //these checks are to see if the source or destination node are embedded apps whose parent is a sibling of the other source or destination node
-        const destPortIsEmbeddedAppOfSibling : boolean = sourceHasParent && destinationHasEmbed && sourceNode.getParent().getId() === destinationNode.getEmbed()?.getParent()?.getId();
-        const srcPortIsEmbeddedAppOfSibling : boolean = destinationHasParent && sourceHasEmbed && destinationNode.getParent().getId() === sourceNode.getEmbed()?.getParent()?.getId();
+        const destPortIsEmbeddedAppOfSibling : boolean = sourceParent !== null && destinationEmbed !== null && sourceParent.getId() === destinationEmbed?.getParent()?.getId();
+        const srcPortIsEmbeddedAppOfSibling : boolean = destinationParent !== null && sourceEmbed !== null && destinationParent.getId() === sourceEmbed?.getParent()?.getId();
 
         //checking the type of the parent nodes
         if(!isSibling){
@@ -555,8 +559,8 @@ export class Edge {
         if(    isSibling && loopAware 
             || destPortIsEmbeddedAppOfSibling && loopAware
             || srcPortIsEmbeddedAppOfSibling && loopAware
-            || sourceNode.isEmbedded() && destinationNode.hasParent() && sourceNode.getEmbed().getId() === destinationNode.getParent().getId() && loopAware
-            || destinationNode.isEmbedded() && sourceNode.hasParent() && destinationNode.getEmbed().getId() === sourceNode.getParent().getId() && loopAware
+            || sourceNode.isEmbedded() && destinationNode.hasParent() && sourceEmbed !== null && destinationParent !== null &&sourceEmbed.getId() === destinationParent.getId() && loopAware
+            || destinationNode.isEmbedded() && sourceNode.hasParent() && destinationEmbed !== null && sourceParent !== null && destinationEmbed.getId() === sourceParent.getId() && loopAware
             || associatedConstructType !== Category.Loop && loopAware
         ){
             const x = Errors.ShowFix("Edge between two siblings should not be loop aware", function(){Utils.showEdge(eagle, edge);}, function(){Utils.fixDisableEdgeLoopAware(eagle, edgeId);}, "Disable loop aware on the edge.");
@@ -627,7 +631,7 @@ export class Edge {
         }
     }
 
-    private static isValidLog(edge: Edge, draggingPortMode: boolean, linkValid: Errors.Validity, issue: Errors.Issue, showNotification: boolean, showConsole: boolean, errorsWarnings: Errors.ErrorsWarnings): void {
+    private static isValidLog(edge: Edge | undefined, draggingPortMode: boolean, linkValid: Errors.Validity, issue: Errors.Issue, showNotification: boolean, showConsole: boolean, errorsWarnings: Errors.ErrorsWarnings): void {
         // determine correct title
         let title = "Edge Valid";
         let type : "success" | "info" | "warning" | "danger" = "success";

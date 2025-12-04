@@ -2162,7 +2162,11 @@ export class Utils {
         }
     }
 
-    static addSourcePortToSourceNode(eagle: Eagle, edge: Edge){
+    static addSourcePortToSourceNode(eagle: Eagle, edge: Edge | undefined){
+        if (typeof edge === 'undefined'){
+            console.warn("fixAddSourcePortToSourceNode(): edge is undefined");
+            return;
+        }
         const srcNode = edge.getSrcNode();
         const destPort = edge.getDestPort();
 
@@ -2181,7 +2185,11 @@ export class Utils {
         srcNode.addField(srcPort);
     }
 
-    static addDestinationPortToDestinationNode(eagle: Eagle, edge: Edge){
+    static addDestinationPortToDestinationNode(eagle: Eagle, edge: Edge | undefined){
+        if (typeof edge === 'undefined'){
+            console.warn("fixAddDestinationPortToDestinationNode(): edge is undefined");
+            return;
+        }
         const destNode = edge.getDestNode();
         const srcPort = edge.getSrcPort();
 
@@ -2200,7 +2208,11 @@ export class Utils {
         destNode.addField(destPort);
     }
 
-    static fixMoveEdgeToEmbeddedApplication(eagle: Eagle, edge: Edge){
+    static fixMoveEdgeToEmbeddedApplication(eagle: Eagle, edge: Edge | undefined){
+        if (typeof edge === 'undefined'){
+            console.warn("fixMoveEdgeToEmbeddedApplication(): edge is undefined");
+            return;
+        }
         const srcNode = edge.getSrcNode();
         const destNode = edge.getDestNode();
 
@@ -2208,7 +2220,7 @@ export class Utils {
         if (srcNode.getCategoryType() === Category.Type.Construct){
             const embeddedApplicationKeyAndPort = srcNode.findPortInApplicationsById(edge.getSrcPort().getId());
 
-            if (embeddedApplicationKeyAndPort.node !== null){
+            if (typeof embeddedApplicationKeyAndPort.node !== 'undefined'){
                 edge.setSrcNode(embeddedApplicationKeyAndPort.node);
             }
         }
@@ -2217,7 +2229,7 @@ export class Utils {
         if (destNode.getCategoryType() === Category.Type.Construct){
             const embeddedApplicationKeyAndPort = destNode.findPortInApplicationsById(edge.getDestPort().getId());
 
-            if (embeddedApplicationKeyAndPort.node !== null){
+            if (typeof embeddedApplicationKeyAndPort.node !== 'undefined'){
                 edge.setDestNode(embeddedApplicationKeyAndPort.node);
             }
         }
@@ -2232,7 +2244,12 @@ export class Utils {
         field.setParameterType(newType);
     }
 
-    static fixAppToAppEdge(eagle: Eagle, edge: Edge){
+    static fixAppToAppEdge(eagle: Eagle, edge: Edge | undefined){
+        if (typeof edge === 'undefined'){
+            console.warn("fixAppToAppEdge(): edge is undefined");
+            return;
+        }
+        
         const srcNode: Node = edge.getSrcNode();
         const destNode: Node = edge.getDestNode();
         const srcPort: Field = edge.getSrcPort();
@@ -2339,11 +2356,13 @@ export class Utils {
         graph.updateGraphConfigId(graphConfigId, Utils.generateGraphConfigId());
     }
 
-    static showEdge(eagle: Eagle, edge: Edge): void {
+    static showEdge(eagle: Eagle, edge: Edge | undefined): void {
         // close errors modal if visible
         $('#issuesDisplay').modal("hide");
 
-        eagle.setSelection(edge, Eagle.FileType.Graph);
+        if (typeof edge !== 'undefined'){
+            eagle.setSelection(edge, Eagle.FileType.Graph);
+        }
     }
 
     static showNode(eagle: Eagle, location: Eagle.FileType, node: Node): void {
