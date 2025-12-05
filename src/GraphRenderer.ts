@@ -269,6 +269,8 @@ ko.bindingHandlers.graphRendererPortPosition = {
     }
 };
 
+type position2d = {x:number, y:number} | null;
+
 export class GraphRenderer {
     static nodeData : Node[] | null = null
 
@@ -297,8 +299,8 @@ export class GraphRenderer {
     static nodeParentRadiusPreDrag : number | null = null;
     static nodeDragElement : any = null
     static nodeDragNode : Node | null = null
-    static dragStartPosition : any = null
-    static dragCurrentPosition : any = null
+    static dragStartPosition: position2d = null;
+    static dragCurrentPosition : position2d = null;
     static dragSelectionHandled : any = ko.observable(true)
     static dragSelectionDoubleClick :boolean = false;
 
@@ -309,11 +311,11 @@ export class GraphRenderer {
     static altSelect : boolean = false;
     static shiftSelect : boolean = false;
     static isDraggingSelectionRegion :boolean = false;
-    static selectionRegionStart = {x:0, y:0};
-    static selectionRegionEnd = {x:0, y:0};
+    static selectionRegionStart: position2d = null;
+    static selectionRegionEnd: position2d = null;
     static ctrlDrag:boolean | null = null;
     static editNodeName:boolean = false;
-    static portDragStartPos = {x:0, y:0};
+    static portDragStartPos: position2d = null;
     static simpleSelect : boolean = true; // used for node dragging/selecting. if the cursor position hasn't moved far when click/dragging a node. we wont update the node's position and handle it as a simple select action
 
     static mousePosX : ko.Observable<number> = ko.observable(-1);
@@ -1019,6 +1021,11 @@ export class GraphRenderer {
     }
 
     static startDrag(node: Node, event: MouseEvent) : void {
+        if (!event.target){
+            console.warn("startDrag called with null target");
+            return;
+        }
+
         //if we click on the title of a node, cancel the drag handler
         if($(event.target).parent().parent().hasClass('header') || $(event.target).parent().hasClass('edgeComments') || $(event.target).parent().hasClass('commentIcons')){
             event.preventDefault()
@@ -1107,7 +1114,7 @@ export class GraphRenderer {
 
         //ive found that using the event.movementX and Y mouse tracking we were using, is not accurate when browser level zoom is applied. so i am calculating the movement per tick myself
         //this is done by comparing the current position, with the position recorded by the previous tick of this function
-        let moveDistance = {x:0,y:0}
+        let moveDistance: position2d = {x:0,y:0}
         if(GraphRenderer.dragCurrentPosition){
             moveDistance = {x:e.pageX - GraphRenderer.dragCurrentPosition?.x, y: e.pageY - GraphRenderer.dragCurrentPosition?.y}
         }
@@ -1154,6 +1161,11 @@ export class GraphRenderer {
     static endDrag(node: Node) : void {
         const eagle = Eagle.getInstance();
 
+        if (GraphRenderer.selectionRegionStart === null || GraphRenderer.selectionRegionEnd === null){
+            console.warn("endDrag called with null selection region points");
+            return;
+        }
+
         // if we dragged a selection region
         if (GraphRenderer.isDraggingSelectionRegion){
             const nodes: Node[] = GraphRenderer.findNodesInRegion(GraphRenderer.selectionRegionStart.x, GraphRenderer.selectionRegionEnd.x, GraphRenderer.selectionRegionStart.y, GraphRenderer.selectionRegionEnd.y);
@@ -1171,10 +1183,8 @@ export class GraphRenderer {
             //resetting some helper variables
             GraphRenderer.ctrlDrag = false;
             
-            GraphRenderer.selectionRegionStart.x = 0;
-            GraphRenderer.selectionRegionStart.y = 0;
-            GraphRenderer.selectionRegionEnd.x = 0;
-            GraphRenderer.selectionRegionEnd.y = 0;
+            GraphRenderer.selectionRegionStart = {x: 0, y: 0};
+            GraphRenderer.selectionRegionEnd = {x: 0, y: 0};
             
             GraphRenderer.isDraggingSelectionRegion = false;
 
@@ -1216,6 +1226,11 @@ export class GraphRenderer {
         const containerWidth = $('#logicalGraph').width()
         const containerHeight = $('#logicalGraph').height()
 
+        if (typeof containerWidth === "undefined" || typeof containerHeight === "undefined"){
+            console.warn("initiateDragSelection called with undefined container dimensions");
+            return;
+        }
+
         //turning the graph coordinates into a distance from bottom/right for css inset before applying
         const selectionBottomOffset = containerHeight - GraphRenderer.selectionRegionEnd.y
         const selectionRightOffset = containerWidth - GraphRenderer.selectionRegionEnd.x
@@ -1225,6 +1240,16 @@ export class GraphRenderer {
     static drawSelectionRectangle() : void {
         const containerWidth = $('#logicalGraph').width()
         const containerHeight = $('#logicalGraph').height()
+
+        if (GraphRenderer.selectionRegionStart === null || GraphRenderer.selectionRegionEnd === null){
+            console.warn("drawSelectionRectangle called with null selection region points");
+            return;
+        }
+
+        if (typeof containerWidth === "undefined" || typeof containerHeight === "undefined"){
+            console.warn("drawSelectionRectangle called with undefined container dimensions");
+            return;
+        }
 
         if(GraphRenderer.selectionRegionEnd.x>GraphRenderer.selectionRegionStart.x){
             $('#selectionRectangle').css({'left':GraphRenderer.selectionRegionStart.x+'px','right':containerWidth - GraphRenderer.selectionRegionEnd.x+'px'})
@@ -1279,11 +1304,11 @@ export class GraphRenderer {
         const outermostNodes : Node[] = eagle.getOutermostSelectedNodes()
         
         for (const outermostNode of outermostNodes){
-            const oldParent: Node = outermostNode.getParent();
+            const oldParent = outermostNode.getParent();
             let parentingSuccessful = false; //if the detected parent of one node in the selection changes, we assign the new parent to the whole selection and exit this loop
 
             // the parent construct is only allowed to grow by the amount specified(eagleConfig.construct_drag_out_distance) before allowing its children to escape
-            if(outermostNode.getParent() !== null && oldParent.getRadius()>GraphRenderer.nodeParentRadiusPreDrag+EagleConfig.CONSTRUCT_DRAG_OUT_DISTANCE){
+            if(oldParent !== null && oldParent.getRadius()>GraphRenderer.nodeParentRadiusPreDrag+EagleConfig.CONSTRUCT_DRAG_OUT_DISTANCE){
                 $('#'+oldParent.getId()).addClass('transition')
                 GraphRenderer.parentSelection(outermostNodes, null);
                 parentingSuccessful = true;
@@ -1315,7 +1340,7 @@ export class GraphRenderer {
         }
     }
 
-    static parentSelection(outermostNodes : Node[], parent:Node) : void {
+    static parentSelection(outermostNodes : Node[], parent: Node | null) : void {
 
         const allowGraphEditing = Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
         outermostNodes.forEach(function(object){
@@ -1405,15 +1430,18 @@ export class GraphRenderer {
             let destFound = false;
 
             for (const node of nodes){
+                const inputApplication = node.getInputApplication();
+                const outputApplication = node.getOutputApplication();
+
                 if ((node.getId() === srcId) ||
-                    (node.hasInputApplication() && node.getInputApplication().getId() === srcId) ||
-                    (node.hasOutputApplication() && node.getOutputApplication().getId() === srcId)){
+                    (inputApplication !== null && inputApplication.getId() === srcId) ||
+                    (outputApplication !== null && outputApplication.getId() === srcId)){
                     srcFound = true;
                 }
 
                 if ((node.getId() === destId) ||
-                    (node.hasInputApplication() && node.getInputApplication().getId() === destId) ||
-                    (node.hasOutputApplication() && node.getOutputApplication().getId() === destId)){
+                    (inputApplication !== null && inputApplication.getId() === destId) ||
+                    (outputApplication !== null && outputApplication.getId() === destId)){
                     destFound = true;
                 }
             }
@@ -1616,7 +1644,7 @@ export class GraphRenderer {
     // update the parent of the given node
     // however, if allowGraphEditing is false, then don't update
     // TODO: check what to do if incoming parent is null (what happened if old parentId was null?)
-    static updateNodeParent(node: Node, parent: Node, allowGraphEditing: boolean): void {
+    static updateNodeParent(node: Node, parent: Node | null, allowGraphEditing: boolean): void {
         const oldNodeParent = node.getParent();
         if (oldNodeParent === null || parent === null || (oldNodeParent.getId() !== parent.getId()) && allowGraphEditing){
             node.setParent(parent);
@@ -1705,14 +1733,20 @@ export class GraphRenderer {
         }
 
         // build the list of all ports in the graph that are a valid end-point for an edge starting at this port
-        GraphRenderer.createEdgeSuggestedPorts = GraphRenderer.findMatchingPorts(GraphRenderer.portDragSourceNode(), GraphRenderer.portDragSourcePort());
+        GraphRenderer.createEdgeSuggestedPorts = GraphRenderer.findMatchingPorts(port.getNode(), port);
     }
 
     static portDragging() : void {
         GraphRenderer.updateMousePos();
 
+        const portDragSourceNode = GraphRenderer.portDragSourceNode();
+        const portDragSourcePort = GraphRenderer.portDragSourcePort();
+        if (portDragSourceNode === null || portDragSourcePort === null){
+            console.error("source node or port is null in portDragging()");
+            return;
+        }
         // check for nearest matching port in the nearby nodes
-        const match: {node: Node, field: Field, validity:Errors.Validity} = GraphRenderer.findNearestMatchingPort(GraphRenderer.mousePosX(), GraphRenderer.mousePosY(), GraphRenderer.portDragSourceNode(), GraphRenderer.portDragSourcePort(), GraphRenderer.portDragSourcePortIsInput);
+        const match: {node: Node | null, field: Field | null, validity:Errors.Validity} = GraphRenderer.findNearestMatchingPort(GraphRenderer.mousePosX(), GraphRenderer.mousePosY(), portDragSourceNode, portDragSourcePort, GraphRenderer.portDragSourcePortIsInput);
 
         if (match.field !== null){
             GraphRenderer.portDragSuggestedNode(match.node);
@@ -1729,6 +1763,15 @@ export class GraphRenderer {
         const eagle = Eagle.getInstance();
 
         GraphRenderer.draggingPort = false;
+
+        const srcNode = GraphRenderer.portDragSourceNode();
+        const srcPort = GraphRenderer.portDragSourcePort();
+
+        if (srcNode === null || srcPort === null){
+            console.error("source node or port is null in portDragEnd()");
+            return;
+        }
+
         // cleaning up the port drag event listeners
         $('#logicalGraphParent').off('mouseup.portDrag')
         $('.node .body').off('mouseup.portDrag')
@@ -1736,22 +1779,19 @@ export class GraphRenderer {
         //here
         if(Math.abs(GraphRenderer.portDragStartPos.x - GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null))+Math.abs(GraphRenderer.portDragStartPos.y - GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null))<3){
             //identify a click, if we click a port, we will open the parameter table and highlight the port
-            ParameterTable.openTableAndSelectField(GraphRenderer.portDragSourceNode(), GraphRenderer.portDragSourcePort())
+            ParameterTable.openTableAndSelectField(srcNode, srcPort)
             GraphRenderer.clearEdgeVars();
         }else{
             if ((GraphRenderer.destinationPort !== null || GraphRenderer.portDragSuggestedField() !== null) && GraphRenderer.portMatchCloseEnough()){
-                const srcNode: Node = GraphRenderer.portDragSourceNode();
-                const srcPort: Field = GraphRenderer.portDragSourcePort();
-    
-                let destNode: Node = null;
-                let destPort: Field = null;
+                let destNode: Node | null = null;
+                let destPort: Field | null = null;
     
                 if (GraphRenderer.destinationPort !== null){
                     destNode = GraphRenderer.destinationNode;
                     destPort = GraphRenderer.destinationPort;
                 } else {
-                    destNode = GraphRenderer.portDragSuggestedNode();
-                    destPort = GraphRenderer.portDragSuggestedField();
+                    destNode = srcNode;
+                    destPort = srcPort;
                 }
     
                 GraphRenderer.createEdge(srcNode, srcPort, destNode, destPort);
@@ -1764,10 +1804,8 @@ export class GraphRenderer {
                     GraphRenderer.showUserNodeSelectionContextMenu();
                 } else {
                     // connect to destination port
-                    const srcNode: Node = GraphRenderer.portDragSourceNode();
-                    const srcPort: Field = GraphRenderer.portDragSourcePort();
-                    const destNode: Node = GraphRenderer.destinationNode;
-                    const destPort: Field = GraphRenderer.destinationPort;
+                    const destNode = GraphRenderer.destinationNode;
+                    const destPort = GraphRenderer.destinationPort;
     
                     GraphRenderer.createEdge(srcNode, srcPort, destNode, destPort);
     
@@ -1861,7 +1899,7 @@ export class GraphRenderer {
         }
 
         //if enabled, filter the list 
-        if (Setting.findValue(Setting.FILTER_NODE_SUGGESTIONS)){
+        if (Setting.findValueAsBoolean(Setting.FILTER_NODE_SUGGESTIONS)){
             // getting matches from both the graph and the palettes list
             const filteredComponents = Utils.getComponentsWithMatchingPort(eligibleComponents, !GraphRenderer.portDragSourcePortIsInput, GraphRenderer.portDragSourcePort().getType());
             eligibleComponents = filteredComponents
@@ -1903,16 +1941,25 @@ export class GraphRenderer {
     
     static SCREEN_TO_GRAPH_POSITION_X(x:number | null) : number {
         const eagle = Eagle.getInstance();
-        if(x===null && GraphRenderer.dragCurrentPosition){
-            x = GraphRenderer.dragCurrentPosition.x
+        if(x===null){
+            if (GraphRenderer.dragCurrentPosition !== null){
+                x = GraphRenderer.dragCurrentPosition.x
+            } else {
+                x = 0;
+            }
         }
+        
         return x/eagle.globalScale() - eagle.globalOffsetX();
     }
 
     static SCREEN_TO_GRAPH_POSITION_Y(y:number | null) : number {
         const eagle = Eagle.getInstance();
-        if(y===null && GraphRenderer.dragCurrentPosition){
-            y = GraphRenderer.dragCurrentPosition.y
+        if(y===null){
+            if (GraphRenderer.dragCurrentPosition !== null){
+                y = GraphRenderer.dragCurrentPosition.y
+            } else {
+                y = 0;
+            }
         }
         return (y-83.77)/eagle.globalScale() -eagle.globalOffsetY();
     }

@@ -4265,7 +4265,7 @@ export class Eagle {
 
     changeNodeParent = async () => {
         // build list of node name + ids (exclude self)
-        const selectedNode: Node = this.selectedNode();
+        const selectedNode = this.selectedNode();
 
         if (selectedNode === null){
             Utils.showNotification("Unable to Change Node Parent", "Attempt to change parent node when no node selected", "warning");
@@ -4706,20 +4706,24 @@ export class Eagle {
             newNode.removeAllOutputPorts();
 
             // add InputOutput port for dataType
-            const newInputOutputPort = new Field(Utils.generateFieldId(), srcPort.getDisplayText(), "", "", srcPort.getDescription(), false, srcPort.getType(), false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.InputOutput);
+            const newInputOutputPort = new Field(newNode, Utils.generateFieldId(), srcPort.getDisplayText(), "", "", srcPort.getDescription(), false, srcPort.getType(), false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.InputOutput);
+            // TODO: is this required, or will the Field constructor already have set this correctly?
             newNode.addField(newInputOutputPort);
+
+            const srcNodeParent = srcNode.getParent();
+            const destNodeParent = destNode.getParent();
 
             // set the parent of the new node
             // by default, set parent to parent of dest node,
-            newNode.setParent(destNode.getParent());
+            newNode.setParent(destNodeParent);
 
             // if source node is a child of dest node, make the new node a child too
-            if (srcNode.getParent() !== null && srcNode.getParent().getId() === destNode.getId()){
+            if (srcNodeParent !== null && srcNodeParent.getId() === destNode.getId()){
                 newNode.setParent(destNode);
             }
 
             // if dest node is a child of source node, make the new node a child too
-            if (destNode.getParent() !== null && destNode.getParent().getId() === srcNode.getId()){
+            if (destNodeParent !== null && destNodeParent.getId() === srcNode.getId()){
                 newNode.setParent(srcNode);
             }
 
@@ -4736,7 +4740,7 @@ export class Eagle {
     }
 
     editShortDescription = async(fileInfo: FileInfo): Promise<void> => {
-        const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
+        const markdownEditingEnabled: boolean = Setting.findValueAsBoolean(Setting.MARKDOWN_EDITING_ENABLED);
 
         let description: string;
         try {
@@ -4754,7 +4758,7 @@ export class Eagle {
     }
 
     editDetailedDescription = async(fileInfo: FileInfo): Promise<void> => {
-        const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
+        const markdownEditingEnabled: boolean = Setting.findValueAsBoolean(Setting.MARKDOWN_EDITING_ENABLED);
 
         let description: string;
         try {
@@ -4772,7 +4776,7 @@ export class Eagle {
     }
 
     editNodeDescription = async (node?: Node): Promise<void> => {
-        const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
+        const markdownEditingEnabled: boolean = Setting.findValueAsBoolean(Setting.MARKDOWN_EDITING_ENABLED);
         const targetNode = node || this.selectedNode();
         let nodeDescription: string;
         try {
@@ -4786,7 +4790,7 @@ export class Eagle {
     }
 
     editNodeComment = async (): Promise<void> => {
-        const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
+        const markdownEditingEnabled: boolean = Setting.findValueAsBoolean(Setting.MARKDOWN_EDITING_ENABLED);
         const node = this.selectedNode()
 
         // abort if no node is selected
@@ -4807,7 +4811,7 @@ export class Eagle {
     }
 
     editEdgeComment = async (): Promise<void> => {
-        const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
+        const markdownEditingEnabled: boolean = Setting.findValueAsBoolean(Setting.MARKDOWN_EDITING_ENABLED);
         const edge = this.selectedEdge()
 
         // abort if no edge is selected
@@ -4831,9 +4835,11 @@ export class Eagle {
         let category : Category = Category.Unknown;
         let categoryType: Category.Type = Category.Type.Unknown;
 
-        if (this.selectedNode() !== null){
-            category = this.selectedNode().getCategory();
-            categoryType = this.selectedNode().getCategoryType();
+        const selectedNode = this.selectedNode();
+
+        if (selectedNode !== null){
+            category = selectedNode.getCategory();
+            categoryType = selectedNode.getCategoryType();
         }
 
         // if selectedNode categoryType is Unknown, return list of all categories
@@ -4846,8 +4852,8 @@ export class Eagle {
     }, this)
 
     inspectorChangeNodeCategoryRequest = async (event: Event): Promise<void> => {
-        const confirmNodeCategoryChanges = Setting.findValue(Setting.CONFIRM_NODE_CATEGORY_CHANGES);
-        const keepOldFields = Setting.findValue(Setting.KEEP_OLD_FIELDS_DURING_CATEGORY_CHANGE);
+        const confirmNodeCategoryChanges = Setting.findValueAsBoolean(Setting.CONFIRM_NODE_CATEGORY_CHANGES);
+        const keepOldFields = Setting.findValueAsBoolean(Setting.KEEP_OLD_FIELDS_DURING_CATEGORY_CHANGE);
 
         // request confirmation from user
         // old request if 'confirm' setting is true AND we're not going to keep the old fields
@@ -4856,8 +4862,13 @@ export class Eagle {
             if (confirmed){
                 this.inspectorChangeNodeCategory(event)
             } else {
+                const selectedNode = this.selectedNode();
+                if (selectedNode === null){
+                    console.error("No selected node to reset category selection for");
+                    return;
+                }
                 // reset the category selection in the inspector to match the node's actual category
-                $('#objectInspectorCategorySelect').val(this.selectedNode().getCategory());
+                $('#objectInspectorCategorySelect').val(selectedNode.getCategory());
             }
         }else{
             this.inspectorChangeNodeCategory(event)

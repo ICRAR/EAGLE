@@ -25,6 +25,7 @@
 import { Category } from './Category';
 import { Field } from './Field';
 import { Node } from './Node';
+import { Utils } from './Utils';
 
 export class Daliuge {
     // automatically loaded palettes
@@ -167,32 +168,34 @@ export namespace Daliuge {
         Unknown = "Unknown"
     }
 
+    // dummy node for use in field definitions
+    const dummyNode = new Node("", "", "", Category.Unknown);
+
     // These are the canonical example definition of each field
-    export const groupStartField = new Field(null, FieldName.GROUP_START, "true", "true", "Is this node the start of a group?", false, DataType.Boolean, false, [], false, FieldType.Component, FieldUsage.NoPort);
-    export const groupEndField = new Field(null, FieldName.GROUP_END, "true", "true", "Is this node the end of a group?", false, DataType.Boolean, false, [], false, FieldType.Component, FieldUsage.NoPort);
+    export const groupStartField = new Field(dummyNode, Utils.generateFieldId(), FieldName.GROUP_START, "true", "true", "Is this node the start of a group?", false, DataType.Boolean, false, [], false, FieldType.Component, FieldUsage.NoPort);
+    export const groupEndField = new Field(dummyNode, Utils.generateFieldId(), FieldName.GROUP_END, "true", "true", "Is this node the end of a group?", false, DataType.Boolean, false, [], false, FieldType.Component, FieldUsage.NoPort);
 
-    export const branchYesField = new Field(null, FieldName.TRUE, "", "", "The affirmative output from a branch node", false, DataType.Object, false, [], false, FieldType.Component, FieldUsage.OutputPort);
-    export const branchNoField  = new Field(null, FieldName.FALSE,  "", "", "he negative output from a branch node", false, DataType.Object, false, [], false, FieldType.Component, FieldUsage.OutputPort);
+    export const branchYesField = new Field(dummyNode, Utils.generateFieldId(), FieldName.TRUE, "", "", "The affirmative output from a branch node", false, DataType.Object, false, [], false, FieldType.Component, FieldUsage.OutputPort);
+    export const branchNoField  = new Field(dummyNode, Utils.generateFieldId(), FieldName.FALSE,  "", "", "he negative output from a branch node", false, DataType.Object, false, [], false, FieldType.Component, FieldUsage.OutputPort);
+    export const dropClassField = new Field(dummyNode, Utils.generateFieldId(), FieldName.DROP_CLASS, "", "", "", false, DataType.String, false, [], false, FieldType.Component, FieldUsage.NoPort);
 
-    export const dropClassField = new Field(null, FieldName.DROP_CLASS, "", "", "", false, DataType.String, false, [], false, FieldType.Component, FieldUsage.NoPort);
+    export const executionTimeField = new Field(dummyNode, Utils.generateFieldId(), FieldName.EXECUTION_TIME, "5", "5", "", false, DataType.Float, false, [], false, FieldType.Constraint, FieldUsage.NoPort);
+    export const numCpusField = new Field(dummyNode, Utils.generateFieldId(), FieldName.NUM_OF_CPUS, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.Constraint, FieldUsage.NoPort);
+    export const dataVolumeField = new Field(dummyNode, Utils.generateFieldId(), FieldName.DATA_VOLUME, "5", "5", "", false, DataType.Float, false, [], false, FieldType.Constraint, FieldUsage.NoPort);
 
-    export const executionTimeField = new Field(null, FieldName.EXECUTION_TIME, "5", "5", "", false, DataType.Float, false, [], false, FieldType.Constraint, FieldUsage.NoPort);
-    export const numCpusField = new Field(null, FieldName.NUM_OF_CPUS, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.Constraint, FieldUsage.NoPort);
-    export const dataVolumeField = new Field(null, FieldName.DATA_VOLUME, "5", "5", "", false, DataType.Float, false, [], false, FieldType.Constraint, FieldUsage.NoPort);
+    export const kField = new Field(dummyNode, Utils.generateFieldId(), FieldName.K, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.Construct, FieldUsage.NoPort);
+    export const numCopiesField = new Field(dummyNode, Utils.generateFieldId(), FieldName.NUM_OF_COPIES, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.Construct, FieldUsage.NoPort);
+    export const numInputsField = new Field(dummyNode, Utils.generateFieldId(), FieldName.NUM_OF_INPUTS, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.Construct, FieldUsage.NoPort);
+    export const numIterationsField = new Field(dummyNode, Utils.generateFieldId(), FieldName.NUM_OF_ITERATIONS, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.Construct, FieldUsage.NoPort);
 
-    export const kField = new Field(null, FieldName.K, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.Construct, FieldUsage.NoPort);
-    export const numCopiesField = new Field(null, FieldName.NUM_OF_COPIES, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.Construct, FieldUsage.NoPort);
-    export const numInputsField = new Field(null, FieldName.NUM_OF_INPUTS, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.Construct, FieldUsage.NoPort);
-    export const numIterationsField = new Field(null, FieldName.NUM_OF_ITERATIONS, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.Construct, FieldUsage.NoPort);
+    export const baseNameField = new Field(dummyNode, Utils.generateFieldId(), FieldName.BASE_NAME, "", "", "The base name of the class of this Member function", false, DataType.String, false, [], false, FieldType.Component, FieldUsage.NoPort);
+    export const selfField = new Field(dummyNode, Utils.generateFieldId(), FieldName.SELF, "", "", "", false, DataType.Object, false, [], false, FieldType.Component, FieldUsage.InputOutput);
 
-    export const baseNameField = new Field(null, FieldName.BASE_NAME, "", "", "The base name of the class of this Member function", false, DataType.String, false, [], false, FieldType.Component, FieldUsage.NoPort);
-    export const selfField = new Field(null, FieldName.SELF, "", "", "", false, DataType.Object, false, [], false, FieldType.Component, FieldUsage.InputOutput);
+    export const funcCodeField = new Field(dummyNode, Utils.generateFieldId(), FieldName.FUNC_CODE, "", "def func_name(args): return args", "Python function code", false, Daliuge.DataType.Python, false, [], false, Daliuge.FieldType.Component, FieldUsage.NoPort);
+    export const funcNameField = new Field(dummyNode, Utils.generateFieldId(), FieldName.FUNC_NAME, "", "func_name", "Python function name", false, Daliuge.DataType.Python, false, [], false, Daliuge.FieldType.Component, FieldUsage.NoPort);
 
-    export const funcCodeField = new Field(null, FieldName.FUNC_CODE, "", "def func_name(args): return args", "Python function code", false, Daliuge.DataType.Python, false, [], false, Daliuge.FieldType.Component, FieldUsage.NoPort);
-    export const funcNameField = new Field(null, FieldName.FUNC_NAME, "", "func_name", "Python function name", false, Daliuge.DataType.Python, false, [], false, Daliuge.FieldType.Component, FieldUsage.NoPort);
-
-    export const persistField = new Field(null, FieldName.PERSIST, "false", "false", "Specifies whether this data component contains data that should not be deleted after execution", false, Daliuge.DataType.Boolean, false, [], false, Daliuge.FieldType.Component, Daliuge.FieldUsage.NoPort);
-    export const streamingField = new Field(null, FieldName.STREAMING, "false", "false", "Specifies whether this data component streams input and output data", false, Daliuge.DataType.Boolean, false, [], false, Daliuge.FieldType.Component, Daliuge.FieldUsage.NoPort);
+    export const persistField = new Field(dummyNode, Utils.generateFieldId(), FieldName.PERSIST, "false", "false", "Specifies whether this data component contains data that should not be deleted after execution", false, Daliuge.DataType.Boolean, false, [], false, Daliuge.FieldType.Component, Daliuge.FieldUsage.NoPort);
+    export const streamingField = new Field(dummyNode, Utils.generateFieldId(), FieldName.STREAMING, "false", "false", "Specifies whether this data component streams input and output data", false, Daliuge.DataType.Boolean, false, [], false, Daliuge.FieldType.Component, Daliuge.FieldUsage.NoPort);
 
     // This list defines the fields required for ALL nodes belonging to a given Category.Type
     export const categoryTypeFieldsRequired = [
