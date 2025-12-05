@@ -187,6 +187,18 @@ export class Setting {
         return undefined;
     }
 
+    static findValue2<T>(key : string) : T | undefined {
+        const setting = Setting.find(key);
+
+        if (typeof setting === "undefined"){
+            console.warn("No setting", key);
+            return undefined;
+        }
+
+        // return the value cast to the expected type
+        return setting.value() as T;
+    }
+
     static findValue(key : string) : validValueTypes | undefined {
         const setting = Setting.find(key);
 

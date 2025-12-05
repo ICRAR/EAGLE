@@ -1110,7 +1110,7 @@ export class GraphRenderer {
 
     static mouseMove(eagle: Eagle, event: JQuery.TriggeredEvent) : void {
         const e: MouseEvent = event.originalEvent as MouseEvent;
-        GraphRenderer.ctrlDrag = event.ctrlKey;
+        GraphRenderer.ctrlDrag = event.ctrlKey as boolean;
 
         //ive found that using the event.movementX and Y mouse tracking we were using, is not accurate when browser level zoom is applied. so i am calculating the movement per tick myself
         //this is done by comparing the current position, with the position recorded by the previous tick of this function
@@ -1123,8 +1123,10 @@ export class GraphRenderer {
 
         if (GraphRenderer.isDragging()){
             if (GraphRenderer.draggingNode() !== null && !GraphRenderer.isDraggingSelectionRegion ){
+                const dragStartPos = GraphRenderer.dragStartPosition ? GraphRenderer.dragStartPosition : {x:0,y:0}
+
                 //check and note if the mouse has moved
-                GraphRenderer.simpleSelect = GraphRenderer.dragStartPosition.x - moveDistance.x < 5 && GraphRenderer.dragStartPosition.y - moveDistance.y < 5
+                GraphRenderer.simpleSelect = dragStartPos.x - moveDistance.x < 5 && dragStartPos.y - moveDistance.y < 5
                 
                 //this is to prevent the de-parent transition effect, which we don't want in this case
                 $('.node.transition').removeClass('transition')
@@ -1315,7 +1317,7 @@ export class GraphRenderer {
             }
 
             // check for nodes underneath the node
-            const parent: Node = eagle.logicalGraph().checkForNodeAt(outermostNode.getPosition().x, outermostNode.getPosition().y, outermostNode.getRadius(), true);
+            const parent = eagle.logicalGraph().checkForNodeAt(outermostNode.getPosition().x, outermostNode.getPosition().y, outermostNode.getRadius(), true);
 
             // check if new candidate parent is already a descendent of the node, this would cause a circular hierarchy which would be bad
             const ancestorOfParent = GraphRenderer.isAncestor(parent, outermostNode);
@@ -1341,8 +1343,8 @@ export class GraphRenderer {
     }
 
     static parentSelection(outermostNodes : Node[], parent: Node | null) : void {
+        const allowGraphEditing = Setting.findValueAsBoolean(Setting.ALLOW_GRAPH_EDITING);
 
-        const allowGraphEditing = Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
         outermostNodes.forEach(function(object){
             if(object instanceof Node){
                 if(!object.isEmbedded() && parent === null){
@@ -1354,7 +1356,9 @@ export class GraphRenderer {
         })
 
         // resizing the parent construct to fit its new children
-        GraphRenderer.resizeConstruct(parent)
+        if (parent !== null){
+            GraphRenderer.resizeConstruct(parent)
+        }
 
         //updating the parent construct's "pre-drag" size at the end of parenting all the nodes
         // TODO: check this line, could it be: GraphRenderer.nodeParentRadiusPreDrag = parent.getRadius()
@@ -1477,7 +1481,7 @@ export class GraphRenderer {
                 while(!finished){
                     let found = false
                     for(const entry of constructsList){
-                        const parent: Node = entry.getParent();
+                        const parent = entry.getParent();
 
                         if(parent !== null && parent.getId() === findConstructId){
                             orderedConstructList.unshift(entry)
@@ -1608,8 +1612,8 @@ export class GraphRenderer {
         }
     }
 
-    static isAncestor(node : Node, possibleAncestor : Node) : boolean {
-        let n : Node = node;
+    static isAncestor(node : Node | null, possibleAncestor : Node) : boolean {
+        let n : Node | null = node;
         let iterations = 0;
 
         if (n === null){
@@ -1898,16 +1902,18 @@ export class GraphRenderer {
             }
         }
 
+        const portDragSourcePort = GraphRenderer.portDragSourcePort();
+
         //if enabled, filter the list 
-        if (Setting.findValueAsBoolean(Setting.FILTER_NODE_SUGGESTIONS)){
+        if (Setting.findValueAsBoolean(Setting.FILTER_NODE_SUGGESTIONS) && portDragSourcePort !== null){
             // getting matches from both the graph and the palettes list
-            const filteredComponents = Utils.getComponentsWithMatchingPort(eligibleComponents, !GraphRenderer.portDragSourcePortIsInput, GraphRenderer.portDragSourcePort().getType());
+            const filteredComponents = Utils.getComponentsWithMatchingPort(eligibleComponents, !GraphRenderer.portDragSourcePortIsInput, portDragSourcePort.getType());
             eligibleComponents = filteredComponents
         }
         
         // check we found at least one eligible component
-        if (eligibleComponents.length === 0){
-            Utils.showNotification("Not Found", "No eligible components found for connection to port of this type (" + GraphRenderer.portDragSourcePort().getType() + ")", "info");
+        if (eligibleComponents.length === 0 && portDragSourcePort !== null){
+            Utils.showNotification("Not Found", "No eligible components found for connection to port of this type (" + portDragSourcePort.getType() + ")", "info");
 
             // stop rendering the dragging edge
             GraphRenderer.renderDraggingPortEdge(false);

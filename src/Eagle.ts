@@ -2932,7 +2932,7 @@ export class Eagle {
             lg_clone.fileInfo().updateEagleInfo();
 
             // get version
-            const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
+            const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION) as Setting.SchemaVersion;
 
             // convert to json
             const jsonString: string = LogicalGraph.toJsonString(lg_clone, false, version);
@@ -2974,7 +2974,7 @@ export class Eagle {
             console.log("saveGraphConfigToDisk()", fileName);
 
             // get version
-            const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
+            const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION) as Setting.SchemaVersion;
 
             // convert to json
             const jsonString: string = GraphConfig.toJsonString(graphConfig);
@@ -4631,7 +4631,8 @@ export class Eagle {
             const twoEventPorts : boolean = srcPort.getIsEvent() && destPort.getIsEvent();
 
             // consult the DEFAULT_DATA_NODE setting to determine which category of intermediate data node to use
-            let intermediaryComponent = Utils.getPaletteComponentByName(Setting.findValue(Setting.DEFAULT_DATA_NODE));
+            const defaultData = Setting.findValue2<string>(Setting.DEFAULT_DATA_NODE)
+            let intermediaryComponent = Utils.getPaletteComponentByName(defaultData || "");
 
             // if intermediaryComponent is undefined (not found), then choose something guaranteed to be available
             // if intermediaryComponent is defined (found), then duplicate the node so that we don't modify the original in the palette
@@ -4678,11 +4679,13 @@ export class Eagle {
             let destNodePosition = destNode.getPosition();
 
             // if source or destination node is an embedded application, use position of parent construct node
-            if (srcNode.isEmbedded()){
-                srcNodePosition = srcNode.getEmbed().getPosition();
+            const srcNodeEmbed = srcNode.getEmbed();
+            const destNodeEmbed = destNode.getEmbed();
+            if (srcNodeEmbed !== null){
+                srcNodePosition = srcNodeEmbed.getPosition();
             }
-            if (destNode.isEmbedded()){
-                destNodePosition = destNode.getEmbed().getPosition();
+            if (destNodeEmbed !== null){
+                destNodePosition = destNodeEmbed.getPosition();
             }
 
             // count number of edges between source and destination
@@ -4876,13 +4879,24 @@ export class Eagle {
     }
 
     inspectorChangeNodeCategory = (event: Event) : void => {
+        if (event.target === null){
+            console.error("No event target for inspectorChangeNodeCategory");
+            return;
+        }
+
         const newNodeCategory: Category = $(event.target).val() as Category;
         const newNodeCategoryType: Category.Type = CategoryData.getCategoryData(newNodeCategory).categoryType;
         const oldNode = this.selectedNode();
 
+        // abort if no node selected
+        if (oldNode === null){
+            console.error("No selected node to change category for");
+            return;
+        }
+
         // try to find new node category in palettes
-        let oldCategoryTemplate: Node = Utils.getPaletteComponentByName(oldNode.getCategory(), true);
-        const newCategoryTemplate: Node = Utils.getPaletteComponentByName(newNodeCategory, true);
+        let oldCategoryTemplate = Utils.getPaletteComponentByName(oldNode.getCategory(), true);
+        const newCategoryTemplate = Utils.getPaletteComponentByName(newNodeCategory, true);
 
         // check that new category prototype was found, if not, skip transform node
         if (typeof newCategoryTemplate === "undefined"){
@@ -4895,7 +4909,7 @@ export class Eagle {
             }
 
             // consult user setting - whether they want to remove old fields
-            const keepOldFields: boolean = Setting.findValue(Setting.KEEP_OLD_FIELDS_DURING_CATEGORY_CHANGE);
+            const keepOldFields: boolean = Setting.findValueAsBoolean(Setting.KEEP_OLD_FIELDS_DURING_CATEGORY_CHANGE);
 
             Utils.transformNodeFromTemplates(oldNode, oldCategoryTemplate, newCategoryTemplate, keepOldFields);
         }
