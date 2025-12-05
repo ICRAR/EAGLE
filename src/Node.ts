@@ -1331,7 +1331,13 @@ export class Node {
                 return 1;
             }
 
-            return parseInt(k.getValue(), 10);
+            const kValue = k.getValue();
+
+            if (kValue === null){
+                return 1;
+            }
+
+            return parseInt(kValue, 10);
         }
 
         if (this.isScatter()){
@@ -1341,7 +1347,13 @@ export class Node {
                 return 1;
             }
 
-            return parseInt(numCopies.getValue(), 10);
+            const numCopiesValue = numCopies.getValue();
+
+            if (numCopiesValue === null){
+                return 1;
+            }
+
+            return parseInt(numCopiesValue, 10);
         }
 
         // TODO: check this is correct!
@@ -1356,7 +1368,13 @@ export class Node {
                 return 1;
             }
 
-            return parseInt(numIter.getValue(), 10);
+            const numIterValue = numIter.getValue();
+
+            if (numIterValue === null){
+                return 1;
+            }
+
+            return parseInt(numIterValue, 10);
         }
 
         return 1;
@@ -2276,9 +2294,12 @@ export class Node {
             const funcNameField = node.findFieldByDisplayText(Daliuge.FieldName.FUNC_NAME);
 
             if (funcCodeField && funcNameField){
-                if (funcCodeField.getValue().trim() !== ""){
-                    if (!funcCodeField.getValue().includes(funcNameField.getValue())){
-                        const issue : Errors.Issue = Errors.Show("Node (" + node.getName() + ") has a value of func_name (" + funcNameField.getValue() + ") which does not appear in its func_code field.", function(){Utils.showNode(eagle, location, node)});
+                const funcCodeValue = funcCodeField.getValue();
+                const funcNameValue = funcNameField.getValue();
+
+                if (funcCodeValue !== null && funcNameValue !== null && funcCodeValue.trim() !== ""){
+                    if (!funcCodeValue.includes(funcNameValue)){
+                        const issue : Errors.Issue = Errors.Show("Node (" + node.getName() + ") has a value of func_name (" + funcNameValue + ") which does not appear in its func_code field.", function(){Utils.showNode(eagle, location, node)});
                         node.issues().push({issue:issue,validity:Errors.Validity.Error});
                     }
                 }

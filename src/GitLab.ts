@@ -41,7 +41,7 @@ export class GitLab {
             // fetch additional gitlab repositories from the server
             let data;
             try {
-                data = await Utils.httpGetJSON("/getGitLabRepositoryList", null) as {repository: string, branch: string}[];
+                data = await Utils.httpGetJSON("/getGitLabRepositoryList", {}) as {repository: string, branch: string}[];
             } catch (error) {
                 console.error(error);
                 resolve(repositories);
@@ -65,7 +65,12 @@ export class GitLab {
             const token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY);
 
             // get location
-            const location: Repository | RepositoryFolder = repository.findPath(path);
+            const location: Repository | RepositoryFolder | null = repository.findPath(path);
+
+            if (location === null) {
+                reject(new Error("Location not found for path: " + path));
+                return;
+            }
 
             // flag the location as being fetched
             location.isFetching(true);

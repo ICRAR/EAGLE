@@ -521,7 +521,7 @@ export class ParameterTable {
         }
 
         let editingField: Field | GraphConfigField // this will either be the normal field or the configured field if applicable
-        let editingValue: string // this will either be the value or default value or configured value
+        let editingValue: string | null // this will either be the value or default value or configured value
 
         const graphConfigField = field.getGraphConfigField();
 

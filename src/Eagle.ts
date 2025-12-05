@@ -418,10 +418,10 @@ export class Eagle {
 
     // TODO: move to SideWindow.ts?
     toggleWindows = () : void  => {
-        const setOpen = !Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) || !Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE) || !Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE)
+        const setOpen : boolean = !Setting.findValueAsBoolean(Setting.LEFT_WINDOW_VISIBLE) || !Setting.findValueAsBoolean(Setting.RIGHT_WINDOW_VISIBLE) || !Setting.findValueAsBoolean(Setting.BOTTOM_WINDOW_VISIBLE)
 
         // don't allow open if palette and graph editing are disabled
-        const editingAllowed: boolean = Setting.findValue(Setting.ALLOW_PALETTE_EDITING) || Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
+        const editingAllowed: boolean = Setting.findValueAsBoolean(Setting.ALLOW_PALETTE_EDITING) || Setting.findValueAsBoolean(Setting.ALLOW_GRAPH_EDITING);
         if (setOpen && !editingAllowed){
             Utils.notifyUserOfEditingIssue(Eagle.FileType.Unknown, "Toggle Windows");
             return;
@@ -432,12 +432,21 @@ export class Eagle {
         SideWindow.setShown('bottom', setOpen);
     }
 
-    emptySearchBar = (target : ko.Observable, data:string, event : Event) => {
+    emptySearchBar = (target: ko.Observable, data: string, event : Event) => {
         target("")
+        if (event.target === null){
+            console.warn("emptySearchBar: event.target is null");
+            return;
+        }
         $(event.target).parent().hide()
     }
 
-    setSearchBarClearBtnState = (data:string, event : Event) => {
+    setSearchBarClearBtnState = (data: string, event: Event) => {
+        if (event.target === null){
+            console.warn("setSearchBarClearBtnState: event.target is null");
+            return;
+        }
+
         if($(event.target).val() === ""){
             $(event.target).parent().find('a').hide()
         }else{
@@ -516,8 +525,9 @@ export class Eagle {
         //because the saved bottom window height is a percentage, its easier to grab the height using jquery than to convert the percentage into pixels
         let bottomWindow = 0
 
-        if(Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE)){
-            bottomWindow = $('#bottomWindow').height()
+        if(Setting.findValueAsBoolean(Setting.BOTTOM_WINDOW_VISIBLE)){
+            const bottomWindowHeight = $('#bottomWindow').height()
+            bottomWindow = bottomWindowHeight !== undefined ? bottomWindowHeight : 0
         }
 
         //calculating scale multipliers needed for each, height and width in order to fit the graph
@@ -736,7 +746,7 @@ export class Eagle {
             $('#inspector').removeClass('inspectorTransition')
         },100)
         
-        return Setting.findValue(Setting.INSPECTOR_COLLAPSED_STATE)
+        return Setting.findValueAsBoolean(Setting.INSPECTOR_COLLAPSED_STATE)
     }, this);
 
     toggleInspectorCollapsedState = () : void => {
@@ -815,7 +825,7 @@ export class Eagle {
                 let thisParentIsSelected = true
                 let thisObject = object
                 while (thisParentIsSelected){
-                    const thisParent: Node = thisObject.getParent();
+                    const thisParent = thisObject.getParent();
                     if(thisParent != null){
                         thisParentIsSelected = eagle.objectIsSelectedById(thisParent.getId())
                         if(thisParentIsSelected){
@@ -854,6 +864,12 @@ export class Eagle {
 
         // abort if value is empty string
         if (fileFullPath === ""){
+            return;
+        }
+
+        // abort if input element has no files
+        if (!graphFileToLoadInputElement.files){
+            console.error("loadLocalGraphFile: no files found in input element");
             return;
         }
 
@@ -896,6 +912,12 @@ export class Eagle {
             return;
         }
 
+        // abort if input element has no files
+        if (!graphFileToInsertInputElement.files){
+            console.error("insertLocalGraphFile: no files found in input element");
+            return;
+        }
+
         // get reference to file from the html element
         const file = graphFileToInsertInputElement.files[0];
 
@@ -928,7 +950,7 @@ export class Eagle {
     }
 
     private _handleLoadingErrors = (errorsWarnings: Errors.ErrorsWarnings, fileName: string, service: Repository.Service) : void => {
-        const showErrors: boolean = Setting.findValue(Setting.SHOW_FILE_LOADING_ERRORS);
+        const showErrors: boolean = Setting.findValueAsBoolean(Setting.SHOW_FILE_LOADING_ERRORS);
         this.hideEagleIsLoading()
 
         // show errors (if found)
@@ -1029,7 +1051,8 @@ export class Eagle {
             }
 
             // if already parented to a node in this selection, skip
-            if (node.getParent() !== null && this.objectIsSelected(node.getParent())){
+            const nodeParent = node.getParent();
+            if (nodeParent !== null && this.objectIsSelected(nodeParent)){
                 continue;
             }
 
@@ -1158,12 +1181,21 @@ export class Eagle {
 
         // copy embedded applications
         for (const node of nodes){
-            const insertedNode: Node = nodeMap.get(node.getId());
+            const insertedNode = nodeMap.get(node.getId());
+
+            // abort if the inserted node was not found in the node map
+            if (typeof insertedNode === "undefined"){
+                console.error("Error: could not find mapping for node " + node.getName() + " " + node.getId());
+                continue;
+            }
+
+            const oldInputApplication = node.getInputApplication();
+            const oldOutputApplication = node.getOutputApplication();
 
             // copy embedded input application
-            if (node.hasInputApplication()){
-                const oldInputApplication : Node = node.getInputApplication();
-                const newInputApplication : Node = nodeMap.get(oldInputApplication.getId());
+            if (oldInputApplication !== null){
+                
+                const newInputApplication = nodeMap.get(oldInputApplication.getId());
 
                 if (typeof newInputApplication === "undefined"){
                     console.error("Error: could not find mapping for input application " + oldInputApplication.getName() + " " + oldInputApplication.getId());
@@ -1191,10 +1223,11 @@ export class Eagle {
                 }
             }
 
+
+
             // copy embedded output application
-            if (node.hasOutputApplication()){
-                const oldOutputApplication : Node = node.getOutputApplication();
-                const newOutputApplication : Node = nodeMap.get(oldOutputApplication.getId());
+            if (oldOutputApplication !== null){
+                const newOutputApplication = nodeMap.get(oldOutputApplication.getId());
 
                 if (typeof newOutputApplication === "undefined"){
                     console.error("Error: could not find mapping for output application " + oldOutputApplication.getName() + " " + oldOutputApplication.getId());
@@ -1224,7 +1257,13 @@ export class Eagle {
 
         // update some other details of the nodes are updated correctly
         for (const node of nodes){
-            const insertedNode: Node = nodeMap.get(node.getId());
+            const insertedNode = nodeMap.get(node.getId());
+
+            // abort if the inserted node was not found in the node map
+            if (typeof insertedNode === "undefined"){
+                console.error("Error: could not find mapping for node " + node.getName() + " " + node.getId());
+                continue;
+            }
 
             // if original node has a parent, set the parent of the inserted node to the inserted parent
             if (node.getParent() !== null){

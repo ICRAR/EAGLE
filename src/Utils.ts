@@ -582,12 +582,12 @@ export class Utils {
         });
     }
 
-    static requestUserText(title : string, message : string, defaultText: string, readonly: boolean = false) : Promise<string> {
+    static requestUserText(title : string, message : string, defaultText: string | null, readonly: boolean = false) : Promise<string> {
         return new Promise(async(resolve, reject) => {
             $('#inputTextModalTitle').text(title);
             $('#inputTextModalMessage').html(message);
 
-            $('#inputTextModalInput').val(defaultText);
+            $('#inputTextModalInput').val(defaultText ? defaultText : '');
             $('#inputTextModalInput').prop('readonly', readonly);
 
             // store the callback, result on the modal HTML element
@@ -606,7 +606,7 @@ export class Utils {
         });
     }
 
-    static requestUserCode(language: "json"|"python"|"text", title: string, defaultText: string, readonly: boolean = false): Promise<string> {
+    static requestUserCode(language: "json"|"python"|"text", title: string, defaultText: string | null, readonly: boolean = false): Promise<string> {
         return new Promise(async(resolve, reject) => {
             // set title
             $('#inputCodeModalTitle').text(title);
@@ -632,7 +632,7 @@ export class Utils {
             const editor = $('#inputCodeModal').data('editor');
             editor.setOption('readOnly', readonly);
             editor.setOption('mode', mode);
-            editor.setValue(defaultText);
+            editor.setValue(defaultText ? defaultText : '');
 
             // store the callback, result on the modal HTML element
             // so that the info is available to event handlers
@@ -1952,8 +1952,8 @@ export class Utils {
         return html;
     }
 
-    static asBool(value: string) : boolean {
-        if(value === undefined){
+    static asBool(value: string | undefined | null) : boolean {
+        if(value === undefined || value === null){
             return false
         }
         return value.toLowerCase() === "true";
@@ -2249,7 +2249,7 @@ export class Utils {
             console.warn("fixAppToAppEdge(): edge is undefined");
             return;
         }
-        
+
         const srcNode: Node = edge.getSrcNode();
         const destNode: Node = edge.getDestNode();
         const srcPort: Field = edge.getSrcPort();

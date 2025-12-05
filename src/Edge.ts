@@ -398,11 +398,14 @@ export class Edge {
         return e;
     }
 
-    static isValid(eagle: Eagle, draggingPortMode: boolean, edgeId: EdgeId, sourceNodeId: NodeId, sourcePortId: FieldId, destinationNodeId: NodeId, destinationPortId: FieldId, loopAware: boolean, closesLoop: boolean, showNotification: boolean, showConsole: boolean, errorsWarnings: Errors.ErrorsWarnings) : Errors.Validity {
+    static isValid(eagle: Eagle, draggingPortMode: boolean, edgeId: EdgeId | null, sourceNodeId: NodeId, sourcePortId: FieldId, destinationNodeId: NodeId, destinationPortId: FieldId, loopAware: boolean, closesLoop: boolean, showNotification: boolean, showConsole: boolean, errorsWarnings: Errors.ErrorsWarnings) : Errors.Validity {
         let impossibleEdge : boolean = false;
         let draggingEdgeFixable : boolean = false;
+        let edge: Edge | undefined = undefined;
 
-        const edge = eagle.logicalGraph().getEdgeById(edgeId);
+        if (edgeId !== null){
+            edge = eagle.logicalGraph().getEdgeById(edgeId);
+        }   
 
         // if this is a real edge, then clear its issues, otherwise, if this is just a temp test edge, don't worry
         if(typeof edge !== 'undefined'){

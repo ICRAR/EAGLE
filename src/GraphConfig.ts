@@ -111,7 +111,7 @@ export class GraphConfig {
         Eagle.getInstance().checkGraph();
     }
 
-    addValue = (node: Node, field: Field, value: string) => {
+    addValue = (node: Node, field: Field, value: string | null) => {
         this.addNode(node).addField(field).setValue(value);
     }
 
@@ -361,7 +361,7 @@ export class GraphConfigField {
         return this.field();
     }
 
-    setValue = (value: string): GraphConfigField => {
+    setValue = (value: string | null): GraphConfigField => {
         this.value(value);
         return this;
     }

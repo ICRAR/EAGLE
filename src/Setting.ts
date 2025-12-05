@@ -216,6 +216,15 @@ export class Setting {
         return Boolean(value);
     }
 
+    static findValueAsNumber(key : string) : number {
+        const value = Setting.findValue(key);
+        if (typeof value === "undefined"){
+            console.warn("No setting", key);
+            return 0;
+        }
+        return Number(value);
+    }
+
     static setValue(key : string, value : validValueTypes) : void {
         const setting = Setting.find(key);
         if (typeof setting === "undefined"){

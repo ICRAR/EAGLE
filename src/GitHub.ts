@@ -41,7 +41,7 @@ export class GitHub {
 
             let data;
             try {
-                data = await Utils.httpGetJSON("/getGitHubRepositoryList", null) as {repository: string, branch: string}[];
+                data = await Utils.httpGetJSON("/getGitHubRepositoryList", {}) as {repository: string, branch: string}[];
             } catch (error){
                 console.error(error);
                 reject(error);
@@ -63,7 +63,7 @@ export class GitHub {
     static async loadStudentRepoList(){
         let data;
         try {
-            data = await Utils.httpGetJSON("/getStudentRepositoryList", null) as {repository: string, branch: string}[];
+            data = await Utils.httpGetJSON("/getStudentRepositoryList", {}) as {repository: string, branch: string}[];
         } catch (error){
             console.error(error);
             return;
@@ -93,7 +93,12 @@ export class GitHub {
             const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
 
             // get location
-            const location: Repository | RepositoryFolder = repository.findPath(path);
+            const location: Repository | RepositoryFolder | null = repository.findPath(path);
+
+            if (location === null) {
+                reject(new Error("Location not found for path: " + path));
+                return;
+            }
 
             // flag the location as being fetched
             location.isFetching(true);

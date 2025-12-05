@@ -403,7 +403,7 @@ export class LogicalGraph {
             // if source node or destination node is a construct, then something is wrong, constructs should not have ports
             if (sourceNode.getCategoryType() === Category.Type.Construct){
                 const srcIdAndPort = sourceNode.findPortInApplicationsById(edge.getSrcPort().getId());
-                if (srcIdAndPort.node === null){
+                if (typeof srcIdAndPort.node === 'undefined'){
                     // TODO: add error
                 } else {
                     const warning = "Updated source node of edge " + edge.getId() + " from construct " + edge.getSrcNode().getId() + " to embedded application " + srcIdAndPort.node.getId();
@@ -413,7 +413,7 @@ export class LogicalGraph {
             }
             if (destinationNode.getCategoryType() === Category.Type.Construct){
                 const destKeyAndPort = destinationNode.findPortInApplicationsById(edge.getDestPort().getId());
-                if (destKeyAndPort.node === null){
+                if (typeof destKeyAndPort.node === 'undefined'){
                     // TODO: add error
                 } else {
                     const warning = "Updated destination node of edge " + edge.getId() + " from construct " + edge.getDestNode().getId() + " to embedded application " + destKeyAndPort.node.getId();
