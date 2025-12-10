@@ -820,12 +820,13 @@ export class GraphRenderer {
 
         //the edge parameter is null if we are rendering a comment edge and this is not needed
         if(edge !== null || addArrowForce){
-            let arrowContainer
+            let arrowContainer = $('#draggingEdge polygon')
 
-            if(addArrowForce){
-                arrowContainer = $('#draggingEdge polygon')
-            }else{
-                arrowContainer = $('#'+edge.getId() +" polygon")
+            // TODO: not sure about this change, it think the structure of branches here is a little hard to understand
+            if(!addArrowForce){
+                if (edge !== null) {
+                    arrowContainer = $('#' + edge.getId() + " polygon")
+                }
             }
 
             //we are hiding the arrows if the edge is too short
@@ -1017,7 +1018,7 @@ export class GraphRenderer {
     static preventBubbling () : void {
         //calling this function using native JS using onmousedown, onmouseup or onmousemove prevents bubbling these events up without loosing default event handling far any of those events
         //use this if you want only a click event and prevent any other ko events from being called aka drag, mousedown etc
-        event.stopPropagation()
+        event?.stopPropagation()
     }
 
     static startDrag(node: Node, event: MouseEvent) : void {
@@ -1310,7 +1311,7 @@ export class GraphRenderer {
             let parentingSuccessful = false; //if the detected parent of one node in the selection changes, we assign the new parent to the whole selection and exit this loop
 
             // the parent construct is only allowed to grow by the amount specified(eagleConfig.construct_drag_out_distance) before allowing its children to escape
-            if(oldParent !== null && oldParent.getRadius()>GraphRenderer.nodeParentRadiusPreDrag+EagleConfig.CONSTRUCT_DRAG_OUT_DISTANCE){
+            if(oldParent !== null && GraphRenderer.nodeParentRadiusPreDrag !== null && oldParent.getRadius()>GraphRenderer.nodeParentRadiusPreDrag+EagleConfig.CONSTRUCT_DRAG_OUT_DISTANCE){
                 $('#'+oldParent.getId()).addClass('transition')
                 GraphRenderer.parentSelection(outermostNodes, null);
                 parentingSuccessful = true;
@@ -1361,8 +1362,10 @@ export class GraphRenderer {
         }
 
         //updating the parent construct's "pre-drag" size at the end of parenting all the nodes
-        // TODO: check this line, could it be: GraphRenderer.nodeParentRadiusPreDrag = parent.getRadius()
-        GraphRenderer.nodeParentRadiusPreDrag = Eagle.getInstance().logicalGraph().getNodeById(parent?.getId())?.getRadius()
+        if (parent !== null){
+            GraphRenderer.nodeParentRadiusPreDrag = parent.getRadius();
+        }
+        //GraphRenderer.nodeParentRadiusPreDrag = Eagle.getInstance().logicalGraph().getNodeById(parent?.getId())?.getRadius()
     }
 
     static findNodesInRegion(left: number, right: number, top: number, bottom: number): Node[] {
@@ -1781,7 +1784,7 @@ export class GraphRenderer {
         $('.node .body').off('mouseup.portDrag')
 
         //here
-        if(Math.abs(GraphRenderer.portDragStartPos.x - GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null))+Math.abs(GraphRenderer.portDragStartPos.y - GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null))<3){
+        if(GraphRenderer.portDragStartPos !== null && Math.abs(GraphRenderer.portDragStartPos.x - GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null))+Math.abs(GraphRenderer.portDragStartPos.y - GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null))<3){
             //identify a click, if we click a port, we will open the parameter table and highlight the port
             ParameterTable.openTableAndSelectField(srcNode, srcPort)
             GraphRenderer.clearEdgeVars();
@@ -1790,7 +1793,7 @@ export class GraphRenderer {
                 let destNode: Node | null = null;
                 let destPort: Field | null = null;
     
-                if (GraphRenderer.destinationPort !== null){
+                if (GraphRenderer.destinationNode !== null && GraphRenderer.destinationPort !== null){
                     destNode = GraphRenderer.destinationNode;
                     destPort = GraphRenderer.destinationPort;
                 } else {
@@ -1807,11 +1810,15 @@ export class GraphRenderer {
                 if (GraphRenderer.destinationPort === null){
                     GraphRenderer.showUserNodeSelectionContextMenu();
                 } else {
-                    // connect to destination port
-                    const destNode = GraphRenderer.destinationNode;
-                    const destPort = GraphRenderer.destinationPort;
+                    let destNode: Node | null = null;
+                    let destPort: Field | null = null;
     
-                    GraphRenderer.createEdge(srcNode, srcPort, destNode, destPort);
+                    if (GraphRenderer.destinationNode !== null && GraphRenderer.destinationPort !== null){
+                        destNode = GraphRenderer.destinationNode;
+                        destPort = GraphRenderer.destinationPort;// connect to destination port
+    
+                        GraphRenderer.createEdge(srcNode, srcPort, destNode, destPort);
+                    }
     
                     // we can stop rendering the dragging edge
                     GraphRenderer.renderDraggingPortEdge(false);

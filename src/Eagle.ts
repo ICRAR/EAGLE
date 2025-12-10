@@ -530,8 +530,12 @@ export class Eagle {
             bottomWindow = bottomWindowHeight !== undefined ? bottomWindowHeight : 0
         }
 
+        // get width and height of the logical graph parent container
+        const logicalGraphParentWidth = $('#logicalGraphParent').width() || 0;
+        const logicalGraphParentHeight = $('#logicalGraphParent').height() || 0;
+
         //calculating scale multipliers needed for each, height and width in order to fit the graph
-        const containerHeight = $('#logicalGraphParent').height() - bottomWindow
+        const containerHeight = logicalGraphParentHeight - bottomWindow
         const graphHeight = maxY-minY+200
         const graphYScale = containerHeight/graphHeight
         
@@ -540,7 +544,7 @@ export class Eagle {
         const leftWindow = Utils.getLeftWindowWidth()
         const rightWindow = Utils.getRightWindowWidth()
 
-        const containerWidth = $('#logicalGraphParent').width() - leftWindow - rightWindow
+        const containerWidth = logicalGraphParentWidth - leftWindow - rightWindow
         const graphWidth = maxX-minX+200
         const graphXScale = containerWidth/graphWidth
 
@@ -881,7 +885,7 @@ export class Eagle {
             const reader = new FileReader();
             reader.readAsText(file, "UTF-8");
             reader.onload = function (evt) {
-                const data: string = evt.target.result.toString();
+                const data: string = evt.target?.result?.toString() || "";
 
                 eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
                     eagle.logicalGraph(lg);
@@ -926,7 +930,7 @@ export class Eagle {
             const reader = new FileReader();
             reader.readAsText(file, "UTF-8");
             reader.onload = function (evt) {
-                const data: string = evt.target.result.toString();
+                const data: string = evt.target?.result?.toString() || "";
 
                 eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
                     const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().location.getText(), "", Category.SubGraph);
@@ -1127,7 +1131,7 @@ export class Eagle {
     }
 
     // NOTE: parentNode would be null if we are duplicating a selection of objects
-    insertGraph = async (nodes: Node[], edges: Edge[], parentNode: Node, errorsWarnings: Errors.ErrorsWarnings) => {
+    insertGraph = async (nodes: Node[], edges: Edge[], parentNode: Node | null, errorsWarnings: Errors.ErrorsWarnings) => {
         const DUPLICATE_OFFSET: number = 20; // amount (in x and y) by which duplicated nodes will be positioned away from the originals
 
         // create map of inserted graph keys to final graph nodes, and of inserted port ids to final graph ports
@@ -1266,9 +1270,10 @@ export class Eagle {
             }
 
             // if original node has a parent, set the parent of the inserted node to the inserted parent
-            if (node.getParent() !== null){
+            const nodeParent = node.getParent();
+            if (nodeParent !== null){
                 // check if parent of original node was also mapped to a new node
-                const insertedParent: Node = nodeMap.get(node.getParent().getId());
+                const insertedParent = nodeMap.get(nodeParent.getId());
 
                 // make sure parent is set correctly
                 // if no mapping is available for the parent, then set parent to the new parentNode, or if no parentNode exists, just set parent to null
@@ -1294,7 +1299,7 @@ export class Eagle {
             const loopAware = edge.isLoopAware();
             const closesLoop = edge.isClosesLoop();
 
-            if (typeof srcNode === "undefined" || typeof destNode === "undefined"){
+            if (typeof srcNode === "undefined" || typeof srcPort === "undefined" || typeof destNode === "undefined" || typeof destPort === "undefined"){
                 errorsWarnings.warnings.push(Errors.Message("Unable to insert edge " + edge.getId() + " source node or destination node could not be found."));
                 continue;
             }
@@ -1331,6 +1336,12 @@ export class Eagle {
             return;
         }
 
+        // abort if input element has no files
+        if (!paletteFileInputElement.files){
+            console.error("loadLocalPaletteFile: no files found in input element");
+            return;
+        }
+
         // get a reference to the file in the html element
         const file = paletteFileInputElement.files[0];
         
@@ -1339,7 +1350,7 @@ export class Eagle {
             const reader = new FileReader();
             reader.readAsText(file, "UTF-8");
             reader.onload = function (evt) {
-                const data: string = evt.target.result.toString();
+                const data: string = evt.target?.result?.toString() || "";
 
                 eagle._loadPaletteJSON(data, fileFullPath);
 
@@ -1401,6 +1412,12 @@ export class Eagle {
             return;
         }
 
+        // abort if input element has no files
+        if (!graphConfigFileInputElement.files){
+            console.error("loadLocalGraphConfigFile: no files found in input element");
+            return;
+        }
+
         // get a reference to the file in the html element
         const file = graphConfigFileInputElement.files[0];
         
@@ -1409,7 +1426,7 @@ export class Eagle {
             const reader = new FileReader();
             reader.readAsText(file, "UTF-8");
             reader.onload = function (evt) {
-                const data: string = evt.target.result.toString();
+                const data: string = evt.target?.result?.toString() || "";
                 let dataObject;
 
                 try {
@@ -1440,7 +1457,12 @@ export class Eagle {
             return;
         }
 
-        document.getElementById("graphFileToLoad").click();
+        const element = document.getElementById("graphFileToLoad");
+        if (!element) {
+            console.error("Could not find 'graph file to load' element");
+            return;
+        }
+        element.click();
         this.resetEditor()
     }
 
@@ -1450,7 +1472,12 @@ export class Eagle {
             return;
         }
 
-        document.getElementById("graphFileToInsert").click();
+        const element = document.getElementById("graphFileToInsert");
+        if (!element) {
+            console.error("Could not find 'graph file to insert' element");
+            return;
+        }
+        element.click();
     }
 
     getPaletteFileToLoad = () : void => {
@@ -1459,7 +1486,12 @@ export class Eagle {
             return;
         }
 
-        document.getElementById("paletteFileToLoad").click();
+        const element = document.getElementById("paletteFileToLoad");
+        if (!element) {
+            console.error("Could not find 'palette file to load' element");
+            return;
+        }
+        element.click();
     }
 
     getGraphConfigFileToLoad = () : void => {
@@ -1468,7 +1500,12 @@ export class Eagle {
             return;
         }
 
-        document.getElementById("graphConfigFileToLoad").click();
+        const element = document.getElementById("graphConfigFileToLoad");
+        if (!element) {
+            console.error("Could not find 'graph config file to load' element");
+            return;
+        }
+        element.click();
     }
 
     /**
@@ -1569,7 +1606,7 @@ export class Eagle {
 
     displayObjectAsJson = (fileType: Eagle.FileType, object: LogicalGraph | Palette | GraphConfig) : void => {
         let jsonString: string;
-        const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
+        const version: Setting.SchemaVersion = Setting.findValue2<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
         
         switch(fileType){
             case Eagle.FileType.Graph:
@@ -1591,7 +1628,7 @@ export class Eagle {
 
     displayNodeAsJson = (node: Node) : void => {
         let jsonString: string;
-        const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
+        const version: Setting.SchemaVersion = Setting.findValue2<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
 
         switch(version){
             case Setting.SchemaVersion.OJS:
@@ -1875,6 +1912,12 @@ export class Eagle {
                     }
                     break;
                 case Eagle.FileType.GraphConfig:
+                    if (graphConfig === null){
+                        Utils.showUserMessage("Error", "No graph config provided to save.");
+                        reject(new Error("No graph config provided to save."));
+                        return;
+                    }
+
                     try {
                         await this.saveGraphConfigToDisk(graphConfig, graphConfig.fileInfo().name);
                     } catch(error) {
@@ -1925,6 +1968,12 @@ export class Eagle {
                     }
                     break;
                 case Eagle.FileType.GraphConfig:
+                    if (graphConfig === null){
+                        Utils.showUserMessage("Error", "No graph config provided to save.");
+                        reject(new Error("No graph config provided to save."));
+                        return;
+                    }
+
                     try {
                         await this.saveAsFileToDisk(graphConfig);
                     } catch(error) {
@@ -2035,6 +2084,12 @@ export class Eagle {
                     obj = this.logicalGraph();
                     break;
                 case Eagle.FileType.GraphConfig:
+                    if (graphConfig === null){
+                        Utils.showUserMessage("Error", "No graph config provided to commit.");
+                        reject("No graph config provided to commit.");
+                        return;
+                    }
+
                     fileInfo = graphConfig.fileInfo;
                     obj = graphConfig;
                     break;
@@ -4490,19 +4545,24 @@ export class Eagle {
         let numIterations = 0;
         let increaseSearchArea = false
         const MAX_ITERATIONS = 150;
-        let x;
-        let y;
+        let x = 0;
+        let y = 0;
         
         while (!suitablePositionFound && numIterations <= MAX_ITERATIONS){
+            // get logical graph display area dimensions
+            const logicalGraphParentWidth = $('#logicalGraphParent').width() || 0;
+            const logicalGraphParentHeight = $('#logicalGraphParent').height() || 0;
+            const bottomWindowHeight = $('#bottomWindow').height() || 0;
+
             // get visible screen size
             let minX = Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) ? this.leftWindow().size()+MARGIN: 0+MARGIN;
-            let maxX = Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE) ? $('#logicalGraphParent').width() - this.rightWindow().size() - MARGIN : $('#logicalGraphParent').width() - MARGIN;
+            let maxX = Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE) ? logicalGraphParentWidth - this.rightWindow().size() - MARGIN : logicalGraphParentWidth - MARGIN;
             let minY = 0 + navBarHeight + MARGIN;
             //using jquery here to get the bottom window height because it is internally saved in VH (percentage screen height). Doing it this way means we don't have to convert it to pixels
-            let maxY = $('#logicalGraphParent').height() - MARGIN + navBarHeight
+            let maxY = logicalGraphParentHeight - MARGIN + navBarHeight;
 
             if(Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE)){
-                maxY = $('#logicalGraphParent').height() - $('#bottomWindow').height() - MARGIN + navBarHeight;
+                maxY = logicalGraphParentHeight - bottomWindowHeight - MARGIN + navBarHeight;
             }
 
             if(increaseSearchArea){
@@ -4590,7 +4650,8 @@ export class Eagle {
             this.errorsMode(Errors.Mode.Graph);
 
             //switch bottom window mode
-            Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(Eagle.BottomWindowMode.GraphErrors)
+            Setting.setValue(Setting.BOTTOM_WINDOW_MODE, Eagle.BottomWindowMode.GraphErrors);
+
             //show bottom window
             SideWindow.setShown('bottom',true)
         } else {
@@ -4631,7 +4692,7 @@ export class Eagle {
             const twoEventPorts : boolean = srcPort.getIsEvent() && destPort.getIsEvent();
 
             // consult the DEFAULT_DATA_NODE setting to determine which category of intermediate data node to use
-            const defaultData = Setting.findValue2<string>(Setting.DEFAULT_DATA_NODE)
+            const defaultData = Setting.findValue2<string>(Setting.DEFAULT_DATA_NODE, Category.Memory);
             let intermediaryComponent = Utils.getPaletteComponentByName(defaultData || "");
 
             // if intermediaryComponent is undefined (not found), then choose something guaranteed to be available
@@ -4781,6 +4842,13 @@ export class Eagle {
     editNodeDescription = async (node?: Node): Promise<void> => {
         const markdownEditingEnabled: boolean = Setting.findValueAsBoolean(Setting.MARKDOWN_EDITING_ENABLED);
         const targetNode = node || this.selectedNode();
+
+        // abort if no node is selected AND no node was passed in
+        if (targetNode === null) {
+            console.warn("No node selected");
+            return;
+        }
+
         let nodeDescription: string;
         try {
             nodeDescription = await Utils.requestUserMarkdown(targetNode.getDisplayName() + " - Description", targetNode.getDescription(), markdownEditingEnabled);
@@ -5302,7 +5370,13 @@ $( document ).ready(function() {
             }
         })
 
-        //toggle method on
+        // abort if e.target is null
+        if (e.target === null){
+            console.error("No event target for translationDefault click");
+            return;
+        }
+
+        // toggle method on
         const element = $(e.target)
         if(element.val() === "true"){
             element.val('false')
@@ -5312,7 +5386,9 @@ $( document ).ready(function() {
 
         //saving the new translation default into the settings system
         const translationId = element.closest('.accordion-item').attr('id')
-        Setting.find(Setting.TRANSLATOR_ALGORITHM_DEFAULT).setValue(translationId)
+        if (typeof translationId !== 'undefined'){
+            Setting.setValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT, translationId);
+        }
         
         $(this).prop('checked',true).trigger("change");
     })
@@ -5333,8 +5409,14 @@ $( document ).ready(function() {
 
     $(document).on('click', '.hierarchyEdgeExtra', function(event: JQuery.TriggeredEvent){
         const e: MouseEvent = event.originalEvent as MouseEvent;
+        const target = e.target as HTMLElement;
+        if (target === null){
+            console.error("No event target for hierarchyEdgeExtra click");
+            return;
+        }
+        const selectedEdgeId: EdgeId = $(target).attr("id") as EdgeId;
+
         const eagle: Eagle = Eagle.getInstance();
-        const selectedEdgeId: EdgeId = $(e.target).attr("id") as EdgeId;
         const selectEdge = eagle.logicalGraph().getEdgeById(selectedEdgeId);
 
         if(typeof selectEdge === 'undefined'){

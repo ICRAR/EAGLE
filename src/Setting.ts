@@ -187,12 +187,13 @@ export class Setting {
         return undefined;
     }
 
-    static findValue2<T>(key : string) : T | undefined {
+    // TODO: replace all findValue calls with findValue2 calls and remove findValue
+    static findValue2<T>(key : string, defaultValue: T) : T{
         const setting = Setting.find(key);
 
         if (typeof setting === "undefined"){
-            console.warn("No setting", key);
-            return undefined;
+            console.warn("No setting", key, ", returning default value:", defaultValue);
+            return defaultValue;
         }
 
         // return the value cast to the expected type

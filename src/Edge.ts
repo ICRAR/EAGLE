@@ -566,7 +566,7 @@ export class Edge {
             || destinationNode.isEmbedded() && sourceNode.hasParent() && destinationEmbed !== null && sourceParent !== null && destinationEmbed.getId() === sourceParent.getId() && loopAware
             || associatedConstructType !== Category.Loop && loopAware
         ){
-            const x = Errors.ShowFix("Edge between two siblings should not be loop aware", function(){Utils.showEdge(eagle, edge);}, function(){Utils.fixDisableEdgeLoopAware(eagle, edgeId);}, "Disable loop aware on the edge.");
+            const x = Errors.ShowFix("Edge between two siblings should not be loop aware", function(){Utils.showEdge(eagle, edge);}, function(){if (edgeId !== null) {Utils.fixDisableEdgeLoopAware(eagle, edgeId);}}, "Disable loop aware on the edge.");
             Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Warning, x, showNotification, showConsole, errorsWarnings);
         }
 
@@ -581,7 +581,7 @@ export class Edge {
             const isDestMatch = edge.getDestNode().getId() === destinationNodeId && edge.getDestPort().getId() === destinationPortId;
 
             if ( isSrcMatch && isDestMatch && edge.getId() !== edgeId){
-                const x = Errors.ShowFix("Edge is a duplicate. Another edge with the same source port and destination port already exists", function(){Utils.showEdge(eagle, edge);}, function(){Utils.fixDeleteEdge(eagle, edgeId);}, "Delete edge");
+                const x = Errors.ShowFix("Edge is a duplicate. Another edge with the same source port and destination port already exists", function(){Utils.showEdge(eagle, edge);}, function(){if (edgeId !== null) {Utils.fixDeleteEdge(eagle, edgeId);}}, "Delete edge");
                 Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Error, x, showNotification, showConsole, errorsWarnings);
             }
         }
