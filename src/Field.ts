@@ -416,10 +416,11 @@ export class Field {
     // TODO: these colors could be added to EagleConfig.ts
     getBackgroundColor : ko.PureComputed<string> = ko.pureComputed(() => {
         const errorsWarnings = this.getErrorsWarnings()
+        const showGraphWarnings = Setting.findValue<Setting.ShowErrorsMode>(Setting.SHOW_GRAPH_WARNINGS, Setting.ShowErrorsMode.None);
 
-        if(errorsWarnings.errors.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) != Setting.ShowErrorsMode.None){
+        if(errorsWarnings.errors.length>0 && showGraphWarnings != Setting.ShowErrorsMode.None){
             return EagleConfig.getColor('graphError')
-        }else if(errorsWarnings.warnings.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) === Setting.ShowErrorsMode.Warnings){
+        }else if(errorsWarnings.warnings.length>0 && showGraphWarnings === Setting.ShowErrorsMode.Warnings){
             return EagleConfig.getColor('graphWarning')
         }else{
             return ''
@@ -587,6 +588,7 @@ export class Field {
         let searchTermNo : number = 0
         let searchTermTrueNo : number = 0
         const that = this
+        const bottomWindowMode = Setting.findValue<Eagle.BottomWindowMode>(Setting.BOTTOM_WINDOW_MODE, Eagle.BottomWindowMode.None);
 
         Eagle.tableSearchString().toLocaleLowerCase().split(',').forEach(function(term){
             term = term.trim()
@@ -599,7 +601,7 @@ export class Field {
             }
 
             //check if the node name matches, but only if using the key parameter table modal
-            if(Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ConfigParameterTable){
+            if(bottomWindowMode === Eagle.BottomWindowMode.ConfigParameterTable){
                 if(that.node().getName().toLowerCase().indexOf(term) >= 0){
                     result = true
                 }

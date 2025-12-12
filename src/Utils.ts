@@ -523,7 +523,7 @@ export class Utils {
         }
 
         // if this is a message intended for developers, check whether display of those messages is enabled
-        if (developer && !Setting.findValue(Setting.SHOW_DEVELOPER_NOTIFICATIONS)){
+        if (developer && !Setting.findValue<boolean>(Setting.SHOW_DEVELOPER_NOTIFICATIONS, false)){
             return;
         }
 
@@ -1366,17 +1366,11 @@ export class Utils {
     }
 
     static getRightWindowWidth() : number {
-        if(Eagle.getInstance().eagleIsReady() && !Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE)){
+        if(Eagle.getInstance().eagleIsReady() && !Setting.findValue<boolean>(Setting.RIGHT_WINDOW_VISIBLE, false)){
             return 0
         }
 
-        const rightWindowWidth = Setting.findValue(Setting.RIGHT_WINDOW_WIDTH) as number;
-
-        if (typeof rightWindowWidth === 'undefined'){
-            return 0;
-        }
-
-        return rightWindowWidth;
+        return Setting.findValue<number>(Setting.RIGHT_WINDOW_WIDTH, 0);
     }
 
     static setRightWindowWidth(width : number) : void {
@@ -1385,19 +1379,13 @@ export class Utils {
     }
 
     static getLeftWindowWidth() : number {
-        const leftWindowDisabled = !Setting.findValue(Setting.ALLOW_GRAPH_EDITING) && !Setting.findValue(Setting.ALLOW_PALETTE_EDITING)
+        const leftWindowDisabled = !Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false) && !Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false)
 
-        if(Eagle.getInstance().eagleIsReady() && !Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) || leftWindowDisabled){
+        if(Eagle.getInstance().eagleIsReady() && !Setting.findValue<boolean>(Setting.LEFT_WINDOW_VISIBLE, false) || leftWindowDisabled){
             return 0
         }
 
-        const leftWindowWidth = Setting.findValue(Setting.LEFT_WINDOW_WIDTH) as number;
-
-        if (typeof leftWindowWidth === 'undefined'){
-            return 0;
-        }
-
-        return leftWindowWidth
+        return Setting.findValue<number>(Setting.LEFT_WINDOW_WIDTH, 0);
     }
 
     static setLeftWindowWidth(width : number) : void {
@@ -1413,11 +1401,7 @@ export class Utils {
             return 0
         }
 
-        const bottomWindowHeight = Setting.findValue(Setting.BOTTOM_WINDOW_HEIGHT) as number;
-
-        if (typeof bottomWindowHeight === 'undefined'){
-            return 0;
-        }
+        const bottomWindowHeight = Setting.findValue<number>(Setting.BOTTOM_WINDOW_HEIGHT, 0);
 
         //if the bottom window height set is too large, just return the max allowed height
         if(bottomWindowHeight > 80){
@@ -1429,17 +1413,11 @@ export class Utils {
     }
 
     static getBottomWindowHeight() : number {
-        if(Eagle.getInstance().eagleIsReady() && !Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE)){
+        if(Eagle.getInstance().eagleIsReady() && !Setting.findValue<boolean>(Setting.BOTTOM_WINDOW_VISIBLE, false)){
             return 0
         }
 
-        const bottomWindowHeight = Setting.findValue(Setting.BOTTOM_WINDOW_HEIGHT) as number;
-
-        if (typeof bottomWindowHeight === 'undefined'){
-            return 0;
-        }
-
-        return bottomWindowHeight;
+        return Setting.findValue<number>(Setting.BOTTOM_WINDOW_HEIGHT, 0);
     }
 
     // TODO: I don't think this is needed, since Setting.setValue() will already save to local storage
@@ -1723,7 +1701,7 @@ export class Utils {
     // validate json
     static validateJSON(jsonString: string, fileType: Eagle.FileType, version: Setting.SchemaVersion){
         // if validation disabled, just return true
-        if (Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
+        if (Setting.findValue<boolean>(Setting.DISABLE_JSON_VALIDATION, false)){
             return;
         }
 

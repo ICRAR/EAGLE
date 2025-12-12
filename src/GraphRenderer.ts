@@ -972,7 +972,7 @@ export class GraphRenderer {
         const e: WheelEvent = event.originalEvent as WheelEvent;
 
         const wheelDelta = e.deltaY;
-        const zoomDivisor = Setting.findValueAsNumber(Setting.GRAPH_ZOOM_DIVISOR);
+        const zoomDivisor = Setting.findValue<number>(Setting.GRAPH_ZOOM_DIVISOR, 1);
 
         const xsb = GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null)
         const ysb = GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)
@@ -1088,8 +1088,11 @@ export class GraphRenderer {
                 eagle.setSelection(node, Eagle.FileType.Graph);
             }
 
+            const bottomWindowVisible = Setting.findValue<boolean>(Setting.BOTTOM_WINDOW_VISIBLE, false);
+            const bottomWindowMode = Setting.findValue<Eagle.BottomWindowMode>(Setting.BOTTOM_WINDOW_MODE, Eagle.BottomWindowMode.None);
+
             //switch back to the node parameter table if a node is selected
-            if(Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE) === true && Setting.findValue(Setting.BOTTOM_WINDOW_MODE) !== Eagle.BottomWindowMode.NodeParameterTable){
+            if(bottomWindowVisible && bottomWindowMode !== Eagle.BottomWindowMode.NodeParameterTable){
                 ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal)
             }
         }else{
@@ -1344,7 +1347,7 @@ export class GraphRenderer {
     }
 
     static parentSelection(outermostNodes : Node[], parent: Node | null) : void {
-        const allowGraphEditing = Setting.findValueAsBoolean(Setting.ALLOW_GRAPH_EDITING);
+        const allowGraphEditing = Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false);
 
         outermostNodes.forEach(function(object){
             if(object instanceof Node){
@@ -1858,7 +1861,8 @@ export class GraphRenderer {
         const linkValid : Errors.Validity = Edge.isValid(eagle, true, null, realSourceNode.getId(), realSourcePort.getId(), realDestinationNode.getId(), realDestinationPort.getId(), false, false, true, true, {errors:[], warnings:[]});
 
         // abort if edge is invalid
-        if ((Setting.findValue(Setting.ALLOW_INVALID_EDGES) && linkValid === Errors.Validity.Error) || linkValid === Errors.Validity.Valid || linkValid === Errors.Validity.Warning || linkValid === Errors.Validity.Fixable){
+        const allowInvalidEdges = Setting.findValue<boolean>(Setting.ALLOW_INVALID_EDGES, false);
+        if ((allowInvalidEdges && linkValid === Errors.Validity.Error) || linkValid === Errors.Validity.Valid || linkValid === Errors.Validity.Warning || linkValid === Errors.Validity.Fixable){
             if (linkValid === Errors.Validity.Warning){
                 GraphRenderer.addEdge(realSourceNode, realSourcePort, realDestinationNode, realDestinationPort, true, false);
             } else {
@@ -1912,7 +1916,7 @@ export class GraphRenderer {
         const portDragSourcePort = GraphRenderer.portDragSourcePort();
 
         //if enabled, filter the list 
-        if (Setting.findValueAsBoolean(Setting.FILTER_NODE_SUGGESTIONS) && portDragSourcePort !== null){
+        if (Setting.findValue<boolean>(Setting.FILTER_NODE_SUGGESTIONS, false) && portDragSourcePort !== null){
             // getting matches from both the graph and the palettes list
             const filteredComponents = Utils.getComponentsWithMatchingPort(eligibleComponents, !GraphRenderer.portDragSourcePortIsInput, portDragSourcePort.getType());
             eligibleComponents = filteredComponents
@@ -2130,7 +2134,7 @@ export class GraphRenderer {
         const eagle = Eagle.getInstance();
         const result: {node: Node, field: Field,validity:Errors.Validity}[] = [];
 
-        const minValidity: Errors.Validity = Setting.findValue(Setting.AUTO_COMPLETE_EDGES_LEVEL) as Errors.Validity;
+        const minValidity: Errors.Validity = Setting.findValue<Errors.Validity>(Setting.AUTO_COMPLETE_EDGES_LEVEL, Errors.Validity.Unknown);
         const minValidityIndex: number = Object.values(Errors.Validity).indexOf(minValidity);
 
         const potentialNodes :Node[] = []
@@ -2396,7 +2400,7 @@ export class GraphRenderer {
 
     static edgeGetStrokeColor(edge: Edge) : string {
         const eagle = Eagle.getInstance();
-        const showErrorsMode = Setting.findValue(Setting.SHOW_GRAPH_WARNINGS);
+        const showErrorsMode = Setting.findValue<Setting.ShowErrorsMode>(Setting.SHOW_GRAPH_WARNINGS, Setting.ShowErrorsMode.None);
 
         let normalColor: string = EagleConfig.getColor('edgeDefault');
         let selectedColor: string = EagleConfig.getColor('edgeDefaultSelected');

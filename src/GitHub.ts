@@ -90,7 +90,7 @@ export class GitHub {
      */
     static async loadRepoContent(repository : Repository, path: string): Promise<void> {
         return new Promise(async(resolve, reject) => {
-            const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
+            const token = Setting.findValue<string>(Setting.GITHUB_ACCESS_TOKEN_KEY, "");
 
             // get location
             const location: Repository | RepositoryFolder | null = repository.findPath(path);
@@ -205,7 +205,7 @@ export class GitHub {
      */
     static async openRemoteFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string): Promise<string> {
         return new Promise(async(resolve, reject) => {
-            const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
+            const token = Setting.findValue<string>(Setting.GITHUB_ACCESS_TOKEN_KEY, "");
             const fullFileName : string = Utils.joinPath(filePath, fileName);
 
             // Add parameters in json data.
@@ -230,7 +230,7 @@ export class GitHub {
 
     static async deleteRemoteFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string){
         return new Promise(async(resolve, reject) => {
-            const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
+            const token = Setting.findValue<string>(Setting.GITHUB_ACCESS_TOKEN_KEY, "");
 
             if (token === null || token === "") {
                 Utils.showUserMessage("Access Token", "The GitHub access token is not set! To open GitHub repositories, set the token via settings.");

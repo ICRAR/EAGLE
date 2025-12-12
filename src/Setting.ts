@@ -24,7 +24,7 @@ export class SettingsGroup {
     }
 
     isVisible = (eagle: Eagle) : boolean => {
-        return this.displayFunc(eagle) || Setting.findValue(Setting.SHOW_DEVELOPER_TAB) === true;
+        return this.displayFunc(eagle) || Setting.findValue<boolean>(Setting.SHOW_DEVELOPER_TAB, false) === true;
     }
 
     getSettings = () : Setting[] => {
@@ -187,8 +187,7 @@ export class Setting {
         return undefined;
     }
 
-    // TODO: replace all findValue calls with findValue2 calls and remove findValue
-    static findValue2<T>(key : string, defaultValue: T) : T{
+    static findValue<T>(key : string, defaultValue: T) : T{
         const setting = Setting.find(key);
 
         if (typeof setting === "undefined"){
@@ -198,44 +197,6 @@ export class Setting {
 
         // return the value cast to the expected type
         return setting.value() as T;
-    }
-
-    static findValue(key : string) : validValueTypes | undefined {
-        const setting = Setting.find(key);
-
-        if (typeof setting === "undefined"){
-            console.warn("No setting", key);
-            return undefined;
-        }
-
-        return setting.value();
-    }
-
-    static findValueAsString(key : string) : string {
-        const value = Setting.findValue(key);
-        if (typeof value === "undefined"){
-            console.warn("No setting", key);
-            return "";
-        }
-        return value.toString();
-    }
-
-    static findValueAsBoolean(key : string) : boolean {
-        const value = Setting.findValue(key);
-        if (typeof value === "undefined"){
-            console.warn("No setting", key);
-            return false;
-        }
-        return Boolean(value);
-    }
-
-    static findValueAsNumber(key : string) : number {
-        const value = Setting.findValue(key);
-        if (typeof value === "undefined"){
-            console.warn("No setting", key);
-            return 0;
-        }
-        return Number(value);
     }
 
     static setValue(key : string, value : validValueTypes) : void {
@@ -315,7 +276,7 @@ export class Setting {
             return false;
         }
 
-        switch (Setting.findValue(Setting.SHOW_GRAPH_WARNINGS)){
+        switch (Setting.findValue<Setting.ShowErrorsMode>(Setting.SHOW_GRAPH_WARNINGS, Setting.ShowErrorsMode.None)){
             case Setting.ShowErrorsMode.Warnings:
                 return selectedNode.getErrorsWarnings().errors.length + selectedNode.getErrorsWarnings().warnings.length > 0;
             case Setting.ShowErrorsMode.Errors:

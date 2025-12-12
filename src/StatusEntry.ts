@@ -62,7 +62,7 @@ export class StatusEntry {
             new StatusEntry(KeyboardShortcut.idToKeysText('delete_selection', true),' delete selection.', Eagle.getInstance().selectedObjects().length > 0),
             //a node is selected
             new StatusEntry('[Right Click]',' on Objects in the graph for more options.', Eagle.getInstance().selectedNode() != null),
-            new StatusEntry(KeyboardShortcut.idToKeysText('open_parameter_table', true),' open fields table.', Eagle.getInstance().selectedNode() != null && Setting.findValueAsBoolean(Setting.ALLOW_GRAPH_EDITING)),
+            new StatusEntry(KeyboardShortcut.idToKeysText('open_parameter_table', true),' open fields table.', Eagle.getInstance().selectedNode() != null && Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)),
             //more than one thing is selected
             new StatusEntry(KeyboardShortcut.idToKeysText('create_construct_from_selection', true),' Construct from selection.', Eagle.getInstance().selectedObjects().length >1),
             new StatusEntry('[Shift + Alt + Click]',' toggle selection of object', Eagle.getInstance().selectedObjects().length >1),

@@ -140,7 +140,7 @@ $(function(){
     eagle.loadDefaultPalettes();
 
     // set other state based on settings values
-    eagle.snapToGrid(Setting.findValueAsBoolean(Setting.SNAP_TO_GRID));
+    eagle.snapToGrid(Setting.findValue<boolean>(Setting.SNAP_TO_GRID, false));
 
     // load schemas
     Utils.loadSchemas();
@@ -152,7 +152,7 @@ $(function(){
     Modals.init(eagle);
 
     // add a listener for the beforeunload event, helps warn users before leaving webpage with unsaved changes
-    window.onbeforeunload = () => (eagle.areAnyFilesModified() && Setting.findValue(Setting.CONFIRM_DISCARD_CHANGES)) ? "Check graph" : null;
+    window.onbeforeunload = () => (eagle.areAnyFilesModified() && Setting.findValue<boolean>(Setting.CONFIRM_DISCARD_CHANGES, true)) ? "Check graph" : null;
 
     // keyboard shortcut event listener
     document.onkeydown = KeyboardShortcut.processKey;
@@ -346,7 +346,7 @@ async function autoLoad() {
     }
 
     // if developer setting enabled, fetch the repository that this graph belongs to (if the repository is in the list of known repositories)
-    if (serviceIsGit && Setting.findValue(Setting.FETCH_REPOSITORY_FOR_URLS)){
+    if (serviceIsGit && Setting.findValue<boolean>(Setting.FETCH_REPOSITORY_FOR_URLS, false)){
         let repo: Repository | null = Repositories.get(service, repository, branch);
 
         // check whether the source repository is already known to EAGLE

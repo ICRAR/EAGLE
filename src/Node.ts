@@ -325,10 +325,10 @@ export class Node {
 
     isLocked : ko.PureComputed<boolean> = ko.pureComputed(() => {
         if(Eagle.selectedLocation() === Eagle.FileType.Graph){
-            const allowComponentEditing : boolean = Setting.findValueAsBoolean(Setting.ALLOW_COMPONENT_EDITING);
+            const allowComponentEditing : boolean = Setting.findValue<boolean>(Setting.ALLOW_COMPONENT_EDITING, false);
             return !allowComponentEditing;
         }else{
-            const allowPaletteEditing : boolean = Setting.findValueAsBoolean(Setting.ALLOW_PALETTE_EDITING);
+            const allowPaletteEditing : boolean = Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false);
             return !allowPaletteEditing;
         }
     }, this);
@@ -540,7 +540,7 @@ export class Node {
     }
 
     getDescriptionReadonly = () : boolean => {
-        const allowParam : boolean = Setting.findValueAsBoolean(Setting.ALLOW_COMPONENT_EDITING);
+        const allowParam : boolean = Setting.findValue<boolean>(Setting.ALLOW_COMPONENT_EDITING, false);
 
         return !allowParam;
     }
@@ -1229,12 +1229,13 @@ export class Node {
 
     getBorderColor : ko.PureComputed<string> = ko.pureComputed(() => {
         const errorsWarnings = this.getAllErrorsWarnings()
+        const showGraphWarnings = Setting.findValue<Setting.ShowErrorsMode>(Setting.SHOW_GRAPH_WARNINGS, Setting.ShowErrorsMode.None);
 
         if(this.isEmbedded()){
             return '' //returning nothing lets the means we are not over writing the default css behaviour
-        }else if(errorsWarnings.errors.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) != Setting.ShowErrorsMode.None){
+        }else if(errorsWarnings.errors.length>0 && showGraphWarnings !== Setting.ShowErrorsMode.None){
             return EagleConfig.getColor('graphError')
-        }else if(errorsWarnings.warnings.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) === Setting.ShowErrorsMode.Warnings){
+        }else if(errorsWarnings.warnings.length>0 && showGraphWarnings === Setting.ShowErrorsMode.Warnings){
             return EagleConfig.getColor('graphWarning')
         }else{
             return EagleConfig.getColor('bodyBorder')
@@ -1255,10 +1256,11 @@ export class Node {
 
     getBackgroundColor : ko.PureComputed<string> = ko.pureComputed(() => {
         const errorsWarnings = this.getAllErrorsWarnings()
+        const showGraphWarnings = Setting.findValue<Setting.ShowErrorsMode>(Setting.SHOW_GRAPH_WARNINGS, Setting.ShowErrorsMode.None);
 
-        if(errorsWarnings.errors.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) != Setting.ShowErrorsMode.None){
+        if(errorsWarnings.errors.length>0 && showGraphWarnings !== Setting.ShowErrorsMode.None){
             return EagleConfig.getColor('errorBackground');
-        }else if(errorsWarnings.warnings.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) === Setting.ShowErrorsMode.Warnings){
+        }else if(errorsWarnings.warnings.length>0 && showGraphWarnings === Setting.ShowErrorsMode.Warnings){
             return EagleConfig.getColor('warningBackground');
         }else{
             return '' //returning nothing lets the means we are not over writing the default css behaviour
@@ -1314,7 +1316,7 @@ export class Node {
     }
 
     graphNodeTitleIsHidden = () : boolean => {
-        return (this.isData() || this.isGlobal()) && Setting.findValueAsBoolean(Setting.HIDE_DATA_NODE_TITLES);
+        return (this.isData() || this.isGlobal()) && Setting.findValue<boolean>(Setting.HIDE_DATA_NODE_TITLES, false);
     }
 
     //get icon color
@@ -1815,7 +1817,7 @@ export class Node {
             let inputApplication = node.inputApplication();
 
             if (inputApplication === null){
-                if (Setting.findValue(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
+                if (Setting.findValue<boolean>(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, false)){
                     inputApplication = Node.createEmbeddedApplicationNode("Unknown", Category.UnknownApplication, "", "", node);
                     node.setInputApplication(inputApplication);
                     errorsWarnings.errors.push(Errors.Message("Created new embedded input application (" + inputApplication.getName() + ") for node (" + node.getName() + "). Application category is " + inputApplication.getCategory() + " and may require user intervention."));
@@ -1830,7 +1832,7 @@ export class Node {
             let outputApplication = node.outputApplication();
 
             if (outputApplication === null){
-                if (Setting.findValue(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
+                if (Setting.findValue<boolean>(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, false)){
                     outputApplication = Node.createEmbeddedApplicationNode("Unknown", Category.UnknownApplication, "", "", node);
                     node.setOutputApplication(outputApplication);
                     errorsWarnings.errors.push(Errors.Message("Created new embedded output application (" + outputApplication.getName() + ") for node (" + node.getName() + "). Application category is " + outputApplication.getCategory() + " and may require user intervention."));

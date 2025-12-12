@@ -314,12 +314,8 @@ export class Eagle {
     }
 
     deployDefaultTranslationAlgorithm = async () => {
-        const translatorAlgorithmDefault = Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT);
-        if (typeof translatorAlgorithmDefault === 'undefined'){
-            console.warn("deployDefaultTranslationAlgorithm(): default translator algorithm setting is undefined");
-        }
-
-        const defaultTranslatorAlgorithmMethod : string = Utils.getUIValue('#'+ translatorAlgorithmDefault + ' .generatePgt', "agl-1");
+        const translatorAlgorithmDefault = Setting.findValue<string>(Setting.TRANSLATOR_ALGORITHM_DEFAULT, Translator.DEFAULT_TRANSLATION_ALGORITHM);
+        const defaultTranslatorAlgorithmMethod : string = Utils.getUIValue('#'+ translatorAlgorithmDefault + ' .generatePgt', Translator.DEFAULT_TRANSLATION_ALGORITHM);
         try {
             await this.translator().genPGT(defaultTranslatorAlgorithmMethod, false);
         } catch (error){
@@ -388,7 +384,7 @@ export class Eagle {
     }
 
     isTranslationDefault = (algorithmName:string) : boolean => {
-        return algorithmName === Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT)
+        return algorithmName === Setting.findValue<string>(Setting.TRANSLATOR_ALGORITHM_DEFAULT, Translator.DEFAULT_TRANSLATION_ALGORITHM);
     }
 
     repositoryFileName : ko.PureComputed<string> = ko.pureComputed(() => {
@@ -418,10 +414,16 @@ export class Eagle {
 
     // TODO: move to SideWindow.ts?
     toggleWindows = () : void  => {
-        const setOpen : boolean = !Setting.findValueAsBoolean(Setting.LEFT_WINDOW_VISIBLE) || !Setting.findValueAsBoolean(Setting.RIGHT_WINDOW_VISIBLE) || !Setting.findValueAsBoolean(Setting.BOTTOM_WINDOW_VISIBLE)
+        const leftWindowVisible : boolean = Setting.findValue<boolean>(Setting.LEFT_WINDOW_VISIBLE, false);
+        const rightWindowVisible : boolean = Setting.findValue<boolean>(Setting.RIGHT_WINDOW_VISIBLE, false);
+        const bottomWindowVisible : boolean = Setting.findValue<boolean>(Setting.BOTTOM_WINDOW_VISIBLE, false);
+
+        const setOpen : boolean = !leftWindowVisible || !rightWindowVisible || !bottomWindowVisible;
 
         // don't allow open if palette and graph editing are disabled
-        const editingAllowed: boolean = Setting.findValueAsBoolean(Setting.ALLOW_PALETTE_EDITING) || Setting.findValueAsBoolean(Setting.ALLOW_GRAPH_EDITING);
+        const allowPaletteEditing: boolean = Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false);
+        const allowGraphEditing: boolean = Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false);
+        const editingAllowed: boolean = allowPaletteEditing || allowGraphEditing;
         if (setOpen && !editingAllowed){
             Utils.notifyUserOfEditingIssue(Eagle.FileType.Unknown, "Toggle Windows");
             return;
@@ -525,7 +527,7 @@ export class Eagle {
         //because the saved bottom window height is a percentage, its easier to grab the height using jquery than to convert the percentage into pixels
         let bottomWindow = 0
 
-        if(Setting.findValueAsBoolean(Setting.BOTTOM_WINDOW_VISIBLE)){
+        if(Setting.findValue<boolean>(Setting.BOTTOM_WINDOW_VISIBLE, false)){
             const bottomWindowHeight = $('#bottomWindow').height()
             bottomWindow = bottomWindowHeight !== undefined ? bottomWindowHeight : 0
         }
@@ -678,7 +680,7 @@ export class Eagle {
 
         if(!serviceIsGit){
             return 'dodgerblue'
-        }else if(Setting.findValue(Setting.TEST_TRANSLATE_MODE)){
+        }else if(Setting.findValue<boolean>(Setting.TEST_TRANSLATE_MODE, false)){
             return 'orange'
         }else if (this.logicalGraph().fileInfo().modified){
             return 'red'
@@ -750,7 +752,7 @@ export class Eagle {
             $('#inspector').removeClass('inspectorTransition')
         },100)
         
-        return Setting.findValueAsBoolean(Setting.INSPECTOR_COLLAPSED_STATE)
+        return Setting.findValue<boolean>(Setting.INSPECTOR_COLLAPSED_STATE, false)
     }, this);
 
     toggleInspectorCollapsedState = () : void => {
@@ -766,8 +768,10 @@ export class Eagle {
         
         SideWindow.setShown('right', true)
 
+        const rightWindowMode = Setting.findValue<Eagle.RightWindowMode>(Setting.RIGHT_WINDOW_MODE, Eagle.RightWindowMode.None);
+
         //trigger a re-render of the hierarchy
-        if (Setting.findValue(Setting.RIGHT_WINDOW_MODE) === Eagle.RightWindowMode.Hierarchy){
+        if (rightWindowMode === Eagle.RightWindowMode.Hierarchy){
             window.setTimeout(function(){
                 Hierarchy.updateDisplay()
             }, 100)
@@ -954,7 +958,7 @@ export class Eagle {
     }
 
     private _handleLoadingErrors = (errorsWarnings: Errors.ErrorsWarnings, fileName: string, service: Repository.Service) : void => {
-        const showErrors: boolean = Setting.findValueAsBoolean(Setting.SHOW_FILE_LOADING_ERRORS);
+        const showErrors: boolean = Setting.findValue<boolean>(Setting.SHOW_FILE_LOADING_ERRORS, false);
         this.hideEagleIsLoading()
 
         // show errors (if found)
@@ -1029,7 +1033,7 @@ export class Eagle {
             return
         }
 
-        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+        if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
             Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Create Subgraph From Selection");
             return;
         }
@@ -1085,7 +1089,7 @@ export class Eagle {
             return
         }
 
-        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+        if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
             Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Create Construct From Selection");
             return;
         }
@@ -1452,7 +1456,9 @@ export class Eagle {
      * The following two functions allows the file selectors to be hidden and let tags 'click' them
      */
     getGraphFileToLoad = () : void => {
-        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+        const allowGraphEditing = Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false);
+
+        if (!allowGraphEditing){
             Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Load Graph");
             return;
         }
@@ -1467,7 +1473,9 @@ export class Eagle {
     }
 
     getGraphFileToInsert = () : void => {
-        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+        const allowGraphEditing = Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false);
+
+        if (!allowGraphEditing){
             Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Insert Graph");
             return;
         }
@@ -1481,7 +1489,9 @@ export class Eagle {
     }
 
     getPaletteFileToLoad = () : void => {
-        if (!Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
+        const allowPaletteEditing = Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false);
+
+        if (allowPaletteEditing){
             Utils.notifyUserOfEditingIssue(Eagle.FileType.Palette, "Load Palette");
             return;
         }
@@ -1495,7 +1505,9 @@ export class Eagle {
     }
 
     getGraphConfigFileToLoad = () : void => {
-        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+        const allowGraphEditing = Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false);
+
+        if (!allowGraphEditing){
             Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Load Graph Config");
             return;
         }
@@ -1512,8 +1524,10 @@ export class Eagle {
      * Creates a new logical graph for editing.
      */
     newLogicalGraph = async(): Promise<void> => {
+        const allowGraphEditing = Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false);
+
         // check that graph editing is permitted
-        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+        if (!allowGraphEditing){
             Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "New Logical Graph");
             return;
         }
@@ -1535,8 +1549,10 @@ export class Eagle {
      * Presents the user with a textarea in which to paste JSON. Reads the JSON and parses it into a logical graph for editing.
      */
     newLogicalGraphFromJson = async (): Promise<void> => {
+        const allowGraphEditing = Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false);
+
         // check that graph editing is permitted
-        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+        if (!allowGraphEditing){
             Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "New Logical Graph From JSON")
             return;
         }
@@ -1557,8 +1573,10 @@ export class Eagle {
     }
 
     insertGraphFromJson = async (): Promise<void> => {
+        const allowGraphEditing = Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false);
+
         // check that graph editing is permitted
-        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+        if (!allowGraphEditing){
             Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Insert Graph from JSON");
             return;
         }
@@ -1606,7 +1624,7 @@ export class Eagle {
 
     displayObjectAsJson = (fileType: Eagle.FileType, object: LogicalGraph | Palette | GraphConfig) : void => {
         let jsonString: string;
-        const version: Setting.SchemaVersion = Setting.findValue2<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
+        const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
         
         switch(fileType){
             case Eagle.FileType.Graph:
@@ -1628,7 +1646,7 @@ export class Eagle {
 
     displayNodeAsJson = (node: Node) : void => {
         let jsonString: string;
-        const version: Setting.SchemaVersion = Setting.findValue2<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
+        const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
 
         switch(version){
             case Setting.SchemaVersion.OJS:
@@ -1650,8 +1668,10 @@ export class Eagle {
      * Creates a new palette for editing.
      */
     newPalette = async () : Promise<void> => {
+        const allowPaletteEditing = Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false);
+
         // check that palette editing is permitted
-        if (!Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
+        if (!allowPaletteEditing){
             Utils.notifyUserOfEditingIssue(Eagle.FileType.Palette, "New Palette");
             return;
         }
@@ -1681,8 +1701,10 @@ export class Eagle {
      * Presents the user with a textarea in which to paste JSON. Reads the JSON and parses it into a palette.
      */
     newPaletteFromJson = async (): Promise<void> => {
+        const allowPaletteEditing = Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false);
+
         // check that palette editing is permitted
-        if (!Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
+        if (!allowPaletteEditing){
             Utils.notifyUserOfEditingIssue(Eagle.FileType.Palette, "New Palette from JSON");
             return;
         }
@@ -1737,8 +1759,10 @@ export class Eagle {
      */
 
     newConfig = () : void => {
+        const allowGraphEditing = Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false);
+
         // check that editing graphs is permitted
-        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+        if (!allowGraphEditing){
             Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "New Config");
             return;
         }
@@ -2306,7 +2330,7 @@ export class Eagle {
             const clone: LogicalGraph | Palette | GraphConfig = obj.clone();
             clone.fileInfo().updateEagleInfo();
 
-            const version: Setting.SchemaVersion = Setting.findValue2<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
+            const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
 
             let jsonString: string = "";
             switch (file.type){
@@ -2342,10 +2366,10 @@ export class Eagle {
 
             switch (file.repository.service){
                 case Repository.Service.GitHub:
-                    token = Setting.findValueAsString(Setting.GITHUB_ACCESS_TOKEN_KEY);
+                    token = Setting.findValue<string>(Setting.GITHUB_ACCESS_TOKEN_KEY, "");
                     break;
                 case Repository.Service.GitLab:
-                    token = Setting.findValueAsString(Setting.GITLAB_ACCESS_TOKEN_KEY);
+                    token = Setting.findValue<string>(Setting.GITLAB_ACCESS_TOKEN_KEY, "");
                     break;
                 default:
                     reject("Unknown repository service. Not GitHub or GitLab!");
@@ -2376,8 +2400,8 @@ export class Eagle {
 
     loadDefaultPalettes = async (): Promise<void> => {
         // get collapsed/expanded state of palettes from html local storage
-        let templatePaletteExpanded: boolean = Setting.findValueAsBoolean(Setting.OPEN_TEMPLATE_PALETTE);
-        let builtinPaletteExpanded: boolean = Setting.findValueAsBoolean(Setting.OPEN_BUILTIN_PALETTE);
+        let templatePaletteExpanded: boolean = Setting.findValue<boolean>(Setting.OPEN_TEMPLATE_PALETTE, false);
+        let builtinPaletteExpanded: boolean = Setting.findValue<boolean>(Setting.OPEN_BUILTIN_PALETTE, false);
         templatePaletteExpanded = templatePaletteExpanded === null ? false : templatePaletteExpanded;
         builtinPaletteExpanded = builtinPaletteExpanded === null ? false : builtinPaletteExpanded;
 
@@ -2386,7 +2410,7 @@ export class Eagle {
             {name:Palette.BUILTIN_PALETTE_NAME, filename:Daliuge.PALETTE_URL, readonly:true, expanded: builtinPaletteExpanded}
         ]);
         
-        const showErrors: boolean = Setting.findValueAsBoolean(Setting.SHOW_FILE_LOADING_ERRORS);
+        const showErrors: boolean = Setting.findValue<boolean>(Setting.SHOW_FILE_LOADING_ERRORS, false);
 
         // display of errors if setting is true
         if (showErrors && (Errors.hasErrors(errorsWarnings) || Errors.hasWarnings(errorsWarnings))){
@@ -2895,7 +2919,7 @@ export class Eagle {
             if (p.fileInfo().name === palette.fileInfo().name){
 
                 // check if the palette is modified, and if so, ask the user to confirm they wish to close
-                if (p.fileInfo().modified && Setting.findValue(Setting.CONFIRM_DISCARD_CHANGES)){
+                if (p.fileInfo().modified && Setting.findValue<boolean>(Setting.CONFIRM_DISCARD_CHANGES, false)){
                     const confirmed = await Utils.requestUserConfirm("Close Modified Palette", "Are you sure you wish to close this modified palette?", "Close", "Cancel", undefined);
                     if (confirmed){
                         this.palettes.splice(i, 1);
@@ -2961,7 +2985,7 @@ export class Eagle {
             p_clone.fileInfo().updateEagleInfo();
 
             // get version
-            const version: Setting.SchemaVersion = Setting.findValue2<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
+            const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
 
             // convert to json
             const jsonString: string = Palette.toJsonString(p_clone, version);
@@ -3020,7 +3044,7 @@ export class Eagle {
             lg_clone.fileInfo().updateEagleInfo();
 
             // get version
-            const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION) as Setting.SchemaVersion;
+            const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
 
             // convert to json
             const jsonString: string = LogicalGraph.toJsonString(lg_clone, false, version);
@@ -3062,7 +3086,7 @@ export class Eagle {
             console.log("saveGraphConfigToDisk()", fileName);
 
             // get version
-            const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION) as Setting.SchemaVersion;
+            const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
 
             // convert to json
             const jsonString: string = GraphConfig.toJsonString(graphConfig);
@@ -3152,10 +3176,10 @@ export class Eagle {
 
         switch (commit.location.repositoryService()){
             case Repository.Service.GitHub:
-                token = Setting.findValueAsString(Setting.GITHUB_ACCESS_TOKEN_KEY);
+                token = Setting.findValue<string>(Setting.GITHUB_ACCESS_TOKEN_KEY, "");
                 break;
             case Repository.Service.GitLab:
-                token = Setting.findValueAsString(Setting.GITLAB_ACCESS_TOKEN_KEY);
+                token = Setting.findValue<string>(Setting.GITLAB_ACCESS_TOKEN_KEY, "");
                 break;
             default:
                 Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
@@ -3173,7 +3197,7 @@ export class Eagle {
         p_clone.fileInfo().updateEagleInfo();
 
         // get version
-        const version: Setting.SchemaVersion = Setting.findValue2<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
+        const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
 
         // convert to json
         const jsonString: string = Palette.toJsonString(p_clone, version);
@@ -3195,7 +3219,7 @@ export class Eagle {
         const lg: LogicalGraph = Eagle.getInstance().logicalGraph();
 
         // get schema version
-        const version: Setting.SchemaVersion = Setting.findValue2<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
+        const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
 
         // get json for logical graph
         const jsonString: string = LogicalGraph.toJsonString(lg, true, version);
@@ -3435,7 +3459,7 @@ export class Eagle {
             case Eagle.FileType.Graph:
                 {
                     // check that graph editing is allowed
-                    if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+                    if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
                         Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Duplicate Selection");
                         return;
                     }
@@ -3471,7 +3495,7 @@ export class Eagle {
             case Eagle.FileType.Palette:
                 {
                     // check that palette editing is allowed
-                    if (!Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
+                    if (!Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false)){
                         Utils.showNotification("Unable to Duplicate Selection", "Palette Editing is disabled", "danger");
                         return;
                     }
@@ -3613,7 +3637,7 @@ export class Eagle {
         console.log("pasteFromClipboard()");
 
         // check that graph editing is allowed
-        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+        if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
             Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Paste from Clipboard");
             return;
         }
@@ -3822,7 +3846,7 @@ export class Eagle {
         }
 
         // check that graph editing is allowed
-        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+        if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
             Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Delete Selection");
             return;
         }
@@ -3840,7 +3864,7 @@ export class Eagle {
         }
 
         // skip confirmation if setting dictates
-        if (!Setting.findValue2<boolean>(Setting.CONFIRM_DELETE_OBJECTS, true) || suppressUserConfirmationRequest){
+        if (!Setting.findValue<boolean>(Setting.CONFIRM_DELETE_OBJECTS, true) || suppressUserConfirmationRequest){
             this._deleteSelection(deleteChildren, data, location);
             
             // if we're NOT in rightClick mode, empty the selected objects, should have all been deleted
@@ -4065,7 +4089,7 @@ export class Eagle {
             let searchAreaExtended = false; //used if we cant find space on the canvas, we then extend the search area for space and center the graph after adding to bring new nodes into view
 
             // check that graph editing is allowed
-            if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
                 reject("Unable to Add Component. Graph Editing is disabled");
                 return;
             }
@@ -4231,7 +4255,7 @@ export class Eagle {
 
     addGraphNodesToPalette = async () => {
         // check that palette editing is permitted
-        if (!Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
+        if (!Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false)){
             Utils.notifyUserOfEditingIssue(Eagle.FileType.Palette, "Add Graph Nodes to Palette");
             return;
         }
@@ -4446,7 +4470,7 @@ export class Eagle {
         }
 
         // check that graph editing is allowed
-        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+        if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
             Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Change Node Parent")
             return;
         }
@@ -4604,7 +4628,7 @@ export class Eagle {
         const destinationPaletteIndex : number = parseInt(targetPaletteIndexData, 10);
         const destinationPalette: Palette = this.palettes()[destinationPaletteIndex];
 
-        const allowReadonlyPaletteEditing = Setting.findValue(Setting.ALLOW_READONLY_PALETTE_EDITING);
+        const allowReadonlyPaletteEditing = Setting.findValue<boolean>(Setting.ALLOW_READONLY_PALETTE_EDITING, false);
 
         // check user can write to destination palette
         if (destinationPalette.fileInfo().readonly && !allowReadonlyPaletteEditing){
@@ -4706,19 +4730,23 @@ export class Eagle {
         let y = 0;
         
         while (!suitablePositionFound && numIterations <= MAX_ITERATIONS){
+            const leftWindowVisible = Setting.findValue<boolean>(Setting.LEFT_WINDOW_VISIBLE, false);
+            const rightWindowVisible = Setting.findValue<boolean>(Setting.RIGHT_WINDOW_VISIBLE, false);
+            const bottomWindowVisible = Setting.findValue<boolean>(Setting.BOTTOM_WINDOW_VISIBLE, false);
+
             // get logical graph display area dimensions
             const logicalGraphParentWidth = $('#logicalGraphParent').width() || 0;
             const logicalGraphParentHeight = $('#logicalGraphParent').height() || 0;
             const bottomWindowHeight = $('#bottomWindow').height() || 0;
 
             // get visible screen size
-            let minX = Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) ? this.leftWindow().size()+MARGIN: 0+MARGIN;
-            let maxX = Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE) ? logicalGraphParentWidth - this.rightWindow().size() - MARGIN : logicalGraphParentWidth - MARGIN;
+            let minX = leftWindowVisible ? this.leftWindow().size()+MARGIN: 0+MARGIN;
+            let maxX = rightWindowVisible ? logicalGraphParentWidth - this.rightWindow().size() - MARGIN : logicalGraphParentWidth - MARGIN;
             let minY = 0 + navBarHeight + MARGIN;
             //using jquery here to get the bottom window height because it is internally saved in VH (percentage screen height). Doing it this way means we don't have to convert it to pixels
             let maxY = logicalGraphParentHeight - MARGIN + navBarHeight;
 
-            if(Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE)){
+            if(bottomWindowVisible){
                 maxY = logicalGraphParentHeight - bottomWindowHeight - MARGIN + navBarHeight;
             }
 
@@ -4837,7 +4865,7 @@ export class Eagle {
             }
 
             // check that graph editing is allowed
-            if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+            if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
                 reject("Unable to Add Edge: Graph Editing is disabled");
                 return;
             }
@@ -4849,7 +4877,7 @@ export class Eagle {
             const twoEventPorts : boolean = srcPort.getIsEvent() && destPort.getIsEvent();
 
             // consult the DEFAULT_DATA_NODE setting to determine which category of intermediate data node to use
-            const defaultData = Setting.findValue2<string>(Setting.DEFAULT_DATA_NODE, Category.Memory);
+            const defaultData = Setting.findValue<string>(Setting.DEFAULT_DATA_NODE, Category.Memory);
             let intermediaryComponent = Utils.getPaletteComponentByName(defaultData || "");
 
             // if intermediaryComponent is undefined (not found), then choose something guaranteed to be available
@@ -4869,7 +4897,7 @@ export class Eagle {
 
                 // re-name node and port according to the port name of the Application node
                 //force auto rename use used when we are adding in a new node. When dragging an edge to empty space or connecting two application nodes.
-                if (!Setting.findValue(Setting.DISABLE_RENAME_ON_EDGE_CONNECT) || forceAutoRename){
+                if (!Setting.findValue<boolean>(Setting.DISABLE_RENAME_ON_EDGE_CONNECT, false) || forceAutoRename){
                     if (srcNode.isApplication()){
                         const newName = srcPort.getDisplayText();
                         const newDescription = srcPort.getDescription();
@@ -4961,7 +4989,7 @@ export class Eagle {
     }
 
     editShortDescription = async(fileInfo: FileInfo): Promise<void> => {
-        const markdownEditingEnabled: boolean = Setting.findValueAsBoolean(Setting.MARKDOWN_EDITING_ENABLED);
+        const markdownEditingEnabled: boolean = Setting.findValue<boolean>(Setting.MARKDOWN_EDITING_ENABLED, false);
 
         let description: string;
         try {
@@ -4979,7 +5007,7 @@ export class Eagle {
     }
 
     editDetailedDescription = async(fileInfo: FileInfo): Promise<void> => {
-        const markdownEditingEnabled: boolean = Setting.findValueAsBoolean(Setting.MARKDOWN_EDITING_ENABLED);
+        const markdownEditingEnabled: boolean = Setting.findValue<boolean>(Setting.MARKDOWN_EDITING_ENABLED, false);
 
         let description: string;
         try {
@@ -4997,7 +5025,7 @@ export class Eagle {
     }
 
     editNodeDescription = async (node?: Node): Promise<void> => {
-        const markdownEditingEnabled: boolean = Setting.findValueAsBoolean(Setting.MARKDOWN_EDITING_ENABLED);
+        const markdownEditingEnabled: boolean = Setting.findValue<boolean>(Setting.MARKDOWN_EDITING_ENABLED, false);
         const targetNode = node || this.selectedNode();
 
         // abort if no node is selected AND no node was passed in
@@ -5018,7 +5046,7 @@ export class Eagle {
     }
 
     editNodeComment = async (): Promise<void> => {
-        const markdownEditingEnabled: boolean = Setting.findValueAsBoolean(Setting.MARKDOWN_EDITING_ENABLED);
+        const markdownEditingEnabled: boolean = Setting.findValue<boolean>(Setting.MARKDOWN_EDITING_ENABLED, false);
         const node = this.selectedNode()
 
         // abort if no node is selected
@@ -5039,7 +5067,7 @@ export class Eagle {
     }
 
     editEdgeComment = async (): Promise<void> => {
-        const markdownEditingEnabled: boolean = Setting.findValueAsBoolean(Setting.MARKDOWN_EDITING_ENABLED);
+        const markdownEditingEnabled: boolean = Setting.findValue<boolean>(Setting.MARKDOWN_EDITING_ENABLED, false);
         const edge = this.selectedEdge()
 
         // abort if no edge is selected
@@ -5080,8 +5108,8 @@ export class Eagle {
     }, this)
 
     inspectorChangeNodeCategoryRequest = async (event: Event): Promise<void> => {
-        const confirmNodeCategoryChanges = Setting.findValueAsBoolean(Setting.CONFIRM_NODE_CATEGORY_CHANGES);
-        const keepOldFields = Setting.findValueAsBoolean(Setting.KEEP_OLD_FIELDS_DURING_CATEGORY_CHANGE);
+        const confirmNodeCategoryChanges = Setting.findValue<boolean>(Setting.CONFIRM_NODE_CATEGORY_CHANGES, false);
+        const keepOldFields = Setting.findValue<boolean>(Setting.KEEP_OLD_FIELDS_DURING_CATEGORY_CHANGE, false);
 
         // request confirmation from user
         // old request if 'confirm' setting is true AND we're not going to keep the old fields
@@ -5134,7 +5162,7 @@ export class Eagle {
             }
 
             // consult user setting - whether they want to remove old fields
-            const keepOldFields: boolean = Setting.findValueAsBoolean(Setting.KEEP_OLD_FIELDS_DURING_CATEGORY_CHANGE);
+            const keepOldFields: boolean = Setting.findValue<boolean>(Setting.KEEP_OLD_FIELDS_DURING_CATEGORY_CHANGE, false);
 
             Utils.transformNodeFromTemplates(oldNode, oldCategoryTemplate, newCategoryTemplate, keepOldFields);
         }
@@ -5194,7 +5222,7 @@ export class Eagle {
         }
 
         // check if graph editing is allowed
-        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+        if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
             Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Check for Component Updates");
             return;
         }
@@ -5228,7 +5256,7 @@ export class Eagle {
 
     updateSelection = (): void => {
         // check if graph editing is allowed
-        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+        if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
             Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Update Selection");
             return;
         }
@@ -5280,7 +5308,7 @@ export class Eagle {
 
     fixSelection = (): void => {
         // check if graph editing is allowed
-        if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+        if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
             Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Fix Selection");
             return;
         }

@@ -576,7 +576,7 @@ export class RightClick {
 
 //canvas right click options
             if(passedObjectClass === 'rightClick_logicalGraph'){
-                if(Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+                if(Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
                     $('#customContextMenu').append(searchbar)
     
                     $('#customContextMenu').append('<div id="rightClickPaletteList"></div>')
@@ -600,7 +600,7 @@ export class RightClick {
 
 //edge drop menu options
             }else if(passedObjectClass === 'edgeDropCreate'){
-                if(Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+                if(Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
                     $('#customContextMenu').append(searchbar)
     
                     $('#customContextMenu').append('<div id="rightClickPaletteList"></div>')
@@ -617,7 +617,7 @@ export class RightClick {
 
 //construct embedded app options
             }else if(passedObjectClass === 'addEmbeddedOutputApp' || passedObjectClass === 'addEmbeddedInputApp'){
-                if(Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+                if(Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
                     const target = thisEvent.target;
                     if (target === null){
                         console.warn("No target found for construct embedded app right click");
@@ -648,7 +648,7 @@ export class RightClick {
             }else if(passedObjectClass === 'rightClick_paletteComponent'){
                 Eagle.selectedRightClickLocation(Eagle.FileType.Palette)
     
-                if(Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
+                if(Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false)){
                     $('#customContextMenu').append(RightClick.getNodeDescriptionDropdown())
                     $('#customContextMenu').append('<a onclick="ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.RightClick)">Open Fields Table</a>')
                     $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,false)>Delete</a>')
@@ -663,7 +663,7 @@ export class RightClick {
                 $('#customContextMenu').append('<a onclick="ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.RightClick)">Open Fields Table</a>')
                 $('#customContextMenu').append('<a onclick="ParameterTable.openTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.RightClick)">Graph Attributes</a>')
                 $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,false)>Delete</a>')
-                if(Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
+                if(Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false)){
                     $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to palette</a>')
                 }
                 $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("contextMenuRequest")>Duplicate</a>')
@@ -685,7 +685,7 @@ export class RightClick {
                 if(data.getCategory() === Category.Docker){
                     $('#customContextMenu').append('<a onclick=eagle.fetchDockerHTML()>Browse DockerHub</a>')
                 }
-                if(Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
+                if(Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false)){
                     $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to palette</a>')
                 }
                 $('#customContextMenu').append('<a onclick=eagle.duplicateSelection("contextMenuRequest")>Duplicate</a>')

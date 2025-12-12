@@ -84,7 +84,7 @@ export class LogicalGraph {
         for (const edge of graph.edges().values()){
 
             // depending on the settings and purpose, skip close-loop edges
-            if (forTranslation && Setting.findValue(Setting.SKIP_CLOSE_LOOP_EDGES)){
+            if (forTranslation && Setting.findValue<boolean>(Setting.SKIP_CLOSE_LOOP_EDGES, false)){
                 if (edge.isClosesLoop()){
                     continue;
                 }

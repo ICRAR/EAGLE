@@ -73,7 +73,8 @@ export class ParameterTable {
             return "";
         }
 
-        if (Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.NodeParameterTable || Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ConfigParameterTable){
+        const bottomWindowMode = Setting.findValue<Eagle.BottomWindowMode>(Setting.BOTTOM_WINDOW_MODE, Eagle.BottomWindowMode.None);
+        if ([Eagle.BottomWindowMode.NodeParameterTable, Eagle.BottomWindowMode.ConfigParameterTable].includes(bottomWindowMode)){
             return selectionParent.getDisplayText() + " - " + ParameterTable.selectionName();
         } else {
             return "Unknown";
@@ -87,7 +88,8 @@ export class ParameterTable {
             return "";
         }
 
-        if (Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.NodeParameterTable || Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ConfigParameterTable){
+        const bottomWindowMode = Setting.findValue<Eagle.BottomWindowMode>(Setting.BOTTOM_WINDOW_MODE, Eagle.BottomWindowMode.None);
+        if ([Eagle.BottomWindowMode.NodeParameterTable, Eagle.BottomWindowMode.ConfigParameterTable].includes(bottomWindowMode)){
             return selection;
         } else {
             return "Unknown";
@@ -139,7 +141,9 @@ export class ParameterTable {
         //resets the table field selections used for the little editor at the top of the table
         ParameterTable.resetSelection()
 
-        switch (Setting.findValue(Setting.BOTTOM_WINDOW_MODE)){
+        const bottomWindowMode = Setting.findValue<Eagle.BottomWindowMode>(Setting.BOTTOM_WINDOW_MODE, Eagle.BottomWindowMode.None);
+
+        switch (bottomWindowMode){
             case Eagle.BottomWindowMode.NodeParameterTable:
                 return ParameterTable.fields();
 
@@ -272,7 +276,7 @@ export class ParameterTable {
     static getNodeLockedState = (field:Field) : boolean => {
         const eagle: Eagle = Eagle.getInstance();
 
-        const bottomWindowMode = Setting.findValue(Setting.BOTTOM_WINDOW_MODE);
+        const bottomWindowMode = Setting.findValue<Eagle.BottomWindowMode>(Setting.BOTTOM_WINDOW_MODE, Eagle.BottomWindowMode.None);
 
         // this handles a special case where EAGLE is displaying the "Graph Configuration Attributes Table"
         // all the field names shown in that table should be locked (readonly)
@@ -298,9 +302,9 @@ export class ParameterTable {
     // TODO: move to Eagle.ts? only depends on Eagle state and settings
     static getParamsTableEditState = () : boolean => {
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
-            return !Setting.findValue(Setting.ALLOW_PALETTE_EDITING)
+            return !Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false)
         }else{
-            return !Setting.findValue(Setting.ALLOW_GRAPH_EDITING) && !Setting.findValue(Setting.ALLOW_COMPONENT_EDITING);
+            return !Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false) && !Setting.findValue<boolean>(Setting.ALLOW_COMPONENT_EDITING, false);
         }
     }
 
@@ -661,14 +665,14 @@ export class ParameterTable {
 
     static toggleTable = (mode: Eagle.BottomWindowMode, selectType: ParameterTable.SelectType) : void => {
         // if user in student mode, abort
-        const inStudentMode: boolean = Setting.findValueAsBoolean(Setting.STUDENT_SETTINGS_MODE);
+        const inStudentMode: boolean = Setting.findValue<boolean>(Setting.STUDENT_SETTINGS_MODE, false);
         if (inStudentMode && mode === Eagle.BottomWindowMode.NodeParameterTable){
             Utils.showNotification("Student Mode", "Unable to open Parameter Table in student mode", "danger", false);
             return;
         }
 
         //if we are already in the requested mode, we can toggle the bottom window
-        if(Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === mode){
+        if(Setting.findValue<Eagle.BottomWindowMode>(Setting.BOTTOM_WINDOW_MODE, Eagle.BottomWindowMode.None) === mode){
             SideWindow.toggleShown('bottom')
         }else{
             this.openTable(mode,selectType)
@@ -812,13 +816,13 @@ export class ParameterTable {
         }
 
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
-            if(Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
+            if(Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false)){
                 return false;
             }else{
                 return field.isReadonly();
             }
         }else{
-            if(Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)){
+            if(Setting.findValue<boolean>(Setting.ALLOW_COMPONENT_EDITING, false)){
                 return false;
             }else{
                 return field.isReadonly();
@@ -833,21 +837,22 @@ export class ParameterTable {
             return true;
         }
 
-        if(Eagle.selectedLocation() === Eagle.FileType.Palette && Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
+        if(Eagle.selectedLocation() === Eagle.FileType.Palette && Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false)){
             return false;
         }
         
-        if (Eagle.selectedLocation() != Eagle.FileType.Palette && Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)){
+        if (Eagle.selectedLocation() != Eagle.FileType.Palette && Setting.findValue<boolean>(Setting.ALLOW_COMPONENT_EDITING, false)){
             return false;
         }
         
-        if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.ValueEditingPermission.ReadOnly){
+        const valueEditingPermissions = Setting.findValue<Setting.ValueEditingPermission>(Setting.VALUE_EDITING_PERMS, Setting.ValueEditingPermission.Normal);
+        if(valueEditingPermissions === Setting.ValueEditingPermission.ReadOnly){
             return false;
         }
-        if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.ValueEditingPermission.Normal){
+        if(valueEditingPermissions === Setting.ValueEditingPermission.Normal){
             return field.isReadonly();
         }
-        if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.ValueEditingPermission.ConfigOnly){
+        if(valueEditingPermissions === Setting.ValueEditingPermission.ConfigOnly){
             return field.isReadonly();
         }
         
