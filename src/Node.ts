@@ -75,7 +75,7 @@ export class Node {
                                                    // TODO: unused? shall we remove it?
 
     constructor(name : string, description : string, comment : string, category : Category){
-        this.id = ko.observable(Utils.generateNodeId());
+        this.id = ko.observable("" as NodeId);//Utils.generateNodeId());
         this.name = ko.observable(name);
         this.description = ko.observable(description);
         this.comment = ko.observable(comment);
@@ -93,8 +93,11 @@ export class Node {
         this.fields = ko.observable(new Map<FieldId, Field>());
         this.category = ko.observable(category);
 
+        // lookup category data
+        const categoryData = CategoryData.getCategoryData(category);
+
         // lookup correct categoryType based on category
-        this.categoryType = ko.observable(CategoryData.getCategoryData(category).categoryType);
+        this.categoryType = ko.observable(categoryData.categoryType);
 
         this.repositoryUrl = ko.observable("");
         this.commitHash = ko.observable("");
@@ -108,10 +111,10 @@ export class Node {
         this.keepExpanded = ko.observable(false);
         this.peek = ko.observable(false);
 
-        this.color = ko.observable(Utils.getColorForNode(this));
+        this.color = ko.observable(categoryData.color);//Utils.getColorForNode(this));
         this.drawOrderHint = ko.observable(0);
 
-        this.radius = ko.observable(Utils.getRadiusForNode(this));
+        this.radius = ko.observable(categoryData.radius);//Utils.getRadiusForNode(this));
     }
 
     getId = () : NodeId => {

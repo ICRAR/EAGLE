@@ -1345,26 +1345,6 @@ export class Utils {
             ![Category.Type.Unknown].map(x => x as string).includes(categoryType);
     }
 
-    static getColorForNode(node: Node) : string {
-        return CategoryData.getCategoryData(node.getCategory()).color;
-    }
-
-    static getRadiusForNode(node: Node) : number {
-        if(node.isData() || node.isGlobal()){
-            return EagleConfig.DATA_NODE_RADIUS;
-        }else if (node.isBranch()){
-            return EagleConfig.BRANCH_NODE_RADIUS;
-        }else if (node.isConstruct()){
-            return EagleConfig.NORMAL_NODE_RADIUS;
-        }else if (node.isConstruct()){
-            return EagleConfig.MINIMUM_CONSTRUCT_RADIUS;
-        }else if (node.isComment()){
-            return EagleConfig.COMMENT_NODE_WIDTH;
-        }else{
-            return EagleConfig.NORMAL_NODE_RADIUS;
-        }
-    }
-
     static getRightWindowWidth() : number {
         if(Eagle.getInstance().eagleIsReady() && !Setting.findValue<boolean>(Setting.RIGHT_WINDOW_VISIBLE, false)){
             return 0
@@ -1956,8 +1936,12 @@ export class Utils {
     static fixNodeCategory(eagle: Eagle, node: Node, category: Category, categoryType: Category.Type){
         node.setCategory(category);
         node.setCategoryType(categoryType);
-        node.setRadius(Utils.getRadiusForNode(node));
-        node.setColor(Utils.getColorForNode(node));
+
+        // lookup category data
+        const categoryData = CategoryData.getCategoryData(category);
+
+        node.setRadius(categoryData.radius);
+        node.setColor(categoryData.color);
     }
 
     // NOTE: merges field1 into field0

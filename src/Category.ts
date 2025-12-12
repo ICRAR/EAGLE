@@ -62,7 +62,8 @@ export namespace Category {
         canHaveApplicationArguments: boolean,
         canHaveConstructParameters: boolean, 
         icon: string,
-        color: string
+        color: string,
+        radius: number,
     };
 
     // TODO: add to CategoryData somehow? use in Node.isData() etc?
