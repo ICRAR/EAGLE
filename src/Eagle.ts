@@ -4057,7 +4057,7 @@ export class Eagle {
         this.logicalGraph.valueHasMutated();
     }
 
-    addNodeToLogicalGraph = (node: Node | undefined, nodeId: NodeId, mode: Eagle.AddNodeMode): Promise<Node[]> => {
+    addNodeToLogicalGraph = (node: Node | undefined, nodeId: NodeId | null, mode: Eagle.AddNodeMode): Promise<Node[]> => {
         return new Promise(async(resolve, reject) => {
             const result: Node[] = [];
             let pos : {x:number, y:number};
@@ -4071,8 +4071,14 @@ export class Eagle {
             }
 
             if(mode === Eagle.AddNodeMode.ContextMenu){
-                // we addNodeToLogicalGraph is called from the ContextMenu, we expect node to be null. The node is specified by the nodeId instead
+                // when addNodeToLogicalGraph is called from the ContextMenu, we expect node to be null. The node is specified by the nodeId instead
                 console.assert(node === null);
+
+                // check that nodeId is not null
+                if (nodeId === null){
+                    reject(new Error("nodeId is null"));
+                    return;
+                }
 
                 // try to find the node (by nodeId) in the palettes
                 node = Utils.getPaletteComponentById(nodeId);
@@ -4093,6 +4099,12 @@ export class Eagle {
                 pos = Eagle.selectedRightClickPosition;
 
                 RightClick.closeCustomContextMenu(true);
+            }
+
+            // abort if node is still undefined
+            if (typeof node === 'undefined'){
+                reject(new Error("Node is undefined"));
+                return;
             }
 
             // if node is a construct, set width and height a little larger
@@ -4460,8 +4472,14 @@ export class Eagle {
             // this index only counts up if the above doesn't filter out the choice
             validChoiceIndex++
 
+            const selectedNodeParent = selectedNode.getParent();
+            // if the selected node has no parent, then we can't preselect anything
+            if (selectedNodeParent === null){
+                continue;
+            }
+
             // if this node is already the parent, note its index, so that we can preselect this parent node in the modal dialog
-            if (node.getId() === selectedNode.getParent().getId()){
+            if (node.getId() === selectedNodeParent.getId()){
                 selectedChoiceIndex = validChoiceIndex;
             }
 
@@ -4577,7 +4595,13 @@ export class Eagle {
         }
 
         // determine destination palette
-        const destinationPaletteIndex : number = parseInt((e.currentTarget as HTMLElement).getAttribute('data-palette-index'), 10);
+        const target = e.currentTarget as HTMLElement;
+        const targetPaletteIndexData = target.getAttribute('data-palette-index');
+        if (targetPaletteIndexData === null){
+            console.error("Unable to determine destination palette index from drop target");
+            return;
+        }
+        const destinationPaletteIndex : number = parseInt(targetPaletteIndexData, 10);
         const destinationPalette: Palette = this.palettes()[destinationPaletteIndex];
 
         const allowReadonlyPaletteEditing = Setting.findValue(Setting.ALLOW_READONLY_PALETTE_EDITING);
