@@ -32,8 +32,8 @@ export class Repositories {
                 isModified = eagle.logicalGraph().fileInfo().modified;
                 break;
             case Eagle.FileType.Palette: {
-                const palette: Palette = eagle.findPalette(file.name, false);
-                isModified = palette !== null && palette.fileInfo().modified;
+                const palette = eagle.findPalette(file.name, false);
+                isModified = typeof palette !== "undefined" && palette.fileInfo().modified;
                 break;
             }
             case Eagle.FileType.JSON:

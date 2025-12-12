@@ -1161,8 +1161,8 @@ export class Utils {
         const eagle = Eagle.getInstance();
 
         // get a reference to the builtin palette
-        const builtinPalette: Palette = eagle.findPalette(Palette.BUILTIN_PALETTE_NAME, false);
-        if (builtinPalette === null){
+        const builtinPalette = eagle.findPalette(Palette.BUILTIN_PALETTE_NAME, false);
+        if (typeof builtinPalette === "undefined"){
             // if no built-in palette is found, then build a list from the EAGLE categoryData
             console.warn("Could not find builtin palette", Palette.BUILTIN_PALETTE_NAME);
             return Utils.buildComponentList((cData: Category.CategoryData) => {return cData.categoryType === categoryType});
@@ -2812,8 +2812,8 @@ export class Utils {
         const eagle: Eagle = Eagle.getInstance();
 
         // get a reference to the builtin palette
-        const palette: Palette = eagle.findPalette(paletteName, false);
-        if (palette === null){
+        const palette = eagle.findPalette(paletteName, false);
+        if (typeof palette === "undefined"){
             console.warn("Could not find palette", paletteName);
             return;
         }

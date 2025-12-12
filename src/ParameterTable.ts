@@ -349,7 +349,12 @@ export class ParameterTable {
                     return;
                 }
 
-                const containingPalette: Palette = eagle.findPaletteContainingNode(paletteNode.getId());
+                const containingPalette = eagle.findPaletteContainingNode(paletteNode.getId());
+
+                if (typeof containingPalette === 'undefined'){
+                    console.warn("ParameterTable.fieldValueChanged(): Could not find containing palette to mark as modified");
+                    return;
+                }
 
                 containingPalette.fileInfo().modified = true;
                 break;
