@@ -84,8 +84,10 @@
                         <!-- ko foreach: $root.logicalGraph().getNodesDrawOrdered() -->
                             {% include 'node.html' %}
                         <!-- /ko -->
-                        <!-- ko foreach: Array.from($root.logicalGraph().getVisuals()) -->
-                            {% include 'visual.html' %}
+                        <!-- ko ifnot: Setting.findValue(Setting.HIDE_VISUALS) -->
+                            <!-- ko foreach: Array.from($root.logicalGraph().getVisuals()) -->
+                                {% include 'visual.html' %}
+                            <!-- /ko -->
                         <!-- /ko -->
                         <div id="portContainer">
                             <!-- ko foreach: $root.logicalGraph().getAllNodes() -->
@@ -139,11 +141,13 @@
                                     <polygon data-bind="style:{'fill':GraphRenderer.edgeGetStrokeColor($data)}"></polygon>
                                 </g>
                             <!-- /ko -->
-                            <!-- ko foreach: GraphRenderer.getVisualsWithEdges() -->
-                                <g class="textVisualEdges">
-                                    <path class="commentEdge" data-bind="attr:{d: GraphRenderer.getVisualEdgePath($data)}"></path>
-                                    <path class="edgeClickTarget" data-bind="attr:{d: GraphRenderer.getVisualEdgePath($data)}, eagleRightClick: {data:$data,type:'rightClick_graphVisualEdge'}, click:GraphRenderer.visualEdgeClick"></path>
-                                </g>
+                            <!-- ko ifnot: Setting.findValue(Setting.HIDE_VISUALS) -->
+                                <!-- ko foreach: GraphRenderer.getVisualsWithEdges() -->
+                                    <g class="textVisualEdges">
+                                        <path class="commentEdge" data-bind="attr:{d: GraphRenderer.getVisualEdgePath($data)}"></path>
+                                        <path class="edgeClickTarget" data-bind="attr:{d: GraphRenderer.getVisualEdgePath($data)}, eagleRightClick: {data:$data,type:'rightClick_graphVisualEdge'}, click:GraphRenderer.visualEdgeClick"></path>
+                                    </g>
+                                <!-- /ko -->
                             <!-- /ko -->
                             <!-- ko if: GraphRenderer.renderDraggingPortEdge() -->
                                 <g data-bind="attr:{id:'draggingEdge'}">

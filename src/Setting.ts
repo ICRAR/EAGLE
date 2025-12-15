@@ -355,6 +355,7 @@ export class Setting {
     static readonly SHOW_GRAPH_WARNINGS: string = "ShowInspectorWarnings";
     static readonly SHOW_ALL_CATEGORY_OPTIONS: string = "ShowAllCategoryOptions";
     static readonly HIDE_DATA_NODE_TITLES: string = "HideDataNodeTitles";
+    static readonly HIDE_VISUALS: string = "hideVisuals";
 
     static readonly ALLOW_MODIFIED_GRAPH_TRANSLATION: string = "AllowModifiedGraphTranslation";
     static readonly FETCH_REPOSITORY_FOR_URLS: string = "FetchRepositoryForUrls";
@@ -441,6 +442,7 @@ const settings : SettingsGroup[] = [
             new Setting(false, "Bottom Window Mode/Tab", Setting.BOTTOM_WINDOW_MODE, "saving the mode/tab of the bottom window", true, Setting.Type.Number, 'ParameterTable', 'ParameterTable', 'ParameterTable', 'ParameterTable', 'ParameterTable'),
             new Setting(false, "Graph and Object Inspector", Setting.INSPECTOR_COLLAPSED_STATE, "saving the collapsed state of the graph object inspector", true, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(false, "Visibility of data node titles", Setting.HIDE_DATA_NODE_TITLES, "saving the visibility of the data node titles", true, Setting.Type.Boolean, false, false, false, false, false),
+            new Setting(false, "Visibility of visuals in graph", Setting.HIDE_VISUALS, "saving the visibility of visuals in graph", true, Setting.Type.Boolean, false, false, false, false, false),
         ]
     ),
     new SettingsGroup(

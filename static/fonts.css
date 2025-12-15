@@ -151,11 +151,11 @@
 
 @font-face {
   font-family: 'icomoon';
-  src:  url('fonts/icomoon.eot?4t1iae');
-  src:  url('fonts/icomoon.eot?4t1iae#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?4t1iae') format('truetype'),
-    url('fonts/icomoon.woff?4t1iae') format('woff'),
-    url('fonts/icomoon.svg?4t1iae#icomoon') format('svg');
+  src:  url('fonts/icomoon.eot?ijgxzk');
+  src:  url('fonts/icomoon.eot?ijgxzk#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?ijgxzk') format('truetype'),
+    url('fonts/icomoon.woff?ijgxzk') format('woff'),
+    url('fonts/icomoon.svg?ijgxzk#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -181,6 +181,9 @@
 }
 .icon-visuals:before {
   content: "\e951";
+}
+.icon-hide_visuals:before {
+  content: "\e952";
 }
 .icon-daliugeApp:before {
   content: "\e94c";
