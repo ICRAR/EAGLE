@@ -240,6 +240,10 @@ export class Field {
         return this.precious();
     }
 
+    canBeRenamed = () : boolean => {
+        return !(Daliuge.UNCHANGEABLE_PORT_NAMES.includes(this.displayText()))
+    }
+
     updateEdgeId(oldId: EdgeId, newId: EdgeId): void {
         const edge = this.edges().get(oldId);
 

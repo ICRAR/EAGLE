@@ -4588,14 +4588,20 @@ export class Eagle {
                         const newName = srcPort.getDisplayText();
                         const newDescription = srcPort.getDescription();
                         destNode.setName(newName);
-                        destPort.setDisplayText(newName);
-                        destPort.setDescription(newDescription);
+
+                        if (destPort.canBeRenamed()){
+                            destPort.setDisplayText(newName);
+                            destPort.setDescription(newDescription);
+                        }
                     } else {
                         const newName = destPort.getDisplayText();
                         const newDescription = destPort.getDescription();
                         srcNode.setName(newName);
-                        srcPort.setDisplayText(newName);
-                        srcPort.setDescription(newDescription);
+
+                        if (srcPort.canBeRenamed()){
+                            srcPort.setDisplayText(newName);
+                            srcPort.setDescription(newDescription);
+                        }
                     }
                 }
 

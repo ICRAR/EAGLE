@@ -51,6 +51,7 @@ export namespace Daliuge {
         EXECUTION_TIME = "execution_time",
         GROUP_START = "group_start",
         GROUP_END = "group_end",
+        FILE_PATH = "filepath",
     
         INPUT_ERROR_RATE = "input_error_threshold",
         NUM_OF_COPIES = "num_of_copies",
@@ -295,5 +296,11 @@ export namespace Daliuge {
                 Daliuge.baseNameField
             ]
         }
+    ];
+
+    export const UNCHANGEABLE_PORT_NAMES: string[] = [
+        Daliuge.FieldName.TRUE,
+        Daliuge.FieldName.FALSE,
+        Daliuge.FieldName.FILE_PATH,
     ];
 }
