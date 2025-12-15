@@ -527,10 +527,6 @@ export class Edge {
         const destinationParent = destinationNode.getParent();
         const sourceEmbed = sourceNode.getEmbed();
         const destinationEmbed = destinationNode.getEmbed();
-        //const sourceHasParent = sourceNode.getParent() !== null;
-        //const sourceHasEmbed = sourceNode.getEmbed() !== null;
-        //const destinationHasParent = destinationNode.getParent() !== null;
-        //const destinationHasEmbed = destinationNode.getEmbed() !== null;
         const isParentOfConstruct : boolean = sourceParent !== null && destinationEmbed !== null && sourceParent.getId() === destinationEmbed.getId(); // is the connection from a child of a construct to an embedded app of the same construct
         const isChildOfConstruct : boolean = destinationParent !== null && sourceEmbed !== null && destinationParent.getId() === sourceEmbed.getId(); //is the connections from an embedded app of a construct to a child of that same construct
         const isSibling : boolean = (sourceParent !== null && destinationParent !== null && sourceParent.getId() === destinationParent.getId()) || (sourceParent === null && destinationParent === null); // do the two nodes have the same parent

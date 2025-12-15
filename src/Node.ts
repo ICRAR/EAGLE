@@ -792,40 +792,6 @@ export class Node {
         return this.outputApplication() !== null;
     }
 
-    clear = () : Node => {
-        this.id(Utils.generateNodeId());
-        this.name("");
-        this.description("");
-        this.comment("");
-        this.x(0);
-        this.y(0);
-        this.radius(EagleConfig.MINIMUM_CONSTRUCT_RADIUS);
-        this.color(EagleConfig.getColor('nodeDefault'));
-        this.drawOrderHint(0);
-
-        this.parent(null);
-        this.embed(null);
-
-        this.inputApplication(null);
-        this.outputApplication(null);
-
-        this.fields().clear();
-        this.fields.valueHasMutated();
-
-        this.category(Category.Unknown);
-        this.categoryType(Category.Type.Unknown);
-
-        this.expanded(false);
-        this.keepExpanded(false)
-
-        this.repositoryUrl("");
-        this.commitHash("");
-        this.paletteDownloadUrl("");
-        this.dataHash("");
-
-        return this;
-    }
-
     getGitHTML : ko.PureComputed<string> = ko.pureComputed(() => {
         let url = "Unknown";
         let hash = "Unknown";
