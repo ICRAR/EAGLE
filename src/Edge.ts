@@ -285,7 +285,7 @@ export class Edge {
         }
         
         if (srcNodeId === null || srcPortId === null || destNodeId === null || destPortId === null){
-            // TODO: error message (maybe re-use the errors at the bottom of the function?)
+            console.warn("Edge is missing required attributes, cannot create edge. srcNodeId:", srcNodeId, "srcPortId:", srcPortId, "destNodeId:", destNodeId, "destPortId:", destPortId, "linkData:", linkData);
             return null;
         }
 
@@ -315,13 +315,12 @@ export class Edge {
 
                 // check input and output applications for srcPort
                 const result = node.findPortInApplicationsById(srcPortId);
-                if (result.node !== null){
+                if (typeof result.node !== 'undefined'){
                     srcNode = result.node;
                     srcPort = result.port;
-                    continue;
+                } else {
+                    srcPort = node.getFieldById(srcPortId);
                 }
-
-                srcPort = node.getFieldById(srcPortId);
             }
 
             if (node.getId() === destNodeId){
@@ -329,31 +328,34 @@ export class Edge {
 
                 // check input and output applications for destPort
                 const result = node.findPortInApplicationsById(destPortId);
-                if (result.node !== null){
+                if (typeof result.node !== 'undefined'){
                     destNode = result.node;
                     destPort = result.port;
-                    continue;
+                } else {
+                    destPort = node.getFieldById(destPortId);
                 }
-
-                destPort = node.getFieldById(destPortId);
             }
         }
 
         // check if source and destination nodes and ports were found
         if (typeof srcNode === 'undefined'){
             errorsWarnings.warnings.push(Errors.Message("Could not find source node for edge"));
+            console.warn("Could not find source node for edge. srcNodeId:", srcNodeId, "linkData:", linkData);
             return null;
         }
         if (typeof destNode === 'undefined'){
             errorsWarnings.warnings.push(Errors.Message("Could not find destination node for edge"));
+            console.warn("Could not find destination node for edge. destNodeId:", destNodeId, "linkData:", linkData);
             return null;
         }
         if (typeof srcPort === 'undefined'){
             errorsWarnings.warnings.push(Errors.Message("Could not find source port for edge"));
+            console.warn("Could not find source port for edge. srcPortId:", srcPortId, "linkData:", linkData);
             return null;
         }
         if (typeof destPort === 'undefined'){
             errorsWarnings.warnings.push(Errors.Message("Could not find destination port for edge"));
+            console.warn("Could not find destination port for edge. destPortId:", destPortId, "linkData:", linkData);
             return null;
         }
 
