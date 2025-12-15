@@ -43,12 +43,12 @@ export class Node {
     private x : ko.Observable<number>;
     private y : ko.Observable<number>;
 
-    private parent : ko.Observable<Node>;     // link to the node of which this node is a child
-    private embed : ko.Observable<Node>;      // link to the node in which this node is embedded as an input or output application
+    private parent : ko.Observable<Node | null>;     // link to the node of which this node is a child
+    private embed : ko.Observable<Node | null>;      // link to the node in which this node is embedded as an input or output application
     private children : ko.Observable<Map<NodeId, Node>>;
 
-    private inputApplication : ko.Observable<Node>;
-    private outputApplication : ko.Observable<Node>;
+    private inputApplication : ko.Observable<Node | null>;
+    private outputApplication : ko.Observable<Node | null>;
 
     private fields : ko.Observable<Map<FieldId, Field>>;
 
@@ -75,7 +75,7 @@ export class Node {
                                                    // TODO: unused? shall we remove it?
 
     constructor(name : string, description : string, comment : string, category : Category){
-        this.id = ko.observable(Utils.generateNodeId());
+        this.id = ko.observable("" as NodeId);//Utils.generateNodeId());
         this.name = ko.observable(name);
         this.description = ko.observable(description);
         this.comment = ko.observable(comment);
@@ -93,8 +93,11 @@ export class Node {
         this.fields = ko.observable(new Map<FieldId, Field>());
         this.category = ko.observable(category);
 
+        // lookup category data
+        const categoryData = CategoryData.getCategoryData(category);
+
         // lookup correct categoryType based on category
-        this.categoryType = ko.observable(CategoryData.getCategoryData(category).categoryType);
+        this.categoryType = ko.observable(categoryData.categoryType);
 
         this.repositoryUrl = ko.observable("");
         this.commitHash = ko.observable("");
@@ -108,10 +111,10 @@ export class Node {
         this.keepExpanded = ko.observable(false);
         this.peek = ko.observable(false);
 
-        this.color = ko.observable(Utils.getColorForNode(this));
+        this.color = ko.observable(categoryData.color);//Utils.getColorForNode(this));
         this.drawOrderHint = ko.observable(0);
 
-        this.radius = ko.observable(Utils.getRadiusForNode(this));
+        this.radius = ko.observable(categoryData.radius);//Utils.getRadiusForNode(this));
     }
 
     getId = () : NodeId => {
@@ -237,11 +240,11 @@ export class Node {
         return this;
     }
 
-    getParent = () : Node => {
+    getParent = () : Node | null => {
         return this.parent();
     }
 
-    setParent = (node: Node) : Node => {
+    setParent = (node: Node | null) : Node => {
         // TODO: maybe we should allow this here and just check for the bad state in checkGraph() ?
         // check that we are not making this node its own parent
         if (node !== null && node.id() === this.id()){
@@ -250,9 +253,10 @@ export class Node {
         }
 
         // if this node already has a parent, remove this node from the parent's children
-        if (this.parent() !== null){
-            this.parent().children().delete(this.getId());
-            this.parent().children.valueHasMutated();
+        const parent = this.parent();
+        if (parent !== null){
+            parent.children().delete(this.getId());
+            parent.children.valueHasMutated();
         }
 
         this.parent(node);
@@ -268,11 +272,11 @@ export class Node {
         return this.parent() !== null;
     }
 
-    getEmbed = () : Node => {
+    getEmbed = () : Node | null => {
         return this.embed();
     }
 
-    setEmbed = (node: Node) : Node => {
+    setEmbed = (node: Node | null) : Node => {
         this.embed(node);
         return this;
     }
@@ -292,7 +296,7 @@ export class Node {
     isStreaming = () : boolean => {
         const streamingField = this.findFieldByDisplayText(Daliuge.FieldName.STREAMING);
 
-        if (streamingField !== null){
+        if (typeof streamingField !== 'undefined'){
             return streamingField.valIsTrue(streamingField.getValue());
         }
 
@@ -302,7 +306,7 @@ export class Node {
     isPersist = () : boolean => {
         const persistField = this.findFieldByDisplayText(Daliuge.FieldName.PERSIST);
 
-        if (persistField !== null){
+        if (typeof persistField !== 'undefined'){
             return persistField.valIsTrue(persistField.getValue());
         }
 
@@ -324,10 +328,10 @@ export class Node {
 
     isLocked : ko.PureComputed<boolean> = ko.pureComputed(() => {
         if(Eagle.selectedLocation() === Eagle.FileType.Graph){
-            const allowComponentEditing : boolean = Setting.findValue(Setting.ALLOW_COMPONENT_EDITING);
+            const allowComponentEditing : boolean = Setting.findValue<boolean>(Setting.ALLOW_COMPONENT_EDITING, false);
             return !allowComponentEditing;
         }else{
-            const allowPaletteEditing : boolean = Setting.findValue(Setting.ALLOW_PALETTE_EDITING);
+            const allowPaletteEditing : boolean = Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false);
             return !allowPaletteEditing;
         }
     }, this);
@@ -405,35 +409,39 @@ export class Node {
     }
 
     getInputApplicationInputPorts = () : Field[] => {
-        if (this.inputApplication() === null){
+        const inputApplication = this.inputApplication();
+        if (inputApplication === null){
             return [];
         }
 
-        return this.inputApplication().getInputPorts();
+        return inputApplication.getInputPorts();
     }
 
     getInputApplicationOutputPorts = () : Field[] => {
-        if (this.inputApplication() === null){
+        const inputApplication = this.inputApplication();
+        if (inputApplication === null){
             return [];
         }
 
-        return this.inputApplication().getOutputPorts();
+        return inputApplication.getOutputPorts();
     }
 
     getOutputApplicationInputPorts = () : Field[] => {
-        if (this.outputApplication() === null){
+        const outputApplication = this.outputApplication();
+        if (outputApplication === null){
             return [];
         }
 
-        return this.outputApplication().getInputPorts();
+        return outputApplication.getInputPorts();
     }
 
     getOutputApplicationOutputPorts = () : Field[] => {
-        if (this.outputApplication() === null){
+        const outputApplication = this.outputApplication();
+        if (outputApplication === null){
             return [];
         }
 
-        return this.outputApplication().getOutputPorts();
+        return outputApplication.getOutputPorts();
     }
 
     hasField = (id: FieldId) : boolean => {
@@ -442,16 +450,6 @@ export class Node {
 
     getFieldById = (id: FieldId) : Field | undefined => {
         return this.fields().get(id);
-    }
-
-    getFieldByDisplayText = (displayText : string) : Field | null => {
-        for (const field of this.fields().values()){
-            if (field.getDisplayText() === displayText){
-                return field;
-            }
-        }
-
-        return null;
     }
 
     // TODO: this looks similar to the function above (I think I prefer the name above)
@@ -545,7 +543,7 @@ export class Node {
     }
 
     getDescriptionReadonly = () : boolean => {
-        const allowParam : boolean =Setting.findValue(Setting.ALLOW_COMPONENT_EDITING);
+        const allowParam : boolean = Setting.findValue<boolean>(Setting.ALLOW_COMPONENT_EDITING, false);
 
         return !allowParam;
     }
@@ -754,7 +752,7 @@ export class Node {
         return 'Edit Node Comment: </br>' + Utils.markdown2html(this.comment());
     }, this);
 
-    setInputApplication = (inputApplication : Node) : Node => {
+    setInputApplication = (inputApplication : Node | null) : Node => {
         console.assert(this.isConstruct() || inputApplication === null, "Can't set non-null input application on node that is not a construct");
 
         this.inputApplication(inputApplication);
@@ -766,7 +764,7 @@ export class Node {
         return this;
     }
 
-    getInputApplication = () : Node => {
+    getInputApplication = () : Node | null => {
         return this.inputApplication();
     }
 
@@ -774,7 +772,7 @@ export class Node {
         return this.inputApplication() !== null;
     }
 
-    setOutputApplication = (outputApplication : Node) : Node => {
+    setOutputApplication = (outputApplication : Node | null) : Node => {
         console.assert(this.isConstruct() || outputApplication === null, "Can't set non-null output application on node that is not a construct");
 
         this.outputApplication(outputApplication);
@@ -786,46 +784,12 @@ export class Node {
         return this;
     }
 
-    getOutputApplication = () : Node => {
+    getOutputApplication = () : Node | null => {
         return this.outputApplication();
     }
 
     hasOutputApplication = () : boolean => {
         return this.outputApplication() !== null;
-    }
-
-    clear = () : Node => {
-        this.id(null);
-        this.name("");
-        this.description("");
-        this.comment("");
-        this.x(0);
-        this.y(0);
-        this.radius(EagleConfig.MINIMUM_CONSTRUCT_RADIUS);
-        this.color(EagleConfig.getColor('nodeDefault'));
-        this.drawOrderHint(0);
-
-        this.parent(null);
-        this.embed(null);
-
-        this.inputApplication(null);
-        this.outputApplication(null);
-
-        this.fields().clear();
-        this.fields.valueHasMutated();
-
-        this.category(Category.Unknown);
-        this.categoryType(Category.Type.Unknown);
-
-        this.expanded(false);
-        this.keepExpanded(false)
-
-        this.repositoryUrl("");
-        this.commitHash("");
-        this.paletteDownloadUrl("");
-        this.dataHash("");
-
-        return this;
     }
 
     getGitHTML : ko.PureComputed<string> = ko.pureComputed(() => {
@@ -842,36 +806,39 @@ export class Node {
         return '- Git -</br>Url:&nbsp;' + url + '</br>Hash:&nbsp;' + hash;
     }, this);
 
-    findPortInApplicationsById = (portId: FieldId) : {node: Node, port: Field} => {
+    findPortInApplicationsById = (portId: FieldId) : {node: Node | undefined, port: Field | undefined} => {
+        const inputApplication = this.inputApplication();
+        const outputApplication = this.outputApplication();
+
         // if node has an inputApplication, check those ports too
-        if (this.hasInputApplication()){
-            for (const inputPort of this.inputApplication().getInputPorts()){
+        if (inputApplication !== null){
+            for (const inputPort of inputApplication.getInputPorts()){
                 if (inputPort.getId() === portId){
-                    return {node: this.inputApplication(), port: inputPort};
+                    return {node: inputApplication, port: inputPort};
                 }
             }
-            for (const outputPort of this.inputApplication().getOutputPorts()){
+            for (const outputPort of inputApplication.getOutputPorts()){
                 if (outputPort.getId() === portId){
-                    return {node: this.inputApplication(), port: outputPort};
+                    return {node: inputApplication, port: outputPort};
                 }
             }
         }
 
         // if node has an outputApplication, check those ports too
-        if (this.hasOutputApplication()){
-            for (const inputPort of this.outputApplication().getInputPorts()){
+        if (outputApplication !== null){
+            for (const inputPort of outputApplication.getInputPorts()){
                 if (inputPort.getId() === portId){
-                    return {node: this.outputApplication(), port: inputPort};
+                    return {node: outputApplication, port: inputPort};
                 }
             }
-            for (const outputPort of this.outputApplication().getOutputPorts()){
+            for (const outputPort of outputApplication.getOutputPorts()){
                 if (outputPort.getId() === portId){
-                    return {node: this.outputApplication(), port: outputPort};
+                    return {node: outputApplication, port: outputPort};
                 }
             }
         }
 
-        return {node: null, port: null};
+        return {node: undefined, port: undefined};
     }
 
     findPortIndexById = (portId: FieldId) : number => {
@@ -906,7 +873,7 @@ export class Node {
         return ''
     }
 
-    findPortByDisplayText = (displayText : string, input : boolean, local : boolean) : Field | null => {
+    findPortByDisplayText = (displayText : string, input : boolean, local : boolean) : Field | undefined => {
         console.assert(!local);
 
         for (const field of this.fields().values()){
@@ -920,17 +887,17 @@ export class Node {
             }
         }
 
-        return null;
+        return undefined;
     }
 
-    findFieldByDisplayText = (displayText: string) : Field | null => {
+    findFieldByDisplayText = (displayText: string) : Field | undefined => {
         for (const field of this.fields().values()){
             if (field.getDisplayText() === displayText){
                 return field;
             }
         }
 
-        return null;
+        return undefined;
     }
 
 
@@ -969,7 +936,8 @@ export class Node {
     }
 
     // TODO: this seems similar to findPortTypeById(), maybe we can just use this one!
-    findPortIsInputById = (portId: string) : boolean => {
+    // TODO: can we avoid returning nulls here?
+    findPortIsInputById = (portId: string) : boolean | null => {
         // find the port within the node
         for (const inputPort of this.getInputPorts()){
             if (inputPort.getId() === portId){
@@ -983,15 +951,18 @@ export class Node {
             }
         }
 
+        const inputApplication = this.inputApplication();
+        const outputApplication = this.outputApplication();
+
         // check input application ports
-        if (this.hasInputApplication()){
-            for (const inputPort of this.inputApplication().getInputPorts()){
+        if (inputApplication !== null){
+            for (const inputPort of inputApplication.getInputPorts()){
                 if (inputPort.getId() === portId){
                     return true;
                 }
             }
 
-            for (const outputPort of this.inputApplication().getOutputPorts()){
+            for (const outputPort of inputApplication.getOutputPorts()){
                 if (outputPort.getId() === portId){
                     return false;
                 }
@@ -999,14 +970,14 @@ export class Node {
         }
 
         // check output application ports
-        if (this.hasOutputApplication()){
-            for (const inputPort of this.outputApplication().getInputPorts()){
+        if (outputApplication !== null){
+            for (const inputPort of outputApplication.getInputPorts()){
                 if (inputPort.getId() === portId){
                     return true;
                 }
             }
 
-            for (const outputPort of this.outputApplication().getOutputPorts()){
+            for (const outputPort of outputApplication.getOutputPorts()){
                 if (outputPort.getId() === portId){
                     return false;
                 }
@@ -1046,28 +1017,32 @@ export class Node {
     }
 
     setGroupStart = (value: boolean) : Node => {
-        if (!this.hasFieldWithDisplayText(Daliuge.FieldName.GROUP_START)){
+        let groupStartField = this.findFieldByDisplayText(Daliuge.FieldName.GROUP_START);
+
+        if (typeof groupStartField === 'undefined'){
             // create a new groupStart field (clone from Daliuge)
-            const groupStartField: Field = Daliuge.groupStartField.clone().setId(Utils.generateFieldId()).setValue(value.toString());
+            groupStartField = Daliuge.groupStartField.clone().setId(Utils.generateFieldId()).setValue(value.toString());
 
             // add field to node
             this.addField(groupStartField);
         } else {
-            this.getFieldByDisplayText(Daliuge.FieldName.GROUP_START).setValue(value.toString());
+            groupStartField.setValue(value.toString());
         }
 
         return this;
     }
 
     setGroupEnd = (value: boolean) : Node => {
-        if (!this.hasFieldWithDisplayText(Daliuge.FieldName.GROUP_END)){
+        let groupEndField = this.findFieldByDisplayText(Daliuge.FieldName.GROUP_END);
+
+        if (typeof groupEndField === 'undefined'){
             // create a new groupEnd field (clone from Daliuge)
-            const groupEndField: Field = Daliuge.groupEndField.clone().setId(Utils.generateFieldId()).setValue(value.toString());
+            groupEndField = Daliuge.groupEndField.clone().setId(Utils.generateFieldId()).setValue(value.toString());
 
             // add field to node
             this.addField(groupEndField);
         } else {
-            this.getFieldByDisplayText(Daliuge.FieldName.GROUP_END).setValue(value.toString());
+            groupEndField.setValue(value.toString());
         }
 
         return this;
@@ -1163,11 +1138,14 @@ export class Node {
         result.paletteDownloadUrl(this.paletteDownloadUrl());
         result.dataHash(this.dataHash());
         
-        if (this.hasInputApplication()){
-            result.inputApplication(this.inputApplication().clone());
+        const inputApplication = this.inputApplication();
+        const outputApplication = this.outputApplication();
+
+        if (inputApplication !== null){
+            result.inputApplication(inputApplication.clone());
         }
-        if (this.hasOutputApplication()){
-            result.outputApplication(this.outputApplication().clone());
+        if (outputApplication !== null){
+            result.outputApplication(outputApplication.clone());
         }
 
         return result;
@@ -1220,12 +1198,13 @@ export class Node {
 
     getBorderColor : ko.PureComputed<string> = ko.pureComputed(() => {
         const errorsWarnings = this.getAllErrorsWarnings()
+        const showGraphWarnings = Setting.findValue<Setting.ShowErrorsMode>(Setting.SHOW_GRAPH_WARNINGS, Setting.ShowErrorsMode.None);
 
         if(this.isEmbedded()){
             return '' //returning nothing lets the means we are not over writing the default css behaviour
-        }else if(errorsWarnings.errors.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) != Setting.ShowErrorsMode.None){
+        }else if(errorsWarnings.errors.length>0 && showGraphWarnings !== Setting.ShowErrorsMode.None){
             return EagleConfig.getColor('graphError')
-        }else if(errorsWarnings.warnings.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) === Setting.ShowErrorsMode.Warnings){
+        }else if(errorsWarnings.warnings.length>0 && showGraphWarnings === Setting.ShowErrorsMode.Warnings){
             return EagleConfig.getColor('graphWarning')
         }else{
             return EagleConfig.getColor('bodyBorder')
@@ -1246,10 +1225,11 @@ export class Node {
 
     getBackgroundColor : ko.PureComputed<string> = ko.pureComputed(() => {
         const errorsWarnings = this.getAllErrorsWarnings()
+        const showGraphWarnings = Setting.findValue<Setting.ShowErrorsMode>(Setting.SHOW_GRAPH_WARNINGS, Setting.ShowErrorsMode.None);
 
-        if(errorsWarnings.errors.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) != Setting.ShowErrorsMode.None){
+        if(errorsWarnings.errors.length>0 && showGraphWarnings !== Setting.ShowErrorsMode.None){
             return EagleConfig.getColor('errorBackground');
-        }else if(errorsWarnings.warnings.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) === Setting.ShowErrorsMode.Warnings){
+        }else if(errorsWarnings.warnings.length>0 && showGraphWarnings === Setting.ShowErrorsMode.Warnings){
             return EagleConfig.getColor('warningBackground');
         }else{
             return '' //returning nothing lets the means we are not over writing the default css behaviour
@@ -1305,7 +1285,7 @@ export class Node {
     }
 
     graphNodeTitleIsHidden = () : boolean => {
-        return (this.isData() || this.isGlobal()) && Setting.findValue(Setting.HIDE_DATA_NODE_TITLES);
+        return (this.isData() || this.isGlobal()) && Setting.findValue<boolean>(Setting.HIDE_DATA_NODE_TITLES, false);
     }
 
     //get icon color
@@ -1316,23 +1296,35 @@ export class Node {
 
     getLocalMultiplicity = () : number => {
         if (this.isMKN()){
-            const k : Field = this.getFieldByDisplayText(Daliuge.FieldName.K);
+            const k = this.findFieldByDisplayText(Daliuge.FieldName.K);
 
-            if (k === null){
+            if (typeof k === 'undefined'){
                 return 1;
             }
 
-            return parseInt(k.getValue(), 10);
+            const kValue = k.getValue();
+
+            if (kValue === null){
+                return 1;
+            }
+
+            return parseInt(kValue, 10);
         }
 
         if (this.isScatter()){
-            const numCopies = this.getFieldByDisplayText(Daliuge.FieldName.NUM_OF_COPIES);
+            const numCopies = this.findFieldByDisplayText(Daliuge.FieldName.NUM_OF_COPIES);
 
-            if (numCopies === null){
+            if (typeof numCopies === 'undefined'){
                 return 1;
             }
 
-            return parseInt(numCopies.getValue(), 10);
+            const numCopiesValue = numCopies.getValue();
+
+            if (numCopiesValue === null){
+                return 1;
+            }
+
+            return parseInt(numCopiesValue, 10);
         }
 
         // TODO: check this is correct!
@@ -1341,20 +1333,26 @@ export class Node {
         }
 
         if (this.isLoop()){
-            const numIter = this.getFieldByDisplayText(Daliuge.FieldName.NUM_OF_ITERATIONS);
+            const numIter = this.findFieldByDisplayText(Daliuge.FieldName.NUM_OF_ITERATIONS);
 
-            if (numIter === null){
+            if (typeof numIter === 'undefined'){
                 return 1;
             }
 
-            return parseInt(numIter.getValue(), 10);
+            const numIterValue = numIter.getValue();
+
+            if (numIterValue === null){
+                return 1;
+            }
+
+            return parseInt(numIterValue, 10);
         }
 
         return 1;
     }
 
     addEmptyField = () : Node => {
-        const newField = new Field(Utils.generateFieldId(), "New Parameter", "", "", "", false, Daliuge.DataType.String, false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.NoPort);
+        const newField = new Field(this, Utils.generateFieldId(), "New Parameter", "", "", "", false, Daliuge.DataType.String, false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.NoPort);
         this.addField(newField);
         return this;
     }
@@ -1415,7 +1413,7 @@ export class Node {
     }
 
     static fromOJSJson(nodeData : any, errorsWarnings: Errors.ErrorsWarnings, isPaletteNode: boolean) : Node {
-        let id: NodeId = Node.determineNodeId(nodeData);
+        let id = Node.determineNodeId(nodeData);
 
         if (id === null){
             errorsWarnings.warnings.push(Errors.Message("Node has undefined id, generating new id"));
@@ -1559,6 +1557,7 @@ export class Node {
             if (categoryData.categoryType !== Category.Type.Construct){
                 errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
             } else {
+                // TODO: should this use node.setInputApplication() instead?
                 node.inputApplication(Node.createEmbeddedApplicationNode(nodeData.application, category, "", "", node));
             }
         }
@@ -1568,16 +1567,14 @@ export class Node {
             if (categoryData.categoryType !== Category.Type.Construct){
                 errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
             } else {
-                node.inputApplication(Node.fromOJSJson(nodeData.inputApplication, errorsWarnings, isPaletteNode));
-                node.inputApplication().setEmbed(node);
+                node.setInputApplication(Node.fromOJSJson(nodeData.inputApplication, errorsWarnings, isPaletteNode));
             }
         }
         if (typeof nodeData.outputApplication !== 'undefined' && nodeData.outputApplication !== null){
             if (categoryData.categoryType !== Category.Type.Construct){
                 errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication to unsuitable node: " + category));
             } else {
-                node.outputApplication(Node.fromOJSJson(nodeData.outputApplication, errorsWarnings, isPaletteNode));
-                node.outputApplication().setEmbed(node);
+                node.setOutputApplication(Node.fromOJSJson(nodeData.outputApplication, errorsWarnings, isPaletteNode));
             }
         }
 
@@ -1596,13 +1593,14 @@ export class Node {
         // add fields
         if (typeof nodeData.fields !== 'undefined'){
             for (const fieldData of nodeData.fields){
-                const field = Field.fromOJSJson(fieldData);
+                const field = Field.fromOJSJson(fieldData, node);
 
                 // if the parameter type is not specified, assume it is a ComponentParameter
                 if (field.getParameterType() === Daliuge.FieldType.Unknown){
                     field.setParameterType(Daliuge.FieldType.Component);
                 }
 
+                // TODO: required? probably better to set this in Field.fromOJSJson()
                 node.addField(field);
             }
         }
@@ -1610,7 +1608,7 @@ export class Node {
         // add application params
         if (typeof nodeData.applicationArgs !== 'undefined'){
             for (const paramData of nodeData.applicationArgs){
-                const field = Field.fromOJSJson(paramData);
+                const field = Field.fromOJSJson(paramData, node);
                 field.setParameterType(Daliuge.FieldType.Application);
                 node.addField(field);
             }
@@ -1619,9 +1617,11 @@ export class Node {
         // add inputAppFields
         if (typeof nodeData.inputAppFields !== 'undefined'){
             for (const fieldData of nodeData.inputAppFields){
-                if (node.hasInputApplication()){
-                    const field = Field.fromOJSJson(fieldData);
-                    node.inputApplication().addField(field);
+                const inputApplication = node.inputApplication();
+
+                if (inputApplication !== null){
+                    const field = Field.fromOJSJson(fieldData, inputApplication);
+                    inputApplication.addField(field);
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Can't add input app field " + fieldData.text + " to node " + node.getName() + ". No input application."));
                 }
@@ -1631,9 +1631,11 @@ export class Node {
         // add outputAppFields
         if (typeof nodeData.outputAppFields !== 'undefined'){
             for (const fieldData of nodeData.outputAppFields){
-                if (node.hasOutputApplication()){
-                    const field = Field.fromOJSJson(fieldData);
-                    node.outputApplication().addField(field);
+                const outputApplication = node.outputApplication();
+
+                if (outputApplication !== null){
+                    const field = Field.fromOJSJson(fieldData, outputApplication);
+                    outputApplication.addField(field);
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Can't add output app field " + fieldData.text + " to node " + node.getName() + ". No output application."));
                 }
@@ -1643,7 +1645,7 @@ export class Node {
         // add input ports
         if (typeof nodeData.inputPorts !== 'undefined'){
             for (const inputPort of nodeData.inputPorts){
-                const port = Field.fromOJSJsonPort(inputPort);
+                const port = Field.fromOJSJsonPort(inputPort, node);
                 port.setParameterType(Daliuge.FieldType.Application);
                 port.setUsage(Daliuge.FieldUsage.InputPort);
 
@@ -1662,7 +1664,7 @@ export class Node {
         // add output ports
         if (typeof nodeData.outputPorts !== 'undefined'){
             for (const outputPort of nodeData.outputPorts){
-                const port = Field.fromOJSJsonPort(outputPort);
+                const port = Field.fromOJSJsonPort(outputPort, node);
                 port.setParameterType(Daliuge.FieldType.Application);
                 port.setUsage(Daliuge.FieldUsage.OutputPort);
 
@@ -1681,12 +1683,14 @@ export class Node {
         // add input local ports
         if (typeof nodeData.inputLocalPorts !== 'undefined'){
             for (const inputLocalPort of nodeData.inputLocalPorts){
-                if (node.hasInputApplication()){
-                    const port = Field.fromOJSJsonPort(inputLocalPort);
+                const inputApplication = node.inputApplication();
+
+                if (inputApplication !== null){
+                    const port = Field.fromOJSJsonPort(inputLocalPort, inputApplication);
                     port.setParameterType(Daliuge.FieldType.Application);
                     port.setUsage(Daliuge.FieldUsage.OutputPort);
 
-                    node.inputApplication().addField(port);
+                    inputApplication.addField(port);
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Can't add inputLocal port " + inputLocalPort.IdText + " to node " + node.getName() + ". No input application."));
                 }
@@ -1696,12 +1700,14 @@ export class Node {
         // add output local ports
         if (typeof nodeData.outputLocalPorts !== 'undefined'){
             for (const outputLocalPort of nodeData.outputLocalPorts){
-                const port = Field.fromOJSJsonPort(outputLocalPort);
-                port.setParameterType(Daliuge.FieldType.Application);
-                port.setUsage(Daliuge.FieldUsage.InputPort);
+                const outputApplication = node.outputApplication();
 
-                if (node.hasOutputApplication()){
-                    node.outputApplication().addField(port);
+                if (outputApplication !== null){
+                    const port = Field.fromOJSJsonPort(outputLocalPort, outputApplication);
+                    port.setParameterType(Daliuge.FieldType.Application);
+                    port.setUsage(Daliuge.FieldUsage.InputPort);
+
+                    outputApplication.addField(port);
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Can't add outputLocal port " + outputLocalPort.IdText + " to node " + node.getName() + ". No output application."));
                 }
@@ -1750,7 +1756,8 @@ export class Node {
 
         // add fields
         for (const [id, fieldData] of Object.entries(nodeData.fields)){
-            const field = Field.fromV4Json(fieldData);
+            const field = Field.fromV4Json(fieldData, node);
+            // TODO: required? probably better to set this in Field.fromV4Json()
             node.addField(field);
         }
 
@@ -1776,29 +1783,35 @@ export class Node {
 
         // check that the node already has an appropriate embedded application, otherwise create it
         if (input){
-            if (!node.hasInputApplication()){
-                if (Setting.findValue(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
-                    node.setInputApplication(Node.createEmbeddedApplicationNode("Unknown", Category.UnknownApplication, "", "", node));
-                    errorsWarnings.errors.push(Errors.Message("Created new embedded input application (" + node.inputApplication().getName() + ") for node (" + node.getName() + "). Application category is " + node.inputApplication().getCategory() + " and may require user intervention."));
+            let inputApplication = node.inputApplication();
+
+            if (inputApplication === null){
+                if (Setting.findValue<boolean>(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, false)){
+                    inputApplication = Node.createEmbeddedApplicationNode("Unknown", Category.UnknownApplication, "", "", node);
+                    node.setInputApplication(inputApplication);
+                    errorsWarnings.errors.push(Errors.Message("Created new embedded input application (" + inputApplication.getName() + ") for node (" + node.getName() + "). Application category is " + inputApplication.getCategory() + " and may require user intervention."));
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Cannot add input port to construct that doesn't support input ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name" + port.getDisplayText() ));
                     return;
                 }
             }
-            node.inputApplication().addField(port);
-            errorsWarnings.warnings.push(Errors.Message("Moved input port (" + port.getDisplayText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ") to an embedded input application (" + node.inputApplication().getName() + ", " + node.inputApplication().getId() + ")"));
+            inputApplication.addField(port);
+            errorsWarnings.warnings.push(Errors.Message("Moved input port (" + port.getDisplayText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ") to an embedded input application (" + inputApplication.getName() + ", " + inputApplication.getId() + ")"));
         } else {
-            if (!node.hasOutputApplication()){
-                if (Setting.findValue(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
-                    node.setOutputApplication(Node.createEmbeddedApplicationNode("Unknown", Category.UnknownApplication, "", "", node));
-                    errorsWarnings.errors.push(Errors.Message("Created new embedded output application (" + node.outputApplication().getName() + ") for node (" + node.getName() + "). Application category is " + node.outputApplication().getCategory() + " and may require user intervention."));
+            let outputApplication = node.outputApplication();
+
+            if (outputApplication === null){
+                if (Setting.findValue<boolean>(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, false)){
+                    outputApplication = Node.createEmbeddedApplicationNode("Unknown", Category.UnknownApplication, "", "", node);
+                    node.setOutputApplication(outputApplication);
+                    errorsWarnings.errors.push(Errors.Message("Created new embedded output application (" + outputApplication.getName() + ") for node (" + node.getName() + "). Application category is " + outputApplication.getCategory() + " and may require user intervention."));
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Cannot add output port to construct that doesn't support output ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name" + port.getDisplayText() ));
                     return;
                 }
             }
-            node.outputApplication().addField(port);
-            errorsWarnings.warnings.push(Errors.Message("Moved output port (" + port.getDisplayText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ") to an embedded output application (" + node.outputApplication().getName() + ", " + node.outputApplication().getId() + ")"));
+            outputApplication.addField(port);
+            errorsWarnings.warnings.push(Errors.Message("Moved output port (" + port.getDisplayText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ") to an embedded output application (" + outputApplication.getName() + ", " + outputApplication.getId() + ")"));
         }
     }
 
@@ -1818,12 +1831,14 @@ export class Node {
         result.paletteDownloadUrl = node.paletteDownloadUrl();
         result.dataHash = node.dataHash();
 
-        if (node.parent() !== null){
-            result.parentId = node.parent().getId();
+        const parent = node.parent();
+        if (parent !== null){
+            result.parentId = parent.getId();
         }
 
-        if (node.embed() !== null){
-            result.embedId = node.embed().getId();
+        const embed = node.embed();
+        if (embed !== null){
+            result.embedId = embed.getId();
         }
 
         // add fields
@@ -1832,29 +1847,32 @@ export class Node {
             result.fields.push(Field.toOJSJson(field));
         }
 
+        const inputApplication = node.inputApplication();
+        const outputApplication = node.outputApplication();
+
         // add fields from inputApplication
         result.inputAppFields = [];
-        if (node.hasInputApplication()){
-            for (const field of node.inputApplication().fields().values()){
+        if (inputApplication !== null){
+            for (const field of inputApplication.fields().values()){
                 result.inputAppFields.push(Field.toOJSJson(field));
             }
         }
 
         // add fields from outputApplication
         result.outputAppFields = [];
-        if (node.hasOutputApplication()){
-            for (const field of node.outputApplication().fields().values()){
+        if (outputApplication !== null){
+            for (const field of outputApplication.fields().values()){
                 result.outputAppFields.push(Field.toOJSJson(field));
             }
         }
 
         // write application names and types
-        if (node.hasInputApplication()){
-            result.inputApplicationName = node.inputApplication().name();
-            result.inputApplicationType = node.inputApplication().category();
-            result.inputApplicationId  = node.inputApplication().id();
-            result.inputApplicationDescription = node.inputApplication().description();
-            result.inputApplicationComment = node.inputApplication().comment();
+        if (inputApplication !== null){
+            result.inputApplicationName = inputApplication.name();
+            result.inputApplicationType = inputApplication.category();
+            result.inputApplicationId  = inputApplication.id();
+            result.inputApplicationDescription = inputApplication.description();
+            result.inputApplicationComment = inputApplication.comment();
         } else {
             result.inputApplicationName = "";
             result.inputApplicationType = Category.None;
@@ -1862,12 +1880,12 @@ export class Node {
             result.inputApplicationDescription = "";
             result.inputApplicationComment = "";
         }
-        if (node.hasOutputApplication()){
-            result.outputApplicationName = node.outputApplication().name();
-            result.outputApplicationType = node.outputApplication().category();
-            result.outputApplicationId  = node.outputApplication().id();
-            result.outputApplicationDescription = node.outputApplication().description();
-            result.outputApplicationComment = node.outputApplication().comment();
+        if (outputApplication !== null){
+            result.outputApplicationName = outputApplication.name();
+            result.outputApplicationType = outputApplication.category();
+            result.outputApplicationId  = outputApplication.id();
+            result.outputApplicationDescription = outputApplication.description();
+            result.outputApplicationComment = outputApplication.comment();
         } else {
             result.outputApplicationName = "";
             result.outputApplicationType = Category.None;
@@ -1900,12 +1918,14 @@ export class Node {
         result.paletteDownloadUrl = node.paletteDownloadUrl();
         result.dataHash = node.dataHash();
 
-        if (node.parent() !== null){
-            result.parentId = node.parent().getId();
+        const parent = node.parent();
+        if (parent !== null){
+            result.parentId = parent.getId();
         }
 
-        if (node.embed() !== null){
-            result.embedId = node.embed().getId();
+        const embed = node.embed();
+        if (embed !== null){
+            result.embedId = embed.getId();
         }
 
         // add fields
@@ -1914,29 +1934,32 @@ export class Node {
             result.fields.push(Field.toOJSJson(field));
         }
 
+        const inputApplication = node.inputApplication();
+        const outputApplication = node.outputApplication();
+
         // add fields from inputApplication
         result.inputAppFields = [];
-        if (node.hasInputApplication()){
-            for (const field of node.inputApplication().fields().values()){
+        if (inputApplication !== null){
+            for (const field of inputApplication.fields().values()){
                 result.inputAppFields.push(Field.toOJSJson(field));
             }
         }
 
         // add fields from outputApplication
         result.outputAppFields = [];
-        if (node.hasOutputApplication()){
-            for (const field of node.outputApplication().fields().values()){
+        if (outputApplication !== null){
+            for (const field of outputApplication.fields().values()){
                 result.outputAppFields.push(Field.toOJSJson(field));
             }
         }
 
         // write application names and types
-        if (node.hasInputApplication()){
-            result.inputApplicationName = node.inputApplication().name();
-            result.inputApplicationType = node.inputApplication().category();
-            result.inputApplicationId  = node.inputApplication().id();
-            result.inputApplicationDescription = node.inputApplication().description();
-            result.inputApplicationComment = node.inputApplication().comment();
+        if (inputApplication !== null){
+            result.inputApplicationName = inputApplication.name();
+            result.inputApplicationType = inputApplication.category();
+            result.inputApplicationId  = inputApplication.id();
+            result.inputApplicationDescription = inputApplication.description();
+            result.inputApplicationComment = inputApplication.comment();
         } else {
             result.inputApplicationName = "";
             result.inputApplicationType = Category.None;
@@ -1944,12 +1967,12 @@ export class Node {
             result.inputApplicationDescription = "";
             result.inputApplicationComment = "";
         }
-        if (node.hasOutputApplication()){
-            result.outputApplicationName = node.outputApplication().name();
-            result.outputApplicationType = node.outputApplication().category();
-            result.outputApplicationId  = node.outputApplication().id();
-            result.outputApplicationDescription = node.outputApplication().description();
-            result.outputApplicationComment = node.outputApplication().comment();
+        if (outputApplication !== null){
+            result.outputApplicationName = outputApplication.name();
+            result.outputApplicationType = outputApplication.category();
+            result.outputApplicationId  = outputApplication.id();
+            result.outputApplicationDescription = outputApplication.description();
+            result.outputApplicationComment = outputApplication.comment();
         } else {
             result.outputApplicationName = "";
             result.outputApplicationType = Category.None;
@@ -1977,8 +2000,11 @@ export class Node {
         result.paletteDownloadUrl = node.paletteDownloadUrl();
         result.dataHash = node.dataHash();
 
-        result.parentId = node.parent() === null ? null : node.parent().getId();
-        result.embedId = node.embed() === null ? null : node.embed().getId();
+        const parent = node.parent();
+        const embed = node.embed();
+
+        result.parentId = parent === null ? null : parent.getId();
+        result.embedId = embed === null ? null : embed.getId();
 
         // add fields
         result.fields = {};
@@ -1986,14 +2012,17 @@ export class Node {
             result.fields[field.getId()] = Field.toV4Json(field);
         }
 
+        const inputApplication = node.inputApplication();
+        const outputApplication = node.outputApplication();
+
         // write application names and types
-        if (node.hasInputApplication()){
-            result.inputApplicationId  = node.inputApplication().id();
+        if (inputApplication !== null){
+            result.inputApplicationId  = inputApplication.id();
         } else {
             result.inputApplicationId  = null;
         }
-        if (node.hasOutputApplication()){
-            result.outputApplicationId  = node.outputApplication().id();
+        if (outputApplication !== null){
+            result.outputApplicationId  = outputApplication.id();
         } else {
             result.outputApplicationId  = null;
         }
@@ -2012,6 +2041,11 @@ export class Node {
         const eagle = Eagle.getInstance()
         node.issues([])//clear old issues
 
+        const parent = node.parent();
+        const embed = node.embed();
+        const inputApplication = node.inputApplication();
+        const outputApplication = node.outputApplication();
+
         // looping through and checking all the fields on the node
         for (const field of node.fields().values()){
             Field.isValid(node,field, location)
@@ -2025,21 +2059,21 @@ export class Node {
 
         if(node.isConstruct()){
             //checking the input application if one is present
-            if(node.hasInputApplication()){
-                Node.isValid(node.getInputApplication(), location)
+            if(inputApplication !== null){
+                Node.isValid(inputApplication, location)
             }
 
             //checking the output application if one is present
-            if(node.hasOutputApplication()){
-                Node.isValid(node.getOutputApplication(), location)
+            if(outputApplication !== null){
+                Node.isValid(outputApplication, location)
             }
         }
         
         // check that parent has this as a child
-        if (node.parent() !== null){
-            const parentsChild = node.parent().getChildById(node.getId());
+        if (parent !== null){
+            const parentsChild = parent.getChildById(node.getId());
             if (typeof parentsChild === 'undefined'){
-                const message: string = "Node (" + node.getName() + ") has parent (" + node.parent().getName() + "), but does not appear in that node's list of children.";
+                const message: string = "Node (" + node.getName() + ") has parent (" + parent.getName() + "), but does not appear in that node's list of children.";
                 const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
                 node.issues().push({issue:issue, validity:Errors.Validity.Error});
             }
@@ -2047,7 +2081,8 @@ export class Node {
 
         // check that children have this as the parent
         for (const child of node.children().values()){
-            if (child.parent() === null || child.parent().getId() !== node.getId()){
+            const childParent = child.parent();
+            if (childParent === null || childParent.getId() !== node.getId()){
                 const message: string = "Node (" + node.getName() + ") has child (" + child.getName() + "), but is not that node's parent.";
                 const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
                 node.issues().push({issue:issue, validity:Errors.Validity.Error});
@@ -2055,27 +2090,32 @@ export class Node {
         }
 
         // check that embed has this as either inputApplication or outputApplication
-        if (node.embed() !== null){
-            if ((node.embed().hasInputApplication() && node.embed().inputApplication().getId() !== node.getId()) && (node.embed().hasOutputApplication() && node.embed().outputApplication().getId() !== node.getId())){
-                const message: string = "Node (" + node.getName() + ") has embed (" + node.embed().getName() + "), but is not that node's inputApplication or outputApplication.";
+        if (embed !== null){
+            const embedInputApplication = embed.inputApplication();
+            const embedOutputApplication = embed.outputApplication();
+
+            if ((embedInputApplication !== null && embedInputApplication.getId() !== node.getId()) && (embedOutputApplication !== null && embedOutputApplication.getId() !== node.getId())){
+                const message: string = "Node (" + node.getName() + ") has embed (" + embed.getName() + "), but is not that node's inputApplication or outputApplication.";
                 const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
                 node.issues().push({issue:issue, validity:Errors.Validity.Error});
             }
         }
 
         // check that inputApplication has this as embed
-        if (node.hasInputApplication()){
-            if (node.inputApplication().embed().getId() !== node.getId()){
-                const message: string = "Node (" + node.getName() + ") has inputApplication (" + node.inputApplication().getName() + "), but is not that node's embed.";
+        if (inputApplication !== null){
+            const inputApplicationEmbed = inputApplication.embed();
+            if (inputApplicationEmbed !== null && inputApplicationEmbed.getId() !== node.getId()){
+                const message: string = "Node (" + node.getName() + ") has inputApplication (" + inputApplication.getName() + "), but is not that node's embed.";
                 const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
                 node.issues().push({issue:issue, validity:Errors.Validity.Error});
             }
         }
 
         // check that outputApplication has this as embed
-        if (node.hasOutputApplication()){
-            if (node.outputApplication().embed().getId() !== node.getId()){
-                const message: string = "Node (" + node.getName() + ") has outputApplication (" + node.outputApplication().getName() + "), but is not that node's embed.";
+        if (outputApplication !== null){
+            const outputApplicationEmbed = outputApplication.embed();
+            if (outputApplicationEmbed !== null && outputApplicationEmbed.getId() !== node.getId()){
+                const message: string = "Node (" + node.getName() + ") has outputApplication (" + outputApplication.getName() + "), but is not that node's embed.";
                 const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
                 node.issues().push({issue:issue, validity:Errors.Validity.Error});
             }
@@ -2117,7 +2157,7 @@ export class Node {
         const updatedCategory = Utils.getLegacyCategoryUpdate(node);
         if (typeof updatedCategory !== 'undefined'){
             let updateMessage: string;
-            let updatedCategoryType: Category.Type = null;
+            let updatedCategoryType: Category.Type = Category.Type.Unknown;
             let issue: Errors.Issue;
 
             if (updatedCategory === null){
@@ -2168,8 +2208,8 @@ export class Node {
 
         // check that Memory and SharedMemory nodes have at least one input OR have a pydata field with a non-"None" value
         if (node.category() === Category.Memory || node.category() === Category.SharedMemory){
-            const pydataField: Field = node.getFieldByDisplayText(Daliuge.FieldName.PYDATA);
-            const hasPydataValue: boolean = pydataField !== null && pydataField.getValue() !== Daliuge.DEFAULT_PYDATA_VALUE;
+            const pydataField = node.findFieldByDisplayText(Daliuge.FieldName.PYDATA);
+            const hasPydataValue: boolean = typeof pydataField !== 'undefined' && pydataField.getValue() !== Daliuge.DEFAULT_PYDATA_VALUE;
 
             if (!hasInputEdge && !hasPydataValue){
                 const message: string = node.category() + " node (" + node.getName() + ") has no connected input edges, and no data in its '" + Daliuge.FieldName.PYDATA + "' field. The node will not contain data.";
@@ -2177,7 +2217,7 @@ export class Node {
                 node.issues().push({issue:issue,validity:Errors.Validity.Warning})
             }
 
-            if (hasInputEdge && hasPydataValue){
+            if (hasInputEdge && pydataField && hasPydataValue){
                 const message: string = node.category() + " node (" + node.getName() + ") has a connected input edge, and also contains data in its '" + Daliuge.FieldName.PYDATA + "' field. The two sources of data could cause a conflict. Note that a " + Daliuge.FieldName.PYDATA + " field is considered a source of data if its value is NOT '" + Daliuge.DEFAULT_PYDATA_VALUE + "'.";
                 const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, location, node)}, function(){if (pydataField.getValue() === ""){pydataField.setValue(Daliuge.DEFAULT_PYDATA_VALUE);}}, "Replace empty pydata with default value (" + Daliuge.DEFAULT_PYDATA_VALUE + ")");
                 node.issues().push({issue:issue,validity:Errors.Validity.Warning})
@@ -2185,17 +2225,17 @@ export class Node {
         }
 
         // check embedded application categories are not 'None'
-        if (node.hasInputApplication() && node.getInputApplication().getCategory() === Category.None){
+        if (inputApplication !== null && inputApplication.getCategory() === Category.None){
             const issue: Errors.Issue = Errors.Message("Node (" + node.getName() + ") has input application with category 'None'.")
             node.issues().push({issue:issue,validity:Errors.Validity.Error});
         }
-        if (node.hasOutputApplication() && node.getOutputApplication().getCategory() === Category.None){
+        if (outputApplication !== null && outputApplication.getCategory() === Category.None){
             const issue : Errors.Issue = Errors.Message("Node (" + node.getName() + ") has output application with category 'None'.")
             node.issues().push({issue:issue,validity:Errors.Validity.Error});
         }
 
         // check that Service nodes have inputApplications with no output ports!
-        if (node.getCategory() === Category.Service && node.hasInputApplication() && node.getInputApplication().getOutputPorts().length > 0){
+        if (node.getCategory() === Category.Service && inputApplication !== null && inputApplication.getOutputPorts().length > 0){
             const issue : Errors.Issue = Errors.Message("Node (" + node.getName() + ") is a Service node, but has an input application with at least one output.")
             node.issues().push({issue:issue,validity:Errors.Validity.Error});
         }
@@ -2221,13 +2261,16 @@ export class Node {
         // check PyFuncApp nodes to make sure contents of func_name field is actually found within the func_code field
         // check whether the value of func_name is also present in func_code should only be applied if func_code is not empty
         if (node.category() === Category.PyFuncApp){
-            const funcCodeField = node.getFieldByDisplayText(Daliuge.FieldName.FUNC_CODE);
-            const funcNameField = node.getFieldByDisplayText(Daliuge.FieldName.FUNC_NAME);
+            const funcCodeField = node.findFieldByDisplayText(Daliuge.FieldName.FUNC_CODE);
+            const funcNameField = node.findFieldByDisplayText(Daliuge.FieldName.FUNC_NAME);
 
             if (funcCodeField && funcNameField){
-                if (funcCodeField.getValue().trim() !== ""){
-                    if (!funcCodeField.getValue().includes(funcNameField.getValue())){
-                        const issue : Errors.Issue = Errors.Show("Node (" + node.getName() + ") has a value of func_name (" + funcNameField.getValue() + ") which does not appear in its func_code field.", function(){Utils.showNode(eagle, location, node)});
+                const funcCodeValue = funcCodeField.getValue();
+                const funcNameValue = funcNameField.getValue();
+
+                if (funcCodeValue !== null && funcNameValue !== null && funcCodeValue.trim() !== ""){
+                    if (!funcCodeValue.includes(funcNameValue)){
+                        const issue : Errors.Issue = Errors.Show("Node (" + node.getName() + ") has a value of func_name (" + funcNameValue + ") which does not appear in its func_code field.", function(){Utils.showNode(eagle, location, node)});
                         node.issues().push({issue:issue,validity:Errors.Validity.Error});
                     }
                 }
@@ -2276,11 +2319,11 @@ export class Node {
 
     private static _checkForField(eagle: Eagle, location: Eagle.FileType, node: Node, field: Field) : void {
         // check if the node already has this field
-        const existingField = node.getFieldByDisplayText(field.getDisplayText());
+        const existingField = node.findFieldByDisplayText(field.getDisplayText());
 
         // if not, create one by cloning the required field
         // if so, check the attributes of the field match
-        if (existingField === null){
+        if (typeof existingField === 'undefined'){
             const message = "Node (" + node.getName() + ":" + node.category() + ":" + node.categoryType() + ") does not have the required '" + field.getDisplayText() + "' field";
             const issue : Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, location, node);}, function(){Utils.addMissingRequiredField(eagle, node, field);}, "Add missing " + field.getDisplayText() + " field.")
             node.issues().push({issue:issue,validity:Errors.Validity.Error});

@@ -155,17 +155,20 @@ export class Utils {
         // loop through nodes, look for embedded nodes with null id, create new id
         for (const node of lg.getNodes()){
 
+            const inputApplication = node.getInputApplication();
+            const outputApplication = node.getOutputApplication();
+
             // if this node has inputApp, set the inputApp id
-            if (node.hasInputApplication()){
-                if (node.getInputApplication().getId() === null){
-                    node.getInputApplication().setId(Utils.generateNodeId());
+            if (inputApplication !== null){
+                if (inputApplication.getId() === null){
+                    inputApplication.setId(Utils.generateNodeId());
                 }
             }
 
             // if this node has outputApp, set the outputApp id
-            if (node.hasOutputApplication()){
-                if (node.getOutputApplication().getId() === null){
-                    node.getOutputApplication().setId(Utils.generateNodeId());
+            if (outputApplication !== null){
+                if (outputApplication.getId() === null){
+                    outputApplication.setId(Utils.generateNodeId());
                 }
             }
         }
@@ -226,9 +229,14 @@ export class Utils {
      * @param path File name.
      */
     static getFileExtension(path : string) : string {
-        const basename = path.split(/[\\/]/).pop(),  // extract file name from full path ...
-                                                   // (supports `\\` and `/` separators)
-        pos = basename.lastIndexOf(".");           // get last position of `.`
+        const basename = path.split(/[\\/]/).pop();  // extract file name from full path ...
+                                                     // (supports `\\` and `/` separators)
+
+        if (typeof basename === 'undefined'){
+            return "";
+        }
+
+        const pos = basename.lastIndexOf(".");           // get last position of `.`
 
         if (basename === "" || pos < 1)            // if file name is empty or ...
             return "";                             //  `.` not found (-1) or comes first (0)
@@ -515,7 +523,7 @@ export class Utils {
         }
 
         // if this is a message intended for developers, check whether display of those messages is enabled
-        if (developer && !Setting.findValue(Setting.SHOW_DEVELOPER_NOTIFICATIONS)){
+        if (developer && !Setting.findValue<boolean>(Setting.SHOW_DEVELOPER_NOTIFICATIONS, false)){
             return;
         }
 
@@ -574,12 +582,12 @@ export class Utils {
         });
     }
 
-    static requestUserText(title : string, message : string, defaultText: string, readonly: boolean = false) : Promise<string> {
+    static requestUserText(title : string, message : string, defaultText: string | null, readonly: boolean = false) : Promise<string> {
         return new Promise(async(resolve, reject) => {
             $('#inputTextModalTitle').text(title);
             $('#inputTextModalMessage').html(message);
 
-            $('#inputTextModalInput').val(defaultText);
+            $('#inputTextModalInput').val(defaultText ? defaultText : '');
             $('#inputTextModalInput').prop('readonly', readonly);
 
             // store the callback, result on the modal HTML element
@@ -598,7 +606,7 @@ export class Utils {
         });
     }
 
-    static requestUserCode(language: "json"|"python"|"text", title: string, defaultText: string, readonly: boolean = false): Promise<string> {
+    static requestUserCode(language: "json"|"python"|"text", title: string, defaultText: string | null, readonly: boolean = false): Promise<string> {
         return new Promise(async(resolve, reject) => {
             // set title
             $('#inputCodeModalTitle').text(title);
@@ -624,7 +632,7 @@ export class Utils {
             const editor = $('#inputCodeModal').data('editor');
             editor.setOption('readOnly', readonly);
             editor.setOption('mode', mode);
-            editor.setValue(defaultText);
+            editor.setValue(defaultText ? defaultText : '');
 
             // store the callback, result on the modal HTML element
             // so that the info is available to event handlers
@@ -752,7 +760,7 @@ export class Utils {
         });
     }
 
-    static async requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string, confirmSetting: Setting): Promise<boolean> {
+    static async requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string, confirmSetting: Setting | undefined): Promise<boolean> {
         return new Promise(async(resolve, reject) => {
             $('#confirmModalTitle').text(title);
             $('#confirmModalMessage').html(message);
@@ -760,7 +768,7 @@ export class Utils {
             $('#confirmModalNegativeAnswer').text(negativeAnswer);
 
             $('#confirmModalDontShowAgain button').off()
-            if(confirmSetting === null){
+            if(typeof confirmSetting === 'undefined'){
                 $('#confirmModalDontShowAgain').hide()
             }else{
                 $('#confirmModalDontShowAgain').show()
@@ -929,7 +937,7 @@ export class Utils {
         return true;
     }
 
-    static updateGitCommitRepositoriesList(repositories: Repository[], defaultRepository: Repository) : void {
+    static updateGitCommitRepositoriesList(repositories: Repository[], defaultRepository: Repository | null) : void {
         // remove existing options from the repository name select tag
         $('#gitCommitModalRepositoryNameSelect').empty();
 
@@ -1040,17 +1048,20 @@ export class Utils {
                 }
             }
 
+            const inputApplication = node.getInputApplication();
+            const outputApplication = node.getOutputApplication();
+
             // add input application input and output ports
-            if (node.hasInputApplication()){
+            if (inputApplication !== null){
                 // input ports
-                for (const port of node.getInputApplication().getInputPorts()) {
+                for (const port of inputApplication.getInputPorts()) {
                     if (!port.getIsEvent()) {
                         Utils._addFieldIfUnique(uniquePorts, port.clone());
                     }
                 }
 
                 // output ports
-                for (const port of node.getInputApplication().getOutputPorts()) {
+                for (const port of inputApplication.getOutputPorts()) {
                     if (!port.getIsEvent()) {
                         Utils._addFieldIfUnique(uniquePorts, port.clone());
                     }
@@ -1058,16 +1069,16 @@ export class Utils {
             }
 
             // add output application input and output ports
-            if (node.hasOutputApplication()){
+            if (outputApplication !== null){
                 // input ports
-                for (const port of node.getOutputApplication().getInputPorts()) {
+                for (const port of outputApplication.getInputPorts()) {
                     if (!port.getIsEvent()) {
                         Utils._addFieldIfUnique(uniquePorts, port.clone());
                     }
                 }
 
                 // output ports
-                for (const port of node.getOutputApplication().getOutputPorts()) {
+                for (const port of outputApplication.getOutputPorts()) {
                     if (!port.getIsEvent()) {
                         Utils._addFieldIfUnique(uniquePorts, port.clone());
                     }
@@ -1150,8 +1161,8 @@ export class Utils {
         const eagle = Eagle.getInstance();
 
         // get a reference to the builtin palette
-        const builtinPalette: Palette = eagle.findPalette(Palette.BUILTIN_PALETTE_NAME, false);
-        if (builtinPalette === null){
+        const builtinPalette = eagle.findPalette(Palette.BUILTIN_PALETTE_NAME, false);
+        if (typeof builtinPalette === "undefined"){
             // if no built-in palette is found, then build a list from the EAGLE categoryData
             console.warn("Could not find builtin palette", Palette.BUILTIN_PALETTE_NAME);
             return Utils.buildComponentList((cData: Category.CategoryData) => {return cData.categoryType === categoryType});
@@ -1210,8 +1221,15 @@ export class Utils {
     static getComponentsWithMatchingPort(nodes:Node[], input: boolean, type: string) : Node[] {
         const result: Node[] = [];
 
+        const portDragSourceNode = GraphRenderer.portDragSourceNode();
+
+        if (portDragSourceNode === null){
+            console.warn("getComponentsWithMatchingPort(): port drag source node is null");
+            return result;
+        }
+
         // no destination, ask user to choose a new node
-        const isData: boolean = GraphRenderer.portDragSourceNode().getCategoryType() === Category.Type.Data;
+        const isData: boolean = portDragSourceNode.getCategoryType() === Category.Type.Data;
 
         for (const node of nodes){
             // skip data nodes if not eligible
@@ -1297,7 +1315,7 @@ export class Utils {
     static getLegacyCategoryUpdate(node: Node): Category | undefined {
         // first check for the special case of PythonApp, which should be upgraded to either a DALiuGEApp or a PyFuncApp, depending on the dropclass field value
         if (node.getCategory() === Category.PythonApp){
-            const dropClassField = node.getFieldByDisplayText(Daliuge.FieldName.DROP_CLASS);
+            const dropClassField = node.findFieldByDisplayText(Daliuge.FieldName.DROP_CLASS);
 
             // by default, update PythonApp to a DALiuGEApp, unless dropclass field value indicates it is a PyFuncApp
             if (dropClassField && dropClassField.getValue() === Daliuge.DEFAULT_PYFUNCAPP_DROPCLASS_VALUE){
@@ -1327,94 +1345,91 @@ export class Utils {
             ![Category.Type.Unknown].map(x => x as string).includes(categoryType);
     }
 
-    static getColorForNode(node: Node) : string {
-        return CategoryData.getCategoryData(node.getCategory()).color;
-    }
-
-    static getRadiusForNode(node: Node) : number {
-        if(node.isData() || node.isGlobal()){
-            return EagleConfig.DATA_NODE_RADIUS;
-        }else if (node.isBranch()){
-            return EagleConfig.BRANCH_NODE_RADIUS;
-        }else if (node.isConstruct()){
-            return EagleConfig.NORMAL_NODE_RADIUS;
-        }else if (node.isConstruct()){
-            return EagleConfig.MINIMUM_CONSTRUCT_RADIUS;
-        }else if (node.isComment()){
-            return EagleConfig.COMMENT_NODE_WIDTH;
-        }else{
-            return EagleConfig.NORMAL_NODE_RADIUS;
-        }
-    }
-
     static getRightWindowWidth() : number {
-        if(Eagle.getInstance().eagleIsReady() && !Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE)){
+        if(Eagle.getInstance().eagleIsReady() && !Setting.findValue<boolean>(Setting.RIGHT_WINDOW_VISIBLE, false)){
             return 0
         }
-        return Setting.findValue(Setting.RIGHT_WINDOW_WIDTH)
+
+        return Setting.findValue<number>(Setting.RIGHT_WINDOW_WIDTH, 0);
     }
 
     static setRightWindowWidth(width : number) : void {
-        Setting.find(Setting.RIGHT_WINDOW_WIDTH).setValue(width)
+        Setting.setValue(Setting.RIGHT_WINDOW_WIDTH, width);
         UiModeSystem.saveToLocalStorage()
     }
 
     static getLeftWindowWidth() : number {
-        const leftWindowDisabled = !Setting.findValue(Setting.ALLOW_GRAPH_EDITING) && !Setting.findValue(Setting.ALLOW_PALETTE_EDITING)
+        const leftWindowDisabled = !Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false) && !Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false)
 
-        if(Eagle.getInstance().eagleIsReady() && !Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) || leftWindowDisabled){
+        if(Eagle.getInstance().eagleIsReady() && !Setting.findValue<boolean>(Setting.LEFT_WINDOW_VISIBLE, false) || leftWindowDisabled){
             return 0
         }
-        return Setting.findValue(Setting.LEFT_WINDOW_WIDTH)
+
+        return Setting.findValue<number>(Setting.LEFT_WINDOW_WIDTH, 0);
     }
 
     static setLeftWindowWidth(width : number) : void {
-        Setting.find(Setting.LEFT_WINDOW_WIDTH).setValue(width)
+        Setting.setValue(Setting.LEFT_WINDOW_WIDTH, width);
         UiModeSystem.saveToLocalStorage()
     }
 
     static calculateBottomWindowHeight() : number {
         //this function exists to prevent the bottom window height value from exceeding its max height value. 
-        //if eagle isnt ready or the window is hidden just return 0
-        //TODO This function is only needed for the transition perdiod from pixels to vh. We can get rid of this in the future.
+        //if eagle isn't ready or the window is hidden just return 0
+        //TODO This function is only needed for the transition period from pixels to vh. We can get rid of this in the future.
         if(!Eagle.getInstance().eagleIsReady()){
             return 0
         }
 
+        const bottomWindowHeight = Setting.findValue<number>(Setting.BOTTOM_WINDOW_HEIGHT, 0);
+
         //if the bottom window height set is too large, just return the max allowed height
-        if(Setting.findValue(Setting.BOTTOM_WINDOW_HEIGHT)>80){
+        if(bottomWindowHeight > 80){
             return 80
         }
 
         //else return the actual height
-        return Setting.findValue(Setting.BOTTOM_WINDOW_HEIGHT)
+        return bottomWindowHeight;
     }
 
     static getBottomWindowHeight() : number {
-        if(Eagle.getInstance().eagleIsReady() && !Setting.findValue(Setting.BOTTOM_WINDOW_VISIBLE)){
+        if(Eagle.getInstance().eagleIsReady() && !Setting.findValue<boolean>(Setting.BOTTOM_WINDOW_VISIBLE, false)){
             return 0
         }
-        return Setting.findValue(Setting.BOTTOM_WINDOW_HEIGHT)
+
+        return Setting.findValue<number>(Setting.BOTTOM_WINDOW_HEIGHT, 0);
     }
 
+    // TODO: I don't think this is needed, since Setting.setValue() will already save to local storage
     static setBottomWindowHeight(height : number) : void {
-        Setting.find(Setting.BOTTOM_WINDOW_HEIGHT).setValue(height)
+        Setting.setValue(Setting.BOTTOM_WINDOW_HEIGHT, height);
         UiModeSystem.saveToLocalStorage()
     }
 
     static getInspectorOffset() : number {
         const offset = 10
-        const statusBarAndOffsetHeightVH = ((($('#statusBar').height() + offset) / window.innerHeight)*100)
+        let statusBarElementHeight: number = 0;
+        const statusBarElement = $('#statusBar')
+        
+        if (statusBarElement.length) {
+            const height = statusBarElement.height();
+            if (typeof height === 'number') {
+                statusBarElementHeight = height;
+            }
+        }
+
+        const statusBarAndOffsetHeightVH = ((statusBarElementHeight + offset) / window.innerHeight)*100
         return this.getBottomWindowHeight() + statusBarAndOffsetHeightVH
     }
 
-    static getLocalStorageKey(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string) : string {
+    static getLocalStorageKey(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string) : string | null{
         switch (repositoryService){
             case Repository.Service.GitHub:
                 return repositoryName + "|" + repositoryBranch + ".github_repository_and_branch";
             case Repository.Service.GitLab:
                 return repositoryName + "|" + repositoryBranch + ".gitlab_repository_and_branch";
             default:
+                console.warn("Utils.getLocalStorageKey(): unknown repository service:", repositoryService);
                 return null;
         }
     }
@@ -1613,28 +1628,31 @@ export class Utils {
 
         //gather all the errors
         //from nodes
-        for(const node of graph.getNodes()){
+        for (const node of graph.getNodes()){
             graphIssues.push(...node.getIssues())
             
             //from fields
-            for(const field of node.getFields()){
+            for (const field of node.getFields()){
                 graphIssues.push(...field.getIssues())
             }
 
+            const inputApplication = node.getInputApplication();
+            const outputApplication = node.getOutputApplication();
+
             //embedded input applications and their fields
-            if(node.hasInputApplication()){
-                graphIssues.push(...node.getInputApplication().getIssues().values())
-                
-                for(const field of node.getInputApplication().getFields()){
+            if (inputApplication !== null){
+                graphIssues.push(...inputApplication.getIssues().values())
+
+                for (const field of inputApplication.getFields()){
                     graphIssues.push(...field.getIssues())
                 }
             }
 
             //embedded output applications and their fields
-            if(node.hasOutputApplication()){
-                graphIssues.push(...node.getOutputApplication().getIssues().values())
-                
-                for( const field of node.getOutputApplication().getFields()){
+            if (outputApplication !== null){
+                graphIssues.push(...outputApplication.getIssues().values())
+
+                for (const field of outputApplication.getFields()){
                     graphIssues.push(...field.getIssues())
                 }
             }
@@ -1663,7 +1681,7 @@ export class Utils {
     // validate json
     static validateJSON(jsonString: string, fileType: Eagle.FileType, version: Setting.SchemaVersion){
         // if validation disabled, just return true
-        if (Setting.findValue(Setting.DISABLE_JSON_VALIDATION)){
+        if (Setting.findValue<boolean>(Setting.DISABLE_JSON_VALIDATION, false)){
             return;
         }
 
@@ -1892,8 +1910,8 @@ export class Utils {
         return html;
     }
 
-    static asBool(value: string) : boolean {
-        if(value === undefined){
+    static asBool(value: string | undefined | null) : boolean {
+        if(value === undefined || value === null){
             return false
         }
         return value.toLowerCase() === "true";
@@ -1918,8 +1936,12 @@ export class Utils {
     static fixNodeCategory(eagle: Eagle, node: Node, category: Category, categoryType: Category.Type){
         node.setCategory(category);
         node.setCategoryType(categoryType);
-        node.setRadius(Utils.getRadiusForNode(node));
-        node.setColor(Utils.getColorForNode(node));
+
+        // lookup category data
+        const categoryData = CategoryData.getCategoryData(category);
+
+        node.setRadius(categoryData.radius);
+        node.setColor(categoryData.color);
     }
 
     // NOTE: merges field1 into field0
@@ -2009,10 +2031,10 @@ export class Utils {
     }
 
     static fixFieldValue(eagle: Eagle, node: Node, exampleField: Field, value: string){
-        let field : Field = node.getFieldByDisplayText(exampleField.getDisplayText());
+        let field = node.findFieldByDisplayText(exampleField.getDisplayText());
 
         // if a field was not found, clone one from the example and add to node
-        if (field === null){
+        if (typeof field === 'undefined'){
             field = exampleField
                 .clone()
                 .setId(Utils.generateFieldId());
@@ -2102,7 +2124,11 @@ export class Utils {
         }
     }
 
-    static addSourcePortToSourceNode(eagle: Eagle, edge: Edge){
+    static addSourcePortToSourceNode(eagle: Eagle, edge: Edge | undefined){
+        if (typeof edge === 'undefined'){
+            console.warn("fixAddSourcePortToSourceNode(): edge is undefined");
+            return;
+        }
         const srcNode = edge.getSrcNode();
         const destPort = edge.getDestPort();
 
@@ -2115,13 +2141,17 @@ export class Utils {
         const srcPortType = destPort.getType() === undefined ? Daliuge.DataType.Object : destPort.getType();
 
         // create new source port
-        const srcPort = new Field(edge.getSrcPort().getId(), destPort.getDisplayText(), "", "", "", false, srcPortType, false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.OutputPort);
+        const srcPort = new Field(srcNode, edge.getSrcPort().getId(), destPort.getDisplayText(), "", "", "", false, srcPortType, false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.OutputPort);
 
         // add port to source node
         srcNode.addField(srcPort);
     }
 
-    static addDestinationPortToDestinationNode(eagle: Eagle, edge: Edge){
+    static addDestinationPortToDestinationNode(eagle: Eagle, edge: Edge | undefined){
+        if (typeof edge === 'undefined'){
+            console.warn("fixAddDestinationPortToDestinationNode(): edge is undefined");
+            return;
+        }
         const destNode = edge.getDestNode();
         const srcPort = edge.getSrcPort();
 
@@ -2134,13 +2164,17 @@ export class Utils {
         const destPortType = srcPort.getType() === undefined ? Daliuge.DataType.Object : srcPort.getType();
 
         // create new destination port
-        const destPort = new Field(edge.getDestPort().getId(), srcPort.getDisplayText(), "", "", "", false, destPortType, false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.OutputPort);
+        const destPort = new Field(destNode, edge.getDestPort().getId(), srcPort.getDisplayText(), "", "", "", false, destPortType, false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.OutputPort);
 
         // add port to destination node
         destNode.addField(destPort);
     }
 
-    static fixMoveEdgeToEmbeddedApplication(eagle: Eagle, edge: Edge){
+    static fixMoveEdgeToEmbeddedApplication(eagle: Eagle, edge: Edge | undefined){
+        if (typeof edge === 'undefined'){
+            console.warn("fixMoveEdgeToEmbeddedApplication(): edge is undefined");
+            return;
+        }
         const srcNode = edge.getSrcNode();
         const destNode = edge.getDestNode();
 
@@ -2148,7 +2182,7 @@ export class Utils {
         if (srcNode.getCategoryType() === Category.Type.Construct){
             const embeddedApplicationKeyAndPort = srcNode.findPortInApplicationsById(edge.getSrcPort().getId());
 
-            if (embeddedApplicationKeyAndPort.node !== null){
+            if (typeof embeddedApplicationKeyAndPort.node !== 'undefined'){
                 edge.setSrcNode(embeddedApplicationKeyAndPort.node);
             }
         }
@@ -2157,7 +2191,7 @@ export class Utils {
         if (destNode.getCategoryType() === Category.Type.Construct){
             const embeddedApplicationKeyAndPort = destNode.findPortInApplicationsById(edge.getDestPort().getId());
 
-            if (embeddedApplicationKeyAndPort.node !== null){
+            if (typeof embeddedApplicationKeyAndPort.node !== 'undefined'){
                 edge.setDestNode(embeddedApplicationKeyAndPort.node);
             }
         }
@@ -2172,7 +2206,12 @@ export class Utils {
         field.setParameterType(newType);
     }
 
-    static fixAppToAppEdge(eagle: Eagle, edge: Edge){
+    static fixAppToAppEdge(eagle: Eagle, edge: Edge | undefined){
+        if (typeof edge === 'undefined'){
+            console.warn("fixAppToAppEdge(): edge is undefined");
+            return;
+        }
+
         const srcNode: Node = edge.getSrcNode();
         const destNode: Node = edge.getDestNode();
         const srcPort: Field = edge.getSrcPort();
@@ -2185,11 +2224,10 @@ export class Utils {
     static addMissingRequiredField(eagle: Eagle, node: Node, requiredField: Field){
         // if requiredField is "dropclass", and node already contains an "appclass" field, then just rename it
         if (requiredField.getDisplayText() === Daliuge.FieldName.DROP_CLASS){
-            const appClassField = node.getFieldByDisplayText("appclass");
+            const appClassField = node.findFieldByDisplayText("appclass");
 
-            if (appClassField !== null){
+            if (typeof appClassField !== 'undefined'){
                 appClassField.setDisplayText(Daliuge.FieldName.DROP_CLASS);
-
                 return;
             }
         }
@@ -2205,10 +2243,14 @@ export class Utils {
             case Daliuge.FieldName.DROP_CLASS:
 
                 // look up component in palette
-                const paletteComponent: Node = Utils.getPaletteComponentByName(node.getCategory());
+                const paletteComponent = Utils.getPaletteComponentByName(node.getCategory());
 
-                if (paletteComponent !== null){
-                    const dropClassField: Field = paletteComponent.findFieldByDisplayText(Daliuge.FieldName.DROP_CLASS);
+                if (typeof paletteComponent !== 'undefined'){
+                    const dropClassField = paletteComponent.findFieldByDisplayText(Daliuge.FieldName.DROP_CLASS);
+                    if (typeof dropClassField === 'undefined'){
+                        console.warn("Could not find dropclass field in palette component:", paletteComponent.getName());
+                        break;
+                    }
 
                     field.setValue(dropClassField.getDefaultValue());
                     field.setDefaultValue(dropClassField.getDefaultValue());
@@ -2276,11 +2318,13 @@ export class Utils {
         graph.updateGraphConfigId(graphConfigId, Utils.generateGraphConfigId());
     }
 
-    static showEdge(eagle: Eagle, edge: Edge): void {
+    static showEdge(eagle: Eagle, edge: Edge | undefined): void {
         // close errors modal if visible
         $('#issuesDisplay').modal("hide");
 
-        eagle.setSelection(edge, Eagle.FileType.Graph);
+        if (typeof edge !== 'undefined'){
+            eagle.setSelection(edge, Eagle.FileType.Graph);
+        }
     }
 
     static showNode(eagle: Eagle, location: Eagle.FileType, node: Node): void {
@@ -2289,7 +2333,7 @@ export class Utils {
 
         // check that we found the node
         if (node === null){
-            console.warn("Could not show node with id", node.getId());
+            console.warn("Could not show null node");
             return;
         }
         
@@ -2309,7 +2353,12 @@ export class Utils {
         // open the graph configs table
         GraphConfigurationsTable.openTable();
 
-        const graphConfig: GraphConfig = eagle.logicalGraph().getGraphConfigById(graphConfigId);
+        const graphConfig = eagle.logicalGraph().getGraphConfigById(graphConfigId);
+
+        if (typeof graphConfig === 'undefined'){
+            console.warn("Could not find graph config with id:", graphConfigId);
+            return;
+        }
 
         // highlight the name of the graph config
         setTimeout(() => {
@@ -2380,11 +2429,18 @@ export class Utils {
                 numFieldIssues += field.getIssues().length;
             }
 
+            const parent = node.getParent();
+            const embed = node.getEmbed();
+            const inputApplication = node.getInputApplication();
+            const outputApplication = node.getOutputApplication();
+            const inputApplicationEmbed = inputApplication === null ? null : inputApplication.getEmbed();
+            const outputApplicationEmbed = outputApplication === null ? null : outputApplication.getEmbed();
+
             tableData.push({
                 "name":node.getName(),
                 "id":node.getId(),
-                "parent":node.getParent() === null ? null : node.getParent().getId(),
-                "embed":node.getEmbed() === null ? null : node.getEmbed().getId(),
+                "parent":parent === null ? null : parent.getId(),
+                "embed":embed === null ? null : embed.getId(),
                 "comment":node.getComment(),
                 "children":children.toString(),
                 "category":node.getCategory(),
@@ -2394,12 +2450,12 @@ export class Utils {
                 "x":node.getPosition().x,
                 "y":node.getPosition().y,
                 "radius":node.getRadius(),
-                "inputAppId":node.getInputApplication() === null ? null : node.getInputApplication().getId(),
-                "inputAppCategory":node.getInputApplication() === null ? null : node.getInputApplication().getCategory(),
-                "inputAppEmbedId":node.getInputApplication() === null ? null : node.getInputApplication().getEmbed().getId(),
-                "outputAppId":node.getOutputApplication() === null ? null : node.getOutputApplication().getId(),
-                "outputAppCategory":node.getOutputApplication() === null ? null : node.getOutputApplication().getCategory(),
-                "outputAppEmbedId":node.getOutputApplication() === null ? null : node.getOutputApplication().getEmbed().getId(),
+                "inputAppId":inputApplication === null ? null : inputApplication.getId(),
+                "inputAppCategory":inputApplication === null ? null : inputApplication.getCategory(),
+                "inputAppEmbedId":inputApplicationEmbed === null ? null : inputApplicationEmbed.getId(),
+                "outputAppId":outputApplication === null ? null : outputApplication.getId(),
+                "outputAppCategory":outputApplication === null ? null : outputApplication.getCategory(),
+                "outputAppEmbedId":outputApplicationEmbed === null ? null : outputApplicationEmbed.getId(),
                 "nodeIssues": node.getIssues().length,
                 "fieldIssues": numFieldIssues
             });
@@ -2444,11 +2500,13 @@ export class Utils {
         // add logical graph nodes to table
         for (const palette of eagle.palettes()){
             for (const node of palette.getNodes()){
+                const embed = node.getEmbed();
+
                 tableData.push({
                     "id":node.getId(),
                     "palette":palette.fileInfo().name,
                     "name":node.getName(),
-                    "embedId":node.getEmbed().getId(),
+                    "embedId":embed === null ? null : embed.getId(),
                     "category":node.getCategory(),
                     "categoryType":node.getCategoryType(),
                     "numFields":node.getNumFields(),
@@ -2467,14 +2525,16 @@ export class Utils {
         const tableData : any[] = [];
         const eagle : Eagle = Eagle.getInstance();
 
+        const node = eagle.logicalGraph().getNodeById(nodeId);
+
         // check that node at nodeIndex exists
-        if (!eagle.logicalGraph().hasNode(nodeId)){
+        if (typeof node === 'undefined'){
             console.warn("Unable to print node fields table, node", nodeId, "does not exist.");
             return;
         }
 
         // add logical graph nodes to table
-        for (const field of eagle.logicalGraph().getNodeById(nodeId).getFields()){
+        for (const field of node.getFields()){
             tableData.push({
                 "id":field.getId(),
                 "displayText":field.getDisplayText(),
@@ -2495,11 +2555,16 @@ export class Utils {
     static printGraphConfigurationTable() : void {
         const tableData : any[] = [];
         const eagle : Eagle = Eagle.getInstance();
-        const activeConfig: GraphConfig = eagle.logicalGraph().getActiveGraphConfig();
+        const activeConfig = eagle.logicalGraph().getActiveGraphConfig();
+
+        if (typeof activeConfig === 'undefined'){
+            console.warn("No active graph configuration to print.");
+            return;
+        }
 
         // add logical graph nodes to table
         for (const graphConfigNode of activeConfig.getNodes()){
-            const graphNode: Node = eagle.logicalGraph().getNodeById(graphConfigNode.getNode().getId());
+            const graphNode = eagle.logicalGraph().getNodeById(graphConfigNode.getNode().getId());
 
             if (typeof graphNode === 'undefined'){
                 // TODO: what to do here? blank row, console warning?
@@ -2507,7 +2572,7 @@ export class Utils {
             }
 
             for (const graphConfigField of graphConfigNode.getFields()){
-                const graphField: Field = graphNode.getFieldById(graphConfigField.getField().getId());
+                const graphField = graphNode.getFieldById(graphConfigField.getField().getId());
 
                 if (typeof graphField === 'undefined'){
                     // TODO: what to do here? blank row, console warning?
@@ -2556,7 +2621,20 @@ export class Utils {
 
 
     static copyInputTextModalInput(): void {
-        navigator.clipboard.writeText($('#inputTextModalInput').val().toString());
+        const input = $('#inputTextModalInput');
+
+        if (typeof input === 'undefined'){
+            console.error("No input element found in modal");
+            return;
+        }
+
+        const inputValue = input.val();
+        if (typeof inputValue === 'undefined'){
+            console.error("No value found in modal input element");
+            return;
+        }
+
+        navigator.clipboard.writeText(inputValue.toString());
     }
 
     static copyInputCodeModalInput(): void {
@@ -2641,7 +2719,7 @@ export class Utils {
                 setFunc(dataObject);
 
                 // write to localStorage
-                localStorage.setItem(localStorageKey, data);
+                localStorage.setItem(localStorageKey, JSON.stringify(dataObject));
             }
         }
 
@@ -2651,7 +2729,9 @@ export class Utils {
     }
 
     static snapToGrid(coord: number, offset: number) : number {
-        const gridSize = Setting.findValue(Setting.SNAP_TO_GRID_SIZE);
+        const gridSizeSetting = Setting.find(Setting.SNAP_TO_GRID_SIZE);
+        const gridSize : number = gridSizeSetting ? gridSizeSetting.value() as number : 10;
+
         return (gridSize * Math.round((coord + offset)/gridSize)) - offset;
     }
     
@@ -2694,17 +2774,17 @@ export class Utils {
         const eagle: Eagle = Eagle.getInstance();
 
         // get a reference to the builtin palette
-        const palette: Palette = eagle.findPalette(paletteName, false);
-        if (palette === null){
+        const palette = eagle.findPalette(paletteName, false);
+        if (typeof palette === "undefined"){
             console.warn("Could not find palette", paletteName);
             return;
         }
 
         // find node with new type in builtinPalette
-        const newCategoryPrototype: Node = palette.findNodeByNameAndCategory(category);
+        const newCategoryPrototype = palette.findNodeByNameAndCategory(category);
 
         // check that category was found
-        if (newCategoryPrototype === null){
+        if (typeof newCategoryPrototype === 'undefined'){
             console.warn("Prototypes for new category could not be found in palettes", category);
             return;
         }
@@ -2719,7 +2799,7 @@ export class Utils {
             let destField = node.findFieldByDisplayText(field.getDisplayText());
 
             // if dest field could not be found, then go ahead and add a NEW field to the dest node
-            if (destField === null){
+            if (typeof destField === 'undefined'){
                 destField = field.clone();
                 node.addField(destField);
             }
@@ -2787,7 +2867,7 @@ export class Utils {
             let destField = node.findFieldByDisplayText(field.getDisplayText());
 
             // if dest field could not be found, then go ahead and add a NEW field to the node
-            if (destField === null){
+            if (typeof destField === "undefined"){
                 destField = field.clone();
                 node.addField(destField);
             }
@@ -2816,9 +2896,17 @@ export class Utils {
 
         // search for custom repositories, and add them into the list.
         for (let i = 0; i < localStorage.length; i++) {
-            const key : string = localStorage.key(i);
-            const value : string = localStorage.getItem(key);
+            const key : string | null = localStorage.key(i);
+            if (key === null) {
+                continue;
+            }
+
             const keyExtension : string = key.substring(key.lastIndexOf('.') + 1);
+
+            const value : string | null = localStorage.getItem(key);
+            if (value === null) {
+                continue;
+            }
 
             // handle legacy repositories where the branch is not specified (assume master)
             if (keyExtension === "github_repository"){
@@ -2901,5 +2989,10 @@ export class Utils {
         // Replace invalid filename characters with underscores
         // This regex covers most OS restrictions (Windows, macOS, Linux)
         return name.replace(/[^a-zA-Z0-9_\-\.]/g, "_");
+    }
+
+    static getUIValue(selector: string, defaultValue: string): string {
+        const value = $(selector).val();
+        return value ? value.toString() : defaultValue;
     }
 }

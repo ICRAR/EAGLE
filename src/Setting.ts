@@ -2,11 +2,9 @@ import * as ko from "knockout";
 
 import { Category } from "./Category";
 import { CategoryData } from "./CategoryData";
-import { Daliuge } from "./Daliuge";
 import { Eagle } from './Eagle';
 import { Errors } from './Errors';
 import { Palette } from "./Palette";
-import { Repository } from "./Repository";
 import { UiModeSystem } from './UiModes';
 import { Utils } from './Utils';
 
@@ -26,7 +24,7 @@ export class SettingsGroup {
     }
 
     isVisible = (eagle: Eagle) : boolean => {
-        return this.displayFunc(eagle) || Setting.findValue(Setting.SHOW_DEVELOPER_TAB);
+        return this.displayFunc(eagle) || Setting.findValue<boolean>(Setting.SHOW_DEVELOPER_TAB, false) === true;
     }
 
     getSettings = () : Setting[] => {
@@ -39,24 +37,27 @@ export class SettingsGroup {
     }
 }
 
+type validValueTypes = string | number | boolean;
+
 export class Setting {
-    value : ko.Observable<any>;
+
+    value : ko.Observable<validValueTypes>;
     private display : boolean; // if true, display setting in settings modal, otherwise do not display
     private name : string;
     private key : string;
     private description : string;
     private perpetual : boolean; // if true, then this setting will stay the same across all ui modes(always storing and using the data from the default ui mode)
     private type : Setting.Type;
-    private studentDefaultValue : any;
-    private minimalDefaultValue : any;
-    private graphDefaultValue : any;
-    private componentDefaultValue : any;
-    private expertDefaultValue : any;
-    private oldValue : any;
-    private options : string[]; // an optional list of possible values for this setting
-    private eventFunc : () => void; // optional function to be called when a settings button is clicked, or checkbox is toggled, or a input is changed
+    private studentDefaultValue : validValueTypes;
+    private minimalDefaultValue : validValueTypes;
+    private graphDefaultValue : validValueTypes;
+    private componentDefaultValue : validValueTypes;
+    private expertDefaultValue : validValueTypes;
+    private oldValue : validValueTypes;
+    private options : string[] | undefined; // an optional list of possible values for this setting
+    private eventFunc : (() => void) | undefined; // optional function to be called when a settings button is clicked, or checkbox is toggled, or a input is changed
 
-    constructor(display: boolean, name : string, key:string, description : string,perpetual:boolean, type : Setting.Type, studentDefaultValue : any, minimalDefaultValue : any,graphDefaultValue : any,componentDefaultValue : any,expertDefaultValue : any, options?: string[], eventFunc?: () => void){
+    constructor(display: boolean, name: string, key: string, description: string, perpetual: boolean, type: Setting.Type, studentDefaultValue: validValueTypes, minimalDefaultValue: validValueTypes, graphDefaultValue: validValueTypes, componentDefaultValue: validValueTypes, expertDefaultValue: validValueTypes, options?: string[], eventFunc?: () => void){
         this.display = display;
         this.name = name;
         this.key = key;
@@ -95,31 +96,31 @@ export class Setting {
         return this.key;
     }
 
-    getOldValue = () : any => {
+    getOldValue = () : validValueTypes => {
         return this.oldValue;
     }
 
-    getStudentDefaultVal = () :any => {
+    getStudentDefaultVal = () : validValueTypes => {
         return this.studentDefaultValue
     }
 
-    getMinimalDefaultVal = () :any => {
+    getMinimalDefaultVal = () : validValueTypes => {
         return this.minimalDefaultValue
     }
 
-    getGraphDefaultVal = () :any => {
+    getGraphDefaultVal = () : validValueTypes => {
         return this.graphDefaultValue
     }
 
-    getComponentDefaultVal = () :any => {
+    getComponentDefaultVal = () : validValueTypes => {
         return this.componentDefaultValue
     }
 
-    getExpertDefaultVal = () :any => {
+    getExpertDefaultVal = () : validValueTypes => {
         return this.expertDefaultValue
     }
 
-    getPerpetualDefaultVal = () :any => {
+    getPerpetualDefaultVal = () : validValueTypes => {
         if(!this.perpetual){
             console.warn(this.name + " is not a perpetual setting: ",this)
         }
@@ -130,7 +131,7 @@ export class Setting {
         return this.perpetual;
     }
 
-    setValue = (value: any) : void => {
+    setValue = (value: validValueTypes) : void => {
         this.value(value);
     }
 
@@ -169,10 +170,10 @@ export class Setting {
         this.eventFunc?.();
     }
 
-    static find(key : string) : Setting {
+    static find(key : string) : Setting | undefined {
         // check if Eagle constructor has not been run (usually the case when this module is being used from a tools script)
         if (typeof Eagle.settings === 'undefined'){
-            return null;
+            return undefined;
         }
 
         for (const group of Eagle.settings){
@@ -183,28 +184,44 @@ export class Setting {
             }
         }
 
-        return null;
+        return undefined;
     }
 
-    static findValue(key : string) : any {
+    static findValue<T>(key : string, defaultValue: T) : T{
         const setting = Setting.find(key);
 
-        if (setting === null){
-            console.warn("No setting", key);
-            return null;
+        if (typeof setting === "undefined"){
+            console.warn("No setting", key, ", returning default value:", defaultValue);
+            return defaultValue;
         }
 
-        return setting.value();
+        // return the value cast to the expected type
+        return setting.value() as T;
     }
 
-    static setValue(key : string, value : any) : void {
+    static setValue(key : string, value : validValueTypes) : void {
         const setting = Setting.find(key);
-        if (setting === null){
+        if (typeof setting === "undefined"){
             console.warn("No setting", key);
             return;
         }
 
         return setting.value(value);
+    }
+
+    static toggle(key : string) : void {
+        const setting = Setting.find(key);
+        if (typeof setting === "undefined"){
+            console.warn("No setting", key);
+            return;
+        }
+
+        if (setting.getType() !== Setting.Type.Boolean){
+            console.warn("toggle() called on Setting that is not a boolean!" + setting.getName() + " " + setting.getType() + " " + setting.value());
+            return;
+        }
+
+        setting.toggle();
     }
 
     resetDefault() : void {
@@ -252,12 +269,18 @@ export class Setting {
 
     static showInspectorErrorsWarnings() : boolean {
         const eagle = Eagle.getInstance();
-            
-        switch (Setting.findValue(Setting.SHOW_GRAPH_WARNINGS)){
+        
+        const selectedNode = eagle.selectedNode();
+
+        if (selectedNode === null){
+            return false;
+        }
+
+        switch (Setting.findValue<Setting.ShowErrorsMode>(Setting.SHOW_GRAPH_WARNINGS, Setting.ShowErrorsMode.None)){
             case Setting.ShowErrorsMode.Warnings:
-                return eagle.selectedNode().getErrorsWarnings().errors.length + eagle.selectedNode().getErrorsWarnings().warnings.length > 0;
+                return selectedNode.getErrorsWarnings().errors.length + selectedNode.getErrorsWarnings().warnings.length > 0;
             case Setting.ShowErrorsMode.Errors:
-                return eagle.selectedNode().getErrorsWarnings().errors.length > 0;
+                return selectedNode.getErrorsWarnings().errors.length > 0;
             case Setting.ShowErrorsMode.None:
             default:
                 return false;

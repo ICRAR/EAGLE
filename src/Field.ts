@@ -14,8 +14,8 @@ import { Utils } from './Utils';
 
 export class Field {
     private displayText : ko.Observable<string>; // user-facing name
-    private value : ko.Observable<string>; // the current value
-    private defaultValue : ko.Observable<string>;  // default value
+    private value : ko.Observable<string | null>; // the current value
+    private defaultValue : ko.Observable<string | null>;  // default value
     private description : ko.Observable<string>;
     private readonly : ko.Observable<boolean>;
     private type : ko.Observable<Daliuge.DataType>; // NOTE: this is a little unusual (type can have more values than just the enum)
@@ -46,7 +46,7 @@ export class Field {
 
     private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}>//keeps track of issues on the field
 
-    constructor(id: FieldId, displayText: string, value: string, defaultValue: string, description: string, readonly: boolean, type: Daliuge.DataType, precious: boolean, options: string[], positional: boolean, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage){
+    constructor(node: Node, id: FieldId, displayText: string, value: string | null, defaultValue: string | null, description: string, readonly: boolean, type: Daliuge.DataType, precious: boolean, options: string[], positional: boolean, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage){
         this.displayText = ko.observable(displayText);
         this.value = ko.observable(value);
         this.defaultValue = ko.observable(defaultValue);
@@ -62,7 +62,7 @@ export class Field {
         this.parameterType = ko.observable(parameterType);
         this.usage = ko.observable(usage);
         this.isEvent = ko.observable(false);
-        this.node = ko.observable(null);
+        this.node = ko.observable(node);
         this.edges = ko.observable(new Map<EdgeId, Edge>());
 
         //graph related things
@@ -98,20 +98,20 @@ export class Field {
         return this;
     }
 
-    getValue = () : string => {
+    getValue = () : string | null => {
         return this.value();
     }
 
-    setValue = (value: string): Field => {
+    setValue = (value: string | null): Field => {
         this.value(value);
         return this;
     }
 
-    getDefaultValue = () : string => {
+    getDefaultValue = () : string | null => {
         return this.defaultValue();
     }
 
-    setDefaultValue = (value: string): Field => {
+    setDefaultValue = (value: string | null): Field => {
         this.defaultValue(value);
         return this;
     }
@@ -207,17 +207,27 @@ export class Field {
         return this.encoding();
     }
 
-    valIsTrue = (val:string) : boolean => {
+    valIsTrue = (val:string | null) : boolean => {
         return Utils.asBool(val);
     }
 
     toggle = (): Field => {
-        this.value((!Utils.asBool(this.value())).toString());
+        const oldValue = this.value();
+        if (oldValue === null) {
+            this.value("true");
+        } else {
+            this.value((!Utils.asBool(oldValue)).toString());
+        }
         return this;
     }
 
     toggleDefault = (): Field => {
-        this.defaultValue((!Utils.asBool(this.defaultValue())).toString());
+        const oldValue = this.defaultValue();
+        if (oldValue === null) {
+            this.defaultValue("true");
+        } else {
+            this.defaultValue((!Utils.asBool(oldValue)).toString());
+        }
         return this;
     }
 
@@ -406,10 +416,11 @@ export class Field {
     // TODO: these colors could be added to EagleConfig.ts
     getBackgroundColor : ko.PureComputed<string> = ko.pureComputed(() => {
         const errorsWarnings = this.getErrorsWarnings()
+        const showGraphWarnings = Setting.findValue<Setting.ShowErrorsMode>(Setting.SHOW_GRAPH_WARNINGS, Setting.ShowErrorsMode.None);
 
-        if(errorsWarnings.errors.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) != Setting.ShowErrorsMode.None){
+        if(errorsWarnings.errors.length>0 && showGraphWarnings != Setting.ShowErrorsMode.None){
             return EagleConfig.getColor('graphError')
-        }else if(errorsWarnings.warnings.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) === Setting.ShowErrorsMode.Warnings){
+        }else if(errorsWarnings.warnings.length>0 && showGraphWarnings === Setting.ShowErrorsMode.Warnings){
             return EagleConfig.getColor('graphWarning')
         }else{
             return ''
@@ -443,31 +454,9 @@ export class Field {
         return this;
     }
 
-    getGraphConfigField : ko.PureComputed<GraphConfigField> = ko.pureComputed(() => {
+    getGraphConfigField : ko.PureComputed<GraphConfigField | undefined> = ko.pureComputed(() => {
         return Eagle.getInstance().logicalGraph().getActiveGraphConfig()?.getNodeById(this.node().getId())?.getFieldById(this.id());
     }, this);
-
-    clear = () : Field => {
-        this.displayText("");
-        this.value("");
-        this.defaultValue("");
-        this.description("");
-        this.readonly(false);
-        this.type(Daliuge.DataType.Unknown);
-        this.precious(false);
-        this.options([]);
-        this.positional(false);
-        this.parameterType(Daliuge.FieldType.Unknown);
-        this.usage(Daliuge.FieldUsage.NoPort);
-        this.encoding(Daliuge.Encoding.Pickle);
-
-        this.id(null);
-        this.isEvent(false);
-        this.node(null);
-        this.edges().clear();
-
-        return this;
-    }
 
     clone = () : Field => {
         const options : string[] = []
@@ -475,7 +464,7 @@ export class Field {
             options.push(option);
         }
 
-        const f = new Field(this.id(), this.displayText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), options, this.positional(), this.parameterType(), this.usage());
+        const f = new Field(this.node(), this.id(), this.displayText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), options, this.positional(), this.parameterType(), this.usage());
         f.encoding(this.encoding());
         f.isEvent(this.isEvent());
         f.node(this.node());
@@ -487,7 +476,7 @@ export class Field {
     }
 
     shallowCopy = () : Field => {
-        const f = new Field(this.id(), this.displayText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional(), this.parameterType(), this.usage());
+        const f = new Field(this.node(), this.id(), this.displayText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), this.options(), this.positional(), this.parameterType(), this.usage());
 
         f.id = this.id;
         f.displayText = this.displayText;
@@ -599,6 +588,7 @@ export class Field {
         let searchTermNo : number = 0
         let searchTermTrueNo : number = 0
         const that = this
+        const bottomWindowMode = Setting.findValue<Eagle.BottomWindowMode>(Setting.BOTTOM_WINDOW_MODE, Eagle.BottomWindowMode.None);
 
         Eagle.tableSearchString().toLocaleLowerCase().split(',').forEach(function(term){
             term = term.trim()
@@ -611,7 +601,7 @@ export class Field {
             }
 
             //check if the node name matches, but only if using the key parameter table modal
-            if(Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ConfigParameterTable){
+            if(bottomWindowMode === Eagle.BottomWindowMode.ConfigParameterTable){
                 if(that.node().getName().toLowerCase().indexOf(term) >= 0){
                     result = true
                 }
@@ -736,7 +726,11 @@ export class Field {
 
     // used to transform the value attribute of a field into a variable with the correct type
     // the value attribute is always stored as a string internally
-    static stringAsType(value: string, type: Daliuge.DataType) : boolean | number | string {
+    static stringAsType(value: string | null, type: Daliuge.DataType) : boolean | number | string | null {
+        if (value === null){
+            return null;
+        }
+
         switch (type){
             case Daliuge.DataType.Boolean:
                 return Utils.asBool(value);
@@ -791,7 +785,7 @@ export class Field {
         };
     }
 
-    static fromOJSJson(data : any) : Field {
+    static fromOJSJson(data : any, node: Node) : Field {
         let id: FieldId = Utils.generateFieldId();
         let name: string = "";
         let description: string = "";
@@ -876,13 +870,13 @@ export class Field {
             isEvent = data.event;
         if (typeof data.encoding !== 'undefined')
             encoding = data.encoding;
-        const result = new Field(id, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage);
+        const result = new Field(node, id, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage);
         result.isEvent(isEvent);
         result.encoding(encoding);
         return result;
     }
 
-    static fromOJSJsonPort(data : any) : Field {
+    static fromOJSJsonPort(data : any, node: Node) : Field {
         let name: string = "";
         let event: boolean = false;
         let type: Daliuge.DataType = Daliuge.DataType.Unknown;
@@ -905,28 +899,28 @@ export class Field {
             name = data.IdText;
         }
      
-        const f = new Field(data.Id, name, "", "", description, false, type, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
+        const f = new Field(node, data.Id, name, "", "", description, false, type, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
         f.isEvent(event);
         f.encoding(encoding);
         return f;
     }
 
-    static fromV4Json(data: any): Field {
-        let id: FieldId;
-        let name: string;
-        let value: string;
-        let defaultValue: string;
-        let description: string;
-        let readonly: boolean;
-        let type: Daliuge.DataType;
-        let precious: boolean;
-        let options: string[];
-        let positional: boolean;
-        let parameterType: Daliuge.FieldType;
-        let usage: Daliuge.FieldUsage;
+    static fromV4Json(data: any, node: Node): Field {
+        let id: FieldId = Utils.generateFieldId();
+        let name: string = "";
+        let value: string = "";
+        let defaultValue: string = "";
+        let description: string = "";
+        let readonly: boolean = false;
+        let type: Daliuge.DataType = Daliuge.DataType.Unknown;
+        let precious: boolean = false;
+        let options: string[] = [];
+        let positional: boolean = false;
+        let parameterType: Daliuge.FieldType = Daliuge.FieldType.Unknown;
+        let usage: Daliuge.FieldUsage = Daliuge.FieldUsage.NoPort;
 
-        let event: boolean;
-        let encoding: Daliuge.Encoding;
+        let event: boolean = false;
+        let encoding: Daliuge.Encoding = Daliuge.Encoding.Pickle;
 
         if (typeof data.id !== 'undefined')
             id = data.id;
@@ -958,7 +952,7 @@ export class Field {
         if (typeof data.encoding !== 'undefined')
             encoding = data.encoding;
 
-        const f = new Field(id, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage);
+        const f = new Field(node, id, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage);
         f.isEvent(event);
         f.encoding(encoding);
         return f;
@@ -974,14 +968,13 @@ export class Field {
             //check the data type is known (except in the case of event ports, they can be unknown)
             if (!field.isEvent() && field.isType(Daliuge.DataType.Unknown)){
                 let issue: Errors.Issue
+                const constructNode = node.getEmbed();
 
                 // for normal nodes
-                if(!node.isEmbedded()){
+                if(constructNode === null){
                     issue = Errors.ShowFix("Node (" + node.getName() + ") has input port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixFieldType(eagle, field)}, "");
                 }else{
                     // for embedded nodes
-                    const constructNode = node.getEmbed();
-
                     if(constructNode.getInputApplication() === node){
                         //if node is input application
                         issue = Errors.ShowFix("Node (" + constructNode.getName() + ") has input application (" + node.getName() + ") with input port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixFieldType(eagle, field)}, "");
@@ -1001,14 +994,13 @@ export class Field {
             //check the data type is known (except in the case of event ports, they can be unknown)
             if (!field.isEvent() && field.isType(Daliuge.DataType.Unknown)){
                 let issue: Errors.Issue
+                const constructNode = node.getEmbed();
 
                 //for normal nodes
-                if(!node.isEmbedded()){
+                if(constructNode === null){
                     issue = Errors.ShowFix("Node (" + node.getName() + ") has output port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixFieldType(eagle, field)}, "");
                 }else{
                     // for embedded nodes
-                    const constructNode = node.getEmbed();
-                    
                     if(constructNode.getInputApplication() === node){
                         //if node is input application
                         issue = Errors.ShowFix("Node (" + constructNode.getName() + ") has input application (" + node.getName() + ") with output port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixFieldType(eagle, field)}, "");

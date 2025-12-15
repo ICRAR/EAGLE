@@ -72,10 +72,11 @@ export class Palette {
 
             // read node
             const newNode : Node = Node.fromOJSJson(nodeData, errorsWarnings, true);
+            const newNodeParent = newNode.getParent();
 
             // check that node has no group
-            if (newNode.getParent() !== null){
-                const error : string = file.name + " Node " + i + " has parent: " + newNode.getParent().getName() + ". Setting parentKey to null.";
+            if (newNodeParent !== null){
+                const error : string = file.name + " Node " + i + " has parent: " + newNodeParent.getName() + ". Setting parentKey to null.";
                 errorsWarnings.warnings.push(Errors.Message(error));
 
                 newNode.setParent(null);
@@ -131,12 +132,15 @@ export class Palette {
         // second pass through the nodes
         // used to set parent, embed, subject, inputApplication, outputApplication
         for (const [nodeId, nodeData] of Object.entries(dataObject.nodes)){
-            const embed: Node = result.getNodeById((<any>nodeData).embedId);
-            const parent: Node = result.getNodeById((<any>nodeData).parentId);
-            const inputApplication: Node = result.getNodeById((<any>nodeData).inputApplicationId);
-            const outputApplication: Node = result.getNodeById((<any>nodeData).outputApplicationId);
+            const embed = result.getNodeById((<any>nodeData).embedId);
+            const parent = result.getNodeById((<any>nodeData).parentId);
+            const inputApplication = result.getNodeById((<any>nodeData).inputApplicationId);
+            const outputApplication = result.getNodeById((<any>nodeData).outputApplicationId);
+            const node = result.getNodeById(nodeId as NodeId);
 
-            const node: Node = result.getNodeById(nodeId as NodeId);
+            if (typeof node === 'undefined'){
+                continue;
+            }
             if (typeof embed !== 'undefined'){
                 node.setEmbed(embed);
             }
@@ -199,15 +203,16 @@ export class Palette {
             const nodeData : any = Node.toV4GraphJson(node);
             result.nodes[id] = nodeData;
 
+            const inputApplication = node.getInputApplication();
+            const outputApplication = node.getOutputApplication();
+
             // add input and output applications to the top-level nodes dict
-            if (node.hasInputApplication()){
-                const inputApp = node.getInputApplication();
-                result.nodes[inputApp.getId()] = Node.toV4GraphJson(inputApp);
+            if (inputApplication){
+                result.nodes[inputApplication.getId()] = Node.toV4GraphJson(inputApplication);
             }
 
-            if (node.hasOutputApplication()){
-                const outputApp = node.getOutputApplication();
-                result.nodes[outputApp.getId()] = Node.toV4GraphJson(outputApp);
+            if (outputApplication){
+                result.nodes[outputApplication.getId()] = Node.toV4GraphJson(outputApplication);
             }
         }
 
@@ -353,7 +358,7 @@ export class Palette {
         this.nodes.valueHasMutated();
     }
 
-    findNodeById = (id: NodeId) : Node => {
+    findNodeById = (id: NodeId) : Node | undefined => {
         return this.nodes().get(id);
     }
 
@@ -362,13 +367,13 @@ export class Palette {
         this.nodes.valueHasMutated();
     }
 
-    findNodeByNameAndCategory = (nameAndCategory: Category) : Node => {
+    findNodeByNameAndCategory = (nameAndCategory: Category) : Node | undefined=> {
         for (const node of this.nodes().values()){
             if (node.getName() === nameAndCategory && node.getCategory() === nameAndCategory){
                 return node;
             }
         }
-        return null;
+        return undefined;
     }
 
     getNodesByCategoryType = (categoryType: Category.Type) : Node[] => {
@@ -398,30 +403,40 @@ export class Palette {
                 break;
             }
 
+            const inputApplication = node.getInputApplication();
+            const outputApplication = node.getOutputApplication();
+
+            if (typeof inputApplication === 'undefined' && typeof outputApplication === 'undefined'){
+                continue;
+            }
+
             // delete the input application
-            if (node.hasInputApplication() && node.getInputApplication().getId() === id){
-                this.nodes().delete(node.getInputApplication().getId());
+            if (inputApplication && inputApplication.getId() === id){
+                this.nodes().delete(inputApplication.getId());
                 this.nodes.valueHasMutated();
                 node.setInputApplication(null);
                 break;
             }
 
             // delete the output application
-            if (node.hasOutputApplication() && node.getOutputApplication().getId() === id){
-                this.nodes().delete(node.getOutputApplication().getId());
+            if (outputApplication && outputApplication.getId() === id){
+                this.nodes().delete(outputApplication.getId());
                 this.nodes.valueHasMutated();
                 node.setOutputApplication(null);
                 break;
             }
         }
 
+        const inputApplication = node.getInputApplication();
+        const outputApplication = node.getOutputApplication();
+
         // remove inputApplication and outputApplication from the nodes map
-        if (node.hasInputApplication()){
-            this.nodes().delete(node.getInputApplication().getId());
+        if (inputApplication){
+            this.nodes().delete(inputApplication.getId());
             this.nodes.valueHasMutated();
         }
-        if (node.hasOutputApplication()){
-            this.nodes().delete(node.getOutputApplication().getId());
+        if (outputApplication){
+            this.nodes().delete(outputApplication.getId());
             this.nodes.valueHasMutated();
         }
     }
