@@ -297,16 +297,4 @@ export namespace Daliuge {
             ]
         }
     ];
-
-    export const UNCHANGEABLE_PORT_NAMES: string[] = [
-        Daliuge.FieldName.BASE_NAME,
-        Daliuge.FieldName.DROP_CLASS,
-        Daliuge.FieldName.FALSE,
-        Daliuge.FieldName.FILE_PATH,
-        Daliuge.FieldName.FUNC_CODE,
-        Daliuge.FieldName.FUNC_NAME,
-        Daliuge.FieldName.PYDATA,
-        Daliuge.FieldName.SELF,
-        Daliuge.FieldName.TRUE,
-    ];
 }
