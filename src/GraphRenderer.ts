@@ -1204,7 +1204,7 @@ export class GraphRenderer {
 
         // if we dragged a selection region
         if (GraphRenderer.isDraggingSelectionRegion){
-            const nodes: Node[] = GraphRenderer.findNodesInRegion(GraphRenderer.selectionRegionStart.x, GraphRenderer.selectionRegionEnd.x, GraphRenderer.selectionRegionStart.y, GraphRenderer.selectionRegionEnd.y);
+            const nodes: (Node|Visual)[] = GraphRenderer.findNodesInRegion(GraphRenderer.selectionRegionStart.x, GraphRenderer.selectionRegionEnd.x, GraphRenderer.selectionRegionStart.y, GraphRenderer.selectionRegionEnd.y);
             
             //checking if there was no drag distance, if so we are clicking a single object and we will toggle its selection
             if(Math.abs(GraphRenderer.selectionRegionStart.x-GraphRenderer.selectionRegionEnd.x)+Math.abs(GraphRenderer.selectionRegionStart.y - GraphRenderer.selectionRegionEnd.y)<3){
@@ -1290,14 +1290,16 @@ export class GraphRenderer {
         }
     }
 
-    static selectInRegion(nodes:Node[]) : void {
+    static selectInRegion(selectObjects:(Node|Visual)[]) : void {
         const eagle = Eagle.getInstance()
+        //filter passed selected objects to only nodes, so we can use this to find edges
+        const nodes =  selectObjects.filter(item => item instanceof Node) as Node[];
         const edges: Edge[] = GraphRenderer.findEdgesContainedByNodes(Array.from(eagle.logicalGraph().getEdges()), nodes);
-        const objects: (Node | Edge)[] = [];
+        const objects: (Node | Edge | Visual)[] = [];
 
         // depending on if its shift+ctrl or just shift we are either only adding or only removing nodes
         if(!GraphRenderer.ctrlDrag){
-            for (const node of nodes){
+            for (const node of selectObjects){
                 if (!eagle.objectIsSelected(node)){
                     objects.push(node);
                 }
@@ -1308,7 +1310,7 @@ export class GraphRenderer {
                 }
             }
         }else{
-            for (const node of nodes){
+            for (const node of selectObjects){
                 if (eagle.objectIsSelected(node)){
                     objects.push(node);
                 }
@@ -1431,10 +1433,11 @@ export class GraphRenderer {
         GraphRenderer.nodeParentRadiusPreDrag = Eagle.getInstance().logicalGraph().getNodeById(parent?.getId())?.getRadius()
     }
 
-    static findNodesInRegion(left: number, right: number, top: number, bottom: number): Node[] {
+    static findNodesInRegion(left: number, right: number, top: number, bottom: number): (Node | Visual)[] {
         const eagle = Eagle.getInstance();
-        const result: Node[] = [];
+        const result: (Node | Visual)[] = [];
         const nodeData : Node[] = GraphRenderer.depthFirstTraversalOfNodes(eagle.logicalGraph());
+        const visuals : Visual[] = Array.from(eagle.logicalGraph().getVisuals());
 
         // re-assign left, right, top, bottom in case selection region was not dragged in the typical NW->SE direction
         const realLeft = left <= right ? left : right;
@@ -1453,6 +1456,26 @@ export class GraphRenderer {
             //checking if the node is fully inside the selection box
             if (centerX+-nodeRadius >= realLeft && realRight+-nodeRadius >= centerX && centerY+-nodeRadius >= realTop && realBottom+-nodeRadius >= centerY){
                 result.push(node);
+            }
+        }
+
+        for (let i = visuals.length - 1; i >= 0 ; i--){
+            const visual : Visual = visuals[i];
+
+            // use center of node as position
+            const centerX : number = visual.getPosition().x
+            const centerY : number = visual.getPosition().y
+            let height : number = visual.getHeight()/2
+            const width : number = visual.getWidth()/2
+
+            //text visuals scale in height automatically using css, we have to grab the real height from the html element
+            if(visual.isText()){
+                height = $('#'+visual.getId()).height()/2
+            }
+
+            //checking if the node is fully inside the selection box
+            if (centerX+-width >= realLeft && realRight+-width >= centerX && centerY+-height >= realTop && realBottom+-height >= centerY){
+                result.push(visual);
             }
         }
 
