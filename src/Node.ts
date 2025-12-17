@@ -933,21 +933,10 @@ export class Node {
         return null;
     }
 
-
-    findPortByMatchingType = (type: string, input: boolean) : Field | null => {
-        if (input){
-            // check input ports
-            for (const inputPort of this.getInputPorts()){
-                if (Utils.typesMatch(inputPort.getType(), type)){
-                    return inputPort;
-                }
-            }
-        } else {
-            // check output ports
-            for (const outputPort of this.getOutputPorts()){
-                if (Utils.typesMatch(outputPort.getType(), type)){
-                    return outputPort;
-                }
+    findPortByMatchingType = (type: string, usages: Daliuge.FieldUsage[]) : Field | null => {
+        for (const port of this.getFields()){
+            if (usages.includes(port.getUsage()) && Utils.typesMatch(port.getType(), type)){
+                return port;
             }
         }
         return null;

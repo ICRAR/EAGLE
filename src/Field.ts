@@ -246,8 +246,13 @@ export class Field {
         return this.precious();
     }
 
-    canBeRenamed = () : boolean => {
+    isChangeable = () : boolean => {
         return this.changeable();
+    }
+
+    toggleChangeable = () : Field => {
+        this.changeable(!this.changeable());
+        return this;
     }
 
     updateEdgeId(oldId: EdgeId, newId: EdgeId): void {

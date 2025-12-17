@@ -432,6 +432,18 @@
                                                                 </button>
                                                             <!-- /ko -->
                                                         <!-- /ko -->
+                                                        <!-- ko if: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)-->
+                                                                <!-- ko if: $data.isChangeable() -->
+                                                                <button type="button" data-bind="click: $data.toggleChangeable, eagleTooltip: 'Parameter is changeable<br/>Click to toggle'" data-bs-placement="left">
+                                                                    <i class="material-symbols-outlined iconHoverEffect">lock_open</i>
+                                                                </button>
+                                                            <!-- /ko -->
+                                                            <!-- ko ifnot: $data.isChangeable() -->
+                                                                <button type="button" data-bind="click: $data.toggleChangeable, eagleTooltip: 'Parameter is not changeable<br/>Click to toggle'" data-bs-placement="left">
+                                                                    <i class="material-symbols-outlined iconHoverEffect">lock</i>
+                                                                </button>
+                                                            <!-- /ko -->
+                                                        <!-- /ko -->
                                                         <!-- ko ifnot: $data.usage() === Daliuge.FieldUsage.NoPort-->
                                                             <!-- ko if: $data.isEvent() -->
                                                                 <button type="button" data-bind="click: function(){$data.toggleEvent();}, eagleTooltip: 'Port is event port<br/>Click to toggle'" data-bs-placement="left">
