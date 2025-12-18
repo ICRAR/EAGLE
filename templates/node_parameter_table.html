@@ -434,12 +434,12 @@
                                                         <!-- /ko -->
                                                         <!-- ko if: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)-->
                                                                 <!-- ko if: $data.isChangeable() -->
-                                                                <button type="button" data-bind="click: $data.toggleChangeable, eagleTooltip: 'Parameter is changeable<br/>Click to toggle'" data-bs-placement="left">
+                                                                <button type="button" class="changeableFlag" data-bind="click: $data.toggleChangeable, eagleTooltip: 'Parameter is changeable<br/>Click to toggle'" data-bs-placement="left">
                                                                     <i class="material-symbols-outlined iconHoverEffect">label</i>
                                                                 </button>
                                                             <!-- /ko -->
                                                             <!-- ko ifnot: $data.isChangeable() -->
-                                                                <button type="button" data-bind="click: $data.toggleChangeable, eagleTooltip: 'Parameter is not changeable<br/>Click to toggle'" data-bs-placement="left">
+                                                                <button type="button" class="changeableFlag" data-bind="click: $data.toggleChangeable, eagleTooltip: 'Parameter is not changeable<br/>Click to toggle'" data-bs-placement="left">
                                                                     <i class="material-symbols-outlined iconHoverEffect">label_off</i>
                                                                 </button>
                                                             <!-- /ko -->
