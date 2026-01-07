@@ -186,7 +186,7 @@ export namespace Daliuge {
     export const numIterationsField = new Field(null, FieldName.NUM_OF_ITERATIONS, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.Construct, FieldUsage.NoPort);
 
     export const baseNameField = new Field(null, FieldName.BASE_NAME, "", "", "The base name of the class of this Member function", false, DataType.String, false, [], false, FieldType.Component, FieldUsage.NoPort);
-    export const selfField = new Field(null, FieldName.SELF, "", "", "", false, DataType.Object, false, [], false, FieldType.Component, FieldUsage.InputOutput);
+    export const selfField = new Field(null, FieldName.SELF, "", "", "", false, DataType.Object, false, [], false, FieldType.Application, FieldUsage.InputOutput);
 
     export const funcCodeField = new Field(null, FieldName.FUNC_CODE, "", "def func_name(args): return args", "Python function code", false, Daliuge.DataType.Python, false, [], false, Daliuge.FieldType.Component, FieldUsage.NoPort);
     export const funcNameField = new Field(null, FieldName.FUNC_NAME, "", "func_name", "Python function name", false, Daliuge.DataType.Python, false, [], false, Daliuge.FieldType.Component, FieldUsage.NoPort);
