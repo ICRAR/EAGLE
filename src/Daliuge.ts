@@ -173,7 +173,7 @@ export namespace Daliuge {
     export const groupEndField = new Field(null, FieldName.GROUP_END, "true", "true", "Is this node the end of a group?", false, DataType.Boolean, false, [], false, FieldType.Component, FieldUsage.NoPort);
 
     export const branchTrueField = new Field(null, FieldName.TRUE, "", "", "The affirmative output from a branch node", false, DataType.Object, false, [], false, FieldType.Component, FieldUsage.OutputPort);
-    export const branchFalseField  = new Field(null, FieldName.FALSE,  "", "", "he negative output from a branch node", false, DataType.Object, false, [], false, FieldType.Component, FieldUsage.OutputPort);
+    export const branchFalseField  = new Field(null, FieldName.FALSE,  "", "", "The negative output from a branch node", false, DataType.Object, false, [], false, FieldType.Component, FieldUsage.OutputPort);
 
     export const dropClassField = new Field(null, FieldName.DROP_CLASS, "", "", "", false, DataType.String, false, [], false, FieldType.Component, FieldUsage.NoPort);
 
