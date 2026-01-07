@@ -362,19 +362,49 @@ export class GraphRenderer {
         return GraphRenderer._calculatePortPosition(field.getOutputPosition().y, field.getNode().getPosition().y, field.getNode().getRadius());
     }
 
+    static calculateTextVisualPortPosition(visual:Visual) : {x:number, y:number} {
+        const portRadius = 6 // we need to add or subtract half of the width of the port sometimes to center it on the edge
+        //the height of text visuals is automatic based on content using css, so we need to get the height of the element here
+        const halfHeight = $('#' + visual.getId()+ ' .body').height() / 2 + portRadius;
+        const visualPos = visual.getPosition()
+
+        if(visual.getTarget()){
+            const targetPos = visual.getTarget().getPosition()
+            let targetAngle = GraphRenderer.calculateConnectionAngle(visualPos, targetPos)
+            targetAngle = Utils.toDegrees360(targetAngle)
+            const halfWidth = visual.getWidth()/2
+            let result : {x:number, y:number} = {x:0,y:0}
+
+            if(targetAngle > 45 && targetAngle < 135){
+                result.x = visualPos.x
+                result.y = visualPos.y - halfHeight
+                return result
+            }else if(targetAngle > 135 && targetAngle < 225){
+                result.x = visualPos.x - halfWidth
+                result.y = visualPos.y
+                return result
+            }else if(targetAngle > 225 && targetAngle < 315){
+                //0deg is on the left side of the node, so in this range the port is at the bottom, we let the default part handle this. 
+            }else{
+                result.x = visualPos.x + halfWidth
+                result.y = visualPos.y
+                return result
+            }
+        }
+        
+        return {x:visualPos.x, y:visualPos.y + halfHeight};
+    }
+
     static calculateTextVisualPortPositionX(visual:Visual) : number {
-        return visual.getPosition().x;
+        return this.calculateTextVisualPortPosition(visual).x
     }
 
     static calculateTextVisualPortPositionY(visual:Visual) : number {
         //these two references are needed to trigger re-calculation when position or size changes
         const width = visual.getWidth();
         const content = visual.getContent();
-
-        //the height of text visuals is automatic based on content using css, so we need to get the height of the element here
-        const halfHeight = $('#' + visual.getId()+ ' .body').height() / 2 + 6; //+6 is adding half of the port height to center it properly
-
-        return visual.getPosition().y + halfHeight;
+       
+        return this.calculateTextVisualPortPosition(visual).y;
     }
 
     static calculateEdgeCommentPosX (edge:Edge) : number {

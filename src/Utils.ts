@@ -2313,6 +2313,18 @@ export class Utils {
         return Errors.Validity.Warning;
     }
 
+    static toDegrees360(radians:number) : number {
+        // the calculateConnectionAngle function returns an angle in radians between 0 to ~3.1 and 0 to ~-3.1
+        // this function turns this into degrees from 0-360 which makes it easier to work with.
+
+        // 1. Convert to raw degrees
+        let degrees = radians * (180 / Math.PI);
+        
+        // 2. Normalize to 0-360 range
+        // Adding 360 before the second modulo handles negative inputs correctly.
+        return (degrees % 360 + 360) % 360;
+    }
+
     static printCategories() : void {
         const tableData : any[] = [];
 

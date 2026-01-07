@@ -25,7 +25,7 @@ const colors: ColorMap = {
     // edge colors
     edgeDefault:                 '#58595b',
     edgeDefaultSelected:         '#4247df',
-    commentEdge:                 '#7c7e81',
+    commentEdge:                 '#b9c7dd',
     edgeValid:                   '#32cd32',
     edgeWarning:                 '#ffa500',
     edgeFixable:                 '#6dc7bd',
