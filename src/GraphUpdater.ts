@@ -283,7 +283,7 @@ export class GraphUpdater {
             }
 
             // fetch the file data
-            console.log("Loading graph file:", graphFile.name, "from", graphFile.path);
+            console.log("Loading graph file:", graphFile.name, "from /", graphFile.path);
             const fileData: string = await openRemoteFileFunc(graphFile.repository.service, graphFile.repository.name, graphFile.repository.branch, graphFile.path, graphFile.name);
             console.log("Graph file loaded.");
 
@@ -291,20 +291,31 @@ export class GraphUpdater {
             const graphObject = JSON.parse(fileData);
             const schemaVersion: Setting.SchemaVersion = Utils.determineSchemaVersion(graphObject);
 
-            // parse file data as LogicalGraph
-            let lg: LogicalGraph;
+            // determine correct fromJson function
+            let fromJsonFunc: (graphObject: any, fileName: string, errorsWarnings: Errors.ErrorsWarnings) => LogicalGraph;
 
             switch (schemaVersion){
                 case Setting.SchemaVersion.OJS:
-                    lg = LogicalGraph.fromOJSJson(graphObject, graphFile.name, {"errors":[], "warnings":[]});
+                    fromJsonFunc = LogicalGraph.fromOJSJson;
                     break;
                 case Setting.SchemaVersion.V4:
-                    lg = LogicalGraph.fromV4Json(graphObject, graphFile.name, {"errors":[], "warnings":[]});
+                    fromJsonFunc = LogicalGraph.fromV4Json;
                     break;
                 default:
                     Utils.showNotification("Error", "Unsupported graph schema version: " + schemaVersion, "danger");
-                    return;
+                    continue;
             }
+
+            // parse file data as LogicalGraph
+            let lg: LogicalGraph;
+            try {
+                lg = fromJsonFunc(graphObject, graphFile.name, {"errors":[], "warnings":[]});
+            }
+            catch (error) {
+                console.error("Error parsing graph file:", graphFile.name, error);
+                continue;
+            }
+            console.log("Graph file parsed.");
 
             // save to v4 string
             const fileDataString = LogicalGraph.toV4JsonString(lg, false);
