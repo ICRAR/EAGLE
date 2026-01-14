@@ -86,6 +86,40 @@ export class Repository {
         });
     }
 
+    // TODO: a bit of repeated code here, could we make traverseFolder accept a folder OR a repository?
+    findAllGraphs = () : RepositoryFile[] => {
+        const graphs: RepositoryFile[] = [];
+
+        const traverseFolder = (folder: RepositoryFolder) : void => {
+            console.log("traversing folder: " + folder.name);
+            for (const file of folder.files()){
+                console.log("checking file: " + file.name + ", type: " + file.type);
+                if (file.type === Eagle.FileType.Graph){
+                    graphs.push(file);
+                }
+            }
+
+            for (const subFolder of folder.folders()){
+                traverseFolder(subFolder);
+            }
+        }
+
+        // check top-level files
+        for (const file of this.files()){
+            console.log("checking top-level file: " + file.name + ", type: " + file.type);
+            if (file.type === Eagle.FileType.Graph){
+                graphs.push(file);
+            }
+        }
+
+        // check folders
+        for (const folder of this.folders()){
+            traverseFolder(folder);
+        }
+
+        return graphs;
+    }
+
     // browse down into a repository, along the path, and return the RepositoryFolder there
     // or if no path, just return the Repository
     // or if path not found, return null
@@ -147,6 +181,19 @@ export class Repository {
                     reject(new Error("Could not find path part (" + pathPart + "), pointer is at " + pointer.name));
                     return;
                 }
+            }
+
+            resolve();
+        });
+    }
+
+    // expand all the directories
+    expandAll = async () : Promise<void> => {
+        return new Promise(async(resolve) => {
+            await this.select();
+
+            for (const folder of this.folders()){
+                await folder.select();
             }
 
             resolve();

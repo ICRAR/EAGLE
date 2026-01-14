@@ -31,6 +31,7 @@ import { Repositories } from './Repositories';
 import { Repository } from './Repository';
 import { RepositoryFolder } from './RepositoryFolder';
 import { RepositoryFile } from './RepositoryFile';
+import { Setting } from './Setting';
 import { Utils } from './Utils';
 
 export class GraphUpdater {
@@ -208,7 +209,117 @@ export class GraphUpdater {
     }
     
     static async showModal(): Promise<void> {
+        // add list of repositories to source select
+        const srcRepoSelect = $('#graphUpdaterModalSourceRepositorySelect');
+        srcRepoSelect.empty();
+        for (let i = 0 ; i < Repositories.repositories().length; i++){
+            const repo = Repositories.repositories()[i];
+            const option = $('<option></option>').attr("value", i).text(repo.getNameAndBranch());
+            srcRepoSelect.append(option);
+        }
+
+        // add list of repositories to destination select
+        const destRepoSelect = $('#graphUpdaterModalDestinationRepositorySelect');
+        destRepoSelect.empty();
+        for (let i = 0 ; i < Repositories.repositories().length; i++){
+            const repo = Repositories.repositories()[i];
+            const option = $('<option></option>').attr("value", i).text(repo.getNameAndBranch());
+            destRepoSelect.append(option);
+        }
+
         $('#graphUpdaterModal').modal("toggle");
+    }
+
+    static async update(): Promise<void> {
+        console.log("GraphUpdater.update()");
+
+        // get source repository
+        const srcRepoIndex = parseInt($('#graphUpdaterModalSourceRepositorySelect').val() as string);
+        console.log("srcRepoIndex:", srcRepoIndex);
+        const srcRepo = Repositories.repositories()[srcRepoIndex];
+        if (srcRepo === null){
+            Utils.showNotification("Error", "Source repository not found", "danger");
+            return;
+        }
+
+        // get destination repository
+        const destRepoIndex = parseInt($('#graphUpdaterModalDestinationRepositorySelect').val() as string);
+        console.log("destRepoIndex:", destRepoIndex);
+        const destRepo = Repositories.repositories()[destRepoIndex];
+        if (destRepo === null){
+            Utils.showNotification("Error", "Destination repository not found", "danger");
+            return;
+        }
+
+        // generate commit message
+        const commitMessage = "Updated graphs from " + srcRepo.getNameAndBranch();
+
+        // fetch and expand the source repository if needed
+        if (!srcRepo.fetched()){
+            await srcRepo.select();
+        }
+        console.log("Expanding source repository...");
+        await srcRepo.expandAll();
+        console.log("Source repository expanded.");
+
+        // find all graphs in source repository
+        const srcGraphs = await srcRepo.findAllGraphs();
+        console.log("srcGraphs:", srcGraphs);
+
+        // loop through each graph, load it, and save it to an array
+        const destGraphs: string[] = [];
+        for (const graphFile of srcGraphs){
+            let openRemoteFileFunc: (repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string, filePath: string, fileName: string) => Promise<string>;
+            switch (graphFile.repository.service){
+                case Repository.Service.GitHub:
+                    openRemoteFileFunc = GitHub.openRemoteFile;
+                    break;
+                case Repository.Service.GitLab:
+                    openRemoteFileFunc = GitLab.openRemoteFile;
+                    break;
+                default:
+                    Utils.showNotification("Error", "Unsupported repository service: " + graphFile.repository.service, "danger");
+                    return;
+            }
+
+            // fetch the file data
+            console.log("Loading graph file:", graphFile.name, "from", graphFile.path);
+            const fileData: string = await openRemoteFileFunc(graphFile.repository.service, graphFile.repository.name, graphFile.repository.branch, graphFile.path, graphFile.name);
+            console.log("Graph file loaded.");
+
+            // determine if graph is OJS or V4
+            const graphObject = JSON.parse(fileData);
+            const schemaVersion: Setting.SchemaVersion = Utils.determineSchemaVersion(graphObject);
+
+            // parse file data as LogicalGraph
+            let lg: LogicalGraph;
+
+            switch (schemaVersion){
+                case Setting.SchemaVersion.OJS:
+                    lg = LogicalGraph.fromOJSJson(graphObject, graphFile.name, {"errors":[], "warnings":[]});
+                    break;
+                case Setting.SchemaVersion.V4:
+                    lg = LogicalGraph.fromV4Json(graphObject, graphFile.name, {"errors":[], "warnings":[]});
+                    break;
+                default:
+                    Utils.showNotification("Error", "Unsupported graph schema version: " + schemaVersion, "danger");
+                    return;
+            }
+
+            // save to v4 string
+            const fileDataString = LogicalGraph.toV4JsonString(lg, false);
+
+            // add to array
+            destGraphs.push(fileDataString);
+        }
+
+        /*
+        // save all graphs in a single commit to destination repository
+        await destRepo.commitMultipleGraphFiles(graphDataArray, commitMessage);
+
+        // notify user of completion
+        alert("Graph update completed successfully.");
+        */
     }
 
     // recursive traversal through the folder structure to find all graph files
@@ -246,7 +357,7 @@ export class GraphUpdater {
 
         for (const row of data){
             // determine the correct function to load the file
-            let openRemoteFileFunc: any;
+            let openRemoteFileFunc: (repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string, filePath: string, fileName: string) => Promise<string>;
             if (row.service === Repository.Service.GitHub){
                 openRemoteFileFunc = GitHub.openRemoteFile;
             } else {
@@ -255,35 +366,33 @@ export class GraphUpdater {
 
             // try to load the file
             await new Promise<void>((resolve, reject) => {
-                openRemoteFileFunc(row.service, row.name, row.branch, row.folder, row.file, (error: string, data: string) => {
-                    // if file fetched successfully
-                    if (error === null){
-                        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
-                        const file: RepositoryFile = new RepositoryFile(row.service, row.folder, row.file);
-                        const lg: LogicalGraph = LogicalGraph.fromOJSJson(JSON.parse(data), file.name, errorsWarnings);
+                openRemoteFileFunc(row.service, row.name, row.branch, row.folder, row.file).then((data: string) => {
 
-                        // record number of errors
-                        row.numLoadWarnings = errorsWarnings.warnings.length;
-                        row.numLoadErrors = errorsWarnings.errors.length;
+                    const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+                    const file: RepositoryFile = new RepositoryFile(row.service, row.folder, row.file);
+                    const lg: LogicalGraph = LogicalGraph.fromOJSJson(JSON.parse(data), file.name, errorsWarnings);
 
-                        // use git-related info within file
-                        row.generatorVersion = lg.fileInfo().generatorVersion;
-                        row.lastModifiedBy = lg.fileInfo().lastModifiedName;
-                        row.repositoryUrl = lg.fileInfo().repositoryUrl;
-                        row.commitHash = lg.fileInfo().location.commitHash();
-                        row.downloadUrl = lg.fileInfo().location.downloadUrl();
-                        row.signature = lg.fileInfo().signature;
+                    // record number of errors
+                    row.numLoadWarnings = errorsWarnings.warnings.length;
+                    row.numLoadErrors = errorsWarnings.errors.length;
 
-                        // convert date from timestamp to date string
-                        const date = new Date(lg.fileInfo().lastModifiedDatetime * 1000);
-                        row.lastModified = date.toLocaleDateString() + " " + date.toLocaleTimeString()
+                    // use git-related info within file
+                    row.generatorVersion = lg.fileInfo().generatorVersion;
+                    row.lastModifiedBy = lg.fileInfo().lastModifiedName;
+                    row.repositoryUrl = lg.fileInfo().repositoryUrl;
+                    row.commitHash = lg.fileInfo().location.commitHash();
+                    row.downloadUrl = lg.fileInfo().location.downloadUrl();
+                    row.signature = lg.fileInfo().signature;
 
-                        // check the graph once loaded
-                        Utils.checkGraph(eagle);
-                        const results: Errors.ErrorsWarnings = Utils.gatherGraphErrors();
-                        row.numCheckWarnings = results.warnings.length;
-                        row.numCheckErrors = results.errors.length;
-                    }
+                    // convert date from timestamp to date string
+                    const date = new Date(lg.fileInfo().lastModifiedDatetime * 1000);
+                    row.lastModified = date.toLocaleDateString() + " " + date.toLocaleTimeString()
+
+                    // check the graph once loaded
+                    Utils.checkGraph(eagle);
+                    const results: Errors.ErrorsWarnings = Utils.gatherGraphErrors();
+                    row.numCheckWarnings = results.warnings.length;
+                    row.numCheckErrors = results.errors.length;
 
                     resolve();
                 });

@@ -30,21 +30,11 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-3">
-                            <p>Commit Message:</p>
-                        </div>
-                        <div class="col">
-                            <div class="input-group mb-3">
-                                <input type="text" class="form-control" id="graphUpdaterModalCommitMessageInput">
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" id="graphUpdaterModalNegativeButton" data-bs-dismiss="modal"><span id="graphUpdaterModalNegativeAnswer">Cancel</span></button>
-                <button type="button" class="btn btn-primary" id="graphUpdaterModalAffirmativeButton" data-bs-dismiss="modal"><span id="graphUpdaterModalAffirmativeAnswer">OK</span></button>
+                <button type="button" class="btn btn-primary" id="graphUpdaterModalAffirmativeButton" data-bs-dismiss="modal" data-bind="click:function(){GraphUpdater.update()}"><span id="graphUpdaterModalAffirmativeAnswer">OK</span></button>
             </div>
         </div>
     </div>
