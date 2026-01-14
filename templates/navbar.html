@@ -260,6 +260,11 @@
                     <a class="dropdown-item" id="keyboardShortcuts" href="#" data-bind="click: Utils.showShortcutsModal">Keyboard Shortcuts
                         <span data-bind="text: KeyboardShortcut.idToKeysText('open_keyboard_shortcut_modal', true)"></span>
                     </a>
+                    <span class="dropdown-item dropDropDownParent" id="navTools" href="#"><img src="/static/assets/img/arrow_right_white_24dp.svg" alt="" id="navbarDropdownTools">Tools
+                        <div class="dropDropDown">
+                            <a class="dropdown-item" id="toolBtnGraphUpdater" href="#" data-bind="click: function(){GraphUpdater.showModal()}">Graph Updater</a>
+                        </div>
+                    </span>
                 </div>
             </li>
             <a id="settings" class="nav-link iconHoverEffect" data-bs-placement="bottom" alt="Settings" href="#" data-bind="click: Utils.showSettingsModal, eagleTooltip: 'Settings'">

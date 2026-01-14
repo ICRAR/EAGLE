@@ -207,6 +207,10 @@ export class GraphUpdater {
         return tableData;
     }
     
+    static async showModal(): Promise<void> {
+        $('#graphUpdaterModal').modal("toggle");
+    }
+
     // recursive traversal through the folder structure to find all graph files
     private static _addGraphs = (repository: Repository, folder: RepositoryFolder, path: string, data: any[]) : void => {
         for (const subfolder of folder.folders()){
