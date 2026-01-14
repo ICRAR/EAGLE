@@ -291,6 +291,11 @@ export class GraphUpdater {
             const graphObject = JSON.parse(fileData);
             const schemaVersion: Setting.SchemaVersion = Utils.determineSchemaVersion(graphObject);
 
+            // check if we need to update the graph from keys to ids
+            if (GraphUpdater.usesNodeKeys(graphObject)){
+                GraphUpdater.updateKeysToIds(graphObject);
+            }
+
             // determine correct fromJson function
             let fromJsonFunc: (graphObject: any, fileName: string, errorsWarnings: Errors.ErrorsWarnings) => LogicalGraph;
 
