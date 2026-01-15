@@ -467,7 +467,7 @@ def save_git_hub_file():
 
 
 @app.route("/saveFilesToRemoteGithub", methods=["POST"])
-def save_git_hub_file():
+def save_git_hub_files():
     """
     FLASK POST routing method for '/saveFilesToRemoteGithub'
 
@@ -480,6 +480,8 @@ def save_git_hub_file():
     repo_token = content["token"]
     files = content["files"]  # contains "path" and "jsonData" for each file. The path should include the filename.
     commit_message = content["commitMessage"]
+
+    print("files", files)
 
     g = github.Github(repo_token)
 

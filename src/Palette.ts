@@ -107,7 +107,7 @@ export class Palette {
         errorsWarnings.errors.push(...checkResult.errors);
         errorsWarnings.warnings.push(...checkResult.warnings);
 
-        Utils.updateFileInfo(result.fileInfo(), file);
+        Utils.updateFileInfo(result.fileInfo, file);
 
         return result;
     }
@@ -164,7 +164,7 @@ export class Palette {
         errorsWarnings.errors.push(...checkResult.errors);
         errorsWarnings.warnings.push(...checkResult.warnings);
 
-        Utils.updateFileInfo(result.fileInfo(), file);
+        Utils.updateFileInfo(result.fileInfo, file);
 
         return result;
     }
