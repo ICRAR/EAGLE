@@ -466,6 +466,97 @@ def save_git_hub_file():
     return "ok"
 
 
+@app.route("/saveFilesToRemoteGithub", methods=["POST"])
+def save_git_hub_file():
+    """
+    FLASK POST routing method for '/saveFilesToRemoteGithub'
+
+    Save file(s) to a GitHub repository. The POST request content is a JSON string containing the repository name, branch, access token, and commit message. Plus a JSON array containing each files name and data in JSON format.
+    """
+    # Extract parameters and file content from json.
+    content = request.get_json(silent=True)
+    repo_name = content["repositoryName"]
+    repo_branch = content["repositoryBranch"]
+    repo_token = content["token"]
+    files = content["files"]  # contains "path" and "jsonData" for each file. The path should include the filename.
+    commit_message = content["commitMessage"]
+
+    g = github.Github(repo_token)
+
+    # get repo
+    try:
+        repo = g.get_repo(repo_name)
+    except github.GithubException as e:
+        print(
+            "Error in get_repo({0})! Repo: {1} Status: {2} Data: {3}".format(
+                "heads/" + repo_branch, str(repo_name), e.status, e.data
+            )
+        )
+        return jsonify({"error": e.data.get("message", str(e))}), 400
+
+    # Set branch
+    try:
+        branch_ref = repo.get_git_ref("heads/" + repo_branch)
+    except github.GithubException as e:
+        # repository might be empty
+        print(
+            "Error in get_git_ref({0})! Repo: {1} Status: {2} Data: {3}".format(
+                "heads/" + repo_branch, str(repo_name), e.status, e.data
+            )
+        )
+        return jsonify({"error": e.data.get("message", str(e))}), 400
+
+    # get SHA from branch
+    branch_sha = branch_ref.object.sha
+
+    # build a list of InputGitTreeElement objects to create the new commit
+    tree_elements = []
+
+    # add the files
+    for file in files:
+        path = file["path"]
+        graph = file["jsonData"]
+
+        # Extracting the true repo name and repo folder.
+        #folder_name, repo_name = extract_folder_and_repo_names(repo_name)
+        #if folder_name != "":
+        #    filename = folder_name + "/" + filename
+
+        set_metadata_for_ingress(graph, "GitHub", repo_name, repo_branch, path)
+
+        # The 'indent=4' option is used for nice formatting. Without it the file is stored as a single line.
+        json_data = json.dumps(graph, indent=4)
+
+        tree_element = github.InputGitTreeElement(
+            path=path, mode="100644", type="blob", content=json_data
+        )
+        tree_elements.append(tree_element)
+
+    # Commit to GitHub repo.
+    latest_commit = repo.get_git_commit(branch_sha)
+    base_tree = latest_commit.tree
+    try:
+        new_tree = repo.create_git_tree(
+            tree_elements,
+            base_tree,
+        )
+    except github.GithubException as e:
+        # repository might not have permission
+        print(
+            "Error in create_git_tree({0})! Repo: {1} Status: {2} Data: {3}".format(
+                "heads/" + repo_branch, str(repo_name), e.status, e.data
+            )
+        )
+        return jsonify({"error": e.data.get("message", str(e))}), 400
+
+    new_commit = repo.create_git_commit(
+        message=commit_message, parents=[latest_commit], tree=new_tree
+    )
+    branch_ref.edit(sha=new_commit.sha, force=False)
+
+    return "ok"
+
+
 @app.route("/saveFileToRemoteGitlab", methods=["POST"])
 def save_git_lab_file():
     """

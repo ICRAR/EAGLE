@@ -242,6 +242,20 @@ export class GraphUpdater {
             return;
         }
 
+        // determine the correct function to load the file(s), based on the source repository service
+        let openRemoteFileFunc: (repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string, filePath: string, fileName: string) => Promise<string>;
+        switch (srcRepo.service){
+            case Repository.Service.GitHub:
+                openRemoteFileFunc = GitHub.openRemoteFile;
+                break;
+            case Repository.Service.GitLab:
+                openRemoteFileFunc = GitLab.openRemoteFile;
+                break;
+            default:
+                Utils.showNotification("Error", "Unsupported repository service: " + srcRepo.service, "danger");
+                return;
+        }
+
         // get destination repository
         const destRepoIndex = parseInt($('#graphUpdaterModalDestinationRepositorySelect').val() as string);
         console.log("destRepoIndex:", destRepoIndex);
@@ -267,20 +281,9 @@ export class GraphUpdater {
         console.log("srcGraphs:", srcGraphs);
 
         // loop through each graph, load it, and save it to an array
-        const destGraphs: string[] = [];
+        const files = [];
         for (const graphFile of srcGraphs){
-            let openRemoteFileFunc: (repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string, filePath: string, fileName: string) => Promise<string>;
-            switch (graphFile.repository.service){
-                case Repository.Service.GitHub:
-                    openRemoteFileFunc = GitHub.openRemoteFile;
-                    break;
-                case Repository.Service.GitLab:
-                    openRemoteFileFunc = GitLab.openRemoteFile;
-                    break;
-                default:
-                    Utils.showNotification("Error", "Unsupported repository service: " + graphFile.repository.service, "danger");
-                    return;
-            }
+
 
             // fetch the file data
             console.log("Loading graph file:", graphFile.name, "from /", graphFile.path);
@@ -325,9 +328,24 @@ export class GraphUpdater {
             // save to v4 string
             const fileDataString = LogicalGraph.toV4JsonString(lg, false);
 
-            // add to array
-            destGraphs.push(fileDataString);
+            files.push({
+                "path": graphFile.path + graphFile.name,
+                "jsonData": fileDataString
+            });
         }
+
+        // build the commit JSON string
+        const commitJson = {
+            "repositoryName": destRepo.name,
+            "repositoryBranch": destRepo.branch,
+            "token": "",
+            "files": files,
+            "commitMessage": commitMessage
+        };
+
+        // write all the files to the destination repository
+        const eagle: Eagle = Eagle.getInstance();
+        await eagle.saveFilesToRemote(destRepo, srcGraphs, JSON.stringify(commitJson));
 
         /*
         // save all graphs in a single commit to destination repository

@@ -1958,6 +1958,69 @@ export class Eagle {
         });
     }
 
+
+    /**
+     * Saves a file to the remote server repository.
+     *
+     * Assumes that all files are in the same repository. Even though multiple files can be passed in, only the first file is used to determine
+     * the repository service and URL.
+     */
+    saveFilesToRemote = async (repository: Repository, files: RepositoryFile[], jsonString : string): Promise<void> => {
+        return new Promise(async(resolve, reject) => {
+            let url : string;
+
+            switch (repository.service){
+                case Repository.Service.GitHub:
+                    url = '/saveFilesToRemoteGithub';
+                    break;
+                case Repository.Service.GitLab:
+                    url = '/saveFilesToRemoteGitlab';
+                    break;
+                default:
+                    Utils.showUserMessage("Error", "Unknown repository service : " + repository.service);
+                    return;
+            }
+
+            let data: any;
+            try {
+                data = await Utils.httpPostJSONString(url, jsonString);
+            } catch (error){
+                Utils.showUserMessage("Error", data + "<br/><br/>These error messages provided by " + repository.service + " are not very helpful. Please contact EAGLE admin to help with further investigation.");
+                console.error("Error: " + JSON.stringify(error, null, EagleConfig.JSON_INDENT) + " Data: " + data);
+                reject(error);
+                return;
+            }
+
+            // we have to refresh this whole path, since any part of it might be new
+            try {
+                await repository.refresh();
+            } catch (error){
+                console.log("error during refreshPath", error);
+            }
+
+            // show repo in the right window
+            this.changeRightWindowMode(Eagle.RightWindowMode.Repository);
+
+            // Show success message
+            if (repository.service === Repository.Service.GitHub){
+                Utils.showNotification("Success", "The file has been saved to GitHub repository.", "success");
+            }
+            if (repository.service === Repository.Service.GitLab){
+                Utils.showNotification("Success", "The file has been saved to GitLab repository.", "success");
+            }
+
+            // Mark files as non-modified
+            //for (const fileInfo of files){
+            //    fileInfo.modified = false;
+            //}
+
+            // TODO: not sure what to do here!
+            //Utils.updateFileInfo(fileInfo, file);
+
+            resolve();
+        });
+    }
+
     /**
      * Performs a Git commit of a graph/palette. Asks user for a file name before saving.
      */
