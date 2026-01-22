@@ -250,6 +250,11 @@ export class Field {
         return this.changeable();
     }
 
+    setChangeable = (changeable: boolean): Field => {
+        this.changeable(changeable);
+        return this;
+    }
+
     toggleChangeable = () : Field => {
         this.changeable(!this.changeable());
         return this;
