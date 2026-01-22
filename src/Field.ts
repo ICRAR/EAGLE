@@ -193,6 +193,10 @@ export class Field {
 
     toggleReadOnly = (): Field => {
         this.readonly(!this.readonly())
+
+        // trigger graph check
+        Eagle.getInstance().checkGraph();
+
         return this;
     }
 
@@ -239,6 +243,10 @@ export class Field {
 
     togglePrecious = () : Field => {
         this.precious(!this.precious());
+
+        // trigger graph check
+        Eagle.getInstance().checkGraph();
+
         return this;
     }
 
@@ -257,6 +265,10 @@ export class Field {
 
     toggleChangeable = () : Field => {
         this.changeable(!this.changeable());
+
+        // trigger graph check
+        Eagle.getInstance().checkGraph();
+
         return this;
     }
 
@@ -344,6 +356,10 @@ export class Field {
 
     togglePositionalArgument = () : Field => {
         this.positional(!this.positional());
+
+        // trigger graph check
+        Eagle.getInstance().checkGraph();
+
         return this;
     }
 

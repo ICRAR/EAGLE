@@ -2006,6 +2006,21 @@ export class Node {
             Field.isValid(node,field, location)
         }
 
+        // check that all fields present in the original (palette) component have the changeable property set correctly (to false)
+        const originalComponent = Utils.getPaletteComponentByName(node.getName());
+        if (typeof originalComponent !== 'undefined'){
+            for (const originalField of originalComponent.getFields()){
+                const nodeField = node.getFieldByDisplayText(originalField.getDisplayText());
+                if (nodeField !== null){
+                    if (nodeField.isChangeable() !== originalField.isChangeable()){
+                        const message: string = "Node (" + node.getName() + ") field (" + nodeField.getDisplayText() + ") has incorrect changeable property. Expected: " + originalField.isChangeable() + ", Actual: " + nodeField.isChangeable();
+                        const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showField(eagle, location, node, nodeField)}, function(){nodeField.setChangeable(originalField.isChangeable())}, "Set changeable to " + originalField.isChangeable());
+                        node.issues().push({issue:issue, validity:Errors.Validity.Warning});
+                    }
+                }
+            }
+        }
+
         if(!Utils.isKnownCategory(node.getCategory())){
             const message: string = "Node (" + node.getName() + ") has unrecognised category " + node.getCategory();
             const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
