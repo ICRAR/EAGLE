@@ -694,7 +694,7 @@ export class Field {
         return "";
     }
 
-    getHelpHtml= () : string => {
+    getHelpHtml = () : string => {
         return "###"+ this.getDisplayText() + "\n" + this.getDescription();
     }
 
