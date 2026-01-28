@@ -3971,13 +3971,13 @@ export class Eagle {
 
                 // make sure we can find a port on the PythonMemberFunction
                 if (sourcePort === null){
-                    sourcePort = Daliuge.selfField.clone().setId(Utils.generateFieldId());
+                    sourcePort = Daliuge.selfFieldComponent.clone().setId(Utils.generateFieldId());
                     newNode.addField(sourcePort);
                     Utils.showNotification("Component Warning", "The PythonMemberFunction does not have a '" + Daliuge.FieldName.SELF + "' port. Added this port to enable connection.", "warning");
                 }
 
                 // create a new input/output "object" port on the PythonObject
-                const inputOutputPort: Field = Daliuge.selfField.clone().setId(Utils.generateFieldId()).setType(sourcePort.getType());
+                const inputOutputPort: Field = Daliuge.selfFieldComponent.clone().setId(Utils.generateFieldId()).setType(sourcePort.getType());
                 pythonObjectNode.addField(inputOutputPort);
 
                 // add edge to Logical Graph (connecting the PythonMemberFunction and the automatically-generated PythonObject)
