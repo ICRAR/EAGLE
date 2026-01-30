@@ -1118,10 +1118,12 @@ export class Field {
         }
 
         // check whether this field's name is a non-standard capitalization of a Daliuge field name
-        for (const daliugeField of Daliuge.allKnownFields){
-            if (field.getDisplayText().toLowerCase() === daliugeField.getDisplayText().toLowerCase() && field.getDisplayText() !== daliugeField.getDisplayText()){
-                const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") has field (" + field.getDisplayText() + ") whose name is a non-standard capitalization of Daliuge field name (" + daliugeField.getDisplayText() + ").", function(){Utils.showField(eagle, location, node, field);}, function(){field.setDisplayText(daliugeField.getDisplayText())}, "Change to standard capitalization (" + daliugeField.getDisplayText() + ")");
-                field.issues().push({issue:issue,validity:Errors.Validity.Warning})
+        const fieldDisplayText = field.getDisplayText();
+        const fieldDisplayTextLower = fieldDisplayText.toLowerCase();
+        for (const fieldName of Object.values<string>(Daliuge.FieldName)){
+            if (fieldDisplayTextLower === fieldName.toLowerCase() && fieldDisplayText !== fieldName){
+                const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") has field (" + fieldDisplayText + ") whose name is a non-standard capitalization of Daliuge field name (" + fieldName + ").", function(){Utils.showField(eagle, location, node, field);}, function(){field.setDisplayText(fieldName)}, "Change to standard capitalization (" + fieldName + ")");
+                field.issues().push({issue:issue, validity:Errors.Validity.Warning})
             }
         }
 
