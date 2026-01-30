@@ -410,24 +410,13 @@ def save_git_hub_file():
     try:
         repo = g.get_repo(repo_name)
     except github.GithubException as e:
-        print(
-            "Error in get_repo({0})! Repo: {1} Status: {2} Data: {3}".format(
-                "heads/" + repo_branch, str(repo_name), e.status, e.data
-            )
-        )
-        return jsonify({"error": e.data.get("message", str(e))}), 400
+        return github_exception_handler(e, "Error in get_repo", repo_name, repo_branch)
 
     # Set branch
     try:
         branch_ref = repo.get_git_ref("heads/" + repo_branch)
     except github.GithubException as e:
-        # repository might be empty
-        print(
-            "Error in get_git_ref({0})! Repo: {1} Status: {2} Data: {3}".format(
-                "heads/" + repo_branch, str(repo_name), e.status, e.data
-            )
-        )
-        return jsonify({"error": e.data.get("message", str(e))}), 400
+        return github_exception_handler(e, "Error in get_git_ref", repo_name, repo_branch)
 
     # get SHA from branch
     branch_sha = branch_ref.object.sha
@@ -450,13 +439,7 @@ def save_git_hub_file():
             base_tree,
         )
     except github.GithubException as e:
-        # repository might not have permission
-        print(
-            "Error in create_git_tree({0})! Repo: {1} Status: {2} Data: {3}".format(
-                "heads/" + repo_branch, str(repo_name), e.status, e.data
-            )
-        )
-        return jsonify({"error": e.data.get("message", str(e))}), 400
+        return github_exception_handler(e, "Error in create_git_tree", repo_name, repo_branch)
 
     new_commit = repo.create_git_commit(
         message=commit_message, parents=[latest_commit], tree=new_tree
@@ -465,14 +448,22 @@ def save_git_hub_file():
     try:
         branch_ref.edit(sha=new_commit.sha, force=False)
     except github.GithubException as e:
-        print(
-            "Error in edit({0})! Repo: {1} Status: {2} Data: {3}".format(
-                "heads/" + repo_branch, str(repo_name), e.status, e.data
-            )
-        )
-        return jsonify({"error": e.data.get("message", str(e))}), 400
+        return github_exception_handler(e, "Error in edit", repo_name, repo_branch)
 
     return "ok"
+
+
+# helper function to handle github exceptions consistently
+def github_exception_handler(e, description, repo_name, repo_branch):
+    data = getattr(e, "data", None)
+    status = getattr(e, "status", None)
+    message = data.get("message") if isinstance(data, dict) else None
+    print(
+        "{0} ({1})! Repo: {2} Status: {3} Data: {4}".format(
+            description, "heads/" + repo_branch, repo_name, status, data
+        )
+    )
+    return jsonify({"error": message or str(e)}), 400
 
 
 @app.route("/saveFileToRemoteGitlab", methods=["POST"])

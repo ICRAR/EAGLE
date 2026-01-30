@@ -1921,14 +1921,13 @@ export class Eagle {
                     return;
             }
 
-            let data: any;
             try {
-                data = await Utils.httpPostJSONString(url, jsonString);
+                await Utils.httpPostJSONString(url, jsonString);
             } catch (error){
                 const errorJSON = JSON.parse(error);
 
                 Utils.showUserMessage("Error", errorJSON.error + "<br/><br/>NOTE: These error messages provided by " + file.repository.service + " are not very helpful. Please contact EAGLE admin to help with further investigation.");
-                console.error("Error: " + errorJSON.error + " Data: " + data);
+                console.error("Error: " + errorJSON.error);
                 reject(errorJSON.error);
                 return;
             }
