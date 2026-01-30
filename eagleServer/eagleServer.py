@@ -461,7 +461,16 @@ def save_git_hub_file():
     new_commit = repo.create_git_commit(
         message=commit_message, parents=[latest_commit], tree=new_tree
     )
-    branch_ref.edit(sha=new_commit.sha, force=False)
+
+    try:
+        branch_ref.edit(sha=new_commit.sha, force=False)
+    except github.GithubException as e:
+        print(
+            "Error in edit({0})! Repo: {1} Status: {2} Data: {3}".format(
+                "heads/" + repo_branch, str(repo_name), e.status, e.data
+            )
+        )
+        return jsonify({"error": e.data.get("message", str(e))}), 400
 
     return "ok"
 

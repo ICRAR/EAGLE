@@ -460,7 +460,13 @@ export class Utils {
         } else if (textStatus === "abort") {
             return "Ajax request aborted.";
         } else {
-            return "Uncaught Error. " + xhr.responseText;
+            // check if response is JSON
+            const header = xhr.getResponseHeader('content-type');
+            if (header && header.indexOf('application/json') !== -1){
+                return xhr.responseText;
+            } else {
+                return "Uncaught Error. " + xhr.responseText;
+            }
         }
     }
 
