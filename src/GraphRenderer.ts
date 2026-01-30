@@ -806,10 +806,15 @@ export class GraphRenderer {
         destNodePosition={x:destNodePosition.x+svgTranslationCorrection,y:destNodePosition.y+svgTranslationCorrection}
         srcNodePosition={x:srcNodePosition.x+svgTranslationCorrection,y:srcNodePosition.y+svgTranslationCorrection}
 
+        //used to find the angle from node center to node center
+        const srcNodePosCenter = {x: srcNodePosition.x + srcNodeRadius, y: srcNodePosition.y + srcNodeRadius}
+        const destNodePosCenter = {x: destNodePosition.x + destNodeRadius, y: destNodePosition.y + destNodeRadius}
+
         // calculate the angle for the src and dest ports
-        const srcPortAngle: number = GraphRenderer.calculateConnectionAngle(srcNodePosition, destNodePosition);
+        const srcPortAngle: number = GraphRenderer.calculateConnectionAngle(srcNodePosCenter, destNodePosCenter);
         const destPortAngle: number = srcPortAngle + Math.PI;
         
+
         // -------------calculate port positions---------------
         
         // calculate the offset for the src and dest ports, based on the angles
@@ -871,6 +876,27 @@ export class GraphRenderer {
         const c1y = srcNodePosition.y + srcCPOffset.y;
         const c2x = destNodePosition.x + destCPOffset.x;
         const c2y = destNodePosition.y + destCPOffset.y;
+
+        //WIP testing
+        if(!destField){
+            console.log(srcNodePosition, destNodePosition, srcPortAngle, destPortAngle, srcNodeRadius,destNodeRadius)
+
+            const svgNS = "http://www.w3.org/2000/svg"; // SVG namespace
+             // Create the new rect element using the SVG namespace
+            const newRect = document.createElementNS(svgNS, "rect");
+
+            // Set the attributes for the rectangle
+            newRect.setAttribute("width", '2');
+            newRect.setAttribute("height", '2');
+            newRect.setAttribute("x", c2x.toString()); // X position of the top-left corner
+            newRect.setAttribute("y", c2y.toString()); // Y position of the top-left corner
+            newRect.setAttribute("fill", "red"); // Set the fill color to red
+
+            // Append the new rectangle to the SVG container
+            $('#logicalGraph svg')[0].appendChild(newRect);
+            console.log(srcCPAngle, destCPAngle)
+
+        }
 
         //the edge parameter is null if we are rendering a comment edge and this is not needed
         if(edge != null || addArrowForce){
@@ -1389,8 +1415,10 @@ export class GraphRenderer {
             destX = destObject.getPosition().x;
             destY = destObject.getPosition().y;
         }
-        
 
+        if(destObject instanceof Node && destObject.isConstruct()){
+            console.log('radius:'+destObjectRadius, destX,destY)
+        }
 
         return GraphRenderer.createBezier(false,false, null, 0, destObjectRadius,{x:srcX, y:srcY}, {x:destX, y:destY}, null, null, false)
     }
