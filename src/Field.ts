@@ -32,6 +32,9 @@ export class Field {
     private node : ko.Observable<Node>;
     private edges: ko.Observable<Map<EdgeId, Edge>>;
 
+    // run-time only attributes
+    private changeable : ko.Observable<boolean>;
+
     // graph related attributes
     private inputX : ko.Observable<number>;
     private inputY : ko.Observable<number>;
@@ -64,6 +67,9 @@ export class Field {
         this.isEvent = ko.observable(false);
         this.node = ko.observable(null);
         this.edges = ko.observable(new Map<EdgeId, Edge>());
+
+        // run-time only attributes
+        this.changeable = ko.observable(true); // whether the field can be renamed or not
 
         //graph related things
         this.inputX = ko.observable(0);
@@ -187,6 +193,10 @@ export class Field {
 
     toggleReadOnly = (): Field => {
         this.readonly(!this.readonly())
+
+        // trigger graph check
+        Eagle.getInstance().checkGraph();
+
         return this;
     }
 
@@ -233,11 +243,33 @@ export class Field {
 
     togglePrecious = () : Field => {
         this.precious(!this.precious());
+
+        // trigger graph check
+        Eagle.getInstance().checkGraph();
+
         return this;
     }
 
     isPrecious = () : boolean => {
         return this.precious();
+    }
+
+    isChangeable = () : boolean => {
+        return this.changeable();
+    }
+
+    setChangeable = (changeable: boolean): Field => {
+        this.changeable(changeable);
+        return this;
+    }
+
+    toggleChangeable = () : Field => {
+        this.changeable(!this.changeable());
+
+        // trigger graph check
+        Eagle.getInstance().checkGraph();
+
+        return this;
     }
 
     updateEdgeId(oldId: EdgeId, newId: EdgeId): void {
@@ -324,6 +356,10 @@ export class Field {
 
     togglePositionalArgument = () : Field => {
         this.positional(!this.positional());
+
+        // trigger graph check
+        Eagle.getInstance().checkGraph();
+
         return this;
     }
 
@@ -465,6 +501,7 @@ export class Field {
         this.isEvent(false);
         this.node(null);
         this.edges().clear();
+        this.changeable(true);
 
         return this;
     }
@@ -478,6 +515,7 @@ export class Field {
         const f = new Field(this.id(), this.displayText(), this.value(), this.defaultValue(), this.description(), this.readonly(), this.type(), this.precious(), options, this.positional(), this.parameterType(), this.usage());
         f.encoding(this.encoding());
         f.isEvent(this.isEvent());
+        f.changeable(this.changeable());
         f.node(this.node());
         f.edges(new Map<EdgeId, Edge>());
         for (const edge of this.edges().values()) {
@@ -506,6 +544,7 @@ export class Field {
         f.isEvent = this.isEvent;
         f.node = this.node;
         f.edges = this.edges;
+        f.changeable = this.changeable;
 
         return f;
     }
@@ -544,6 +583,7 @@ export class Field {
         this.usage(src.usage());
         this.encoding(src.encoding());
         this.isEvent(src.isEvent());
+        this.changeable(src.changeable());
 
         // NOTE: these two are not copied from the src, but come from the function's parameters
         this.id(id);
@@ -791,7 +831,7 @@ export class Field {
         };
     }
 
-    static fromOJSJson(data : any) : Field {
+    static fromOJSJson(data : any, changeable: boolean) : Field {
         let id: FieldId = Utils.generateFieldId();
         let name: string = "";
         let description: string = "";
@@ -879,10 +919,11 @@ export class Field {
         const result = new Field(id, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage);
         result.isEvent(isEvent);
         result.encoding(encoding);
+        result.changeable(changeable);
         return result;
     }
 
-    static fromOJSJsonPort(data : any) : Field {
+    static fromOJSJsonPort(data : any, changeable: boolean) : Field {
         let name: string = "";
         let event: boolean = false;
         let type: Daliuge.DataType = Daliuge.DataType.Unknown;
@@ -908,10 +949,11 @@ export class Field {
         const f = new Field(data.Id, name, "", "", description, false, type, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
         f.isEvent(event);
         f.encoding(encoding);
+        f.changeable(changeable);
         return f;
     }
 
-    static fromV4Json(data: any): Field {
+    static fromV4Json(data: any, changeable: boolean): Field {
         let id: FieldId;
         let name: string;
         let value: string;
@@ -961,6 +1003,7 @@ export class Field {
         const f = new Field(id, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage);
         f.isEvent(event);
         f.encoding(encoding);
+        f.changeable(changeable);
         return f;
     }
 
