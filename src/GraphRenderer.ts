@@ -868,35 +868,13 @@ export class GraphRenderer {
         const destCPAngle = GraphRenderer.edgeDirectionAngle(destPortAngle);
 
         // calculate the offset for the src and dest control points, based on the angles
-        const srcCPOffset = GraphRenderer.calculatePortPos(srcCPAngle, srcNodeRadius, lengthToControlPoints);
-        const destCPOffset = GraphRenderer.calculatePortPos(destCPAngle, destNodeRadius, lengthToControlPoints);
+        const srcCPOffset = GraphRenderer.calculatePortPos(srcCPAngle, 0, lengthToControlPoints);
+        const destCPOffset = GraphRenderer.calculatePortPos(destCPAngle, 0, lengthToControlPoints);
 
-        // calculate the coordinates of the two control points
-        const c1x = srcNodePosition.x + srcCPOffset.x;
-        const c1y = srcNodePosition.y + srcCPOffset.y;
-        const c2x = destNodePosition.x + destCPOffset.x;
-        const c2y = destNodePosition.y + destCPOffset.y;
-
-        //WIP testing
-        if(!destField){
-            console.log(srcNodePosition, destNodePosition, srcPortAngle, destPortAngle, srcNodeRadius,destNodeRadius)
-
-            const svgNS = "http://www.w3.org/2000/svg"; // SVG namespace
-             // Create the new rect element using the SVG namespace
-            const newRect = document.createElementNS(svgNS, "rect");
-
-            // Set the attributes for the rectangle
-            newRect.setAttribute("width", '2');
-            newRect.setAttribute("height", '2');
-            newRect.setAttribute("x", c2x.toString()); // X position of the top-left corner
-            newRect.setAttribute("y", c2y.toString()); // Y position of the top-left corner
-            newRect.setAttribute("fill", "red"); // Set the fill color to red
-
-            // Append the new rectangle to the SVG container
-            $('#logicalGraph svg')[0].appendChild(newRect);
-            console.log(srcCPAngle, destCPAngle)
-
-        }
+        const c1x = x1 + srcCPOffset.x;
+        const c1y = y1 + srcCPOffset.y;
+        const c2x = x2 + destCPOffset.x;
+        const c2y = y2 + destCPOffset.y;
 
         //the edge parameter is null if we are rendering a comment edge and this is not needed
         if(edge != null || addArrowForce){
@@ -1414,10 +1392,6 @@ export class GraphRenderer {
         }else if(destObject instanceof Edge){
             destX = destObject.getPosition().x;
             destY = destObject.getPosition().y;
-        }
-
-        if(destObject instanceof Node && destObject.isConstruct()){
-            console.log('radius:'+destObjectRadius, destX,destY)
         }
 
         return GraphRenderer.createBezier(false,false, null, 0, destObjectRadius,{x:srcX, y:srcY}, {x:destX, y:destY}, null, null, false)
