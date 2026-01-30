@@ -196,6 +196,29 @@ export namespace Daliuge {
     export const persistField = new Field(null, FieldName.PERSIST, "false", "false", "Specifies whether this data component contains data that should not be deleted after execution", false, Daliuge.DataType.Boolean, false, [], false, Daliuge.FieldType.Component, Daliuge.FieldUsage.NoPort);
     export const streamingField = new Field(null, FieldName.STREAMING, "false", "false", "Specifies whether this data component streams input and output data", false, Daliuge.DataType.Boolean, false, [], false, Daliuge.FieldType.Component, Daliuge.FieldUsage.NoPort);
 
+    // a list of all the known fields
+    export const allKnownFields = [
+        groupStartField,
+        groupEndField,
+        branchTrueField,
+        branchFalseField,
+        dropClassField,
+        executionTimeField,
+        numCpusField,
+        dataVolumeField,
+        kField,
+        numCopiesField,
+        numInputsField,
+        numIterationsField,
+        baseNameField,
+        selfFieldApplication,
+        selfFieldComponent,
+        funcCodeField,
+        funcNameField,
+        persistField,
+        streamingField
+    ];
+
     // This list defines the fields required for ALL nodes belonging to a given Category.Type
     export const categoryTypeFieldsRequired = [
         {
