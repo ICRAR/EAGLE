@@ -454,6 +454,15 @@ export class Node {
         return null;
     }
 
+    getFieldByDisplayTextIgnoreCase = (displayText : string) : Field | null => {
+        for (const field of this.fields().values()){
+            if (field.getDisplayText().toLowerCase() === displayText.toLowerCase()){
+                return field;
+            }
+        }
+        return null;
+    }
+
     // TODO: this looks similar to the function above (I think I prefer the name above)
     hasFieldWithDisplayText = (displayText : string) : boolean => {
         for (const field of this.fields().values()){
@@ -2011,11 +2020,27 @@ export class Node {
         if (typeof originalComponent !== 'undefined'){
             for (const originalField of originalComponent.getFields()){
                 const nodeField = node.getFieldByDisplayText(originalField.getDisplayText());
+                const misCapitalizationNodeField = node.getFieldByDisplayTextIgnoreCase(originalField.getDisplayText());
+
+                if (nodeField === null && misCapitalizationNodeField === null){
+                    const message: string = "Node (" + node.getName() + ") is missing field (" + originalField.getDisplayText() + ") from original component.";
+                    const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, location, node)}, function(){node.addField(originalField.clone().setId(Utils.generateFieldId()))}, "Add missing field " + originalField.getDisplayText());
+                    node.issues().push({issue:issue, validity: Errors.Validity.Warning});
+                    continue;
+                }
+
+                if (misCapitalizationNodeField !== null && nodeField === null){
+                    const message: string = "Node (" + node.getName() + ") has field (" + misCapitalizationNodeField.getDisplayText() + ") with incorrect capitalization. Expected: " + originalField.getDisplayText();
+                    const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showField(eagle, location, node, misCapitalizationNodeField)}, function(){misCapitalizationNodeField.setDisplayText(originalField.getDisplayText())}, "Set field display text to " + originalField.getDisplayText());
+                    node.issues().push({issue:issue, validity: Errors.Validity.Warning});
+                    continue;
+                }
+
                 if (nodeField !== null){
                     if (nodeField.isChangeable() !== originalField.isChangeable()){
                         const message: string = "Node (" + node.getName() + ") field (" + nodeField.getDisplayText() + ") has incorrect changeable property. Expected: " + originalField.isChangeable() + ", Actual: " + nodeField.isChangeable();
                         const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showField(eagle, location, node, nodeField)}, function(){nodeField.setChangeable(originalField.isChangeable())}, "Set changeable to " + originalField.isChangeable());
-                        node.issues().push({issue:issue, validity:Errors.Validity.Warning});
+                        node.issues().push({issue:issue, validity: Errors.Validity.Warning});
                     }
                 }
             }
