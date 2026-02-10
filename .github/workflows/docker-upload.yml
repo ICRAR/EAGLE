@@ -1,0 +1,29 @@
+name: Build and Push Docker Images
+
+on:
+  # release:
+  #   types: [published]
+
+jobs:
+  build-common:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Extract Git Tag
+        run: |
+          echo "VCS_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and Push eagle-slim
+        run: |
+          docker compose -f ./docker/docker-compose.dep.yml build
+          curl -sL https://raw.githubusercontent.com/slimtoolkit/slim/master/scripts/install-slim.sh | sudo -E bash -
+          slim build --include-shell --include-path /usr/local/lib --include-path /usr/local/bin --tag icrar/eagle.slim:${VCS_TAG} icrar/eagle:${VCS_TAG}  
+          docker push --all-tags icrar/eagle
