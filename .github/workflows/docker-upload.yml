@@ -26,4 +26,6 @@ jobs:
           docker compose -f ./docker/docker-compose.dep.yml build
           curl -sL https://raw.githubusercontent.com/slimtoolkit/slim/master/scripts/install-slim.sh | sudo -E bash -
           slim build --include-shell --include-path /usr/local/lib --include-path /usr/local/bin --tag icrar/eagle.slim:${VCS_TAG} icrar/eagle:${VCS_TAG}  
-          docker push --all-tags icrar/eagle
+          # docker push --all-tags icrar/eagle
+          docker push --all-tags icrar/eagle.slim
+
