@@ -408,38 +408,40 @@
                                                                 <i class="material-symbols-outlined iconHoverEffect">lock_open</i>
                                                             </button>
                                                         <!-- /ko -->
-                                                        <!-- ko if: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)-->
-                                                            <!-- ko if: $data.isPrecious() -->
-                                                                <button type="button" data-bind="click: $data.togglePrecious, eagleTooltip: 'Parameter is precious<br/>Click to toggle'" data-bs-placement="left">
-                                                                    <i class="material-symbols-outlined iconHoverEffect">diamond</i>
-                                                                </button>
+                                                        <!-- ko if: $data.parameterType() === Daliuge.FieldType.Application -->
+                                                            <!-- ko if: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)-->
+                                                                <!-- ko if: $data.isPrecious() -->
+                                                                    <button type="button" data-bind="click: $data.togglePrecious, eagleTooltip: 'Parameter is precious<br/>Click to toggle'" data-bs-placement="left">
+                                                                        <i class="material-symbols-outlined filled iconHoverEffect">diamond</i>
+                                                                    </button>
+                                                                <!-- /ko -->
+                                                                <!-- ko ifnot: $data.isPrecious() -->
+                                                                    <button type="button" data-bind="click: $data.togglePrecious, eagleTooltip: 'Parameter is not precious<br/>Click to toggle'" data-bs-placement="left">
+                                                                        <i class="material-symbols-outlined iconHoverEffect">diamond</i>
+                                                                    </button>
+                                                                <!-- /ko -->
                                                             <!-- /ko -->
-                                                            <!-- ko ifnot: $data.isPrecious() -->
-                                                                <button type="button" data-bind="click: $data.togglePrecious, eagleTooltip: 'Parameter is not precious<br/>Click to toggle'" data-bs-placement="left">
-                                                                    <i class="material-symbols-outlined iconHoverEffect">diamond</i>
-                                                                </button>
-                                                            <!-- /ko -->
-                                                        <!-- /ko -->
-                                                        <!-- ko if: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)-->
+                                                            <!-- ko if: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)-->
                                                                 <!-- ko if: $data.isPositionalArgument() -->
-                                                                <button type="button" data-bind="click: $data.togglePositionalArgument, eagleTooltip: 'Parameter is positional<br/>Click to toggle'" data-bs-placement="left">
-                                                                    <i class="material-symbols-outlined iconHoverEffect">location_on</i>
-                                                                </button>
-                                                            <!-- /ko -->
-                                                            <!-- ko ifnot: $data.isPositionalArgument() -->
-                                                                <button type="button" data-bind="click: $data.togglePositionalArgument, eagleTooltip: 'Parameter is not positional<br/>Click to toggle'" data-bs-placement="left">
-                                                                    <i class="material-symbols-outlined iconHoverEffect">location_on</i>
-                                                                </button>
+                                                                    <button type="button" data-bind="click: $data.togglePositionalArgument, eagleTooltip: 'Parameter is positional<br/>Click to toggle'" data-bs-placement="left">
+                                                                        <i class="material-symbols-outlined filled iconHoverEffect">location_on</i>
+                                                                    </button>
+                                                                <!-- /ko -->
+                                                                <!-- ko ifnot: $data.isPositionalArgument() -->
+                                                                    <button type="button" data-bind="click: $data.togglePositionalArgument, eagleTooltip: 'Parameter is not positional<br/>Click to toggle'" data-bs-placement="left">
+                                                                        <i class="material-symbols-outlined iconHoverEffect">location_on</i>
+                                                                    </button>
+                                                                <!-- /ko -->
                                                             <!-- /ko -->
                                                         <!-- /ko -->
                                                         <!-- ko if: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)-->
                                                                 <!-- ko if: $data.isChangeable() -->
-                                                                <button type="button" class="changeableFlag" data-bind="click: $data.toggleChangeable, eagleTooltip: 'Parameter is changeable<br/>Click to toggle'" data-bs-placement="left">
+                                                                <button type="button" class="changeableFlag" data-bind="click: $data.toggleChangeable, eagleTooltip: 'Parameter attribute name is changeable. The attribute name is not critical to component function and may be changed.<br/>Click to toggle'" data-bs-placement="left">
                                                                     <i class="material-symbols-outlined iconHoverEffect">label</i>
                                                                 </button>
                                                             <!-- /ko -->
                                                             <!-- ko ifnot: $data.isChangeable() -->
-                                                                <button type="button" class="changeableFlag" data-bind="click: $data.toggleChangeable, eagleTooltip: 'Parameter is not changeable<br/>Click to toggle'" data-bs-placement="left">
+                                                                <button type="button" class="changeableFlag" data-bind="click: $data.toggleChangeable, eagleTooltip: 'Parameter attribute name is not changeable. The attribute name is essential to component function and must not be changed.<br/>Click to toggle'" data-bs-placement="left">
                                                                     <i class="material-symbols-outlined iconHoverEffect">label_off</i>
                                                                 </button>
                                                             <!-- /ko -->

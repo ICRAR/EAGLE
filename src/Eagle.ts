@@ -1921,13 +1921,14 @@ export class Eagle {
                     return;
             }
 
-            let data: any;
             try {
-                data = await Utils.httpPostJSONString(url, jsonString);
+                await Utils.httpPostJSONString(url, jsonString);
             } catch (error){
-                Utils.showUserMessage("Error", data + "<br/><br/>These error messages provided by " + file.repository.service + " are not very helpful. Please contact EAGLE admin to help with further investigation.");
-                console.error("Error: " + JSON.stringify(error, null, EagleConfig.JSON_INDENT) + " Data: " + data);
-                reject(error);
+                const errorJSON = JSON.parse(error);
+
+                Utils.showUserMessage("Error", errorJSON.error + "<br/><br/>NOTE: These error messages provided by " + file.repository.service + " are not very helpful. Please contact EAGLE admin to help with further investigation.");
+                console.error("Error: " + errorJSON.error);
+                reject(errorJSON.error);
                 return;
             }
 
@@ -3973,13 +3974,13 @@ export class Eagle {
 
                 // make sure we can find a port on the PythonMemberFunction
                 if (sourcePort === null){
-                    sourcePort = Daliuge.selfField.clone().setId(Utils.generateFieldId());
+                    sourcePort = Daliuge.selfFieldComponent.clone().setId(Utils.generateFieldId());
                     newNode.addField(sourcePort);
                     Utils.showNotification("Component Warning", "The PythonMemberFunction does not have a '" + Daliuge.FieldName.SELF + "' port. Added this port to enable connection.", "warning");
                 }
 
                 // create a new input/output "object" port on the PythonObject
-                const inputOutputPort: Field = Daliuge.selfField.clone().setId(Utils.generateFieldId()).setType(sourcePort.getType());
+                const inputOutputPort: Field = Daliuge.selfFieldComponent.clone().setId(Utils.generateFieldId()).setType(sourcePort.getType());
                 pythonObjectNode.addField(inputOutputPort);
 
                 // add edge to Logical Graph (connecting the PythonMemberFunction and the automatically-generated PythonObject)

@@ -193,6 +193,10 @@ export class Field {
 
     toggleReadOnly = (): Field => {
         this.readonly(!this.readonly())
+
+        // trigger graph check
+        Eagle.getInstance().checkGraph();
+
         return this;
     }
 
@@ -239,6 +243,10 @@ export class Field {
 
     togglePrecious = () : Field => {
         this.precious(!this.precious());
+
+        // trigger graph check
+        Eagle.getInstance().checkGraph();
+
         return this;
     }
 
@@ -250,8 +258,17 @@ export class Field {
         return this.changeable();
     }
 
+    setChangeable = (changeable: boolean): Field => {
+        this.changeable(changeable);
+        return this;
+    }
+
     toggleChangeable = () : Field => {
         this.changeable(!this.changeable());
+
+        // trigger graph check
+        Eagle.getInstance().checkGraph();
+
         return this;
     }
 
@@ -339,6 +356,10 @@ export class Field {
 
     togglePositionalArgument = () : Field => {
         this.positional(!this.positional());
+
+        // trigger graph check
+        Eagle.getInstance().checkGraph();
+
         return this;
     }
 
@@ -713,7 +734,7 @@ export class Field {
         return "";
     }
 
-    getHelpHtml= () : string => {
+    getHelpHtml = () : string => {
         return "###"+ this.getDisplayText() + "\n" + this.getDescription();
     }
 
@@ -1093,6 +1114,16 @@ export class Field {
             if (numSelfPortConnections > 1){
                 const issue: Errors.Issue = Errors.Message("Port " + field.getDisplayText() + " on node " + node.getName() + " cannot have multiple inputs.")
                 field.issues().push({issue:issue,validity:Errors.Validity.Error})
+            }
+        }
+
+        // check whether this field's name is a non-standard capitalization of a Daliuge field name
+        const fieldDisplayText = field.getDisplayText();
+        const fieldDisplayTextLower = fieldDisplayText.toLowerCase();
+        for (const fieldName of Object.values<string>(Daliuge.FieldName)){
+            if (fieldDisplayTextLower === fieldName.toLowerCase() && fieldDisplayText !== fieldName){
+                const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") has field (" + fieldDisplayText + ") whose name is a non-standard capitalization of Daliuge field name (" + fieldName + ").", function(){Utils.showField(eagle, location, node, field);}, function(){field.setDisplayText(fieldName)}, "Change to standard capitalization (" + fieldName + ")");
+                field.issues().push({issue:issue, validity:Errors.Validity.Warning})
             }
         }
 
