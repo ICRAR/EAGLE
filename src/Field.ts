@@ -1117,6 +1117,16 @@ export class Field {
             }
         }
 
+        // check whether this field's name is a non-standard capitalization of a Daliuge field name
+        const fieldDisplayText = field.getDisplayText();
+        const fieldDisplayTextLower = fieldDisplayText.toLowerCase();
+        for (const fieldName of Object.values<string>(Daliuge.FieldName)){
+            if (fieldDisplayTextLower === fieldName.toLowerCase() && fieldDisplayText !== fieldName){
+                const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") has field (" + fieldDisplayText + ") whose name is a non-standard capitalization of Daliuge field name (" + fieldName + ").", function(){Utils.showField(eagle, location, node, field);}, function(){field.setDisplayText(fieldName)}, "Change to standard capitalization (" + fieldName + ")");
+                field.issues().push({issue:issue, validity:Errors.Validity.Warning})
+            }
+        }
+
         // check that fields have parameter types that are suitable for this node
         // skip the 'drop class' component parameter, those are always suitable for every node
         if (field.getDisplayText() != Daliuge.FieldName.DROP_CLASS && field.getParameterType() != Daliuge.FieldType.Component){
