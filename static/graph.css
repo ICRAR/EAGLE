@@ -454,16 +454,12 @@ input[type="color"]::-webkit-color-swatch {
     left: 12px;
 }
 
-#portContainer .selected div .portTitle{
+#portContainer .selected div .portTitle.selected{
     display: block;
 }
 
 .edgeComments{
     position: relative;
-}
-
-.edgeComments i{
-
 }
 
 .graphComment{

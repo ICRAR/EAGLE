@@ -2089,7 +2089,10 @@ export class GraphRenderer {
             }
         }else{
             //if the object is a visual we only show the port if the visual is selected
-            return eagle.objectIsSelected(object);
+            if(Setting.findValue(Setting.HIDE_VISUALS)){
+                return false
+            }
+            return eagle.objectIsSelected(object) || object.hasTarget();
         }
     }
 

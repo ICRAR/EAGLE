@@ -141,6 +141,10 @@ export class Visual {
         return this.target();
     }
 
+    hasTarget = () : boolean => {
+        return this.target() != null;
+    }
+
     setTarget = (target: Node | Edge | Visual | null) : Visual => {
         this.target(target);
         return this;

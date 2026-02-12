@@ -119,7 +119,7 @@
                                     <div data-bind="class:$data.getId(), attr:{id:$data.getId()}">
                                         <div class="textVisualPort port" data-bind="css: {selected: function(){return GraphRenderer.showPort($data)}()}, style:{'left':GraphRenderer.calculateTextVisualPortPositionX($data), 'top':GraphRenderer.calculateTextVisualPortPositionY($data)}, event:{mousedown:function(){GraphRenderer.portDragStart('textVisual', $data)}}">
                                             <div>
-                                                <div class="portTitle">Connect to Node</div>
+                                                <div class="portTitle" data-bind="css: {selected: function(){return eagle.objectIsSelected($data) && !$data.hasTarget()}()}">Connect to Node</div>
                                             </div>
                                         </div>
                                     </div>
