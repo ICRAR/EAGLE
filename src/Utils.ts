@@ -137,6 +137,24 @@ export class Utils {
         return fileType.toString() + "-" + Utils.generateDateTimeString() + "." + Utils.getDiagramExtension(fileType);
     }
 
+    static generateFilenameForGraphConfig(logicalGraph: LogicalGraph, graphConfig: GraphConfig): string {
+        let graphName = logicalGraph.fileInfo().name;
+        let configName = graphConfig.fileInfo().name;
+        const extension = Utils.getDiagramExtension(Eagle.FileType.GraphConfig);
+
+        // if graphName ends with ".graph", remove that
+        if (graphName.endsWith(".graph")){
+            graphName = graphName.substring(0, graphName.length - 6);
+        }
+
+        // if configName ends with ".graphConfig", remove that
+        if (configName.endsWith(".graphConfig")){
+            configName = configName.substring(0, configName.length - 12);
+        }
+
+        return `${graphName}-${configName}.${extension}`;
+    }
+
     // TODO: check if this is even necessary. it may only have been necessary when we were setting keys (not ids)
     static setEmbeddedApplicationNodeIds(lg: LogicalGraph): void {
         // loop through nodes, look for embedded nodes with null id, create new id
@@ -447,12 +465,14 @@ export class Utils {
         } else if (textStatus === "abort") {
             return "Ajax request aborted.";
         } else {
-            return "Uncaught Error. " + xhr.responseText;
+            // check if response is JSON
+            const header = xhr.getResponseHeader('content-type');
+            if (header && header.indexOf('application/json') !== -1){
+                return xhr.responseText;
+            } else {
+                return "Uncaught Error. " + xhr.responseText;
+            }
         }
-    }
-
-    static fieldTextToFieldName(text : string) : string {
-        return text.toLowerCase().replace(' ', '_');
     }
 
     // build full file path from path and filename
@@ -1151,26 +1171,29 @@ export class Utils {
         const matchingNodes = builtinPalette.getNodesByCategoryType(categoryType)
         const matchingCategories : Category[] = []
 
-        matchingNodes.forEach(function(node){
-            for(const x of matchingCategories){
-                if(node.getCategory() === x){
-                    continue
-                }
+        for (const node of matchingNodes){
+            // skip nodes whose category is already in the list
+            if (matchingCategories.includes(node.getCategory())){
+                continue;
             }
             matchingCategories.push(node.getCategory())
-        })
+        }
 
         return matchingCategories;
     }
 
-    static getPaletteComponentByName(name: string) : Node | undefined {
+    static getPaletteComponentByName(name: string, useCaseInsensitiveMatch: boolean = false) : Node | undefined {
         const eagle: Eagle = Eagle.getInstance();
+
+        if (name === null || typeof name === 'undefined' || name.trim() === ""){
+            return undefined;
+        }
 
         // add all data components (except ineligible)
         for (const palette of eagle.palettes()){
             for (const node of palette.getNodes()){
                 // skip nodes that are not data components
-                if (node.getName() === name){
+                if (node.getName() === name || (useCaseInsensitiveMatch && node.getName().toLowerCase() === name.toLowerCase())){
                     return node;
                 }
             }
@@ -1302,6 +1325,17 @@ export class Utils {
 
     static isKnownCategory(category : string) : boolean {
         return typeof CategoryData.cData[category] !== 'undefined';
+    }
+
+    static isKnownCategoryType(categoryType : string) : boolean {
+        return Object.values(Category.Type).includes(categoryType as Category.Type);
+    }
+
+    static isValidCategoryAndType(category: string, categoryType: string) : boolean {
+        return this.isKnownCategory(category) &&
+            this.isKnownCategoryType(categoryType) &&
+            ![Category.Unknown, Category.UnknownApplication].map(x => x as string).includes(category) &&
+            ![Category.Type.Unknown].map(x => x as string).includes(categoryType);
     }
 
     static getColorForNode(node: Node) : string {
@@ -1463,7 +1497,13 @@ export class Utils {
     static determineSchemaVersion(data: any): Setting.SchemaVersion {
         if (typeof data.modelData !== 'undefined'){
             if (typeof data.modelData.schemaVersion !== 'undefined'){
-                return data.modelData.schemaVersion;
+                // check whether the value of data.modelData.schemaVersion is a valid SchemaVersion enum value
+                if (Object.values(Setting.SchemaVersion).includes(data.modelData.schemaVersion)){
+                    return data.modelData.schemaVersion;
+                } else {
+                    console.warn("Unknown schema version:", data.modelData.schemaVersion);
+                    return Setting.SchemaVersion.Unknown;
+                }
             }
         }
 
@@ -2061,6 +2101,18 @@ export class Utils {
         }
     }
 
+    static fixFieldEdges(eagle: Eagle, field: Field){
+        // clear all edges from field
+        field.clearEdges();
+
+        // re-add all edges that reference this field
+        for (const edge of eagle.logicalGraph().getEdges()){
+            if (edge.getSrcPort().getId() === field.getId() || edge.getDestPort().getId() === field.getId()){
+                field.addEdge(edge);
+            }
+        }
+    }
+
     static addSourcePortToSourceNode(eagle: Eagle, edge: Edge){
         const srcNode = edge.getSrcNode();
         const destPort = edge.getDestPort();
@@ -2153,39 +2205,20 @@ export class Utils {
             }
         }
 
-        // get max number of input and output ports allowed for this node
-        const categoryData: Category.CategoryData = CategoryData.getCategoryData(node.getCategory());
-
-        // the new (or existing) field that will be used for the required field
-        let field: Field;
-
-        // if adding a field would exceed the maximum allowed fields, then replace an existing field
-        if (requiredField.isInputPort() && node.getInputPorts().length >= categoryData.maxInputs ||
-            requiredField.isOutputPort() && node.getOutputPorts().length >= categoryData.maxOutputs){
-            // check if the node has a dummy field (we'll replace that)
-            const dummyField = Utils.findDummyField(node, requiredField.isInputPort());
-            if (dummyField){
-                field = dummyField;
-                field.copyWithIds(requiredField, field.getNode(), field.getId());
-            }
-        }
-
-        // otherwise, if not found, just add a clone of the required field
-        if (!field){
-            field = requiredField
+        // create the new field that will be used for the required field
+        const field: Field = requiredField
                 .clone()
                 .setId(Utils.generateFieldId());
-            node.addField(field);
-        }
+        node.addField(field);
 
         // try to set a reasonable default value for some known fields
         switch(field.getDisplayText()){
             case Daliuge.FieldName.DROP_CLASS:
 
                 // look up component in palette
-                const paletteComponent: Node = Utils.getPaletteComponentByName(node.getCategory());
+                const paletteComponent = Utils.getPaletteComponentByName(node.getCategory());
 
-                if (paletteComponent !== null){
+                if (typeof paletteComponent !== 'undefined'){
                     const dropClassField: Field = paletteComponent.findFieldByDisplayText(Daliuge.FieldName.DROP_CLASS);
 
                     field.setValue(dropClassField.getDefaultValue());
@@ -2194,19 +2227,6 @@ export class Utils {
 
                 break;
         }
-    }
-
-    static findDummyField(node: Node, isInput: boolean): Field {
-        const dummyFieldNames = ["dummy", "dummy0", "dummy1"];
-
-        for (const dummyFieldName of dummyFieldNames){
-            const field = node.findPortByDisplayText(dummyFieldName, isInput, false);
-            if (field){
-                return field;
-            }
-        }
-
-        return null;
     }
 
     static callFixFunc(eagle: Eagle, fixFunc: () => void){
@@ -2220,6 +2240,27 @@ export class Utils {
 
         eagle.checkGraph();
         eagle.undo().pushSnapshot(eagle, "Fix");
+    }
+
+    static newNodeId(graph: LogicalGraph, nodeId: NodeId){
+        graph.updateNodeId(nodeId, Utils.generateNodeId());
+    }
+
+    static newEdgeId(graph: LogicalGraph, edgeId: EdgeId){
+        const newEdgeId = Utils.generateEdgeId();
+
+        // loop through all fields and update any edges that reference this edge id
+        for (const node of graph.getNodes()){
+            for (const field of node.getFields()){
+                for (const edge of field.getEdges()){
+                    if (edge.getId() === edgeId){
+                        field.updateEdgeId(edgeId, newEdgeId);
+                    }
+                }
+            }
+        }
+
+        graph.updateEdgeId(edgeId, newEdgeId);
     }
 
     static newFieldId(eagle: Eagle, node: Node, field: Field): void {
@@ -2239,9 +2280,13 @@ export class Utils {
         }
 
         // update the field
-        field.setId(newId);
+        node.updateFieldId(oldId, newId);
     }
     
+    static newGraphConfigId(graph: LogicalGraph, graphConfigId: GraphConfigId): void {
+        graph.updateGraphConfigId(graphConfigId, Utils.generateGraphConfigId());
+    }
+
     static showEdge(eagle: Eagle, edge: Edge): void {
         // close errors modal if visible
         $('#issuesDisplay').modal("hide");
@@ -2864,5 +2909,41 @@ export class Utils {
 
         // communicate to knockout that the value of the fileInfo has been modified (so it can update UI)
         fileInfo.valueHasMutated();
+    }
+
+    // check if graph is named, if not, prompt user to specify graph name
+    static async checkGraphIsNamed(logicalGraph: LogicalGraph){
+        return new Promise<string>(async (resolve, reject) => {
+            if (logicalGraph.fileInfo().name === ""){
+                let filename: string;
+                try {
+                    filename = await Utils.requestDiagramFilename(Eagle.FileType.Graph);
+                } catch (error){
+                    console.warn(error);
+                    reject("User cancelled filename input");
+                    return;
+                }
+
+                const eagle: Eagle = Eagle.getInstance();
+                logicalGraph.fileInfo().name = filename;
+                logicalGraph.fileInfo().location.repositoryFileName(filename);
+                eagle.checkGraph();
+                eagle.undo().pushSnapshot(eagle, "Named Logical Graph");
+                eagle.logicalGraph.valueHasMutated();
+                resolve(filename);
+                return;
+            }
+            resolve(logicalGraph.fileInfo().name);
+        });
+    }
+
+    // a wait/delay for a given number of milliseconds (used for debugging)
+    static delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+    // sanitize a string to be used as a filename
+    static sanitizeFileName = (name: string): string => {
+        // Replace invalid filename characters with underscores
+        // This regex covers most OS restrictions (Windows, macOS, Linux)
+        return name.replace(/[^a-zA-Z0-9_\-\.]/g, "_");
     }
 }

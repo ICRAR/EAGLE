@@ -368,6 +368,10 @@ color: #00bb00;}
     background: rgba(255, 255, 255, 0.171);
 }
 
+#objectInspectorCategorySelect{
+    width: 100%;
+}
+
 #inspector .container{
     padding: 5px 0px;
     height: 100%;
@@ -1306,6 +1310,14 @@ select.form-control{
     display: none;
 }
 
+.paletteFetching{
+    position: absolute;
+    right: 70px;
+    margin-top: 15px;
+    z-index: 3;
+    padding:1px;
+}
+
 .paletteHeaderIcon i{
     font-size: 18px;
 }
@@ -1388,7 +1400,7 @@ select.form-control{
     font-size: 18px;
     font-weight: 400;
     overflow: hidden;
-    width: 70%;
+    width: 60%;
 }
 
 #paletteList .palette-component .input-group-prepend{

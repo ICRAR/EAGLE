@@ -42,6 +42,7 @@ export class Palette {
     private nodes : ko.Observable<Map<NodeId, Node>>;
     private searchExclude : ko.Observable<boolean>;
     expanded: ko.Observable<boolean>;
+    isFetching: ko.Observable<boolean>;
 
     public static readonly TEMPLATE_PALETTE_NAME: string = "Component Templates";
     public static readonly BUILTIN_PALETTE_NAME: string = "Builtin Components";
@@ -54,6 +55,7 @@ export class Palette {
         this.nodes = ko.observable(new Map<NodeId, Node>());
         this.searchExclude = ko.observable(false);
         this.expanded = ko.observable(false);
+        this.isFetching = ko.observable(false);
     }
 
     static fromOJSJson(data: string, file: RepositoryFile, errorsWarnings: Errors.ErrorsWarnings) : Palette {
@@ -120,7 +122,7 @@ export class Palette {
 
         // add nodes
         for (const [nodeId, nodeData] of Object.entries(dataObject.nodes)){
-            const node = Node.fromV4Json(nodeData, errorsWarnings, false);
+            const node = Node.fromV4Json(nodeData, errorsWarnings, true);
 
             result.nodes().set(nodeId as NodeId, node);
             result.nodes.valueHasMutated();
@@ -306,6 +308,19 @@ export class Palette {
         result.nodes.valueHasMutated();
 
         return result;
+    }
+
+    copy = (source: Palette) : void => {
+        this.clear();
+        this.isFetching(source.isFetching());
+        this.expanded(source.expanded());
+
+        this.fileInfo(source.fileInfo().clone());
+
+        for (const [id, node] of source.nodes()){
+            this.nodes().set(id, node.clone());
+        }
+        this.nodes.valueHasMutated();
     }
 
     // add the node to the end of the palette

@@ -278,13 +278,14 @@ export class LogicalGraph {
         return result;
     }
 
-    static fromOJSJson(dataObject : any, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph {
+    static fromOJSJson(dataObject : any, filename: string, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph {
         // create new logical graph object
         const result : LogicalGraph = new LogicalGraph();
         const nodeDataIdToNodeId: Map<string, NodeId> = new Map();
 
         // copy modelData into fileInfo
-        result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData, errorsWarnings));
+        const fileInfo: FileInfo = FileInfo.fromOJSJson(dataObject.modelData, errorsWarnings);
+        result.fileInfo(fileInfo);
 
         // add nodes
         for (const nodeData of dataObject.nodeDataArray){
@@ -380,11 +381,12 @@ export class LogicalGraph {
         }
 
         // check for missing name
-        if (result.fileInfo().name === ""){
-            const error : string = "FileInfo.name is empty. Setting name to " + file.name;
+        if (result.fileInfo().name === "" && filename !== null){
+            const error : string = "FileInfo.name is empty. Setting name to " + filename;
             errorsWarnings.warnings.push(Errors.Message(error));
 
-            result.fileInfo().name = file.name;
+            result.fileInfo().name = filename;
+            result.fileInfo().location.repositoryFileName(filename);
         }
 
         // add a step here to check that no edges are incident on constructs, and move any edges found to the embedded applications
@@ -426,7 +428,7 @@ export class LogicalGraph {
         return result;
     }
 
-    static fromV4Json(dataObject : any, file : RepositoryFile, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph {
+    static fromV4Json(dataObject : any, filename: string, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph {
         // create new logical graph object
         const result : LogicalGraph = new LogicalGraph();
 
@@ -664,7 +666,7 @@ export class LogicalGraph {
         Utils.showNotification("Graph Config added to Logical Graph", config.fileInfo().name, "success");
 
         const eagle: Eagle = Eagle.getInstance();
-        eagle.undo().pushSnapshot(eagle, "Added a new graph config (" + config.fileInfo().name + ")");
+        eagle.undo().pushSnapshot(eagle, "Added a new graph configuration (" + config.fileInfo().name + ")");
         eagle.checkGraph();
     }
 
@@ -829,6 +831,45 @@ export class LogicalGraph {
         }
 
         return null;
+    }
+
+    updateNodeId(oldId: NodeId, newId: NodeId): void {
+        const node = this.nodes().get(oldId);
+
+        if (typeof node === 'undefined'){
+            console.warn("updateNodeId(): Could not find node with id", oldId);
+            return;
+        }
+
+        this.nodes().delete(oldId);
+        node.setId(newId);
+        this.nodes().set(newId, node);
+    }
+
+    updateEdgeId(oldId: EdgeId, newId: EdgeId): void {
+        const edge = this.edges().get(oldId);
+
+        if (typeof edge === 'undefined'){
+            console.warn("updateEdgeId(): Could not find edge with id", oldId);
+            return;
+        }
+
+        this.edges().delete(oldId);
+        edge.setId(newId);
+        this.edges().set(newId, edge);
+    }
+
+    updateGraphConfigId(oldId: GraphConfigId, newId: GraphConfigId): void {
+        const graphConfig = this.graphConfigs().get(oldId);
+
+        if (typeof graphConfig === 'undefined'){
+            console.warn("updateGraphConfigId(): Could not find graph config with id", oldId);
+            return;
+        }
+
+        this.graphConfigs().delete(oldId);
+        graphConfig.setId(newId);
+        this.graphConfigs().set(newId, graphConfig);
     }
 
     removeNode = (node: Node) : void => {
@@ -1257,7 +1298,7 @@ export class LogicalGraph {
                 const issue: Errors.Issue = Errors.ShowFix(
                     "Node (" + node.getName() + ") does not have a unique id",
                     function(){Utils.showNode(eagle, Eagle.FileType.Graph, node)},
-                    function(){node.setId(Utils.generateNodeId())},
+                    function(){Utils.newNodeId(graph, nodeId)},
                     "Assign node a new id"
                 );
                 graph.issues.push({issue : issue, validity : Errors.Validity.Error})
@@ -1285,7 +1326,7 @@ export class LogicalGraph {
                 const issue: Errors.Issue = Errors.ShowFix(
                     "Edge (" + id + ") does not have a unique id",
                     function(){Utils.showEdge(eagle, edge)},
-                    function(){edge.setId(Utils.generateEdgeId())},
+                    function(){Utils.newEdgeId(graph, id)},
                     "Assign edge a new id"
                 );
                 graph.issues.push({issue : issue, validity : Errors.Validity.Error})
@@ -1294,12 +1335,12 @@ export class LogicalGraph {
         }
 
         // loop over the graph configs to check that all graph config ids are unique
-        for (const graphConfig of graph.getGraphConfigs()){
-            if (ids.includes(graphConfig.getId())){
+        for (const [id, graphConfig] of graph.graphConfigs()){
+            if (ids.includes(id)){
                 const issue: Errors.Issue = Errors.ShowFix(
                     "Graph Config (" + graphConfig.getId() + ") does not have a unique id",
-                    function(){Utils.showGraphConfig(eagle, graphConfig.getId())},
-                    function(){graphConfig.setId(Utils.generateGraphConfigId())},
+                    function(){Utils.showGraphConfig(eagle, id)},
+                    function(){Utils.newGraphConfigId(graph, id)},
                     "Assign graph config a new id"
                 );
                 graph.issues.push({issue : issue, validity : Errors.Validity.Error})

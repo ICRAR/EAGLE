@@ -256,7 +256,7 @@ export class GraphUpdater {
                     if (error === null){
                         const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
                         const file: RepositoryFile = new RepositoryFile(row.service, row.folder, row.file);
-                        const lg: LogicalGraph = LogicalGraph.fromOJSJson(JSON.parse(data), file, errorsWarnings);
+                        const lg: LogicalGraph = LogicalGraph.fromOJSJson(JSON.parse(data), file.name, errorsWarnings);
 
                         // record number of errors
                         row.numLoadWarnings = errorsWarnings.warnings.length;

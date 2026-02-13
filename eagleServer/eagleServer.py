@@ -25,6 +25,7 @@ This is the main module of the EAGLE server side code.
 import argparse
 import base64
 import datetime
+from fileinput import filename
 import json
 import logging
 import os
@@ -238,71 +239,6 @@ def extract_folder_and_repo_names(repo_name):
     return folder_name, repo_name
 
 
-# NOTE: largely made obsolete by get_git_hub_files_all()
-@app.route("/getGitHubFiles", methods=["POST"])
-def get_git_hub_files():
-    """
-    FLASK POST routing method for '/getGitHubFiles'
-
-    Returns a JSON list of files in a GitHub repository. Both the repository name and the access token have to passed in the POST content.
-    """
-    content = request.get_json(silent=True)
-    repo_name = content["repository"]
-    repo_token = content["token"]
-
-    # Extracting the true repo name and repo folder.
-    folder_name, repo_name = extract_folder_and_repo_names(repo_name)
-
-    g = github.Github(repo_token)
-    repo = g.get_repo(repo_name)
-
-    # Set branch to master.
-    try:
-        master_ref = repo.get_git_ref("heads/master")
-        master_sha = master_ref.object.sha
-    except github.GithubException as e:
-        # repository might be empty
-        print(
-            "Error getting ref to git repo! Repo: {0} Status: {1} Data: {2}".format(
-                str(repo_name), e.status, e.data
-            )
-        )
-        return jsonify({"": []})
-
-    # Getting repository file list.
-    base_tree = repo.get_git_tree(master_sha, recursive=False)
-
-    # Building a dictionary of repository's content {path: filename}.
-    d = {}
-    for el in base_tree.tree:
-        # Flag for whether it is a path in the given repository folder.
-        is_in_folder = el.path.startswith(folder_name + "/")
-        # Only show files that are located in the given repository folder.
-        if folder_name == "" or is_in_folder:
-            elpath = el.path
-            if is_in_folder:
-                # Extract path inside the given folder.
-                elpath = elpath.split(folder_name + "/", 1)[1]
-
-            # Folder.
-            if el.type == "tree":
-                path = elpath
-                if not (path in d.keys()):
-                    d[path] = list()
-
-            # File.
-            if el.type == "blob":
-                path = os.path.dirname(elpath)
-                filename = os.path.basename(elpath)
-                if path in d.keys():
-                    d[path].append(filename)
-                else:
-                    d[path] = list()
-                    d[path].append(filename)
-
-    return jsonify(d)
-
-
 @app.route("/getGitHubFilesAll", methods=["POST"])
 def get_git_hub_files_all():
     """
@@ -323,13 +259,18 @@ def get_git_hub_files_all():
 
     # Extracting the true repo name and repo folder.
     folder_name, repo_name = extract_folder_and_repo_names(repo_name)
-    g = github.Github(repo_token)
+
+    # authenticate or not
+    g = github.Github(repo_token) if repo_token else github.Github()
 
     try:
         repo = g.get_repo(repo_name)
     except github.UnknownObjectException as uoe:
         print("UnknownObjectException {1}: {0}".format(str(uoe), repo_name))
         return jsonify({"error":uoe.message})
+    except github.GithubException as ge:
+        print("GithubException {1}: {0}".format(str(ge), repo_name))
+        return jsonify({"error":ge.data.get("message", str(ge))})
 
     # get results
     d = parse_github_folder(repo, repo_path, repo_branch)
@@ -351,6 +292,7 @@ def get_git_lab_files_all():
 
     Returns the list files in a GitLab repository. The POST request content is a JSON string containing repository, branch and token.
     """
+    print("get_git_lab_files_all() called")
     content = request.get_json(silent=True)
 
     try:
@@ -362,13 +304,15 @@ def get_git_lab_files_all():
         print("KeyError {1}: {0}".format(str(ke), repo_name))
         return jsonify({"error":"Repository, Branch or Token not specified in request"})
 
-    gl = gitlab.Gitlab('https://gitlab.com', private_token=repo_token, api_version=4)
-
-    try:
-        gl.auth()
-    except gitlab.exceptions.GitlabAuthenticationError as gae:
-        print("GitlabAuthenticationError {1}: {0}".format(str(gae), repo_name))
-        return jsonify({"error": "Gitlab Authentication Error. Access token may be invalid." + "\n" + str(gae)})
+    if repo_token:
+        gl = gitlab.Gitlab('https://gitlab.com', private_token=repo_token, api_version=4)
+        try:
+            gl.auth()
+        except gitlab.exceptions.GitlabAuthenticationError as gae:
+            print("GitlabAuthenticationError {1}: {0}".format(str(gae), repo_name))
+            return jsonify({"error": "Gitlab Authentication Error. Access token may be invalid." + "\n" + str(gae)})
+    else:
+        gl = gitlab.Gitlab('https://gitlab.com', api_version=4)
 
     try:
         project = gl.projects.get(repo_name)
@@ -466,40 +410,18 @@ def save_git_hub_file():
     try:
         repo = g.get_repo(repo_name)
     except github.GithubException as e:
-        print(
-            "Error in get_repo({0})! Repo: {1} Status: {2} Data: {3}".format(
-                "heads/" + repo_branch, str(repo_name), e.status, e.data
-            )
-        )
-        return jsonify({"error": e.data["message"]}), 400
+        return github_exception_handler(e, "Error in get_repo", repo_name, repo_branch)
 
     # Set branch
     try:
         branch_ref = repo.get_git_ref("heads/" + repo_branch)
     except github.GithubException as e:
-        # repository might be empty
-        print(
-            "Error in get_git_ref({0})! Repo: {1} Status: {2} Data: {3}".format(
-                "heads/" + repo_branch, str(repo_name), e.status, e.data
-            )
-        )
-        return jsonify({"error": e.data["message"]}), 400
+        return github_exception_handler(e, "Error in get_git_ref", repo_name, repo_branch)
 
     # get SHA from branch
     branch_sha = branch_ref.object.sha
 
-    # Add repo and file name in the graph.
-    graph["modelData"]["repo"] = repo_name
-    graph["modelData"]["repoBranch"] = repo_branch
-    graph["modelData"]["repoService"] = "GitHub"
-    graph["modelData"]["filePath"] = filename
-    # Clean the GitHub file reference.
-    graph["modelData"]["repositoryUrl"] = ""
-    graph["modelData"]["commitHash"] = ""
-    graph["modelData"]["downloadUrl"] = ""
-    graph["modelData"]["lastModifiedName"] = ""
-    graph["modelData"]["lastModifiedEmail"] = ""
-    graph["modelData"]["lastModifiedDatetime"] = 0
+    set_metadata_for_ingress(graph, "GitHub", repo_name, repo_branch, filename)
 
     # The 'indent=4' option is used for nice formatting. Without it the file is stored as a single line.
     json_data = json.dumps(graph, indent=4)
@@ -517,20 +439,31 @@ def save_git_hub_file():
             base_tree,
         )
     except github.GithubException as e:
-        # repository might not have permission
-        print(
-            "Error in create_git_tree({0})! Repo: {1} Status: {2} Data: {3}".format(
-                "heads/" + repo_branch, str(repo_name), e.status, e.data
-            )
-        )
-        return jsonify({"error": e.data["message"]}), 400
+        return github_exception_handler(e, "Error in create_git_tree", repo_name, repo_branch)
 
     new_commit = repo.create_git_commit(
         message=commit_message, parents=[latest_commit], tree=new_tree
     )
-    branch_ref.edit(sha=new_commit.sha, force=False)
+
+    try:
+        branch_ref.edit(sha=new_commit.sha, force=False)
+    except github.GithubException as e:
+        return github_exception_handler(e, "Error in edit", repo_name, repo_branch)
 
     return "ok"
+
+
+# helper function to handle github exceptions consistently
+def github_exception_handler(e, description, repo_name, repo_branch):
+    data = getattr(e, "data", None)
+    status = getattr(e, "status", None)
+    message = data.get("message") if isinstance(data, dict) else None
+    print(
+        "{0} ({1})! Repo: {2} Status: {3} Data: {4}".format(
+            description, "heads/" + repo_branch, repo_name, status, data
+        )
+    )
+    return jsonify({"error": message or str(e)}), 400
 
 
 @app.route("/saveFileToRemoteGitlab", methods=["POST"])
@@ -560,17 +493,8 @@ def save_git_lab_file():
     project = gl.projects.get(repo_name)
 
     # Add repo and file name in the graph.
-    graph["modelData"]["repo"] = repo_name
-    graph["modelData"]["repoBranch"] = repo_branch
-    graph["modelData"]["repoService"] = "GitLab"
-    graph["modelData"]["filePath"] = filename
-    # Clean the GitHub file reference.
-    graph["modelData"]["repositoryUrl"] = ""
-    graph["modelData"]["commitHash"] = ""
-    graph["modelData"]["downloadUrl"] = ""
-    graph["modelData"]["lastModifiedName"] = ""
-    graph["modelData"]["lastModifiedEmail"] = ""
-    graph["modelData"]["lastModifiedDatetime"] = 0
+    set_metadata_for_ingress(graph, "GitLab", repo_name, repo_branch, filename)
+    
 
     # The 'indent=4' option is used for nice formatting. Without it the file is stored as a single line.
     json_data = json.dumps(graph, indent=4)
@@ -606,6 +530,49 @@ def save_git_lab_file():
     return "ok"
 
 
+def set_metadata_for_ingress(graph, repo_service, repo_name, repo_branch, filename):
+    # Add repo and file name in the graph.
+    graph["modelData"]["repo"] = repo_name
+    graph["modelData"]["repoBranch"] = repo_branch
+    graph["modelData"]["repoService"] = repo_service
+    graph["modelData"]["filePath"] = filename
+    # Clean the GitHub file reference.
+    graph["modelData"]["repositoryUrl"] = ""
+    graph["modelData"]["commitHash"] = ""
+    graph["modelData"]["downloadUrl"] = ""
+    graph["modelData"]["lastModifiedName"] = ""
+    graph["modelData"]["lastModifiedEmail"] = ""
+    graph["modelData"]["lastModifiedDatetime"] = 0
+
+
+def set_metadata_for_egress(graph, repo_service, repo_name, repo_branch, commit_hash, last_modified_name, last_modified_email, last_modified_datetime, filename, download_url):
+        # replace some data in the header (modelData) of the file with info from git
+        graph["modelData"]["repo"] = repo_name
+        graph["modelData"]["repoBranch"] = repo_branch
+        graph["modelData"]["repoService"] = repo_service
+        graph["modelData"]["filePath"] = filename
+
+        graph["modelData"]["repositoryUrl"] = "TODO"
+        graph["modelData"]["commitHash"] = commit_hash
+        graph["modelData"]["downloadUrl"] = download_url
+        graph["modelData"]["lastModifiedName"] = last_modified_name
+        graph["modelData"]["lastModifiedEmail"] = last_modified_email
+        graph["modelData"]["lastModifiedDatetime"] = last_modified_datetime
+
+        # replace some data in the headers of the graphConfigurations within the file
+        if "graphConfigurations" in graph:
+            for id, graphConfig in graph["graphConfigurations"].items():
+                if "modelData" not in graphConfig:
+                    continue
+                graphLocation = graphConfig["modelData"]["graphLocation"]
+                graphLocation["repositoryUrl"] = "TODO"
+                graphLocation["commitHash"] = commit_hash
+                graphLocation["downloadUrl"] = download_url
+                graphLocation["lastModifiedName"] = last_modified_name
+                graphLocation["lastModifiedEmail"] = last_modified_email
+                graphLocation["lastModifiedDatetime"] = last_modified_datetime
+
+
 @app.route("/openRemoteGithubFile", methods=["POST"])
 def open_git_hub_file():
     """
@@ -616,23 +583,23 @@ def open_git_hub_file():
     content = request.get_json(silent=True)
     repo_name = content["repositoryName"]
     repo_branch = content["repositoryBranch"]
-    repo_service = content["repositoryService"]
     repo_token = content["token"]
     filename = content["filename"]
     extension = os.path.splitext(filename)[1]
 
-    #print("open_git_hub_file()", "repo_name", repo_name, "repo_service", repo_service, "repo_branch", repo_branch, "repo_token", repo_token, "filename", filename, "extension:" + extension + ":")
+    #print("open_git_hub_file()", "repo_name", repo_name, "repo_branch", repo_branch, "repo_token", repo_token, "filename", filename, "extension:" + extension + ":")
 
     # Extracting the true repo name and repo folder.
     folder_name, repo_name = extract_folder_and_repo_names(repo_name)
     if folder_name != "":
         filename = folder_name + "/" + filename
 
-    g = github.Github(repo_token)
+    # use authentication or not
+    g = github.Github(repo_token) if repo_token else github.Github()
+
     try:
         repo = g.get_repo(repo_name)
     except Exception as e:
-        print(e)
         return app.response_class(response=json.dumps({"error":str(e)}), status=404, mimetype="application/json")
 
 
@@ -679,18 +646,8 @@ def open_git_hub_file():
         if not "modelData" in graph:
             graph["modelData"] = {}
 
-        # replace some data in the header (modelData) of the file with info from git
-        graph["modelData"]["repo"] = repo_name
-        graph["modelData"]["repoBranch"] = repo_branch
-        graph["modelData"]["repoService"] = "GitHub"
-        graph["modelData"]["filePath"] = filename
-
-        graph["modelData"]["repositoryUrl"] = "TODO"
-        graph["modelData"]["commitHash"] = most_recent_commit.sha
-        graph["modelData"]["downloadUrl"] = download_url
-        graph["modelData"]["lastModifiedName"] = most_recent_commit.commit.committer.name
-        graph["modelData"]["lastModifiedEmail"] = most_recent_commit.commit.committer.email
-        graph["modelData"]["lastModifiedDatetime"] = most_recent_commit.commit.committer.date.timestamp()
+        # add the repository information
+        set_metadata_for_egress(graph, "GitHub", repo_name, repo_branch, most_recent_commit.sha, most_recent_commit.commit.committer.name, most_recent_commit.commit.committer.email, most_recent_commit.commit.committer.date.timestamp(), filename, download_url)
 
         # for palettes, put downloadUrl in every component
         if extension == ".palette":
@@ -775,13 +732,15 @@ def open_git_lab_file():
     #print("folder_name", folder_name, "repo_name", repo_name, "filename", filename)
 
     # get the data from gitlab
-    gl = gitlab.Gitlab('https://gitlab.com', private_token=repo_token, api_version=4)
-
-    try:
-        gl.auth()
-    except Exception as e:
-        print(e)
-        return app.response_class(response=json.dumps({"error":str(e)}), status=404, mimetype="application/json")
+    if repo_token:
+        gl = gitlab.Gitlab('https://gitlab.com', private_token=repo_token, api_version=4)
+        try:
+            gl.auth()
+        except Exception as e:
+            print(e)
+            return app.response_class(response=json.dumps({"error":str(e)}), status=404, mimetype="application/json")
+    else:
+        gl = gitlab.Gitlab('https://gitlab.com', api_version=4)
 
     project = gl.projects.get(repo_name)
 
@@ -802,18 +761,7 @@ def open_git_lab_file():
             graph["modelData"] = {}
 
         # add the repository information
-        graph["modelData"]["repo"] = repo_name
-        graph["modelData"]["repoBranch"] = repo_branch
-        graph["modelData"]["repoService"] = "GitLab"
-        graph["modelData"]["filePath"] = filename
-
-        # TODO: Add the GitLab file information
-        graph["modelData"]["repositoryUrl"] = "TODO"
-        graph["modelData"]["commitHash"] = f.commit_id
-        graph["modelData"]["downloadUrl"] = "TODO"
-        graph["modelData"]["lastModifiedName"] = ""
-        graph["modelData"]["lastModifiedEmail"] = ""
-        graph["modelData"]["lastModifiedDatetime"] = 0
+        set_metadata_for_egress( graph, "GitLab", repo_name, repo_branch, f.commit_id, "", "", 0, filename, "TODO")
 
         # for palettes, put downloadUrl in every component
         if extension == ".palette":
@@ -929,7 +877,7 @@ def parse_github_folder(repo, path, branch):
         contents = repo.get_contents(path, ref=branch)
     except github.GithubException as ghe:
         print("GitHubException {1} ({2}): {0}".format(str(ghe), repo.full_name, branch))
-        return ghe.data["message"]
+        return ghe.data.get("message", str(ghe))
 
     while contents:
         file_content = contents.pop(0)
@@ -972,7 +920,7 @@ def find_github_palettes(repo, path, branch):
         contents = repo.get_contents(path, ref=branch)
     except github.GithubException as ghe:
         print("GitHubException {1} ({2}): {0}".format(str(ghe), repo.full_name, branch))
-        return ghe.data["message"]
+        return ghe.data.get("message", str(ghe))
 
     while contents:
         file_content = contents.pop(0)

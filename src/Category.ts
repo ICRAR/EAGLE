@@ -28,7 +28,7 @@ export enum Category {
     Data = "Data",
 
     ParameterSet = "ParameterSet",
-    GlobalVariable = "GlobalVariable",
+    GlobalVariables = "GlobalVariables",
 
     Service = "Service",
     ExclusiveForceNode = "ExclusiveForceNode",

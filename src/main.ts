@@ -342,6 +342,7 @@ async function autoLoad() {
             Utils.showNotification("Add Repository", "Repository added successfully!", "success");
         } else {
             // load file
+            console.log("Auto load file:", service, repository, branch, path, filename);
             Repositories.selectFile(new RepositoryFile(new Repository(realService, repository, branch, false), path, filename));
         }
     }

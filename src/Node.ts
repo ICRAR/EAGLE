@@ -731,7 +731,7 @@ export class Node {
 
         // check if name and category are the same (or similar except for capitalisation and whitespace)
         // if so, only use the name, the category is redundant
-        if (this.getName().split(" ").join("").toLowerCase() === this.getCategory().toLowerCase()){
+        if (typeof this.getCategory() === "undefined" || this.getName().split(" ").join("").toLowerCase() === this.getCategory().toLowerCase()){
             return "||| <h3>"+ this.getName() + "</h3> ||| " + this.getDescription();
         } else {
             return "||| <h3>" + this.getCategory() + " : " + this.getName() + "</h3> ||| " +this.getDescription();
@@ -933,21 +933,10 @@ export class Node {
         return null;
     }
 
-
-    findPortByMatchingType = (type: string, input: boolean) : Field | null => {
-        if (input){
-            // check input ports
-            for (const inputPort of this.getInputPorts()){
-                if (Utils.typesMatch(inputPort.getType(), type)){
-                    return inputPort;
-                }
-            }
-        } else {
-            // check output ports
-            for (const outputPort of this.getOutputPorts()){
-                if (Utils.typesMatch(outputPort.getType(), type)){
-                    return outputPort;
-                }
+    findPortByMatchingType = (type: string, usages: Daliuge.FieldUsage[]) : Field | null => {
+        for (const port of this.getFields()){
+            if (usages.includes(port.getUsage()) && Utils.typesMatch(port.getType(), type)){
+                return port;
             }
         }
         return null;
@@ -1030,6 +1019,19 @@ export class Node {
         this.fields.valueHasMutated();
         field.setNode(this);
         return this;
+    }
+
+    updateFieldId(oldId: FieldId, newId: FieldId): void {
+        const field = this.fields().get(oldId);
+
+        if (typeof field === 'undefined'){
+            console.warn("updateFieldId(): Could not find field with id", oldId);
+            return;
+        }
+
+        this.fields().delete(oldId);
+        field.setId(newId);
+        this.fields().set(newId, field);
     }
 
     setGroupStart = (value: boolean) : Node => {
@@ -1438,7 +1440,9 @@ export class Node {
 
         // if category is not known, then add error
         if (!Utils.isKnownCategory(category)){
-            errorsWarnings.errors.push(Errors.Message("Node with name " + name + " has unknown category: " + category));
+            if (errorsWarnings !== null){
+                errorsWarnings.errors.push(Errors.Message("Node with name " + name + " has unknown category: " + category));
+            }
         }
 
         const node : Node = new Node(name, "", "", category);
@@ -1581,7 +1585,7 @@ export class Node {
         // add fields
         if (typeof nodeData.fields !== 'undefined'){
             for (const fieldData of nodeData.fields){
-                const field = Field.fromOJSJson(fieldData);
+                const field = Field.fromOJSJson(fieldData, !isPaletteNode);
 
                 // if the parameter type is not specified, assume it is a ComponentParameter
                 if (field.getParameterType() === Daliuge.FieldType.Unknown){
@@ -1595,7 +1599,7 @@ export class Node {
         // add application params
         if (typeof nodeData.applicationArgs !== 'undefined'){
             for (const paramData of nodeData.applicationArgs){
-                const field = Field.fromOJSJson(paramData);
+                const field = Field.fromOJSJson(paramData, !isPaletteNode);
                 field.setParameterType(Daliuge.FieldType.Application);
                 node.addField(field);
             }
@@ -1605,7 +1609,7 @@ export class Node {
         if (typeof nodeData.inputAppFields !== 'undefined'){
             for (const fieldData of nodeData.inputAppFields){
                 if (node.hasInputApplication()){
-                    const field = Field.fromOJSJson(fieldData);
+                    const field = Field.fromOJSJson(fieldData, !isPaletteNode);
                     node.inputApplication().addField(field);
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Can't add input app field " + fieldData.text + " to node " + node.getName() + ". No input application."));
@@ -1617,7 +1621,7 @@ export class Node {
         if (typeof nodeData.outputAppFields !== 'undefined'){
             for (const fieldData of nodeData.outputAppFields){
                 if (node.hasOutputApplication()){
-                    const field = Field.fromOJSJson(fieldData);
+                    const field = Field.fromOJSJson(fieldData, !isPaletteNode);
                     node.outputApplication().addField(field);
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Can't add output app field " + fieldData.text + " to node " + node.getName() + ". No output application."));
@@ -1628,7 +1632,7 @@ export class Node {
         // add input ports
         if (typeof nodeData.inputPorts !== 'undefined'){
             for (const inputPort of nodeData.inputPorts){
-                const port = Field.fromOJSJsonPort(inputPort);
+                const port = Field.fromOJSJsonPort(inputPort, !isPaletteNode);
                 port.setParameterType(Daliuge.FieldType.Application);
                 port.setUsage(Daliuge.FieldUsage.InputPort);
 
@@ -1647,7 +1651,7 @@ export class Node {
         // add output ports
         if (typeof nodeData.outputPorts !== 'undefined'){
             for (const outputPort of nodeData.outputPorts){
-                const port = Field.fromOJSJsonPort(outputPort);
+                const port = Field.fromOJSJsonPort(outputPort, !isPaletteNode);
                 port.setParameterType(Daliuge.FieldType.Application);
                 port.setUsage(Daliuge.FieldUsage.OutputPort);
 
@@ -1667,7 +1671,7 @@ export class Node {
         if (typeof nodeData.inputLocalPorts !== 'undefined'){
             for (const inputLocalPort of nodeData.inputLocalPorts){
                 if (node.hasInputApplication()){
-                    const port = Field.fromOJSJsonPort(inputLocalPort);
+                    const port = Field.fromOJSJsonPort(inputLocalPort, !isPaletteNode);
                     port.setParameterType(Daliuge.FieldType.Application);
                     port.setUsage(Daliuge.FieldUsage.OutputPort);
 
@@ -1681,7 +1685,7 @@ export class Node {
         // add output local ports
         if (typeof nodeData.outputLocalPorts !== 'undefined'){
             for (const outputLocalPort of nodeData.outputLocalPorts){
-                const port = Field.fromOJSJsonPort(outputLocalPort);
+                const port = Field.fromOJSJsonPort(outputLocalPort, !isPaletteNode);
                 port.setParameterType(Daliuge.FieldType.Application);
                 port.setUsage(Daliuge.FieldUsage.InputPort);
 
@@ -1735,7 +1739,7 @@ export class Node {
 
         // add fields
         for (const [id, fieldData] of Object.entries(nodeData.fields)){
-            const field = Field.fromV4Json(fieldData);
+            const field = Field.fromV4Json(fieldData, !isPaletteNode);
             node.addField(field);
         }
 
@@ -2002,6 +2006,21 @@ export class Node {
             Field.isValid(node,field, location)
         }
 
+        // check that all fields present in the original (palette) component have the changeable property set correctly (to false)
+        const originalComponent = Utils.getPaletteComponentByName(node.getName()) || Utils.getPaletteComponentByName(node.getCategory());
+        if (typeof originalComponent !== 'undefined'){
+            for (const originalField of originalComponent.getFields()){
+                const nodeField = node.getFieldByDisplayText(originalField.getDisplayText());
+                if (nodeField !== null){
+                    if (nodeField.isChangeable() !== originalField.isChangeable()){
+                        const message: string = "Node (" + node.getName() + ") field (" + nodeField.getDisplayText() + ") has incorrect changeable property. Expected: " + originalField.isChangeable() + ", Actual: " + nodeField.isChangeable();
+                        const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showField(eagle, location, node, nodeField)}, function(){nodeField.setChangeable(originalField.isChangeable())}, "Set changeable to " + originalField.isChangeable());
+                        node.issues().push({issue:issue, validity:Errors.Validity.Warning});
+                    }
+                }
+            }
+        }
+
         if(!Utils.isKnownCategory(node.getCategory())){
             const message: string = "Node (" + node.getName() + ") has unrecognised category " + node.getCategory();
             const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
@@ -2066,9 +2085,17 @@ export class Node {
             }
         }
 
-        // check that node has correct number of inputs and outputs
+        // get the category data for this node
         const cData: Category.CategoryData = CategoryData.getCategoryData(node.getCategory());
 
+        // check if the categoryType is set correctly for this category
+        if (node.getCategoryType() !== cData.categoryType){
+            const message: string = "Node (" + node.getName() + ") has incorrect category type. Expected: " + cData.categoryType + ", Actual: " + node.getCategoryType();
+            const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, location, node)}, function(){node.setCategoryType(cData.categoryType)}, "Set category type to " + cData.categoryType);
+            node.issues().push({issue:issue, validity:Errors.Validity.Error});
+        }
+
+        // check that node has correct number of inputs and outputs
         if (node.getInputPorts().length < cData.minInputs){
             const message: string = "Node (" + node.getName() + ") may have too few input ports. A " + node.getCategory() + " component would typically have at least " + cData.minInputs;
             const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
@@ -2138,7 +2165,7 @@ export class Node {
 
         // check if a node is completely disconnected from the graph, which is sometimes an indicator of something wrong
         // only check this if the component has been selected in the graph. If it was selected from the palette, it doesn't make sense to complain that it is not connected.
-        if (!isConnected && !(cData.maxInputs === 0 && cData.maxOutputs === 0) && location === Eagle.FileType.Graph && node.getCategory() !== Category.GlobalVariable){
+        if (!isConnected && !(cData.maxInputs === 0 && cData.maxOutputs === 0) && location === Eagle.FileType.Graph && node.getCategory() !== Category.GlobalVariables){
             const issue: Errors.Issue = Errors.Show("Node (" + node.getName() + ") has no connected edges. It should be connected to the graph in some way", function(){Utils.showNode(eagle, location, node)});
             node.issues().push({issue:issue,validity:Errors.Validity.Warning})
         }
