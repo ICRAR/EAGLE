@@ -476,6 +476,7 @@ export class Eagle {
             }
         }
 
+        //if the visuals in the graph are not hidden we will take them into account
         if(!Setting.findValue(Setting.HIDE_VISUALS)){
             for (const visual of that.logicalGraph().getVisuals()){
                 if (visual.getPosition().x - visual.getWidth() < minX){
@@ -3813,6 +3814,15 @@ export class Eagle {
                 for (const object of data){
                     // delete the nodes
                     if (object instanceof Node){
+
+                        //remove visual link if there is a visual linked to this node
+                        for(const visual of this.logicalGraph().getVisuals()){
+                            if (visual.getTarget() === object){
+                                visual.setTarget(null)
+                                return
+                            } 
+                        }
+
                         this.logicalGraph().removeNode(object);
                     }
 
