@@ -34,7 +34,25 @@ import { RepositoryFile } from './RepositoryFile';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
 
+import * as ko from 'knockout';
+
+export class GraphUpdaterFile {
+    lg: ko.Observable<LogicalGraph>;
+    file: ko.Observable<RepositoryFile>;
+
+    constructor(lg: LogicalGraph, file: RepositoryFile){
+        this.lg = ko.observable(lg);
+        this.file = ko.observable(file);
+    }
+}
+
 export class GraphUpdater {
+
+    static isFetching: ko.Observable<boolean> = ko.observable(false);
+    static hasFetched: ko.Observable<boolean> = ko.observable(false);
+    static isUpdating: ko.Observable<boolean> = ko.observable(false);
+    static hasUpdated: ko.Observable<boolean> = ko.observable(false);
+    static updatedLogicalGraphs: ko.ObservableArray<GraphUpdaterFile> = ko.observableArray([]);
 
     // NOTE: for use in translation of OJS object to internal graph representation
     static findIndexOfNodeDataArrayWithId(nodeDataArray: any[], id: NodeId) : number {
@@ -232,6 +250,10 @@ export class GraphUpdater {
 
     static async update(): Promise<void> {
         console.log("GraphUpdater.update()");
+        this.isFetching(true);
+        this.hasFetched(false);
+        this.isUpdating(false);
+        this.hasUpdated(false);
 
         // get source repository
         const srcRepoIndex = parseInt($('#graphUpdaterModalSourceRepositorySelect').val() as string);
@@ -239,6 +261,10 @@ export class GraphUpdater {
         const srcRepo = Repositories.repositories()[srcRepoIndex];
         if (srcRepo === null){
             Utils.showNotification("Error", "Source repository not found", "danger");
+            this.isFetching(false);
+            this.hasFetched(false);
+            this.isUpdating(false);
+            this.hasUpdated(false);
             return;
         }
 
@@ -253,22 +279,15 @@ export class GraphUpdater {
                 break;
             default:
                 Utils.showNotification("Error", "Unsupported repository service: " + srcRepo.service, "danger");
+                this.isFetching(false);
+                this.hasFetched(false);
+                this.isUpdating(false);
+                this.hasUpdated(false);
                 return;
         }
 
-        // get destination repository
-        const destRepoIndex = parseInt($('#graphUpdaterModalDestinationRepositorySelect').val() as string);
-        console.log("destRepoIndex:", destRepoIndex);
-        const destRepo = Repositories.repositories()[destRepoIndex];
-        if (destRepo === null){
-            Utils.showNotification("Error", "Destination repository not found", "danger");
-            return;
-        }
-
-        // generate commit message
-        const commitMessage = "Updated graphs from " + srcRepo.getNameAndBranch();
-
         // fetch and expand the source repository if needed
+        this.isFetching(true);
         if (!srcRepo.fetched()){
             await srcRepo.select();
         }
@@ -280,14 +299,20 @@ export class GraphUpdater {
         const srcGraphs = await srcRepo.findAllGraphs();
         console.log("srcGraphs:", srcGraphs);
 
-        // loop through each graph, load it, and save it to an array
-        const files = [];
+        // add all the graphs to the updatedLogicalGraphs array
         for (const graphFile of srcGraphs){
+            this.updatedLogicalGraphs.push(new GraphUpdaterFile(null, graphFile));
+        }
+        this.isFetching(false);
+        this.hasFetched(true);
 
-
+        // loop through each graph, load it, and save it to an array
+        this.isUpdating(true);
+        this.hasUpdated(false);
+        for (const graphFile of this.updatedLogicalGraphs()){
             // fetch the file data
-            console.log("Loading graph file:", graphFile.name, "from /", graphFile.path);
-            const fileData: string = await openRemoteFileFunc(graphFile.repository.service, graphFile.repository.name, graphFile.repository.branch, graphFile.path, graphFile.name);
+            console.log("Loading graph file:", graphFile.file().name, "from /", graphFile.file().path);
+            const fileData: string = await openRemoteFileFunc(graphFile.file().repository.service, graphFile.file().repository.name, graphFile.file().repository.branch, graphFile.file().path, graphFile.file().name);
             console.log("Graph file loaded.");
 
             // determine if graph is OJS or V4
@@ -317,19 +342,41 @@ export class GraphUpdater {
             // parse file data as LogicalGraph
             let lg: LogicalGraph;
             try {
-                lg = fromJsonFunc(graphObject, graphFile.name, {"errors":[], "warnings":[]});
+                lg = fromJsonFunc(graphObject, graphFile.file.name, {"errors":[], "warnings":[]});
             }
             catch (error) {
-                console.error("Error parsing graph file:", graphFile.name, error);
+                console.error("Error parsing graph file:", graphFile.file.name, error);
                 continue;
             }
             console.log("Graph file parsed.");
 
+            graphFile.lg(lg);
+        }
+
+        this.isUpdating(false);
+        this.hasUpdated(true);
+    }
+
+    static async push(): Promise<void> {
+        // get destination repository
+        const destRepoIndex = parseInt($('#graphUpdaterModalDestinationRepositorySelect').val() as string);
+        console.log("destRepoIndex:", destRepoIndex);
+        const destRepo = Repositories.repositories()[destRepoIndex];
+        if (destRepo === null){
+            Utils.showNotification("Error", "Destination repository not found", "danger");
+            return;
+        }
+
+        // TODO: fetch commit message from UI
+        const commitMessage = "Updated graphs from "; // + srcRepo.getNameAndBranch();
+
+        const files = [];
+        for (const graphFile of GraphUpdater.updatedLogicalGraphs()){
             // save to v4 string
-            const fileDataString = LogicalGraph.toV4JsonString(lg, false);
+            const fileDataString = LogicalGraph.toV4JsonString(graphFile.lg(), false);
 
             files.push({
-                "path": graphFile.path + graphFile.name,
+                "path": graphFile.file().path + graphFile.file().name,
                 "jsonData": fileDataString
             });
         }
@@ -345,7 +392,7 @@ export class GraphUpdater {
 
         // write all the files to the destination repository
         const eagle: Eagle = Eagle.getInstance();
-        await eagle.saveFilesToRemote(destRepo, srcGraphs, JSON.stringify(commitJson));
+        //await eagle.saveFilesToRemote(destRepo, srcGraphs, JSON.stringify(commitJson));
 
         /*
         // save all graphs in a single commit to destination repository

@@ -43,4 +43,11 @@ export class RepositoryFile {
     htmlId : ko.PureComputed<string> = ko.pureComputed(() => {
         return "id_" + this.name.replace('.', '_');
     }, this);
+
+    pathAndName : ko.PureComputed<string> = ko.pureComputed(() => {
+        if (this.path === ""){
+            return this.name;
+        }
+        return this.path + '/' + this.name;
+    }, this);
 }

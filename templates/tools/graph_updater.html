@@ -19,7 +19,37 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row" data-bind="visible: !GraphUpdater.isFetching() && !GraphUpdater.hasFetched()">
+                        <div class="col">
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-primary" id="graphUpdaterModalUpdateButton" data-bind="click: function(){GraphUpdater.update()}">
+                                    Update
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- ko if: GraphUpdater.isFetching() -->
+                        {% include 'modals/loading_spinner.html' %}
+                    <!-- /ko -->
+                    <div class="row" data-bind="visible: GraphUpdater.isUpdating() || GraphUpdater.hasUpdated()">
+                        <div class="col">
+                            <table id="graphUpdaterModalGraphTable" class="table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Graph</th>
+                                        <th scope="col">Updated</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="graphUpdaterModalGraphTableBody" data-bind="foreach: GraphUpdater.updatedLogicalGraphs">
+                                    <tr>
+                                        <td data-bind="text: file().pathAndName()"></td>
+                                        <td data-bind="text: lg() ? 'Yes' : 'No'"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row" data-bind="visible: GraphUpdater.hasUpdated()">
                         <div class="col-3">
                             <p>Destination Repository:</p>
                         </div>
@@ -30,11 +60,16 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row" data-bind="visible: GraphUpdater.hasUpdated()">
+                        <div class="col">
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-primary" id="graphUpdaterModalPushButton" data-bind="click: function(){GraphUpdater.push()}">
+                                    Push
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="graphUpdaterModalNegativeButton" data-bs-dismiss="modal"><span id="graphUpdaterModalNegativeAnswer">Cancel</span></button>
-                <button type="button" class="btn btn-primary" id="graphUpdaterModalAffirmativeButton" data-bs-dismiss="modal" data-bind="click:function(){GraphUpdater.update()}"><span id="graphUpdaterModalAffirmativeAnswer">OK</span></button>
             </div>
         </div>
     </div>
