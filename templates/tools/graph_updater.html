@@ -43,7 +43,14 @@
                                 <tbody id="graphUpdaterModalGraphTableBody" data-bind="foreach: GraphUpdater.updatedLogicalGraphs">
                                     <tr>
                                         <td data-bind="text: file().pathAndName()"></td>
-                                        <td data-bind="text: lg() ? 'Yes' : 'No'"></td>
+                                        <!-- ko if: lg() -->
+                                        <td>Yes</td>
+                                        <!-- /ko -->
+                                        <!-- ko ifnot: lg() -->
+                                        <td>
+                                            <div class="spinner-border spinner-border-sm" role="status"></div>
+                                        </td>
+                                        <!-- /ko -->
                                     </tr>
                                 </tbody>
                             </table>
