@@ -429,9 +429,11 @@ export class GraphUpdater {
         try {
            await eagle.saveFilesToRemote(destRepo, JSON.stringify(commitJson));
         } catch (error) {
-            console.error("Error pushing updated graphs to destination repository:", error);
-            Utils.showNotification("Error", "Failed to push updated graphs to destination repository: " + error.message, "danger");
-            return;
+            const errorJSON = JSON.parse(error);
+
+            Utils.showUserMessage("Error", errorJSON.error + "<br/><br/>NOTE: These error messages provided by " + destRepo.service + " are not very helpful. Please contact EAGLE admin to help with further investigation.");
+            console.error("Error: " + errorJSON.error);
+            return errorJSON.error;
         }
 
         // notify user of completion

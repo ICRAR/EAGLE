@@ -700,6 +700,7 @@ export class ParameterTable {
         const copiedField = field
             .clone()
             .setId(Utils.generateFieldId())
+            .setChangeable(true)
             .setDisplayText(newFieldText);
 
         // the new node is appended at the bottom

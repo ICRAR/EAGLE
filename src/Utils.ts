@@ -460,7 +460,13 @@ export class Utils {
         } else if (textStatus === "abort") {
             return "Ajax request aborted.";
         } else {
-            return "Uncaught Error. " + xhr.responseText;
+            // check if response is JSON
+            const header = xhr.getResponseHeader('content-type');
+            if (header && header.indexOf('application/json') !== -1){
+                return xhr.responseText;
+            } else {
+                return "Uncaught Error. " + xhr.responseText;
+            }
         }
     }
 
@@ -2205,9 +2211,9 @@ export class Utils {
             case Daliuge.FieldName.DROP_CLASS:
 
                 // look up component in palette
-                const paletteComponent: Node = Utils.getPaletteComponentByName(node.getCategory());
+                const paletteComponent = Utils.getPaletteComponentByName(node.getCategory());
 
-                if (paletteComponent !== null){
+                if (typeof paletteComponent !== 'undefined'){
                     const dropClassField: Field = paletteComponent.findFieldByDisplayText(Daliuge.FieldName.DROP_CLASS);
 
                     field.setValue(dropClassField.getDefaultValue());
