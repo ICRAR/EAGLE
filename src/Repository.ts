@@ -91,9 +91,7 @@ export class Repository {
         const graphs: RepositoryFile[] = [];
 
         const traverseFolder = (folder: RepositoryFolder) : void => {
-            console.log("traversing folder: " + folder.name);
             for (const file of folder.files()){
-                console.log("checking file: " + file.name + ", type: " + file.type);
                 if (file.type === Eagle.FileType.Graph){
                     graphs.push(file);
                 }
@@ -106,7 +104,6 @@ export class Repository {
 
         // check top-level files
         for (const file of this.files()){
-            console.log("checking top-level file: " + file.name + ", type: " + file.type);
             if (file.type === Eagle.FileType.Graph){
                 graphs.push(file);
             }
@@ -190,10 +187,18 @@ export class Repository {
     // expand all the directories
     expandAll = async () : Promise<void> => {
         return new Promise(async(resolve) => {
+
+            async function traverseFolder(folder: RepositoryFolder) : Promise<void> {
+                await folder.select();
+                for (const subFolder of folder.folders()){
+                    await traverseFolder(subFolder);
+                }
+            }
+
             await this.select();
 
             for (const folder of this.folders()){
-                await folder.select();
+                await traverseFolder(folder);
             }
 
             resolve();

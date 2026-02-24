@@ -471,9 +471,6 @@ def save_git_hub_files():
     files = content["files"]  # contains "path" and "jsonData" for each file. The path should include the filename.
     commit_message = content["commitMessage"]
 
-    #print("files", files)
-    #print("repo_name", repo_name, "repo_branch", repo_branch, "repo_token", repo_token, "commit_message", commit_message)
-
     g = github.Github(repo_token)
 
     # get repo
@@ -498,18 +495,14 @@ def save_git_hub_files():
     # add the files
     for file in files:
         path = file["path"]
-        print("Processing file with path: " + path)
 
+        # parse the json string
         try:
             graphObject = json.loads(file["jsonData"])
         except json.JSONDecodeError as e:
             return github_exception_handler(e, "Error in json.loads for file " + path, repo_name, repo_branch)
 
-        # Extracting the true repo name and repo folder.
-        #folder_name, repo_name = extract_folder_and_repo_names(repo_name)
-        #if folder_name != "":
-        #    filename = folder_name + "/" + filename
-
+        # set standard metadata for the file
         try:
             set_metadata_for_ingress(graphObject, "GitHub", repo_name, repo_branch, path)
         except Exception as e:

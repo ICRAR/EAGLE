@@ -276,7 +276,6 @@ export class GraphUpdater {
 
         // get source repository
         const srcRepoIndex = parseInt($('#graphUpdaterModalSourceRepositorySelect').val() as string);
-        console.log("srcRepoIndex:", srcRepoIndex);
         const srcRepo = Repositories.repositories()[srcRepoIndex];
         if (srcRepo === null){
             Utils.showNotification("Error", "Source repository not found", "danger");
@@ -288,16 +287,10 @@ export class GraphUpdater {
         this.sourceRepository = srcRepo;
 
         // fetch and expand the source repository if needed
-        if (!this.sourceRepository.fetched()){
-            await this.sourceRepository.select();
-        }
-        console.log("Expanding source repository...");
         await this.sourceRepository.expandAll();
-        console.log("Source repository expanded.");
-
+        
         // find all graphs in source repository
         const srcGraphs = await this.sourceRepository.findAllGraphs();
-        console.log("srcGraphs:", srcGraphs);
 
         // add all the graphs to the updatedLogicalGraphs array
         this.updatedLogicalGraphs.removeAll();
@@ -333,9 +326,7 @@ export class GraphUpdater {
             graphFile.state(GraphUpdater.FileStatus.Updating);
 
             // fetch the file data
-            console.log("Loading graph file:", graphFile.file().name, "from /", graphFile.file().path);
             const fileData: string = await openRemoteFileFunc(graphFile.file().repository.service, graphFile.file().repository.name, graphFile.file().repository.branch, graphFile.file().path, graphFile.file().name);
-            console.log("Graph file loaded.");
 
             // determine if graph is OJS or V4
             const graphObject = JSON.parse(fileData);
@@ -372,7 +363,6 @@ export class GraphUpdater {
                 graphFile.state(GraphUpdater.FileStatus.Error);
                 continue;
             }
-            console.log("Graph file parsed.");
 
             // save to v4 string
             graphFile.data = LogicalGraph.toV4JsonString(lg, false);
@@ -386,7 +376,6 @@ export class GraphUpdater {
     static async push(): Promise<void> {
         // get destination repository
         const destRepoIndex = parseInt($('#graphUpdaterModalDestinationRepositorySelect').val() as string);
-        console.log("destRepoIndex:", destRepoIndex);
         const destRepo = Repositories.repositories()[destRepoIndex];
         if (destRepo === null){
             Utils.showNotification("Error", "Destination repository not found", "danger");
@@ -398,6 +387,11 @@ export class GraphUpdater {
 
         const files = [];
         for (const graphFile of GraphUpdater.updatedLogicalGraphs()){
+            // skip any files that were not successfully updated
+            if (graphFile.state() !== GraphUpdater.FileStatus.Success){
+                continue;
+            }
+
             files.push({
                 "path": graphFile.file().pathAndName(),
                 "jsonData": graphFile.data
