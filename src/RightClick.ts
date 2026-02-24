@@ -574,12 +574,21 @@ export class RightClick {
                 }
 
                 $('#customContextMenu').append('<h5 class="rightClickDropdownDividerTitle" tabindex="-1">Graph Options</h5>') //divider line
+
+                //visual sub menu
+                let visualMenu = `<span class="contextmenuPalette" onmouseover="RightClick.openSubMenu(this)" onmouseleave="RightClick.closeSubMenu(this)">Graph Visuals`
+                        visualMenu += `<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">`
+                        visualMenu += `<div class="contextMenuDropdown">`
+                            visualMenu += `<a class='rightClickPerpetual' onclick="eagle.addVisualToLogicalGraph(null,'Text', 'ContextMenu');">Add Text Visual</a>`
+                            visualMenu += `<a class='rightClickPerpetual' onclick="eagle.addVisualToLogicalGraph(null,'Group', 'ContextMenu');">Add Group Visual</a>`
+                        visualMenu += `</div>`
+                    visualMenu += `</span>`
+                $('#customContextMenu').append(visualMenu)
+
                 $('#customContextMenu').append(`<a class='rightClickPerpetual' onclick="eagle.pasteFromClipboard();">Paste</a>`)
                 $('#customContextMenu').append(`<a class='rightClickPerpetual' onclick="Utils.showModelDataModal('Graph Info', eagle.logicalGraph().fileInfo());">Show Graph Info</a>`)
                 $('#customContextMenu').append(`<a class='rightClickPerpetual' onclick="ParameterTable.openTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.Normal);">Graph Attributes Table</a>`)
                 $('#customContextMenu').append(`<a class='rightClickPerpetual' onclick="eagle.copyGraphUrl();">Copy Graph URL</a>`)
-                $('#customContextMenu').append(`<a class='rightClickPerpetual' onclick="eagle.addVisualToLogicalGraph(null,'Text', 'ContextMenu');">Add Text Visual</a>`)
-                $('#customContextMenu').append(`<a class='rightClickPerpetual' onclick="eagle.addVisualToLogicalGraph(null,'Group', 'ContextMenu');">Add Group Visual</a>`)
 
 //edge drop menu options
             }else if(passedObjectClass === 'edgeDropCreate'){
