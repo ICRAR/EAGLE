@@ -37,21 +37,24 @@ import { Utils } from './Utils';
 import * as ko from 'knockout';
 
 export class GraphUpdaterFile {
-    lg: ko.Observable<LogicalGraph>;
+    data: string; // the file data as a string, used for pushing to destination repository
     file: ko.Observable<RepositoryFile>;
+    state: ko.Observable<GraphUpdater.FileStatus>;
 
-    constructor(lg: LogicalGraph, file: RepositoryFile){
-        this.lg = ko.observable(lg);
+    constructor(file: RepositoryFile){
+        this.data = "";
         this.file = ko.observable(file);
+        this.state = ko.observable(GraphUpdater.FileStatus.No);
     }
 }
 
 export class GraphUpdater {
-
     static isFetching: ko.Observable<boolean> = ko.observable(false);
     static hasFetched: ko.Observable<boolean> = ko.observable(false);
     static isUpdating: ko.Observable<boolean> = ko.observable(false);
     static hasUpdated: ko.Observable<boolean> = ko.observable(false);
+
+    static sourceRepository: Repository = null;
     static updatedLogicalGraphs: ko.ObservableArray<GraphUpdaterFile> = ko.observableArray([]);
 
     // NOTE: for use in translation of OJS object to internal graph representation
@@ -227,6 +230,8 @@ export class GraphUpdater {
     }
     
     static async showModal(): Promise<void> {
+        GraphUpdater.setState(false, false, false, false);
+
         // add list of repositories to source select
         const srcRepoSelect = $('#graphUpdaterModalSourceRepositorySelect');
         srcRepoSelect.empty();
@@ -248,12 +253,22 @@ export class GraphUpdater {
         $('#graphUpdaterModal').modal("toggle");
     }
 
-    static async update(): Promise<void> {
-        console.log("GraphUpdater.update()");
-        this.isFetching(true);
-        this.hasFetched(false);
-        this.isUpdating(false);
-        this.hasUpdated(false);
+    static setState(isFetching: boolean, hasFetched: boolean, isUpdating: boolean, hasUpdated: boolean): void {
+        this.isFetching(isFetching);
+        this.hasFetched(hasFetched);
+        this.isUpdating(isUpdating);
+        this.hasUpdated(hasUpdated);
+    }
+
+    static onSourceRepositoryChange(): void {
+        // reset the updatedLogicalGraphs array and the hasFetched/hasUpdated observables
+        this.updatedLogicalGraphs.removeAll();
+        this.setState(false, false, false, false);
+    }
+
+    static async fetchLogicalGraphs(): Promise<void> {
+        console.log("GraphUpdater.fetchLogicalGraphs()");
+        this.setState(true, false, false, false);
 
         // get source repository
         const srcRepoIndex = parseInt($('#graphUpdaterModalSourceRepositorySelect').val() as string);
@@ -261,16 +276,42 @@ export class GraphUpdater {
         const srcRepo = Repositories.repositories()[srcRepoIndex];
         if (srcRepo === null){
             Utils.showNotification("Error", "Source repository not found", "danger");
-            this.isFetching(false);
-            this.hasFetched(false);
-            this.isUpdating(false);
-            this.hasUpdated(false);
+            this.setState(false, false, false, false);
             return;
         }
 
+        // set the source repository
+        this.sourceRepository = srcRepo;
+
+        // fetch and expand the source repository if needed
+        if (!this.sourceRepository.fetched()){
+            await this.sourceRepository.select();
+        }
+        console.log("Expanding source repository...");
+        await this.sourceRepository.expandAll();
+        console.log("Source repository expanded.");
+
+        // find all graphs in source repository
+        const srcGraphs = await this.sourceRepository.findAllGraphs();
+        console.log("srcGraphs:", srcGraphs);
+
+        // add all the graphs to the updatedLogicalGraphs array
+        this.updatedLogicalGraphs.removeAll();
+        for (const graphFile of srcGraphs){
+            this.updatedLogicalGraphs.push(new GraphUpdaterFile(graphFile));
+        }
+
+        this.setState(false, true, false, false);
+    }
+
+    static async update(): Promise<void> {
+        console.log("GraphUpdater.update()");
+
+        this.setState(false, true, true, false);
+
         // determine the correct function to load the file(s), based on the source repository service
         let openRemoteFileFunc: (repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string, filePath: string, fileName: string) => Promise<string>;
-        switch (srcRepo.service){
+        switch (this.sourceRepository.service){
             case Repository.Service.GitHub:
                 openRemoteFileFunc = GitHub.openRemoteFile;
                 break;
@@ -278,38 +319,15 @@ export class GraphUpdater {
                 openRemoteFileFunc = GitLab.openRemoteFile;
                 break;
             default:
-                Utils.showNotification("Error", "Unsupported repository service: " + srcRepo.service, "danger");
-                this.isFetching(false);
-                this.hasFetched(false);
-                this.isUpdating(false);
-                this.hasUpdated(false);
+                Utils.showNotification("Error", "Unsupported repository service: " + this.sourceRepository.service, "danger");
+                this.setState(false, false, false, false);
                 return;
         }
 
-        // fetch and expand the source repository if needed
-        this.isFetching(true);
-        if (!srcRepo.fetched()){
-            await srcRepo.select();
-        }
-        console.log("Expanding source repository...");
-        await srcRepo.expandAll();
-        console.log("Source repository expanded.");
-
-        // find all graphs in source repository
-        const srcGraphs = await srcRepo.findAllGraphs();
-        console.log("srcGraphs:", srcGraphs);
-
-        // add all the graphs to the updatedLogicalGraphs array
-        for (const graphFile of srcGraphs){
-            this.updatedLogicalGraphs.push(new GraphUpdaterFile(null, graphFile));
-        }
-        this.isFetching(false);
-        this.hasFetched(true);
-
         // loop through each graph, load it, and save it to an array
-        this.isUpdating(true);
-        this.hasUpdated(false);
         for (const graphFile of this.updatedLogicalGraphs()){
+            graphFile.state(GraphUpdater.FileStatus.Updating);
+
             // fetch the file data
             console.log("Loading graph file:", graphFile.file().name, "from /", graphFile.file().path);
             const fileData: string = await openRemoteFileFunc(graphFile.file().repository.service, graphFile.file().repository.name, graphFile.file().repository.branch, graphFile.file().path, graphFile.file().name);
@@ -336,6 +354,7 @@ export class GraphUpdater {
                     break;
                 default:
                     Utils.showNotification("Error", "Unsupported graph schema version: " + schemaVersion, "danger");
+                    graphFile.state(GraphUpdater.FileStatus.Error);
                     continue;
             }
 
@@ -346,15 +365,18 @@ export class GraphUpdater {
             }
             catch (error) {
                 console.error("Error parsing graph file:", graphFile.file.name, error);
+                graphFile.state(GraphUpdater.FileStatus.Error);
                 continue;
             }
             console.log("Graph file parsed.");
 
-            graphFile.lg(lg);
+            // save to v4 string
+            graphFile.data = LogicalGraph.toV4JsonString(lg, false);
+
+            graphFile.state(GraphUpdater.FileStatus.Success);
         }
 
-        this.isUpdating(false);
-        this.hasUpdated(true);
+        this.setState(false, true, false, true);
     }
 
     static async push(): Promise<void> {
@@ -372,37 +394,51 @@ export class GraphUpdater {
 
         const files = [];
         for (const graphFile of GraphUpdater.updatedLogicalGraphs()){
-            // save to v4 string
-            const fileDataString = LogicalGraph.toV4JsonString(graphFile.lg(), false);
-
             files.push({
                 "path": graphFile.file().path + graphFile.file().name,
-                "jsonData": fileDataString
+                "jsonData": graphFile.data
             });
+        }
+
+        // get the users github/gitlab token from the settings
+        let repoToken: string;
+        switch (destRepo.service){
+            case Repository.Service.GitHub:
+                repoToken = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
+                break;
+            case Repository.Service.GitLab:
+                repoToken = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY);
+                break;
+            default:
+                Utils.showNotification("Error", "Unsupported repository service: " + destRepo.service, "danger");
+                return;
         }
 
         // build the commit JSON string
         const commitJson = {
             "repositoryName": destRepo.name,
             "repositoryBranch": destRepo.branch,
-            "token": "",
+            "token": repoToken,
             "files": files,
             "commitMessage": commitMessage
         };
+        
+        const eagle: Eagle = Eagle.getInstance();
 
         // write all the files to the destination repository
-        const eagle: Eagle = Eagle.getInstance();
-        //await eagle.saveFilesToRemote(destRepo, srcGraphs, JSON.stringify(commitJson));
-
-        /*
-        // save all graphs in a single commit to destination repository
-        await destRepo.commitMultipleGraphFiles(graphDataArray, commitMessage);
+        try {
+           await eagle.saveFilesToRemote(destRepo, JSON.stringify(commitJson));
+        } catch (error) {
+            console.error("Error pushing updated graphs to destination repository:", error);
+            Utils.showNotification("Error", "Failed to push updated graphs to destination repository: " + error.message, "danger");
+            return;
+        }
 
         // notify user of completion
-        alert("Graph update completed successfully.");
-        */
+        Utils.showNotification("Success", "Graph update completed successfully.", "success");
     }
 
+    // TODO: maybe remove
     // recursive traversal through the folder structure to find all graph files
     private static _addGraphs = (repository: Repository, folder: RepositoryFolder, path: string, data: any[]) : void => {
         for (const subfolder of folder.folders()){
@@ -433,6 +469,7 @@ export class GraphUpdater {
         }
     }
     
+    // TODO: maybe remove
     attemptLoadLogicalGraphTable = async(data: any[]) : Promise<void> => {
         const eagle: Eagle = Eagle.getInstance();
 
@@ -479,5 +516,14 @@ export class GraphUpdater {
                 });
             });
         }
+    }
+}
+
+export namespace GraphUpdater {
+    export enum FileStatus {
+        No = "No",
+        Updating = "Updating",
+        Error = "Error",
+        Success = "Success"
     }
 }

@@ -1965,7 +1965,7 @@ export class Eagle {
      * Assumes that all files are in the same repository. Even though multiple files can be passed in, only the first file is used to determine
      * the repository service and URL.
      */
-    saveFilesToRemote = async (repository: Repository, files: RepositoryFile[], jsonString : string): Promise<void> => {
+    saveFilesToRemote = async (repository: Repository, jsonString : string): Promise<void> => {
         return new Promise(async(resolve, reject) => {
             let url : string;
 
@@ -2003,10 +2003,10 @@ export class Eagle {
 
             // Show success message
             if (repository.service === Repository.Service.GitHub){
-                Utils.showNotification("Success", "The file has been saved to GitHub repository.", "success");
+                Utils.showNotification("Success", "Saved file(s) to GitHub repository.", "success");
             }
             if (repository.service === Repository.Service.GitLab){
-                Utils.showNotification("Success", "The file has been saved to GitLab repository.", "success");
+                Utils.showNotification("Success", "Saved file(s) to GitLab repository.", "success");
             }
 
             // Mark files as non-modified

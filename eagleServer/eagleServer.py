@@ -482,6 +482,7 @@ def save_git_hub_files():
     commit_message = content["commitMessage"]
 
     print("files", files)
+    print("repo_name", repo_name, "repo_branch", repo_branch, "repo_token", repo_token, "commit_message", commit_message)
 
     g = github.Github(repo_token)
 
