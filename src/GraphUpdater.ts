@@ -253,6 +253,10 @@ export class GraphUpdater {
         $('#graphUpdaterModal').modal("toggle");
     }
 
+    static async hideModal(): Promise<void> {
+        $('#graphUpdaterModal').modal("hide");
+    }
+
     static setState(isFetching: boolean, hasFetched: boolean, isUpdating: boolean, hasUpdated: boolean): void {
         this.isFetching(isFetching);
         this.hasFetched(hasFetched);
@@ -390,12 +394,12 @@ export class GraphUpdater {
         }
 
         // TODO: fetch commit message from UI
-        const commitMessage = "Updated graphs from "; // + srcRepo.getNameAndBranch();
+        const commitMessage = "Updated graphs from " + GraphUpdater.sourceRepository.getNameAndBranch();
 
         const files = [];
         for (const graphFile of GraphUpdater.updatedLogicalGraphs()){
             files.push({
-                "path": graphFile.file().path + graphFile.file().name,
+                "path": graphFile.file().pathAndName(),
                 "jsonData": graphFile.data
             });
         }
@@ -436,8 +440,7 @@ export class GraphUpdater {
             return errorJSON.error;
         }
 
-        // notify user of completion
-        Utils.showNotification("Success", "Graph update completed successfully.", "success");
+        GraphUpdater.hideModal();
     }
 
     // TODO: maybe remove

@@ -421,7 +421,10 @@ def save_git_hub_file():
     # get SHA from branch
     branch_sha = branch_ref.object.sha
 
-    set_metadata_for_ingress(graph, "GitHub", repo_name, repo_branch, filename)
+    try:
+        set_metadata_for_ingress(graph, "GitHub", repo_name, repo_branch, filename)
+    except Exception as e:
+        return github_exception_handler(e, "Error in set_metadata_for_ingress", repo_name, repo_branch)
 
     # The 'indent=4' option is used for nice formatting. Without it the file is stored as a single line.
     json_data = json.dumps(graph, indent=4)
@@ -468,8 +471,8 @@ def save_git_hub_files():
     files = content["files"]  # contains "path" and "jsonData" for each file. The path should include the filename.
     commit_message = content["commitMessage"]
 
-    print("files", files)
-    print("repo_name", repo_name, "repo_branch", repo_branch, "repo_token", repo_token, "commit_message", commit_message)
+    #print("files", files)
+    #print("repo_name", repo_name, "repo_branch", repo_branch, "repo_token", repo_token, "commit_message", commit_message)
 
     g = github.Github(repo_token)
 
@@ -495,17 +498,25 @@ def save_git_hub_files():
     # add the files
     for file in files:
         path = file["path"]
-        graph = file["jsonData"]
+        print("Processing file with path: " + path)
+
+        try:
+            graphObject = json.loads(file["jsonData"])
+        except json.JSONDecodeError as e:
+            return github_exception_handler(e, "Error in json.loads for file " + path, repo_name, repo_branch)
 
         # Extracting the true repo name and repo folder.
         #folder_name, repo_name = extract_folder_and_repo_names(repo_name)
         #if folder_name != "":
         #    filename = folder_name + "/" + filename
 
-        set_metadata_for_ingress(graph, "GitHub", repo_name, repo_branch, path)
+        try:
+            set_metadata_for_ingress(graphObject, "GitHub", repo_name, repo_branch, path)
+        except Exception as e:
+            return github_exception_handler(e, "Error in set_metadata_for_ingress for file " + path, repo_name, repo_branch)
 
         # The 'indent=4' option is used for nice formatting. Without it the file is stored as a single line.
-        json_data = json.dumps(graph, indent=4)
+        json_data = json.dumps(graphObject, indent=4)
 
         tree_element = github.InputGitTreeElement(
             path=path, mode="100644", type="blob", content=json_data
@@ -573,7 +584,6 @@ def save_git_lab_file():
 
     # Add repo and file name in the graph.
     set_metadata_for_ingress(graph, "GitLab", repo_name, repo_branch, filename)
-    
 
     # The 'indent=4' option is used for nice formatting. Without it the file is stored as a single line.
     json_data = json.dumps(graph, indent=4)
