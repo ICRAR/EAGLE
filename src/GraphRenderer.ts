@@ -42,7 +42,7 @@ ko.bindingHandlers.nodeRenderHandler = {
     init: function(element:any, valueAccessor) {
         const node: Node = ko.unwrap(valueAccessor())
         
-        if(node.isData()){
+        if(node.isData() || node.isGlobal()){
             $(element).find('.body').css('background-color:#575757','color:white')
         }
     },
@@ -1811,10 +1811,6 @@ export class GraphRenderer {
         GraphRenderer.portDragSuggestedNode(null)
         GraphRenderer.portDragSuggestedField(null)
 
-        // check if source port is a 'dummy' port
-        // if so, consider all components as eligible, to ease the creation of new graphs
-        const sourcePortIsDummy: boolean = GraphRenderer.portDragSourcePort().getDisplayText() === Daliuge.FieldName.DUMMY;
-
         let eligibleComponents: Node[];
 
         // get all nodes with at least one port with opposite "direction" (input/output) from the source node
@@ -1944,7 +1940,7 @@ export class GraphRenderer {
             }
 
             // skip data nodes, if showDataNodes is false
-            if (!showDataNodes && node.isData() && nodeHasConnectedInput && nodeHasConnectedOutput){
+            if (!showDataNodes && (node.isData() || node.isGlobal()) && nodeHasConnectedInput && nodeHasConnectedOutput){
                 continue;
             }
 

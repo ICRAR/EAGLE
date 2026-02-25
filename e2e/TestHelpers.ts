@@ -18,6 +18,36 @@ export class TestHelpers {
         await page.waitForTimeout(500);
     }
 
+    static async createNewGraph(page): Promise<void> {
+        // click 'New Graph' from the 'File' menu
+        await page.locator('#navbarDropdownGraph').click();
+        await page.locator('#navbarDropdownGraphNew').hover();
+        await page.locator('#createNewGraph').click();
+        await page.waitForTimeout(500);
+
+        // agree to create a new graph with it's auto-generated name
+        await page.getByRole('button', { name: 'OK' }).click();
+        await page.waitForTimeout(500);
+
+        // wait for the notification to appear and then dismiss it
+        await page.locator('div[data-notify="container"]').waitFor({state: 'attached'});
+        await page.locator('button[data-notify="dismiss"]').click();
+    }
+
+    static async setShortDescription(page, description: string): Promise<void> {
+        await page.evaluate( (description: string) => {
+            (window as any).eagle.logicalGraph().fileInfo().shortDescription = description;
+            (window as any).eagle.checkGraph();
+        }, description);
+    }
+
+    static async setDetailedDescription(page, description: string): Promise<void> {
+        await page.evaluate( (description: string) => {
+            (window as any).eagle.logicalGraph().fileInfo().detailedDescription = description;
+            (window as any).eagle.checkGraph();
+        }, description);
+    }
+
     // Set the content of the editor in the modal
     static setEditorContent(content): void {
         const editor = $('#inputCodeModal').data('editor');
@@ -92,6 +122,30 @@ export class TestHelpers {
         await page.locator('div[data-notify="container"]').waitFor({state: 'detached'});
     }
 
+    // Load a graph from a string into the app via the modal
+    static async insertGraphFromString(page, s: string) {
+        // click 'create new graph from JSON' from the 'Graph' menu
+        await page.locator('#navbarDropdownGraph').click();
+        await page.locator('#navbarDropdownGraphEdit').hover();
+        await page.locator('#insertGraphFromJson').click();
+        await page.waitForTimeout(500);
+
+        // set the content of the editor in the modal
+        await page.evaluate(TestHelpers.setEditorContent, s);
+        await page.waitForTimeout(500);
+
+        // click 'OK' to save the graph
+        await page.locator('#inputCodeModal .modal-footer button.btn-primary').click();
+        await page.waitForTimeout(500);
+
+        // wait for the notification to appear and then dismiss it
+        await page.locator('div[data-notify="container"]').waitFor({state: 'attached'});
+        await page.locator('button[data-notify="dismiss"]').click();
+
+        // wait for the notification to be dismissed
+        await page.locator('div[data-notify="container"]').waitFor({state: 'detached'});
+    }
+
     static async saveGraphToString(page): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
             // click 'display as JSON' from the 'Graph' menu
@@ -120,6 +174,20 @@ export class TestHelpers {
         await page.waitForTimeout(500);
     }
 
+    static async getNodeCount(page): Promise<number> {
+        return await page.evaluate( () => {
+            return (window as any).eagle.logicalGraph().nodes().size;
+        });
+    }
+
+    static async undo(page): Promise<void> {
+        return await page.press('body','z');
+    }
+
+    static async redo(page): Promise<void> {
+        return await page.press('body','Shift+z');
+    }
+
     // Check if an object is empty
     static isEmpty(o) {
         for (const p in o) {
@@ -146,5 +214,11 @@ export class TestHelpers {
         }
         }
         return ret;
+    }
+
+    static async getNumWarningsErrors(page): Promise<number> {
+        return await page.evaluate(() => {
+            return (window as any).eagle.graphWarnings().length + (window as any).eagle.graphErrors().length;
+        });
     }
 }

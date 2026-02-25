@@ -3,6 +3,7 @@ import * as ko from "knockout";
 import { Eagle } from './Eagle';
 import { GitHub } from './GitHub';
 import { GitLab } from "./GitLab";
+import { FileLocation } from "./FileLocation";
 import { RepositoryFolder } from './RepositoryFolder';
 import { RepositoryFile } from './RepositoryFile';
 import { Utils } from './Utils';
@@ -222,9 +223,9 @@ export class Repository {
         }
     }
 
-    // a dummy repository
+    // a placeholder repository
     // used by some functions when a repository is not actually required, but a placeholder is required for the input arguments
-    public static dummy(){
+    public static placeholder(){
         return new Repository(Repository.Service.Unknown, "", "", false);
     }
 
@@ -312,19 +313,11 @@ export namespace Repository {
 }
 
 export class RepositoryCommit {
-    repositoryService : Repository.Service
-    repositoryName : string
-    repositoryBranch : string
-    filePath : string
-    fileName : string
-    message : string
+    location: FileLocation
+    message: string
 
-    constructor(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath: string, fileName: string, message: string){
-        this.repositoryService = repositoryService;
-        this.repositoryName = repositoryName;
-        this.repositoryBranch = repositoryBranch;
-        this.filePath = filePath;
-        this.fileName = fileName;
+    constructor(fileLocation: FileLocation, message: string){
+        this.location = fileLocation;
         this.message = message;
     }
 }

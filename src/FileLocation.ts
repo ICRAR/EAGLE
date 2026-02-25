@@ -82,6 +82,20 @@ export class FileLocation {
         }
     }
 
+    toString = () : string => {
+        let s = "";
+
+        s += "Repository Service:" + this.repositoryService();
+        s += " Repository Branch:" + this.repositoryBranch();
+        s += " Repository Name:" + this.repositoryName();
+        s += " Repository Path:" + this.repositoryPath();
+        s += " Repository File Name:" + this.repositoryFileName();
+        s += " Commit Hash:" + this.commitHash();
+        s += " Download URL:" + this.downloadUrl();
+
+        return s;
+    }
+
     static toJson(fileLocation: FileLocation) : object {
         return {
             repositoryService: fileLocation.repositoryService(),
@@ -114,7 +128,7 @@ export class FileLocation {
         url += "/?service=" + fileLocation.repositoryService();
 
         if (fileLocation.repositoryService() === Repository.Service.Url){
-            url += "&url=" + fileLocation.downloadUrl;
+            url += "&url=" + fileLocation.downloadUrl();
         } else {
             url += "&repository=" + fileLocation.repositoryName();
             url += "&branch=" + fileLocation.repositoryBranch();
@@ -134,4 +148,6 @@ export class FileLocation {
                (fl0.commitHash() === fl1.commitHash()) &&
                (fl0.downloadUrl() === fl1.downloadUrl());
     }
+
+    static Unknown: FileLocation = new FileLocation();
 }

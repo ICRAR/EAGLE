@@ -226,12 +226,6 @@ export class KeyboardShortcut {
             tags: ['create'],
             run: (eagle): void => {eagle.newConfig();}
         }),
-        // json
-        new KeyboardShortcut({
-            id: "add_to_graph_from_json",
-            text: "Add To Graph From Json",
-            run: (eagle): void => {eagle.addToGraphFromJson();}
-        }),
         new KeyboardShortcut({
             id: "create_new_graph_from_json",
             text: "Create New Graph From Json",
@@ -339,7 +333,18 @@ export class KeyboardShortcut {
             run: (eagle): void => {eagle.saveGraphAs()}
         }),
         // TODO: two for palettes
-
+        new KeyboardShortcut({
+            id: "load_config",
+            text: "Load Graph Configuration",
+            tags: ['load','configuration'],
+            run: (eagle): void => {eagle.getGraphConfigFileToLoad();}
+        }),
+        new KeyboardShortcut({
+            id: "save_config",
+            text: "Save Graph Configuration",
+            tags: ['save','configuration'],
+            run: (eagle): void => {eagle.saveActiveGraphConfig();}
+        }),
         // misc
         new KeyboardShortcut({
             id: "add_graph_nodes_to_palette",

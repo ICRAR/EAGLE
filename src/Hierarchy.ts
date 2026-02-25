@@ -310,7 +310,7 @@ export class Hierarchy {
             }
         }
 
-        if (!eagle.showDataNodes() && node.isData() && nodeHasConnectedInput && nodeHasConnectedOutput){
+        if (!eagle.showDataNodes() && (node.isData() || node.isGlobal()) && nodeHasConnectedInput && nodeHasConnectedOutput){
             return 'visible';
         }
 
