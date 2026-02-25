@@ -50,6 +50,10 @@ test('Creating a Simple Graph', async ({ page }) => {
 
   //click on the input port of the file to open the parameter table modal and highlight the port
   await page.locator('#hello .inputPort').click();
+  
+  // set 'changeable' on the port to true
+  await page.locator('.highlighted .column_Flags button.changeableFlag').click();
+
   //rename the port
   await page.locator('.highlighted .tableFieldDisplayName').fill('testInput');
 

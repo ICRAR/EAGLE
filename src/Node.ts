@@ -900,21 +900,10 @@ export class Node {
         return undefined;
     }
 
-
-    findPortByMatchingType = (type: string, input: boolean) : Field | null => {
-        if (input){
-            // check input ports
-            for (const inputPort of this.getInputPorts()){
-                if (Utils.typesMatch(inputPort.getType(), type)){
-                    return inputPort;
-                }
-            }
-        } else {
-            // check output ports
-            for (const outputPort of this.getOutputPorts()){
-                if (Utils.typesMatch(outputPort.getType(), type)){
-                    return outputPort;
-                }
+    findPortByMatchingType = (type: string, usages: Daliuge.FieldUsage[]) : Field | null => {
+        for (const port of this.getFields()){
+            if (usages.includes(port.getUsage()) && Utils.typesMatch(port.getType(), type)){
+                return port;
             }
         }
         return null;
@@ -1593,7 +1582,7 @@ export class Node {
         // add fields
         if (typeof nodeData.fields !== 'undefined'){
             for (const fieldData of nodeData.fields){
-                const field = Field.fromOJSJson(fieldData, node);
+                const field = Field.fromOJSJson(fieldData, node, !isPaletteNode);
 
                 // if the parameter type is not specified, assume it is a ComponentParameter
                 if (field.getParameterType() === Daliuge.FieldType.Unknown){
@@ -1608,7 +1597,7 @@ export class Node {
         // add application params
         if (typeof nodeData.applicationArgs !== 'undefined'){
             for (const paramData of nodeData.applicationArgs){
-                const field = Field.fromOJSJson(paramData, node);
+                const field = Field.fromOJSJson(paramData, node, !isPaletteNode);
                 field.setParameterType(Daliuge.FieldType.Application);
                 node.addField(field);
             }
@@ -1620,7 +1609,7 @@ export class Node {
                 const inputApplication = node.inputApplication();
 
                 if (inputApplication !== null){
-                    const field = Field.fromOJSJson(fieldData, inputApplication);
+                    const field = Field.fromOJSJson(fieldData, inputApplication, !isPaletteNode);
                     inputApplication.addField(field);
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Can't add input app field " + fieldData.text + " to node " + node.getName() + ". No input application."));
@@ -1634,7 +1623,7 @@ export class Node {
                 const outputApplication = node.outputApplication();
 
                 if (outputApplication !== null){
-                    const field = Field.fromOJSJson(fieldData, outputApplication);
+                    const field = Field.fromOJSJson(fieldData, outputApplication, !isPaletteNode);
                     outputApplication.addField(field);
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Can't add output app field " + fieldData.text + " to node " + node.getName() + ". No output application."));
@@ -1645,7 +1634,7 @@ export class Node {
         // add input ports
         if (typeof nodeData.inputPorts !== 'undefined'){
             for (const inputPort of nodeData.inputPorts){
-                const port = Field.fromOJSJsonPort(inputPort, node);
+                const port = Field.fromOJSJsonPort(inputPort, node, !isPaletteNode);
                 port.setParameterType(Daliuge.FieldType.Application);
                 port.setUsage(Daliuge.FieldUsage.InputPort);
 
@@ -1664,7 +1653,7 @@ export class Node {
         // add output ports
         if (typeof nodeData.outputPorts !== 'undefined'){
             for (const outputPort of nodeData.outputPorts){
-                const port = Field.fromOJSJsonPort(outputPort, node);
+                const port = Field.fromOJSJsonPort(outputPort, node, !isPaletteNode);
                 port.setParameterType(Daliuge.FieldType.Application);
                 port.setUsage(Daliuge.FieldUsage.OutputPort);
 
@@ -1686,7 +1675,7 @@ export class Node {
                 const inputApplication = node.inputApplication();
 
                 if (inputApplication !== null){
-                    const port = Field.fromOJSJsonPort(inputLocalPort, inputApplication);
+                    const port = Field.fromOJSJsonPort(inputLocalPort, inputApplication, !isPaletteNode);
                     port.setParameterType(Daliuge.FieldType.Application);
                     port.setUsage(Daliuge.FieldUsage.OutputPort);
 
@@ -1703,7 +1692,7 @@ export class Node {
                 const outputApplication = node.outputApplication();
 
                 if (outputApplication !== null){
-                    const port = Field.fromOJSJsonPort(outputLocalPort, outputApplication);
+                    const port = Field.fromOJSJsonPort(outputLocalPort, outputApplication, !isPaletteNode);
                     port.setParameterType(Daliuge.FieldType.Application);
                     port.setUsage(Daliuge.FieldUsage.InputPort);
 
@@ -1756,8 +1745,7 @@ export class Node {
 
         // add fields
         for (const [id, fieldData] of Object.entries(nodeData.fields)){
-            const field = Field.fromV4Json(fieldData, node);
-            // TODO: required? probably better to set this in Field.fromV4Json()
+            const field = Field.fromV4Json(fieldData, node, !isPaletteNode);
             node.addField(field);
         }
 
@@ -2049,6 +2037,21 @@ export class Node {
         // looping through and checking all the fields on the node
         for (const field of node.fields().values()){
             Field.isValid(node,field, location)
+        }
+
+        // check that all fields present in the original (palette) component have the changeable property set correctly (to false)
+        const originalComponent = Utils.getPaletteComponentByName(node.getName()) || Utils.getPaletteComponentByName(node.getCategory());
+        if (typeof originalComponent !== 'undefined'){
+            for (const originalField of originalComponent.getFields()){
+                const nodeField = node.findFieldByDisplayText(originalField.getDisplayText());
+                if (typeof nodeField !== 'undefined'){
+                    if (nodeField.isChangeable() !== originalField.isChangeable()){
+                        const message: string = "Node (" + node.getName() + ") field (" + nodeField.getDisplayText() + ") has incorrect changeable property. Expected: " + originalField.isChangeable() + ", Actual: " + nodeField.isChangeable();
+                        const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showField(eagle, location, node, nodeField)}, function(){nodeField.setChangeable(originalField.isChangeable())}, "Set changeable to " + originalField.isChangeable());
+                        node.issues().push({issue:issue, validity:Errors.Validity.Warning});
+                    }
+                }
+            }
         }
 
         if(!Utils.isKnownCategory(node.getCategory())){

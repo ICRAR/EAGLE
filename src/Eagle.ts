@@ -2056,13 +2056,14 @@ export class Eagle {
                     return;
             }
 
-            let data: any;
             try {
-                data = await Utils.httpPostJSONString(url, jsonString);
+                await Utils.httpPostJSONString(url, jsonString);
             } catch (error){
-                Utils.showUserMessage("Error", data + "<br/><br/>These error messages provided by " + file.repository.service + " are not very helpful. Please contact EAGLE admin to help with further investigation.");
-                console.error("Error: " + JSON.stringify(error, null, EagleConfig.JSON_INDENT) + " Data: " + data);
-                reject(error);
+                const errorJSON = JSON.parse(error);
+
+                Utils.showUserMessage("Error", errorJSON.error + "<br/><br/>NOTE: These error messages provided by " + file.repository.service + " are not very helpful. Please contact EAGLE admin to help with further investigation.");
+                console.error("Error: " + errorJSON.error);
+                reject(errorJSON.error);
                 return;
             }
 
@@ -4048,20 +4049,24 @@ export class Eagle {
         const realSourceNode: Node | null = RightClick.edgeDropSrcNode;
         const realSourcePort: Field | null = RightClick.edgeDropSrcPort;
         const realDestNode: Node = nodes[0];
-        let realDestPort: Field | null = null;
 
-        if (realSourcePort !== null){
-            realDestPort = realDestNode.findPortByMatchingType(realSourcePort.getType(), !RightClick.edgeDropSrcIsInput);
+        // abort if we don't have sourceNode or sourcePort
+        if (realSourceNode === null || realSourcePort === null){
+            Utils.showNotification("Error", "Unable to create edge: missing source node or port", "danger");
+            return;
         }
+
+        const usages: Daliuge.FieldUsage[] = [RightClick.edgeDropSrcIsInput ? Daliuge.FieldUsage.OutputPort : Daliuge.FieldUsage.InputPort, Daliuge.FieldUsage.InputOutput];
+        let realDestPort: Field | null = realDestNode.findPortByMatchingType(realSourcePort.getType(), usages);
 
         // if no dest port was found, just use first input port on dest node
         if (realDestPort === null){
             realDestPort = realDestNode.findPortOfAnyType(true);
         }
 
-        // abort if we don't have sourceNode, destNode, sourcePort and destPort
-        if (realSourceNode === null || realSourcePort === null || realDestNode === null || realDestPort === null){
-            Utils.showNotification("Error", "Unable to create edge: missing source or destination node or port", "danger");
+        // abort if we don't have destNode or destPort
+        if (realDestNode === null || realDestPort === null){
+            Utils.showNotification("Error", "Unable to create edge: missing destination node or port", "danger");
             return;
         }
 
@@ -4223,13 +4228,13 @@ export class Eagle {
 
                 // make sure we can find a port on the PythonMemberFunction
                 if (typeof sourcePort === 'undefined'){
-                    sourcePort = Daliuge.selfField.clone().setId(Utils.generateFieldId());
+                    sourcePort = Daliuge.selfFieldComponent.clone().setId(Utils.generateFieldId());
                     newNode.addField(sourcePort);
                     Utils.showNotification("Component Warning", "The PythonMemberFunction does not have a '" + Daliuge.FieldName.SELF + "' port. Added this port to enable connection.", "warning");
                 }
 
                 // create a new input/output "object" port on the PythonObject
-                const inputOutputPort: Field = Daliuge.selfField.clone().setId(Utils.generateFieldId()).setType(sourcePort.getType());
+                const inputOutputPort: Field = Daliuge.selfFieldComponent.clone().setId(Utils.generateFieldId()).setType(sourcePort.getType());
                 pythonObjectNode.addField(inputOutputPort);
 
                 // add edge to Logical Graph (connecting the PythonMemberFunction and the automatically-generated PythonObject)
@@ -4885,7 +4890,8 @@ export class Eagle {
             if (typeof intermediaryComponent === 'undefined'){
                 intermediaryComponent = new Node("Data", "Data Component", "", Category.Data);
             } else {
-                intermediaryComponent = Utils.duplicateNode(intermediaryComponent);
+                //intermediaryComponent = Utils.duplicateNode(intermediaryComponent);
+                intermediaryComponent = intermediaryComponent.clone().setId(Utils.generateNodeId());
             }
 
             // if edge DOES NOT connect two applications, process normally
@@ -4902,14 +4908,20 @@ export class Eagle {
                         const newName = srcPort.getDisplayText();
                         const newDescription = srcPort.getDescription();
                         destNode.setName(newName);
-                        destPort.setDisplayText(newName);
-                        destPort.setDescription(newDescription);
+
+                        if (destPort.isChangeable()){
+                            destPort.setDisplayText(newName);
+                            destPort.setDescription(newDescription);
+                        }
                     } else {
                         const newName = destPort.getDisplayText();
                         const newDescription = destPort.getDescription();
                         srcNode.setName(newName);
-                        srcPort.setDisplayText(newName);
-                        srcPort.setDescription(newDescription);
+
+                        if (srcPort.isChangeable()){
+                            srcPort.setDisplayText(newName);
+                            srcPort.setDescription(newDescription);
+                        }
                     }
                 }
 
@@ -4945,19 +4957,27 @@ export class Eagle {
             };
 
             // Add the intermediary component to the graph
-            const newNode : Node = this.logicalGraph().addDataComponentToGraph(intermediaryComponent, dataComponentPosition);
+            //const newNode : Node = this.logicalGraph().addDataComponentToGraph(intermediaryComponent, dataComponentPosition);              // DOESN't WORK!! io port is not rendered
+            const newNode = (await this.addNodeToLogicalGraph(intermediaryComponent, Utils.generateNodeId(), Eagle.AddNodeMode.Default))[0]; // WORKS!! (just location is not used)
+
+            newNode.setPosition(dataComponentPosition.x, dataComponentPosition.y);
 
             // set name of new node (use user-facing name)
             newNode.setName(srcPort.getDisplayText());
 
-            // remove existing ports from the memory node
-            newNode.removeAllInputPorts();
-            newNode.removeAllOutputPorts();
+            // find InputOutput port on node, which matches the source port dataType
+            const inputOutputPort = newNode.findPortByMatchingType(srcPort.getType(), [Daliuge.FieldUsage.InputOutput]);
+            if (inputOutputPort === null){
+                Utils.showNotification("Add Edge Error", "Unable to find suitable port on intermediary component", "danger");
+                reject("Unable to find suitable port on intermediary component");
+                return;
+            }
 
-            // add InputOutput port for dataType
-            const newInputOutputPort = new Field(newNode, Utils.generateFieldId(), srcPort.getDisplayText(), "", "", srcPort.getDescription(), false, srcPort.getType(), false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.InputOutput);
-            // TODO: is this required, or will the Field constructor already have set this correctly?
-            newNode.addField(newInputOutputPort);
+            // if the port is changeable, set its display text and description to match the source port
+            if (inputOutputPort.isChangeable()){
+                inputOutputPort.setDisplayText(srcPort.getDisplayText());
+                inputOutputPort.setDescription(srcPort.getDescription());
+            }
 
             const srcNodeParent = srcNode.getParent();
             const destNodeParent = destNode.getParent();
@@ -4977,8 +4997,8 @@ export class Eagle {
             }
 
             // create TWO edges, one from src to data component, one from data component to dest
-            const firstEdge : Edge = new Edge('', srcNode, srcPort, newNode, newInputOutputPort, loopAware, closesLoop, false);
-            const secondEdge : Edge = new Edge('', newNode, newInputOutputPort, destNode, destPort, loopAware, closesLoop, false);
+            const firstEdge : Edge = new Edge('', srcNode, srcPort, newNode, inputOutputPort, loopAware, closesLoop, false);
+            const secondEdge : Edge = new Edge('', newNode, inputOutputPort, destNode, destPort, loopAware, closesLoop, false);
 
             this.logicalGraph().addEdgeComplete(firstEdge);
             this.logicalGraph().addEdgeComplete(secondEdge);
