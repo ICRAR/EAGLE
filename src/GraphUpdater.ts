@@ -356,10 +356,10 @@ export class GraphUpdater {
             // parse file data as LogicalGraph
             let lg: LogicalGraph;
             try {
-                lg = fromJsonFunc(graphObject, graphFile.file.name, {"errors":[], "warnings":[]});
+                lg = fromJsonFunc(graphObject, graphFile.file().name, {"errors":[], "warnings":[]});
             }
             catch (error) {
-                console.error("Error parsing graph file:", graphFile.file.name, error);
+                console.error("Error parsing graph file:", graphFile.file().name, error);
                 graphFile.state(GraphUpdater.FileStatus.Error);
                 continue;
             }
