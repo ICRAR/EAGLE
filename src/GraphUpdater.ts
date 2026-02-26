@@ -299,9 +299,8 @@ export class GraphUpdater {
                     fromJsonFunc = LogicalGraph.fromV4Json;
                     break;
                 default:
-                    Utils.showNotification("Error", "Unsupported graph schema version: " + schemaVersion, "danger");
-                    graphFile.state(GraphUpdater.FileStatus.Error);
-                    continue;
+                    console.warn("Error: Unsupported graph schema version: " + schemaVersion + " for file: " + graphFile.file().name + ". Defaulting to OJS parser.");
+                    fromJsonFunc = LogicalGraph.fromOJSJson;
             }
 
             // parse file data as LogicalGraph
@@ -310,7 +309,11 @@ export class GraphUpdater {
                 lg = fromJsonFunc(graphObject, graphFile.file().name, {"errors":[], "warnings":[]});
             }
             catch (error) {
-                console.error("Error parsing graph file:", graphFile.file().name, error);
+                if (schemaVersion === Setting.SchemaVersion.Unknown){
+                    console.error("Error parsing graph file with unknown schema version, defaulted to OJS parser. File:", graphFile.file().name, "Error:", error);
+                } else {
+                    console.error("Error parsing graph file:", graphFile.file().name, "Error:", error);
+                }
                 graphFile.state(GraphUpdater.FileStatus.Error);
                 continue;
             }
