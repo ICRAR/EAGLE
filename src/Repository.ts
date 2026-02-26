@@ -186,23 +186,18 @@ export class Repository {
 
     // expand all the directories
     expandAll = async () : Promise<void> => {
-        return new Promise(async(resolve) => {
-
-            async function traverseFolder(folder: RepositoryFolder) : Promise<void> {
-                await folder.select();
-                for (const subFolder of folder.folders()){
-                    await traverseFolder(subFolder);
-                }
+        async function traverseFolder(folder: RepositoryFolder) : Promise<void> {
+            await folder.select();
+            for (const subFolder of folder.folders()){
+                await traverseFolder(subFolder);
             }
+        }
 
-            await this.select();
+        await this.select();
 
-            for (const folder of this.folders()){
-                await traverseFolder(folder);
-            }
-
-            resolve();
-        });
+        for (const folder of this.folders()){
+            await traverseFolder(folder);
+        }
     }
 
     // refresh all the directories along a given path
