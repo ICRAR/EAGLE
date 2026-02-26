@@ -29,7 +29,6 @@ import { GitLab } from './GitLab';
 import { LogicalGraph } from './LogicalGraph';
 import { Repositories } from './Repositories';
 import { Repository } from './Repository';
-import { RepositoryFolder } from './RepositoryFolder';
 import { RepositoryFile } from './RepositoryFile';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
@@ -179,54 +178,6 @@ export class GraphUpdater {
             edge.from = keyToId.get(edge.from);
             edge.to = keyToId.get(edge.to);
         }
-    }
-
-    static generateLogicalGraphsTable() : any[] {
-        // check that all repos have been fetched
-        let foundNotFetched = false;
-        for (const repo of Repositories.repositories()){
-            if (!repo.fetched()){
-                foundNotFetched = true;
-                console.warn("Not fetched repo:" + repo.getNameAndBranch());
-            }
-        }
-        if (foundNotFetched){
-            return [];
-        }
-
-        const tableData : any[] = [];
-
-        // add logical graph nodes to table
-        for (const repo of Repositories.repositories()){
-            for (const folder of repo.folders()){
-                GraphUpdater._addGraphs(repo, folder, folder.name, tableData);
-            }
-
-            for (const file of repo.files()){
-                if (file.name.endsWith(".graph")){
-                    tableData.push({
-                        "service":repo.service,
-                        "name":repo.name,
-                        "branch":repo.branch,
-                        "folder":"",
-                        "file":file.name,
-                        "eagleVersion":"",
-                        "repositoryUrl":"",
-                        "commitHash":"",
-                        "downloadUrl":"",
-                        "signature":"",
-                        "lastModified":"",
-                        "lastModifiedBy":"",
-                        "numLoadWarnings":"",
-                        "numLoadErrors":"",
-                        "numCheckWarnings":"",
-                        "numCheckErrors":""
-                    });
-                }
-            }
-        }
-
-        return tableData;
     }
     
     static async showModal(): Promise<void> {
@@ -435,86 +386,6 @@ export class GraphUpdater {
         }
 
         GraphUpdater.hideModal();
-    }
-
-    // TODO: maybe remove
-    // recursive traversal through the folder structure to find all graph files
-    private static _addGraphs = (repository: Repository, folder: RepositoryFolder, path: string, data: any[]) : void => {
-        for (const subfolder of folder.folders()){
-            GraphUpdater._addGraphs(repository, subfolder, path + "/" + subfolder.name, data);
-        }
-
-        for (const file of folder.files()){
-            if (file.name.endsWith(".graph")){
-                data.push({
-                    "service": repository.service,
-                    "name":repository.name,
-                    "branch":repository.branch,
-                    "folder":path,
-                    "file":file.name,
-                    "eagleVersion":"",
-                    "repositoryUrl":"",
-                    "commitHash":"",
-                    "downloadUrl":"",
-                    "signature":"",
-                    "lastModified":"",
-                    "lastModifiedBy":"",
-                    "numLoadWarnings":"",
-                    "numLoadErrors":"",
-                    "numCheckWarnings":"",
-                    "numCheckErrors":""
-                });
-            }
-        }
-    }
-    
-    // TODO: maybe remove
-    attemptLoadLogicalGraphTable = async(data: any[]) : Promise<void> => {
-        const eagle: Eagle = Eagle.getInstance();
-
-        for (const row of data){
-            // determine the correct function to load the file
-            let openRemoteFileFunc: (repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string, filePath: string, fileName: string) => Promise<string>;
-            if (row.service === Repository.Service.GitHub){
-                openRemoteFileFunc = GitHub.openRemoteFile;
-            } else {
-                openRemoteFileFunc = GitLab.openRemoteFile;
-            }
-
-            // try to load the file
-            await new Promise<void>((resolve, reject) => {
-                openRemoteFileFunc(row.service, row.name, row.branch, row.folder, row.file).then((data: string) => {
-
-                    const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
-                    const file: RepositoryFile = new RepositoryFile(row.service, row.folder, row.file);
-                    const lg: LogicalGraph = LogicalGraph.fromOJSJson(JSON.parse(data), file.name, errorsWarnings);
-
-                    // record number of errors
-                    row.numLoadWarnings = errorsWarnings.warnings.length;
-                    row.numLoadErrors = errorsWarnings.errors.length;
-
-                    // use git-related info within file
-                    row.generatorVersion = lg.fileInfo().generatorVersion;
-                    row.lastModifiedBy = lg.fileInfo().lastModifiedName;
-                    row.repositoryUrl = lg.fileInfo().repositoryUrl;
-                    row.commitHash = lg.fileInfo().location.commitHash();
-                    row.downloadUrl = lg.fileInfo().location.downloadUrl();
-                    row.signature = lg.fileInfo().signature;
-
-                    // convert date from timestamp to date string
-                    const date = new Date(lg.fileInfo().lastModifiedDatetime * 1000);
-                    row.lastModified = date.toLocaleDateString() + " " + date.toLocaleTimeString()
-
-                    // check the graph once loaded
-                    Utils.checkGraph(eagle);
-                    const results: Errors.ErrorsWarnings = Utils.gatherGraphErrors();
-                    row.numCheckWarnings = results.warnings.length;
-                    row.numCheckErrors = results.errors.length;
-
-                    resolve();
-                });
-            });
-        }
     }
 }
 
