@@ -336,7 +336,7 @@ export class GraphUpdater {
             return;
         }
 
-        // TODO: fetch commit message from UI
+        // use generic commit message
         const commitMessage = "Updated graphs from " + GraphUpdater.sourceRepository.getNameAndBranch();
 
         const files = [];

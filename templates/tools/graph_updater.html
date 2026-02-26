@@ -33,36 +33,41 @@
                     <!-- /ko -->
                     <div class="row" data-bind="visible: GraphUpdater.hasFetched()">
                         <div class="col" id="graphUpdaterModalGraphTableCol">
-                            <table id="graphUpdaterModalGraphTable" class="table table-striped table-bordered table-hover">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Graph</th>
-                                        <th scope="col">Updated</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="graphUpdaterModalGraphTableBody" data-bind="foreach: GraphUpdater.updatedLogicalGraphs">
-                                    <tr>
-                                        <td data-bind="text: file().pathAndName()"></td>
-                                        <!-- ko if: state() === GraphUpdater.FileStatus.No -->
-                                        <td></td>
-                                        <!-- /ko -->
-                                        <!-- ko if: state() === GraphUpdater.FileStatus.Success -->
-                                        <td>Success</td>
-                                        <!-- /ko -->
-                                        <!-- ko if: state() === GraphUpdater.FileStatus.Error -->
-                                        <td>Error</td>
-                                        <!-- /ko -->
-                                        <!-- ko if: state() === GraphUpdater.FileStatus.Updating -->
-                                        <td>
-                                            <div class="spinner-border spinner-border-sm" role="status"></div>
-                                        </td>
-                                        <!-- /ko -->
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <!-- ko if: GraphUpdater.updatedLogicalGraphs().length === 0 -->
+                                <span>No logical graphs found in repository branch</span>
+                            <!-- /ko -->
+                            <!-- ko if: GraphUpdater.updatedLogicalGraphs().length > 0 -->
+                                <table id="graphUpdaterModalGraphTable" class="table table-striped table-bordered table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Graph</th>
+                                            <th scope="col">Updated</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="graphUpdaterModalGraphTableBody" data-bind="foreach: GraphUpdater.updatedLogicalGraphs">
+                                        <tr>
+                                            <td data-bind="text: file().pathAndName()"></td>
+                                            <!-- ko if: state() === GraphUpdater.FileStatus.No -->
+                                            <td></td>
+                                            <!-- /ko -->
+                                            <!-- ko if: state() === GraphUpdater.FileStatus.Success -->
+                                            <td>Success</td>
+                                            <!-- /ko -->
+                                            <!-- ko if: state() === GraphUpdater.FileStatus.Error -->
+                                            <td>Error</td>
+                                            <!-- /ko -->
+                                            <!-- ko if: state() === GraphUpdater.FileStatus.Updating -->
+                                            <td>
+                                                <div class="spinner-border spinner-border-sm" role="status"></div>
+                                            </td>
+                                            <!-- /ko -->
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            <!-- /ko -->
                         </div>
                     </div>
-                    <div class="row" data-bind="visible: GraphUpdater.hasFetched() && !GraphUpdater.isUpdating() && !GraphUpdater.hasUpdated()">
+                    <div class="row" data-bind="visible: GraphUpdater.hasFetched() && !GraphUpdater.isUpdating() && !GraphUpdater.hasUpdated() && GraphUpdater.updatedLogicalGraphs().length > 0">
                         <div class="col">
                             <div class="d-grid gap-2">
                                 <button type="button" class="btn btn-primary" id="graphUpdaterModalUpdateButton" data-bind="click: function(){GraphUpdater.update()}">
