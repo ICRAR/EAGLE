@@ -1979,15 +1979,16 @@ export class Eagle {
                     break;
                 default:
                     Utils.showUserMessage("Error", "Unknown repository service : " + repository.service);
+                    reject("Unknown repository service : " + repository.service);
                     return;
             }
 
-            let data: any;
+            // POST JSON
             try {
-                data = await Utils.httpPostJSONString(url, jsonString);
+                await Utils.httpPostJSONString(url, jsonString);
             } catch (error){
-                Utils.showUserMessage("Error", data + "<br/><br/>These error messages provided by " + repository.service + " are not very helpful. Please contact EAGLE admin to help with further investigation.");
-                console.error("Error: " + JSON.stringify(error, null, EagleConfig.JSON_INDENT) + " Data: " + data);
+                Utils.showUserMessage("Error", error + "<br/><br/>These error messages provided by " + repository.service + " are not very helpful. Please contact EAGLE admin to help with further investigation.");
+                console.error("Error: " + JSON.stringify(error, null, EagleConfig.JSON_INDENT));
                 reject(error);
                 return;
             }
@@ -2009,14 +2010,6 @@ export class Eagle {
             if (repository.service === Repository.Service.GitLab){
                 Utils.showNotification("Success", "Saved file(s) to GitLab repository.", "success");
             }
-
-            // Mark files as non-modified
-            //for (const fileInfo of files){
-            //    fileInfo.modified = false;
-            //}
-
-            // TODO: not sure what to do here!
-            //Utils.updateFileInfo(fileInfo, file);
 
             resolve();
         });
