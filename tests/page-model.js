@@ -106,7 +106,7 @@ class Page {
     this.commitMessage = Selector('#gitCommitModalCommitMessageInput');
     this.commitSubmit = Selector('#gitCommitModalAffirmativeButton');
 
-    this.setTransURL = Selector('.btn.btn-primary').withText("Set Translator URL");
+    this.setTransURL = Selector('#setTranslatorUrlBtn');
 
     this.algorithm0 = Selector('#headingOne');
     this.alg0Button = Selector('#alg0PGT');

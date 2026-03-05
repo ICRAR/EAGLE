@@ -15,7 +15,7 @@ const gitHubUser = Role('https://github.com/login', async t => {
     await t
         .typeText('#login_field', 'markus.dolensky@uwa.edu.au')
         .typeText('#password', GITHUB_PW)
-        .click('.btn.btn-primary');
+        .click('.btn.btn-primary.btn-block');
 });
 
 // Creating the message box - this is used for large, bold messages centred at the top
