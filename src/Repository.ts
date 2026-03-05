@@ -86,6 +86,37 @@ export class Repository {
         });
     }
 
+    // TODO: a bit of repeated code here, could we make traverseFolder accept a folder OR a repository?
+    findAllGraphs = () : RepositoryFile[] => {
+        const graphs: RepositoryFile[] = [];
+
+        const traverseFolder = (folder: RepositoryFolder) : void => {
+            for (const file of folder.files()){
+                if (file.type === Eagle.FileType.Graph){
+                    graphs.push(file);
+                }
+            }
+
+            for (const subFolder of folder.folders()){
+                traverseFolder(subFolder);
+            }
+        }
+
+        // check top-level files
+        for (const file of this.files()){
+            if (file.type === Eagle.FileType.Graph){
+                graphs.push(file);
+            }
+        }
+
+        // check folders
+        for (const folder of this.folders()){
+            traverseFolder(folder);
+        }
+
+        return graphs;
+    }
+
     // browse down into a repository, along the path, and return the RepositoryFolder there
     // or if no path, just return the Repository
     // or if path not found, return null
@@ -151,6 +182,22 @@ export class Repository {
 
             resolve();
         });
+    }
+
+    // expand all the directories
+    expandAll = async () : Promise<void> => {
+        async function traverseFolder(folder: RepositoryFolder) : Promise<void> {
+            await folder.select();
+            for (const subFolder of folder.folders()){
+                await traverseFolder(subFolder);
+            }
+        }
+
+        await this.select();
+
+        for (const folder of this.folders()){
+            await traverseFolder(folder);
+        }
     }
 
     // refresh all the directories along a given path
