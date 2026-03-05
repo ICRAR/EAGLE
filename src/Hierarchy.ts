@@ -83,7 +83,7 @@ export class Hierarchy {
         
         //handle expanding groups that nodes get drawn to, and handle adding nodeRelative
         function setNodeRelatives(){
-            nodeRelative.forEach(function(element:Node){
+            nodeRelative.forEach(function(element:Node | null){
                 let iterations = 0;
     
                 if (element === null){
@@ -96,10 +96,11 @@ export class Hierarchy {
                         return
                     }
     
-                    if(element.isEmbedded()){
-                        const localPortGroup: Node = element.getEmbed();
-                        localPortGroup.setExpanded(true)
-                        localPortGroup.setKeepExpanded(true)
+                    const embedNode = element.getEmbed();
+
+                    if(embedNode !== null){
+                        embedNode.setExpanded(true)
+                        embedNode.setKeepExpanded(true)
                     }else{  
                         element.setExpanded(true)
                         element.setKeepExpanded(true)
@@ -126,7 +127,11 @@ export class Hierarchy {
             const innerItem = $('.hierarchy .hierarchyNodeIsSelected')
             const parentDiv = $('.hierarchy')
             if(innerItem.length > 0 && parentDiv.length > 0){
-                parentDiv.scrollTop(parentDiv.scrollTop() + innerItem.position().top - parentDiv.height()/2 + innerItem.height()/2)
+                const parentDivScrollTop = parentDiv.scrollTop() || 0;
+                const parentDivHeight = parentDiv.height() || 0;
+                const innerItemHeight = innerItem.height() || 0;
+
+                parentDiv.scrollTop(parentDivScrollTop + innerItem.position().top - parentDivHeight/2 + innerItemHeight/2)
             }
         },50)
     }
@@ -172,7 +177,19 @@ export class Hierarchy {
         const srcNodePos = srcNodeElement.getBoundingClientRect()
         const destNodePos = destNodeElement.getBoundingClientRect()
         const parentPos = $("#rightWindowContainer")[0].getBoundingClientRect()
-        const parentScrollOffset = $(".rightWindowDisplay.hierarchy").scrollTop()
+        let parentScrollOffset = $(".rightWindowDisplay.hierarchy").scrollTop()
+        let nodeListWidth = $('#nodeList .col').width();
+
+        // set default value for parentScrollOffset
+        if (typeof parentScrollOffset === 'undefined'){
+            console.warn("Hierarchy.drawEdge(): could not determine parent scroll offset, defaulting to 0");
+            parentScrollOffset = 0;
+        }
+
+        if (typeof nodeListWidth === 'undefined'){
+            console.warn("Hierarchy.drawEdge(): could not determine node list width, defaulting to 300");
+            nodeListWidth = 300;
+        }
 
         // determine colour of edge
         const colour: string = edgeSelected ? EagleConfig.getColor('hierarchyEdgeSelected') : EagleConfig.getColor('hierarchyEdgeDefault');
@@ -190,9 +207,9 @@ export class Hierarchy {
             $('#nodeList .col').append('<div class="positionPointer" style="height:15px;width:auto;position:absolute;z-index:10001;top:'+p2y+'px;left:'+arrowX+'px;transform:rotate(90deg);fill:'+colour+';"><svg id="triangle" viewBox="0 0 100 100" style="transform: translate(-30%, -50%);"><polygon points="50 15, 100 100, 0 100"/></svg></div>')
 
         }else if(use==="output"){
-            p1x = ($('#nodeList .col').width() - (parentPos.right-srcNodePos.right))+29
+            p1x = (nodeListWidth - (parentPos.right-srcNodePos.right))+29
             p1y = ((srcNodePos.top - parentPos.top)+9)+parentScrollOffset
-            p2x = ($('#nodeList .col').width() - (parentPos.right-destNodePos.right))+39
+            p2x = (nodeListWidth - (parentPos.right-destNodePos.right))+39
             p2y = ((destNodePos.top - parentPos.top)+9)+parentScrollOffset
             arrowX = (parentPos.right-destNodePos.right) - 20
             mpx = parentPos.right-srcNodePos.right+10
@@ -201,6 +218,10 @@ export class Hierarchy {
             $('#nodeList .col').append('<div class="positionPointer" style="height:15px;width:auto;position:absolute;z-index:1001;top:'+p2y+'px;right:'+arrowX+'px;transform:rotate(-90deg);fill:'+colour+';"><svg id="triangle" viewBox="0 0 100 100" style="transform: translate(40%, -75%);"><polygon points="50 15, 100 100, 0 100"/></svg></div>')
         }else{
             console.log("error")
+            p1x = 0
+            p1y = 0
+            p2x = 0
+            p2y = 0
         }
 
         //Y values re-adjusted for edges

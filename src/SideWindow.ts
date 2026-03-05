@@ -5,7 +5,7 @@ import { Utils } from './Utils';
 import { Setting } from "./Setting";
 import { UiModeSystem } from "./UiModes";
 import { GraphRenderer } from "./GraphRenderer";
-import { Tutorial, TutorialSystem } from "./Tutorial";
+import { TutorialSystem } from "./Tutorial";
 
 export class SideWindow {
     // The width remains on the sideWindow, this is because when we are dragging the width of a side window, there are frequent changes to the width. 
@@ -25,7 +25,7 @@ export class SideWindow {
         }
 
         // don't allow toggle if palette and graph editing are disabled
-        const editingAllowed: boolean = Setting.findValue(Setting.ALLOW_PALETTE_EDITING) || Setting.findValue(Setting.ALLOW_GRAPH_EDITING);
+        const editingAllowed: boolean = Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false) || Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false);
         if (window === "left" && !editingAllowed){
             Utils.notifyUserOfEditingIssue(Eagle.FileType.Unknown, "Toggle Window");
             return;
@@ -34,11 +34,11 @@ export class SideWindow {
         SideWindow.toggleTransition()
 
         if(window === 'left'){
-            Setting.find(Setting.LEFT_WINDOW_VISIBLE).toggle()
+            Setting.toggle(Setting.LEFT_WINDOW_VISIBLE);
         }else if (window === 'right'){
-            Setting.find(Setting.RIGHT_WINDOW_VISIBLE).toggle()
+            Setting.toggle(Setting.RIGHT_WINDOW_VISIBLE);
         }else if (window === 'bottom'){
-            Setting.find(Setting.BOTTOM_WINDOW_VISIBLE).toggle()
+            Setting.toggle(Setting.BOTTOM_WINDOW_VISIBLE);
         }else{
             console.warn("toggleShown(): Unknown window:", window);
             return;
@@ -91,12 +91,25 @@ export class SideWindow {
         // retrieve data about the node being dragged
         // NOTE: I found that using $(e.target).data('palette-index'), using JQuery, sometimes retrieved a cached copy of the attribute value, which broke this functionality
         //       Using the native javascript works better, it always fetches the current value of the attribute
-        Eagle.nodeDragPaletteIndex = parseInt(e.target.getAttribute('data-palette-index'), 10);
-        Eagle.nodeDragComponentId = e.target.getAttribute('data-component-id');
+        const componentId = e.target.getAttribute('data-component-id');
+        const paletteIndex = e.target.getAttribute('data-palette-index');
+
+        if (componentId === null || paletteIndex === null){
+            console.warn("SideWindow.nodeDragStart(): data-component-id or data-palette-index is null!");
+            return false;
+        }
+
+        Eagle.nodeDragPaletteIndex = parseInt(paletteIndex, 10);
+        Eagle.nodeDragComponentId = componentId;
 
         //this is for dealing with drag and drop actions while there is already one or more palette components selected
         if (Eagle.selectedLocation() === Eagle.FileType.Palette){
-            const draggedNode = eagle.palettes()[Eagle.nodeDragPaletteIndex].getNodeById(Eagle.nodeDragComponentId);
+            const draggedNode = eagle.palettes()[Eagle.nodeDragPaletteIndex].getNodeById(componentId);
+
+            if (typeof draggedNode === 'undefined'){
+                console.warn("Dragged node is undefined! Palette Index:", paletteIndex, "Component ID:", componentId);
+                return false;
+            }
 
             if(!eagle.objectIsSelected(draggedNode)){
                 $(e.target).find("div").trigger("click")
@@ -109,7 +122,14 @@ export class SideWindow {
 
         // grab and set the node's icon and sets it as drag image.
         const drag = e.target.getElementsByClassName('input-group-prepend')[0] as HTMLElement;
-        (e.originalEvent as DragEvent).dataTransfer.setDragImage(drag, 0, 0);
+        const dataTransfer = (e.originalEvent as DragEvent).dataTransfer;
+
+        if (dataTransfer === null){
+            console.warn("SideWindow.nodeDragStart(): dataTransfer is null!");
+            return false;
+        }
+
+        dataTransfer.setDragImage(drag, 0, 0);
 
         return true;
     }
@@ -132,6 +152,10 @@ export class SideWindow {
     static rightWindowAdjustStart(eagle: Eagle, event: JQuery.TriggeredEvent) : boolean {
         const e: DragEvent = event.originalEvent as DragEvent;
 
+        if (e.target === null){
+            console.warn("SideWindow.rightWindowAdjustStart(): DragEvent is null!");
+            return false;
+        }
         $(e.target).addClass('windowDragging')
         eagle.leftWindow().adjusting(false);
         eagle.rightWindow().adjusting(true);
@@ -142,6 +166,11 @@ export class SideWindow {
     static leftWindowAdjustStart(eagle : Eagle, event : JQuery.TriggeredEvent) : boolean {
         const e: DragEvent = event.originalEvent as DragEvent;
 
+        if (e.target === null){
+            console.warn("SideWindow.leftWindowAdjustStart(): DragEvent is null!");
+            return false;
+        }
+
         $(e.target).addClass('windowDragging')
         eagle.leftWindow().adjusting(true);
         eagle.rightWindow().adjusting(false);
@@ -151,6 +180,11 @@ export class SideWindow {
 
     static bottomWindowAdjustStart(eagle: Eagle, event: JQuery.TriggeredEvent) : boolean {
         const e: DragEvent = event.originalEvent as DragEvent;
+
+        if (e.target === null){
+            console.warn("SideWindow.bottomWindowAdjustStart(): DragEvent is null!");
+            return false;
+        }
 
         $(e.target).addClass('windowDragging')
         eagle.leftWindow().adjusting(false);
@@ -165,6 +199,11 @@ export class SideWindow {
     // workaround to avoid left or right window adjusting on any and all drag events
     static sideWindowAdjustEnd = (eagle: Eagle, event: JQuery.TriggeredEvent) : boolean => {
         const e: DragEvent = event.originalEvent as DragEvent;
+
+        if (e.target === null){
+            console.warn("SideWindow.sideWindowAdjustEnd(): DragEvent is null!");
+            return false;
+        }
 
         $(e.target).removeClass('windowDragging')
         eagle.leftWindow().adjusting(false);
@@ -184,17 +223,31 @@ export class SideWindow {
             return true;
         }
 
+        // get window settings
+        const leftWindowWidthSetting = Setting.find(Setting.LEFT_WINDOW_WIDTH);
+        const rightWindowWidthSetting = Setting.find(Setting.RIGHT_WINDOW_WIDTH);
+        const bottomWindowHeightSetting = Setting.find(Setting.BOTTOM_WINDOW_HEIGHT);
+
+        if (typeof leftWindowWidthSetting === "undefined" || typeof rightWindowWidthSetting === "undefined" || typeof bottomWindowHeightSetting === "undefined"){
+            console.warn("One or more window settings are undefined!");
+            return false;
+        }
+
+        const leftWindowWidth : number = leftWindowWidthSetting.value() as number;
+        const rightWindowWidth : number = rightWindowWidthSetting.value() as number;
+        const bottomWindowHeight : number = bottomWindowHeightSetting.value() as number;
+
         if (isNaN(eagle.leftWindow().size())){
             console.warn("Had to reset left window width from invalid state (NaN)!");
-            eagle.leftWindow().size(Setting.find(Setting.LEFT_WINDOW_WIDTH).getPerpetualDefaultVal());
+            eagle.leftWindow().size(leftWindowWidth);
         }
         if (isNaN(eagle.rightWindow().size())){
             console.warn("Had to reset right window width from invalid state (NaN)!");
-            eagle.rightWindow().size(Setting.find(Setting.RIGHT_WINDOW_WIDTH).getPerpetualDefaultVal());
+            eagle.rightWindow().size(rightWindowWidth);
         }
         if (isNaN(eagle.bottomWindow().size())){
             console.warn("Had to reset bottom window height from invalid state (NaN)!");
-            eagle.bottomWindow().size(Setting.find(Setting.BOTTOM_WINDOW_HEIGHT).getPerpetualDefaultVal());
+            eagle.bottomWindow().size(bottomWindowHeight);
         }
     
         let newSize : number;
@@ -202,9 +255,9 @@ export class SideWindow {
         if (eagle.leftWindow().adjusting()){
             newSize = e.clientX
 
-            if(newSize <= Setting.find(Setting.LEFT_WINDOW_WIDTH).getPerpetualDefaultVal()){
-                eagle.leftWindow().size(Setting.find(Setting.LEFT_WINDOW_WIDTH).getPerpetualDefaultVal());
-                Utils.setLeftWindowWidth(Setting.find(Setting.LEFT_WINDOW_WIDTH).getPerpetualDefaultVal());
+            if(newSize <= leftWindowWidth){
+                eagle.leftWindow().size(leftWindowWidth);
+                Utils.setLeftWindowWidth(leftWindowWidth);
             }else{
                 eagle.leftWindow().size(newSize);
                 Utils.setLeftWindowWidth(newSize);
@@ -212,9 +265,9 @@ export class SideWindow {
         } else if(eagle.rightWindow().adjusting()){
             newSize = window.innerWidth - e.clientX
 
-            if(newSize <= Setting.find(Setting.RIGHT_WINDOW_WIDTH).getPerpetualDefaultVal()){
-                eagle.rightWindow().size(Setting.find(Setting.RIGHT_WINDOW_WIDTH).getPerpetualDefaultVal());
-                Utils.setRightWindowWidth(Setting.find(Setting.RIGHT_WINDOW_WIDTH).getPerpetualDefaultVal());
+            if(newSize <= rightWindowWidth){
+                eagle.rightWindow().size(rightWindowWidth);
+                Utils.setRightWindowWidth(rightWindowWidth);
             }else{
                 eagle.rightWindow().size(newSize);
                 Utils.setRightWindowWidth(newSize);
@@ -224,7 +277,7 @@ export class SideWindow {
             //we are only doing it for the bottom window, as it typically takes up a large part of the screen, causing it to become larger than the screen itself if switching from a 4k display to a smaller one.
             newSize = ((window.innerHeight - e.clientY)/window.innerHeight)*100
             //making sure the height we are setting is not smaller than the minimum height
-            const minBottomWindowVh = Setting.find(Setting.BOTTOM_WINDOW_HEIGHT).getPerpetualDefaultVal()
+            const minBottomWindowVh = bottomWindowHeight;
             const maxBottomWindowVh = 80
 
             if(newSize <= minBottomWindowVh){

@@ -23,7 +23,7 @@ export class ComponentUpdater {
     }
 
     static updateNode(palettes: Palette[], node: Node, errorsWarnings: Errors.ErrorsWarnings): Node | null {
-        let newVersion : Node = null;
+        let newVersion : Node | null = null;
 
             for (const palette of palettes){
                 for (const paletteNode of palette.getNodes()){
@@ -48,7 +48,7 @@ export class ComponentUpdater {
     static _replaceNode(dest: Node, src: Node){
         for (const srcField of src.getFields()){
             // try to find a field with the same name in the destination
-            let destField: Field = dest.getFieldById(srcField.getId());
+            let destField: Field | undefined = dest.getFieldById(srcField.getId());
 
             // if dest field not found, try to find something that matches by displayText
             if (typeof destField === 'undefined'){
@@ -56,7 +56,7 @@ export class ComponentUpdater {
             }
 
             // if dest field could not be found, then go ahead and add a NEW field to the dest node
-            if (destField === null){
+            if (typeof destField === 'undefined'){
                 destField = srcField.clone();
                 dest.addField(destField);
             }

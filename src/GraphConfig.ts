@@ -56,14 +56,15 @@ export class GraphConfig {
 
     addNode = (node: Node): GraphConfigNode => {
         // check to see if node already exists
-        const graphConfigNode: GraphConfigNode = this.nodes().get(node.getId());
+        const graphConfigNode = this.nodes().get(node.getId());
 
         if (typeof graphConfigNode !== 'undefined'){
             return graphConfigNode;
         }
 
         // otherwise add new node
-        const newNode: GraphConfigNode = new GraphConfigNode();
+        const newNode: GraphConfigNode = new GraphConfigNode(node);
+        // TODO: required? probably better to set this in GraphConfigNode constructor
         newNode.setNode(node);
         this.nodes().set(node.getId(), newNode);
         this.nodes.valueHasMutated();
@@ -75,7 +76,7 @@ export class GraphConfig {
         this.addNode(node).addField(field);
     }
 
-    getNodeById = (id: NodeId): GraphConfigNode => {
+    getNodeById = (id: NodeId): GraphConfigNode | undefined => {
         return this.nodes().get(id);
     }
 
@@ -91,7 +92,12 @@ export class GraphConfig {
 
     removeField = (field: Field): void => {
         // get reference to the GraphConfigNode containing the field
-        const graphConfigNode: GraphConfigNode = this.getNodeById(field.getNode().getId());
+        const graphConfigNode = this.getNodeById(field.getNode().getId());
+
+        if (typeof graphConfigNode === 'undefined'){
+            console.warn("GraphConfig.removeField(): Could not find GraphConfigNode for field", field.getId());
+            return;
+        }
 
         // remove the field
         graphConfigNode.removeFieldById(field.getId());
@@ -105,7 +111,7 @@ export class GraphConfig {
         Eagle.getInstance().checkGraph();
     }
 
-    addValue = (node: Node, field: Field, value: string) => {
+    addValue = (node: Node, field: Field, value: string | null) => {
         this.addNode(node).addField(field).setValue(value);
     }
 
@@ -123,7 +129,7 @@ export class GraphConfig {
         // get the Node for this field
         const node: Node = field.getNode();
 
-        const f: GraphConfigField = this.nodes().get(node.getId())?.getFieldById(field.getId());
+        const f: GraphConfigField | undefined = this.nodes().get(node.getId())?.getFieldById(field.getId());
 
         return typeof f !== 'undefined';
     }
@@ -165,7 +171,7 @@ export class GraphConfig {
         if (typeof data.nodes !== 'undefined'){
             for (const nodeId in data.nodes){
                 const nodeData = data.nodes[nodeId];
-                const lgNode: Node = lg.getNodeById(nodeId as NodeId);
+                const lgNode = lg.getNodeById(nodeId as NodeId);
                 if (typeof lgNode === 'undefined'){
                     console.warn("GraphConfig.fromJson(): Could not find node", nodeId);
                     errorsWarnings.errors.push(Errors.Message("GraphConfig.fromJson(): Could not find node " + nodeId));
@@ -222,8 +228,8 @@ export class GraphConfigNode {
     private node: ko.Observable<Node>;
     private fields: ko.Observable<Map<FieldId, GraphConfigField>>;
 
-    constructor(){
-        this.node = ko.observable(null);
+    constructor(node: Node){
+        this.node = ko.observable(node);
         this.fields = ko.observable(new Map());
     }
 
@@ -232,9 +238,7 @@ export class GraphConfigNode {
     }
 
     clone = () : GraphConfigNode => {
-        const result: GraphConfigNode = new GraphConfigNode();
-
-        result.node(this.node());
+        const result: GraphConfigNode = new GraphConfigNode(this.node());
 
         for (const [id, field] of this.fields()){
             result.fields().set(id, field.clone());
@@ -261,14 +265,15 @@ export class GraphConfigNode {
         }
 
         // otherwise add new field
-        const newField: GraphConfigField = new GraphConfigField();
+        const newField: GraphConfigField = new GraphConfigField(field);
+        // TODO: required? probably better to set this in GraphConfigField constructor
         newField.setField(field);
         this.fields().set(field.getId(), newField);
         this.fields.valueHasMutated();
         return newField;
     }
 
-    getFieldById = (id: FieldId): GraphConfigField => {
+    getFieldById = (id: FieldId): GraphConfigField | undefined => {
         return this.fields().get(id);
     }
 
@@ -283,14 +288,21 @@ export class GraphConfigNode {
     }
 
     static fromJson(data: any, node: Node, errorsWarnings: Errors.ErrorsWarnings): GraphConfigNode {
-        const result = new GraphConfigNode();
+        const result = new GraphConfigNode(node);
 
         if (data.fields !== undefined){
             for (const fieldId in data.fields){
                 const fieldData = data.fields[fieldId];
-                const newField: GraphConfigField = GraphConfigField.fromJson(fieldData, errorsWarnings);
                 const lgField = node.getFieldById(fieldId as FieldId);
 
+                if (typeof lgField === 'undefined'){
+                    console.warn("GraphConfigNode.fromJson(): Could not find field", fieldId, "in node", node.getName());
+                    errorsWarnings.errors.push(Errors.Message("GraphConfigNode.fromJson(): Could not find field " + fieldId + " in node " + node.getName()));
+                    continue;
+                }
+
+                const newField: GraphConfigField = GraphConfigField.fromJson(fieldData, lgField, errorsWarnings);
+                // TODO: required? probably better to set this in GraphConfigField.fromJson()
                 newField.setField(lgField);
                 result.fields().set(lgField.getId(), newField);
                 result.fields.valueHasMutated();
@@ -306,7 +318,7 @@ export class GraphConfigNode {
         // add fields
         result.fields = {};
         for (const [id, field] of node.fields()){
-            const graphField: Field = graphNode.getFieldById(id);
+            const graphField = graphNode.getFieldById(id);
 
             if (typeof graphField === 'undefined'){
                 continue;
@@ -321,19 +333,19 @@ export class GraphConfigNode {
 
 export class GraphConfigField {
     private field: ko.Observable<Field>;
-    private value: ko.Observable<string>;
+    private value: ko.Observable<string | null>;
     private comment: ko.Observable<string>;
 
-    constructor(){
-        this.field = ko.observable(null);
+    constructor(field: Field){
+        this.field = ko.observable(field);
         this.value = ko.observable("");
         this.comment = ko.observable("");
     }
 
     clone = (): GraphConfigField => {
-        const result = new GraphConfigField();
+        const result = new GraphConfigField(this.field());
 
-        result.field(this.field());
+        //result.field(this.field());
         result.value(this.value());
         result.comment(this.comment());
 
@@ -349,17 +361,22 @@ export class GraphConfigField {
         return this.field();
     }
 
-    setValue = (value: string): GraphConfigField => {
+    setValue = (value: string | null): GraphConfigField => {
         this.value(value);
         return this;
     }
 
-    getValue = (): string => {
+    getValue = (): string | null => {
         return this.value();
     }
 
-    toggle = () : GraphConfigField => {        
-        this.value((!Utils.asBool(this.value())).toString());
+    toggle = () : GraphConfigField => {
+        let oldValue = this.value();
+        if (oldValue === null){
+            oldValue = "false";
+        }
+        
+        this.value((!Utils.asBool(oldValue)).toString());
         return this;
     }
 
@@ -372,8 +389,8 @@ export class GraphConfigField {
         return this.comment();
     }
 
-    static fromJson(data: any, errorsWarnings: Errors.ErrorsWarnings): GraphConfigField {
-        const result = new GraphConfigField();
+    static fromJson(data: any, field: Field, errorsWarnings: Errors.ErrorsWarnings): GraphConfigField {
+        const result = new GraphConfigField(field);
 
         if (typeof data.value !== 'undefined'){
             if (data.value === null){

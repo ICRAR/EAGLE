@@ -45,7 +45,7 @@ class Snapshot {
 export class Undo {
     static readonly MEMORY_SIZE : number = 10;
 
-    memory: ko.ObservableArray<Snapshot>;
+    memory: ko.ObservableArray<Snapshot | null>;
     front: ko.Observable<number>; // place where next snapshot will go
     rear: ko.Observable<number>;
     current: ko.Observable<number>; // snapshot currently in use, normally equal to front
@@ -73,7 +73,7 @@ export class Undo {
 
     pushSnapshot = (eagle: Eagle, description: string) : void => {
         const previousIndex = (this.current() + Undo.MEMORY_SIZE - 1) % Undo.MEMORY_SIZE;
-        const previousSnapshot : Snapshot = this.memory()[previousIndex];
+        const previousSnapshot : Snapshot | null = this.memory()[previousIndex];
         const newContent: object = LogicalGraph.toOJSJson(eagle.logicalGraph(), false)
 
         // check if newContent matches old content, if so, no need to push
@@ -104,7 +104,7 @@ export class Undo {
             this.memory()[index] = null;
         }
 
-        if (Setting.findValue(Setting.PRINT_UNDO_STATE_TO_JS_CONSOLE)){
+        if (Setting.findValue<boolean>(Setting.PRINT_UNDO_STATE_TO_JS_CONSOLE, false)){
             Undo.printTable();
         }
     }
@@ -119,13 +119,18 @@ export class Undo {
         const prevprevIndex = (this.current() + Undo.MEMORY_SIZE - 2) % Undo.MEMORY_SIZE;
 
         // user notification
-        const description = this.memory()[prevIndex].description();
+        const prevSnapshot = this.memory()[prevIndex];
+        if (prevSnapshot === null){
+            console.warn("Undo.prevSnapshot(): snapshot at index", prevIndex, "is null");
+            return;
+        }
+        const description = prevSnapshot.description();
         Utils.showNotification("Undo", description, "info", false);
 
         this._loadFromIndex(prevprevIndex, eagle);
         this.current((this.current() + Undo.MEMORY_SIZE - 1) % Undo.MEMORY_SIZE);
 
-        if (Setting.findValue(Setting.PRINT_UNDO_STATE_TO_JS_CONSOLE)){
+        if (Setting.findValue<boolean>(Setting.PRINT_UNDO_STATE_TO_JS_CONSOLE, false)){
             Undo.printTable();
         }
 
@@ -149,13 +154,18 @@ export class Undo {
         }
 
         // user notification
-        const description = this.memory()[this.current()].description();
+        const currentSnapshot = this.memory()[this.current()];
+        if (currentSnapshot === null){
+            console.warn("Undo.nextSnapshot(): snapshot at index", this.current(), "is null");
+            return;
+        }
+        const description = currentSnapshot.description();
         Utils.showNotification("Redo", description, "info", false);
 
         this._loadFromIndex(this.current(), eagle);
         this.current((this.current() + 1) % Undo.MEMORY_SIZE);
 
-        if (Setting.findValue(Setting.PRINT_UNDO_STATE_TO_JS_CONSOLE)){
+        if (Setting.findValue<boolean>(Setting.PRINT_UNDO_STATE_TO_JS_CONSOLE, false)){
             Undo.printTable();
         }
 
@@ -195,7 +205,7 @@ export class Undo {
     }
 
     _loadFromIndex = (index: number, eagle: Eagle) : void => {
-        const snapshot : Snapshot = this.memory()[index];
+        const snapshot : Snapshot | null = this.memory()[index];
 
         if (snapshot === null){
             console.warn("Undo memory at index", index, "is null");
@@ -229,7 +239,7 @@ export class Undo {
             const object = node || edge;
 
             // abort if no edge or node exists fot that id
-            if (typeof node === 'undefined' && typeof edge === 'undefined'){
+            if (typeof object === 'undefined'){
                 continue;
             }
 

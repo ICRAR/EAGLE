@@ -45,7 +45,7 @@ export class DockerHubBrowser {
     isValid: ko.Observable<boolean>; // true iff a valid selection has been made in the docker hub browser UI
 
     constructor(){
-        this.username = ko.observable(Setting.findValue(Setting.DOCKER_HUB_USERNAME));
+        this.username = ko.observable(Setting.findValue<string>(Setting.DOCKER_HUB_USERNAME, ""));
         this.images = ko.observableArray([]);
         this.tags = ko.observableArray([]);
         this.digests = ko.observableArray([]);
@@ -63,7 +63,7 @@ export class DockerHubBrowser {
     }
 
     clear = () : void => {
-        this.username(Setting.findValue(Setting.DOCKER_HUB_USERNAME));
+        this.username(Setting.findValue<string>(Setting.DOCKER_HUB_USERNAME, ""));
         this.images([]);
         this.tags([]);
         this.digests([]);
@@ -86,7 +86,7 @@ export class DockerHubBrowser {
         this.fetchImages(image, tag);
     }
 
-    fetchImages = async (selectedImage: string, selectedTag: string): Promise<void> => {
+    fetchImages = async (selectedImage: string | null, selectedTag: string | null): Promise<void> => {
         // if already fetched, abort
         if (this.hasFetchedImages()){
             console.warn("Already fetched images");
@@ -135,7 +135,7 @@ export class DockerHubBrowser {
         this.fetchTags(selectedTag);
     }
 
-    fetchTags = async (selectedTag: string): Promise<void> => {
+    fetchTags = async (selectedTag: string | null): Promise<void> => {
         // if already fetched, abort
         if (this.hasFetchedTags()){
             console.warn("Already fetched tags");

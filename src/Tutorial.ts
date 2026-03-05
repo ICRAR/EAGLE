@@ -3,13 +3,13 @@ import { Utils } from './Utils';
 
 export class TutorialSystem {
 
-    static activeTut: Tutorial = null //current active tutorial
+    static activeTut: Tutorial | null = null //current active tutorial
     static activeTutCurrentStep: TutorialStep //current active tutorial step
     static activeTutNumSteps: number = 0;  //total number of steps in the active tutorial
     static activeTutCurrentStepIndex: number = 0;  //index of the current step in the active tutorial
-    static waitForElementTimer: number = null    //this houses the time out timer when waiting for a target element to appear
+    static waitForElementTimer: number | undefined = undefined;    //this houses the time out timer when waiting for a target element to appear
     static onCoolDown: boolean = false //boolean if the tutorial system is currently on cool down
-    static conditionCheck:number = null //this stores the condition interval function
+    static conditionCheck:number | undefined = undefined; //this stores the condition interval function
 
     static initiateTutorial(tutorialName: string): void {
         for (const tut of Eagle.tutorials){
@@ -95,14 +95,16 @@ export class TutorialSystem {
     }
 
     static initiateSimpleFindGraphNodeIdByNodeName(name:string) : string {
-        return Eagle.getInstance().logicalGraph().findNodeIdByNodeName(name)
+        const nodeId = Eagle.getInstance().logicalGraph().findNodeIdByNodeName(name)
+        return nodeId === null ? "<name not found" : nodeId;
     }
 
     static isRequestedNodeSelected(name:string) : boolean {
         //used when asking the user to select a specific node
         const eagle = Eagle.getInstance()
+        const selectedNode = eagle.selectedNode();
 
-        return eagle.selectedNode() !== null && eagle.selectedNode().getName() === name
+        return selectedNode !== null && selectedNode.getName() === name;
     }
 
     static findInPalettes(target:string) : void {
@@ -148,7 +150,7 @@ export class Tutorial {
     }
 
     newTutStep = (title:string, description:string, selector:() => JQuery<HTMLElement>) : TutorialStep =>{
-        const x = new TutorialStep(title, description, TutorialStep.Type.Info, TutorialStep.Wait.None,null, selector, null, null,false,null,null,null)
+        const x = new TutorialStep(title, description, TutorialStep.Type.Info, TutorialStep.Wait.None,null, selector, null, null, false, "", null, null)
         this.tutorialSteps.push(x)
         return x
     }
@@ -159,11 +161,18 @@ export class Tutorial {
         //the unlock happens after the waits for target elements in the ui, transitions of the tutorial visuals and changes of content and positioning has all been finished, this is when the tut system is ready to proceed.
 
         const eagle = Eagle.getInstance()
-        TutorialSystem.activeTutCurrentStep = TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex]
+        const activeTutorial = TutorialSystem.activeTut
+
+        // check that there is an active tutorial
+        if (activeTutorial === null) {
+            return;
+        }
+
+        TutorialSystem.activeTutCurrentStep = activeTutorial.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex]
         const tutStep = TutorialSystem.activeTutCurrentStep
         
         clearTimeout(TutorialSystem.conditionCheck);
-        TutorialSystem.conditionCheck = null;
+        TutorialSystem.conditionCheck = undefined;
         
         $('body').off('keydown.tutEventListener');
         TutorialSystem.addTutKeyboardShortcuts()
@@ -187,20 +196,18 @@ export class Tutorial {
             this.initiateStep(TutorialSystem.activeTutCurrentStep, null)
         } else if (tutStep.getWaitType() === TutorialStep.Wait.Delay) {
             //if a delay amount is not specified we will default to 4ms
-            let delay:number = 400
-            if(TutorialSystem.activeTutCurrentStep.getDelayAmount()!=null){
-                delay = TutorialSystem.activeTutCurrentStep.getDelayAmount()
-            }
+            const delay: number = TutorialSystem.activeTutCurrentStep.getDelayAmount() || 400;
+
             setTimeout(function () {
                 that.initiateStep(TutorialSystem.activeTutCurrentStep, null)
             }, delay)
         }else {
             //we set a two second timer, the wait will check every .1 seconds for two seconds at which point it is timed out and we abort the tut
-            TutorialSystem.waitForElementTimer = setInterval(function () { TutorialSystem.activeTut.waitForElementThenRun(tutStep.getWaitType()) }, 100);
+            TutorialSystem.waitForElementTimer = setInterval(function () { activeTutorial.waitForElementThenRun(tutStep.getWaitType()) }, 100);
             setTimeout(function () {
-                if (TutorialSystem.waitForElementTimer != null) {
+                if (TutorialSystem.waitForElementTimer !== undefined) {
                     clearTimeout(TutorialSystem.waitForElementTimer);
-                    TutorialSystem.waitForElementTimer = null;
+                    TutorialSystem.waitForElementTimer = undefined;
                     console.warn('waiting for next tutorial step element timed out')
                     TutorialSystem.onCoolDown = false
                     that.tutButtonPrev()
@@ -212,8 +219,15 @@ export class Tutorial {
     waitForElementThenRun = (waitType: TutorialStep.Wait): void => {
         const tutStep = TutorialSystem.activeTutCurrentStep
         let elementAvailable: boolean = false
-        let targetElement: JQuery<HTMLElement> = tutStep.getTargetFunc()()
-        let autoAlternateHighlightTarget: JQuery<HTMLElement> = null // used for modals to automatically highlight the modal body, footer or header
+        const targetFunc = tutStep.getTargetFunc()
+
+        if (targetFunc === null) {
+            console.warn('Tutorial.waitForElementThenRun(): no target function defined for this step');
+            return;
+        }
+
+        let targetElement: JQuery<HTMLElement> = targetFunc()
+        let autoAlternateHighlightTarget = null // used for modals to automatically highlight the modal body, footer or header
 
         if (waitType === TutorialStep.Wait.Modal) {
             //in  case of a modal we make sure the selector is for the modal, we then check if it has the class 'show'
@@ -250,16 +264,23 @@ export class Tutorial {
         if (elementAvailable) {
             this.initiateStep(tutStep, autoAlternateHighlightTarget)
             clearTimeout(TutorialSystem.waitForElementTimer);
-            TutorialSystem.waitForElementTimer = null;
+            TutorialSystem.waitForElementTimer = undefined;
         } else {
             return
         }
     }
 
-    initiateStep = (tutStep: TutorialStep, autoAlternateHighlightTarget: JQuery<HTMLElement>): void => {
-        const that = this;
+    initiateStep = (tutStep: TutorialStep, autoAlternateHighlightTarget: JQuery<HTMLElement> | null): void => {
+        const that = this; // TODO: needed?
         $(':focus').trigger("blur");
-        tutStep.getTargetFunc()().trigger("focus");
+
+        const targetFunc = tutStep.getTargetFunc()
+        if (targetFunc === null) {
+            console.warn('Tutorial.initiateStep(): no target function defined for this step');
+            return;
+        }
+
+        targetFunc().trigger("focus");
 
         //call the correct function depending on which type of tutorial step this is
         if (tutStep.getType() === TutorialStep.Type.Info) {
@@ -274,12 +295,18 @@ export class Tutorial {
     }
 
     //normal info step
-    initiateInfoStep = (tutStep: TutorialStep, autoAlternateHighlightTarget: JQuery<HTMLElement>): void => {
+    initiateInfoStep = (tutStep: TutorialStep, autoAlternateHighlightTarget: JQuery<HTMLElement> | null): void => {
         //the alternate highlight selector is for modals in which case we highlight the whole modal while the arrow points at a specific child
         if (autoAlternateHighlightTarget != null && autoAlternateHighlightTarget.length > 0) {
             this.highlightStepTarget(autoAlternateHighlightTarget)
         } else {
-            this.highlightStepTarget(tutStep.getTargetFunc()())
+            const targetFunc = tutStep.getTargetFunc()
+            if (targetFunc === null) {
+                console.warn('Tutorial.initiateInfoStep(): no target function defined for this step');
+                return;
+            }
+
+            this.highlightStepTarget(targetFunc())
         }
 
         //the little wait is waiting for the css animation of the highlighting system
@@ -290,8 +317,14 @@ export class Tutorial {
     }
 
     //a selector press step
-    initiatePressStep = (tutStep: TutorialStep, autoAlternateHighlightTarget: JQuery<HTMLElement>): void => {
-        const targetElement = tutStep.getTargetFunc()()
+    initiatePressStep = (tutStep: TutorialStep, autoAlternateHighlightTarget: JQuery<HTMLElement> | null): void => {
+        const targetFunc = tutStep.getTargetFunc()
+        if (targetFunc === null) {
+            console.warn('Tutorial.initiatePressStep(): no target function defined for this step');
+            return;
+        }
+
+        const targetElement = targetFunc()
         if (autoAlternateHighlightTarget != null) {
             this.highlightStepTarget(autoAlternateHighlightTarget)
         } else {
@@ -309,11 +342,17 @@ export class Tutorial {
     }
 
     //these are ground work for future tutorial system functionality
-    initiateInputStep = (tutStep: TutorialStep, autoAlternateHighlightTarget: JQuery<HTMLElement>): void => {
+    initiateInputStep = (tutStep: TutorialStep, autoAlternateHighlightTarget: JQuery<HTMLElement> | null): void => {
+        const targetFunc = tutStep.getTargetFunc()
+        if (targetFunc === null) {
+            console.warn('Tutorial.initiateInputStep(): no target function defined for this step');
+            return;
+        }
+
         if (autoAlternateHighlightTarget != null) {
             this.highlightStepTarget(autoAlternateHighlightTarget)
         } else {
-            this.highlightStepTarget(tutStep.getTargetFunc()())
+            this.highlightStepTarget(targetFunc())
         }
 
         //the little wait is waiting for the css animation of the highlighting system
@@ -323,17 +362,23 @@ export class Tutorial {
         }, 510);
 
         //attaching an input handler for checking input
-        tutStep.getTargetFunc()().on('keydown.tutInputCheckFunc',function(event: JQuery.TriggeredEvent){
+        targetFunc().on('keydown.tutInputCheckFunc',function(event: JQuery.TriggeredEvent){
             const e: KeyboardEvent = event.originalEvent as KeyboardEvent;
-            TutorialSystem.activeTut.tutInputCheckFunc(e, tutStep)
+            TutorialSystem.activeTut?.tutInputCheckFunc(e, tutStep)
         })
     }
 
-    initiateConditionStep = (tutStep: TutorialStep, autoAlternateHighlightTarget: JQuery<HTMLElement>): void => {
+    initiateConditionStep = (tutStep: TutorialStep, autoAlternateHighlightTarget: JQuery<HTMLElement> | null): void => {
         if (autoAlternateHighlightTarget != null) {
             this.highlightStepTarget(autoAlternateHighlightTarget)
         } else {
-            this.highlightStepTarget(tutStep.getTargetFunc()())
+            const targetFunc = tutStep.getTargetFunc()
+            if (targetFunc === null) {
+                console.warn('Tutorial.initiateConditionStep(): no target function defined for this step');
+                return;
+            }
+
+            this.highlightStepTarget(targetFunc())
         }
 
         //the little wait is waiting for the css animation of the highlighting system
@@ -341,7 +386,7 @@ export class Tutorial {
             TutorialSystem.activeTut?.openInfoPopUp()
         }, 510);
 
-        TutorialSystem.conditionCheck = setInterval(function(){TutorialSystem.activeTut.checkConditionFunction(tutStep)}, 100);
+        TutorialSystem.conditionCheck = setInterval(function(){TutorialSystem.activeTut?.checkConditionFunction(tutStep)}, 100);
     }
 
     highlightStepTarget = (target: JQuery<HTMLElement>): void => {
@@ -350,13 +395,18 @@ export class Tutorial {
         //if the target element is not found, we end the tutorial gracefully
         if(target.length === 0){
             console.warn('target highlight element not found: ', TutorialSystem.activeTutCurrentStep.getTargetFunc())
-            TutorialSystem.activeTut.tutButtonEnd()
+            TutorialSystem.activeTut?.tutButtonEnd()
             return
         }
 
-        if(TutorialSystem.activeTutCurrentStep.getAlternateHighlightTargetFunc() != null){
-            if(TutorialSystem.activeTutCurrentStep.getAlternateHighlightTargetFunc()().length > 0){
-                target = TutorialSystem.activeTutCurrentStep.getAlternateHighlightTargetFunc()()
+        //check for an alternate highlight target function
+        const alternateHighlightTargetFunc = TutorialSystem.activeTutCurrentStep.getAlternateHighlightTargetFunc()
+
+        if(alternateHighlightTargetFunc != null){
+            const alternateHighlightTarget = alternateHighlightTargetFunc()
+
+            if(alternateHighlightTarget.length > 0){
+                target = alternateHighlightTarget
             }else{
                 console.warn('alternate highlight target not found using main target instead')
             }
@@ -373,15 +423,36 @@ export class Tutorial {
         //in order to darken the screen save the selection target, we must add divs on each side of the element.
         const coords = target.offset()
         const docWidth = window.innerWidth
+        const targetOuterWidth = $(target).outerWidth()
+        const targetOuterHeight = $(target).outerHeight()
+
+        // check that values are valid
+        if (coords === undefined) {
+            console.warn('Tutorial.highlightStepTarget(): target element has no offset');
+            return;
+        }
+        if (docWidth === undefined) {
+            console.warn('Tutorial.highlightStepTarget(): document has no width');
+            return;
+        }
+        if (targetOuterWidth === undefined) {
+            console.warn('Tutorial.highlightStepTarget(): target element has no outerWidth');
+            return;
+        }
+        if (targetOuterHeight === undefined) {
+            console.warn('Tutorial.highlightStepTarget(): target element has no outerHeight');
+            return;
+        }
+
         const top_actual = Math.round(coords.top)//distance of the top of the element from the top of the document
-        let right = coords.left + $(target).outerWidth() 
+        let right = coords.left + targetOuterWidth
         const left = docWidth - coords.left
-        let targetHeight = Math.round($(target).outerHeight())
+        let targetHeight = Math.round(targetOuterHeight)
         let bottom_actual = Math.round(coords.top + targetHeight) //distance from the bottom of the target element to the bottom of the document
 
         if(target.parents('#logicalGraphParent').length){
             targetHeight = Math.round(targetHeight*eagle.globalScale())
-            right = coords.left+$(target).outerWidth() *eagle.globalScale()
+            right = coords.left+targetOuterWidth *eagle.globalScale()
             bottom_actual = Math.round(coords.top + targetHeight)
         }
 
@@ -411,34 +482,85 @@ export class Tutorial {
     }
 
     openInfoPopUp = (): void => {
-
         const step = TutorialSystem.activeTutCurrentStep
-        const currentTarget: JQuery<HTMLElement> = step.getTargetFunc()()
+        const stepTargetFunc = step.getTargetFunc()
+
+        if (stepTargetFunc === null) {
+            console.warn('Tutorial.openInfoPopUp(): no target function defined for the current step');
+            return;
+        }
+
+        const currentTarget: JQuery<HTMLElement> = stepTargetFunc()
+
+        if (currentTarget.length === 0) {
+            console.warn('Tutorial.openInfoPopUp(): no target element found for the current step');
+            return;
+        }
+
+        // get values of the target element
+        const targetOffset = currentTarget.offset();
+        const targetWidth = currentTarget.width();
+        const targetHeight = currentTarget.height();
+        const targetOuterWidth = currentTarget.outerWidth();
+        const targetOuterHeight = currentTarget.outerHeight();
+
+        // check that values are valid
+        if (targetOffset === undefined) {
+            console.warn('Tutorial.openInfoPopUp(): target element has no offset');
+            return;
+        }
+        if (targetWidth === undefined) {
+            console.warn('Tutorial.openInfoPopUp(): target element has no width');
+            return;
+        }
+        if (targetHeight === undefined) {
+            console.warn('Tutorial.openInfoPopUp(): target element has no height');
+            return;
+        }
+        if (targetOuterWidth === undefined) {
+            console.warn('Tutorial.openInfoPopUp(): target element has no outerWidth');
+            return;
+        }
+        if (targetOuterHeight === undefined) {
+            console.warn('Tutorial.openInfoPopUp(): target element has no outerHeight');
+            return;
+        }
+
         //figuring out where there is enough space to place the tutorial
-        let selectedLocationX = currentTarget.offset().left + (currentTarget.width() / 2)
-        let selectedLocationY = currentTarget.offset().top + currentTarget.outerHeight()
+        let selectedLocationX = targetOffset.left + (targetWidth / 2)
+        let selectedLocationY = targetOffset.top + targetOuterHeight
         const docWidth = $(document).width()
         const docHeight = $(document).height()
+
+        // check that docWidth and docHeight are valid
+        if (docWidth === undefined) {
+            console.warn('Tutorial.openInfoPopUp(): document has no width');
+            return;
+        }
+        if (docHeight === undefined) {
+            console.warn('Tutorial.openInfoPopUp(): document has no height');
+            return;
+        }
 
         this.closeInfoPopUp()
 
         let orientation = 'tutorialRight'
 
-        if (currentTarget.outerWidth() === docWidth || currentTarget.outerHeight() / docHeight > 0.7) {
+        if (targetOuterWidth === docWidth || targetOuterHeight / docHeight > 0.7) {
             //if this is the case then we are looking at an object that is set to 100% of the screen 
             //such as the navbar or canvas. we will then position the tutorial in the middle of the object
-            if ((docHeight - currentTarget.outerHeight()) < 250) {
-                selectedLocationY = selectedLocationY - (currentTarget.height() / 2)
+            if ((docHeight - targetOuterHeight) < 250) {
+                selectedLocationY = selectedLocationY - (targetHeight / 2)
                 if (docWidth - selectedLocationX < 700) {
                     orientation = 'tutorialLeft tutorialMiddle'
-                    selectedLocationX = selectedLocationX - 600 - (currentTarget.width() / 2)
+                    selectedLocationX = selectedLocationX - 600 - (targetWidth / 2)
                 } else {
                     orientation = 'tutorialRight tutorialMiddle'
                 }
             }
         } else if (docWidth - selectedLocationX < 700) {
             orientation = 'tutorialLeft'
-            selectedLocationX = selectedLocationX - 660 - (currentTarget.width() / 2)
+            selectedLocationX = selectedLocationX - 660 - (targetWidth / 2)
             if (docHeight - selectedLocationY < 250) {
                 orientation = 'tutorialLeftTop'
                 selectedLocationY = selectedLocationY - 290
@@ -500,6 +622,11 @@ export class Tutorial {
     }
 
     tutButtonPrev = (): void => {
+        if (TutorialSystem.activeTut === null){
+            console.warn('Tutorial.tutButtonPrev(): no active tutorial');
+            return;
+        }
+
         if (TutorialSystem.onCoolDown === false) {
             if (TutorialSystem.activeTutCurrentStepIndex > 0) {
                 this.closeInfoPopUp()
@@ -523,9 +650,9 @@ export class Tutorial {
         $('.forceShow').removeClass('forceShow')
         TutorialSystem.activeTut = null
         clearTimeout(TutorialSystem.conditionCheck);
-        TutorialSystem.conditionCheck = null;
+        TutorialSystem.conditionCheck = undefined;
         clearTimeout(TutorialSystem.waitForElementTimer);
-        TutorialSystem.waitForElementTimer = null;
+        TutorialSystem.waitForElementTimer = undefined;
     }
 
     tutPressStepListener = (): void => {
@@ -550,28 +677,43 @@ export class Tutorial {
             return
         }
 
+        const targetFunc = tutStep.getTargetFunc()
+        if (targetFunc === null) {
+            console.warn('Tutorial.tutInputCheckFunc(): no target function defined for this step');
+            return;
+        }
+
         if(tutStep.getExpectedInput() === ''||tutStep.getExpectedInput() === null){
             if(event.key === "Enter"){
                 event.preventDefault()
                 event.stopImmediatePropagation()
-                TutorialSystem.activeTut.tutButtonNext()
-                tutStep.getTargetFunc()().off('keydown.tutInputCheckFunc')
+                if (TutorialSystem.activeTut !== null){
+                    TutorialSystem.activeTut.tutButtonNext()
+                }
+                targetFunc().off('keydown.tutInputCheckFunc')
             }
         }else{
-            if(tutStep.getTargetFunc()().val() === tutStep.getExpectedInput()){
-                TutorialSystem.activeTut.tutButtonNext()
-                tutStep.getTargetFunc()().off('keydown.tutInputCheckFunc')
+            if(targetFunc().val() === tutStep.getExpectedInput()){
+                if (TutorialSystem.activeTut !== null){
+                    TutorialSystem.activeTut.tutButtonNext()
+                }
+                targetFunc().off('keydown.tutInputCheckFunc')
             }
         }
     }
 
     checkConditionFunction = (tutStep: TutorialStep): void => {
-        const eagle = Eagle.getInstance()        
-        const conditionReturn: boolean = tutStep.getConditionFunction()(eagle)
+        const eagle = Eagle.getInstance()
+        const conditionFunc = tutStep.getConditionFunction()
+        if(conditionFunc === null){
+            console.warn('Tutorial.checkConditionFunction(): no condition function defined for this step');
+            return;
+        }     
+        const conditionReturn: boolean = conditionFunc(eagle)
 
         if(conditionReturn){
             clearTimeout(TutorialSystem.conditionCheck);
-            TutorialSystem.conditionCheck = null;
+            TutorialSystem.conditionCheck = undefined;
             this.tutButtonNext()
         }
     }
@@ -582,18 +724,18 @@ export class TutorialStep {
     private text: string;
     private type: TutorialStep.Type;
     private waitType: TutorialStep.Wait;
-    private delayAmount : number;
+    private delayAmount : number | null;
     
-    private targetFunc: () => JQuery<HTMLElement>;
-    private alternateHighlightTargetFunc: () => JQuery<HTMLElement>;
-    private preFunc: (eagle: Eagle) => void;
-    private backPreFunc: (eagle: Eagle) => void;
-    private conditionFunc : (eagle: Eagle) => boolean;
+    private targetFunc: (() => JQuery<HTMLElement>) | null;
+    private alternateHighlightTargetFunc: (() => JQuery<HTMLElement>) | null;
+    private preFunc: ((eagle: Eagle) => void) | null;
+    private backPreFunc: ((eagle: Eagle) => void) | null;
+    private conditionFunc : ((eagle: Eagle) => boolean) | null;
 
     private backSkip : boolean;
     private expectedInput : string;
 
-    constructor(title: string, text: string, type: TutorialStep.Type, waitType: TutorialStep.Wait, delayAmount:number, targetFunc: () => JQuery<HTMLElement>, preFunc: (eagle: Eagle) => void, backPreFunc: (eagle: Eagle) => void, backSkip:boolean, expectedInput:string, conditionFunc:(eagle: Eagle) => boolean, alternateHighlightTargetFunc: () => JQuery<HTMLElement>) {
+    constructor(title: string, text: string, type: TutorialStep.Type, waitType: TutorialStep.Wait, delayAmount: number | null, targetFunc: () => JQuery<HTMLElement>, preFunc: ((eagle: Eagle) => void) | null, backPreFunc: ((eagle: Eagle) => void) | null, backSkip:boolean, expectedInput:string, conditionFunc:((eagle: Eagle) => boolean) | null, alternateHighlightTargetFunc: (() => JQuery<HTMLElement>) | null) {
         this.title = title;
         this.text = text;
         this.type = type;
@@ -626,19 +768,19 @@ export class TutorialStep {
         return this.waitType;
     }
 
-    getDelayAmount = (): number => {
+    getDelayAmount = (): number | null => {
         return this.delayAmount;
     }
 
-    getTargetFunc = (): () => JQuery<HTMLElement> => {
+    getTargetFunc = (): (() => JQuery<HTMLElement>) | null => {
         return this.targetFunc;
     }
 
-    getPreFunc = (): (eagle: Eagle) => void => {
+    getPreFunc = (): ((eagle: Eagle) => void) | null => {
         return this.preFunc;
     }
 
-    getBackPreFunc = (): (eagle: Eagle) => void => {
+    getBackPreFunc = (): ((eagle: Eagle) => void) | null => {
         return this.backPreFunc;
     }
 
@@ -650,11 +792,11 @@ export class TutorialStep {
         return this.expectedInput;
     }
 
-    getConditionFunction = (): (eagle: Eagle) => boolean => {
+    getConditionFunction = (): ((eagle: Eagle) => boolean) | null => {
         return this.conditionFunc;
     }
 
-    getAlternateHighlightTargetFunc = () : () => JQuery<HTMLElement> => {
+    getAlternateHighlightTargetFunc = () : (() => JQuery<HTMLElement>) | null => {
         return this.alternateHighlightTargetFunc;
     }
 
@@ -701,6 +843,17 @@ export class TutorialStep {
     setAlternateHighlightTargetFunc = (newAlternateHighlightTargetFunc:() => JQuery<HTMLElement>): this => {
         this.alternateHighlightTargetFunc = newAlternateHighlightTargetFunc;
         return this
+    }
+
+    forceShowTargetParent() {
+        const targetFunc = this.getTargetFunc();
+
+        if (targetFunc === null) {
+            console.warn('TutorialStep.forceShowTargetParent(): no target function defined');
+            return;
+        }
+
+        targetFunc().parent().addClass('forceShow');
     }
 }
 

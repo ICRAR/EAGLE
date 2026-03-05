@@ -117,7 +117,7 @@ export class Errors {
 
 export namespace Errors
 {
-    export type Issue = {message: string, show: () => void, fix: () => void, fixDescription: string};
+    export type Issue = {message: string, show: (() => void) | null, fix: (() => void) | null, fixDescription: string};
     export type ErrorsWarnings = {warnings: Issue[], errors: Issue[]};
     
     export enum Validity {

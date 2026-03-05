@@ -97,7 +97,12 @@ export class EagleConfig {
     }
 
     static initCSS(){
-        const style: CSSStyleDeclaration = $("#logicalGraphParent").get(0).style;
+        const logicalGraphParent = $("#logicalGraphParent").get(0);
+        if (typeof logicalGraphParent === 'undefined'){
+            console.error("EagleConfig.initCSS(): could not find logicalGraphParent element!");
+            return;
+        }
+        const style: CSSStyleDeclaration = logicalGraphParent.style;
 
         //overwriting css variables using colors from EagleConfig. I am using this for simple styling to avoid excessive css data binds in the node html files
         style.setProperty("--selectedBg", EagleConfig.getColor('selectBackground'));
@@ -115,6 +120,12 @@ export class EagleConfig {
         style.setProperty("--nodeInputColor", EagleConfig.getColor('nodeInputPort'));
         style.setProperty("--edgeSVGSize", EagleConfig.EDGE_SVG_SIZE+'px');
         style.setProperty("--edgeThickness", EagleConfig.EDGE_THICKNESS+'px');
-        $("html").get(0).style.setProperty("--hoverHighlight", EagleConfig.getColor('hoverHighlight'));
+
+        const htmlElement =  $("html").get(0);
+        if (typeof htmlElement === 'undefined'){
+            console.error("EagleConfig.initCSS(): could not find html element!");
+            return;
+        }
+        htmlElement.style.setProperty("--hoverHighlight", EagleConfig.getColor('hoverHighlight'));
     }
 }

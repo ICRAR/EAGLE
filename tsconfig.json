@@ -10,7 +10,7 @@
         "noFallthroughCasesInSwitch": true,
         "noUnusedLocals": false, // NOTE: would like to set this to true, but sometimes functions are only used within knockout html
         "noUnusedParameters": false,
-        "strictNullChecks" : false,
+        "strictNullChecks" : true,
         "strictFunctionTypes": false,
         "strictPropertyInitialization": false,
         "module": "umd",
