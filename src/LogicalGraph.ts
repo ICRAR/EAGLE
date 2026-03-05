@@ -709,7 +709,7 @@ export class LogicalGraph {
     }
 
     addIssue = (issue:Errors.Issue, validity:Errors.Validity): void => {
-        this.issues().push({issue:issue,validity:validity})
+        this.issues().push({issue:issue, validity:validity})
     }
 
     /**
@@ -1209,66 +1209,6 @@ export class LogicalGraph {
                 function(){eagle.editDetailedDescription(graph.fileInfo())}
             );
             graph.issues.push({issue : issue, validity : Errors.Validity.Warning})
-        }
-
-        // check that all node, edge, field, and config ids are unique
-        const ids : string[] = [];
-
-        // loop over graph nodes
-        for (const [nodeId, node] of graph.nodes()){
-            if (ids.includes(nodeId)){
-                const issue: Errors.Issue = Errors.ShowFix(
-                    "Node (" + node.getName() + ") does not have a unique id",
-                    function(){Utils.showNode(eagle, Eagle.FileType.Graph, node)},
-                    function(){Utils.newNodeId(graph, nodeId)},
-                    "Assign node a new id"
-                );
-                graph.issues.push({issue : issue, validity : Errors.Validity.Error})
-            }
-            ids.push(nodeId);
-
-            // loop over fields within graphs to check that all field ids are unique
-            for (const field of node.getFields()){
-                if (ids.includes(field.getId())){
-                    const issue: Errors.Issue = Errors.ShowFix(
-                        "Field (" + field.getDisplayText() + ") on node (" + node.getName() + ") does not have a unique id",
-                        function(){Utils.showNode(eagle, Eagle.FileType.Graph, node)},
-                        function(){Utils.newFieldId(eagle, node, field)},
-                        "Assign field a new id"
-                    );
-                    graph.issues.push({issue : issue, validity : Errors.Validity.Error})
-                }
-                ids.push(field.getId());
-            }
-        }
-
-        // loop over graph edges to check that all edge ids are unique
-        for (const [id, edge] of graph.edges()){
-            if (ids.includes(id)){
-                const issue: Errors.Issue = Errors.ShowFix(
-                    "Edge (" + id + ") does not have a unique id",
-                    function(){Utils.showEdge(eagle, edge)},
-                    function(){Utils.newEdgeId(graph, id)},
-                    "Assign edge a new id"
-                );
-                graph.issues.push({issue : issue, validity : Errors.Validity.Error})
-            }
-            ids.push(id);
-        }
-
-        // loop over the graph configs to check that all graph config ids are unique
-        for (const [id, graphConfig] of graph.graphConfigs()){
-            if (ids.includes(id)){
-                const issue: Errors.Issue = Errors.ShowFix(
-                    "Graph Config (" + graphConfig.getId() + ") does not have a unique id",
-                    function(){Utils.showGraphConfig(eagle, id)},
-                    function(){Utils.newGraphConfigId(graph, id)},
-                    "Assign graph config a new id"
-                );
-                graph.issues.push({issue : issue, validity : Errors.Validity.Error})
-            }
-
-            ids.push(graphConfig.getId());
         }
 
         // check that all nodes in the nodes dict have a key that matches the id inside the node
