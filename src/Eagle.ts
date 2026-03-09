@@ -4871,6 +4871,7 @@ export class Eagle {
     // NOTE: does not add the node's input or output applications to the logical graph
     addNode = async (node : Node, x: number, y: number): Promise<Node> => {
         // copy node
+        // TODO: could replace with node.copy() ?
         const newNode: Node = Utils.duplicateNode(node);
 
         // check if node will be added to an empty graph, if so prompt user to specify graph name

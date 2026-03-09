@@ -96,7 +96,9 @@ export class Utils {
     /**
      * Generates a UUID.
      * See https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
-     * NOTE: we use the (slightly) less random version that doesn't require the
+     * NOTE: the main code path uses the widely-supported crypto.randomUUID()
+     *       in the unlikely case this is unavailable, we use the (slightly) less
+     *       random version that doesn't require the
      *       crypto.getRandomValues() call that is not available in NodeJS
      */
 
