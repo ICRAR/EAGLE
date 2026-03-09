@@ -2726,6 +2726,9 @@ export class Eagle {
 
         // show errors/warnings
         this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
+
+        // check EAGLE
+        this.checkGraph();
     }
 
     findPaletteByFile = (file : RepositoryFile) : Palette => {

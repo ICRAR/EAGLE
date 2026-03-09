@@ -1570,6 +1570,7 @@ export class Utils {
         return errorsWarnings;
     }
 
+    // TODO: maybe re-name, since this checks everything now, not just the graph. And maybe move to Eagle class?
     static checkGraph(eagle: Eagle): void {
         const graph: LogicalGraph = eagle.logicalGraph();
 
