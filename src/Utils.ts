@@ -1620,10 +1620,23 @@ export class Utils {
         // NOTE: we do this on palettes first, so that if later we find the same id used in the graph, we can add an issue
         for (const palette of eagle.palettes()){
             for (const node of palette.getNodes()){
-                ids.add(node.getId());
+                const paletteNodeId = node.getId();
+
+                if (ids.has(paletteNodeId)){
+                    // TODO: this should really be an issue that we add to the palette, but since we can't to add issues to palettes yet, for now we'll just log it
+                    console.warn("Node (" + node.getName() + ") in palette (" + palette.fileInfo().name + ") has id already used by at least one other component.");
+                } else {
+                    ids.add(paletteNodeId);
+                }
 
                 for (const field of node.getFields()){
-                    ids.add(field.getId());
+                    const fieldId = field.getId();
+                    if (ids.has(fieldId)){
+                        // TODO: this should really be an issue that we add to the palette, but since we can't to add issues to palettes yet, for now we'll just log it
+                        console.warn("Field (" + field.getDisplayText() + ") on node (" + node.getName() + ") in palette (" + palette.fileInfo().name + ") has id already used by at least one other component.");
+                    } else {
+                        ids.add(fieldId);
+                    }
                 }
             }
         }

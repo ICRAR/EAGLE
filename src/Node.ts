@@ -1144,6 +1144,9 @@ export class Node {
         // clone fields
         for (const field of this.fields().values()){
             result.fields().set(field.getId(), field.clone());
+        }
+        // if any fields were added, we need to trigger the valueHasMutated to update any observers
+        if (this.fields().size > 0){
             result.fields.valueHasMutated();
         }
 
@@ -1181,6 +1184,9 @@ export class Node {
         for (const field of this.fields().values()){
             const newField = field.clone().setId(Utils.generateFieldId());
             result.fields().set(newField.getId(), newField);
+        }
+        // if any fields were added, we need to trigger the valueHasMutated to update any observers
+        if (this.fields().size > 0){
             result.fields.valueHasMutated();
         }
 
