@@ -295,7 +295,7 @@ export class GraphRenderer {
 
     static draggingTextVisualPort : ko.Observable<boolean> = ko.observable(false);
     static textVisualPortDragSource : ko.Observable<Visual> = ko.observable(null);
-    static textVisualPortDragTarget : ko.Observable<Node | Edge> = ko.observable(null);
+    static textVisualPortDragTarget : ko.Observable<Node | Edge | Visual> = ko.observable(null);
 
     //node drag handler globals
     static nodeParentRadiusPreDrag : number = null;
@@ -363,7 +363,8 @@ export class GraphRenderer {
     }
 
     static calculateTextVisualPortPosition(visual:Visual) : {x:number, y:number} {
-        const portRadius = 6 // we need to add or subtract half of the width of the port sometimes to center it on the edge
+        const isGroup : boolean = visual.isGroup()
+        const portRadius = isGroup ? 0:6  // we need to add or subtract half of the width of the port sometimes to center it on the edge
         //the height of text visuals is automatic based on content using css, so we need to get the height of the element here
         const halfHeight = $('#' + visual.getId()+ ' .body').height() / 2 + portRadius;
         const visualPos = visual.getPosition()
@@ -372,6 +373,9 @@ export class GraphRenderer {
             const targetPos = visual.getTarget().getPosition()
             let targetAngle = GraphRenderer.calculateConnectionAngle(visualPos, targetPos)
             targetAngle = Utils.toDegrees360(targetAngle)
+            
+            if(isGroup)targetAngle+180 //for text visual to group visual connections we use this function for each end
+
             const halfWidth = visual.getWidth()/2
             let result : {x:number, y:number} = {x:0,y:0}
 
@@ -1392,6 +1396,9 @@ export class GraphRenderer {
         }else if(destObject instanceof Edge){
             destX = destObject.getPosition().x;
             destY = destObject.getPosition().y;
+        }else if(destObject instanceof Visual){
+            destX = GraphRenderer.calculateTextVisualPortPositionX(destObject);
+            destY = GraphRenderer.calculateTextVisualPortPositionY(destObject);
         }
 
         return GraphRenderer.createBezier(false,false, null, 0, destObjectRadius,{x:srcX, y:srcY}, {x:destX, y:destY}, null, null, false)
@@ -1885,9 +1892,7 @@ export class GraphRenderer {
             //grab the ko $data of the element under the mouse
             const data = ko.dataFor(element);
 
-            if (data instanceof Node) {
-                GraphRenderer.textVisualPortDragTarget(data);
-            }else if (data instanceof Edge){
+            if (data instanceof Node || data instanceof Edge || data instanceof Visual) {
                 GraphRenderer.textVisualPortDragTarget(data);
             }
         }
@@ -1944,13 +1949,26 @@ export class GraphRenderer {
             }
         }else{
             //for text visual port drag events
-            if(GraphRenderer.textVisualPortDragTarget() !== null && (GraphRenderer.textVisualPortDragTarget() instanceof Node || GraphRenderer.textVisualPortDragTarget() instanceof Edge)){
+            if(GraphRenderer.textVisualPortDragTarget() !== null && (GraphRenderer.textVisualPortDragTarget() instanceof Node || GraphRenderer.textVisualPortDragTarget() instanceof Edge || GraphRenderer.textVisualPortDragTarget() instanceof Visual)){
                 const visual: Visual = GraphRenderer.textVisualPortDragSource();
                 const target = GraphRenderer.textVisualPortDragTarget();
+                const oldTarget = visual.getTarget()
+
+                //if the old target was a group visual, we need to update the target on that side as well. 
+                if(oldTarget instanceof Visual && oldTarget.isGroup()){
+                    oldTarget.setTarget(null)
+                }
 
                 visual.setTarget(target);
 
-                eagle.undo().pushSnapshot(eagle, "Set Text Visual target to " + (target instanceof Node ? "Node '" + target.getName() + "'" : "Edge from '" + target.getSrcNode().getName() + "' to '" + target.getDestNode().getName() + "'"));
+                if(target instanceof Node){
+                    eagle.undo().pushSnapshot(eagle, "Set Text Visual target to Node '" + target.getName() + "'" );
+                }else if (target instanceof Edge){
+                    eagle.undo().pushSnapshot(eagle, "Set Text Visual target to Edge from '" + target.getSrcNode().getName() + "' to '" + target.getDestNode().getName() + "'" );
+                }else if (target instanceof Visual && target.isGroup()){
+                    target.setTarget(visual) //set the current text visual as the group visuals target. this allows us to traverse back from the group visuals
+                    eagle.undo().pushSnapshot(eagle, "Set Text Visual target to Group Visual" );
+                }
             }
         }
         
