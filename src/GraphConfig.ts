@@ -50,6 +50,11 @@ export class GraphConfig {
         return this;
     }
 
+    setName = (name: string): GraphConfig => {
+        this.fileInfo().name = name;
+        return this;
+    }
+
     getNodes = (): MapIterator<GraphConfigNode> => {
         return this.nodes().values();
     }

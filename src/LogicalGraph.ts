@@ -47,7 +47,6 @@ export class LogicalGraph {
     private activeGraphConfigId : ko.Observable<GraphConfigId>;
 
     private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}> //keeps track of higher level errors on the graph
-    
 
     constructor(){
         this.fileInfo = ko.observable(new FileInfo());
@@ -56,8 +55,11 @@ export class LogicalGraph {
         this.fileInfo().builtIn = false;
         this.nodes = ko.observable(new Map<NodeId, Node>());
         this.edges = ko.observable(new Map<EdgeId, Edge>());
-        this.graphConfigs = ko.observable(new Map<GraphConfigId, GraphConfig>());
-        this.activeGraphConfigId = ko.observable(null); // can be null, or an id (can't be undefined)
+
+        const graphConfig = new GraphConfig().setName("Default Graph Config");
+        this.graphConfigs = ko.observable(new Map<GraphConfigId, GraphConfig>([[graphConfig.getId(), graphConfig]]));
+        this.activeGraphConfigId = ko.observable(graphConfig.getId()); // can be null, or an id (can't be undefined)
+
         this.issues = ko.observableArray([])
     }
 
