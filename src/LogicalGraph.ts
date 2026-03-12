@@ -56,7 +56,9 @@ export class LogicalGraph {
         this.nodes = ko.observable(new Map<NodeId, Node>());
         this.edges = ko.observable(new Map<EdgeId, Edge>());
 
-        const graphConfig = new GraphConfig().setName("Default Graph Config");
+        const graphConfig = new GraphConfig();
+        graphConfig.fileInfo().name = "Default Graph Configuration";
+        graphConfig.fileInfo().location = this.fileInfo().location.clone();
         this.graphConfigs = ko.observable(new Map<GraphConfigId, GraphConfig>([[graphConfig.getId(), graphConfig]]));
         this.activeGraphConfigId = ko.observable(graphConfig.getId()); // can be null, or an id (can't be undefined)
 

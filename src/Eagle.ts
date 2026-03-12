@@ -4874,6 +4874,12 @@ export class Eagle {
             }
             this.logicalGraph().fileInfo().name = filename;
             this.logicalGraph().fileInfo().location.repositoryFileName(filename);
+
+            // update the location of all the graph configs too
+            for (const graphConfig of this.logicalGraph().getGraphConfigs()){
+                graphConfig.fileInfo().graphLocation = this.logicalGraph().fileInfo().location.clone();
+            }
+
             this.checkGraph();
             this.undo().pushSnapshot(this, "Specify Logical Graph name");
             this.logicalGraph.valueHasMutated();

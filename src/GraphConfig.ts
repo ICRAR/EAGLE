@@ -4,6 +4,7 @@ import { Eagle } from "./Eagle";
 import { Errors } from "./Errors";
 import { Field } from "./Field";
 import { FileInfo } from "./FileInfo";
+import { FileLocation } from "./FileLocation";
 import { LogicalGraph } from "./LogicalGraph";
 import { Node } from "./Node";
 import { Utils } from "./Utils";
@@ -47,11 +48,6 @@ export class GraphConfig {
 
     setId = (id: GraphConfigId): GraphConfig => {
         this.id(id);
-        return this;
-    }
-
-    setName = (name: string): GraphConfig => {
-        this.fileInfo().name = name;
         return this;
     }
 
