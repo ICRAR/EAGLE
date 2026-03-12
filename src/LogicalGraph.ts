@@ -191,7 +191,7 @@ export class LogicalGraph {
 
         // saving the id of the active graph configuration
         result.activeGraphConfigId = Eagle.getInstance().logicalGraph().activeGraphConfigId();
-
+        
         return result;
     }
 
@@ -599,7 +599,7 @@ export class LogicalGraph {
         return this.visuals().values();
     }
 
-    getVisualById = (id: VisualId): Visual | undefined => {
+    getVisualById = (id: any): Visual | undefined => {
         return this.visuals().get(id);
     }
 

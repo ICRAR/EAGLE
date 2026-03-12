@@ -42,7 +42,6 @@ export class Visual {
     private type : ko.Observable<Visual.Type>;
     private content : ko.Observable<string>;
     private target : ko.Observable<Node | Edge | Visual | null>; // the id of the node or edge this comment is attached to, or null if it's free-floating
-    private targetLocation : ko.Observable<{x:number, y:number}>; // the location on the target where the comment is attached, in target-local coordinates
     private color : ko.Observable<string>; //used for the background of group visuals
 
     constructor(type: Visual.Type, content: string) {
@@ -59,7 +58,6 @@ export class Visual {
         this.type = ko.observable(type);
         this.content = ko.observable(content);
         this.target = ko.observable(null);
-        this.targetLocation = ko.observable(null);
         this.color = ko.observable(EagleConfig.getColor('groupVisualBackgroundColor'))
     }
 
@@ -150,15 +148,6 @@ export class Visual {
         return this;
     }
 
-    getTargetLocation = () : {x:number, y:number} => {
-        return this.targetLocation();
-    }
-
-    setTargetLocation = (location: {x:number, y:number}) : Visual => {
-        this.targetLocation(location);
-        return this;
-    }
-
     getColor = () : string => {
         return this.color()
     }
@@ -182,7 +171,6 @@ export class Visual {
             .setWidth(this.width())
             .setHeight(this.height())
             .setTarget(this.target())
-            .setTargetLocation(this.targetLocation())
             .setColor(this.color());
         return result;
     }
@@ -197,16 +185,8 @@ export class Visual {
         const content: string = visualData.content || '';
         const color: string = visualData.color;
         const targetId: string = visualData.targetId || null;
-        const targetLocation: {x:number, y:number} = visualData.targetLocation || null;
 
         const target : Node | Edge | Visual | null = lg.getNodeById(targetId as NodeId) || lg.getEdgeById(targetId as EdgeId) || lg.getVisualById(targetId as VisualId) || null;
-
-        //import errors
-        let errorFound: boolean = false;
-
-        if (errorFound){
-            return null;
-        }
 
         return new Visual(type, content)
         .setId(id)
@@ -215,7 +195,6 @@ export class Visual {
         .setHeight(height)
         .setTarget(target)
         .setColor(color)
-        .setTargetLocation(targetLocation);
     }
 
     static toJson(visual: Visual) : object {
@@ -229,7 +208,6 @@ export class Visual {
             content: visual.content(),
             color: visual.color(),
             targetId: visual.target() ? visual.target().getId() : null,
-            targetLocation: visual.targetLocation()
         }
     }
     

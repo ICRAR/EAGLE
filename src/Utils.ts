@@ -2363,7 +2363,7 @@ export class Utils {
         // this function turns this into degrees from 0-360 which makes it easier to work with.
 
         // 1. Convert to raw degrees
-        let degrees = radians * (180 / Math.PI);
+        const degrees = radians * (180 / Math.PI);
         
         // 2. Normalize to 0-360 range
         // Adding 360 before the second modulo handles negative inputs correctly.
@@ -2499,8 +2499,7 @@ export class Utils {
                 "height":visual.getHeight(),
                 "type":visual.getType(),
                 "content":visual.getContent(),
-                "target":visual.getTarget(),
-                "targetLocation":visual.getTargetLocation()
+                "target":visual.getTarget()
             });
         }
 

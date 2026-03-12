@@ -4179,11 +4179,9 @@ export class Eagle {
         
             // get reference to the logical graph
             const logicalGraph = this.logicalGraph();
-            let newVisual: Visual;
 
             let pos : {x:number, y:number};
             pos = {x:0,y:0}
-            let searchAreaExtended = false; //used if we cant find space on the canvas, we then extend the search area for space and center the graph after adding to bring new nodes into view
 
             // check that graph editing is allowed
             if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
@@ -4192,7 +4190,7 @@ export class Eagle {
             }
 
             // create a new visual of the requested type
-            newVisual =  new Visual(type, '');
+            const newVisual = new Visual(type, '');
 
             if(mode === Eagle.AddNodeMode.ContextMenu){
                 // use the position where the right click occurred
@@ -4206,13 +4204,11 @@ export class Eagle {
                 // get new position for node
                 if (Eagle.nodeDropLocation.x === 0 && Eagle.nodeDropLocation.y === 0){
                     const result = this.getNewNodePosition(newVisual.getWidth());
-                    searchAreaExtended = result.extended
                     pos = {x:result.x,y:result.y}
                 } else {
                     pos = Eagle.nodeDropLocation;
                 }
             }
-
 
             const visual = new Visual(type, '');
             visual.setPosition(pos.x, pos.y);
