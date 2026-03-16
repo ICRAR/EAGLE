@@ -466,7 +466,6 @@ export class RightClick {
         
         if(visual != null && visual instanceof Visual){
             visual.setTarget(null)
-            visual.setTargetLocation({x:0,y:0})
         }
     }
 
