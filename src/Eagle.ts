@@ -4875,10 +4875,10 @@ export class Eagle {
             this.logicalGraph().fileInfo().name = filename;
             this.logicalGraph().fileInfo().location.repositoryFileName(filename);
 
-            // update the location of all the graph configs too
-            for (const graphConfig of this.logicalGraph().getGraphConfigs()){
-                graphConfig.fileInfo().graphLocation = this.logicalGraph().fileInfo().location.clone();
-            }
+            // create default graph config for the new graph
+            const graphConfig = new GraphConfig();
+            graphConfig.fileInfo().name = "Default Graph Configuration";
+            this.logicalGraph().addGraphConfig(graphConfig, false);
 
             this.checkGraph();
             this.undo().pushSnapshot(this, "Specify Logical Graph name");

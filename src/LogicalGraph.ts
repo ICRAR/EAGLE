@@ -55,13 +55,8 @@ export class LogicalGraph {
         this.fileInfo().builtIn = false;
         this.nodes = ko.observable(new Map<NodeId, Node>());
         this.edges = ko.observable(new Map<EdgeId, Edge>());
-
-        const graphConfig = new GraphConfig();
-        graphConfig.fileInfo().name = "Default Graph Configuration";
-        graphConfig.fileInfo().location = this.fileInfo().location.clone();
-        this.graphConfigs = ko.observable(new Map<GraphConfigId, GraphConfig>([[graphConfig.getId(), graphConfig]]));
-        this.activeGraphConfigId = ko.observable(graphConfig.getId()); // can be null, or an id (can't be undefined)
-
+        this.graphConfigs = ko.observable(new Map<GraphConfigId, GraphConfig>());
+        this.activeGraphConfigId = ko.observable(null); // can be null, or an id (can't be undefined)
         this.issues = ko.observableArray([])
     }
 
@@ -589,7 +584,7 @@ export class LogicalGraph {
         return this.graphConfigs().get(id);
     }
 
-    addGraphConfig = (config: GraphConfig): void => {
+    addGraphConfig = (config: GraphConfig, openGraphConfigUI: boolean = true): void => {
         // update fileInfo of config with data about the graph to which it was added
         config.fileInfo().graphLocation = this.fileInfo().location.clone();
 
@@ -599,13 +594,15 @@ export class LogicalGraph {
         this.setActiveGraphConfig(config.getId());
         this.fileInfo().modified = true;
 
-        // open the graph configurations table
-        GraphConfigurationsTable.openTable();
+        if (openGraphConfigUI){
+            // open the graph configurations table
+            GraphConfigurationsTable.openTable();
 
-        //focus on and select the name field of the newly added config in the configurations table, ready to rename. this requires a little wait, to allow the ui to update
-        setTimeout(() => {
-            $('#graphConfigurationsTableWrapper .activeConfig .column-name input').focus().select()
-        }, 100);
+            //focus on and select the name field of the newly added config in the configurations table, ready to rename. this requires a little wait, to allow the ui to update
+            setTimeout(() => {
+                $('#graphConfigurationsTableWrapper .activeConfig .column-name input').focus().select()
+            }, 100);
+        }
 
         Utils.showNotification("Graph Config added to Logical Graph", config.fileInfo().name, "success");
 
