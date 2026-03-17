@@ -602,9 +602,9 @@ export class LogicalGraph {
             setTimeout(() => {
                 $('#graphConfigurationsTableWrapper .activeConfig .column-name input').focus().select()
             }, 100);
-        }
 
-        Utils.showNotification("Graph Config added to Logical Graph", config.fileInfo().name, "success");
+            Utils.showNotification("Graph Config added to Logical Graph", config.fileInfo().name, "success");
+        }
 
         const eagle: Eagle = Eagle.getInstance();
         eagle.undo().pushSnapshot(eagle, "Added a new graph configuration (" + config.fileInfo().name + ")");
