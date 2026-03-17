@@ -4,7 +4,6 @@ import { Eagle } from "./Eagle";
 import { Errors } from "./Errors";
 import { Field } from "./Field";
 import { FileInfo } from "./FileInfo";
-import { FileLocation } from "./FileLocation";
 import { LogicalGraph } from "./LogicalGraph";
 import { Node } from "./Node";
 import { Utils } from "./Utils";
