@@ -44,6 +44,7 @@ export class Daliuge {
 export namespace Daliuge {
     export const DEFAULT_PYDATA_VALUE: string = "None";
     export const DEFAULT_PYFUNCAPP_DROPCLASS_VALUE: string = "dlg.apps.pyfunc.PyFuncApp";
+    export const DEFAULT_GRAPH_CONFIGURATION_NAME: string = "Default Graph Configuration";
 
     export enum FieldName {
         DATA_VOLUME = "data_volume",

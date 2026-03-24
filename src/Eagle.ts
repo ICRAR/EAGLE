@@ -1542,6 +1542,11 @@ export class Eagle {
         // name the new graph
         const filename:string = await Utils.checkGraphIsNamed(this.logicalGraph());
 
+        // create default graph config for the new graph
+        const graphConfig = new GraphConfig();
+        graphConfig.fileInfo().name = Daliuge.DEFAULT_GRAPH_CONFIGURATION_NAME;
+        this.logicalGraph().addGraphConfig(graphConfig, false);
+
         Utils.showNotification("New Graph Created", filename, "success");
     }
 
@@ -2900,6 +2905,9 @@ export class Eagle {
 
         // show errors/warnings
         this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
+
+        // check EAGLE
+        this.checkGraph();
     }
 
     findPaletteByFile = (file : RepositoryFile) : Palette | undefined => {
@@ -3738,6 +3746,7 @@ export class Eagle {
         this.selectedObjects([]);
     }
 
+    // TODO: this function shares some code with addGraphNodesToPalette(), we should try to factor out the common stuff at some stage
     addNodesToPalette = async (nodes: Node[]) => {
         console.log("addNodesToPalette()");
 
@@ -3799,6 +3808,9 @@ export class Eagle {
             // mark the palette as modified
             destinationPalette.fileInfo().modified = true;
         }
+
+        // check EAGLE
+        this.checkGraph();
     }
 
     addSelectedNodesToPalette = (mode: "normal"|"contextMenuRequest") : void => {
@@ -4258,6 +4270,7 @@ export class Eagle {
         });
     }
 
+    // TODO: how much is this different to addNodesToPalette? can we merge them?
     addGraphNodesToPalette = async () => {
         // check that palette editing is permitted
         if (!Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false)){
@@ -4321,6 +4334,9 @@ export class Eagle {
 
         // mark the palette as modified
         destinationPalette.fileInfo().modified = true;
+
+        // check EAGLE
+        this.checkGraph();
     }
 
     private buildWritablePaletteNamesList = () : string[] => {
@@ -5204,6 +5220,7 @@ export class Eagle {
     // NOTE: does not add the node's input or output applications to the logical graph
     addNode = async (node : Node, x: number, y: number): Promise<Node> => {
         // copy node
+        // TODO: could replace with node.copy() ?
         const newNode: Node = Utils.duplicateNode(node);
 
         // check if node will be added to an empty graph, if so prompt user to specify graph name
@@ -5218,6 +5235,12 @@ export class Eagle {
             }
             this.logicalGraph().fileInfo().name = filename;
             this.logicalGraph().fileInfo().location.repositoryFileName(filename);
+
+            // create default graph config for the new graph
+            const graphConfig = new GraphConfig();
+            graphConfig.fileInfo().name = Daliuge.DEFAULT_GRAPH_CONFIGURATION_NAME;
+            this.logicalGraph().addGraphConfig(graphConfig, false);
+
             this.checkGraph();
             this.undo().pushSnapshot(this, "Specify Logical Graph name");
             this.logicalGraph.valueHasMutated();

@@ -8,7 +8,7 @@ const gitHubUser = Role('https://github.com/login', async t => {
     await t
         .typeText('#login_field', 'icrar.testing@gmail.com')
         .typeText('#password', '%8\\G`+Lo<')
-        .click('.btn.btn-primary.btn-block');
+        .click('.btn.btn-primary');
 });
 
 // Creating the message box - this is used for large, bold messages centred at the top

@@ -96,7 +96,9 @@ export class Utils {
     /**
      * Generates a UUID.
      * See https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
-     * NOTE: we use the (slightly) less random version that doesn't require the
+     * NOTE: the main code path uses the widely-supported crypto.randomUUID()
+     *       in the unlikely case this is unavailable, we use the (slightly) less
+     *       random version that doesn't require the
      *       crypto.getRandomValues() call that is not available in NodeJS
      */
 
@@ -1585,6 +1587,7 @@ export class Utils {
         return errorsWarnings;
     }
 
+    // TODO: maybe re-name, since this checks everything now, not just the graph. And maybe move to Eagle class?
     static checkGraph(eagle: Eagle): void {
         const graph: LogicalGraph = eagle.logicalGraph();
 
@@ -1623,6 +1626,95 @@ export class Utils {
             }
 
             Edge.isValid(eagle, false, edge.getId(), edge.getSrcNode().getId(), edge.getSrcPort().getId(), edge.getDestNode().getId(), edge.getDestPort().getId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {warnings: [], errors: []});
+        }
+
+        // check uniqueness of ids EAGLE-wide (including palettes and graph)
+        const ids = new Set<string>();
+
+        // loop over the palettes and their nodes and fields add all the ids to the list
+        // NOTE: we do this on palettes first, so that if later we find the same id used in the graph, we can add an issue
+        for (const palette of eagle.palettes()){
+            for (const node of palette.getNodes()){
+                const paletteNodeId = node.getId();
+
+                if (ids.has(paletteNodeId)){
+                    // TODO: this should really be an issue that we add to the palette, but since we can't to add issues to palettes yet, for now we'll just log it
+                    console.warn("Node (" + node.getName() + ") in palette (" + palette.fileInfo().name + ") has id already used by at least one other component.");
+                } else {
+                    ids.add(paletteNodeId);
+                }
+
+                for (const field of node.getFields()){
+                    const fieldId = field.getId();
+                    if (ids.has(fieldId)){
+                        // TODO: this should really be an issue that we add to the palette, but since we can't to add issues to palettes yet, for now we'll just log it
+                        console.warn("Field (" + field.getDisplayText() + ") on node (" + node.getName() + ") in palette (" + palette.fileInfo().name + ") has id already used by at least one other component.");
+                    } else {
+                        ids.add(fieldId);
+                    }
+                }
+            }
+        }
+
+        // loop over graph nodes
+        for (const node of graph.getNodes()){
+            const id = node.getId();
+            if (ids.has(id)){
+                const issue: Errors.Issue = Errors.ShowFix(
+                    "Node (" + node.getName() + ") does not have a unique id",
+                    function(){Utils.showNode(eagle, Eagle.FileType.Graph, node)},
+                    function(){Utils.newNodeId(graph, id)},
+                    "Assign node a new id"
+                );
+                graph.addIssue(issue, Errors.Validity.Error);
+            }
+            ids.add(id);
+
+            // loop over fields within graphs to check that all field ids are unique
+            for (const field of node.getFields()){
+                const id = field.getId();
+                if (ids.has(id)){
+                    const issue: Errors.Issue = Errors.ShowFix(
+                        "Field (" + field.getDisplayText() + ") on node (" + node.getName() + ") does not have a unique id",
+                        function(){Utils.showNode(eagle, Eagle.FileType.Graph, node)},
+                        function(){Utils.newFieldId(eagle, node, field)},
+                        "Assign field a new id"
+                    );
+                    graph.addIssue(issue, Errors.Validity.Error);
+                }
+                ids.add(id);
+            }
+        }
+
+        // loop over graph edges to check that all edge ids are unique
+        for (const edge of graph.getEdges()){
+            const id = edge.getId();
+            if (ids.has(id)){
+                const issue: Errors.Issue = Errors.ShowFix(
+                    "Edge (" + id + ") does not have a unique id",
+                    function(){Utils.showEdge(eagle, edge)},
+                    function(){Utils.newEdgeId(graph, id)},
+                    "Assign edge a new id"
+                );
+                graph.addIssue(issue, Errors.Validity.Error);
+            }
+            ids.add(id);
+        }
+
+        // loop over the graph configs to check that all graph config ids are unique
+        for (const graphConfig of graph.getGraphConfigs()){
+            const id = graphConfig.getId();
+            if (ids.has(id)){
+                const issue: Errors.Issue = Errors.ShowFix(
+                    "Graph Config (" + id + ") does not have a unique id",
+                    function(){Utils.showGraphConfig(eagle, id)},
+                    function(){Utils.newGraphConfigId(graph, id)},
+                    "Assign graph config a new id"
+                );
+                graph.addIssue(issue, Errors.Validity.Error);
+            }
+
+            ids.add(id);
         }
     }
 
