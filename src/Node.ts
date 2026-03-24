@@ -1144,6 +1144,9 @@ export class Node {
         // clone fields
         for (const field of this.fields().values()){
             result.fields().set(field.getId(), field.clone());
+        }
+        // if any fields were added, we need to trigger the valueHasMutated to update any observers
+        if (this.fields().size > 0){
             result.fields.valueHasMutated();
         }
 
@@ -1157,6 +1160,46 @@ export class Node {
         }
         if (this.hasOutputApplication()){
             result.outputApplication(this.outputApplication().clone());
+        }
+
+        return result;
+    }
+
+    copy = () : Node => {
+        const result : Node = new Node(this.name(), this.description(), this.comment(), this.category());
+
+        result.id(Utils.generateNodeId());
+        result.x(this.x());
+        result.y(this.y());
+        result.categoryType(this.categoryType());
+        result.color(this.color());
+        result.drawOrderHint(this.drawOrderHint());
+
+        result.parent(this.parent());
+        result.embed(this.embed());
+
+        result.peek(this.peek());
+
+        // copy fields
+        for (const field of this.fields().values()){
+            const newField = field.clone().setId(Utils.generateFieldId());
+            result.fields().set(newField.getId(), newField);
+        }
+        // if any fields were added, we need to trigger the valueHasMutated to update any observers
+        if (this.fields().size > 0){
+            result.fields.valueHasMutated();
+        }
+
+        result.repositoryUrl(this.repositoryUrl());
+        result.commitHash(this.commitHash());
+        result.paletteDownloadUrl(this.paletteDownloadUrl());
+        result.dataHash(this.dataHash());
+
+        if (this.hasInputApplication()){
+            result.inputApplication(this.inputApplication().copy());
+        }
+        if (this.hasOutputApplication()){
+            result.outputApplication(this.outputApplication().copy());
         }
 
         return result;
