@@ -47,7 +47,6 @@ export class LogicalGraph {
     private activeGraphConfigId : ko.Observable<GraphConfigId>;
 
     private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}> //keeps track of higher level errors on the graph
-    
 
     constructor(){
         this.fileInfo = ko.observable(new FileInfo());
@@ -585,7 +584,7 @@ export class LogicalGraph {
         return this.graphConfigs().get(id);
     }
 
-    addGraphConfig = (config: GraphConfig): void => {
+    addGraphConfig = (config: GraphConfig, openGraphConfigUI: boolean = true): void => {
         // update fileInfo of config with data about the graph to which it was added
         config.fileInfo().graphLocation = this.fileInfo().location.clone();
 
@@ -595,15 +594,17 @@ export class LogicalGraph {
         this.setActiveGraphConfig(config.getId());
         this.fileInfo().modified = true;
 
-        // open the graph configurations table
-        GraphConfigurationsTable.openTable();
+        if (openGraphConfigUI){
+            // open the graph configurations table
+            GraphConfigurationsTable.openTable();
 
-        //focus on and select the name field of the newly added config in the configurations table, ready to rename. this requires a little wait, to allow the ui to update
-        setTimeout(() => {
-            $('#graphConfigurationsTableWrapper .activeConfig .column-name input').focus().select()
-        }, 100);
+            //focus on and select the name field of the newly added config in the configurations table, ready to rename. this requires a little wait, to allow the ui to update
+            setTimeout(() => {
+                $('#graphConfigurationsTableWrapper .activeConfig .column-name input').focus().select()
+            }, 100);
 
-        Utils.showNotification("Graph Config added to Logical Graph", config.fileInfo().name, "success");
+            Utils.showNotification("Graph Config added to Logical Graph", config.fileInfo().name, "success");
+        }
 
         const eagle: Eagle = Eagle.getInstance();
         eagle.undo().pushSnapshot(eagle, "Added a new graph configuration (" + config.fileInfo().name + ")");

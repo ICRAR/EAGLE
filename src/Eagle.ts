@@ -1429,6 +1429,11 @@ export class Eagle {
         // name the new graph
         const filename:string = await Utils.checkGraphIsNamed(this.logicalGraph());
 
+        // create default graph config for the new graph
+        const graphConfig = new GraphConfig();
+        graphConfig.fileInfo().name = Daliuge.DEFAULT_GRAPH_CONFIGURATION_NAME;
+        this.logicalGraph().addGraphConfig(graphConfig, false);
+
         Utils.showNotification("New Graph Created", filename, "success");
     }
 
@@ -4886,6 +4891,12 @@ export class Eagle {
             }
             this.logicalGraph().fileInfo().name = filename;
             this.logicalGraph().fileInfo().location.repositoryFileName(filename);
+
+            // create default graph config for the new graph
+            const graphConfig = new GraphConfig();
+            graphConfig.fileInfo().name = Daliuge.DEFAULT_GRAPH_CONFIGURATION_NAME;
+            this.logicalGraph().addGraphConfig(graphConfig, false);
+
             this.checkGraph();
             this.undo().pushSnapshot(this, "Specify Logical Graph name");
             this.logicalGraph.valueHasMutated();
