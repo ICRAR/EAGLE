@@ -2,9 +2,7 @@
     "compilerOptions": {
         "allowUnreachableCode": false,
         "allowUnusedLabels": false,
-        "rootDir": "./src",
         "outDir": "./static/built",
-        "ignoreDeprecations": "6.0",
         "sourceMap": true,
         "noImplicitAny": true,
         "noImplicitReturns": true,
