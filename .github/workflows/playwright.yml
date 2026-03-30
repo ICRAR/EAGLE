@@ -26,7 +26,9 @@ jobs:
       - name: Install python setuptools
         run: pip install setuptools==81.0.0
       - name: Compile Typescript
-        run: tsc
+        run: |
+          npx tsc --version
+          npx tsc
       - name: Start server
         run: python eagleServer/eagleServer.py -t /tmp &
       - name: Install Playwright
