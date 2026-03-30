@@ -54,7 +54,7 @@ export class Setting {
     private componentDefaultValue : validValueTypes;
     private expertDefaultValue : validValueTypes;
     private oldValue : validValueTypes;
-    private options : string[] | undefined; // an optional list of possible values for this setting
+    options : string[] | undefined; // an optional list of possible values for this setting (accessed via Knockout templates)
     private eventFunc : (() => void) | undefined; // optional function to be called when a settings button is clicked, or checkbox is toggled, or a input is changed
 
     constructor(display: boolean, name: string, key: string, description: string, perpetual: boolean, type: Setting.Type, studentDefaultValue: validValueTypes, minimalDefaultValue: validValueTypes, graphDefaultValue: validValueTypes, componentDefaultValue: validValueTypes, expertDefaultValue: validValueTypes, options?: string[], eventFunc?: () => void){

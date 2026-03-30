@@ -22,14 +22,13 @@
 #
 */
 
-import * as Ajv from "ajv";
-import * as Showdown from "showdown";
+import Ajv from "ajv";
+import Showdown from "showdown";
 
 import { Category } from './Category';
 import { CategoryData } from "./CategoryData";
 import { Daliuge } from './Daliuge';
 import { Eagle } from './Eagle';
-import { EagleConfig } from "./EagleConfig";
 import { Edge } from './Edge';
 import { Errors } from './Errors';
 import { Field } from './Field';
@@ -769,7 +768,7 @@ export class Utils {
     }
 
     static async requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string, confirmSetting: Setting | undefined): Promise<boolean> {
-        return new Promise(async(resolve, reject) => {
+        return new Promise(async(resolve, _reject) => {
             $('#confirmModalTitle').text(title);
             $('#confirmModalMessage').html(message);
             $('#confirmModalAffirmativeAnswer').text(affirmativeAnswer);
@@ -801,7 +800,7 @@ export class Utils {
     }
 
     static async requestUserOptions(title: string, message: string, option0: string, option1: string, option2: string, defaultOptionIndex: number): Promise<string> {
-        return new Promise(async(resolve, reject) => {
+        return new Promise(async(resolve, _reject) => {
             $('#optionsModalTitle').text(title);
             $('#optionsModalMessage').html(message);
             $('#optionsModalOption0').text(option0);
@@ -827,7 +826,7 @@ export class Utils {
 
     // , callback : (completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void ) : void {
     static async requestUserGitCommit(defaultRepository : Repository, repositories: Repository[], filePath: string, fileName: string, fileType: Eagle.FileType): Promise<RepositoryCommit> {
-        return new Promise(async(resolve, reject) => {
+        return new Promise(async(resolve, _reject) => {
             $('#gitCommitModal').data('completed', false);
             $('#gitCommitModal').data('fileType', fileType);
 
@@ -835,7 +834,7 @@ export class Utils {
                 if (completed){
                     resolve(new RepositoryCommit(location, commitMessage));
                 } else {
-                    reject("Utils.requestUserGitCommit() aborted by user");
+                    _reject("Utils.requestUserGitCommit() aborted by user");
                 }
             };
 
@@ -874,14 +873,14 @@ export class Utils {
         });
     }
 
-    static requestUserEditField(eagle: Eagle, field: Field, title: string, choices: string[]): Promise<Field> {
-        return new Promise(async(resolve, reject) => {
+    static requestUserEditField(eagle: Eagle, field: Field, title: string, choices: string[]): Promise<Field | null> {
+        return new Promise(async(resolve, _reject) => {
             // set the currently edited field
             eagle.currentField(field);
 
             $('#editFieldModal').data('completed', false);
 
-            const callback: Modals.UserFieldCallback = function(field: Field): void {
+            const callback: Modals.UserFieldCallback = function(field: Field | null): void {
                 resolve(field);
             }
             $('#editFieldModal').data('callback', callback);
@@ -1442,7 +1441,7 @@ export class Utils {
         }
     }
 
-    static getLocalStorageValue(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string) : string {
+    static getLocalStorageValue(_repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string) : string {
         return repositoryName+"|"+repositoryBranch;
     }
 
@@ -2023,15 +2022,15 @@ export class Utils {
         eagle.logicalGraph().getEdgeById(edgeId)?.setLoopAware(false);
     }
 
-    static fixPortType(eagle: Eagle, sourcePort: Field, destinationPort: Field): void {
+    static fixPortType(_eagle: Eagle, sourcePort: Field, destinationPort: Field): void {
         destinationPort.setType(sourcePort.getType());
     }
 
-    static fixNodeAddField(eagle: Eagle, node: Node, field: Field){
+    static fixNodeAddField(_eagle: Eagle, node: Node, field: Field){
         node.addField(field);
     }
 
-    static fixNodeCategory(eagle: Eagle, node: Node, category: Category, categoryType: Category.Type){
+    static fixNodeCategory(_eagle: Eagle, node: Node, category: Category, categoryType: Category.Type){
         node.setCategory(category);
         node.setCategoryType(categoryType);
 
@@ -2124,11 +2123,11 @@ export class Utils {
         }
     }
 
-    static fixFieldId(eagle: Eagle, field: Field){
+    static fixFieldId(_eagle: Eagle, field: Field){
         field.setId(Utils.generateFieldId());
     }
 
-    static fixFieldValue(eagle: Eagle, node: Node, exampleField: Field, value: string){
+    static fixFieldValue(_eagle: Eagle, node: Node, exampleField: Field, value: string){
         let field = node.findFieldByDisplayText(exampleField.getDisplayText());
 
         // if a field was not found, clone one from the example and add to node
@@ -2142,7 +2141,7 @@ export class Utils {
         field.setValue(value);
     }
 
-    static fixFieldDefaultValue(eagle: Eagle, field: Field){
+    static fixFieldDefaultValue(_eagle: Eagle, field: Field){
         // depends on the type
         switch(field.getType()){
             case Daliuge.DataType.Boolean:
@@ -2162,7 +2161,7 @@ export class Utils {
         }
     }
 
-    static fixFieldType(eagle: Eagle, field: Field){
+    static fixFieldType(_eagle: Eagle, field: Field){
         // fix for undefined value
         if (field.getType() === undefined){
             field.setType(Daliuge.DataType.Object);
@@ -2188,11 +2187,11 @@ export class Utils {
         field.setType((Daliuge.DataType.Object + "." + field.getType()) as Daliuge.DataType);
     }
 
-    static fixFieldNodeId(eagle: Eagle, node: Node, field: Field){
+    static fixFieldNodeId(_eagle: Eagle, node: Node, field: Field){
         field.setNode(node);
     }
 
-    static fixFieldUsage(eagle: Eagle, field: Field, usage: Daliuge.FieldUsage){
+    static fixFieldUsage(_eagle: Eagle, field: Field, usage: Daliuge.FieldUsage){
         switch(field.getUsage()){
             case Daliuge.FieldUsage.NoPort:
                 field.setUsage(usage);
@@ -2222,7 +2221,7 @@ export class Utils {
         }
     }
 
-    static addSourcePortToSourceNode(eagle: Eagle, edge: Edge | undefined){
+    static addSourcePortToSourceNode(_eagle: Eagle, edge: Edge | undefined){
         if (typeof edge === 'undefined'){
             console.warn("fixAddSourcePortToSourceNode(): edge is undefined");
             return;
@@ -2245,7 +2244,7 @@ export class Utils {
         srcNode.addField(srcPort);
     }
 
-    static addDestinationPortToDestinationNode(eagle: Eagle, edge: Edge | undefined){
+    static addDestinationPortToDestinationNode(_eagle: Eagle, edge: Edge | undefined){
         if (typeof edge === 'undefined'){
             console.warn("fixAddDestinationPortToDestinationNode(): edge is undefined");
             return;
@@ -2268,7 +2267,7 @@ export class Utils {
         destNode.addField(destPort);
     }
 
-    static fixMoveEdgeToEmbeddedApplication(eagle: Eagle, edge: Edge | undefined){
+    static fixMoveEdgeToEmbeddedApplication(_eagle: Eagle, edge: Edge | undefined){
         if (typeof edge === 'undefined'){
             console.warn("fixMoveEdgeToEmbeddedApplication(): edge is undefined");
             return;
@@ -2295,7 +2294,7 @@ export class Utils {
         }
     }
 
-    static fixFieldParameterType(eagle: Eagle, node: Node, field: Field, newType: Daliuge.FieldType){
+    static fixFieldParameterType(_eagle: Eagle, node: Node, field: Field, newType: Daliuge.FieldType){
         if (newType === Daliuge.FieldType.Unknown){
             node.removeFieldById(field.getId());
             return;
@@ -2319,7 +2318,7 @@ export class Utils {
         eagle.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop())
     }
 
-    static addMissingRequiredField(eagle: Eagle, node: Node, requiredField: Field){
+    static addMissingRequiredField(_eagle: Eagle, node: Node, requiredField: Field){
         // if requiredField is "dropclass", and node already contains an "appclass" field, then just rename it
         if (requiredField.getDisplayText() === Daliuge.FieldName.DROP_CLASS){
             const appClassField = node.findFieldByDisplayText("appclass");
@@ -2854,7 +2853,7 @@ export class Utils {
         return result;
     }
 
-    static async openRemoteFileFromUrl(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string): Promise<string> {
+    static async openRemoteFileFromUrl(_repositoryService : Repository.Service, _repositoryName : string, _repositoryBranch : string, _filePath : string, fileName : string): Promise<string> {
         return new Promise(async(resolve, reject) => {
             let data;
             try {

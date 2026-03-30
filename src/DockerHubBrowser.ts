@@ -46,9 +46,9 @@ export class DockerHubBrowser {
 
     constructor(){
         this.username = ko.observable(Setting.findValue<string>(Setting.DOCKER_HUB_USERNAME, ""));
-        this.images = ko.observableArray([]);
-        this.tags = ko.observableArray([]);
-        this.digests = ko.observableArray([]);
+        this.images = ko.observableArray<string>([]);
+        this.tags = ko.observableArray<string>([]);
+        this.digests = ko.observableArray<string>([]);
         
         this.selectedImage = ko.observable("");
         this.selectedTag = ko.observable("");

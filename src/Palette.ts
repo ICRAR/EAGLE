@@ -460,7 +460,7 @@ export class Palette {
         Utils.showNotification("Palette URL", "Copied to clipboard", "success");
     }
 
-    toggle = (palette: Palette, event: Event): void => {
+    toggle = (_palette: Palette, event: Event): void => {
         // get collapse/expand state of the accordion
         const expanded: boolean = (<any>event.currentTarget).ariaExpanded === 'true';
 

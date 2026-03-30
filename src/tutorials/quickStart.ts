@@ -16,7 +16,7 @@ newTut.newTutStep("Hints Bar", "Keep an eye on this section to learn important s
 newTut.newTutStep("Inspector", "Shows information and possible actions of the currently selected item, or the graph when nothing is selected.", function(){return $("#inspector")})
 
 newTut.newTutStep("User Interface Element Tooltips", "Much of Eagle's interface is using icons. You can always hover over the icons and most of the other elements to get more information on what they do.", function(){return $("#navbarSupportedContent .btn-group")})
-    .setBackPreFunction(function (eagle) {Utils.hideShortcutsModal()})
+    .setBackPreFunction(function (_eagle) {Utils.hideShortcutsModal()})
 
 newTut.newTutStep("Help", "This is where you can find various documentation to aid in learning your way around EAGLE. <em>Click on 'Help' to continue.</em>", function(){return $("#navbarDropdownHelp")})
 .setType(TutorialStep.Type.Press)
@@ -34,12 +34,12 @@ newTut.newTutStep("Keyboard Shortcuts", "Eagle has many keyboard shortcuts to bo
 .setBackPreFunction(function(){TutorialSystem.activeTutCurrentStep.forceShowTargetParent()}) //hide the modal in case it has been opened by the user // TODO: check comment is correct
 
 newTut.newTutStep("Quick Actions", "Use this tool to look up and run functions or discover documentation available in EAGLE.", function(){return $("#quickAction")})
-.setPreFunction(function(){$(".forceShow").removeClass("forceShow"); $("#navbarDropdownHelp").trigger('mouseleave');}) //hide the quickaction tooltip
+.setPreFunction(function(){$(".forceShow").removeClass("forceShow"); $("#navbarDropdownHelp").trigger('mouseleave');}) //hide the quick action tooltip
 
 newTut.newTutStep("Click To Open Settings", "The settings modal allows you to customize EAGLE's user experience. By default, EAGLE is simplified by hiding a lot of functionality via the UI modes. To find out more check our <a target='_blank' href='https://eagle-dlg.readthedocs.io/en/master/settings.html#settings'>settings documentation</a>. <em>Click the Settings Button to continue.</em>", function(){return $("#settings")})
     .setType(TutorialStep.Type.Press)
-    .setPreFunction(function(eagle){Utils.hideShortcutsModal();})
-    .setBackPreFunction(function(eagle){Utils.hideSettingsModal();})
+    .setPreFunction(function(_eagle){Utils.hideShortcutsModal();})
+    .setBackPreFunction(function(_eagle){Utils.hideSettingsModal();})
 
 newTut.newTutStep("Set up Eagle to how you need it.", "Eagle has a lot of functionality, as such, there are various settings that affect how EAGLE behaves and how much of it is hidden.", function(){return $("#settingsModal .modal-body")})
     .setWaitType(TutorialStep.Wait.Modal)

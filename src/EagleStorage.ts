@@ -13,7 +13,7 @@ export class EagleStorage {
         return new Promise(async(resolve, reject) => {
 
             const request = indexedDB.open(EagleStorage.DATABASE_NAME);
-            request.onerror = (event) => {
+            request.onerror = (_event) => {
                 reject("IndexedDB not available, or access refused");
             };
             request.onsuccess = (event) => {

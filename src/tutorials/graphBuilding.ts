@@ -130,7 +130,7 @@ newTut.newTutStep("Graph Errors and warnings", "This is the error checking syste
 
 newTut.newTutStep("Saving a Graph", "Options to save your graph are available in the graph menu <em>Click on 'Graph' to continue.</em>", function(){return $("#navbarDropdownGraph")})
 .setType(TutorialStep.Type.Press)
-.setPreFunction(function(eagle:Eagle){Utils.closeErrorsModal()})
+.setPreFunction(function(_eagle:Eagle){Utils.closeErrorsModal()})
 .setBackPreFunction(function(){$('.forceShow').removeClass('forceShow');$(".dropdown-toggle").removeClass("show");$(".dropdown-menu").removeClass("show")}) //allowing the graph navbar dropdown to hide
 
 newTut.newTutStep("Saving a Graph", "You are able to download the graph in the 'local storage' section, or save the graph into your github repository under 'git storage'", function(){return $("#navbarDropdownGraph").parent().find('.dropdown-menu')})

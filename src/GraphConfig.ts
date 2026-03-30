@@ -338,7 +338,7 @@ export class GraphConfigField {
 
     constructor(field: Field){
         this.field = ko.observable(field);
-        this.value = ko.observable("");
+        this.value = ko.observable<string | null>(null);
         this.comment = ko.observable("");
     }
 
@@ -389,7 +389,7 @@ export class GraphConfigField {
         return this.comment();
     }
 
-    static fromJson(data: any, field: Field, errorsWarnings: Errors.ErrorsWarnings): GraphConfigField {
+    static fromJson(data: any, field: Field, _errorsWarnings: Errors.ErrorsWarnings): GraphConfigField {
         const result = new GraphConfigField(field);
 
         if (typeof data.value !== 'undefined'){

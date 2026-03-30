@@ -3,7 +3,6 @@ import * as ko from "knockout";
 import { Eagle } from './Eagle';
 import { EagleStorage } from "./EagleStorage";
 import { FileLocation } from "./FileLocation";
-import { Palette } from './Palette';
 import { Repository } from './Repository';
 import { RepositoryFile } from './RepositoryFile';
 import { Setting } from './Setting';

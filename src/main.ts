@@ -23,10 +23,10 @@
 */
 
 import * as ko from "knockout";
-import * as $ from "jquery";
+import $ from "jquery";
 import "jqueryMigrate";
 import "jqueryui";
-import * as bootstrap from 'bootstrap';
+import bootstrap from 'bootstrap';
 
 import { Category } from './Category';
 import { CategoryData } from './CategoryData';

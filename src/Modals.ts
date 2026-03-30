@@ -1,12 +1,9 @@
 import { Daliuge } from './Daliuge';
 import { Eagle } from './Eagle';
-import { Edge } from './Edge';
 import { Field } from './Field';
 import { FileLocation } from "./FileLocation";
-import { LogicalGraph } from './LogicalGraph';
 import { Repositories } from './Repositories';
 import { Repository } from './Repository';
-import { RepositoryFile } from './RepositoryFile';
 import { Setting } from './Setting';
 import { TutorialSystem } from './Tutorial';
 import { UiModeSystem } from './UiModes';
@@ -147,7 +144,7 @@ export class Modals {
             $('#inputMarkdownModal').data('editor', myCodeMirror);
 
             // watch for changes in the editor and reflect them in the display
-            myCodeMirror.on('change', (editorInstance: any, changeObj: any) => {
+            myCodeMirror.on('change', (editorInstance: any, _changeObj: any) => {
                 const value = editorInstance.getValue();
                 Modals.setMarkdownContent(value);
             });

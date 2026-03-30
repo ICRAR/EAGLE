@@ -44,7 +44,6 @@ export class Edge {
     private loopAware : ko.Observable<boolean>; // indicates the user is aware that the components at either end of the edge may differ in multiplicity
     private closesLoop : ko.Observable<boolean>; // indicates that this is a special type of edge that can be drawn in eagle to specify the start/end of groups.
     private selectionRelative : boolean // indicates if the edge is either selected or attached to a selected node
-    private isShortEdge : ko.Observable<boolean>;
     private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}> //keeps track of edge errors
 
     private x : ko.Observable<number>; //saving the center of the edge for placing edge comment icons
@@ -62,8 +61,7 @@ export class Edge {
         this.loopAware = ko.observable(loopAware);
         this.closesLoop = ko.observable(closesLoop);
         this.selectionRelative = selectionRelative;
-        this.isShortEdge = ko.observable(false)
-        this.issues = ko.observableArray([]);
+        this.issues = ko.observableArray<{issue:Errors.Issue, validity:Errors.Validity}>([]);
         
         this.x = ko.observable(0);
         this.y = ko.observable(0);
