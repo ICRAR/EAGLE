@@ -27,8 +27,8 @@ jobs:
         run: pip install setuptools==81.0.0
       - name: Compile Typescript
         run: |
-          tsc --version
-          tsc
+          npx tsc --version
+          npx tsc
       - name: Start server
         run: python eagleServer/eagleServer.py -t /tmp &
       - name: Install Playwright Browsers
