@@ -1345,8 +1345,6 @@ export class Utils {
         }else if (node.isBranch()){
             return EagleConfig.BRANCH_NODE_RADIUS;
         }else if (node.isConstruct()){
-            return EagleConfig.NORMAL_NODE_RADIUS;
-        }else if (node.isConstruct()){
             return EagleConfig.MINIMUM_CONSTRUCT_RADIUS;
         }else if (node.isComment()){
             return EagleConfig.COMMENT_NODE_WIDTH;
