@@ -1089,10 +1089,14 @@ export class Node {
     }
 
     removeAllComponentParameters = () : Node => {
+        const toDelete: FieldId[] = [];
         for (const [id, field] of this.fields()){
             if (field.getParameterType() === Daliuge.FieldType.Component){
-                this.fields().delete(id);
+                toDelete.push(id);
             }
+        }
+        for (const id of toDelete){
+            this.fields().delete(id);
         }
         this.fields.valueHasMutated();
 
@@ -1100,10 +1104,14 @@ export class Node {
     }
 
     removeAllApplicationArguments = () : Node => {
+        const toDelete: FieldId[] = [];
         for (const [id, field] of this.fields()){
             if (field.getParameterType() === Daliuge.FieldType.Application){
-                this.fields().delete(id);
+                toDelete.push(id);
             }
+        }
+        for (const id of toDelete){
+            this.fields().delete(id);
         }
         this.fields.valueHasMutated();
 
@@ -1112,13 +1120,17 @@ export class Node {
 
     // removes all InputPort ports, and changes all InputOutput ports to be OutputPort
     removeAllInputPorts = () : Node => {
+        const toDelete: FieldId[] = [];
         for (const [id, field] of this.fields()){
             if (field.getUsage() === Daliuge.FieldUsage.InputPort){
-                this.fields().delete(id);
+                toDelete.push(id);
             }
             if (field.getUsage() === Daliuge.FieldUsage.InputOutput){
                 field.setUsage(Daliuge.FieldUsage.OutputPort);
             }
+        }
+        for (const id of toDelete){
+            this.fields().delete(id);
         }
         this.fields.valueHasMutated();
 
@@ -1127,13 +1139,17 @@ export class Node {
 
     // removes all OutputPort ports, and changes all InputOutput ports to be InputPort
     removeAllOutputPorts = () : Node => {
+        const toDelete: FieldId[] = [];
         for (const [id, field] of this.fields()){
             if (field.getUsage() === Daliuge.FieldUsage.OutputPort){
-                this.fields().delete(id);
+                toDelete.push(id);
             }
             if (field.getUsage() === Daliuge.FieldUsage.InputOutput){
                 field.setUsage(Daliuge.FieldUsage.InputPort);
             }
+        }
+        for (const id of toDelete){
+            this.fields().delete(id);
         }
         this.fields.valueHasMutated();
 
