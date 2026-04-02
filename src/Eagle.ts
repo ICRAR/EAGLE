@@ -3826,7 +3826,7 @@ export class Eagle {
                         for(const visual of this.logicalGraph().getVisuals()){
                             if (visual.getTarget() === object){
                                 visual.setTarget(null)
-                                return
+                                continue
                             } 
                         }
 
