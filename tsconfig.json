@@ -1,24 +1,34 @@
 {
     "compilerOptions": {
+        // Strict type checking
+        "strict": true,
+
+        // Additional checks
         "allowUnreachableCode": false,
         "allowUnusedLabels": false,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "forceConsistentCasingInFileNames": true,
+
+        // Module & target
+        "module": "umd",
+        "moduleResolution": "node10",
+        "target": "es2021",
+        "lib": ["es2021", "dom"],
+        "esModuleInterop": true,
+        "isolatedModules": true,
+
+        // Output
         "outDir": "./static/built",
         "sourceMap": true,
-        "noImplicitAny": true,
-        "noImplicitReturns": true,
-        "noImplicitThis": false,  // TODO: make true when possible
-        "noFallthroughCasesInSwitch": true,
-        "noUnusedLocals": false, // NOTE: would like to set this to true, but sometimes functions are only used within knockout html
-        "noUnusedParameters": false,
-        "strictNullChecks" : false,
-        "strictFunctionTypes": false,
-        "strictPropertyInitialization": false,
-        "module": "umd",
-        "moduleResolution": "node",
-        "target": "es2015",
-        "lib": ["es2021", "dom"],
+
+        // Other
         "allowJs": false,
+        "skipLibCheck": true,
         "types": ["jquery", "bootstrap", "bootstrap-notify"]
     },
-    "include": ["./src/**/*.ts"]
+    "include": ["./src/**/*.ts"],
+    "exclude": ["node_modules", "static", "build", "e2e"]
 }

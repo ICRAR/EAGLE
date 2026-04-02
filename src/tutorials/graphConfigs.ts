@@ -13,14 +13,14 @@ newTut.newTutStep("Creating a New Graph", "Lets once again create a new graph. <
 
 newTut.newTutStep("Creating a New Graph", "<em>Click on 'New'.</em>", function(){return $("#navbarDropdownGraph").parent().find('.dropdown-item').first()})
 .setType(TutorialStep.Type.Press)
-.setPreFunction(function(){TutorialSystem.activeTutCurrentStep.getTargetFunc()().parent().addClass('forceShow')}) //keeping the navbar graph dropdown open
+.setPreFunction(function(){TutorialSystem.activeTutCurrentStep.forceShowTargetParent()}) //keeping the navbar graph dropdown open
 .setBackPreFunction(function(){$("#navbarDropdownGraph").parent().find('#createNewGraph').removeClass('forceShow')})//allowing the 'new' drop drop down section to close
 .setBackSkip(true)
 
 newTut.newTutStep("Creating a New Graph", "<em>Click on 'Create new graph'</em>", function(){return $("#navbarDropdownGraph").parent().find('#createNewGraph')})
 .setType(TutorialStep.Type.Press)
-.setPreFunction(function(){TutorialSystem.activeTutCurrentStep.getTargetFunc()().parent().addClass('forceShow')})//keeping the 'new' drop drop down section open as well
-.setBackPreFunction(function(){$("#navbarDropdownGraph").parent().find('.dropdown-item').first().parent().addClass('forceShow');TutorialSystem.activeTutCurrentStep.getTargetFunc()().parent().addClass('forceShow')})//force showing both of the navbar graph drop downs
+.setPreFunction(function(){TutorialSystem.activeTutCurrentStep.forceShowTargetParent()})//keeping the 'new' drop drop down section open as well
+.setBackPreFunction(function(){$("#navbarDropdownGraph").parent().find('.dropdown-item').first().parent().addClass('forceShow');TutorialSystem.activeTutCurrentStep.forceShowTargetParent()})//force showing both of the navbar graph drop downs
 .setBackSkip(true)
 
 newTut.newTutStep("Creating a new graph", "Then just <em>give it a name and press enter on you keyboard</em>", function(){return $("#inputModalInput")})
@@ -77,7 +77,7 @@ newTut.newTutStep("Adding Graph Configuration Fields", "<em>Click on the HelloWo
 newTut.newTutStep("Adding Graph Configuration Fields", "<em>Click to open the node fields table and continue.</em>", function(){return $("#inspector #openNodeParamsTable")})
 .setWaitType(TutorialStep.Wait.Element)
 .setType(TutorialStep.Type.Press)
-.setPreFunction(function(){Setting.find(Setting.INSPECTOR_COLLAPSED_STATE).setValue(false)})
+.setPreFunction(function(){Setting.setValue(Setting.INSPECTOR_COLLAPSED_STATE, false)})
 .setWaitType(TutorialStep.Wait.Delay)
 .setDelayAmount(400)
 
