@@ -51,7 +51,7 @@ export class Undo {
     current: ko.Observable<number>; // snapshot currently in use, normally equal to front
 
     constructor(){
-        this.memory = ko.observableArray([]);
+        this.memory = ko.observableArray<Snapshot | null>([]);
         for (let i = 0 ; i < Undo.MEMORY_SIZE ; i++){
             this.memory.push(null);
         }

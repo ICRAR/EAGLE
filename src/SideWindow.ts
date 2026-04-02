@@ -81,7 +81,7 @@ export class SideWindow {
     }
 
     // drag drop
-    static nodeDragStart = (node: Node, e: JQuery.TriggeredEvent) : boolean => {
+    static nodeDragStart = (_node: Node, e: JQuery.TriggeredEvent) : boolean => {
         const eagle: Eagle = Eagle.getInstance();
 
         //for hiding any tooltips while dragging and preventing them from showing

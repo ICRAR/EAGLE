@@ -1,5 +1,3 @@
-import * as ko from "knockout";
-
 import { Eagle } from './Eagle';
 import { Setting } from "./Setting";
 import { SideWindow } from "./SideWindow";

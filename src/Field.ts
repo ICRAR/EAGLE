@@ -59,7 +59,7 @@ export class Field {
         this.precious = ko.observable(precious);
         this.options = ko.observableArray(options);
         this.positional = ko.observable(positional);
-        this.encoding = ko.observable(Daliuge.Encoding.Pickle);
+        this.encoding = ko.observable<Daliuge.Encoding>(Daliuge.Encoding.Pickle);
 
         this.id = ko.observable(id);
         this.parameterType = ko.observable(parameterType);
@@ -83,7 +83,7 @@ export class Field {
         this.inputAngle = 0;
         this.outputAngle = 0;
 
-        this.issues = ko.observableArray([])
+        this.issues = ko.observableArray<{issue:Errors.Issue, validity:Errors.Validity}>([])
     }
 
     getId = () : FieldId => {

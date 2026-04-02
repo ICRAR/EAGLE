@@ -138,12 +138,12 @@ export class Eagle {
         this.rightWindow = ko.observable(new SideWindow(Utils.getRightWindowWidth()));
         this.bottomWindow = ko.observable(new SideWindow(Utils.getBottomWindowHeight()));
 
-        this.selectedObjects = ko.observableArray([]).extend({ deferred: true });
-        Eagle.selectedLocation = ko.observable(Eagle.FileType.Unknown);
+        this.selectedObjects = ko.observableArray<Node | Edge>([]).extend({ deferred: true });
+        Eagle.selectedLocation = ko.observable<Eagle.FileType>(Eagle.FileType.Unknown);
         this.currentField = ko.observable(null);
 
         Eagle.selectedRightClickObject = ko.observable(null);
-        Eagle.selectedRightClickLocation = ko.observable(Eagle.FileType.Unknown);
+        Eagle.selectedRightClickLocation = ko.observable<Eagle.FileType>(Eagle.FileType.Unknown);
 
         this.repositories = ko.observable(new Repositories());
         this.translator = ko.observable(new Translator());
@@ -171,11 +171,11 @@ export class Eagle {
 
         this.dockerHubBrowser = ko.observable(new DockerHubBrowser());
 
-        this.errorsMode = ko.observable(Errors.Mode.Loading);
-        this.graphWarnings = ko.observableArray([]);
-        this.graphErrors = ko.observableArray([]);
-        this.loadingWarnings = ko.observableArray([]);
-        this.loadingErrors = ko.observableArray([]);
+        this.errorsMode = ko.observable<Errors.Mode>(Errors.Mode.Loading);
+        this.graphWarnings = ko.observableArray<Errors.Issue>([]);
+        this.graphErrors = ko.observableArray<Errors.Issue>([]);
+        this.loadingWarnings = ko.observableArray<Errors.Issue>([]);
+        this.loadingErrors = ko.observableArray<Errors.Issue>([]);
 
         this.currentFileInfo = ko.observable(null);
         this.currentFileInfoTitle = ko.observable("");
@@ -320,7 +320,7 @@ export class Eagle {
             await this.translator().genPGT(defaultTranslatorAlgorithmMethod, false);
         } catch (error){
             console.error("deployDefaultTranslationAlgorithm()", error);
-            Utils.showNotification("Error", error, "danger");
+            Utils.showNotification("Error", Errors.UnknownToError(error), "danger");
         }
     }
 
@@ -329,7 +329,7 @@ export class Eagle {
             await this.translator().genPGT(algorithm, test);
         } catch (error){
             console.error("deployDefaultTranslationAlgorithm()", error);
-            Utils.showNotification("Error", error, "danger");
+            Utils.showNotification("Error", Errors.UnknownToError(error), "danger");
         }
     }
 
@@ -434,7 +434,7 @@ export class Eagle {
         SideWindow.setShown('bottom', setOpen);
     }
 
-    emptySearchBar = (target: ko.Observable, data: string, event : Event) => {
+    emptySearchBar = (target: ko.Observable, _data: string, event : Event) => {
         target("")
         if (event.target === null){
             console.warn("emptySearchBar: event.target is null");
@@ -443,7 +443,7 @@ export class Eagle {
         $(event.target).parent().hide()
     }
 
-    setSearchBarClearBtnState = (data: string, event: Event) => {
+    setSearchBarClearBtnState = (_data: string, event: Event) => {
         if (event.target === null){
             console.warn("setSearchBarClearBtnState: event.target is null");
             return;
@@ -987,7 +987,7 @@ export class Eagle {
             dataObject = JSON.parse(data);
         }
         catch(err){
-            Utils.showUserMessage("Error parsing file JSON", err.message);
+            Utils.showUserMessage("Error parsing file JSON", Errors.UnknownToError(err));
             return;
         }
 
@@ -1378,7 +1378,7 @@ export class Eagle {
             dataObject = JSON.parse(data);
         }
         catch(err){
-            Utils.showUserMessage("Error parsing file JSON", err.message);
+            Utils.showUserMessage("Error parsing file JSON", Errors.UnknownToError(err));
             return;
         }
 
@@ -1437,7 +1437,7 @@ export class Eagle {
                     dataObject = JSON.parse(data);
                 }
                 catch(err){
-                    Utils.showUserMessage("Error parsing file JSON", err.message);
+                    Utils.showUserMessage("Error parsing file JSON", Errors.UnknownToError(err));
                     return;
                 }
 
@@ -1743,7 +1743,7 @@ export class Eagle {
                 Repositories.selectFile(new RepositoryFile(new Repository(fileInfo.location.repositoryService(), fileInfo.location.repositoryName(), fileInfo.location.repositoryBranch(), false), fileInfo.location.repositoryPath(), fileInfo.location.repositoryFileName()));
                 break;
             case Repository.Service.Url:
-                const {palettes, errorsWarnings} = await this.loadPalettes([
+                const {palettes} = await this.loadPalettes([
                     {name:palette.fileInfo().name, filename:palette.fileInfo().location.downloadUrl(), readonly:palette.fileInfo().readonly, expanded: true}
                 ]);
 
@@ -1894,7 +1894,7 @@ export class Eagle {
                         this.saveAsFileToLocal(Eagle.FileType.GraphConfig, graphConfig);
                         resolve();
                     } catch (error) {
-                        Utils.showNotification("Save Failed", "Failed to save graph config locally: " + error.message, "danger");
+                        Utils.showNotification("Save Failed", "Failed to save graph config locally: " + Errors.UnknownToError(error), "danger");
                         reject(error);
                         return;
                     }
@@ -1903,14 +1903,14 @@ export class Eagle {
                         this.commitToGitAs(Eagle.FileType.GraphConfig, graphConfig);
                         resolve();
                     } catch(error) {
-                        Utils.showNotification("Save Failed", "Failed to save graph config to remote repository: " + error.message, "danger");
+                        Utils.showNotification("Save Failed", "Failed to save graph config to remote repository: " + Errors.UnknownToError(error), "danger");
                         reject(error);
                         return;
                     }
                 }
-            } catch (err) {
-                Utils.showNotification("Unexpected Error", "An unexpected error occurred: " + err.message, "danger");
-                reject(err);
+            } catch (error) {
+                Utils.showNotification("Unexpected Error", "An unexpected error occurred: " + Errors.UnknownToError(error), "danger");
+                reject(error);
             }
         });
     }
@@ -2064,11 +2064,11 @@ export class Eagle {
             try {
                 await Utils.httpPostJSONString(url, jsonString);
             } catch (error){
-                const errorJSON = JSON.parse(error);
+                const errorMessage = Errors.UnknownToError(error);
 
-                Utils.showUserMessage("Error", errorJSON.error + "<br/><br/>NOTE: These error messages provided by " + file.repository.service + " are not very helpful. Please contact EAGLE admin to help with further investigation.");
-                console.error("Error: " + errorJSON.error);
-                reject(errorJSON.error);
+                Utils.showUserMessage("Error", errorMessage + "<br/><br/>NOTE: These error messages provided by " + file.repository.service + " are not very helpful. Please contact EAGLE admin to help with further investigation.");
+                console.error("Error: " + errorMessage);
+                reject(errorMessage);
                 return;
             }
 
@@ -2411,7 +2411,7 @@ export class Eagle {
         templatePaletteExpanded = templatePaletteExpanded === null ? false : templatePaletteExpanded;
         builtinPaletteExpanded = builtinPaletteExpanded === null ? false : builtinPaletteExpanded;
 
-        const {palettes, errorsWarnings} = await this.loadPalettes([
+        const {errorsWarnings} = await this.loadPalettes([
             {name:Palette.TEMPLATE_PALETTE_NAME, filename:Daliuge.TEMPLATE_URL, readonly:true, expanded: templatePaletteExpanded},
             {name:Palette.BUILTIN_PALETTE_NAME, filename:Daliuge.PALETTE_URL, readonly:true, expanded: builtinPaletteExpanded}
         ]);
@@ -2430,7 +2430,7 @@ export class Eagle {
     }
 
     loadPalettes = async (paletteList: {name:string, filename:string, readonly:boolean, expanded:boolean}[]): Promise<{palettes: Palette[], errorsWarnings: Errors.ErrorsWarnings}> => {
-        return new Promise(async(resolve, reject) => {
+        return new Promise(async(resolve) => {
             const destinationPalettes: Palette[] = [];
             const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
@@ -2471,7 +2471,7 @@ export class Eagle {
                     data = await Utils.httpPostJSON("/openRemoteUrlFile", postData);
                 } catch (error){
                     // an error occurred when fetching the palette
-                    errorsWarnings.errors.push(Errors.Message(error));
+                    errorsWarnings.errors.push(Errors.Message(Errors.UnknownToError(error)));
 
                     // try to load palette from localStorage
                     const paletteData = localStorage.getItem(paletteList[i].filename);
@@ -2585,7 +2585,7 @@ export class Eagle {
                 dataObject = JSON.parse(data);
             }
             catch(err){
-                Utils.showUserMessage("Error parsing file JSON", err.message);
+                Utils.showUserMessage("Error parsing file JSON", Errors.UnknownToError(err));
                 return;
             }
 
@@ -2766,7 +2766,7 @@ export class Eagle {
             dataObject = JSON.parse(data);
         }
         catch(err){
-            Utils.showUserMessage("Error parsing file JSON", err.message);
+            Utils.showUserMessage("Error parsing file JSON", Errors.UnknownToError(err));
             return;
         }
 
@@ -2852,7 +2852,7 @@ export class Eagle {
         } catch (error) {
             // display error if one occurred
             if (error != null){
-                Utils.showNotification("Error deleting file", error, "danger");
+                Utils.showNotification("Error deleting file", String(error), "danger");
                 return;
             }
         }
@@ -3408,7 +3408,7 @@ export class Eagle {
         window.open("https://github.com/ICRAR/EAGLE/issues/new?body="+bodyText, "_blank");
     }
 
-    statusBarScroll = (data:any,e:any) : void => {
+    statusBarScroll = (_data:any, e:any) : void => {
         e.preventDefault();
         const leftPos = $('#statusBar').scrollLeft();
         $('#statusBar').scrollLeft(leftPos + e.originalEvent.deltaY)
@@ -3661,7 +3661,7 @@ export class Eagle {
 
         try {
             clipboard = JSON.parse(await navigator.clipboard.readText());
-        } catch(e) {
+        } catch(e: any) {
             Utils.showNotification("Unable to paste data", e.name + ": " + e.message, "danger");
             return;
         }
@@ -4408,7 +4408,6 @@ export class Eagle {
         const digestField = selectedNode.findFieldByDisplayText(Daliuge.FieldName.DIGEST);
         let image: string = "";
         let tag: string = "";
-        let digest: string = "";
 
         // set values for the fields
         if (typeof imageField !== 'undefined'){
@@ -4416,9 +4415,6 @@ export class Eagle {
         }
         if (typeof tagField !== 'undefined'){
             tag = tagField.getValue() || "";
-        }
-        if (typeof digestField !== 'undefined'){
-            digest = digestField.getValue() || "";
         }
 
         Modals.showBrowseDockerHub(image, tag, (completed: boolean) => {
@@ -4565,7 +4561,7 @@ export class Eagle {
         this.logicalGraph.valueHasMutated();
     }
 
-    nodeDropLogicalGraph = (eagle : Eagle, event: JQuery.TriggeredEvent) : void => {
+    nodeDropLogicalGraph = (_eagle : Eagle, event: JQuery.TriggeredEvent) : void => {
         const e: DragEvent = event.originalEvent as DragEvent;
 
         // keep track of the drop location
@@ -4610,7 +4606,7 @@ export class Eagle {
         Eagle.nodeDropLocation = {x:0, y:0};
     }
 
-    nodeDropPalette = (eagle: Eagle, event: JQuery.TriggeredEvent) : void => {
+    nodeDropPalette = (_eagle: Eagle, event: JQuery.TriggeredEvent) : void => {
         const sourceComponents : Node[] = [];
         const e: DragEvent = event.originalEvent as DragEvent;
 
@@ -5136,7 +5132,7 @@ export class Eagle {
 
         // if selectedNode categoryType is Unknown, return list of all categories
         if (category === Category.Unknown || !Utils.isKnownCategory(category) || categoryType === Category.Type.Unknown || !Utils.isKnownCategoryType(categoryType)){
-            return Utils.buildComponentList((cData: CategoryData) => {return true});
+            return Utils.buildComponentList((_cData: CategoryData) => {return true});
         }
 
         // if selectedNode is set, return a list of categories within the same category type
@@ -5371,7 +5367,7 @@ export class Eagle {
             const node: Node = object as Node;
 
             // fix node issues
-            for (const {issue, validity} of node.getIssues()){
+            for (const {issue} of node.getIssues()){
                 if (issue.fix !== null){
                     try {
                         issue.fix();
@@ -5384,7 +5380,7 @@ export class Eagle {
 
             // fix field issues
             for (const field of node.getFields()) {
-                for (const {issue, validity} of field.getIssues()){
+                for (const {issue} of field.getIssues()){
                     if (issue.fix !== null){
                         issue.fix();
                         updated = true;
@@ -5480,7 +5476,7 @@ export class Eagle {
         }
     }
 
-    slowScroll = (data:any, event: JQuery.TriggeredEvent) : void => {
+    slowScroll = (_data:any, event: JQuery.TriggeredEvent) : void => {
         const target = event.currentTarget;//gets the element that has the event binding
         const scrollTop = $(target).scrollTop();
 

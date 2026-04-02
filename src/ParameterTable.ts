@@ -2,11 +2,9 @@ import * as ko from "knockout";
 
 import { Daliuge } from "./Daliuge";
 import { Eagle } from './Eagle';
-import { Edge } from "./Edge";
 import { Field } from './Field';
 import { LogicalGraph } from "./LogicalGraph";
 import { Node } from "./Node";
-import { Palette } from "./Palette";
 import { RightClick } from "./RightClick";
 import { Setting } from "./Setting";
 import { UiModeSystem } from "./UiModes";
@@ -40,7 +38,7 @@ export class ParameterTable {
         ParameterTable.selectionName = ko.observable('');
         ParameterTable.selectionReadonly = ko.observable(false);
 
-        ParameterTable.fields = ko.observableArray([]);
+        ParameterTable.fields = ko.observableArray<Field>([]);
     }
 
     static setActiveColumnVisibility = () :void => {
@@ -341,7 +339,7 @@ export class ParameterTable {
     }
 
     // when a field value is modified in the parameter table, we need to flag the containing palette or logical graph as modified
-    static fieldValueChanged(field: Field) : void {
+    static fieldValueChanged(_field: Field) : void {
         const eagle = Eagle.getInstance();
 
         switch (Eagle.selectedLocation()){
@@ -1035,67 +1033,67 @@ export class ColumnVisibilities {
     }
 
     //these toggle functions are used in the knockout for the ui elements
-    private toggleKeyAttribute = () : void => {
+    toggleKeyAttribute = () : void => {
         this.keyAttribute(!this.keyAttribute());
         this.saveToLocalStorage()
     }
 
-    private toggleDisplayText = () : void => {
-            this.displayText(!this.displayText());
-            this.saveToLocalStorage()
+    toggleDisplayText = () : void => {
+        this.displayText(!this.displayText());
+        this.saveToLocalStorage()
     }
 
-    private toggleFieldId = () : void => {
-            this.fieldId(!this.fieldId());
-            this.saveToLocalStorage()
+    toggleFieldId = () : void => {
+        this.fieldId(!this.fieldId());
+        this.saveToLocalStorage()
     }
 
-    private toggleValue = () : void => {
-            this.value(!this.value());
-            this.saveToLocalStorage()
+    toggleValue = () : void => {
+        this.value(!this.value());
+        this.saveToLocalStorage()
     }
 
-    private toggleReadOnly = () : void => {
+    toggleReadOnly = () : void => {
         this.readOnly(!this.readOnly());
         this.saveToLocalStorage()
     }
 
-    private toggleDefaultValue = () : void => {
+    toggleDefaultValue = () : void => {
         this.defaultValue(!this.defaultValue());
         this.saveToLocalStorage()
     }
 
-    private toggleDescription = () : void => {
+     toggleDescription = () : void => {
         this.description(!this.description());
         this.saveToLocalStorage()
     }
 
-    private toggleType = () : void => {
+    toggleType = () : void => {
         this.type(!this.type());
         this.saveToLocalStorage()
     }
 
-    private toggleParameterType = () : void => {
+    toggleParameterType = () : void => {
         this.parameterType(!this.parameterType());
         this.saveToLocalStorage()
     }
 
-    private toggleUsage = () : void => {
+    toggleUsage = () : void => {
         this.usage(!this.usage());
         this.saveToLocalStorage()
     }
 
-    private toggleEncoding = () : void => {
+    toggleEncoding = () : void => {
         this.encoding(!this.encoding());
         this.saveToLocalStorage()
     }
 
-    private toggleFlags = () : void => {
+    toggleFlags = () : void => {
         this.flags(!this.flags());
         this.saveToLocalStorage()
     }
 
-    private toggleActions = () : void => {
+    toggleActions = () : void => {
         this.actions(!this.actions());
         this.saveToLocalStorage()
     }

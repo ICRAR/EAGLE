@@ -4,8 +4,6 @@ import { Edge } from './Edge';
 import { Field } from './Field';
 import { GraphRenderer } from './GraphRenderer';
 import { Node } from './Node';
-import { Palette } from './Palette';
-import { Repository } from './Repository';
 import { Setting } from './Setting';
 import { ParameterTable } from './ParameterTable';
 import { Daliuge } from './Daliuge';
@@ -62,7 +60,7 @@ export class RightClick {
             $('#customContextMenu .searchBarContainer').after("<div id='paletteNodesSearchResult'></div>")
 
             const dropDownOptions = $('#rightClickPaletteList .contextMenuDropdownOption')
-            dropDownOptions.each(function(index,dropdownOption){
+            dropDownOptions.each(function(_index,dropdownOption){
                 const dropdownNode = $(dropdownOption).text().toLocaleLowerCase();
                 if(dropdownNode.toLocaleLowerCase().includes(searchValue)){
                     const option = $(dropdownOption).clone().get(0);

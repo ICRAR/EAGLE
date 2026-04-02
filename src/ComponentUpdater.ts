@@ -1,4 +1,3 @@
-import { Eagle } from './Eagle';
 import { Errors } from './Errors';
 import { Field } from './Field';
 import { LogicalGraph } from './LogicalGraph';

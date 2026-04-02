@@ -24,7 +24,6 @@
 
 import * as ko from "knockout";
 
-import { Daliuge } from "./Daliuge";
 import { Eagle } from './Eagle';
 import { Errors } from './Errors';
 import { EagleConfig } from "./EagleConfig";
@@ -65,7 +64,7 @@ ko.bindingHandlers.nodeRenderHandler = {
             $(element).children().children().children('.body').css({'background-color':'white'})
         }
 
-        const pos = node.getPosition() // this line is needed because referencing position here causes this update function to run when the node position gets updated aka. when we are dragging a node on the graph
+        node.getPosition() // this line is needed because referencing position here causes this update function to run when the node position gets updated aka. when we are dragging a node on the graph
         const nodeParent = node.getParent();
         const isConstruct = node.isConstruct();
 
@@ -149,7 +148,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
         //this handler is for a PORT position, meaning it will run twice for a field that has both input and output ports
         //the update function is called initially and then whenever a change to a utilised observable occurs
         const eagle : Eagle = Eagle.getInstance();
-        const n: Node = ko.utils.unwrapObservable(valueAccessor()).n;
+        //const n: Node = ko.utils.unwrapObservable(valueAccessor()).n;
         const f: Field = ko.utils.unwrapObservable(valueAccessor()).f;
         const dataType: "inputPort" | "outputPort" = ko.utils.unwrapObservable(valueAccessor()).type;
         // determine the 'node' and 'field' attributes (for this way of using this binding)
@@ -281,7 +280,7 @@ export class GraphRenderer {
 
     //port drag handler globals
     static draggingPort : boolean = false;
-    static isDraggingPortValid: ko.Observable<Errors.Validity> = ko.observable(Errors.Validity.Unknown);
+    static isDraggingPortValid: ko.Observable<Errors.Validity> = ko.observable<Errors.Validity>(Errors.Validity.Unknown);
     static destinationNode : Node | null = null;
     static destinationPort : Field | null = null;
     
@@ -291,7 +290,7 @@ export class GraphRenderer {
 
     static portDragSuggestedNode : ko.Observable<Node | null> = ko.observable(null);
     static portDragSuggestedField : ko.Observable<Field | null> = ko.observable(null);
-    static portDragSuggestionValidity : ko.Observable<Errors.Validity> = ko.observable(Errors.Validity.Unknown) // this is necessary because we cannot keep the validity on the ege as it does not exist
+    static portDragSuggestionValidity : ko.Observable<Errors.Validity> = ko.observable<Errors.Validity>(Errors.Validity.Unknown) // this is necessary because we cannot keep the validity on the ege as it does not exist
     static createEdgeSuggestedPorts : {field:Field,node:Node,validity: Errors.Validity}[] = []
     static portMatchCloseEnough :ko.Observable<boolean> = ko.observable(false);
 
@@ -994,7 +993,7 @@ export class GraphRenderer {
         eagle.globalOffsetY(eagle.globalOffsetY()+moveY)
     }
 
-    static editNodeTitleInGraph (data:Node,event: JQuery.TriggeredEvent) : void {
+    static editNodeTitleInGraph (_data:Node,event: JQuery.TriggeredEvent) : void {
         GraphRenderer.editNodeName = true //used to prevent other drag functions if this feature is active
         const target = event.target
         $(target).hide()
@@ -1009,7 +1008,7 @@ export class GraphRenderer {
         $('.changingHeader').removeClass('changingHeader')
     }
 
-    static nodeNameEditorKeybinds (data:Node,event: JQuery.TriggeredEvent) : void  {
+    static nodeNameEditorKeybinds (_data: Node,event: JQuery.TriggeredEvent) : void  {
         if(event.key === 'Enter' || event.key === 'Escape'){
             GraphRenderer.closeEditTitleInGraph()
         }
@@ -1709,9 +1708,9 @@ export class GraphRenderer {
 
     // TODO: can we use the Daliuge.FieldUsage type here for the 'usage' parameter?
     static portDragStart(port:Field, usage: "input" | "output") : void {
-        const eagle = Eagle.getInstance();
-        const e:any = event; //somehow the event here will always log in the console as a mouseevent. this allows the following line to access the button attribute.
-        //furter down we are calling stopPropagation on the same event object and it works, eventhough stopPropagation shouldnt exist on a mouseEvent. this is why i created a constant of type any. its working as it should but i dont kow how.
+        // TODO: remove 'any' type and find the correct type for this event object
+        const e: any = event; //somehow the event here will always log in the console as a mouseevent. this allows the following line to access the button attribute.
+        // further down we are calling stopPropagation on the same event object and it works, even though stopPropagation shouldn't exist on a mouseEvent. this is why i created a constant of type any. its working as it should but i don't kow how.
         if(e.button === 1){
             //we return if the button pressed is a middle mouse button, and allow the other drag events to handle this event. middle mouse is used for panning the canvas.
             return
@@ -2178,7 +2177,7 @@ export class GraphRenderer {
         return result;
     }
     
-    static findNearestMatchingPort(positionX: number, positionY: number, sourceNode: Node, sourcePort: Field, sourcePortIsInput: boolean) : {node: Node | null, field: Field | null, validity: Errors.Validity} {
+    static findNearestMatchingPort(positionX: number, positionY: number, _sourceNode: Node, _sourcePort: Field, sourcePortIsInput: boolean) : {node: Node | null, field: Field | null, validity: Errors.Validity} {
         let minDistance: number = Number.MAX_SAFE_INTEGER;
         let minNode: Node | null = null;
         let minPort: Field | null = null;
@@ -2263,7 +2262,7 @@ export class GraphRenderer {
         GraphRenderer.isDraggingPortValid(isValid);
     }
 
-    static mouseLeavePort(port : Field) : void {
+    static mouseLeavePort(_port : Field) : void {
         GraphRenderer.destinationPort = null;
         GraphRenderer.destinationNode = null;
 

@@ -104,7 +104,7 @@ export class Node {
         this.paletteDownloadUrl = ko.observable("");
         this.dataHash = ko.observable("");
 
-        this.issues = ko.observableArray([]);
+        this.issues = ko.observableArray<{issue:Errors.Issue, validity:Errors.Validity}>([]);
 
         //graph related things
         this.expanded = ko.observable(true);
@@ -1800,7 +1800,7 @@ export class Node {
         node.description(nodeData.description);
 
         // add fields
-        for (const [id, fieldData] of Object.entries(nodeData.fields)){
+        for (const [_id, fieldData] of Object.entries(nodeData.fields)){
             const field = Field.fromV4Json(fieldData, node, !isPaletteNode);
             node.addField(field);
         }

@@ -35,7 +35,6 @@ import { FileLocation } from "./FileLocation";
 import { GraphConfig } from './GraphConfig';
 import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 import { Node } from './Node';
-import { RepositoryFile } from './RepositoryFile';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
 
@@ -57,7 +56,7 @@ export class LogicalGraph {
         this.edges = ko.observable(new Map<EdgeId, Edge>());
         this.graphConfigs = ko.observable(new Map<GraphConfigId, GraphConfig>());
         this.activeGraphConfigId = ko.observable(null); // can be null, or an id (can't be undefined)
-        this.issues = ko.observableArray([])
+        this.issues = ko.observableArray<{issue:Errors.Issue, validity:Errors.Validity}>([]);
     }
 
     static toOJSJson(graph : LogicalGraph, forTranslation : boolean) : object {
@@ -135,7 +134,7 @@ export class LogicalGraph {
         return result;
     }
 
-    static toV4Json(graph: LogicalGraph, forTranslation: boolean) : object {
+    static toV4Json(graph: LogicalGraph, _forTranslation: boolean) : object {
         const result : any = {};
 
         result.modelData = FileInfo.toV4Json(graph.fileInfo());
@@ -495,6 +494,15 @@ export class LogicalGraph {
             result.graphConfigs().set(gcId as GraphConfigId, gc);
         }
         result.graphConfigs.valueHasMutated();
+
+        // check for missing name
+        if (result.fileInfo().name === "" && filename !== null){
+            const error : string = "FileInfo.name is empty. Setting name to " + filename;
+            errorsWarnings.warnings.push(Errors.Message(error));
+
+            result.fileInfo().name = filename;
+            result.fileInfo().location.repositoryFileName(filename);
+        }
 
         //if the saved 'activeGraphConfigId' is empty or missing, we use the last one in the array, else we set the saved one as active                
         if(typeof dataObject.activeGraphConfigId === 'undefined' || dataObject.activeGraphConfigId === ''){
@@ -1171,7 +1179,7 @@ export class LogicalGraph {
     getChildrenOfNodeById = (id: NodeId) : Node[] => {
         const result: Node[] = [];
 
-        for (const [nodeId, node] of this.nodes()){
+        for (const [_nodeId, node] of this.nodes()){
             const parent = node.getParent();
             if ((id === null && parent === null) || (parent !== null && parent.getId() === id)){
                 result.push(node);
