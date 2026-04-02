@@ -598,6 +598,10 @@ export class LogicalGraph {
         return this.visuals().values();
     }
 
+    getNumVisuals = () : number => {
+        return this.visuals().size;
+    }
+
     getVisualById = (id: any): Visual | undefined => {
         return this.visuals().get(id);
     }

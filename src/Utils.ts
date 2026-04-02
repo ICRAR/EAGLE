@@ -3003,7 +3003,8 @@ export class Utils {
     }
 
     // check if graph is named, if not, prompt user to specify graph name
-    static async checkGraphIsNamed(logicalGraph: LogicalGraph){
+    // creates a default graph config and shows notification if graph was unnamed
+    static async ensureGraphIsInitialized(logicalGraph: LogicalGraph){
         return new Promise<string>(async (resolve, reject) => {
             if (logicalGraph.fileInfo().name === ""){
                 let filename: string;
@@ -3018,9 +3019,16 @@ export class Utils {
                 const eagle: Eagle = Eagle.getInstance();
                 logicalGraph.fileInfo().name = filename;
                 logicalGraph.fileInfo().location.repositoryFileName(filename);
+
+                // create default graph config for the new graph
+                const graphConfig = new GraphConfig();
+                graphConfig.fileInfo().name = Daliuge.DEFAULT_GRAPH_CONFIGURATION_NAME;
+                logicalGraph.addGraphConfig(graphConfig, false);
+
                 eagle.checkGraph();
-                eagle.undo().pushSnapshot(eagle, "Named Logical Graph");
+                eagle.undo().pushSnapshot(eagle, "Specify Logical Graph name");
                 eagle.logicalGraph.valueHasMutated();
+                Utils.showNotification("Graph named", filename, "success");
                 resolve(filename);
                 return;
             }

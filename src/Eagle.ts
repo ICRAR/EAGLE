@@ -1461,13 +1461,8 @@ export class Eagle {
         // create new logical graph
         this.logicalGraph(new LogicalGraph());
 
-        // name the new graph
-        const filename:string = await Utils.checkGraphIsNamed(this.logicalGraph());
-
-        // create default graph config for the new graph
-        const graphConfig = new GraphConfig();
-        graphConfig.fileInfo().name = Daliuge.DEFAULT_GRAPH_CONFIGURATION_NAME;
-        this.logicalGraph().addGraphConfig(graphConfig, false);
+        // name the new graph and initialize it (creates default graph config)
+        const filename:string = await Utils.ensureGraphIsInitialized(this.logicalGraph());
 
         Utils.showNotification("New Graph Created", filename, "success");
     }
@@ -2666,7 +2661,7 @@ export class Eagle {
         }
 
         // check that graph has been named, if not, name the graph before inserting
-        await Utils.checkGraphIsNamed(this.logicalGraph());
+        await Utils.ensureGraphIsInitialized(this.logicalGraph());
 
         // create parent node
         const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().location.getText(), "", Category.SubGraph);
@@ -4229,13 +4224,14 @@ export class Eagle {
             const visual = new Visual(type, '');
             visual.setPosition(pos.x, pos.y);
 
-            // add the visual to the logical graph
-            logicalGraph.addVisual(visual);
+            // add the visual to the logical graph (routes through addVisual() for consistency)
+            const addedVisual = await this.addVisual(visual);
 
-            //select the new visual in the graph so it is easy to spot
-            this.setSelection(visual,Eagle.FileType.Graph)
+            // select the new visual in the graph so it is easy to spot
+            this.setSelection(addedVisual, Eagle.FileType.Graph)
+            this.logicalGraph.valueHasMutated();
 
-            resolve(visual);
+            resolve(addedVisual);
         });
     }
 
@@ -4817,7 +4813,17 @@ export class Eagle {
                 return;
             }
 
+            // check if visual will be added to an empty graph, if so prompt user to specify graph name
+            try {
+                await Utils.ensureGraphIsInitialized(this.logicalGraph());
+            } catch (error){
+                console.warn(error);
+                reject(error);
+                return;
+            }
+
             this.logicalGraph().addVisual(visual);
+            this.checkGraph();
             this.undo().pushSnapshot(this, "Add Visual");
             this.logicalGraph().fileInfo().modified = true;
             this.logicalGraph.valueHasMutated();
@@ -5022,27 +5028,10 @@ export class Eagle {
         const newNode: Node = Utils.duplicateNode(node);
 
         // check if node will be added to an empty graph, if so prompt user to specify graph name
-        // TODO: replace with Utils.checkGraphIsNamed(), or move outside, to where addNode() is called from
-        if (this.logicalGraph().fileInfo().name === ""){
-            let filename: string;
-            try {
-                filename = await Utils.requestDiagramFilename(Eagle.FileType.Graph);
-            } catch (error){
-                console.warn(error);
-                return newNode;
-            }
-            this.logicalGraph().fileInfo().name = filename;
-            this.logicalGraph().fileInfo().location.repositoryFileName(filename);
-
-            // create default graph config for the new graph
-            const graphConfig = new GraphConfig();
-            graphConfig.fileInfo().name = Daliuge.DEFAULT_GRAPH_CONFIGURATION_NAME;
-            this.logicalGraph().addGraphConfig(graphConfig, false);
-
-            this.checkGraph();
-            this.undo().pushSnapshot(this, "Specify Logical Graph name");
-            this.logicalGraph.valueHasMutated();
-            Utils.showNotification("Graph named", filename, "success");
+        try {
+            await Utils.ensureGraphIsInitialized(this.logicalGraph());
+        } catch (error){
+            console.warn(error);
         }
 
         newNode.setPosition(x, y);
