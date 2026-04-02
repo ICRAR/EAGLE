@@ -406,18 +406,14 @@ export class Node {
         return result;
     }
 
-    // TODO: check what this is doing, isn't this too complicated? just loop through all fields, adding everything with usage !== NoPort to the results array
     getPorts = () : Field[] => {
-        const results: Field[] = this.getInputPorts()
-        this.getOutputPorts().forEach(function(outputPort){
-            for (const result of results){
-                if(result.getId() === outputPort.getId()){
-                    continue
-                }else{
-                    results.push(outputPort)
-                }
+        const results: Field[] = [];
+
+        for (const field of this.fields().values()){
+            if (field.getUsage() !== Daliuge.FieldUsage.NoPort){
+                results.push(field);
             }
-        })
+        }
 
         return results;
     }
