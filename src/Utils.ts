@@ -2120,26 +2120,6 @@ export class Utils {
         field.setValue(value);
     }
 
-    static fixFieldDefaultValue(eagle: Eagle, field: Field){
-        // depends on the type
-        switch(field.getType()){
-            case Daliuge.DataType.Boolean:
-            field.setDefaultValue("false");
-            break;
-            case Daliuge.DataType.Integer:
-            case Daliuge.DataType.Float:
-            field.setDefaultValue("0");
-            break;
-            case Daliuge.DataType.Json:
-            case Daliuge.DataType.Python:
-            field.setDefaultValue("{}");
-            break;
-            default:
-            field.setDefaultValue("");
-            break;
-        }
-    }
-
     static fixFieldType(eagle: Eagle, field: Field){
         // fix for undefined value
         if (field.getType() === undefined){
@@ -2213,7 +2193,7 @@ export class Utils {
         const srcPortType = destPort.getType() === undefined ? Daliuge.DataType.Object : destPort.getType();
 
         // create new source port
-        const srcPort = new Field(edge.getSrcPort().getId(), destPort.getDisplayText(), "", "", "", false, srcPortType, false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.OutputPort);
+        const srcPort = new Field(edge.getSrcPort().getId(), destPort.getDisplayText(), "", "", false, srcPortType, false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.OutputPort);
 
         // add port to source node
         srcNode.addField(srcPort);
@@ -2232,7 +2212,7 @@ export class Utils {
         const destPortType = srcPort.getType() === undefined ? Daliuge.DataType.Object : srcPort.getType();
 
         // create new destination port
-        const destPort = new Field(edge.getDestPort().getId(), srcPort.getDisplayText(), "", "", "", false, destPortType, false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.OutputPort);
+        const destPort = new Field(edge.getDestPort().getId(), srcPort.getDisplayText(), "", "", false, destPortType, false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.OutputPort);
 
         // add port to destination node
         destNode.addField(destPort);
@@ -2283,7 +2263,7 @@ export class Utils {
     static addMissingRequiredField(eagle: Eagle, node: Node, requiredField: Field){
         // if requiredField is "dropclass", and node already contains an "appclass" field, then just rename it
         if (requiredField.getDisplayText() === Daliuge.FieldName.DROP_CLASS){
-            const appClassField = node.getFieldByDisplayText("appclass");
+            const appClassField = node.getFieldByDisplayText(Daliuge.FieldName.APP_CLASS);
 
             if (appClassField !== null){
                 appClassField.setDisplayText(Daliuge.FieldName.DROP_CLASS);
@@ -2308,8 +2288,7 @@ export class Utils {
                 if (typeof paletteComponent !== 'undefined'){
                     const dropClassField: Field = paletteComponent.findFieldByDisplayText(Daliuge.FieldName.DROP_CLASS);
 
-                    field.setValue(dropClassField.getDefaultValue());
-                    field.setDefaultValue(dropClassField.getDefaultValue());
+                    field.setValue(dropClassField.getValue());
                 }
 
                 break;
@@ -2582,7 +2561,6 @@ export class Utils {
                 "usage":field.getUsage(),
                 "isEvent":field.getIsEvent(),
                 "value":field.getValue(),
-                "defaultValue": field.getDefaultValue(),
                 "readonly":field.isReadonly()
             });
         }

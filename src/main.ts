@@ -201,14 +201,6 @@ $(function(){
         $(event.target).parent().find("span").text($(event.target).prop('checked'))
     })
 
-    $('#editFieldModalDefaultValueInputCheckbox').on("change",function(event: JQuery.TriggeredEvent){
-        $(event.target).parent().find("span").text($(event.target).prop('checked'))
-    })
-
-    $('#componentDefaultValueCheckbox').on('click',function(event: JQuery.TriggeredEvent){
-        $((event.target)).find('input').trigger("click")
-    })
-
     $('#componentValueCheckbox').on('click',function(event: JQuery.TriggeredEvent){
         $((event.target)).find('input').trigger("click")
     })
