@@ -333,11 +333,25 @@ export class Node {
     }, this);
 
     usageOptions : ko.PureComputed<Daliuge.FieldUsage[]> = ko.pureComputed(() => {
-        // fields on construct nodes cannot be ports
-        if (this.categoryType() === Category.Type.Construct){
-            return [Daliuge.FieldUsage.NoPort];
+        const result: Daliuge.FieldUsage[] = [Daliuge.FieldUsage.NoPort];
+        const categoryData = CategoryData.getCategoryData(this.category());
+        const canHaveInputs = categoryData.maxInputs > 0;
+        const canHaveOutputs = categoryData.maxOutputs > 0;
+
+        // if category can have input ports, add those to the options
+        if (canHaveInputs){
+            result.push(Daliuge.FieldUsage.InputPort);
         }
-        return Object.values(Daliuge.FieldUsage)
+        // if category can have output ports, add those to the options
+        if (canHaveOutputs){
+            result.push(Daliuge.FieldUsage.OutputPort);
+        }
+        // if category can have both input and output ports, add the InputOutput option
+        if (canHaveInputs && canHaveOutputs){
+            result.push(Daliuge.FieldUsage.InputOutput);
+        }
+
+        return result;
     }, this);
 
     getInputPorts = () : Field[] => {
@@ -1144,6 +1158,9 @@ export class Node {
         // clone fields
         for (const field of this.fields().values()){
             result.fields().set(field.getId(), field.clone());
+        }
+        // if any fields were added, we need to trigger the valueHasMutated to update any observers
+        if (this.fields().size > 0){
             result.fields.valueHasMutated();
         }
 
@@ -1157,6 +1174,46 @@ export class Node {
         }
         if (this.hasOutputApplication()){
             result.outputApplication(this.outputApplication().clone());
+        }
+
+        return result;
+    }
+
+    copy = () : Node => {
+        const result : Node = new Node(this.name(), this.description(), this.comment(), this.category());
+
+        result.id(Utils.generateNodeId());
+        result.x(this.x());
+        result.y(this.y());
+        result.categoryType(this.categoryType());
+        result.color(this.color());
+        result.drawOrderHint(this.drawOrderHint());
+
+        result.parent(this.parent());
+        result.embed(this.embed());
+
+        result.peek(this.peek());
+
+        // copy fields
+        for (const field of this.fields().values()){
+            const newField = field.clone().setId(Utils.generateFieldId());
+            result.fields().set(newField.getId(), newField);
+        }
+        // if any fields were added, we need to trigger the valueHasMutated to update any observers
+        if (this.fields().size > 0){
+            result.fields.valueHasMutated();
+        }
+
+        result.repositoryUrl(this.repositoryUrl());
+        result.commitHash(this.commitHash());
+        result.paletteDownloadUrl(this.paletteDownloadUrl());
+        result.dataHash(this.dataHash());
+
+        if (this.hasInputApplication()){
+            result.inputApplication(this.inputApplication().copy());
+        }
+        if (this.hasOutputApplication()){
+            result.outputApplication(this.outputApplication().copy());
         }
 
         return result;

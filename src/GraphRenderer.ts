@@ -1697,6 +1697,7 @@ export class GraphRenderer {
             return
         }
 
+        // TODO: maybe replace with node.copy()
         const newNode: Node = Utils.duplicateNode(node);
 
         // add the node to the graph
