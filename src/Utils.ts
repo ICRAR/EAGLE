@@ -1933,11 +1933,11 @@ export class Utils {
     }
 
     static async userEnterCommitMessage(modalMessage: string) : Promise<string> {
-        return new Promise<string>((resolve, reject) => {
+        return new Promise<string>(async (resolve, reject) => {
             // request commit message from the user
             let userString;
             try {
-                userString = Utils.requestUserString("Saving to git", modalMessage, "", false);
+                userString = await Utils.requestUserString("Saving to git", modalMessage, "", false);
             } catch (error){
                 reject(error);
                 return;
