@@ -4186,7 +4186,7 @@ export class Eagle {
             // check that graph editing is allowed
             if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
                 reject("Unable to Add Component. Graph Editing is disabled");
-                return null;
+                return;
             }
 
             // create a new visual of the requested type
@@ -4219,7 +4219,7 @@ export class Eagle {
             //select the new visual in the graph so it is easy to spot
             this.setSelection(visual,Eagle.FileType.Graph)
 
-            return visual;
+            resolve(visual);
         });
     }
 

@@ -2116,7 +2116,7 @@ export class GraphRenderer {
         event.preventDefault();
 
         GraphRenderer.visualBeingResized = visual
-        GraphRenderer.isResizingVisual = ko.observable(true)
+        GraphRenderer.isResizingVisual(true)
 
         //take note of the start resize position
         GraphRenderer.visualResizeCurrentPos = {x:event.pageX,y:event.pageY}
@@ -2126,7 +2126,7 @@ export class GraphRenderer {
     }
 
     static stopVisualResize() : void {
-        GraphRenderer.isResizingVisual = ko.observable(false)
+        GraphRenderer.isResizingVisual(false)
         GraphRenderer.visualBeingResized = null
         GraphRenderer.visualResizeCurrentPos = {x:0,y:0};
 
