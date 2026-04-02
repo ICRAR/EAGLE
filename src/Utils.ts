@@ -93,6 +93,11 @@ export class Utils {
         return Utils._uuidv4() as RepositoryFileId;
     }
 
+    static generateVisualId(): VisualId {
+        return Utils._uuidv4() as VisualId;
+    }
+
+
     /**
      * Generates a UUID.
      * See https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
@@ -2445,6 +2450,18 @@ export class Utils {
         return Errors.Validity.Warning;
     }
 
+    static toDegrees360(radians:number) : number {
+        // the calculateConnectionAngle function returns an angle in radians between 0 to ~3.1 and 0 to ~-3.1
+        // this function turns this into degrees from 0-360 which makes it easier to work with.
+
+        // 1. Convert to raw degrees
+        const degrees = radians * (180 / Math.PI);
+        
+        // 2. Normalize to 0-360 range
+        // Adding 360 before the second modulo handles negative inputs correctly.
+        return (degrees % 360 + 360) % 360;
+    }
+
     static printCategories() : void {
         const tableData : any[] = [];
 
@@ -2556,6 +2573,26 @@ export class Utils {
                     "dataHash":node.getDataHash()
                 });
             }
+        }
+
+        console.table(tableData);
+    }
+
+    static printVisualsTable() : void {
+        const tableData : any[] = [];
+        const eagle : Eagle = Eagle.getInstance();
+
+        // add logical graph nodes to table
+        for (const visual of eagle.logicalGraph().getVisuals()){
+            tableData.push({
+                "id":visual.getId(),
+                "position":visual.getPosition().x + "," + visual.getPosition().y,
+                "width":visual.getWidth(),
+                "height":visual.getHeight(),
+                "type":visual.getType(),
+                "content":visual.getContent(),
+                "target":visual.getTarget()
+            });
         }
 
         console.table(tableData);
@@ -2966,7 +3003,8 @@ export class Utils {
     }
 
     // check if graph is named, if not, prompt user to specify graph name
-    static async checkGraphIsNamed(logicalGraph: LogicalGraph){
+    // creates a default graph config and shows notification if graph was unnamed
+    static async ensureGraphIsInitialized(logicalGraph: LogicalGraph){
         return new Promise<string>(async (resolve, reject) => {
             if (logicalGraph.fileInfo().name === ""){
                 let filename: string;
@@ -2981,9 +3019,16 @@ export class Utils {
                 const eagle: Eagle = Eagle.getInstance();
                 logicalGraph.fileInfo().name = filename;
                 logicalGraph.fileInfo().location.repositoryFileName(filename);
+
+                // create default graph config for the new graph
+                const graphConfig = new GraphConfig();
+                graphConfig.fileInfo().name = Daliuge.DEFAULT_GRAPH_CONFIGURATION_NAME;
+                logicalGraph.addGraphConfig(graphConfig, false);
+
                 eagle.checkGraph();
-                eagle.undo().pushSnapshot(eagle, "Named Logical Graph");
+                eagle.undo().pushSnapshot(eagle, "Specify Logical Graph name");
                 eagle.logicalGraph.valueHasMutated();
+                Utils.showNotification("Graph named", filename, "success");
                 resolve(filename);
                 return;
             }

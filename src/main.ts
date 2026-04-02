@@ -162,17 +162,25 @@ $(function(){
 
     loadRepos();
 
-    // auto load a tutorial, if specified on the url
-    autoTutorial();
+    // we use tutorial=none in the url for unit tests, because pop ups can cause test failures
+    const urlParams = new URLSearchParams(window.location.search);
+    const tutorialName = urlParams.get('tutorial');
 
-    //request a first time visitor welcome to eagle if applicable
-    initiateWelcome(firstTimeVisit);
-  
-    // if not first time visit, but version is newer than last seen version, show the versions modal
-    if (!firstTimeVisit && showWhatsNew){
-        eagle.showWhatsNew();
-        // set the last seen version
-        localStorage.setItem('lastSeenVersion', (<any>window).version);
+    if(tutorialName != 'none'){
+        // auto load a tutorial, if specified on the url
+        autoTutorial();
+
+        //request a first time visitor welcome to eagle if applicable
+        initiateWelcome(firstTimeVisit);
+    
+        // if not first time visit, but version is newer than last seen version, show the versions modal
+
+        if (!firstTimeVisit && showWhatsNew){
+            eagle.showWhatsNew();
+            // set the last seen version
+            localStorage.setItem('lastSeenVersion', (<any>window).version);
+        }
+        
     }
 
     $('.modal').on('hidden.bs.modal', function () {
@@ -386,12 +394,7 @@ function autoTutorial(): void {
 
 function initiateWelcome(firstTimeVisit:boolean): void {
     if(firstTimeVisit){
-        const urlParams = new URLSearchParams(window.location.search);
-        const tutorialName = urlParams.get('tutorial');
-
-        if(tutorialName != 'none'){
-            TutorialSystem.initiateTutorial('Quick Start');
-        }
+        TutorialSystem.initiateTutorial('Quick Start');
     }
 }
 
@@ -410,6 +413,7 @@ declare global {
     type NodeId = Branded<string, "NodeId">
     type FieldId = Branded<string, "FieldId">
     type EdgeId = Branded<string, "EdgeId">
+    type VisualId = Branded<string, "VisualId">
     type RepositoryId = Branded<string, "RepositoryId">
     type RepositoryFileId = Branded<string, "RepositoryFileId">
     type GraphConfigId = Branded<string, "GraphConfigId">

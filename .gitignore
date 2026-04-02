@@ -23,3 +23,6 @@ docker-compose.yml
 /blob-report/
 /playwright/.cache/
 src/tutorials/*.js
+
+# Playwright
+/playwright/.auth/

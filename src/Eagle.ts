@@ -63,6 +63,7 @@ import { UiModeSystem } from './UiModes';
 import { Utils } from './Utils';
 import { GraphUpdater } from "./GraphUpdater";
 import { versions } from "./Versions";
+import { Visual } from "./Visual";
 
 
 export class Eagle {
@@ -78,11 +79,11 @@ export class Eagle {
     rightWindow : ko.Observable<SideWindow>;
     bottomWindow : ko.Observable<SideWindow>;
 
-    selectedObjects : ko.ObservableArray<Node|Edge>;
+    selectedObjects : ko.ObservableArray<Node|Edge|Visual>;
     static selectedLocation : ko.Observable<Eagle.FileType>;
     currentField :ko.Observable<Field>;
 
-    static selectedRightClickObject : ko.Observable<Node|Edge>;
+    static selectedRightClickObject : ko.Observable<Node|Edge|Visual>;
     static selectedRightClickLocation : ko.Observable<Eagle.FileType>;
     static selectedRightClickPosition : {x: number, y: number} = {x:0, y:0}
 
@@ -104,7 +105,6 @@ export class Eagle {
     currentFileInfo : ko.Observable<FileInfo>;
     currentFileInfoTitle : ko.Observable<string>;
 
-    showDataNodes : ko.Observable<boolean>;
     snapToGrid : ko.Observable<boolean>;
     dropdownMenuHoverTimeout : number = 0;
 
@@ -180,13 +180,12 @@ export class Eagle {
         this.currentFileInfo = ko.observable(null);
         this.currentFileInfoTitle = ko.observable("");
 
-        this.showDataNodes = ko.observable(true);
         this.snapToGrid = ko.observable(false);
         this.dropdownMenuHoverTimeout = null;
 
         this.selectedObjects.subscribe(function(){
             //TODO check if the selectedObjects array has changed, if not, abort
-            GraphRenderer.nodeData = GraphRenderer.depthFirstTraversalOfNodes(this.logicalGraph(), this.showDataNodes());
+            GraphRenderer.nodeData = GraphRenderer.depthFirstTraversalOfNodes(this.logicalGraph());
             Hierarchy.updateDisplay()
             Hierarchy.scrollToNode()
         }, this)
@@ -279,16 +278,6 @@ export class Eagle {
 
         return result;
     }, this);
-
-    // TODO: not used, remove?
-    toggleShowDataNodes = () : void => {
-        // when we switch show/hide data nodes, some of the selected objects may become invisible,
-        // and some of the selected objects may have not existed in the first place,
-        // so it seems easier to just empty the selection
-        this.selectedObjects([]);
-
-        this.showDataNodes(!this.showDataNodes());
-    }
 
     toggleSnapToGrid = () : void => {
         this.snapToGrid(!this.snapToGrid());
@@ -486,6 +475,25 @@ export class Eagle {
                 maxY = node.getPosition().y + node.getRadius();
             }
         }
+
+        //if the visuals in the graph are not hidden we will take them into account
+        if(!Setting.findValue(Setting.HIDE_VISUALS)){
+            for (const visual of that.logicalGraph().getVisuals()){
+                if (visual.getPosition().x - visual.getWidth() < minX){
+                    minX = visual.getPosition().x - visual.getWidth();
+                }
+                if (visual.getPosition().y - visual.getHeight() < minY){
+                    minY = visual.getPosition().y - visual.getHeight();
+                }
+                if (visual.getPosition().x + visual.getWidth() > maxX){
+                    maxX = visual.getPosition().x + visual.getWidth();
+                }
+                if (visual.getPosition().y + visual.getHeight() > maxY){
+                    maxY = visual.getPosition().y + visual.getHeight();
+                }
+            }
+        }
+
         // determine the centroid of the graph
         const centroidX = minX + ((maxX - minX) / 2);
         const centroidY = minY + ((maxY - minY) / 2);
@@ -620,6 +628,22 @@ export class Eagle {
         }
     }, this);
 
+    // if selectedObjects contains nothing but one node, return the node, else null
+    selectedVisual : ko.PureComputed<Visual> = ko.pureComputed(() : Visual => {
+        if (this.selectedObjects().length !== 1){
+            return null;
+        }
+
+        const object = this.selectedObjects()[0];
+
+        if (object instanceof Visual){
+            return object;
+        } else {
+            return null;
+        }
+    }, this);
+
+
     // if selectedObjects contains nothing but one edge, return the edge, else null
     selectedEdge : ko.PureComputed<Edge> = ko.pureComputed(() : Edge => {
         if (this.selectedObjects().length !== 1){
@@ -650,7 +674,7 @@ export class Eagle {
         }
     }, this);
 
-    setSelection = (selection : Node | Edge, selectedLocation: Eagle.FileType) : void => {
+    setSelection = (selection : Node | Edge | Visual, selectedLocation: Eagle.FileType) : void => {
         Eagle.selectedLocation(selectedLocation);
         GraphRenderer.clearPortPeek()
 
@@ -664,13 +688,14 @@ export class Eagle {
                 GraphRenderer.setPortPeekForEdge(selection,true)
             }
 
+            //trigger redraw of parameter table
             if(selection instanceof Node){
                 ParameterTable.updateContent(selection);
             }
         }
     }
 
-    editSelection = (selection : Node | Edge, selectedLocation: Eagle.FileType) : void => {
+    editSelection = (selection : Node | Edge | Visual, selectedLocation: Eagle.FileType) : void => {
         // check that location is the same, otherwise default back to set
         if (selectedLocation !== Eagle.selectedLocation() && this.selectedObjects().length > 0){
             Utils.showNotification("Selection Error", "Can't add object from " + selectedLocation + " to existing selected objects in " + Eagle.selectedLocation(), "warning");
@@ -737,7 +762,7 @@ export class Eagle {
         }
     }
 
-    objectIsSelected = (object: Node | Edge): boolean => {
+    objectIsSelected = (object: Node | Edge | Visual): boolean => {
         if (object instanceof Node){
             for (const o of this.selectedObjects()){
                 if (o instanceof Node && o.getId() === object.getId()){
@@ -751,6 +776,16 @@ export class Eagle {
         if (object instanceof Edge){
             for (const o of this.selectedObjects()){
                 if (o instanceof Edge && o.getId() === object.getId()){
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        if (object instanceof Visual){
+            for (const o of this.selectedObjects()){
+                if (o instanceof Visual && o.getId() === object.getId()){
                     return true;
                 }
             }
@@ -1426,13 +1461,8 @@ export class Eagle {
         // create new logical graph
         this.logicalGraph(new LogicalGraph());
 
-        // name the new graph
-        const filename:string = await Utils.checkGraphIsNamed(this.logicalGraph());
-
-        // create default graph config for the new graph
-        const graphConfig = new GraphConfig();
-        graphConfig.fileInfo().name = Daliuge.DEFAULT_GRAPH_CONFIGURATION_NAME;
-        this.logicalGraph().addGraphConfig(graphConfig, false);
+        // name the new graph and initialize it (creates default graph config)
+        const filename:string = await Utils.ensureGraphIsInitialized(this.logicalGraph());
 
         Utils.showNotification("New Graph Created", filename, "success");
     }
@@ -2631,7 +2661,7 @@ export class Eagle {
         }
 
         // check that graph has been named, if not, name the graph before inserting
-        await Utils.checkGraphIsNamed(this.logicalGraph());
+        await Utils.ensureGraphIsInitialized(this.logicalGraph());
 
         // create parent node
         const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().location.getText(), "", Category.SubGraph);
@@ -3244,7 +3274,7 @@ export class Eagle {
         }
         
         let location: string;
-        let incomingNodes: (Node | Edge)[] = [];
+        let incomingNodes: (Node | Edge | Visual)[] = [];
 
         if(mode === 'normal'){
             location = Eagle.selectedLocation()
@@ -3265,6 +3295,7 @@ export class Eagle {
 
                     const nodes : Node[] = [];
                     const edges : Edge[] = [];
+                    const visuals : Visual[] = [];
                     const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
                     // split objects into nodes and edges
@@ -3276,6 +3307,10 @@ export class Eagle {
                         if (object instanceof Edge){
                             edges.push(object);
                         }
+
+                        if (object instanceof Visual){
+                            visuals.push(object);
+                        }
                     }
 
                     // remove embedded nodes that are already selected
@@ -3284,6 +3319,13 @@ export class Eagle {
 
                     // duplicate nodes and edges
                     await this.insertGraph(nodesToDuplicate, edges, null, errorsWarnings);
+                    // duplicate visuals
+                    for (const visual of visuals){
+                        const visualClone = visual.clone();
+                        //offset the new clone a bit so it is visible
+                        visualClone.changePosition(visualClone.getWidth()/4, visualClone.getHeight()/4)
+                        this.logicalGraph().addVisual(visualClone);
+                    }
 
                     // re-check graph, set undo snapshot and trigger re-render
                     this.checkGraph();
@@ -3623,7 +3665,7 @@ export class Eagle {
     }
 
     deleteSelection = async (rightClick: boolean, suppressUserConfirmationRequest: boolean, deleteChildren: boolean): Promise<void> => {
-        let data: (Node | Edge)[] = [];
+        let data: (Node | Edge | Visual)[] = [];
         let location: Eagle.FileType = Eagle.FileType.Unknown;
 
         GraphRenderer.clearPortPeek()
@@ -3645,12 +3687,6 @@ export class Eagle {
         // if no objects selected, warn user
         if (data.length === 0){
             Utils.showNotification("Warning", "Unable to delete selection: Nothing selected", "warning");
-            return;
-        }
-
-        // if in "hide data nodes" mode, then recommend the user delete edges in "show data nodes" mode instead
-        if (!this.showDataNodes()){
-            Utils.showNotification("Warning", "Unable to delete selection: Editor is in 'hide data nodes' mode, and the current selection may be ambiguous. Please use 'show data nodes' mode before deleting.", "warning");
             return;
         }
 
@@ -3763,7 +3799,7 @@ export class Eagle {
         }
     }
 
-    private _deleteSelection = (deleteChildren: boolean, data: (Node | Edge)[], location: Eagle.FileType) : void => {
+    private _deleteSelection = (deleteChildren: boolean, data: (Node | Edge | Visual)[], location: Eagle.FileType) : void => {
         switch(location){
             case Eagle.FileType.Graph:
                 // if not deleting children, move them to different parents first
@@ -3782,10 +3818,24 @@ export class Eagle {
                     }
                 }
 
-                // delete the nodes
                 for (const object of data){
+                    // delete the nodes
                     if (object instanceof Node){
+
+                        //remove visual link if there is a visual linked to this node
+                        for(const visual of this.logicalGraph().getVisuals()){
+                            if (visual.getTarget() === object){
+                                visual.setTarget(null)
+                                return
+                            } 
+                        }
+
                         this.logicalGraph().removeNode(object);
+                    }
+
+                    // delete the visuals
+                    if (object instanceof Visual){
+                        this.logicalGraph().removeVisualById(object.getId());
                     }
                 }
 
@@ -4133,6 +4183,56 @@ export class Eagle {
         }
 
         return p;
+    }
+
+    addVisualToLogicalGraph = async (visual: Visual, type: Visual.Type, mode: Eagle.AddNodeMode) : Promise<Visual> => {
+        return new Promise(async(resolve, reject) => {
+        
+            // get reference to the logical graph
+            const logicalGraph = this.logicalGraph();
+
+            let pos : {x:number, y:number};
+            pos = {x:0,y:0}
+
+            // check that graph editing is allowed
+            if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+                reject("Unable to Add Component. Graph Editing is disabled");
+                return;
+            }
+
+            // create a new visual of the requested type
+            const newVisual = new Visual(type, '');
+
+            if(mode === Eagle.AddNodeMode.ContextMenu){
+                // use the position where the right click occurred
+                pos = Eagle.selectedRightClickPosition;
+
+                RightClick.closeCustomContextMenu(true);
+            }
+            
+            //if pos is 0 0 then we are not using drop location nor right click location. so we try to determine a logical place to put it
+            if(pos.x === 0 && pos.y === 0){
+                // get new position for node
+                if (Eagle.nodeDropLocation.x === 0 && Eagle.nodeDropLocation.y === 0){
+                    const result = this.getNewNodePosition(newVisual.getWidth());
+                    pos = {x:result.x,y:result.y}
+                } else {
+                    pos = Eagle.nodeDropLocation;
+                }
+            }
+
+            const visual = new Visual(type, '');
+            visual.setPosition(pos.x, pos.y);
+
+            // add the visual to the logical graph (routes through addVisual() for consistency)
+            const addedVisual = await this.addVisual(visual);
+
+            // select the new visual in the graph so it is easy to spot
+            this.setSelection(addedVisual, Eagle.FileType.Graph)
+            this.logicalGraph.valueHasMutated();
+
+            resolve(addedVisual);
+        });
     }
 
     fetchDockerHTML = () : void => {
@@ -4705,6 +4805,32 @@ export class Eagle {
         });
     }
 
+    addVisual = async (visual: Visual): Promise<Visual> => {
+        return new Promise(async(resolve, reject) => {
+            // check that graph editing is allowed
+            if (!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)){
+                reject("Unable to Add Visual: Graph Editing is disabled");
+                return;
+            }
+
+            // check if visual will be added to an empty graph, if so prompt user to specify graph name
+            try {
+                await Utils.ensureGraphIsInitialized(this.logicalGraph());
+            } catch (error){
+                console.warn(error);
+                reject(error);
+                return;
+            }
+
+            this.logicalGraph().addVisual(visual);
+            this.checkGraph();
+            this.undo().pushSnapshot(this, "Add Visual");
+            this.logicalGraph().fileInfo().modified = true;
+            this.logicalGraph.valueHasMutated();
+            resolve(visual);
+        });
+    }
+
     editShortDescription = async(fileInfo: FileInfo): Promise<void> => {
         const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
 
@@ -4755,25 +4881,26 @@ export class Eagle {
         targetNode.setDescription(nodeDescription);
     }
 
-    editNodeComment = async (): Promise<void> => {
+    editNodeComment = async (node? : Node): Promise<void> => {
         const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
-        const node = this.selectedNode()
+        const targetNode = node || this.selectedNode();
 
         // abort if no node is selected
-        if (node === null) {
+        console.log(targetNode, !(targetNode instanceof Node))
+        if (targetNode === null || !(targetNode instanceof Node)) {
             console.warn("No node selected");
             return;
         }
 
         let nodeComment: string;
         try {
-            nodeComment = await Utils.requestUserMarkdown(node.getDisplayName() + " - Comment", node?.getComment(), markdownEditingEnabled);
+            nodeComment = await Utils.requestUserMarkdown(targetNode.getDisplayName() + " - Comment", targetNode?.getComment(), markdownEditingEnabled);
         } catch (error) {
             console.error(error);
             return;
         }
 
-        node.setComment(nodeComment);
+        targetNode.setComment(nodeComment);
     }
 
     editEdgeComment = async (): Promise<void> => {
@@ -4795,6 +4922,27 @@ export class Eagle {
         }
 
         edge.setComment(edgeComment);
+    }
+
+    editTextVisualContent = async (visual ?: Visual): Promise<void> => {
+        const markdownEditingEnabled: boolean = Setting.findValue(Setting.MARKDOWN_EDITING_ENABLED);
+        const thisVisual : Visual = visual || this.selectedVisual();
+
+        // abort if no node is selected
+        if (thisVisual === null) {
+            console.warn("No node selected");
+            return;
+        }
+
+        let visualContent: string;
+        try {
+            visualContent = await Utils.requestUserMarkdown("Text Visual - Content", thisVisual?.getContent(), markdownEditingEnabled);
+        } catch (error) {
+            console.error(error);
+            return;
+        }
+
+        thisVisual.setContent(visualContent);
     }
 
     getEligibleNodeCategories : ko.PureComputed<Category[]> = ko.pureComputed(() => {
@@ -4880,27 +5028,10 @@ export class Eagle {
         const newNode: Node = Utils.duplicateNode(node);
 
         // check if node will be added to an empty graph, if so prompt user to specify graph name
-        // TODO: replace with Utils.checkGraphIsNamed(), or move outside, to where addNode() is called from
-        if (this.logicalGraph().fileInfo().name === ""){
-            let filename: string;
-            try {
-                filename = await Utils.requestDiagramFilename(Eagle.FileType.Graph);
-            } catch (error){
-                console.warn(error);
-                return newNode;
-            }
-            this.logicalGraph().fileInfo().name = filename;
-            this.logicalGraph().fileInfo().location.repositoryFileName(filename);
-
-            // create default graph config for the new graph
-            const graphConfig = new GraphConfig();
-            graphConfig.fileInfo().name = Daliuge.DEFAULT_GRAPH_CONFIGURATION_NAME;
-            this.logicalGraph().addGraphConfig(graphConfig, false);
-
-            this.checkGraph();
-            this.undo().pushSnapshot(this, "Specify Logical Graph name");
-            this.logicalGraph.valueHasMutated();
-            Utils.showNotification("Graph named", filename, "success");
+        try {
+            await Utils.ensureGraphIsInitialized(this.logicalGraph());
+        } catch (error){
+            console.warn(error);
         }
 
         newNode.setPosition(x, y);
