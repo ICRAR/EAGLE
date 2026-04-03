@@ -1,0 +1,104 @@
+<!-- Graph Updater Modal -->
+<div class="modal fade" id="graphUpdaterModal" tabindex="-1" role="dialog" aria-labelledby="graphUpdaterModalTitle">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="graphUpdaterModalTitle">Graph Updater</h5>
+                <i class="material-symbols-outlined ms-2" data-bind="eagleTooltip: `A tool to update all Logical Graphs within a source repository to the latest version of the EAGLE Logical Graph file format. The updated Logical Graphs will be placed in the specified destination repository.<br/><br/>In typical usage, the destination repository is a branch of the source repository. Once the updated Logical Graphs have been verified by the user, we leave it to the user to merge the new branch.`">info</i>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-3">
+                            <p>Source Repository:</p>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <select class="form-control" id="graphUpdaterModalSourceRepositorySelect" data-bind="event: { change: function(){GraphUpdater.onSourceRepositoryChange()} }">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" data-bind="visible: !GraphUpdater.isFetching() && !GraphUpdater.hasFetched()">
+                        <div class="col">
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-primary" id="graphUpdaterModalFetchButton" data-bind="click: function(){GraphUpdater.fetchLogicalGraphs()}">
+                                    Fetch Logical Graphs
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- ko if: GraphUpdater.isFetching() -->
+                        {% include 'modals/loading_spinner.html' %}
+                    <!-- /ko -->
+                    <div class="row" data-bind="visible: GraphUpdater.hasFetched()">
+                        <div class="col" id="graphUpdaterModalGraphTableCol">
+                            <!-- ko if: GraphUpdater.updatedLogicalGraphs().length === 0 -->
+                                <span>No logical graphs found in repository branch</span>
+                            <!-- /ko -->
+                            <!-- ko if: GraphUpdater.updatedLogicalGraphs().length > 0 -->
+                                <table id="graphUpdaterModalGraphTable" class="table table-striped table-bordered table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Graph</th>
+                                            <th scope="col">Updated</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="graphUpdaterModalGraphTableBody" data-bind="foreach: GraphUpdater.updatedLogicalGraphs">
+                                        <tr>
+                                            <td data-bind="text: file().pathAndName()"></td>
+                                            <!-- ko if: state() === GraphUpdater.FileStatus.No -->
+                                            <td></td>
+                                            <!-- /ko -->
+                                            <!-- ko if: state() === GraphUpdater.FileStatus.Success -->
+                                            <td>Success</td>
+                                            <!-- /ko -->
+                                            <!-- ko if: state() === GraphUpdater.FileStatus.Error -->
+                                            <td>Error</td>
+                                            <!-- /ko -->
+                                            <!-- ko if: state() === GraphUpdater.FileStatus.Updating -->
+                                            <td>
+                                                <div class="spinner-border spinner-border-sm" role="status"></div>
+                                            </td>
+                                            <!-- /ko -->
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            <!-- /ko -->
+                        </div>
+                    </div>
+                    <div class="row" data-bind="visible: GraphUpdater.hasFetched() && !GraphUpdater.isUpdating() && !GraphUpdater.hasUpdated() && GraphUpdater.updatedLogicalGraphs().length > 0">
+                        <div class="col">
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-primary" id="graphUpdaterModalUpdateButton" data-bind="click: function(){GraphUpdater.update()}">
+                                    Update Logical Graphs
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" data-bind="visible: GraphUpdater.hasUpdated()">
+                        <div class="col-3">
+                            <p>Destination Repository:</p>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <select class="form-control" id="graphUpdaterModalDestinationRepositorySelect">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" data-bind="visible: GraphUpdater.hasUpdated()">
+                        <div class="col">
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-primary" id="graphUpdaterModalPushButton" data-bind="click: function(){GraphUpdater.push()}">
+                                    Push
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
