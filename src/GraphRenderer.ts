@@ -374,7 +374,7 @@ export class GraphRenderer {
             let targetAngle = GraphRenderer.calculateConnectionAngle(visualPos, targetPos)
             targetAngle = Utils.toDegrees360(targetAngle)
             
-            if(isGroup)targetAngle+180 //for text visual to group visual connections we use this function for each end
+            if(isGroup)targetAngle+=180 //for text visual to group visual connections we use this function for each end
 
             const halfWidth = visual.getWidth()/2
             let result : {x:number, y:number} = {x:0,y:0}

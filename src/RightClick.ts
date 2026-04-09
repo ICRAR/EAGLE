@@ -473,7 +473,7 @@ export class RightClick {
     // TODO: perhaps break this function up into a top-level handler, that uses 'passedObjectClass' to call one of several sub-functions
     // TODO: make the passedObjectClass an enumerated type
     // data can be a Edge, Node, Palette?, Eagle, Node[], and the passedObjectClass variable tells the function what to do with it
-    static requestCustomContextMenu = (data: any, passedObjectClass: "edgeDropCreate" | "rightClick_graphNode" | "rightClick_graphEdge" | "rightClick_hierarchyNode" | "rightClick_paletteComponent" | "rightClick_logicalGraph" | "addEmbeddedInputApp" | "addEmbeddedOutputApp" | "rightClick_textVisual" | "rightClick_groupVisual") : void => {
+    static requestCustomContextMenu = (data: any, passedObjectClass: "edgeDropCreate" | "rightClick_graphNode" | "rightClick_graphEdge" | "rightClick_hierarchyNode" | "rightClick_paletteComponent" | "rightClick_logicalGraph" | "addEmbeddedInputApp" | "addEmbeddedOutputApp" | "rightClick_textVisual" | "rightClick_groupVisual" | "rightClick_textVisual" | "rightClick_groupVisual") : void => {
         // getting the mouse event for positioning the right click menu at the cursor location
         const eagle: Eagle = Eagle.getInstance();
 
