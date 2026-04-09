@@ -106,7 +106,7 @@ export class Eagle {
 
     showDataNodes : ko.Observable<boolean>;
     snapToGrid : ko.Observable<boolean>;
-    dropdownMenuHoverTimeout : number = 0;
+    dropdownMenuHoverTimeout : NodeJS.Timeout | null = null;
 
     static paletteComponentSearchString : ko.Observable<string>;
     static componentParamsSearchString : ko.Observable<string>;
@@ -303,7 +303,8 @@ export class Eagle {
             await this.translator().genPGT(defaultTranslatorAlgorithmMethod, false);
         } catch (error){
             console.error("deployDefaultTranslationAlgorithm()", error);
-            Utils.showNotification("Error", error, "danger");
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            Utils.showNotification("Error", errorMessage, "danger");
         }
     }
 
@@ -312,7 +313,8 @@ export class Eagle {
             await this.translator().genPGT(algorithm, test);
         } catch (error){
             console.error("deployDefaultTranslationAlgorithm()", error);
-            Utils.showNotification("Error", error, "danger");
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            Utils.showNotification("Error", errorMessage, "danger");
         }
     }
 
@@ -934,7 +936,8 @@ export class Eagle {
             dataObject = JSON.parse(data);
         }
         catch(err){
-            Utils.showUserMessage("Error parsing file JSON", err.message);
+            const errorMessage = err instanceof Error ? err.message : String(err);
+            Utils.showUserMessage("Error parsing file JSON", errorMessage);
             return;
         }
 
@@ -1301,7 +1304,8 @@ export class Eagle {
             dataObject = JSON.parse(data);
         }
         catch(err){
-            Utils.showUserMessage("Error parsing file JSON", err.message);
+            const errorMessage = err instanceof Error ? err.message : String(err);
+            Utils.showUserMessage("Error parsing file JSON", errorMessage);
             return;
         }
 
@@ -1354,7 +1358,8 @@ export class Eagle {
                     dataObject = JSON.parse(data);
                 }
                 catch(err){
-                    Utils.showUserMessage("Error parsing file JSON", err.message);
+                    const errorMessage = err instanceof Error ? err.message : String(err);
+                    Utils.showUserMessage("Error parsing file JSON", errorMessage);
                     return;
                 }
 
@@ -1771,7 +1776,8 @@ export class Eagle {
                         this.saveAsFileToLocal(Eagle.FileType.GraphConfig, graphConfig);
                         resolve();
                     } catch (error) {
-                        Utils.showNotification("Save Failed", "Failed to save graph config locally: " + error.message, "danger");
+                        const errorMessage = error instanceof Error ? error.message : String(error);
+                        Utils.showNotification("Save Failed", "Failed to save graph config locally: " + errorMessage, "danger");
                         reject(error);
                         return;
                     }
@@ -1780,13 +1786,15 @@ export class Eagle {
                         this.commitToGitAs(Eagle.FileType.GraphConfig, graphConfig);
                         resolve();
                     } catch(error) {
-                        Utils.showNotification("Save Failed", "Failed to save graph config to remote repository: " + error.message, "danger");
+                        const errorMessage = error instanceof Error ? error.message : String(error);
+                        Utils.showNotification("Save Failed", "Failed to save graph config to remote repository: " + errorMessage, "danger");
                         reject(error);
                         return;
                     }
                 }
             } catch (err) {
-                Utils.showNotification("Unexpected Error", "An unexpected error occurred: " + err.message, "danger");
+                const errorMessage = err instanceof Error ? err.message : String(err);
+                Utils.showNotification("Unexpected Error", "An unexpected error occurred: " + errorMessage, "danger");
                 reject(err);
             }
         });
@@ -1929,7 +1937,8 @@ export class Eagle {
             try {
                 await Utils.httpPostJSONString(url, jsonString);
             } catch (error){
-                const errorJSON = JSON.parse(error);
+                const errorMessage = error instanceof Error ? error.message : String(error);
+                const errorJSON = JSON.parse(errorMessage);
 
                 Utils.showUserMessage("Error", errorJSON.error + "<br/><br/>NOTE: These error messages provided by " + file.repository.service + " are not very helpful. Please contact EAGLE admin to help with further investigation.");
                 console.error("Error: " + errorJSON.error);
@@ -2302,7 +2311,8 @@ export class Eagle {
                     data = await Utils.httpPostJSON("/openRemoteUrlFile", postData);
                 } catch (error){
                     // an error occurred when fetching the palette
-                    errorsWarnings.errors.push(Errors.Message(error));
+                    const errorMessage = error instanceof Error ? error.message : String(error);
+                    errorsWarnings.errors.push(Errors.Message(errorMessage));
 
                     // try to load palette from localStorage
                     const paletteData = localStorage.getItem(paletteList[i].filename);
@@ -2416,7 +2426,8 @@ export class Eagle {
                 dataObject = JSON.parse(data);
             }
             catch(err){
-                Utils.showUserMessage("Error parsing file JSON", err.message);
+                const errorMessage = err instanceof Error ? err.message : String(err);
+                Utils.showUserMessage("Error parsing file JSON", errorMessage);
                 return;
             }
 
@@ -2592,7 +2603,8 @@ export class Eagle {
             dataObject = JSON.parse(data);
         }
         catch(err){
-            Utils.showUserMessage("Error parsing file JSON", err.message);
+            const errorMessage = err instanceof Error ? err.message : String(err);
+            Utils.showUserMessage("Error parsing file JSON", errorMessage);
             return;
         }
 
@@ -2678,7 +2690,8 @@ export class Eagle {
         } catch (error) {
             // display error if one occurred
             if (error != null){
-                Utils.showNotification("Error deleting file", error, "danger");
+                const errorMessage = error instanceof Error ? error.message : String(error);
+                Utils.showNotification("Error deleting file", errorMessage, "danger");
                 return;
             }
         }
@@ -3450,7 +3463,9 @@ export class Eagle {
         try {
             clipboard = JSON.parse(await navigator.clipboard.readText());
         } catch(e) {
-            Utils.showNotification("Unable to paste data", e.name + ": " + e.message, "danger");
+            const errorName = e instanceof Error ? e.name : "Unknown";
+            const errorMessage = e instanceof Error ? e.message : String(e);
+            Utils.showNotification("Unable to paste data", errorName + ": " + errorMessage, "danger");
             return;
         }
 
