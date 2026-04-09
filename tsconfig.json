@@ -5,6 +5,7 @@
         "rootDir": "./src",
         "outDir": "./static/built",
         "sourceMap": true,
+        "skipLibCheck": true,
         "noImplicitAny": true,
         "noImplicitReturns": true,
         "noImplicitThis": false,  // TODO: make true when possible

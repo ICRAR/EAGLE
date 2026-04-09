@@ -23,9 +23,8 @@
 */
 
 import * as ko from "knockout";
-import * as $ from "jquery";
-import "jqueryMigrate";
-import "jqueryui";
+import $ from "jquery";
+// Note: jqueryMigrate and jqueryui are included as dependencies in the HTML template
 import * as bootstrap from 'bootstrap';
 
 import { Category } from './Category';

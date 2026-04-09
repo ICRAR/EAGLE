@@ -22,7 +22,7 @@
 #
 */
 
-import * as Ajv from "ajv";
+import Ajv from "ajv";
 import * as Showdown from "showdown";
 
 import { Category } from './Category';
