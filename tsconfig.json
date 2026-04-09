@@ -23,5 +23,5 @@
         "allowJs": false,
         "types": ["node", "jquery", "bootstrap", "bootstrap-notify"]
     },
-    "include": ["./src/**/*.ts"]
+    "include": ["./src/**/*.ts", "playwright.config.ts"]
 }
