@@ -29,12 +29,10 @@ jobs:
         run: |
           npx tsc --version
           npx tsc
-      - name: Start server
-        run: python eagleServer/eagleServer.py -t /tmp &
-      - name: Install Playwright
-        run: npm install @playwright/test@latest
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
+      - name: Start server
+        run: python eagleServer/eagleServer.py -t /tmp &
       - name: Run Playwright tests
         run: npx playwright test
       - uses: actions/upload-artifact@v4
