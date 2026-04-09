@@ -7,9 +7,9 @@ export class TutorialSystem {
     static activeTutCurrentStep: TutorialStep //current active tutorial step
     static activeTutNumSteps: number = 0;  //total number of steps in the active tutorial
     static activeTutCurrentStepIndex: number = 0;  //index of the current step in the active tutorial
-    static waitForElementTimer: NodeJS.Timeout | null = null    //this houses the time out timer when waiting for a target element to appear
+    static waitForElementTimer: number | null = null    //this houses the time out timer when waiting for a target element to appear
     static onCoolDown: boolean = false //boolean if the tutorial system is currently on cool down
-    static conditionCheck: NodeJS.Timeout | null = null //this stores the condition interval function
+    static conditionCheck: number | null = null //this stores the condition interval function
 
     static initiateTutorial(tutorialName: string): void {
         for (const tut of Eagle.tutorials){

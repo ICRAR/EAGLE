@@ -106,7 +106,7 @@ export class Eagle {
 
     showDataNodes : ko.Observable<boolean>;
     snapToGrid : ko.Observable<boolean>;
-    dropdownMenuHoverTimeout : NodeJS.Timeout | null = null;
+    dropdownMenuHoverTimeout : number | null = null;
 
     static paletteComponentSearchString : ko.Observable<string>;
     static componentParamsSearchString : ko.Observable<string>;
