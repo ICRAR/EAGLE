@@ -51,13 +51,17 @@ export class TestHelpers {
     }
 
     // Set the content of the editor in the modal
+    // @ts-ignore - Uses jQuery that's not available in Node.js test context but is injected by page.evaluate
     static setEditorContent(content: string): void {
+        // @ts-ignore
         const editor = ($('#inputCodeModal') as JQuery<HTMLElement>).data('editor');
         editor.setValue(content);
     }
 
     // Get the content of the editor in the modal
+    // @ts-ignore - Uses jQuery that's not available in Node.js test context but is injected by page.evaluate
     static getEditorContent(): string {
+        // @ts-ignore
         const editor = ($('#inputCodeModal') as JQuery<HTMLElement>).data('editor');
         return editor.getValue();
     }
