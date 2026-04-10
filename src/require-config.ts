@@ -1,3 +1,4 @@
+//@ts-nocheck
 declare const require: any;
 require.config({
     /* waitSeconds: 30, */
