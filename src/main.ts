@@ -23,9 +23,8 @@
 */
 
 import * as ko from "knockout";
-import * as $ from "jquery";
-import "jqueryMigrate";
-import "jqueryui";
+import $ from "jquery";
+// Note: jqueryMigrate and jqueryui are included as dependencies in the HTML template
 import * as bootstrap from 'bootstrap';
 
 import { Category } from './Category';
@@ -164,23 +163,21 @@ $(function(){
 
     // we use tutorial=none in the url for unit tests, because pop ups can cause test failures
     const urlParams = new URLSearchParams(window.location.search);
-    const tutorialName = urlParams.get('tutorial');
+    const skipTutorial = urlParams.get('tutorial') === 'none';
 
-    if(tutorialName != 'none'){
+    if (!skipTutorial) {
         // auto load a tutorial, if specified on the url
         autoTutorial();
 
         //request a first time visitor welcome to eagle if applicable
         initiateWelcome(firstTimeVisit);
-    
-        // if not first time visit, but version is newer than last seen version, show the versions modal
-
-        if (!firstTimeVisit && showWhatsNew){
-            eagle.showWhatsNew();
-            // set the last seen version
-            localStorage.setItem('lastSeenVersion', (<any>window).version);
-        }
-        
+    }
+  
+    // if not first time visit, but version is newer than last seen version, show the versions modal
+    if (!firstTimeVisit && showWhatsNew && !skipTutorial){
+        eagle.showWhatsNew();
+        // set the last seen version
+        localStorage.setItem('lastSeenVersion', (<any>window).version);
     }
 
     $('.modal').on('hidden.bs.modal', function () {
