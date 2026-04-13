@@ -1,4 +1,5 @@
 import * as ko from "knockout";
+import { Tooltip } from "bootstrap";
 import {Utils} from '../Utils';
 import { GraphRenderer } from "../GraphRenderer";
 import {Eagle} from '../Eagle';
@@ -84,8 +85,6 @@ ko.bindingHandlers.eagleTooltip = {
                 result = Utils.markdown2html(content)
             }
 
-
-
             let buttonRequirements : boolean = false
 
             //if a button is requested and all necessary info is supplied we will insert it here.
@@ -102,12 +101,14 @@ ko.bindingHandlers.eagleTooltip = {
                 }
             }
 
-            //fire the tooltip
+            // fire the tooltip
             jQueryElement.attr("data-bs-original-title", result);
-            (<any>jQueryElement).tooltip({
-                html : true,
+
+            // get a reference to the tooltip, if it already exists, and update its content, if not create a new tooltip
+            const bootstrapTooltip = Tooltip.getOrCreateInstance(element, {
+                html: true,
                 boundary: document.body,
-                trigger : 'manual',
+                trigger: 'manual',
             });
 
             if(buttonRequirements){
@@ -128,21 +129,21 @@ ko.bindingHandlers.eagleTooltip = {
                 if(stillHovering && !GraphRenderer.draggingPort && !GraphRenderer.draggingPaletteNode){
                     // make sure there is never more than one tooltip open
                     $(".tooltip").remove();
-                    jQueryElement.tooltip('show');
+                    bootstrapTooltip.show();
 
                     //adding our custom size if provided
                     $('.tooltip-inner').css('max-width',size)
 
                     //leave listener on the tooltip itself, we attach this when the tooltip is shown
                     $('.tooltip').on('mouseleave', function () {
-                        jQueryElement.tooltip('hide');
+                        bootstrapTooltip.hide();
                         stillHovering = false
                     });
                     
                     //enter listener on the tooltip itself, we attach this when the tooltip is shown
                     $('.tooltip').on('mouseenter', function () {
                         if(GraphRenderer.draggingPort || GraphRenderer.draggingPaletteNode){
-                            jQueryElement.tooltip('hide');
+                            bootstrapTooltip.hide();
                         }
                         stillHovering = true
                     });
@@ -153,10 +154,12 @@ ko.bindingHandlers.eagleTooltip = {
         jQueryElement.on('mouseleave', function(){
             stillHovering = false
 
+            const bootstrapTooltip = Tooltip.getOrCreateInstance(element);
+
             //we need to give the user a little bit of time to move from the element to to tooltip
             setTimeout(function(){
                 if(!stillHovering){
-                    jQueryElement.tooltip('hide');
+                    bootstrapTooltip.hide();
                     stillHovering = false
                 }
             },100)
