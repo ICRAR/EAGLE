@@ -381,7 +381,8 @@ export class GraphUpdater {
         try {
            await eagle.saveFilesToRemote(destRepo, JSON.stringify(commitJson));
         } catch (error) {
-            const errorJSON = JSON.parse(error);
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            const errorJSON = JSON.parse(errorMessage);
 
             Utils.showUserMessage("Error", errorJSON.error + "<br/><br/>NOTE: These error messages provided by " + destRepo.service + " are not very helpful. Please contact EAGLE admin to help with further investigation.");
             console.error("Error: " + errorJSON.error);
