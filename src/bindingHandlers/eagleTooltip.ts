@@ -104,7 +104,7 @@ ko.bindingHandlers.eagleTooltip = {
 
             //fire the tooltip
             jQueryElement.attr("data-bs-original-title", result);
-            jQueryElement.tooltip({
+            (<any>jQueryElement).tooltip({
                 html : true,
                 boundary: document.body,
                 trigger : 'manual',
