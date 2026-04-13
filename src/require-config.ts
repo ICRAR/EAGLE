@@ -6,7 +6,7 @@ require.config({
         "text": "./static/externals/text",
         "knockout": "./static/externals/knockout-min",
         "jquery": "./static/externals/jquery-3.6.0.min",
-        "jqueryMigrate": "/static/externals/jquery-migrate-3.0.0.min",
+        "jquery-migrate": "/static/externals/jquery-migrate-3.0.0.min",
         "jqueryui": "./static/externals/jquery-ui.min",
         "bootstrap": "./static/externals/bootstrap.bundle.min",
         "bootstrap-notify": "./static/externals/bootstrap-notify.min",

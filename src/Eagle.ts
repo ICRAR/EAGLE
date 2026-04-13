@@ -5244,7 +5244,6 @@ $( document ).ready(function() {
         const modal = $(this);
 
         // modal draggable
-        // the any type is required so we don't have an error when building. at runtime on eagle this actually functions without it.
         (<any>$('.modal-dialog')).draggable({
             handle: ".modal-header"
         });
