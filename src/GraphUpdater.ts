@@ -143,7 +143,7 @@ export class GraphUpdater {
             if (node.outputApplicationKey !== null){
                 const outputAppId = Utils.generateNodeId();
                 keyToId.set(node.outputApplicationKey, outputAppId);
-                node.inputApplicationId = outputAppId;
+                node.outputApplicationId = outputAppId;
             }
         }
 

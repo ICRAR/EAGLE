@@ -1,5 +1,15 @@
 export const versions = [
   {
+    version: 'v6.10.0',
+    date: new Date("2026-03-25"),
+    changes: [
+      `Improved graph fix functions`,
+      `EAGLE URL can now fetch a graph from a public repository without authentication`,
+      `New "changeable" flag on Fields to ensure some critical fields are not accidentally changed by users`,
+      `New Logical Graphs now contain a Graph Configuration by default`
+    ]
+  },
+  {
     version: 'v6.9.1',
     date: new Date("2025-10-27"),
     changes: [

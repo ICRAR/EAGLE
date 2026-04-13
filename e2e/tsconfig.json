@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "ignoreDeprecations": "6.0",
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "target": "es2019",
+        "lib": ["es2021", "dom"],
+        "types": ["node", "jquery"],
+        "skipLibCheck": true,
+        "noImplicitAny": true,
+        "sourceMap": true
+    },
+    "include": ["./**/*.ts", "../playwright.config.ts", "../playwrightHelpers.ts"]
+}

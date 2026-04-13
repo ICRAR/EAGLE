@@ -333,11 +333,25 @@ export class Node {
     }, this);
 
     usageOptions : ko.PureComputed<Daliuge.FieldUsage[]> = ko.pureComputed(() => {
-        // fields on construct nodes cannot be ports
-        if (this.categoryType() === Category.Type.Construct){
-            return [Daliuge.FieldUsage.NoPort];
+        const result: Daliuge.FieldUsage[] = [Daliuge.FieldUsage.NoPort];
+        const categoryData = CategoryData.getCategoryData(this.category());
+        const canHaveInputs = categoryData.maxInputs > 0;
+        const canHaveOutputs = categoryData.maxOutputs > 0;
+
+        // if category can have input ports, add those to the options
+        if (canHaveInputs){
+            result.push(Daliuge.FieldUsage.InputPort);
         }
-        return Object.values(Daliuge.FieldUsage)
+        // if category can have output ports, add those to the options
+        if (canHaveOutputs){
+            result.push(Daliuge.FieldUsage.OutputPort);
+        }
+        // if category can have both input and output ports, add the InputOutput option
+        if (canHaveInputs && canHaveOutputs){
+            result.push(Daliuge.FieldUsage.InputOutput);
+        }
+
+        return result;
     }, this);
 
     getInputPorts = () : Field[] => {
@@ -388,18 +402,14 @@ export class Node {
         return result;
     }
 
-    // TODO: check what this is doing, isn't this too complicated? just loop through all fields, adding everything with usage !== NoPort to the results array
     getPorts = () : Field[] => {
-        const results: Field[] = this.getInputPorts()
-        this.getOutputPorts().forEach(function(outputPort){
-            for (const result of results){
-                if(result.getId() === outputPort.getId()){
-                    continue
-                }else{
-                    results.push(outputPort)
-                }
+        const results: Field[] = [];
+
+        for (const field of this.fields().values()){
+            if (field.getUsage() !== Daliuge.FieldUsage.NoPort){
+                results.push(field);
             }
-        })
+        }
 
         return results;
     }
@@ -1074,56 +1084,47 @@ export class Node {
         return this;
     }
 
-    removeAllComponentParameters = () : Node => {
-        for (const [id, field] of this.fields()){
-            if (field.getParameterType() === Daliuge.FieldType.Component){
-                this.fields().delete(id);
+    private removeFieldsWhere = (predicate: (field: Field) => boolean) : Node => {
+        const fields = this.fields();
+        const toDelete: FieldId[] = [];
+        for (const [id, field] of fields){
+            if (predicate(field)){
+                toDelete.push(id);
             }
         }
+        for (const id of toDelete){
+            fields.delete(id);
+        }
         this.fields.valueHasMutated();
-
         return this;
     }
 
-    removeAllApplicationArguments = () : Node => {
-        for (const [id, field] of this.fields()){
-            if (field.getParameterType() === Daliuge.FieldType.Application){
-                this.fields().delete(id);
-            }
-        }
-        this.fields.valueHasMutated();
+    removeAllComponentParameters = () : Node => {
+        return this.removeFieldsWhere((field) => field.getParameterType() === Daliuge.FieldType.Component);
+    }
 
-        return this;
+    removeAllApplicationArguments = () : Node => {
+        return this.removeFieldsWhere((field) => field.getParameterType() === Daliuge.FieldType.Application);
     }
 
     // removes all InputPort ports, and changes all InputOutput ports to be OutputPort
     removeAllInputPorts = () : Node => {
-        for (const [id, field] of this.fields()){
-            if (field.getUsage() === Daliuge.FieldUsage.InputPort){
-                this.fields().delete(id);
-            }
+        for (const field of this.fields().values()){
             if (field.getUsage() === Daliuge.FieldUsage.InputOutput){
                 field.setUsage(Daliuge.FieldUsage.OutputPort);
             }
         }
-        this.fields.valueHasMutated();
-
-        return this;
+        return this.removeFieldsWhere((field) => field.getUsage() === Daliuge.FieldUsage.InputPort);
     }
 
     // removes all OutputPort ports, and changes all InputOutput ports to be InputPort
     removeAllOutputPorts = () : Node => {
-        for (const [id, field] of this.fields()){
-            if (field.getUsage() === Daliuge.FieldUsage.OutputPort){
-                this.fields().delete(id);
-            }
+        for (const field of this.fields().values()){
             if (field.getUsage() === Daliuge.FieldUsage.InputOutput){
                 field.setUsage(Daliuge.FieldUsage.InputPort);
             }
         }
-        this.fields.valueHasMutated();
-
-        return this;
+        return this.removeFieldsWhere((field) => field.getUsage() === Daliuge.FieldUsage.OutputPort);
     }
 
     clone = () : Node => {
@@ -1144,6 +1145,9 @@ export class Node {
         // clone fields
         for (const field of this.fields().values()){
             result.fields().set(field.getId(), field.clone());
+        }
+        // if any fields were added, we need to trigger the valueHasMutated to update any observers
+        if (this.fields().size > 0){
             result.fields.valueHasMutated();
         }
 
@@ -1157,6 +1161,46 @@ export class Node {
         }
         if (this.hasOutputApplication()){
             result.outputApplication(this.outputApplication().clone());
+        }
+
+        return result;
+    }
+
+    copy = () : Node => {
+        const result : Node = new Node(this.name(), this.description(), this.comment(), this.category());
+
+        result.id(Utils.generateNodeId());
+        result.x(this.x());
+        result.y(this.y());
+        result.categoryType(this.categoryType());
+        result.color(this.color());
+        result.drawOrderHint(this.drawOrderHint());
+
+        result.parent(this.parent());
+        result.embed(this.embed());
+
+        result.peek(this.peek());
+
+        // copy fields
+        for (const field of this.fields().values()){
+            const newField = field.clone().setId(Utils.generateFieldId());
+            result.fields().set(newField.getId(), newField);
+        }
+        // if any fields were added, we need to trigger the valueHasMutated to update any observers
+        if (this.fields().size > 0){
+            result.fields.valueHasMutated();
+        }
+
+        result.repositoryUrl(this.repositoryUrl());
+        result.commitHash(this.commitHash());
+        result.paletteDownloadUrl(this.paletteDownloadUrl());
+        result.dataHash(this.dataHash());
+
+        if (this.hasInputApplication()){
+            result.inputApplication(this.inputApplication().copy());
+        }
+        if (this.hasOutputApplication()){
+            result.outputApplication(this.outputApplication().copy());
         }
 
         return result;

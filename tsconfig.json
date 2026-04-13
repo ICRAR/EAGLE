@@ -2,8 +2,10 @@
     "compilerOptions": {
         "allowUnreachableCode": false,
         "allowUnusedLabels": false,
+        "rootDir": "./src",
         "outDir": "./static/built",
         "sourceMap": true,
+        "skipLibCheck": true,
         "noImplicitAny": true,
         "noImplicitReturns": true,
         "noImplicitThis": false,  // TODO: make true when possible
@@ -13,12 +15,13 @@
         "strictNullChecks" : false,
         "strictFunctionTypes": false,
         "strictPropertyInitialization": false,
+        "ignoreDeprecations": "6.0",
         "module": "umd",
         "moduleResolution": "node",
         "target": "es2015",
         "lib": ["es2021", "dom"],
         "allowJs": false,
-        "types": ["jquery", "bootstrap", "bootstrap-notify"]
+        "types": ["node", "jquery", "bootstrap", "bootstrap-notify"]
     },
     "include": ["./src/**/*.ts"]
 }
