@@ -5244,8 +5244,8 @@ $( document ).ready(function() {
         const modal = $(this);
 
         // modal draggable
-        (<any>$('.modal-dialog')).draggable({
-            handle: ".modal-header"
+        ($('.modal-dialog') as JQuery<HTMLElement>).draggable({
+            handle: '.modal-header'
         });
 
         //this is a system that allows graph interaction with a modal open, it triggers when the user clicks and drags the modal header
