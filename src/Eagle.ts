@@ -106,7 +106,7 @@ export class Eagle {
 
     showDataNodes : ko.Observable<boolean>;
     snapToGrid : ko.Observable<boolean>;
-    dropdownMenuHoverTimeout : number | undefined = undefined;
+    dropdownMenuHoverTimeout : NodeJS.Timeout | null = null;
 
     static paletteComponentSearchString : ko.Observable<string>;
     static componentParamsSearchString : ko.Observable<string>;
@@ -3661,8 +3661,10 @@ export class Eagle {
 
         try {
             clipboard = JSON.parse(await navigator.clipboard.readText());
-        } catch(e: any) {
-            Utils.showNotification("Unable to paste data", e.name + ": " + e.message, "danger");
+        } catch(e) {
+            const errorName = e instanceof Error ? e.name : "Unknown";
+            const errorMessage = e instanceof Error ? e.message : String(e);
+            Utils.showNotification("Unable to paste data", errorName + ": " + errorMessage, "danger");
             return;
         }
 

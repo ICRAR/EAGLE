@@ -6,28 +6,29 @@
         // Additional checks
         "allowUnreachableCode": false,
         "allowUnusedLabels": false,
+        "rootDir": "./src",
+        "outDir": "./static/built",
+        "sourceMap": true,
+        "skipLibCheck": true,
+        "noImplicitAny": true,
         "noImplicitReturns": true,
+        "noImplicitThis": false,  // TODO: make true when possible
         "noFallthroughCasesInSwitch": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "forceConsistentCasingInFileNames": true,
-
-        // Module & target
+        "strictNullChecks" : false,
+        "strictFunctionTypes": false,
+        "strictPropertyInitialization": false,
+        "ignoreDeprecations": "6.0",
         "module": "umd",
-        "moduleResolution": "node10",
+        "moduleResolution": "node",
         "target": "es2021",
         "lib": ["es2021", "dom"],
         "esModuleInterop": true,
         "isolatedModules": true,
-
-        // Output
-        "outDir": "./static/built",
-        "sourceMap": true,
-
-        // Other
         "allowJs": false,
-        "skipLibCheck": true,
-        "types": ["jquery", "bootstrap", "bootstrap-notify"]
+        "types": ["node", "jquery", "bootstrap", "bootstrap-notify"]
     },
     "include": ["./src/**/*.ts"],
     "exclude": ["node_modules", "static", "build", "e2e"]

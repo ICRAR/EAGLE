@@ -24,9 +24,8 @@
 
 import * as ko from "knockout";
 import $ from "jquery";
-import "jqueryMigrate";
-import "jqueryui";
-import bootstrap from 'bootstrap';
+// Note: jqueryMigrate and jqueryui are included as dependencies in the HTML template
+import * as bootstrap from 'bootstrap';
 
 import { Category } from './Category';
 import { CategoryData } from './CategoryData';
@@ -167,7 +166,11 @@ $(function(){
     initiateWelcome(firstTimeVisit);
   
     // if not first time visit, but version is newer than last seen version, show the versions modal
-    if (!firstTimeVisit && showWhatsNew){
+    // tutorial=none is used by the playwright tests to skip the welcome message and tutorials
+    const urlParams = new URLSearchParams(window.location.search);
+    const skipTutorial = urlParams.get('tutorial') === 'none';
+    
+    if (!firstTimeVisit && showWhatsNew && !skipTutorial){
         eagle.showWhatsNew();
         // set the last seen version
         localStorage.setItem('lastSeenVersion', (<any>window).version);
