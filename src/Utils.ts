@@ -1933,17 +1933,7 @@ export class Utils {
     }
 
     static async userEnterCommitMessage(modalMessage: string) : Promise<string> {
-        return new Promise<string>((resolve, reject) => {
-            // request commit message from the user
-            let userString;
-            try {
-                userString = Utils.requestUserString("Saving to git", modalMessage, "", false);
-            } catch (error){
-                reject(error);
-                return;
-            }
-            resolve(userString);
-        });
+        return Utils.requestUserString("Saving to git", modalMessage, "", false);
     }
 
     // TODO: could we return a list of KeyboardShortcut here?
