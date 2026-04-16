@@ -1,9 +1,5 @@
 import { test, expect } from '@playwright/test';
 import { TestHelpers } from './TestHelpers';
-import { Eagle } from '../src/Eagle';
-import { Node } from '../src/Node';
-import { Field } from '../src/Field';
-import { Edge } from '../src/Edge';
 
 test('LogicalGraph.clone() does not share references with original', async ({ page }) => {
     await page.goto('http://localhost:8888/?tutorial=none');
@@ -39,7 +35,7 @@ test('LogicalGraph.clone() does not share references with original', async ({ pa
 
     // verify we have nodes and edges to clone
     const preCheck = await page.evaluate(() => {
-        const eagle = Eagle.getInstance();
+        const eagle = (<any>window).eagle;
         const lg = eagle.logicalGraph();
         return {
             numNodes: lg.getNumNodes(),
@@ -51,7 +47,7 @@ test('LogicalGraph.clone() does not share references with original', async ({ pa
 
     // clone the graph and verify no shared references
     const result = await page.evaluate(() => {
-        const eagle = Eagle.getInstance();
+        const eagle = (<any>window).eagle;
         const original = eagle.logicalGraph();
         const cloned = original.clone();
 
@@ -66,8 +62,8 @@ test('LogicalGraph.clone() does not share references with original', async ({ pa
         }
 
         // collect original node and port object references
-        const originalNodeRefs = new Set<Node>();
-        const originalPortRefs = new Set<Field>();
+        const originalNodeRefs = new Set<any>();
+        const originalPortRefs = new Set<any>();
         for (const node of original.getNodes()) {
             originalNodeRefs.add(node);
             for (const field of node.getFields()) {
@@ -89,7 +85,7 @@ test('LogicalGraph.clone() does not share references with original', async ({ pa
         }
 
         // collect original edge object references
-        const originalEdgeRefs = new Set<Edge>();
+        const originalEdgeRefs = new Set<any>();
         for (const edge of original.getEdges()) {
             originalEdgeRefs.add(edge);
         }
