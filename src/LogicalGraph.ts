@@ -685,11 +685,31 @@ export class LogicalGraph {
 
         // copy edges
         for (const [id, edge] of this.edges()){
-            result.edges().set(id, edge.clone());
-            result.edges.valueHasMutated();
+            const clonedEdge = edge.clone();
 
-            edge.getSrcPort().addEdge(edge);
-            edge.getDestPort().addEdge(edge);
+            // remap cloned edge's node/port references to the cloned graph's nodes/ports
+            const clonedSrcNode = result.nodes().get(edge.getSrcNode().getId() as NodeId);
+            const clonedDestNode = result.nodes().get(edge.getDestNode().getId() as NodeId);
+
+            if (clonedSrcNode !== undefined && clonedDestNode !== undefined){
+                clonedEdge.setSrcNode(clonedSrcNode);
+                clonedEdge.setDestNode(clonedDestNode);
+
+                const clonedSrcPort = clonedSrcNode.getFieldById(edge.getSrcPort().getId());
+                const clonedDestPort = clonedDestNode.getFieldById(edge.getDestPort().getId());
+
+                if (clonedSrcPort !== undefined){
+                    clonedEdge.setSrcPort(clonedSrcPort);
+                    clonedSrcPort.addEdge(clonedEdge);
+                }
+                if (clonedDestPort !== undefined){
+                    clonedEdge.setDestPort(clonedDestPort);
+                    clonedDestPort.addEdge(clonedEdge);
+                }
+            }
+
+            result.edges().set(id, clonedEdge);
+            result.edges.valueHasMutated();
         }
 
         // copy graph configs
