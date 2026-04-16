@@ -47,6 +47,7 @@ from config.config import GITLAB_DEFAULT_REPO_LIST
 from config.config import STUDENT_GITHUB_DEFAULT_REPO_LIST
 from config.config import SERVER_PORT
 
+URL_OPEN_TIMEOUT = 20
 
 class GraphException(Exception):
     """
@@ -162,8 +163,10 @@ def open_file(filetype, filename):
     try:
         with open(norm_path, "r") as json_data:
             data = json.load(json_data)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    except FileNotFoundError as fnfe:
+        return jsonify({"error": "File not found: " + norm_path}), 404
+    except json.JSONDecodeError as jde:
+        return jsonify({"error": "JSON decode error: " + str(jde)}), 400
 
     return jsonify(data)
 
@@ -320,7 +323,7 @@ def get_docker_images():
     docker_url = "https://hub.docker.com/v2/repositories/" + user_name + "/"
 
     ctx = ssl.create_default_context(cafile=certifi.where())
-    with urllib.request.urlopen(docker_url, context=ctx) as url:
+    with urllib.request.urlopen(docker_url, context=ctx, timeout=URL_OPEN_TIMEOUT) as url:
         data = json.loads(url.read().decode())
 
     return jsonify(data)
@@ -344,7 +347,7 @@ def get_docker_image_tags():
     docker_url = "https://registry.hub.docker.com/v2/repositories/" + image_name + "/tags"
 
     ctx = ssl.create_default_context(cafile=certifi.where())
-    with urllib.request.urlopen(docker_url, context=ctx) as url:
+    with urllib.request.urlopen(docker_url, context=ctx, timeout=URL_OPEN_TIMEOUT) as url:
         data = json.loads(url.read().decode())
 
     return jsonify(data)
@@ -599,7 +602,7 @@ def open_git_hub_file():
         download_url = "https://raw.githubusercontent.com/" + repo_name + "/" + most_recent_commit.sha + "/" + filename
     except AssertionError as e:
         # download via http get
-        raw_data = urllib.request.urlopen(download_url, context=ssl.create_default_context(cafile=certifi.where())).read()
+        raw_data = urllib.request.urlopen(download_url, context=ssl.create_default_context(cafile=certifi.where()), timeout=URL_OPEN_TIMEOUT).read()
 
     if extension != ".md":
         # parse JSON
@@ -801,7 +804,7 @@ def open_url_file():
 
     # download via http get
     try:
-        raw_data = urllib.request.urlopen(url, context=ssl.create_default_context(cafile=certifi.where())).read()
+        raw_data = urllib.request.urlopen(url, context=ssl.create_default_context(cafile=certifi.where()), timeout=URL_OPEN_TIMEOUT).read()
     except Exception as e:
         print(e)
         return jsonify({"error": str(e)}), 404
