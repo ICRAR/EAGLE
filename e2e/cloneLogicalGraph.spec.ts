@@ -1,5 +1,9 @@
 import { test, expect } from '@playwright/test';
 import { TestHelpers } from './TestHelpers';
+import { Eagle } from '../src/Eagle';
+import { Node } from '../src/Node';
+import { Field } from '../src/Field';
+import { Edge } from '../src/Edge';
 
 test('LogicalGraph.clone() does not share references with original', async ({ page }) => {
     await page.goto('http://localhost:8888/?tutorial=none');
@@ -35,7 +39,7 @@ test('LogicalGraph.clone() does not share references with original', async ({ pa
 
     // verify we have nodes and edges to clone
     const preCheck = await page.evaluate(() => {
-        const eagle = (<any>window).eagle;
+        const eagle = Eagle.getInstance();
         const lg = eagle.logicalGraph();
         return {
             numNodes: lg.getNumNodes(),
@@ -47,7 +51,7 @@ test('LogicalGraph.clone() does not share references with original', async ({ pa
 
     // clone the graph and verify no shared references
     const result = await page.evaluate(() => {
-        const eagle = (<any>window).eagle;
+        const eagle = Eagle.getInstance();
         const original = eagle.logicalGraph();
         const cloned = original.clone();
 
@@ -62,22 +66,22 @@ test('LogicalGraph.clone() does not share references with original', async ({ pa
         }
 
         // collect original node and port object references
-        const originalNodeRefs = new Set<any>();
-        const originalPortRefs = new Set<any>();
-        for (const node of original.nodes().values()) {
+        const originalNodeRefs = new Set<Node>();
+        const originalPortRefs = new Set<Field>();
+        for (const node of original.getNodes()) {
             originalNodeRefs.add(node);
-            for (const field of node.fields().values()) {
+            for (const field of node.getFields()) {
                 originalPortRefs.add(field);
             }
         }
 
         // check cloned nodes are not the same objects as original nodes
-        for (const clonedNode of cloned.nodes().values()) {
+        for (const clonedNode of cloned.getNodes()) {
             if (originalNodeRefs.has(clonedNode)) {
                 issues.push(`Cloned node "${clonedNode.getName()}" is same object reference as original`);
             }
             // check cloned fields are not the same objects as original fields
-            for (const clonedField of clonedNode.fields().values()) {
+            for (const clonedField of clonedNode.getFields()) {
                 if (originalPortRefs.has(clonedField)) {
                     issues.push(`Cloned port "${clonedField.getDisplayText()}" on node "${clonedNode.getName()}" is same object reference as original`);
                 }
@@ -85,7 +89,7 @@ test('LogicalGraph.clone() does not share references with original', async ({ pa
         }
 
         // collect original edge object references
-        const originalEdgeRefs = new Set<any>();
+        const originalEdgeRefs = new Set<Edge>();
         for (const edge of original.getEdges()) {
             originalEdgeRefs.add(edge);
         }
@@ -118,8 +122,8 @@ test('LogicalGraph.clone() does not share references with original', async ({ pa
         }
 
         // verify that cloning did not add duplicate edge refs to original graph's ports
-        for (const node of original.nodes().values()) {
-            for (const field of node.fields().values()) {
+        for (const node of original.getNodes()) {
+            for (const field of node.getFields()) {
                 const edgeIds: string[] = [];
                 for (const edge of field.getEdges()) {
                     edgeIds.push(edge.getId());
