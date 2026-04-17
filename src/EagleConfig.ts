@@ -85,6 +85,8 @@ export class EagleConfig {
     public static readonly CONSTRUCT_MARGIN: number = 30;
     public static readonly CONSTRUCT_DRAG_OUT_DISTANCE: number = 100;
 
+    public static readonly DUPLICATE_OFFSET: number = 20; // amount (in x and y) by which duplicated nodes will be positioned away from the originals
+
     // number of spaces used for indenting output JSON, makes everything human-readable
     public static readonly JSON_INDENT: number = 4;
 
