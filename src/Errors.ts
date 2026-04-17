@@ -24,9 +24,10 @@ export class Errors {
         let numErrors   = Infinity;
         let numWarnings = Infinity;
         let numIterations = 0;
+        const MAX_ITERATIONS = 10;
 
         while (numWarnings !== eagle.graphWarnings().length || numErrors !== eagle.graphErrors().length){
-            if (numIterations > 10){
+            if (numIterations > MAX_ITERATIONS){
                 console.warn("Too many iterations in fixAll()");
                 break;
             }

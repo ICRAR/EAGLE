@@ -200,7 +200,7 @@ export class Tutorial {
             }, delay)
         }else {
             //we set a two second timer, the wait will check every .1 seconds for two seconds at which point it is timed out and we abort the tut
-            TutorialSystem.waitForElementTimer = setInterval(function () { TutorialSystem.activeTut.waitForElementThenRun(tutStep.getWaitType()) }, 100);
+            TutorialSystem.waitForElementTimer = setInterval(function () { TutorialSystem.activeTut.waitForElementThenRun(tutStep.getWaitType()) }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT);
             setTimeout(function () {
                 if (TutorialSystem.waitForElementTimer != null) {
                     clearTimeout(TutorialSystem.waitForElementTimer);

@@ -971,7 +971,7 @@ export class Utils {
     }
 
     static showShortcutsModal() : void {
-        if(!Eagle.shortcutModalCooldown || Date.now() >= (Eagle.shortcutModalCooldown + 500)){
+        if(!Eagle.shortcutModalCooldown || Date.now() >= (Eagle.shortcutModalCooldown + EagleConfig.STANDARD_UI_LONG_TIMEOUT)){
             Eagle.shortcutModalCooldown = Date.now()
             $('#shortcutsModal').modal("show");
         }

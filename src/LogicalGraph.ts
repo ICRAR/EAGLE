@@ -985,9 +985,10 @@ export class LogicalGraph {
         let n : Node = node;
         let result : number = 1;
         let iterations : number = 0;
+        const MAX_ITERATIONS = 10;
 
         while (true){
-            if (iterations > 10){
+            if (iterations > MAX_ITERATIONS){
                 console.error("too many iterations in findMultiplicity()");
                 break;
             }
