@@ -160,6 +160,10 @@ export class Visual {
         return this
     }
 
+    getIssues = () : {issue:Errors.Issue, validity:Errors.Validity}[] => {
+        return this.issues();
+    }
+
     isText = () : boolean => {
         return this.type() === Visual.Type.Text;
     }
@@ -214,15 +218,15 @@ export class Visual {
         }
     }
     
-    isValid = () : Errors.Validity => {
+    static isValid = (visual:Visual) : Errors.Validity => {
 
         const eagle: Eagle = Eagle.getInstance();
 
         //if visual is text but has no content
-        if(this.isText() && this.content() === ''){
-            const message: string = "Text Visual (" + this.getId() + ") has no content.";
-            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showVisual(eagle, this)});
-            this.issues.push({issue: issue, validity: Errors.Validity.Warning});
+        if(visual.isText() && visual.content() === ''){
+            const message: string = "Text Visual (" + visual.getId() + ") has no content.";
+            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showVisual(eagle, visual)});
+            visual.issues.push({issue: issue, validity: Errors.Validity.Warning});
             return Errors.Validity.Warning;
         }
         

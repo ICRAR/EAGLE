@@ -417,6 +417,7 @@ export class Edge {
         let impossibleEdge : boolean = false;
         let draggingEdgeFixable : boolean = false;
 
+        // TODO do we need to hand this function the edge id or can we just pass in the edge? 
         const edge = eagle.logicalGraph().getEdgeById(edgeId);
 
         // if this is a real edge, then clear its issues, otherwise, if this is just a temp test edge, don't worry

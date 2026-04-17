@@ -1617,6 +1617,11 @@ export class Utils {
             Edge.isValid(eagle, false, edge.getId(), edge.getSrcNode().getId(), edge.getSrcPort().getId(), edge.getDestNode().getId(), edge.getDestPort().getId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {warnings: [], errors: []});
         }
 
+        // check all visuals are valid
+        for (const visual of graph.getVisuals()){
+            Visual.isValid(visual);
+        }
+
         // check uniqueness of ids EAGLE-wide (including palettes and graph)
         const ids = new Set<string>();
 
@@ -1745,6 +1750,11 @@ export class Utils {
         // from edges
         for (const edge of graph.getEdges()){
             graphIssues.push(...edge.getIssues())
+        }
+
+        // from visuals
+        for (const visual of graph.getVisuals()){
+            graphIssues.push(...visual.getIssues())
         }
 
         //from logical graph
