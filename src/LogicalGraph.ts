@@ -1354,6 +1354,49 @@ export class LogicalGraph {
             }
         }
 
+        for (const [id, visual] of graph.visuals()){
+            
+            // check that all visuals in the visuals dict have a key that matches the id inside the visual
+            if (visual.getId() !== id){
+                const issue: Errors.Issue = Errors.ShowFix(
+                    "Visual (" + id + ") id does not match the key in the visuals dictionary",
+                    function(){Utils.showVisual(eagle, visual)},
+                    function(){visual.setId(id)},
+                    "Set visual id to match key in visuals dictionary"
+                );
+                graph.issues.push({issue : issue, validity : Errors.Validity.Error})
+            }
+
+            // check that the visual's target exists within the graph
+            if (visual.hasTarget()){
+                const target = visual.getTarget();
+                let targetExists = false;
+
+                // check if target is a node
+                if (target instanceof Node){
+                    targetExists = typeof graph.getNodeById(target.getId()) !== 'undefined';
+                }
+                // check if target is an edge
+                else if (target instanceof Edge){
+                    targetExists = typeof graph.getEdgeById(target.getId()) !== 'undefined';
+                }
+                // check if target is a visual
+                else if (target instanceof Visual){
+                    targetExists = typeof graph.getVisualById(target.getId()) !== 'undefined';
+                }
+
+                if (!targetExists){
+                    const issue: Errors.Issue = Errors.ShowFix(
+                        "Visual (" + id + ") target does not exist in the graph",
+                        function(){Utils.showVisual(eagle, visual)},
+                        function(){visual.setTarget(null)},
+                        "Reset visual target to empty state"
+                    );
+                    graph.issues.push({issue : issue, validity : Errors.Validity.Error})
+                }
+            }
+        }
+
         // check that active graph config id actually refers to a graph config in the graphConfigs dict
         if (graph.activeGraphConfigId() !== null){
             if (graph.getActiveGraphConfig() === null){

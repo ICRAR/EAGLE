@@ -30,6 +30,7 @@ import { Edge } from "./Edge";
 import { Node } from "./Node";
 import { Errors } from "./Errors";
 import { EagleConfig } from "./EagleConfig";
+import { Eagle } from "./Eagle";
 
 export class Visual {
     private id: ko.Observable<VisualId>;
@@ -43,6 +44,7 @@ export class Visual {
     private content : ko.Observable<string>;
     private target : ko.Observable<Node | Edge | Visual | null>; // the id of the node or edge this comment is attached to, or null if it's free-floating
     private color : ko.Observable<string>; //used for the background of group visuals
+    private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}> //keeps track of visual errors
 
     constructor(type: Visual.Type, content: string) {
         this.id = ko.observable(Utils.generateVisualId());
@@ -58,7 +60,8 @@ export class Visual {
         this.type = ko.observable(type);
         this.content = ko.observable(content);
         this.target = ko.observable(null);
-        this.color = ko.observable(EagleConfig.getColor('groupVisualBackgroundColor'))
+        this.color = ko.observable(EagleConfig.getColor('groupVisualBackgroundColor'));
+        this.issues = ko.observableArray([]);
     }
 
     getId = () : VisualId => {
@@ -211,10 +214,19 @@ export class Visual {
         }
     }
     
-    isValid = () : boolean => {
+    isValid = () : Errors.Validity => {
 
-        //if target is set but doesnt exist, invalid
-        return false
+        const eagle: Eagle = Eagle.getInstance();
+
+        //if visual is text but has no content
+        if(this.isText() && this.content() === ''){
+            const message: string = "Text Visual (" + this.getId() + ") has no content.";
+            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showVisual(eagle, this)});
+            this.issues.push({issue: issue, validity: Errors.Validity.Warning});
+            return Errors.Validity.Warning;
+        }
+        
+        return Errors.Validity.Valid;
     }
 }
 

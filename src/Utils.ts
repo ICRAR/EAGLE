@@ -48,6 +48,7 @@ import { Repository, RepositoryCommit } from './Repository';
 import { RepositoryFile } from './RepositoryFile';
 import { Setting } from './Setting';
 import { UiModeSystem } from "./UiModes";
+import { Visual } from "./Visual";
 
 
 export class Utils {
@@ -2384,6 +2385,13 @@ export class Utils {
         $('#issuesDisplay').modal("hide");
 
         eagle.setSelection(edge, Eagle.FileType.Graph);
+    }
+
+    static showVisual(eagle: Eagle, visual: Visual): void {
+        // close errors modal if visible
+        $('#issuesDisplay').modal("hide");
+
+        eagle.setSelection(visual, Eagle.FileType.Graph);
     }
 
     static showNode(eagle: Eagle, location: Eagle.FileType, node: Node): void {
