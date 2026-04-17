@@ -21,7 +21,7 @@
         "target": "es2015",
         "lib": ["es2021", "dom"],
         "allowJs": false,
-        "types": ["node", "jquery", "bootstrap", "bootstrap-notify"]
+        "types": ["node", "jquery", "jqueryui", "jquery-migrate", "bootstrap", "bootstrap-notify"]
     },
     "include": ["./src/**/*.ts"]
 }
