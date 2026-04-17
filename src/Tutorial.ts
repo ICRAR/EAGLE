@@ -129,6 +129,8 @@ export class Tutorial {
     private description: string;
     private tutorialSteps: TutorialStep[];
 
+    static readonly STEP_INITIATION_TIMEOUT = 510;
+
     constructor(name: string, description: string, tutorialSteps: TutorialStep[]) {
         this.name = name;
         this.description = description;
@@ -283,10 +285,9 @@ export class Tutorial {
         }
 
         //the little wait is waiting for the css animation of the highlighting system
-        // TODO: magic number here, move it to a constant somewhere in the tutorial system
         setTimeout(function () {
             TutorialSystem.activeTut?.openInfoPopUp()
-        }, 510);
+        }, Tutorial.STEP_INITIATION_TIMEOUT);
     }
 
     //a selector press step
@@ -302,10 +303,9 @@ export class Tutorial {
         targetElement.on('click.tutButtonListener', eagle.tutorial().tutPressStepListener).addClass('tutButtonListener')
 
         //the little wait is waiting for the css animation of the highlighting system
-        // TODO: magic number here!
         setTimeout(function () {
             TutorialSystem.activeTut?.openInfoPopUp()
-        }, 510);
+        }, Tutorial.STEP_INITIATION_TIMEOUT);
     }
 
     //these are ground work for future tutorial system functionality
@@ -317,10 +317,9 @@ export class Tutorial {
         }
 
         //the little wait is waiting for the css animation of the highlighting system
-        // TODO: magic number (510) here!
         setTimeout(function () {
             TutorialSystem.activeTut?.openInfoPopUp()
-        }, 510);
+        }, Tutorial.STEP_INITIATION_TIMEOUT);
 
         //attaching an input handler for checking input
         tutStep.getTargetFunc()().on('keydown.tutInputCheckFunc',function(event: JQuery.TriggeredEvent){
@@ -339,7 +338,7 @@ export class Tutorial {
         //the little wait is waiting for the css animation of the highlighting system
         setTimeout(function () {
             TutorialSystem.activeTut?.openInfoPopUp()
-        }, 510);
+        }, Tutorial.STEP_INITIATION_TIMEOUT);
 
         TutorialSystem.conditionCheck = setInterval(function(){TutorialSystem.activeTut.checkConditionFunction(tutStep)}, 100);
     }
