@@ -680,26 +680,58 @@ export class LogicalGraph {
         // copy nodes
         for (const [id, node] of this.nodes()){
             result.nodes().set(id, node.clone());
-            result.nodes.valueHasMutated();
         }
+
+        // flag nodes as having changed
+        result.nodes.valueHasMutated();
 
         // copy edges
         for (const [id, edge] of this.edges()){
-            result.edges().set(id, edge.clone());
-            result.edges.valueHasMutated();
+            const clonedEdge = edge.clone();
 
-            edge.getSrcPort().addEdge(edge);
-            edge.getDestPort().addEdge(edge);
+            // remap cloned edge's node/port references to the cloned graph's nodes/ports
+            const clonedSrcNode = result.nodes().get(edge.getSrcNode().getId() as NodeId);
+            const clonedDestNode = result.nodes().get(edge.getDestNode().getId() as NodeId);
+
+            // if we can't find the source or destination node for this edge in the cloned graph, then something went wrong with cloning, skip this edge and log a warning
+            if (clonedSrcNode === undefined || clonedDestNode === undefined){
+                console.warn("clone(): Could not find source or destination node for edge", edge.getId(), "skipping edge");
+                clonedEdge.setSrcNode(null);
+                clonedEdge.setDestNode(null);
+                continue;
+            }
+
+            clonedEdge.setSrcNode(clonedSrcNode);
+            clonedEdge.setDestNode(clonedDestNode);
+
+            const clonedSrcPort = clonedSrcNode.getFieldById(edge.getSrcPort().getId());
+            const clonedDestPort = clonedDestNode.getFieldById(edge.getDestPort().getId());
+
+            if (clonedSrcPort !== undefined){
+                clonedEdge.setSrcPort(clonedSrcPort);
+                clonedSrcPort.addEdge(clonedEdge);
+            }
+            if (clonedDestPort !== undefined){
+                clonedEdge.setDestPort(clonedDestPort);
+                clonedDestPort.addEdge(clonedEdge);
+            }
+
+            result.edges().set(id, clonedEdge);
         }
+
+        // flag edges as having changed
+        result.edges.valueHasMutated();
 
         // copy graph configs
         for (const graphConfig of this.graphConfigs().values()){
             const clone = graphConfig.clone();
             result.graphConfigs().set(clone.getId(), clone);
-            result.graphConfigs.valueHasMutated();
         }
 
-        //copy active graph config id state
+        // flag graph configs as having changed
+        result.graphConfigs.valueHasMutated();
+
+        // copy active graph config id state
         result.activeGraphConfigId(this.activeGraphConfigId());
 
         return result;
