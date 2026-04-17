@@ -604,7 +604,7 @@ export class Eagle {
         setTimeout(() => {
             this.selectedObjects([]);
             Eagle.selectedLocation(Eagle.FileType.Unknown);
-        }, 100);
+        }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT);
     }
 
     // if selectedObjects contains nothing but one node, return the node, else null
@@ -735,7 +735,7 @@ export class Eagle {
         if (Setting.findValue(Setting.RIGHT_WINDOW_MODE) === Eagle.RightWindowMode.Hierarchy){
             window.setTimeout(function(){
                 Hierarchy.updateDisplay()
-            }, 100)
+            }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT)
         }
     }
 
@@ -3152,11 +3152,11 @@ export class Eagle {
                 window.URL.revokeObjectURL(a.href);
                 document.body.removeChild(a);
                 document.querySelector('body').style.cursor = 'auto';
-            }, 400);
+            }, EagleConfig.STANDARD_UI_LONG_TIMEOUT);
         } finally {
             setTimeout(() => {
             stream.getTracks().forEach((track) => track.stop())
-            }, 500);
+            }, EagleConfig.STANDARD_UI_LONG_TIMEOUT);
         }
     }
 
@@ -4227,7 +4227,7 @@ export class Eagle {
             }else {
                 this.editEdgeComment()
             }
-        }, 100);
+        }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT);
     };
 
     changeNodeParent = async () => {
@@ -4642,7 +4642,7 @@ export class Eagle {
 
                 setTimeout(() => {
                     this.setSelection(edge,Eagle.FileType.Graph)
-                }, 30);
+                }, EagleConfig.STANDARD_UI_TINY_TIMEOUT);
                 resolve(edge);
                 return;
             }

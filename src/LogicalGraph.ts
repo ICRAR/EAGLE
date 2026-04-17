@@ -601,7 +601,7 @@ export class LogicalGraph {
             //focus on and select the name field of the newly added config in the configurations table, ready to rename. this requires a little wait, to allow the ui to update
             setTimeout(() => {
                 $('#graphConfigurationsTableWrapper .activeConfig .column-name input').focus().select()
-            }, 100);
+            }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT);
 
             Utils.showNotification("Graph Config added to Logical Graph", config.fileInfo().name, "success");
         }

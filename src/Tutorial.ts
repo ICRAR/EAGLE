@@ -1,4 +1,5 @@
 import {Eagle} from './Eagle';
+import { EagleConfig } from './EagleConfig';
 import { Utils } from './Utils';
 
 export class TutorialSystem {
@@ -10,6 +11,8 @@ export class TutorialSystem {
     static waitForElementTimer: NodeJS.Timeout | null = null    //this houses the time out timer when waiting for a target element to appear
     static onCoolDown: boolean = false //boolean if the tutorial system is currently on cool down
     static conditionCheck: NodeJS.Timeout | null = null //this stores the condition interval function
+
+    static readonly COOL_DOWN_TIMEOUT: number = 700;
 
     static initiateTutorial(tutorialName: string): void {
         for (const tut of Eagle.tutorials){
@@ -72,12 +75,11 @@ export class TutorialSystem {
     }
 
     // cool-down function that prevents too many actions that would cause the tutorial steps to go out of whack
-    // TODO: magic number 700 here, define this a constant somewhere in the tutorial system
     static startCoolDown(): void {
         TutorialSystem.onCoolDown = true
         setTimeout(function () {
             TutorialSystem.onCoolDown = false
-        }, 700)
+        }, TutorialSystem.COOL_DOWN_TIMEOUT)
     }
 
     static newTutorial(title:string, description:string) : Tutorial {
@@ -120,7 +122,7 @@ export class TutorialSystem {
             $('#paletteList').animate({
                 scrollTop: newScrollPos
             },10);
-        }, 100);
+        }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT);
     }
 }
 

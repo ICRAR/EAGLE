@@ -162,7 +162,7 @@ ko.bindingHandlers.eagleTooltip = {
                     bootstrapTooltip.hide();
                     stillHovering = false
                 }
-            },100)
+            }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT);
         })
     }
 };

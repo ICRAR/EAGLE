@@ -51,6 +51,9 @@ export class EagleConfig {
 
     // General UI
     public static readonly DROPDOWN_DISMISS_DELAY: number = 400;
+    public static readonly STANDARD_UI_TINY_TIMEOUT: number = 20;
+    public static readonly STANDARD_UI_SHORT_TIMEOUT: number = 100;
+    public static readonly STANDARD_UI_LONG_TIMEOUT: number = 500;
     public static readonly EDGE_SVG_SIZE: number = 10000;
     public static readonly EAGLE_TOOLTIP_DEFAULT_MAX_WIDTH: number = 300;
 
