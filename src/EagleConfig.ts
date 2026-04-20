@@ -51,6 +51,9 @@ export class EagleConfig {
 
     // General UI
     public static readonly DROPDOWN_DISMISS_DELAY: number = 400;
+    public static readonly STANDARD_UI_TINY_TIMEOUT: number = 20;
+    public static readonly STANDARD_UI_SHORT_TIMEOUT: number = 100;
+    public static readonly STANDARD_UI_LONG_TIMEOUT: number = 500;
     public static readonly EDGE_SVG_SIZE: number = 10000;
     public static readonly EAGLE_TOOLTIP_DEFAULT_MAX_WIDTH: number = 300;
 
@@ -81,6 +84,8 @@ export class EagleConfig {
     // this is the default margin that should be left on each side
     public static readonly CONSTRUCT_MARGIN: number = 30;
     public static readonly CONSTRUCT_DRAG_OUT_DISTANCE: number = 100;
+
+    public static readonly DUPLICATE_OFFSET: number = 20; // amount (in x and y) by which duplicated nodes will be positioned away from the originals
 
     // number of spaces used for indenting output JSON, makes everything human-readable
     public static readonly JSON_INDENT: number = 4;

@@ -604,7 +604,7 @@ export class Eagle {
         setTimeout(() => {
             this.selectedObjects([]);
             Eagle.selectedLocation(Eagle.FileType.Unknown);
-        }, 100);
+        }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT);
     }
 
     // if selectedObjects contains nothing but one node, return the node, else null
@@ -713,7 +713,7 @@ export class Eagle {
         $('#inspector').addClass('inspectorTransition')
         setTimeout(function(){
             $('#inspector').removeClass('inspectorTransition')
-        },100)
+        }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT)
         
         return Setting.findValue(Setting.INSPECTOR_COLLAPSED_STATE)
     }, this);
@@ -735,7 +735,7 @@ export class Eagle {
         if (Setting.findValue(Setting.RIGHT_WINDOW_MODE) === Eagle.RightWindowMode.Hierarchy){
             window.setTimeout(function(){
                 Hierarchy.updateDisplay()
-            }, 100)
+            }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT)
         }
     }
 
@@ -1085,8 +1085,6 @@ export class Eagle {
 
     // NOTE: parentNode would be null if we are duplicating a selection of objects
     insertGraph = async (nodes: Node[], edges: Edge[], parentNode: Node, errorsWarnings: Errors.ErrorsWarnings) => {
-        const DUPLICATE_OFFSET: number = 20; // amount (in x and y) by which duplicated nodes will be positioned away from the originals
-
         // create map of inserted graph keys to final graph nodes, and of inserted port ids to final graph ports
         const nodeMap: Map<NodeId, Node> = new Map();
         const portMap: Map<FieldId, Field> = new Map();
@@ -1105,7 +1103,7 @@ export class Eagle {
             // set attributes of parentNode
             parentNode.setPosition(parentNodePosition.x+(bbSize/2), parentNodePosition.y+(bbSize/2));
         } else {
-            parentNodePosition = {x: DUPLICATE_OFFSET, y: DUPLICATE_OFFSET};
+            parentNodePosition = {x: EagleConfig.DUPLICATE_OFFSET, y: EagleConfig.DUPLICATE_OFFSET};
         }
 
         // insert nodes from lg into the existing logicalGraph
@@ -1249,7 +1247,7 @@ export class Eagle {
         if(parentNodePosition.extended){
             setTimeout(function(){
                 Eagle.getInstance().centerGraph()
-            },100)
+            }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT)
         }
     }
 
@@ -2489,7 +2487,7 @@ export class Eagle {
         //needed when centering after init of a graph. we need to wait for all the constructs to finish resizing themselves
         setTimeout(function(){
             Eagle.getInstance().centerGraph()
-        },50)
+        }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT);
 
         // check graph
         this.checkGraph();
@@ -3152,11 +3150,11 @@ export class Eagle {
                 window.URL.revokeObjectURL(a.href);
                 document.body.removeChild(a);
                 document.querySelector('body').style.cursor = 'auto';
-            }, 400);
+            }, EagleConfig.STANDARD_UI_LONG_TIMEOUT);
         } finally {
             setTimeout(() => {
             stream.getTracks().forEach((track) => track.stop())
-            }, 500);
+            }, EagleConfig.STANDARD_UI_LONG_TIMEOUT);
         }
     }
 
@@ -4026,7 +4024,7 @@ export class Eagle {
             if(searchAreaExtended){
                 setTimeout(function(){
                     Eagle.getInstance().centerGraph()
-                },100)
+                }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT);
             }
         });
     }
@@ -4227,7 +4225,7 @@ export class Eagle {
             }else {
                 this.editEdgeComment()
             }
-        }, 100);
+        }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT);
     };
 
     changeNodeParent = async () => {
@@ -4341,8 +4339,8 @@ export class Eagle {
             this.addNodeToLogicalGraph(sourceComponent, null, Eagle.AddNodeMode.Default);
 
             // to avoid placing all the selected nodes on top of each other at the same spot, we increment the nodeDropLocation after each node
-            Eagle.nodeDropLocation.x += 20;
-            Eagle.nodeDropLocation.y += 20;
+            Eagle.nodeDropLocation.x += EagleConfig.DUPLICATE_OFFSET;
+            Eagle.nodeDropLocation.y += EagleConfig.DUPLICATE_OFFSET;
         }
 
         // then reset the nodeDropLocation after all have been placed
@@ -4456,11 +4454,13 @@ export class Eagle {
         let suitablePositionFound = false;
         let numIterations = 0;
         let increaseSearchArea = false
-        const MAX_ITERATIONS = 150;
+        const MAX_ITERATIONS_NARROW_SEARCH = 80;
+        const MAX_ITERATIONS_WIDE_SEARCH = 150;
+        const SEARCH_AREA_INCREASE = 300; // when we increase the search area, how much do we increase it by (in pixels)
         let x;
         let y;
         
-        while (!suitablePositionFound && numIterations <= MAX_ITERATIONS){
+        while (!suitablePositionFound && numIterations <= MAX_ITERATIONS_WIDE_SEARCH){
             // get visible screen size
             let minX = Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) ? this.leftWindow().size()+MARGIN: 0+MARGIN;
             let maxX = Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE) ? $('#logicalGraphParent').width() - this.rightWindow().size() - MARGIN : $('#logicalGraphParent').width() - MARGIN;
@@ -4473,10 +4473,10 @@ export class Eagle {
             }
 
             if(increaseSearchArea){
-                minX = minX - 300
-                maxX = maxX + 300
-                minY = minY - 300
-                maxY = maxY + 300
+                minX = minX - SEARCH_AREA_INCREASE
+                maxX = maxX + SEARCH_AREA_INCREASE
+                minY = minY - SEARCH_AREA_INCREASE
+                maxY = maxY + SEARCH_AREA_INCREASE
             }
 
             let randomX
@@ -4492,25 +4492,22 @@ export class Eagle {
                 randomY = Math.floor(Math.random() * (maxY - minY + 1) + minY);
             }
 
-            x = randomX;
-            y = randomY;
-
             // translate the chosen randomised position into graph co-ordinates
-            x = GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(x)
-            y = GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(y)
+            x = GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(randomX)
+            y = GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(randomY)
 
             // check position is suitable, doesn't collide with any existing nodes
             const collision = this.logicalGraph().checkForNodeAt(x, y, radius, false);
             suitablePositionFound = collision === null;
 
             numIterations += 1;
-            if(numIterations>80){
+            if(numIterations > MAX_ITERATIONS_NARROW_SEARCH){
                 increaseSearchArea = true;
             }
         }
 
-        // if we tried to find a suitable position 100 times, just print a console message
-        if (numIterations > MAX_ITERATIONS){
+        // if we tried to find a suitable position too many times, just print a console message
+        if (numIterations > MAX_ITERATIONS_WIDE_SEARCH){
             console.warn("Tried to find suitable position for new node", numIterations, "times and failed, using the last try by default.");
         }
 
@@ -4642,7 +4639,7 @@ export class Eagle {
 
                 setTimeout(() => {
                     this.setSelection(edge,Eagle.FileType.Graph)
-                }, 30);
+                }, EagleConfig.STANDARD_UI_TINY_TIMEOUT);
                 resolve(edge);
                 return;
             }

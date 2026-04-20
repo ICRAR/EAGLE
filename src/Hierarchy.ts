@@ -85,13 +85,14 @@ export class Hierarchy {
         function setNodeRelatives(){
             nodeRelative.forEach(function(element:Node){
                 let iterations = 0;
+                const MAX_ITERATIONS = 32;
     
                 if (element === null){
                     return
                 }
     
                 while (true){
-                    if (iterations > 32){
+                    if (iterations > MAX_ITERATIONS){
                         console.error("too many iterations in nodeRelativeForEach");
                         return
                     }

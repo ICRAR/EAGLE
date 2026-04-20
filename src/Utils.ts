@@ -971,7 +971,7 @@ export class Utils {
     }
 
     static showShortcutsModal() : void {
-        if(!Eagle.shortcutModalCooldown || Date.now() >= (Eagle.shortcutModalCooldown + 500)){
+        if(!Eagle.shortcutModalCooldown || Date.now() >= (Eagle.shortcutModalCooldown + EagleConfig.STANDARD_UI_LONG_TIMEOUT)){
             Eagle.shortcutModalCooldown = Date.now()
             $('#shortcutsModal').modal("show");
         }
@@ -2382,13 +2382,13 @@ export class Utils {
         eagle.setSelection(node, location);
     }
 
-    static showField(eagle: Eagle, location: Eagle.FileType, node: Node, field: Field) :void {
+    static showField(eagle: Eagle, location: Eagle.FileType, node: Node, field: Field): void {
         this.showNode(eagle, location, node)
 
         // TODO: can we remove this timeout now, since the eagle.setSelection() is done immediately (within showNode())
         setTimeout(function(){
             ParameterTable.openTableAndSelectField(node, field)
-        }, 100);
+        }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT);
     }
 
     static showGraphConfig(eagle: Eagle, graphConfigId: GraphConfigId){
@@ -2400,7 +2400,7 @@ export class Utils {
         // highlight the name of the graph config
         setTimeout(() => {
             $('#tableRow_' + graphConfig.fileInfo().name).focus().select()
-        }, 100);
+        }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT);
     }
 
     static generateNewNodeId(object: Palette | LogicalGraph, node: Node){
