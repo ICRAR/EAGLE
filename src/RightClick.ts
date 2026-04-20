@@ -456,7 +456,7 @@ export class RightClick {
         }
 
         const funcCodeField = rightClickObject.findFieldByDisplayText(Daliuge.FieldName.FUNC_CODE);
-        ParameterTable.requestEditValueField(funcCodeField, false)
+        ParameterTable.requestEditValueField(funcCodeField)
     }
 
     // TODO: event var used in function is the deprecated global, we should get access to the event via some other method
