@@ -34,26 +34,26 @@ export class KeyboardShortcut {
     eventType: string;
     tags: string[];           // tags or key words that are associated with the function to help searchability
     icon: string;
-    run: (eagle: Eagle, event: KeyboardEvent) => void;
+    run: (eagle: Eagle, event: KeyboardEvent | null) => void;
 
     constructor(options: KeyboardShortcut.Options){
         this.id = options.id;
         this.text = options.text;
         this.run = options.run;
 
-        if ("keys" in options){
+        if (typeof options.keys !== 'undefined'){
             this.keys = options.keys;
             this.eventType = "keydown";
         } else {
             this.keys = [];
             this.eventType = "";
         }
-        if ("tags" in options){
+        if (typeof options.tags !== 'undefined'){
             this.tags = options.tags;
         } else {
             this.tags = [];
         }
-        if ("icon" in options){
+        if (typeof options.icon !== 'undefined'){
             this.icon = options.icon;
         } else {
             this.icon = "build";
@@ -101,7 +101,7 @@ export class KeyboardShortcut {
             text: text,
             tags: tags,
             icon: "book",
-            run: (eagle): void => {QuickActions.quickOpenDocsLink(url);}
+            run: (_eagle): void => {QuickActions.quickOpenDocsLink(url);}
         });
     }
 
@@ -474,21 +474,21 @@ export class KeyboardShortcut {
             text: "Toggle left window",
             keys: [new Key("ArrowLeft")],
             tags: ['close','open'],
-            run:  (eagle): void => {SideWindow.toggleShown('left');}
+            run:  (_eagle): void => {SideWindow.toggleShown('left');}
         }),
         new KeyboardShortcut({
             id: "toggle_right_window",
             text: "Toggle right window",
             keys: [new Key("ArrowRight")],
             tags: ['close','open'],
-            run: (eagle): void => {SideWindow.toggleShown('right')}
+            run: (_eagle): void => {SideWindow.toggleShown('right')}
         }),
         new KeyboardShortcut({
             id: "toggle_bottom_window",
             text: "Toggle bottom window",
             keys: [new Key("ArrowDown")],
             tags: ['close','open'],
-            run: (eagle): void => {SideWindow.toggleShown('bottom')}
+            run: (_eagle): void => {SideWindow.toggleShown('bottom')}
         }),
         new KeyboardShortcut({
             id: "toggle_all_window",
@@ -509,20 +509,20 @@ export class KeyboardShortcut {
             text: "Open Parameter Table",
             keys: [new Key("t")],
             tags: ['fields','field','node'],
-            run: (eagle): void => {ParameterTable.toggleTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal);}
+            run: (_eagle): void => {ParameterTable.toggleTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal);}
         }),
         new KeyboardShortcut({
             id: "open_graph_attributes_configuration_table",
             text: "Open Graph Attributes Configuration Table",
             keys: [new Key("t", Modifier.Shift)],
             tags: ['fields','field','node','favourites','favorites'],
-            run: (eagle): void => {ParameterTable.toggleTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.Normal);}
+            run: (_eagle): void => {ParameterTable.toggleTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.Normal);}
         }),
         new KeyboardShortcut({
             id: "open_graph_configurations_table",
             text: "Open Graph Configurations Table",
             keys: [new Key("t", Modifier.Alt), new Key("t", Modifier.Ctrl)],
-            run: (eagle): void => {GraphConfigurationsTable.toggleTable();}
+            run: (_eagle): void => {GraphConfigurationsTable.toggleTable();}
         }),
         new KeyboardShortcut({
             id: "open_repository_tab",
@@ -609,13 +609,13 @@ export class KeyboardShortcut {
             id: "fix_all",
             text: "Fix all errors in graph",
             keys: [new Key("f")],
-            run: (eagle): void => { Errors.fixAll(); }
+            run: (_eagle): void => { Errors.fixAll(); }
         }),
         new KeyboardShortcut({
             id: "quick_action",
             text: "Quick Action",
             keys: [new Key("`"), new Key("\\")],
-            run: (eagle): void => {QuickActions.initiateQuickAction();}
+            run: (_eagle): void => {QuickActions.initiateQuickAction();}
         }),
 
         // help menu
@@ -645,7 +645,7 @@ export class KeyboardShortcut {
         new KeyboardShortcut({
             id: "open_keyboard_shortcuts",
             text: "Open Keyboard Shortcut",
-            run: (eagle): void => {Utils.showShortcutsModal();}
+            run: (_eagle): void => {Utils.showShortcutsModal();}
         }),
         new KeyboardShortcut({
             id: "show_online_docs",
@@ -675,19 +675,19 @@ export class KeyboardShortcut {
             text: "Start UI Quick Intro Tutorial",
             tags: ['ui','interface'],
             icon: 'question_mark',
-            run: (eagle): void => {TutorialSystem.initiateTutorial('Quick Start');}
+            run: (_eagle): void => {TutorialSystem.initiateTutorial('Quick Start');}
         }),
         new KeyboardShortcut({
             id: "graph_building_tutorial",
             text: "Start Graph Building Tutorial",
             icon: 'question_mark',
-            run: (eagle): void => {TutorialSystem.initiateTutorial('Graph Building');}
+            run: (_eagle): void => {TutorialSystem.initiateTutorial('Graph Building');}
         }),
         new KeyboardShortcut({
             id: "graph_config_tutorial",
             text: "Start Graph Configuration Tutorial",
             icon: 'question_mark',
-            run: (eagle): void => {TutorialSystem.initiateTutorial('Graph Configurations');}
+            run: (_eagle): void => {TutorialSystem.initiateTutorial('Graph Configurations');}
         }),
     ];
 
@@ -718,7 +718,7 @@ export class KeyboardShortcut {
         KeyboardShortcut.QUICK_ACTION_DOCS("docs_physicalGraph", "Physical Graph", ['documentation','help','components'], 'https://eagle-dlg.readthedocs.io/en/master/graphs.html#physical-graph'),
     ];
 
-    static findById(id: string) : KeyboardShortcut {
+    static findById(id: string) : KeyboardShortcut | null {
         for (const shortcut of KeyboardShortcut.shortcuts){
             if (shortcut.id === id){
                 return shortcut;
@@ -743,7 +743,7 @@ export class KeyboardShortcut {
         return ks ? ks.text + ' ' + ks.getKeysText(true) : "";
     }
 
-    static idToRun(id: string): (eagle: Eagle, event: KeyboardEvent) => void {
+    static idToRun(id: string): ((eagle: Eagle, event: KeyboardEvent) => void) | undefined {
         const ks = KeyboardShortcut.findById(id);
         return ks ? ks.run : undefined;
     }
@@ -794,6 +794,7 @@ export namespace KeyboardShortcut{
         keys?: Key[],
         tags?: string[],
         icon?: string,
-        run: (eagle: Eagle, event: KeyboardEvent) => void
+        run: (eagle: Eagle, event: KeyboardEvent | null) => void
     }
 }
+    

@@ -2,11 +2,9 @@ import * as ko from "knockout";
 
 import { Daliuge } from "./Daliuge";
 import { Eagle } from './Eagle';
-import { Edge } from "./Edge";
 import { Field } from './Field';
 import { LogicalGraph } from "./LogicalGraph";
 import { Node } from "./Node";
-import { Palette } from "./Palette";
 import { RightClick } from "./RightClick";
 import { Setting } from "./Setting";
 import { UiModeSystem } from "./UiModes";
@@ -40,7 +38,7 @@ export class ParameterTable {
         ParameterTable.selectionName = ko.observable('');
         ParameterTable.selectionReadonly = ko.observable(false);
 
-        ParameterTable.fields = ko.observableArray([]);
+        ParameterTable.fields = ko.observableArray<Field>([]);
     }
 
     static setActiveColumnVisibility = () :void => {
@@ -62,24 +60,35 @@ export class ParameterTable {
     } 
 
     static formatTableInspectorSelection = () : string => {
-        if (ParameterTable.selection() === null){
+        const selection = ParameterTable.selection();
+        const selectionParent = ParameterTable.selectionParent();
+
+        if (selection === null){
             return "";
         }
 
-        if (Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.NodeParameterTable || Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ConfigParameterTable){
-            return ParameterTable.selectionParent().getDisplayText() + " - " + ParameterTable.selectionName();
+        if (selectionParent === null){
+            return "";
+        }
+
+        const bottomWindowMode = Setting.findValue<Eagle.BottomWindowMode>(Setting.BOTTOM_WINDOW_MODE, Eagle.BottomWindowMode.None);
+        if ([Eagle.BottomWindowMode.NodeParameterTable, Eagle.BottomWindowMode.ConfigParameterTable].includes(bottomWindowMode)){
+            return selectionParent.getDisplayText() + " - " + ParameterTable.selectionName();
         } else {
             return "Unknown";
         }
     }
 
     static formatTableInspectorValue = () : string => {
-        if (ParameterTable.selection() === null){
+        const selection = ParameterTable.selection();
+
+        if (selection === null){
             return "";
         }
 
-        if (Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.NodeParameterTable || Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ConfigParameterTable){
-            return ParameterTable.selection();
+        const bottomWindowMode = Setting.findValue<Eagle.BottomWindowMode>(Setting.BOTTOM_WINDOW_MODE, Eagle.BottomWindowMode.None);
+        if ([Eagle.BottomWindowMode.NodeParameterTable, Eagle.BottomWindowMode.ConfigParameterTable].includes(bottomWindowMode)){
+            return selection;
         } else {
             return "Unknown";
         }
@@ -93,6 +102,12 @@ export class ParameterTable {
 
         const selected = ParameterTable.selectionName()
         const selectedForm = ParameterTable.selectionParent()
+
+        if (selectedForm === null){
+            console.warn("ParameterTable.tableInspectorUpdateSelection(): Can't find selection parent to update");
+            return;
+        }
+
         if(selected === 'displayText'){
             selectedForm.setDisplayText(value)
         } else if(selected === 'value'){
@@ -124,18 +139,20 @@ export class ParameterTable {
         //resets the table field selections used for the little editor at the top of the table
         ParameterTable.resetSelection()
 
-        switch (Setting.findValue(Setting.BOTTOM_WINDOW_MODE)){
+        const bottomWindowMode = Setting.findValue<Eagle.BottomWindowMode>(Setting.BOTTOM_WINDOW_MODE, Eagle.BottomWindowMode.None);
+
+        switch (bottomWindowMode){
             case Eagle.BottomWindowMode.NodeParameterTable:
                 return ParameterTable.fields();
 
             case Eagle.BottomWindowMode.ConfigParameterTable:
                 const lg: LogicalGraph = eagle.logicalGraph();
-                const config: GraphConfig = lg.getActiveGraphConfig();
+                const config = lg.getActiveGraphConfig();
                 const displayedFields: Field[] = [];
 
                 console.log("ParameterTable.getTableFields(): Displaying fields for config:", config ? config.fileInfo().name : "<No Config>");
 
-                if (!config){
+                if (typeof config === 'undefined'){
                     return [];
                 }
 
@@ -144,8 +161,7 @@ export class ParameterTable {
                         const lgNode = lg.getNodeById(graphConfigNode.getNode().getId());
 
                         if (typeof lgNode === 'undefined'){
-                            const missingNodeField: Field = new Field(graphConfigField.getField().getId(), "<Missing Node:" + graphConfigNode.getNode().getId() +">", graphConfigField.getValue(), "?", graphConfigField.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
-                            missingNodeField.setNode(lgNode);
+                            const missingNodeField: Field = new Field(graphConfigNode.getNode(), graphConfigField.getField().getId(), "<Missing Node:" + graphConfigNode.getNode().getId() +">", graphConfigField.getValue(), "?", graphConfigField.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
                             displayedFields.push(missingNodeField);
                             continue;
                         }
@@ -153,8 +169,7 @@ export class ParameterTable {
                         const lgField = lgNode.getFieldById(graphConfigField.getField().getId());
         
                         if (typeof lgField === 'undefined'){
-                            const missingField: Field = new Field(graphConfigField.getField().getId(), "<Missing Field: " + graphConfigField.getField().getId() + ">", graphConfigField.getValue(), "?", graphConfigField.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
-                            missingField.setNode(lgNode);
+                            const missingField: Field = new Field(lgNode, graphConfigField.getField().getId(), "<Missing Field: " + graphConfigField.getField().getId() + ">", graphConfigField.getValue(), "?", graphConfigField.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
                             displayedFields.push(missingField);
                             continue;
                         }
@@ -259,17 +274,21 @@ export class ParameterTable {
     static getNodeLockedState = (field:Field) : boolean => {
         const eagle: Eagle = Eagle.getInstance();
 
+        const bottomWindowMode = Setting.findValue<Eagle.BottomWindowMode>(Setting.BOTTOM_WINDOW_MODE, Eagle.BottomWindowMode.None);
+
         // this handles a special case where EAGLE is displaying the "Graph Configuration Attributes Table"
         // all the field names shown in that table should be locked (readonly)
-        if (Setting.find(Setting.BOTTOM_WINDOW_MODE).value() === Eagle.BottomWindowMode.ConfigParameterTable){
+        if (bottomWindowMode === Eagle.BottomWindowMode.ConfigParameterTable){
             return field.getNode().isLocked()
         }
 
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
-            if(eagle.selectedNode() === null){
+            const selectedNode = eagle.selectedNode();
+
+            if(selectedNode === null){
                 return false
             }
-            return eagle.selectedNode().isLocked()
+            return selectedNode.isLocked()
         }else{
             if(field.getNode() === null){
                 return false
@@ -281,9 +300,9 @@ export class ParameterTable {
     // TODO: move to Eagle.ts? only depends on Eagle state and settings
     static getParamsTableEditState = () : boolean => {
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
-            return !Setting.findValue(Setting.ALLOW_PALETTE_EDITING)
+            return !Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false)
         }else{
-            return !Setting.findValue(Setting.ALLOW_GRAPH_EDITING) && !Setting.findValue(Setting.ALLOW_COMPONENT_EDITING);
+            return !Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false) && !Setting.findValue<boolean>(Setting.ALLOW_COMPONENT_EDITING, false);
         }
     }
 
@@ -320,15 +339,24 @@ export class ParameterTable {
     }
 
     // when a field value is modified in the parameter table, we need to flag the containing palette or logical graph as modified
-    static fieldValueChanged(field: Field) : void {
+    static fieldValueChanged(_field: Field) : void {
         const eagle = Eagle.getInstance();
 
         switch (Eagle.selectedLocation()){
             case Eagle.FileType.Palette: {
-                const paletteNode: Node = eagle.selectedNode();
-                console.assert(paletteNode instanceof Node)
+                const paletteNode = eagle.selectedNode();
+                
+                if (paletteNode === null){
+                    console.warn("ParameterTable.fieldValueChanged(): Could not find selected palette node to mark as modified");
+                    return;
+                }
 
-                const containingPalette: Palette = eagle.findPaletteContainingNode(paletteNode.getId());
+                const containingPalette = eagle.findPaletteContainingNode(paletteNode.getId());
+
+                if (typeof containingPalette === 'undefined'){
+                    console.warn("ParameterTable.fieldValueChanged(): Could not find containing palette to mark as modified");
+                    return;
+                }
 
                 containingPalette.fileInfo().modified = true;
                 break;
@@ -413,7 +441,7 @@ export class ParameterTable {
     }
 
     static async _addRemoveField(currentField: Field, add: boolean): Promise<void> {
-        let graphConfig: GraphConfig = Eagle.getInstance().logicalGraph().getActiveGraphConfig();
+        let graphConfig = Eagle.getInstance().logicalGraph().getActiveGraphConfig();
 
         if (graphConfig){
             if (add){
@@ -463,10 +491,10 @@ export class ParameterTable {
 
     static async requestEditDescriptionInModal(field:Field): Promise<void> {
         const eagle: Eagle = Eagle.getInstance();
-        const node: Node = eagle.selectedNode();
+        const selectedNode = eagle.selectedNode();
 
         // check that we can actually find the node that this field belongs to
-        if (node === null){
+        if (selectedNode === null){
             Utils.showNotification("Warning", "Could not find node containing this field", "warning");
             return;
         }
@@ -479,7 +507,7 @@ export class ParameterTable {
 
         let fieldDescription: string;
         try {
-            fieldDescription = await Utils.requestUserText("Edit Field Description", "Please edit the description for: " + node.getName() + ' - ' + field.getDisplayText(), field.getDescription());
+            fieldDescription = await Utils.requestUserText("Edit Field Description", "Please edit the description for: " + selectedNode.getName() + ' - ' + field.getDisplayText(), field.getDescription());
         } catch (error) {
             console.error(error);
             return;
@@ -491,14 +519,22 @@ export class ParameterTable {
 
     static async requestEditValueField(field:Field, defaultValue: boolean) : Promise<void> {
         const eagle: Eagle = Eagle.getInstance();
-        const node: Node = eagle.selectedNode();
+        const selectedNode = eagle.selectedNode();
+
+        // check that we can actually find the node that this field belongs to
+        if (selectedNode === null){
+            Utils.showNotification("Warning", "Could not find node containing this field", "warning");
+            return;
+        }
 
         let editingField: Field | GraphConfigField // this will either be the normal field or the configured field if applicable
-        let editingValue: string // this will either be the value or default value or configured value
+        let editingValue: string | null // this will either be the value or default value or configured value
+
+        const graphConfigField = field.getGraphConfigField();
 
         //checking if the field is a configured field
-        if(!defaultValue && field.getGraphConfigField()){
-            editingField = field.getGraphConfigField()
+        if(!defaultValue && graphConfigField){
+            editingField = graphConfigField
             editingValue = editingField.getValue()
         }else{
             editingField = field
@@ -512,9 +548,9 @@ export class ParameterTable {
         let fieldValue: string;
         try {
             if (this.isCodeField(field.getDisplayText())){ 
-                fieldValue = await Utils.requestUserCode("python", "Edit Value  |  Node: " + node.getName() + " - Field: " + field.getDisplayText(), editingValue, false);
+                fieldValue = await Utils.requestUserCode("python", "Edit Value  |  Node: " + selectedNode.getName() + " - Field: " + field.getDisplayText(), editingValue, false);
             }else {
-                fieldValue = await Utils.requestUserText("Edit Value  |  Node: " + node.getName() + " - Field: " + field.getDisplayText(), "Please edit the value for: " + node.getName() + ' - ' + field.getDisplayText(), editingValue, false);
+                fieldValue = await Utils.requestUserText("Edit Value  |  Node: " + selectedNode.getName() + " - Field: " + field.getDisplayText(), "Please edit the value for: " + selectedNode.getName() + ' - ' + field.getDisplayText(), editingValue, false);
             }
         } catch (error) {
             console.error(error);
@@ -532,14 +568,29 @@ export class ParameterTable {
     static async requestEditCommentInModal(currentField:Field): Promise<void> {
         const eagle: Eagle = Eagle.getInstance();
         const currentNode: Node = currentField.getNode();
-        const configField: GraphConfigField = eagle.logicalGraph().getActiveGraphConfig().getNodeById(currentNode.getId()).getFieldById(currentField.getId());
+        const activeGraphConfig = eagle.logicalGraph().getActiveGraphConfig();
+
+        if (typeof activeGraphConfig === 'undefined'){
+            console.warn("No active graph configuration to edit field comment in");
+            return;
+        }
+
+        //TODO: can we use: const configField = currentField.getGraphConfigField();
+        const configField: GraphConfigField | undefined = activeGraphConfig?.getNodeById(currentNode.getId())?.getFieldById(currentField.getId());
+
+        if (typeof configField === 'undefined'){
+            console.warn("Could not find configuration field to edit comment in");
+            return;
+        }
 
         let fieldComment: string;
         try {
             fieldComment = await Utils.requestUserText("Edit Field Comment", "Please edit the comment for: " + currentNode.getName() + ' - ' + currentField.getDisplayText(), configField.getComment());
-        } catch (error){
-            // set the description on the field
+            // set the comment on the field
             configField.setComment(fieldComment);
+        } catch (error){
+            console.error(error);
+            return;
         }
     }
 
@@ -612,14 +663,14 @@ export class ParameterTable {
 
     static toggleTable = (mode: Eagle.BottomWindowMode, selectType: ParameterTable.SelectType) : void => {
         // if user in student mode, abort
-        const inStudentMode: boolean = Setting.findValue(Setting.STUDENT_SETTINGS_MODE);
+        const inStudentMode: boolean = Setting.findValue<boolean>(Setting.STUDENT_SETTINGS_MODE, false);
         if (inStudentMode && mode === Eagle.BottomWindowMode.NodeParameterTable){
             Utils.showNotification("Student Mode", "Unable to open Parameter Table in student mode", "danger", false);
             return;
         }
 
         //if we are already in the requested mode, we can toggle the bottom window
-        if(Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === mode){
+        if(Setting.findValue<Eagle.BottomWindowMode>(Setting.BOTTOM_WINDOW_MODE, Eagle.BottomWindowMode.None) === mode){
             SideWindow.toggleShown('bottom')
         }else{
             this.openTable(mode,selectType)
@@ -634,7 +685,8 @@ export class ParameterTable {
             $('.modal.show').modal('hide')
         }
 
-        Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(mode)
+        //set the bottom window mode setting to the requested mode
+        Setting.setValue(Setting.BOTTOM_WINDOW_MODE, mode);
 
         //open the bottom window
         SideWindow.setShown('bottom',true)
@@ -668,7 +720,13 @@ export class ParameterTable {
     }
 
     static addEmptyTableRow = () : void => {
-        const selectedNode: Node = Eagle.getInstance().selectedNode();
+        const selectedNode = Eagle.getInstance().selectedNode();
+
+        if (selectedNode === null){
+            console.warn("No selected node to add field to");
+            return;
+        }
+
         selectedNode.addEmptyField();
 
         const fieldIndex = selectedNode.getNumFields()-1;
@@ -735,12 +793,18 @@ export class ParameterTable {
     static deleteTableRow = (field: Field) : void => {
         const eagle = Eagle.getInstance()
 
-        eagle.logicalGraph().removeFieldFromNodeById(eagle.selectedNode(),field.getId())
+        const selectedNode = eagle.selectedNode();
+        if(selectedNode === null){
+            console.warn("No selected node to delete field from");
+            return;
+        }
+
+        eagle.logicalGraph().removeFieldFromNodeById(selectedNode, field.getId())
         eagle.selectedObjects.valueHasMutated()
         eagle.flagActiveFileModified()
 
-        //update the parameter table fields array
-        ParameterTable.updateContent(eagle.selectedNode())
+        // update the parameter table fields array
+        ParameterTable.updateContent(selectedNode)
     }
 
     static getCurrentParamReadonly = (field: Field) : boolean => {
@@ -751,13 +815,13 @@ export class ParameterTable {
         }
 
         if(Eagle.selectedLocation() === Eagle.FileType.Palette){
-            if(Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
+            if(Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false)){
                 return false;
             }else{
                 return field.isReadonly();
             }
         }else{
-            if(Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)){
+            if(Setting.findValue<boolean>(Setting.ALLOW_COMPONENT_EDITING, false)){
                 return false;
             }else{
                 return field.isReadonly();
@@ -772,21 +836,22 @@ export class ParameterTable {
             return true;
         }
 
-        if(Eagle.selectedLocation() === Eagle.FileType.Palette && Setting.findValue(Setting.ALLOW_PALETTE_EDITING)){
+        if(Eagle.selectedLocation() === Eagle.FileType.Palette && Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false)){
             return false;
         }
         
-        if (Eagle.selectedLocation() != Eagle.FileType.Palette && Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)){
+        if (Eagle.selectedLocation() != Eagle.FileType.Palette && Setting.findValue<boolean>(Setting.ALLOW_COMPONENT_EDITING, false)){
             return false;
         }
         
-        if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.ValueEditingPermission.ReadOnly){
+        const valueEditingPermissions = Setting.findValue<Setting.ValueEditingPermission>(Setting.VALUE_EDITING_PERMS, Setting.ValueEditingPermission.Normal);
+        if(valueEditingPermissions === Setting.ValueEditingPermission.ReadOnly){
             return false;
         }
-        if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.ValueEditingPermission.Normal){
+        if(valueEditingPermissions === Setting.ValueEditingPermission.Normal){
             return field.isReadonly();
         }
-        if(Setting.findValue(Setting.VALUE_EDITING_PERMS) === Setting.ValueEditingPermission.ConfigOnly){
+        if(valueEditingPermissions === Setting.ValueEditingPermission.ConfigOnly){
             return field.isReadonly();
         }
         
@@ -818,7 +883,7 @@ export class ParameterTable {
         }
     }
 
-    static updateContent = (node: Node) : void => {
+    static updateContent = (node: Node | null) : void => {
         if (node === null){
             ParameterTable.copyFields([]);
         } else {
@@ -898,14 +963,13 @@ export class ColumnVisibilities {
         return this.uiModeName;
     }
 
-    getModeByName = (name:string) : ColumnVisibilities => {
-        let columnVisibilityResult:ColumnVisibilities = null
-        columnVisibilities.forEach(function(columnVisibility){
+    getModeByName = (name: string) : ColumnVisibilities | undefined => {
+        for (const columnVisibility of columnVisibilities){
             if(columnVisibility.getModeName() === name){
-                columnVisibilityResult = columnVisibility
+                return columnVisibility
             }
-        })
-        return columnVisibilityResult
+        }
+        return undefined;
     }
 
     setModeName = (newUiModeName:string) : void => {
@@ -969,67 +1033,67 @@ export class ColumnVisibilities {
     }
 
     //these toggle functions are used in the knockout for the ui elements
-    private toggleKeyAttribute = () : void => {
+    toggleKeyAttribute = () : void => {
         this.keyAttribute(!this.keyAttribute());
         this.saveToLocalStorage()
     }
 
-    private toggleDisplayText = () : void => {
-            this.displayText(!this.displayText());
-            this.saveToLocalStorage()
+    toggleDisplayText = () : void => {
+        this.displayText(!this.displayText());
+        this.saveToLocalStorage()
     }
 
-    private toggleFieldId = () : void => {
-            this.fieldId(!this.fieldId());
-            this.saveToLocalStorage()
+    toggleFieldId = () : void => {
+        this.fieldId(!this.fieldId());
+        this.saveToLocalStorage()
     }
 
-    private toggleValue = () : void => {
-            this.value(!this.value());
-            this.saveToLocalStorage()
+    toggleValue = () : void => {
+        this.value(!this.value());
+        this.saveToLocalStorage()
     }
 
-    private toggleReadOnly = () : void => {
+    toggleReadOnly = () : void => {
         this.readOnly(!this.readOnly());
         this.saveToLocalStorage()
     }
 
-    private toggleDefaultValue = () : void => {
+    toggleDefaultValue = () : void => {
         this.defaultValue(!this.defaultValue());
         this.saveToLocalStorage()
     }
 
-    private toggleDescription = () : void => {
+     toggleDescription = () : void => {
         this.description(!this.description());
         this.saveToLocalStorage()
     }
 
-    private toggleType = () : void => {
+    toggleType = () : void => {
         this.type(!this.type());
         this.saveToLocalStorage()
     }
 
-    private toggleParameterType = () : void => {
+    toggleParameterType = () : void => {
         this.parameterType(!this.parameterType());
         this.saveToLocalStorage()
     }
 
-    private toggleUsage = () : void => {
+    toggleUsage = () : void => {
         this.usage(!this.usage());
         this.saveToLocalStorage()
     }
 
-    private toggleEncoding = () : void => {
+    toggleEncoding = () : void => {
         this.encoding(!this.encoding());
         this.saveToLocalStorage()
     }
 
-    private toggleFlags = () : void => {
+    toggleFlags = () : void => {
         this.flags(!this.flags());
         this.saveToLocalStorage()
     }
 
-    private toggleActions = () : void => {
+    toggleActions = () : void => {
         this.actions(!this.actions());
         this.saveToLocalStorage()
     }
@@ -1060,14 +1124,27 @@ export class ColumnVisibilities {
     }
 
     loadFromLocalStorage = () : void => {
-        const columnVisibilitiesObjArray : any[] = JSON.parse(localStorage.getItem('ColumnVisibilities'))
+        const columnVisibilities = localStorage.getItem('ColumnVisibilities')
+        if(columnVisibilities === null){
+            console.warn("No saved column visibilities found in local storage");
+            return;
+        }
+
+        const columnVisibilitiesObjArray : any[] = JSON.parse(columnVisibilities)
         const that = ParameterTable.getActiveColumnVisibility()
         if(columnVisibilitiesObjArray === null){
             return
         }else{
             columnVisibilitiesObjArray.forEach(function(columnVisibility){
 
-                const columnVisActual:ColumnVisibilities = that.getModeByName(columnVisibility.name)
+                const columnVisActual = that.getModeByName(columnVisibility.name)
+
+                // check that we found a matching mode
+                if (typeof columnVisActual === 'undefined'){
+                    console.warn("Could not find column visibility mode with name: " + columnVisibility.name);
+                    return;
+                }
+
                 if(columnVisibility.keyAttribute != null){
                     columnVisActual.setKeyAttribute(columnVisibility.keyAttribute)
                 }
