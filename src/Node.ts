@@ -106,15 +106,15 @@ export class Node {
 
         this.issues = ko.observableArray<{issue:Errors.Issue, validity:Errors.Validity}>([]);
 
-        //graph related things
+        // graph related things
         this.expanded = ko.observable(true);
         this.keepExpanded = ko.observable(false);
         this.peek = ko.observable(false);
 
-        this.color = ko.observable(categoryData.color);//Utils.getColorForNode(this));
+        this.color = ko.observable(categoryData.color);
         this.drawOrderHint = ko.observable(0);
 
-        this.radius = ko.observable(categoryData.radius);//Utils.getRadiusForNode(this));
+        this.radius = ko.observable(categoryData.radius);
     }
 
     getId = () : NodeId => {

@@ -24,7 +24,8 @@
 
 import * as ko from "knockout";
 import $ from "jquery";
-// Note: jqueryMigrate and jqueryui are included as dependencies in the HTML template
+import "jquery-migrate";
+import "jqueryui";
 import * as bootstrap from 'bootstrap';
 
 import { Category } from './Category';
@@ -184,14 +185,6 @@ $(function(){
         //reset parameter table selection
         ParameterTable.resetSelection()
     });
-
-    $('.modal').on('shown.bs.modal',function(){
-        // modal draggables
-        //the any type is required so we don't have an error when building. at runtime on eagle this actually functions without it.
-        (<any>$('.modal-dialog')).draggable({
-            handle: ".modal-header"
-        });
-    })
 
     //increased click bubble for edit modal flag booleans
     $(".componentCheckbox").on("click",function(event: JQuery.TriggeredEvent){

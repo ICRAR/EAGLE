@@ -28,7 +28,7 @@
         "esModuleInterop": true,
         "isolatedModules": true,
         "allowJs": false,
-        "types": ["node", "jquery", "bootstrap", "bootstrap-notify"]
+        "types": ["node", "jquery", "jqueryui", "jquery-migrate", "bootstrap", "bootstrap-notify"]
     },
     "include": ["./src/**/*.ts"],
     "exclude": ["node_modules", "static", "build", "e2e"]
