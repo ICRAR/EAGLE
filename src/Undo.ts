@@ -34,11 +34,22 @@ import { Utils } from './Utils';
 
 class Snapshot {
     description: ko.Observable<string>;
-    data : ko.Observable<object>;
+    data: ko.Observable<object>;
+    hash: number;
 
     constructor(description: string, data: object){
         this.description = ko.observable(description);
         this.data = ko.observable(data);
+        this.hash = Snapshot.hashObject(data);
+    }
+
+    static hashObject(obj: object): number {
+        const str = JSON.stringify(obj);
+        let hash = 5381;
+        for (let i = 0; i < str.length; i++) {
+            hash = (((hash << 5) + hash) ^ str.charCodeAt(i)) | 0;
+        }
+        return hash;
     }
 }
 
@@ -75,15 +86,15 @@ export class Undo {
         const previousIndex = (this.current() + Undo.MEMORY_SIZE - 1) % Undo.MEMORY_SIZE;
         const previousSnapshot : Snapshot = this.memory()[previousIndex];
         const newContent: object = LogicalGraph.toOJSJson(eagle.logicalGraph(), false)
+        const newSnapshot: Snapshot = new Snapshot(description, newContent);
 
         // check if newContent matches old content, if so, no need to push
-        // TODO: maybe speed this up with checksums? or maybe not required
-        if (previousSnapshot !== null && previousSnapshot.data() === newContent){
+        if (previousSnapshot !== null && previousSnapshot.hash === newSnapshot.hash){
             console.log("Undo.pushSnapshot() : content hasn't changed, abort!");
             return;
         }
 
-        this.memory()[this.current()] = new Snapshot(description, newContent);
+        this.memory()[this.current()] = newSnapshot;
         this.memory.valueHasMutated();
         this.front((this.current() + 1) % Undo.MEMORY_SIZE);
         this.current(this.front());
