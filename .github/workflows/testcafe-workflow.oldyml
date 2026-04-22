@@ -37,7 +37,7 @@ jobs:
       - name: Compile Typescript
         run: tsc
       - name: Start server
-        run: python eagleServer/eagleServer.py -t /tmp &
+        run: python eagleServer/eagleServer.py -t /tmp --debug &
       #- name: Run tests
       #  uses: DevExpress/testcafe-action@latest
       #  env:

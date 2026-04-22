@@ -24,17 +24,18 @@ This is the main module of the EAGLE server side code.
 """
 import argparse
 import base64
+import certifi
 import datetime
-from fileinput import filename
 import json
 import logging
 import os
 import sys
-import tempfile
-import six
 import subprocess
 
+import ipaddress
+import socket
 import urllib.request
+import urllib.parse
 import ssl
 
 import github
@@ -48,6 +49,61 @@ from config.config import GITLAB_DEFAULT_REPO_LIST
 from config.config import STUDENT_GITHUB_DEFAULT_REPO_LIST
 from config.config import SERVER_PORT
 
+URL_OPEN_TIMEOUT = 20
+
+ALLOWED_URL_SCHEMES = {"http", "https"}
+ALLOWED_URL_EXTENSIONS = {".graph", ".palette"}
+
+
+def validate_remote_url(url: str) -> None:
+    """
+    Validate a user-supplied URL before fetching it server-side.
+
+    Raises ValueError if the URL is not permitted, blocking SSRF attacks
+    that target cloud metadata endpoints (169.254.169.254), loopback,
+    RFC-1918 private ranges, or unexpected URI schemes.
+    """
+    try:
+        parsed = urllib.parse.urlparse(url)
+    except Exception:
+        raise ValueError("URL could not be parsed")
+
+    # 1. Scheme must be http or https
+    if parsed.scheme not in ALLOWED_URL_SCHEMES:
+        raise ValueError("URL scheme not permitted")
+
+    # 2. Hostname must be present
+    host = parsed.hostname
+    if not host:
+        raise ValueError("URL has no host")
+
+    # 3. File extension must be .graph or .palette
+    ext = os.path.splitext(parsed.path)[1].lower()
+    if ext not in ALLOWED_URL_EXTENSIONS:
+        raise ValueError("URL file extension not permitted")
+
+    # 4. Resolve the hostname and check every returned address
+    port = parsed.port or (443 if parsed.scheme == "https" else 80)
+    try:
+        addr_infos = socket.getaddrinfo(host, port, proto=socket.IPPROTO_TCP)
+    except socket.gaierror:
+        raise ValueError("URL host could not be resolved")
+
+    if not addr_infos:
+        raise ValueError("URL host resolved to no addresses")
+
+    for *_, sockaddr in addr_infos:
+        ip = ipaddress.ip_address(sockaddr[0])
+        if (
+            ip.is_private
+            or ip.is_loopback
+            or ip.is_link_local
+            or ip.is_reserved
+            or ip.is_unspecified
+            or ip.is_multicast
+        ):
+            raise ValueError("URL resolves to a non-public address")
+
 
 class GraphException(Exception):
     """
@@ -56,14 +112,7 @@ class GraphException(Exception):
     pass
 
 
-if sys.version_info[0] == 2:
-    import errno
-
-    class FileExistsError(OSError):
-        def __init__(self, msg):
-            super(FileExistsError, self).__init__(errno.EEXIST, msg)
-
-#NOTE: this global variable is copied rather than imported
+# NOTE: this global variable is copied rather than imported
 #      because it can be overwritten by the user's command line
 TEMP_FILE_FOLDER = config.config.TEMP_FILE_FOLDER
 
@@ -151,46 +200,8 @@ def save():
     Saves a file to local computer.
     """
     content = request.get_json(silent=True)
-    temp_file = tempfile.TemporaryFile()
-
-    try:
-        content["modelData"]["lastModifiedDatetime"] = datetime.datetime.now().timestamp()
-
-        json_string = json.dumps(content)
-        if sys.version_info < (3, 2, 0):
-            temp_file.write(json_string)
-        else:
-            temp_file = tempfile.TemporaryFile(mode="w+t")
-            temp_file.write(json.dumps(content, indent=4, sort_keys=True))
-
-        # Reset the seeker
-        temp_file.seek(0)
-        string = temp_file.read()
-        # Indent json for human readable formatting.
-        graph = json.loads(string)
-        json_data = json.dumps(graph, indent=4)
-        return json_data
-    finally:
-        temp_file.close()
-
-
-@app.route("/openRemoteFileLocalServer/<filetype>/<path:filename>", methods=["POST"])
-def open_file(filetype, filename):
-    """
-    FLASK POST routing method for '/openRemoteFileLocalServer/<filetype>/<path:filename>'
-
-    Opens and retruns a JSON file on a local server
-    """
-    path = request.data.decode().strip("/")
-    path = os.path.join(TEMP_FILE_FOLDER, path)
-    norm_path = os.path.join(os.path.normpath(path), filename)
-
-    json_data = open(norm_path, "r+")
-    data = json.load(json_data)
-    response = app.response_class(
-        response=json.dumps(data), status=200, mimetype="application/json"
-    )
-    return response
+    content["modelData"]["lastModifiedDatetime"] = datetime.datetime.now().timestamp()
+    return json.dumps(content, indent=4, sort_keys=True)
 
 
 @app.route("/getGitHubRepositoryList", methods=["GET"])
@@ -254,7 +265,7 @@ def get_git_hub_files_all():
         repo_token = content["token"]
         repo_path = content["path"]
     except KeyError as ke:
-        print("KeyError {1}: {0}".format(str(ke), repo_name))
+        print("KeyError: {0}".format(str(ke)))
         return jsonify({"error":"Repository, Branch or Token not specified in request"})
 
     # Extracting the true repo name and repo folder.
@@ -301,7 +312,7 @@ def get_git_lab_files_all():
         repo_token = content["token"]
         repo_path = content["path"]
     except KeyError as ke:
-        print("KeyError {1}: {0}".format(str(ke), repo_name))
+        print("KeyError: {0}".format(str(ke)))
         return jsonify({"error":"Repository, Branch or Token not specified in request"})
 
     if repo_token:
@@ -344,13 +355,9 @@ def get_docker_images():
 
     docker_url = "https://hub.docker.com/v2/repositories/" + user_name + "/"
 
-    # avoid ssl errors when fetching a URL using urllib.request
-    # https://stackoverflow.com/questions/50236117/scraping-ssl-certificate-verify-failed-error-for-http-en-wikipedia-org
-    ssl._create_default_https_context = ssl._create_unverified_context
-
-    with urllib.request.urlopen(docker_url) as url:
+    ctx = ssl.create_default_context(cafile=certifi.where())
+    with urllib.request.urlopen(docker_url, context=ctx, timeout=URL_OPEN_TIMEOUT) as url:
         data = json.loads(url.read().decode())
-        #print(data)
 
     return jsonify(data)
 
@@ -372,13 +379,9 @@ def get_docker_image_tags():
 
     docker_url = "https://registry.hub.docker.com/v2/repositories/" + image_name + "/tags"
 
-    # avoid ssl errors when fetching a URL using urllib.request
-    # https://stackoverflow.com/questions/50236117/scraping-ssl-certificate-verify-failed-error-for-http-en-wikipedia-org
-    ssl._create_default_https_context = ssl._create_unverified_context
-
-    with urllib.request.urlopen(docker_url) as url:
+    ctx = ssl.create_default_context(cafile=certifi.where())
+    with urllib.request.urlopen(docker_url, context=ctx, timeout=URL_OPEN_TIMEOUT) as url:
         data = json.loads(url.read().decode())
-        #print(data)
 
     return jsonify(data)
 
@@ -450,7 +453,7 @@ def save_git_hub_file():
     except github.GithubException as e:
         return github_exception_handler(e, "Error in edit", repo_name, repo_branch)
 
-    return "ok"
+    return jsonify({"success": True})
 
 
 # helper function to handle github exceptions consistently
@@ -527,7 +530,7 @@ def save_git_lab_file():
             return jsonify({"error": str(gce)}), 400
 
 
-    return "ok"
+    return jsonify({"success": True})
 
 
 def set_metadata_for_ingress(graph, repo_service, repo_name, repo_branch, filename):
@@ -600,7 +603,7 @@ def open_git_hub_file():
     try:
         repo = g.get_repo(repo_name)
     except Exception as e:
-        return app.response_class(response=json.dumps({"error":str(e)}), status=404, mimetype="application/json")
+        return jsonify({"error": str(e)}), 404
 
 
     # get commits
@@ -621,7 +624,7 @@ def open_git_hub_file():
         sha = [x.sha for x in tree if x.path == filename]
         if not sha:
             # well, not found..
-            return app.response_class(response=json.dumps({"error":"File not found"}), status=404, mimetype="application/json")
+            return jsonify({"error": "File not found"}), 404
 
         # use the sha to get the blob, then decode it
         blob = repo.get_git_blob(sha[0])
@@ -632,16 +635,14 @@ def open_git_hub_file():
         download_url = "https://raw.githubusercontent.com/" + repo_name + "/" + most_recent_commit.sha + "/" + filename
     except AssertionError as e:
         # download via http get
-        import certifi
-        import ssl
-        raw_data = urllib.request.urlopen(download_url, context=ssl.create_default_context(cafile=certifi.where())).read()
+        raw_data = urllib.request.urlopen(download_url, context=ssl.create_default_context(cafile=certifi.where()), timeout=URL_OPEN_TIMEOUT).read()
 
     if extension != ".md":
         # parse JSON
         graph = json.loads(raw_data)
 
         if isinstance(graph, list):
-            return app.response_class(response=json.dumps({"error":"File JSON data is a list, this file could be a Physical Graph instead of a Logical Graph."}), status=404, mimetype="application/json")
+            return jsonify({"error": "File JSON data is a list, this file could be a Physical Graph instead of a Logical Graph."}), 404
 
         if not "modelData" in graph:
             graph["modelData"] = {}
@@ -691,7 +692,7 @@ def delete_git_hub_file():
         repo = g.get_repo(repo_name)
     except Exception as e:
         print(e)
-        return app.response_class(response=json.dumps({"error":str(e)}), status=404, mimetype="application/json")
+        return jsonify({"error": str(e)}), 404
 
     # get commits
     commits = repo.get_commits(sha=repo_branch, path=filename)
@@ -702,9 +703,9 @@ def delete_git_hub_file():
         f = repo.get_contents(filename, ref=most_recent_commit.sha)
         repo.delete_file(f.path, "File removed by EAGLE", f.sha, branch=repo_branch)
     except github.GithubException as e:
-        return app.response_class(response=json.dumps({"error":str(e)}), status=404, mimetype="application/json")
+        return jsonify({"error": str(e)}), 404
 
-    return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
+    return jsonify({"success": True})
 
 
 @app.route("/openRemoteGitlabFile", methods=["POST"])
@@ -738,7 +739,7 @@ def open_git_lab_file():
             gl.auth()
         except Exception as e:
             print(e)
-            return app.response_class(response=json.dumps({"error":str(e)}), status=404, mimetype="application/json")
+            return jsonify({"error": str(e)}), 404
     else:
         gl = gitlab.Gitlab('https://gitlab.com', api_version=4)
 
@@ -748,7 +749,7 @@ def open_git_lab_file():
         f = project.files.get(file_path=filename, ref=repo_branch)
     except gitlab.exceptions.GitlabGetError as gle:
         print("GitLabGetError {0}/{1}/{2}: {3}".format(repo_name, repo_branch, filename, str(gle)))
-        return app.response_class(response=json.dumps({"error":str(gle)}), status=404, mimetype="application/json")
+        return jsonify({"error": str(gle)}), 404
 
     # get the decoded content
     raw_data = f.decode().decode("utf-8")
@@ -810,7 +811,7 @@ def delete_git_lab_file():
         gl.auth()
     except Exception as e:
         print(e)
-        return app.response_class(response=json.dumps({"error":str(e)}), status=404, mimetype="application/json")
+        return jsonify({"error": str(e)}), 404
 
     project = gl.projects.get(repo_name)
 
@@ -818,9 +819,9 @@ def delete_git_lab_file():
         project.files.delete(file_path=filename, branch=repo_branch, commit_message="File removed by EAGLE")
     except gitlab.exceptions.GitlabDeleteError as gle:
         print("GitLabDeleteError {0}/{1}/{2}: {3}".format(repo_name, repo_branch, filename, str(gle)))
-        return app.response_class(response=json.dumps({"error":str(gle)}), status=404, mimetype="application/json")
+        return jsonify({"error": str(gle)}), 404
 
-    return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
+    return jsonify({"success": True})
 
 
 @app.route("/openRemoteUrlFile", methods=["POST"])
@@ -834,14 +835,19 @@ def open_url_file():
     url = content["url"]
     extension = os.path.splitext(url)[1]
 
-    # download via http get
-    import certifi
-    import ssl
+    # validate the URL before fetching to prevent SSRF
     try:
-        raw_data = urllib.request.urlopen(url, context=ssl.create_default_context(cafile=certifi.where())).read()
+        validate_remote_url(url)
+    except ValueError as e:
+        app.logger.warning("SSRF attempt blocked for URL %r: %s", url, e)
+        return jsonify({"error": "Invalid URL"}), 400
+
+    # download via http get
+    try:
+        raw_data = urllib.request.urlopen(url, context=ssl.create_default_context(cafile=certifi.where()), timeout=URL_OPEN_TIMEOUT).read()
     except Exception as e:
         print(e)
-        return app.response_class(response=json.dumps({"error":str(e)}), status=404, mimetype="application/json")
+        return jsonify({"error": str(e)}), 404
 
     # parse JSON
     graph = json.loads(raw_data)
@@ -940,28 +946,6 @@ def find_github_palettes(repo, path, branch):
     return result
 
 
-def save_to_temp(lg_name, logical_graph):
-    """
-    Saves graph to temp folder.
-    """
-    try:
-        new_path = os.path.join(TEMP_FILE_FOLDER, lg_name)
-
-        # Overwrite file on disks.
-        with open(new_path, "w") as outfile:
-            json.dump(logical_graph, outfile, sort_keys=True, indent=4)
-    except Exception as exp:
-        raise GraphException(
-            "Failed to save a pre-translated graph {0}:{1}".format(
-                lg_name, str(exp)
-            )
-        ) from exp
-    finally:
-        pass
-
-    return new_path
-
-
 def parse_args():
     """
     Parsing command line arguments and setting corresponding global variables.
@@ -982,7 +966,13 @@ def parse_args():
         "--quiet",
         action="store_true",
         help="suppress info logging output from the server",
-
+    )
+    parser.add_argument(
+        "-d",
+        "--debug",
+        action="store_true",
+        default=False,
+        help="enable Flask debug mode (binds to localhost only, for local development)",
     )
     args = parser.parse_args()
 
@@ -1001,7 +991,7 @@ def parse_args():
 
 def main():
     """
-    Main function of eagleServer, will run the APP indefinetly.
+    Main function of eagleServer, will run the APP indefinitely.
     """
     args = parse_args()
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
@@ -1010,7 +1000,9 @@ def main():
         log = logging.getLogger('werkzeug')
         log.setLevel(logging.ERROR)
 
-    app.run(host="0.0.0.0", debug=True, port=args.port)
+    # If debug mode is enabled, bind to localhost only for security. Otherwise, bind to all interfaces.
+    host = "127.0.0.1" if args.debug else "0.0.0.0"
+    app.run(host=host, debug=args.debug, port=args.port)
 
 
 if __name__ == "__main__":

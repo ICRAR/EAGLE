@@ -126,9 +126,9 @@ Install EAGLE
 Start Server
 """"""""""""
 
-Simply start it using
+Simply start it (in debug mode) using
 
-    $ eagleServer -t /tmp
+    $ eagleServer -t /tmp --debug
 
 Tools
 -----
