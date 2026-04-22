@@ -33,7 +33,10 @@ import sys
 import tempfile
 import subprocess
 
+import ipaddress
+import socket
 import urllib.request
+import urllib.parse
 import ssl
 
 import github
@@ -48,6 +51,60 @@ from config.config import STUDENT_GITHUB_DEFAULT_REPO_LIST
 from config.config import SERVER_PORT
 
 URL_OPEN_TIMEOUT = 20
+
+ALLOWED_URL_SCHEMES = {"http", "https"}
+ALLOWED_URL_EXTENSIONS = {".graph", ".palette"}
+
+
+def validate_remote_url(url: str) -> None:
+    """
+    Validate a user-supplied URL before fetching it server-side.
+
+    Raises ValueError if the URL is not permitted, blocking SSRF attacks
+    that target cloud metadata endpoints (169.254.169.254), loopback,
+    RFC-1918 private ranges, or unexpected URI schemes.
+    """
+    try:
+        parsed = urllib.parse.urlparse(url)
+    except Exception:
+        raise ValueError("URL could not be parsed")
+
+    # 1. Scheme must be http or https
+    if parsed.scheme not in ALLOWED_URL_SCHEMES:
+        raise ValueError("URL scheme not permitted")
+
+    # 2. Hostname must be present
+    host = parsed.hostname
+    if not host:
+        raise ValueError("URL has no host")
+
+    # 3. File extension must be .graph or .palette
+    ext = os.path.splitext(parsed.path)[1].lower()
+    if ext not in ALLOWED_URL_EXTENSIONS:
+        raise ValueError("URL file extension not permitted")
+
+    # 4. Resolve the hostname and check every returned address
+    port = parsed.port or (443 if parsed.scheme == "https" else 80)
+    try:
+        addr_infos = socket.getaddrinfo(host, port, proto=socket.IPPROTO_TCP)
+    except socket.gaierror:
+        raise ValueError("URL host could not be resolved")
+
+    if not addr_infos:
+        raise ValueError("URL host resolved to no addresses")
+
+    for *_, sockaddr in addr_infos:
+        ip = ipaddress.ip_address(sockaddr[0])
+        if (
+            ip.is_private
+            or ip.is_loopback
+            or ip.is_link_local
+            or ip.is_reserved
+            or ip.is_unspecified
+            or ip.is_multicast
+        ):
+            raise ValueError("URL resolves to a non-public address")
+
 
 class GraphException(Exception):
     """
@@ -778,6 +835,13 @@ def open_url_file():
     content = request.get_json(silent=True)
     url = content["url"]
     extension = os.path.splitext(url)[1]
+
+    # validate the URL before fetching to prevent SSRF
+    try:
+        validate_remote_url(url)
+    except ValueError as e:
+        app.logger.warning("SSRF attempt blocked for URL %r: %s", url, e)
+        return jsonify({"error": "Invalid URL"}), 400
 
     # download via http get
     try:
