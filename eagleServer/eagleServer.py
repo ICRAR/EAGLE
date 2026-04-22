@@ -30,7 +30,6 @@ import json
 import logging
 import os
 import sys
-import tempfile
 import subprocess
 
 import ipaddress
