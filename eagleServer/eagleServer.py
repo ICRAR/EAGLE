@@ -966,7 +966,13 @@ def parse_args():
         "--quiet",
         action="store_true",
         help="suppress info logging output from the server",
-
+    )
+    parser.add_argument(
+        "-d",
+        "--debug",
+        action="store_true",
+        default=False,
+        help="enable Flask debug mode (binds to localhost only, for local development)",
     )
     args = parser.parse_args()
 
@@ -994,7 +1000,9 @@ def main():
         log = logging.getLogger('werkzeug')
         log.setLevel(logging.ERROR)
 
-    app.run(host="0.0.0.0", debug=True, port=args.port)
+    # If debug mode is enabled, bind to localhost only for security. Otherwise, bind to all interfaces.
+    host = "127.0.0.1" if args.debug else "0.0.0.0"
+    app.run(host=host, debug=args.debug, port=args.port)
 
 
 if __name__ == "__main__":
