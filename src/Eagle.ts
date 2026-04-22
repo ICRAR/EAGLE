@@ -3834,17 +3834,17 @@ export class Eagle {
                 }
 
                 for (const object of data){
+
+                    //remove visual link if there is a visual linked to this object
+                    for(const visual of this.logicalGraph().getVisuals()){
+                        if (visual.getTarget() === object){
+                            visual.setTarget(null)
+                            continue
+                        }
+                    }
+
                     // delete the nodes
                     if (object instanceof Node){
-
-                        //remove visual link if there is a visual linked to this node
-                        for(const visual of this.logicalGraph().getVisuals()){
-                            if (visual.getTarget() === object){
-                                visual.setTarget(null)
-                                continue
-                            } 
-                        }
-
                         this.logicalGraph().removeNode(object);
                     }
 

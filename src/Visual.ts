@@ -57,6 +57,20 @@ export class Visual {
             this.width = ko.observable(EagleConfig.GROUP_VISUAL_DEFAULT_WIDTH);
             this.height = ko.observable(EagleConfig.GROUP_VISUAL_DEFAULT_HEIGHT);
         }
+
+        switch(type){
+            case Visual.Type.Text:
+                this.width = ko.observable(EagleConfig.TEXT_VISUAL_DEFAULT_WIDTH);
+                this.height = ko.observable(EagleConfig.TEXT_VISUAL_DEFAULT_HEIGHT);
+                break;
+            case Visual.Type.Group:
+                this.width = ko.observable(EagleConfig.GROUP_VISUAL_DEFAULT_WIDTH);
+                this.height = ko.observable(EagleConfig.GROUP_VISUAL_DEFAULT_HEIGHT);
+                break;
+            default: 
+                this.width = ko.observable(EagleConfig.TEXT_VISUAL_DEFAULT_WIDTH);
+                this.height = ko.observable(EagleConfig.TEXT_VISUAL_DEFAULT_HEIGHT);
+        }
         this.type = ko.observable(type);
         this.content = ko.observable(content);
         this.target = ko.observable(null);

@@ -86,6 +86,8 @@ export class EagleConfig {
     public static readonly TEXT_VISUAL_DEFAULT_HEIGHT : number = 100;
     public static readonly GROUP_VISUAL_DEFAULT_WIDTH : number = 100;
     public static readonly GROUP_VISUAL_DEFAULT_HEIGHT : number = 100;
+    public static readonly VISUAL_DEFAULT_WIDTH : number = 100;
+    public static readonly VISUAL_DEFAULT_HEIGHT : number = 100;
 
 
     // when creating a new construct to enclose a selection, or shrinking a node to enclose its children,

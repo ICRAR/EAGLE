@@ -367,14 +367,23 @@ export class GraphRenderer {
         const portRadius = isGroup ? 0:6  // we need to add or subtract half of the width of the port sometimes to center it on the edge
         //the height of text visuals is automatic based on content using css, so we need to get the height of the element here
         const halfHeight = $('#' + visual.getId()+ ' .body').height() / 2 + portRadius;
-        const visualPos = visual.getPosition()
+        let target:Visual | Node | Edge = visual.getTarget();
 
-        if(visual.getTarget()){
-            const targetPos = visual.getTarget().getPosition()
+        if(isGroup){
+            //if we are on a group visual we need to use a loop to find the text visual that is targeting it, in order to calculate the angle for the edge.
+            for(const object of Eagle.getInstance().logicalGraph().getVisuals()){
+                if(object.getTarget().getId() === visual.getId()){
+                    target = object
+                    break;
+                }
+            }
+        }
+
+        const visualPos = visual.getPosition()
+        if(target){
+            const targetPos = target.getPosition()
             let targetAngle = GraphRenderer.calculateConnectionAngle(visualPos, targetPos)
             targetAngle = Utils.toDegrees360(targetAngle)
-            
-            if(isGroup)targetAngle+=180 //for text visual to group visual connections we use this function for each end
 
             const halfWidth = visual.getWidth()/2
             let result : {x:number, y:number} = {x:0,y:0}

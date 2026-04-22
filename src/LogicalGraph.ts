@@ -602,7 +602,7 @@ export class LogicalGraph {
         return this.visuals().size;
     }
 
-    getVisualById = (id: any): Visual | undefined => {
+    getVisualById = (id: VisualId): Visual | undefined => {
         return this.visuals().get(id);
     }
 

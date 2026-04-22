@@ -2465,7 +2465,8 @@ export class Utils {
         
         // 2. Normalize to 0-360 range
         // Adding 360 before the second modulo handles negative inputs correctly.
-        return (degrees % 360 + 360) % 360;
+        // return (degrees % 360 + 360) % 360;
+        return (degrees + 360) % 360;
     }
 
     static printCategories() : void {
