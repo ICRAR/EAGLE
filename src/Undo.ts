@@ -43,6 +43,7 @@ class Snapshot {
         this.hash = Snapshot.hashObject(data);
     }
 
+    // djb2-style hash function, adapted for objects by hashing their JSON string representation
     static hashObject(obj: object): number {
         const str = JSON.stringify(obj);
         let hash = 5381;
