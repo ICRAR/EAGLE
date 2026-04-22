@@ -946,26 +946,6 @@ def find_github_palettes(repo, path, branch):
     return result
 
 
-def save_to_temp(lg_name, logical_graph):
-    """
-    Saves graph to temp folder.
-    """
-    try:
-        new_path = os.path.join(TEMP_FILE_FOLDER, lg_name)
-
-        # Overwrite file on disks.
-        with open(new_path, "w") as outfile:
-            json.dump(logical_graph, outfile, sort_keys=True, indent=4)
-    except Exception as exp:
-        raise GraphException(
-            "Failed to save a pre-translated graph {0}:{1}".format(
-                lg_name, str(exp)
-            )
-        ) from exp
-
-    return new_path
-
-
 def parse_args():
     """
     Parsing command line arguments and setting corresponding global variables.
