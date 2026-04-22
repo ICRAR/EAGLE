@@ -148,29 +148,6 @@ def save():
     return json.dumps(content, indent=4, sort_keys=True)
 
 
-@app.route("/openRemoteFileLocalServer/<filetype>/<path:filename>", methods=["POST"])
-def open_file(filetype, filename):
-    """
-    FLASK POST routing method for '/openRemoteFileLocalServer/<filetype>/<path:filename>'
-
-    Opens and returns a JSON file on a local server
-    """
-    path = request.data.decode().strip("/")
-    path = os.path.join(TEMP_FILE_FOLDER, path)
-    norm_path = os.path.join(os.path.normpath(path), filename)
-
-    # attempt to open and read the file as JSON
-    try:
-        with open(norm_path, "r") as json_data:
-            data = json.load(json_data)
-    except FileNotFoundError as fnfe:
-        return jsonify({"error": "File not found: " + norm_path}), 404
-    except json.JSONDecodeError as jde:
-        return jsonify({"error": "JSON decode error: " + str(jde)}), 400
-
-    return jsonify(data)
-
-
 @app.route("/getGitHubRepositoryList", methods=["GET"])
 def get_git_hub_repository_list():
     """
