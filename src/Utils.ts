@@ -483,9 +483,13 @@ export class Utils {
         return fullFileName;
     }
 
-    static showUserMessage (title : string, message : string) : void {
+    static showUserMessage (title : string, message : string, html: boolean = false) : void {
         $('#messageModalTitle').text(title);
-        $('#messageModalMessage').text(message);
+        if (html) {
+            $('#messageModalMessage').html(Utils.sanitizeHtml(message));
+        } else {
+            $('#messageModalMessage').text(message);
+        }
         $('#messageModal').modal("show");
     }
 

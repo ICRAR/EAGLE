@@ -1940,7 +1940,7 @@ export class Eagle {
                 const errorMessage = error instanceof Error ? error.message : String(error);
                 const errorJSON = JSON.parse(errorMessage);
 
-                Utils.showUserMessage("Error", errorJSON.error + "<br/><br/>NOTE: These error messages provided by " + file.repository.service + " are not very helpful. Please contact EAGLE admin to help with further investigation.");
+                Utils.showUserMessage("Error", errorJSON.error + "<br/><br/>NOTE: These error messages provided by " + file.repository.service + " are not very helpful. Please contact EAGLE admin to help with further investigation.", true);
                 console.error("Error: " + errorJSON.error);
                 reject(errorJSON.error);
                 return;
@@ -2466,7 +2466,7 @@ export class Eagle {
                 break;
 
             case Eagle.FileType.Markdown:
-                Utils.showUserMessage(file.name, Utils.markdown2html(data));
+                Utils.showUserMessage(file.name, Utils.markdown2html(data), true);
                 break;
 
             default:
