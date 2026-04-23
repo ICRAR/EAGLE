@@ -1985,7 +1985,7 @@ export class Utils {
     // basic html sanitizer that only allows a limited set of tags and attributes, and checks that href/src attributes are safe urls (starting with http, https, or mailto)
     static sanitizeHtml(html: string): string {
         const ALLOWED_TAGS = new Set([
-            'p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'del',
+            'p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'del', 'sup', 'sub',
             'a', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
             'blockquote', 'code', 'pre', 'table', 'thead', 'tbody', 'tr', 'th', 'td',
             'hr', 'img', 'span', 'div'
