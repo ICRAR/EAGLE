@@ -1986,7 +1986,9 @@ export class Utils {
     static sanitizeHtml(html: string): string {
         const ALLOWED_TAGS = new Set([
             'p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'del', 'sup', 'sub',
-            'a', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+            'abbr', 'kbd', 'mark', 'q', 'cite',
+            'a', 'ul', 'ol', 'li', 'dl', 'dt', 'dd',
+            'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
             'blockquote', 'code', 'pre', 'table', 'thead', 'tbody', 'tr', 'th', 'td',
             'hr', 'img', 'span', 'div'
         ]);
