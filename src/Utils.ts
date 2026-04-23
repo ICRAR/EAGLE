@@ -2019,6 +2019,9 @@ export class Utils {
                         }
                     }
                 }
+                if (tag === 'a' && child.getAttribute('target') === '_blank') {
+                    child.setAttribute('rel', 'noopener noreferrer');
+                }
                 walk(child);
             }
         }
