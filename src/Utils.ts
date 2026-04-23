@@ -1992,6 +1992,11 @@ export class Utils {
             'blockquote', 'code', 'pre', 'table', 'thead', 'tbody', 'tr', 'th', 'td',
             'hr', 'img', 'span', 'div'
         ]);
+        const DANGEROUS_TAGS = new Set([
+            'script', 'style', 'iframe', 'object', 'embed',
+            'form', 'input', 'button', 'textarea', 'select',
+            'noscript', 'template', 'link', 'meta', 'base'
+        ]);
         const ALLOWED_ATTRS: Record<string, Set<string>> = {
             a:   new Set(['href', 'title', 'target', 'rel']),
             img: new Set(['src', 'alt', 'title', 'width', 'height']),
@@ -2004,7 +2009,17 @@ export class Utils {
                 if (!(child instanceof Element)) continue;
                 const tag = child.tagName.toLowerCase();
                 if (!ALLOWED_TAGS.has(tag)) {
-                    parent.removeChild(child);
+                    if (DANGEROUS_TAGS.has(tag)) {
+                        // remove element and its entire contents
+                        parent.removeChild(child);
+                    } else {
+                        // sanitize children before unwrapping, then move them into parent
+                        walk(child);
+                        while (child.firstChild) {
+                            parent.insertBefore(child.firstChild, child);
+                        }
+                        parent.removeChild(child);
+                    }
                     continue;
                 }
                 const allowed = new Set([
