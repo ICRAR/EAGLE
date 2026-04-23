@@ -41,6 +41,9 @@
                 <button id="hideDataNodeNames" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: function(){Setting.find(Setting.HIDE_DATA_NODE_TITLES).toggle()}, css: { 'navbar-btn-active': Setting.findValue(Setting.HIDE_DATA_NODE_TITLES)}, eagleTooltip: 'Hide Data Node Names in the graph editor'">
                     <i class="material-symbols-outlined md-18">visibility_off</i>
                 </button>
+                <button id="hideVisuals" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: function(){Setting.find(Setting.HIDE_VISUALS).toggle()}, css: { 'navbar-btn-active': Setting.findValue(Setting.HIDE_VISUALS)}, eagleTooltip: 'Hide visuals in the graph editor'">
+                    <i class="md-18 icon-hide_visuals"></i>
+                </button>
             </div>
 
             <!-- navbar category -->
@@ -72,6 +75,19 @@
                 <button id="checkForComponentUpdates" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: checkForComponentUpdates, eagleTooltip: KeyboardShortcut.idToFullText('check_for_component_updates')">
                     <i class="md-18 icon-component_update"></i>
                 </button>
+                <li class="nav-item dropdown iconDropdown">
+                    <a class="nav-link dropdown-toggle dropdown-control ms-auto iconHoverEffect" href="#" id="navbarDropdownVisuals" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="md-18 icon-visuals"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right dropdown-area" aria-labelledby="navbarDropdownVisuals">
+                        <button class="dropdown-item btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: function(){eagle.addVisualToLogicalGraph(null,'Text', Eagle.AddNodeMode.Default)}, eagleTooltip: 'Add Text Visual. Explain your graph! These can be linked to objects.'">
+                            <i class="md-18 icon-text"></i>
+                        </button>
+                        <button class="dropdown-item btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: function(){eagle.addVisualToLogicalGraph(null,'Group', Eagle.AddNodeMode.Default)}, eagleTooltip: `Add Group Visual. Organise your graph with these coloured background shapes. These are purely visual and dont affect the graph's function.`">
+                            <i class="md-18 icon-checkbox-unchecked"></i>
+                        </button>
+                    </div>
+                </li>
             </div>
 
             <!-- navbar category -->
