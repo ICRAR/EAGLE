@@ -2746,20 +2746,14 @@ export class Utils {
     }
 
     static createCommitJsonString(jsonString: string, repository: Repository, token: string, fullFileName: string, commitMessage: string): string {
-        // NOTE: we need to build the JSON manually here, since we want to enforce a particular ordering of attributes within the jsonData attribute (modelData first)
-        let result = "";
-
-        result += "{\n";
-        result += '"jsonData": ' + jsonString + ",";
-        result += '"repositoryBranch": "' + repository.branch + '",';
-        result += '"repositoryName": "' + repository.name + '",';
-        result += '"repositoryService": "' + repository.service + '",';
-        result += '"token": "' + token + '",';
-        result += '"filename": "' + fullFileName + '",';
-        result += '"commitMessage": "' + commitMessage + '"';
-        result += "}\n";
-
-        return result;
+        return '{"jsonData":' + jsonString
+            + ',"repositoryBranch":' + JSON.stringify(repository.branch)
+            + ',"repositoryName":' + JSON.stringify(repository.name)
+            + ',"repositoryService":' + JSON.stringify(repository.service)
+            + ',"token":' + JSON.stringify(token)
+            + ',"filename":' + JSON.stringify(fullFileName)
+            + ',"commitMessage":' + JSON.stringify(commitMessage)
+            + '}';
     }
 
     static async openRemoteFileFromUrl(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string): Promise<string> {
