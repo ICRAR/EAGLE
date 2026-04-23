@@ -748,16 +748,8 @@ export class Node {
         }
     }, this);
 
-    getDescriptionHTML : ko.PureComputed<string> = ko.pureComputed(() => {
-        return Utils.markdown2html(this.description());
-    }, this);
-
     getInspectorDescriptionHTML : ko.PureComputed<string> = ko.pureComputed(() => {
         return 'Edit Node Description: </br>' + Utils.markdown2html(this.description());
-    }, this);
-
-    getCommentHTML : ko.PureComputed<string> = ko.pureComputed(() => {
-        return Utils.markdown2html(this.comment());
     }, this);
 
     getInspectorCommentHTML : ko.PureComputed<string> = ko.pureComputed(() => {
