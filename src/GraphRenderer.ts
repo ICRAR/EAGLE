@@ -362,62 +362,83 @@ export class GraphRenderer {
         return GraphRenderer._calculatePortPosition(field.getOutputPosition().y, field.getNode().getPosition().y, field.getNode().getRadius());
     }
 
-    static calculateTextVisualPortPosition(visual:Visual) : {x:number, y:number} {
+    static calculateTextVisualPortPosition(visual:Visual, angle:number) : {x:number, y:number} {
         const isGroup : boolean = visual.isGroup()
         const portRadius = isGroup ? 0:6  // we need to add or subtract half of the width of the port sometimes to center it on the edge
         //the height of text visuals is automatic based on content using css, so we need to get the height of the element here
         const halfHeight = $('#' + visual.getId()+ ' .body').height() / 2 + portRadius;
-        let target:Visual | Node | Edge = visual.getTarget();
-
-        if(isGroup){
-            //if we are on a group visual we need to use a loop to find the text visual that is targeting it, in order to calculate the angle for the edge.
-            for(const object of Eagle.getInstance().logicalGraph().getVisuals()){
-                if(object.getTarget().getId() === visual.getId()){
-                    target = object
-                    break;
-                }
-            }
-        }
 
         const visualPos = visual.getPosition()
-        if(target){
-            const targetPos = target.getPosition()
-            let targetAngle = GraphRenderer.calculateConnectionAngle(visualPos, targetPos)
-            targetAngle = Utils.toDegrees360(targetAngle)
 
-            const halfWidth = visual.getWidth()/2
-            let result : {x:number, y:number} = {x:0,y:0}
+        const halfWidth = visual.getWidth()/2
+        let result : {x:number, y:number} = {x:0,y:0}
 
-            if(targetAngle > 45 && targetAngle < 135){
-                result.x = visualPos.x
-                result.y = visualPos.y - halfHeight
-                return result
-            }else if(targetAngle > 135 && targetAngle < 225){
-                result.x = visualPos.x - halfWidth
-                result.y = visualPos.y
-                return result
-            }else if(targetAngle > 225 && targetAngle < 315){
-                //0deg is on the left side of the node, so in this range the port is at the bottom, we let the default part handle this. 
-            }else{
-                result.x = visualPos.x + halfWidth
-                result.y = visualPos.y
-                return result
-            }
+        if(angle > 45 && angle < 135){
+            result.x = visualPos.x
+            result.y = visualPos.y - halfHeight
+            return result
+        }else if(angle > 135 && angle < 225){
+            result.x = visualPos.x - halfWidth
+            result.y = visualPos.y
+            return result
+        }else if(angle > 225 && angle < 315){
+            //0deg is on the left side of the node, so in this range the port is at the bottom, we let the default part handle this. 
+        }else{
+            result.x = visualPos.x + halfWidth
+            result.y = visualPos.y
+            return result
         }
         
         return {x:visualPos.x, y:visualPos.y + halfHeight};
     }
 
-    static calculateTextVisualPortPositionX(visual:Visual) : number {
-        return this.calculateTextVisualPortPosition(visual).x
+    static calculateTextVisualPortPositionX(visual:Visual, angle:number) : number {
+        //used by the visual edge renderer to find the start and end points of the edges
+        return this.calculateTextVisualPortPosition(visual, angle).x
     }
 
-    static calculateTextVisualPortPositionY(visual:Visual) : number {
+    static calculateTextVisualPortPositionY(visual:Visual, angle:number) : number {
         //these two references are needed to trigger re-calculation when position or size changes
         const width = visual.getWidth();
         const content = visual.getContent();
        
-        return this.calculateTextVisualPortPosition(visual).y;
+        return this.calculateTextVisualPortPosition(visual, angle).y;
+    }
+
+    //these are used for placing the port on the graph
+    static getGraphTextVisualPortPositionX(visual:Visual) : number {
+        
+        if(visual.getTarget() === null){
+            //default position when not connected, we will place the port at the bottom of the visual in this case
+            return this.calculateTextVisualPortPosition(visual, 270).x
+        }
+
+        //get positions of the two objects
+        const visualPos = visual.getPosition()
+        const targetPos = visual.getTarget()?.getPosition()
+
+        //calculate the angle, convert to degrees
+        let targetAngle = GraphRenderer.calculateConnectionAngle(visualPos, targetPos)
+        targetAngle = Utils.toDegrees360(targetAngle)
+        //these are used for placing the port on the graph
+        return this.calculateTextVisualPortPosition(visual, targetAngle).x
+    }
+
+    static getGraphTextVisualPortPositionY(visual:Visual) : number {
+        //these two references are needed to trigger re-calculation when position or size changes
+        const width = visual.getWidth();
+        const content = visual.getContent();
+        
+        if(visual.getTarget() === null){
+            //default position when not connected, we will place the port at the bottom of the visual in this case
+            return this.calculateTextVisualPortPosition(visual, 270).y
+        }
+       
+        const targetPos = visual.getTarget()?.getPosition()
+        let targetAngle = GraphRenderer.calculateConnectionAngle(visual.getPosition(), targetPos)
+        targetAngle = Utils.toDegrees360(targetAngle)
+
+        return this.calculateTextVisualPortPosition(visual, targetAngle).y;
     }
 
     static calculateEdgeCommentPosX (edge:Edge) : number {
@@ -997,8 +1018,8 @@ export class GraphRenderer {
                 return '';
             }
 
-            const srcX: number = GraphRenderer.calculateTextVisualPortPositionX(GraphRenderer.textVisualPortDragSource());
-            const srcY: number = GraphRenderer.calculateTextVisualPortPositionY(GraphRenderer.textVisualPortDragSource());
+            const srcX: number = GraphRenderer.calculateTextVisualPortPositionX(GraphRenderer.textVisualPortDragSource(),null);
+            const srcY: number = GraphRenderer.calculateTextVisualPortPositionY(GraphRenderer.textVisualPortDragSource(),null);
             const destX: number = GraphRenderer.mousePosX();
             const destY: number = GraphRenderer.mousePosY();
 
@@ -1387,13 +1408,27 @@ export class GraphRenderer {
     }
 
     static getVisualEdgePath(textVisual: Visual) : string {
-        const lg: LogicalGraph = Eagle.getInstance().logicalGraph();
-
         const srcVisual: Visual = textVisual;
-        const srcX: number = GraphRenderer.calculateTextVisualPortPositionX(srcVisual);
-        const srcY: number = GraphRenderer.calculateTextVisualPortPositionY(srcVisual);
-
         const destObject: Node | Edge | Visual = textVisual.getTarget();
+
+        //if the visual is not connected to anything we don't need to render an edge
+        if(destObject === null){
+            return '';
+        }
+
+        //get positions of the two objects
+        const visualPos = srcVisual.getPosition()
+        const targetPos = destObject.getPosition()
+
+        //calculate the angle, convert to degrees
+        let targetAngle = GraphRenderer.calculateConnectionAngle(visualPos, targetPos)
+        targetAngle = Utils.toDegrees360(targetAngle)
+        let srcAngle = GraphRenderer.calculateConnectionAngle(targetPos, visualPos)
+        srcAngle = Utils.toDegrees360(srcAngle)
+
+        const srcX: number = GraphRenderer.calculateTextVisualPortPositionX(srcVisual, targetAngle);
+        const srcY: number = GraphRenderer.calculateTextVisualPortPositionY(srcVisual, targetAngle);
+
         let destObjectRadius: number = 0;
         let destX = 0;
         let destY = 0;
@@ -1406,8 +1441,8 @@ export class GraphRenderer {
             destX = destObject.getPosition().x;
             destY = destObject.getPosition().y;
         }else if(destObject instanceof Visual){
-            destX = GraphRenderer.calculateTextVisualPortPositionX(destObject);
-            destY = GraphRenderer.calculateTextVisualPortPositionY(destObject);
+            destX = GraphRenderer.calculateTextVisualPortPositionX(destObject, srcAngle);
+            destY = GraphRenderer.calculateTextVisualPortPositionY(destObject, srcAngle);
         }
 
         return GraphRenderer.createBezier(false,false, null, 0, destObjectRadius,{x:srcX, y:srcY}, {x:destX, y:destY}, null, null, false)
@@ -1975,9 +2010,6 @@ export class GraphRenderer {
                     eagle.undo().pushSnapshot(eagle, "Set Text Visual target to Node '" + target.getName() + "'" );
                 }else if (target instanceof Edge){
                     eagle.undo().pushSnapshot(eagle, "Set Text Visual target to Edge from '" + target.getSrcNode().getName() + "' to '" + target.getDestNode().getName() + "'" );
-                }else if (target instanceof Visual && target.isGroup()){
-                    target.setTarget(visual) //set the current text visual as the group visuals target. this allows us to traverse back from the group visuals
-                    eagle.undo().pushSnapshot(eagle, "Set Text Visual target to Group Visual" );
                 }
             }
         }
