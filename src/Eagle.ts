@@ -4303,7 +4303,6 @@ export class Eagle {
         if (newType === Daliuge.DataType.Select){
             if (field.getOptions().length === 0){
                 field.addOption(field.getValue());
-                field.addOption(field.getDefaultValue());
             }
         }
 
@@ -4773,8 +4772,6 @@ export class Eagle {
 
             // set name of new node (use user-facing name)
             newNode.setName(srcPort.getDisplayText());
-
-
 
             // find InputOutput port on node, which matches the source port dataType
             const inputOutputPort = newNode.findPortByMatchingType(srcPort.getType(), [Daliuge.FieldUsage.InputOutput]);

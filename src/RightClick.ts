@@ -457,7 +457,7 @@ export class RightClick {
         }
 
         const funcCodeField = rightClickObject.findFieldByDisplayText(Daliuge.FieldName.FUNC_CODE);
-        ParameterTable.requestEditValueField(funcCodeField, false)
+        ParameterTable.requestEditValueField(funcCodeField)
     }
 
     static rightClickDeleteTextVisualConnection(){
