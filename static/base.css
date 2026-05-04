@@ -2932,6 +2932,11 @@ ul.nav.navbar-nav .dropdown-item:hover,ul.nav.navbar-nav .dropdown-item:focus{
     height: 100%;
 }
 
+#graphUpdaterModalGraphTableCol {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
 .material-symbols-outlined.filled{
     font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48;
 }

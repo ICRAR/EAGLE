@@ -7,6 +7,7 @@ import { Utils } from './Utils';
 import { GraphRenderer } from './GraphRenderer';
 import { GraphConfigurationsTable } from './GraphConfigurationsTable';
 import { SideWindow } from './SideWindow';
+import { GraphUpdater } from './GraphUpdater';
 
 enum Modifier {
     Alt = "Alt",
@@ -688,6 +689,15 @@ export class KeyboardShortcut {
             text: "Start Graph Configuration Tutorial",
             icon: 'question_mark',
             run: (eagle): void => {TutorialSystem.initiateTutorial('Graph Configurations');}
+        }),
+
+        // tools
+        new KeyboardShortcut({
+            id: "graph_updater",
+            text: "Graph Updater",
+            keys: [new Key("9")],
+            tags: ['tool','graph','updater'],
+            run: (eagle): void => {GraphUpdater.showModal();}
         }),
     ];
 

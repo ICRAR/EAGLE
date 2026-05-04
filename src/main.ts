@@ -41,6 +41,7 @@ import { GitLab } from './GitLab';
 import { GraphConfig } from "./GraphConfig";
 import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 import { GraphRenderer } from "./GraphRenderer";
+import { GraphUpdater } from "./GraphUpdater";
 import { Hierarchy } from './Hierarchy';
 import { KeyboardShortcut } from './KeyboardShortcut';
 import { StatusEntry } from './StatusEntry';
@@ -90,6 +91,7 @@ $(function(){
     (<any>window).FileInfo = FileInfo;
     (<any>window).GraphConfig = GraphConfig;
     (<any>window).GraphConfigurationsTable = GraphConfigurationsTable;
+    (<any>window).GraphUpdater = GraphUpdater;
     (<any>window).Hierarchy = Hierarchy;
     (<any>window).ParameterTable = ParameterTable;
     (<any>window).Repositories = Repositories;
