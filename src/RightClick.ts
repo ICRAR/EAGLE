@@ -578,8 +578,8 @@ export class RightClick {
                 let visualMenu = `<span class="contextmenuPalette" onmouseover="RightClick.openSubMenu(this)" onmouseleave="RightClick.closeSubMenu(this)">Graph Visuals`
                         visualMenu += `<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">`
                         visualMenu += `<div class="contextMenuDropdown">`
-                            visualMenu += `<a class='rightClickPerpetual' onclick="eagle.addVisualToLogicalGraph(null,'Text', 'ContextMenu');">Add Text Visual</a>`
-                            visualMenu += `<a class='rightClickPerpetual' onclick="eagle.addVisualToLogicalGraph(null,'Group', 'ContextMenu');">Add Group Visual</a>`
+                            visualMenu += `<a class='rightClickPerpetual' onclick="eagle.addVisualToLogicalGraph('Text', 'ContextMenu');">Add Text Visual</a>`
+                            visualMenu += `<a class='rightClickPerpetual' onclick="eagle.addVisualToLogicalGraph('Group', 'ContextMenu');">Add Group Visual</a>`
                         visualMenu += `</div>`
                     visualMenu += `</span>`
                 $('#customContextMenu').append(visualMenu)

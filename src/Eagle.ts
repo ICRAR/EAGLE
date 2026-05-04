@@ -4200,11 +4200,8 @@ export class Eagle {
         return p;
     }
 
-    addVisualToLogicalGraph = async (visual: Visual, type: Visual.Type, mode: Eagle.AddNodeMode) : Promise<Visual> => {
+    addVisualToLogicalGraph = async (type: Visual.Type, mode: Eagle.AddNodeMode) : Promise<Visual> => {
         return new Promise(async(resolve, reject) => {
-        
-            // get reference to the logical graph
-            const logicalGraph = this.logicalGraph();
 
             let pos : {x:number, y:number};
             pos = {x:0,y:0}
@@ -4235,12 +4232,11 @@ export class Eagle {
                     pos = Eagle.nodeDropLocation;
                 }
             }
-
-            const visual = new Visual(type, '');
-            visual.setPosition(pos.x, pos.y);
+            
+            newVisual.setPosition(pos.x, pos.y);
 
             // add the visual to the logical graph (routes through addVisual() for consistency)
-            const addedVisual = await this.addVisual(visual);
+            const addedVisual = await this.addVisual(newVisual);
 
             // select the new visual in the graph so it is easy to spot
             this.setSelection(addedVisual, Eagle.FileType.Graph)
