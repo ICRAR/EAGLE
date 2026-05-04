@@ -13,7 +13,7 @@ export class FileLocation {
     downloadUrl: ko.Observable<string>;
 
     constructor(){
-        this.repositoryService = ko.observable(Repository.Service.Unknown);
+        this.repositoryService = ko.observable<Repository.Service>(Repository.Service.Unknown);
         this.repositoryBranch = ko.observable("");
         this.repositoryName = ko.observable("");
         this.repositoryPath = ko.observable("");
@@ -108,7 +108,7 @@ export class FileLocation {
         };
     }
 
-    static fromJson(data: any, errorsWarnings: Errors.ErrorsWarnings): FileLocation {
+    static fromJson(data: any, _errorsWarnings: Errors.ErrorsWarnings): FileLocation {
         const result: FileLocation = new FileLocation();
 
         result.repositoryService(data.repositoryService ?? Repository.Service.Unknown);

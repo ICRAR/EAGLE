@@ -189,7 +189,7 @@ export class Visual {
         return result;
     }
 
-    static fromJson(visualData: any, lg: LogicalGraph, errorsWarnings: Errors.ErrorsWarnings) : Visual {
+    static fromJson(visualData: any, lg: LogicalGraph, _errorsWarnings: Errors.ErrorsWarnings) : Visual {
         const id: VisualId = visualData.id as VisualId;
         const x: number = visualData.x;
         const y: number = visualData.y;

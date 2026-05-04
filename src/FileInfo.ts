@@ -47,8 +47,8 @@ export class FileInfo {
         this._name = ko.observable("");
         this._shortDescription = ko.observable("");
         this._detailedDescription = ko.observable("");
-        this._type = ko.observable(Eagle.FileType.Unknown);
-        this._schemaVersion = ko.observable(Setting.SchemaVersion.Unknown);
+        this._type = ko.observable<Eagle.FileType>(Eagle.FileType.Unknown);
+        this._schemaVersion = ko.observable<Setting.SchemaVersion>(Setting.SchemaVersion.Unknown);
         this._readonly = ko.observable(true);
         this._location = ko.observable(new FileLocation());
 

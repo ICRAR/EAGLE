@@ -89,7 +89,7 @@ export class Repository {
     // browse down into a repository, along the path, and return the RepositoryFolder there
     // or if no path, just return the Repository
     // or if path not found, return null
-    findPath = (path: string): Repository | RepositoryFolder => {
+    findPath = (path: string): Repository | RepositoryFolder | null => {
         if (path === ""){
             return this;
         }
@@ -186,7 +186,7 @@ export class Repository {
 
     deleteFile = (file: RepositoryFile) : void => {
         let pointer: Repository | RepositoryFolder = this;
-        let lastPointer: Repository | RepositoryFolder = null;
+        let lastPointer: Repository | RepositoryFolder = pointer;
         const fileIsInTopLevelOfRepo: boolean = file.path === "";
 
         if (!fileIsInTopLevelOfRepo){

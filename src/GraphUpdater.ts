@@ -250,7 +250,7 @@ export class GraphUpdater {
             }
 
             // try to load the file
-            await new Promise<void>((resolve, reject) => {
+            await new Promise<void>((resolve, _reject) => {
                 openRemoteFileFunc(row.service, row.name, row.branch, row.folder, row.file, (error: string, data: string) => {
                     // if file fetched successfully
                     if (error === null){
