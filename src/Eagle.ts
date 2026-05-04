@@ -4901,7 +4901,6 @@ export class Eagle {
         const targetNode = node || this.selectedNode();
 
         // abort if no node is selected
-        console.log(targetNode, !(targetNode instanceof Node))
         if (targetNode === null || !(targetNode instanceof Node)) {
             console.warn("No node selected");
             return;
