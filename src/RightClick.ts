@@ -10,6 +10,7 @@ import { Setting } from './Setting';
 import { ParameterTable } from './ParameterTable';
 import { Daliuge } from './Daliuge';
 import { EagleConfig } from './EagleConfig';
+import { Utils } from './Utils';
 
 
 export class RightClick {
@@ -272,7 +273,7 @@ export class RightClick {
             htmlNodeDescription += '<div class="contextMenuDropdown">'
                 htmlNodeDescription += '<div class="container">'
                     htmlNodeDescription += '<div class="row">'
-                        htmlNodeDescription += "<span id='nodeInfoName'><h4>Name:  </h4>" + rightClickObject.getName() + "</span>"
+                        htmlNodeDescription += "<span id='nodeInfoName'><h4>Name:  </h4>" + Utils.markdown2html(rightClickObject.getName()) + "</span>"
                     htmlNodeDescription += "</div>"
                     htmlNodeDescription += '<div class="row">'
                         htmlNodeDescription += "<span id='nodeInfoId'><h4>Id:  </h4>" + rightClickObject.getId() + "</span>"
@@ -281,7 +282,7 @@ export class RightClick {
                         htmlNodeDescription += "<span id='nodeInfoCategory'><h4>Category:  </h4>" + rightClickObject.getCategory() + "</span>"
                     htmlNodeDescription += "</div>"
                     htmlNodeDescription += '<div class="row">'
-                        htmlNodeDescription += "<span><h4>Description:  </h4>" + rightClickObject.getDescription() + "</span>"
+                        htmlNodeDescription += "<span><h4>Description:  </h4>" + Utils.markdown2html(rightClickObject.getDescription()) + "</span>"
                     htmlNodeDescription += "</div>"
                 htmlNodeDescription += "</div>"
             htmlNodeDescription += "</div>"
