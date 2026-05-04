@@ -18,10 +18,14 @@ const colors: ColorMap = {
     errorBackground:             '#ffdcdc',
     warningBackground:           '#ffeac4',
 
+    // visual colors
+    textVisualPortColor:        '#986b7fff',
+    groupVisualBackgroundColor: '#b4d4ff',
+
     // edge colors
     edgeDefault:                 '#58595b',
     edgeDefaultSelected:         '#4247df',
-    commentEdge:                 '#7c7e81',
+    commentEdge:                 '#b9c7dd',
     edgeValid:                   '#32cd32',
     edgeWarning:                 '#ffa500',
     edgeFixable:                 '#6dc7bd',
@@ -77,9 +81,18 @@ export class EagleConfig {
     public static readonly EDGE_COMMENT_OFFSET_X : number = 2 //how far is the edge comment offset from the center
     public static readonly EDGE_COMMENT_OFFSET_Y : number = 10 //how far is the edge comment offset from the center
 
+    //visual settings
+    public static readonly TEXT_VISUAL_DEFAULT_WIDTH : number = 150;
+    public static readonly TEXT_VISUAL_DEFAULT_HEIGHT : number = 100;
+    public static readonly GROUP_VISUAL_DEFAULT_WIDTH : number = 100;
+    public static readonly GROUP_VISUAL_DEFAULT_HEIGHT : number = 100;
+    public static readonly VISUAL_DEFAULT_WIDTH : number = 100;
+    public static readonly VISUAL_DEFAULT_HEIGHT : number = 100;
+
+
     // when creating a new construct to enclose a selection, or shrinking a node to enclose its children,
     // this is the default margin that should be left on each side
-    public static readonly CONSTRUCT_MARGIN: number = 30;
+    public static readonly CONSTRUCT_MARGIN: number = 60;
     public static readonly CONSTRUCT_DRAG_OUT_DISTANCE: number = 100;
 
     // number of spaces used for indenting output JSON, makes everything human-readable
@@ -118,6 +131,7 @@ export class EagleConfig {
         style.setProperty("--matchingEdgeColor", EagleConfig.getColor('edgeAutoComplete'));
         style.setProperty("--nodeOutputColor", EagleConfig.getColor('nodeOutputPort'));
         style.setProperty("--nodeInputColor", EagleConfig.getColor('nodeInputPort'));
+        style.setProperty("--textVisualPortColor", EagleConfig.getColor('textVisualPortColor'));
         style.setProperty("--edgeSVGSize", EagleConfig.EDGE_SVG_SIZE+'px');
         style.setProperty("--edgeThickness", EagleConfig.EDGE_THICKNESS+'px');
 

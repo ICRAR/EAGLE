@@ -829,10 +829,10 @@ export class ParameterTable {
         }
     }
 
-    static getCurrentParamValueReadonly = (field: Field) : boolean => {
+    static getCurrentParamValueReadonly = (field : Field) : boolean => {
         // check that we actually found the right field, otherwise abort
-        if (field === null){
-            console.warn("Supplied field is null");
+        if (field === null || !(field instanceof Field)){
+            console.warn("Supplied field is null or invalid");
             return true;
         }
 
