@@ -492,7 +492,7 @@ export class Utils {
     static showUserMessage (title : string, message : string, html: boolean = false) : void {
         $('#messageModalTitle').text(title);
         if (html) {
-            $('#messageModalMessage').html(Utils.sanitizeHtml(message));
+            $('#messageModalMessage').html(Utils.markdown2html(message));
         } else {
             $('#messageModalMessage').text(message);
         }
@@ -569,7 +569,7 @@ export class Utils {
     static requestUserString(title : string, message : string, defaultString: string, isPassword: boolean): Promise<string> {
         return new Promise(async(resolve, reject) => {
             $('#inputModalTitle').text(title);
-            $('#inputModalMessage').html(message);
+            $('#inputModalMessage').html(Utils.markdown2html(message));
             $('#inputModalInput').attr('type', isPassword ? 'password' : 'text');
 
             $('#inputModalInput').val(defaultString);
@@ -595,7 +595,7 @@ export class Utils {
     static requestUserText(title : string, message : string, defaultText: string, readonly: boolean = false) : Promise<string> {
         return new Promise(async(resolve, reject) => {
             $('#inputTextModalTitle').text(title);
-            $('#inputTextModalMessage').html(message);
+            $('#inputTextModalMessage').html(Utils.markdown2html(message));
 
             $('#inputTextModalInput').val(defaultText);
             $('#inputTextModalInput').prop('readonly', readonly);
@@ -695,7 +695,7 @@ export class Utils {
     static requestUserNumber(title : string, message : string, defaultNumber: number) : Promise<number> {
         return new Promise(async(resolve, reject) => {
             $('#inputModalTitle').text(title);
-            $('#inputModalMessage').html(message);
+            $('#inputModalMessage').html(Utils.markdown2html(message));
             $('#inputModalInput').val(defaultNumber);
 
             // store data about the choices, callback, result on the modal HTML element
@@ -720,7 +720,7 @@ export class Utils {
     static async requestUserChoice(title : string, message : string, choices : string[], selectedChoiceIndex : number, allowCustomChoice : boolean, customChoiceText : string): Promise<string> {
         return new Promise(async(resolve, reject) => {
             $('#choiceModalTitle').text(title);
-            $('#choiceModalMessage').html(message);
+            $('#choiceModalMessage').html(Utils.markdown2html(message));
             $('#choiceModalCustomChoiceText').text(customChoiceText);
             $('#choiceModalString').val("");
 
@@ -773,7 +773,7 @@ export class Utils {
     static async requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string, confirmSetting: Setting): Promise<boolean> {
         return new Promise(async(resolve, reject) => {
             $('#confirmModalTitle').text(title);
-            $('#confirmModalMessage').html(message);
+            $('#confirmModalMessage').html(Utils.markdown2html(message));
             $('#confirmModalAffirmativeAnswer').text(affirmativeAnswer);
             $('#confirmModalNegativeAnswer').text(negativeAnswer);
 
@@ -805,7 +805,7 @@ export class Utils {
     static async requestUserOptions(title: string, message: string, option0: string, option1: string, option2: string, defaultOptionIndex: number): Promise<string> {
         return new Promise(async(resolve, reject) => {
             $('#optionsModalTitle').text(title);
-            $('#optionsModalMessage').html(message);
+            $('#optionsModalMessage').html(Utils.markdown2html(message));
             $('#optionsModalOption0').text(option0);
             $('#optionsModalOption1').text(option1);
             $('#optionsModalOption2').text(option2);
