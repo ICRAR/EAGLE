@@ -1930,17 +1930,21 @@ export class GraphRenderer {
         const posX = GraphRenderer.GRAPH_TO_SCREEN_POSITION_X(GraphRenderer.mousePosX());
         const posY = GraphRenderer.GRAPH_TO_SCREEN_POSITION_Y(GraphRenderer.mousePosY());
 
-        //get the element under the mouse
-        const element = document.elementFromPoint(posX, posY);
-
-        if (element) {
-            //grab the ko $data of the element under the mouse
+        // walk through all stacked elements under the mouse (top to bottom) to find the first with a valid knockout binding.
+        // using elementsFromPoint (plural) instead of elementFromPoint (singular) ensures child elements of a visual
+        // (e.g. text spans, icons) don't block us from finding the parent Visual binding.
+        const elements = document.elementsFromPoint(posX, posY);
+        let target: Node | Edge | Visual | null = null;
+        for (const element of elements) {
             const data = ko.dataFor(element);
-
             if (data instanceof Node || data instanceof Edge || data instanceof Visual) {
-                GraphRenderer.textVisualPortDragTarget(data);
+                target = data;
+                break;
             }
         }
+        // always update the drag target; clear it when no valid target is under the cursor
+        GraphRenderer.textVisualPortDragTarget(target);
+        
     }
 
     static portDragEnd() : void {
