@@ -50,13 +50,6 @@ export class Visual {
         this.id = ko.observable(Utils.generateVisualId());
         this.x = ko.observable(0);
         this.y = ko.observable(0);
-        if(type === Visual.Type.Text){
-            this.width = ko.observable(EagleConfig.TEXT_VISUAL_DEFAULT_WIDTH);
-            this.height = ko.observable(EagleConfig.TEXT_VISUAL_DEFAULT_HEIGHT);
-        }else if(type === Visual.Type.Group){
-            this.width = ko.observable(EagleConfig.GROUP_VISUAL_DEFAULT_WIDTH);
-            this.height = ko.observable(EagleConfig.GROUP_VISUAL_DEFAULT_HEIGHT);
-        }
 
         switch(type){
             case Visual.Type.Text:

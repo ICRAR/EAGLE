@@ -327,7 +327,6 @@ input[type="color"]::-webkit-color-swatch {
     border: none;
     border-radius: 10px;
     box-shadow: none;
-    background-color: pink;
 }
 
 .node .innerRing {
