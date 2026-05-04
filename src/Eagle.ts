@@ -392,7 +392,7 @@ export class Eagle {
             return "";
         }
 
-        return  "<strong>Config:</strong> " + this.logicalGraph().getActiveGraphConfig().fileInfo().name;
+        return  "<strong>Config:</strong> " + Utils.markdown2html(this.logicalGraph().getActiveGraphConfig().fileInfo().name);
     }, this);
 
     // TODO: move to SideWindow.ts?

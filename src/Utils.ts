@@ -881,7 +881,7 @@ export class Utils {
                 resolve(field);
             }
             $('#editFieldModal').data('callback', callback);
-            $("#editFieldModalTitle").html(title);
+            $("#editFieldModalTitle").html(Utils.markdown2html(title));
             $('#editFieldModal').data('choices', choices);
             $('#editFieldModal').modal("show");
         });
