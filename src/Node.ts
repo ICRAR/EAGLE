@@ -733,6 +733,10 @@ export class Node {
         }
     },this)
 
+    getNameHTML : ko.PureComputed<string> = ko.pureComputed(() => {
+        return Utils.markdown2html(this.name());
+    }, this);
+
     getHelpHTML : ko.PureComputed<string> = ko.pureComputed(() => {
         // handle error if name is undefined
         if (typeof this.name() === 'undefined'){
@@ -742,9 +746,9 @@ export class Node {
         // check if name and category are the same (or similar except for capitalisation and whitespace)
         // if so, only use the name, the category is redundant
         if (typeof this.getCategory() === "undefined" || this.getName().split(" ").join("").toLowerCase() === this.getCategory().toLowerCase()){
-            return "||| <h3>"+ this.getName() + "</h3> ||| " + this.getDescription();
+            return "||| <h3>"+ this.getNameHTML() + "</h3> ||| " + this.getDescriptionHTML();
         } else {
-            return "||| <h3>" + this.getCategory() + " : " + this.getName() + "</h3> ||| " +this.getDescription();
+            return "||| <h3>" + this.getCategory() + " : " + this.getNameHTML() + "</h3> ||| " + this.getDescriptionHTML();
         }
     }, this);
 
@@ -754,10 +758,6 @@ export class Node {
 
     getInspectorDescriptionHTML : ko.PureComputed<string> = ko.pureComputed(() => {
         return 'Edit Node Description: </br>' + Utils.markdown2html(this.description());
-    }, this);
-
-    getCommentHTML : ko.PureComputed<string> = ko.pureComputed(() => {
-        return Utils.markdown2html(this.comment());
     }, this);
 
     getInspectorCommentHTML : ko.PureComputed<string> = ko.pureComputed(() => {

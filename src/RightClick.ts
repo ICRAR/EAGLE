@@ -1,15 +1,14 @@
 import { Category } from './Category';
+import { Daliuge } from './Daliuge';
 import { Eagle } from './Eagle';
+import { EagleConfig } from './EagleConfig';
 import { Edge } from './Edge';
 import { Field } from './Field';
 import { GraphRenderer } from './GraphRenderer';
 import { Node } from './Node';
-import { Palette } from './Palette';
-import { Repository } from './Repository';
-import { Setting } from './Setting';
 import { ParameterTable } from './ParameterTable';
-import { Daliuge } from './Daliuge';
-import { EagleConfig } from './EagleConfig';
+import { Setting } from './Setting';
+import { Utils } from './Utils';
 import { Visual } from './Visual';
 
 
@@ -273,7 +272,7 @@ export class RightClick {
             htmlNodeDescription += '<div class="contextMenuDropdown">'
                 htmlNodeDescription += '<div class="container">'
                     htmlNodeDescription += '<div class="row">'
-                        htmlNodeDescription += "<span id='nodeInfoName'><h4>Name:  </h4>" + rightClickObject.getName() + "</span>"
+                        htmlNodeDescription += "<span id='nodeInfoName'><h4>Name:  </h4>" + Utils.markdown2html(rightClickObject.getName()) + "</span>"
                     htmlNodeDescription += "</div>"
                     htmlNodeDescription += '<div class="row">'
                         htmlNodeDescription += "<span id='nodeInfoId'><h4>Id:  </h4>" + rightClickObject.getId() + "</span>"
@@ -282,7 +281,7 @@ export class RightClick {
                         htmlNodeDescription += "<span id='nodeInfoCategory'><h4>Category:  </h4>" + rightClickObject.getCategory() + "</span>"
                     htmlNodeDescription += "</div>"
                     htmlNodeDescription += '<div class="row">'
-                        htmlNodeDescription += "<span><h4>Description:  </h4>" + rightClickObject.getDescription() + "</span>"
+                        htmlNodeDescription += "<span><h4>Description:  </h4>" + Utils.markdown2html(rightClickObject.getDescription()) + "</span>"
                     htmlNodeDescription += "</div>"
                 htmlNodeDescription += "</div>"
             htmlNodeDescription += "</div>"
