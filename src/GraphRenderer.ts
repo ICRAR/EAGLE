@@ -1018,10 +1018,16 @@ export class GraphRenderer {
                 return '';
             }
 
-            const srcX: number = GraphRenderer.calculateTextVisualPortPositionX(GraphRenderer.textVisualPortDragSource(),null);
-            const srcY: number = GraphRenderer.calculateTextVisualPortPositionY(GraphRenderer.textVisualPortDragSource(),null);
+            const visual = GraphRenderer.textVisualPortDragSource();
             const destX: number = GraphRenderer.mousePosX();
             const destY: number = GraphRenderer.mousePosY();
+
+            // calculate the angle from the visual toward the mouse so the port originates from the correct side
+            let srcAngle = GraphRenderer.calculateConnectionAngle(visual.getPosition(), {x: destX, y: destY});
+            srcAngle = Utils.toDegrees360(srcAngle);
+
+            const srcX: number = GraphRenderer.calculateTextVisualPortPositionX(visual, srcAngle);
+            const srcY: number = GraphRenderer.calculateTextVisualPortPositionY(visual, srcAngle);
 
             return GraphRenderer.createBezier(false,false, null, 0, 0, {x:destX, y:destY}, {x:srcX, y:srcY}, null, null, !GraphRenderer.portDragSourcePortIsInput);
         }
@@ -1944,7 +1950,6 @@ export class GraphRenderer {
         }
         // always update the drag target; clear it when no valid target is under the cursor
         GraphRenderer.textVisualPortDragTarget(target);
-        
     }
 
     static portDragEnd() : void {
