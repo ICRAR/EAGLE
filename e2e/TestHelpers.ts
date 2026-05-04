@@ -32,8 +32,8 @@ export class TestHelpers {
         await page.waitForTimeout(500);
 
         // wait for the notification to appear and then dismiss it
-        await page.locator('div[data-notify="container"]').waitFor({state: 'attached'});
-        await page.locator('button[data-notify="dismiss"]').click();
+        await page.locator('div[data-notify="container"]').first().waitFor({state: 'attached'});
+        await page.locator('button[data-notify="dismiss"]').first().click();
     }
 
     static async setShortDescription(page: Page, description: string): Promise<void> {
@@ -117,11 +117,11 @@ export class TestHelpers {
         await page.waitForTimeout(500);
 
         // wait for the notification to appear and then dismiss it
-        await page.locator('div[data-notify="container"]').waitFor({state: 'attached'});
-        await page.locator('button[data-notify="dismiss"]').click();
+        await page.locator('div[data-notify="container"]').first().waitFor({state: 'attached'});
+        await page.locator('button[data-notify="dismiss"]').first().click();
 
         // wait for the notification to be dismissed
-        await page.locator('div[data-notify="container"]').waitFor({state: 'detached'});
+        await page.locator('div[data-notify="container"]').first().waitFor({state: 'detached'});
     }
 
     // Load a graph from a string into the app via the modal
@@ -141,11 +141,11 @@ export class TestHelpers {
         await page.waitForTimeout(500);
 
         // wait for the notification to appear and then dismiss it
-        await page.locator('div[data-notify="container"]').waitFor({state: 'attached'});
-        await page.locator('button[data-notify="dismiss"]').click();
+        await page.locator('div[data-notify="container"]').first().waitFor({state: 'attached'});
+        await page.locator('button[data-notify="dismiss"]').first().click();
 
         // wait for the notification to be dismissed
-        await page.locator('div[data-notify="container"]').waitFor({state: 'detached'});
+        await page.locator('div[data-notify="container"]').first().waitFor({state: 'detached'});
     }
 
     static async saveGraphToString(page: Page): Promise<string> {
