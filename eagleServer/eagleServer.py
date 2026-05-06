@@ -363,16 +363,16 @@ def get_docker_images():
     except urllib.error.HTTPError as e:
         app.logger.exception("Docker Hub HTTP %s for %s", e.code, docker_url)
         status = 404 if e.code == 404 else 502
-        return jsonify({"error": str(e)}), status
+        return jsonify({"error": "Failed to retrieve Docker images"}), status
     except urllib.error.URLError as e:
         if isinstance(e.reason, (socket.timeout, TimeoutError)):
             app.logger.exception("Timeout fetching Docker Hub: %s", docker_url)
-            return jsonify({"error": str(e)}), 504
+            return jsonify({"error": "Docker Hub request timed out"}), 504
         app.logger.exception("Network error fetching Docker Hub: %s", docker_url)
-        return jsonify({"error": str(e)}), 502
+        return jsonify({"error": "Failed to reach Docker Hub"}), 502
     except Exception as e:
         app.logger.exception("Unexpected error fetching Docker Hub: %s", docker_url)
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "An unexpected error occurred"}), 500
 
     return jsonify(data)
 
@@ -401,16 +401,16 @@ def get_docker_image_tags():
     except urllib.error.HTTPError as e:
         app.logger.exception("Docker Hub HTTP %s for %s", e.code, docker_url)
         status = 404 if e.code == 404 else 502
-        return jsonify({"error": str(e)}), status
+        return jsonify({"error": "Failed to retrieve Docker image tags"}), status
     except urllib.error.URLError as e:
         if isinstance(e.reason, (socket.timeout, TimeoutError)):
             app.logger.exception("Timeout fetching Docker Hub: %s", docker_url)
-            return jsonify({"error": str(e)}), 504
+            return jsonify({"error": "Docker Hub request timed out"}), 504
         app.logger.exception("Network error fetching Docker Hub: %s", docker_url)
-        return jsonify({"error": str(e)}), 502
+        return jsonify({"error": "Failed to reach Docker Hub"}), 502
     except Exception as e:
         app.logger.exception("Unexpected error fetching Docker Hub: %s", docker_url)
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "An unexpected error occurred"}), 500
 
     return jsonify(data)
 
@@ -877,16 +877,16 @@ def open_url_file():
     except urllib.error.HTTPError as e:
         app.logger.exception("Remote URL returned HTTP %s: %s", e.code, url)
         status = 404 if e.code == 404 else 502
-        return jsonify({"error": str(e)}), status
+        return jsonify({"error": "Failed to fetch remote file"}), status
     except urllib.error.URLError as e:
         if isinstance(e.reason, (socket.timeout, TimeoutError)):
             app.logger.exception("Timeout fetching remote URL: %s", url)
-            return jsonify({"error": str(e)}), 504
+            return jsonify({"error": "Remote URL request timed out"}), 504
         app.logger.exception("Network error fetching remote URL: %s", url)
-        return jsonify({"error": str(e)}), 502
+        return jsonify({"error": "Failed to reach remote URL"}), 502
     except Exception as e:
         app.logger.exception("Unexpected error fetching remote URL: %s", url)
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "An unexpected error occurred"}), 500
 
     # parse JSON
     graph = json.loads(raw_data)
