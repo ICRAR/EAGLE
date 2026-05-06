@@ -66,9 +66,11 @@ if sys.version_info[0] == 2:
 #      because it can be overwritten by the user's command line
 TEMP_FILE_FOLDER = config.config.TEMP_FILE_FOLDER
 
-templdir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../templates")
-staticdir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../static")
-srcdir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../src")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+templdir = os.path.normpath(os.path.join(BASE_DIR, "..", "templates"))
+staticdir = os.path.normpath(os.path.join(BASE_DIR, "..", "static"))
+srcdir = os.path.normpath(os.path.join(BASE_DIR, "..", "src"))
 
 app = Flask(__name__, template_folder=templdir, static_folder=staticdir)
 app.config.from_object("config")
