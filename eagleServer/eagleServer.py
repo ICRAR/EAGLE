@@ -34,6 +34,7 @@ import subprocess
 
 import ipaddress
 import socket
+import urllib.error
 import urllib.request
 import urllib.parse
 import ssl
@@ -265,8 +266,8 @@ def get_git_hub_files_all():
         repo_token = content["token"]
         repo_path = content["path"]
     except KeyError as ke:
-        print("KeyError: {0}".format(str(ke)))
-        return jsonify({"error":"Repository, Branch or Token not specified in request"})
+        app.logger.error("KeyError in getGitHubFilesAll: %s", ke)
+        return jsonify({"error":"Repository, Branch or Token not specified in request"}), 400
 
     # Extracting the true repo name and repo folder.
     folder_name, repo_name = extract_folder_and_repo_names(repo_name)
@@ -312,8 +313,8 @@ def get_git_lab_files_all():
         repo_token = content["token"]
         repo_path = content["path"]
     except KeyError as ke:
-        print("KeyError: {0}".format(str(ke)))
-        return jsonify({"error":"Repository, Branch or Token not specified in request"})
+        app.logger.error("KeyError in getGitLabFilesAll: %s", ke)
+        return jsonify({"error":"Repository, Branch or Token not specified in request"}), 400
 
     if repo_token:
         gl = gitlab.Gitlab('https://gitlab.com', private_token=repo_token, api_version=4)
@@ -350,14 +351,28 @@ def get_docker_images():
     try:
         user_name = content["username"]
     except KeyError as ke:
-        print("KeyError: {0}".format(str(ke)))
-        return jsonify({"error":"Username not specified in request"})
+        app.logger.error("KeyError in getDockerImages: %s", ke)
+        return jsonify({"error":"Username not specified in request"}), 400
 
     docker_url = "https://hub.docker.com/v2/repositories/" + user_name + "/"
 
     ctx = ssl.create_default_context(cafile=certifi.where())
-    with urllib.request.urlopen(docker_url, context=ctx, timeout=URL_OPEN_TIMEOUT) as url:
-        data = json.loads(url.read().decode())
+    try:
+        with urllib.request.urlopen(docker_url, context=ctx, timeout=URL_OPEN_TIMEOUT) as url:
+            data = json.loads(url.read().decode())
+    except urllib.error.HTTPError as e:
+        app.logger.exception("Docker Hub HTTP %s for %s", e.code, docker_url)
+        status = 404 if e.code == 404 else 502
+        return jsonify({"error": str(e)}), status
+    except urllib.error.URLError as e:
+        if isinstance(e.reason, (socket.timeout, TimeoutError)):
+            app.logger.exception("Timeout fetching Docker Hub: %s", docker_url)
+            return jsonify({"error": str(e)}), 504
+        app.logger.exception("Network error fetching Docker Hub: %s", docker_url)
+        return jsonify({"error": str(e)}), 502
+    except Exception as e:
+        app.logger.exception("Unexpected error fetching Docker Hub: %s", docker_url)
+        return jsonify({"error": str(e)}), 500
 
     return jsonify(data)
 
@@ -374,14 +389,28 @@ def get_docker_image_tags():
     try:
         image_name = content["imagename"]
     except KeyError as ke:
-        print("KeyError: {0}".format(str(ke)))
-        return jsonify({"error":"Imagename not specified in request"})
+        app.logger.error("KeyError in getDockerImageTags: %s", ke)
+        return jsonify({"error":"Imagename not specified in request"}), 400
 
     docker_url = "https://registry.hub.docker.com/v2/repositories/" + image_name + "/tags"
 
     ctx = ssl.create_default_context(cafile=certifi.where())
-    with urllib.request.urlopen(docker_url, context=ctx, timeout=URL_OPEN_TIMEOUT) as url:
-        data = json.loads(url.read().decode())
+    try:
+        with urllib.request.urlopen(docker_url, context=ctx, timeout=URL_OPEN_TIMEOUT) as url:
+            data = json.loads(url.read().decode())
+    except urllib.error.HTTPError as e:
+        app.logger.exception("Docker Hub HTTP %s for %s", e.code, docker_url)
+        status = 404 if e.code == 404 else 502
+        return jsonify({"error": str(e)}), status
+    except urllib.error.URLError as e:
+        if isinstance(e.reason, (socket.timeout, TimeoutError)):
+            app.logger.exception("Timeout fetching Docker Hub: %s", docker_url)
+            return jsonify({"error": str(e)}), 504
+        app.logger.exception("Network error fetching Docker Hub: %s", docker_url)
+        return jsonify({"error": str(e)}), 502
+    except Exception as e:
+        app.logger.exception("Unexpected error fetching Docker Hub: %s", docker_url)
+        return jsonify({"error": str(e)}), 500
 
     return jsonify(data)
 
@@ -691,7 +720,7 @@ def delete_git_hub_file():
     try:
         repo = g.get_repo(repo_name)
     except Exception as e:
-        print(e)
+        app.logger.exception("GitHub get_repo failed for %s", repo_name)
         return jsonify({"error": str(e)}), 404
 
     # get commits
@@ -738,7 +767,7 @@ def open_git_lab_file():
         try:
             gl.auth()
         except Exception as e:
-            print(e)
+            app.logger.exception("GitLab auth failed for %s", repo_name)
             return jsonify({"error": str(e)}), 404
     else:
         gl = gitlab.Gitlab('https://gitlab.com', api_version=4)
@@ -748,7 +777,7 @@ def open_git_lab_file():
     try:
         f = project.files.get(file_path=filename, ref=repo_branch)
     except gitlab.exceptions.GitlabGetError as gle:
-        print("GitLabGetError {0}/{1}/{2}: {3}".format(repo_name, repo_branch, filename, str(gle)))
+        app.logger.error("GitLabGetError %s/%s/%s: %s", repo_name, repo_branch, filename, gle)
         return jsonify({"error": str(gle)}), 404
 
     # get the decoded content
@@ -810,7 +839,7 @@ def delete_git_lab_file():
     try:
         gl.auth()
     except Exception as e:
-        print(e)
+        app.logger.exception("GitLab auth failed for %s", repo_name)
         return jsonify({"error": str(e)}), 404
 
     project = gl.projects.get(repo_name)
@@ -818,7 +847,7 @@ def delete_git_lab_file():
     try:
         project.files.delete(file_path=filename, branch=repo_branch, commit_message="File removed by EAGLE")
     except gitlab.exceptions.GitlabDeleteError as gle:
-        print("GitLabDeleteError {0}/{1}/{2}: {3}".format(repo_name, repo_branch, filename, str(gle)))
+        app.logger.error("GitLabDeleteError %s/%s/%s: %s", repo_name, repo_branch, filename, gle)
         return jsonify({"error": str(gle)}), 404
 
     return jsonify({"success": True})
@@ -845,9 +874,19 @@ def open_url_file():
     # download via http get
     try:
         raw_data = urllib.request.urlopen(url, context=ssl.create_default_context(cafile=certifi.where()), timeout=URL_OPEN_TIMEOUT).read()
+    except urllib.error.HTTPError as e:
+        app.logger.exception("Remote URL returned HTTP %s: %s", e.code, url)
+        status = 404 if e.code == 404 else 502
+        return jsonify({"error": str(e)}), status
+    except urllib.error.URLError as e:
+        if isinstance(e.reason, (socket.timeout, TimeoutError)):
+            app.logger.exception("Timeout fetching remote URL: %s", url)
+            return jsonify({"error": str(e)}), 504
+        app.logger.exception("Network error fetching remote URL: %s", url)
+        return jsonify({"error": str(e)}), 502
     except Exception as e:
-        print(e)
-        return jsonify({"error": str(e)}), 404
+        app.logger.exception("Unexpected error fetching remote URL: %s", url)
+        return jsonify({"error": str(e)}), 500
 
     # parse JSON
     graph = json.loads(raw_data)
