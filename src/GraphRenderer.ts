@@ -24,7 +24,6 @@
 
 import * as ko from "knockout";
 
-import { Daliuge } from "./Daliuge";
 import { Eagle } from './Eagle';
 import { Errors } from './Errors';
 import { EagleConfig } from "./EagleConfig";
@@ -226,7 +225,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
             switch (dataType){
                 case 'inputPort':
                     // portPosition=GraphRenderer.calculatePortPos(Math.PI, nodeRadius, nodeRadius)
-                    averageAngle = 3.14159
+                    averageAngle = Math.PI
                     field.setInputAngle(averageAngle)
                     break;
                 case 'outputPort':
@@ -262,7 +261,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
         }
 
         //apply the correct css
-        if(averageAngle>1.5708 && averageAngle<4.7123){
+        if(averageAngle>Math.PI/2 && averageAngle<3*Math.PI/2){
             $(element).find(".portTitle").css({'text-align':'right','left':-5+'px','transform':'translateX(-100%)'})
         }else{
             $(element).find(".portTitle").css({'text-align':'left','right':-5+'px','transform':'translateX(100%)'})
@@ -329,6 +328,8 @@ export class GraphRenderer {
     static isResizingVisual : ko.Observable<boolean> = ko.observable(false);
     static visualResizeCurrentPos : {x:number,y:number} = {x:0,y:0};
     static visualBeingResized : Visual = null;
+
+    static readonly Y_AXIS_PIXEL_OFFSET = 83.77;
 
     static averageAngles(angles: number[]) : number {
         let x: number = 0;
@@ -566,7 +567,7 @@ export class GraphRenderer {
         }
     }
 
-    static findClosestMatchingAngle (node:Node, angle:number, minPortDistance:number,field:Field,mode: "input" | "output") : number {
+    static findClosestMatchingAngle (node:Node, angle:number, minPortDistance:number, field:Field, mode: "input" | "output") : number {
         let result = 0
         let minAngle 
         let maxAngle
@@ -575,8 +576,10 @@ export class GraphRenderer {
         let noMatch = true
         let circles = 0
 
+        const MAX_CIRCLES = 10;
+
         //checking max angle
-        while(noMatch && circles<10){
+        while(noMatch && circles<MAX_CIRCLES){
             const collidingPortAngle:number = GraphRenderer.checkForPortUsingAngle(node,currentAngle,minPortDistance, field,mode)
             if(collidingPortAngle === null){
                 maxAngle = currentAngle // we've found our closest gap when adding to our angle
@@ -600,7 +603,7 @@ export class GraphRenderer {
         currentAngle = angle
 
         //checking min angle
-        while(noMatch && circles<10){
+        while(noMatch && circles<MAX_CIRCLES){
             const collidingPortAngle:number = GraphRenderer.checkForPortUsingAngle(node,currentAngle,minPortDistance, field,mode)
             if(collidingPortAngle === null){
                 minAngle = currentAngle // we've found our closest gap when adding to our angle
@@ -763,28 +766,6 @@ export class GraphRenderer {
         return adjacentNodes;
     }
 
-    static directionOffset(x: boolean, direction: Eagle.Direction){
-        if (x){
-            switch (direction){
-                case Eagle.Direction.Left:
-                    return -50;
-                case Eagle.Direction.Right:
-                    return 50;
-                default:
-                    return 0;
-            }
-        } else {
-            switch (direction){
-                case Eagle.Direction.Up:
-                    return -50;
-                case Eagle.Direction.Down:
-                    return 50;
-                default:
-                    return 0;
-            }
-        }
-    }
-    
     static calculateConnectionAngle(currentNodePos:any, linkedNodePos:any) : number {
         const xDistance = linkedNodePos.x-currentNodePos.x
         const yDistance = currentNodePos.y-linkedNodePos.y
@@ -879,7 +860,7 @@ export class GraphRenderer {
         const y1 = srcNodePosition.y + srcPortOffset.y;
         const x2 = destNodePosition.x + destPortOffset.x;
         const y2 = destNodePosition.y + destPortOffset.y;
-        
+
         
         // -------------calculate if the edge is a short edge---------------
         
@@ -1780,13 +1761,14 @@ export class GraphRenderer {
     static isAncestor(node : Node, possibleAncestor : Node) : boolean {
         let n : Node = node;
         let iterations = 0;
+        const MAX_ITERATIONS = 32;
 
         if (n === null){
             return false;
         }
 
         while (true){
-            if (iterations > 32){
+            if (iterations > MAX_ITERATIONS){
                 console.error("too many iterations in isDescendent()");
                 return null;
             }
@@ -2200,7 +2182,7 @@ export class GraphRenderer {
         if(y===null && GraphRenderer.dragCurrentPosition){
             y = GraphRenderer.dragCurrentPosition.y
         }
-        return (y-83.77)/eagle.globalScale() -eagle.globalOffsetY();
+        return (y-GraphRenderer.Y_AXIS_PIXEL_OFFSET)/eagle.globalScale() -eagle.globalOffsetY();
     }
 
     static SCREEN_TO_GRAPH_SCALE(n: number) : number {
@@ -2215,7 +2197,7 @@ export class GraphRenderer {
 
     static GRAPH_TO_SCREEN_POSITION_Y(y: number) : number {
         const eagle = Eagle.getInstance();
-        return (y+eagle.globalOffsetY())*eagle.globalScale()+83.77
+        return (y+eagle.globalOffsetY())*eagle.globalScale()+GraphRenderer.Y_AXIS_PIXEL_OFFSET
     }
 
     static depthFirstTraversalOfNodes(graph: LogicalGraph) : Node[] {
@@ -2261,6 +2243,8 @@ export class GraphRenderer {
     // TODO: maybe replace the nodes parameter here with graph: LogicalGraph
     static findDepthOfNode(index: number, nodes : Node[]) : number {
         const eagle = Eagle.getInstance();
+        const MAX_ITERATIONS = 10;
+
         if (index >= nodes.length){
             console.warn("findDepthOfNode() with node index outside range of nodes. index:", index, "nodes.length", nodes.length);
             return 0;
@@ -2274,7 +2258,7 @@ export class GraphRenderer {
 
         // follow the chain of parents
         while (nodeParent != null){
-            if (iterations > 10){
+            if (iterations > MAX_ITERATIONS){
                 console.error("too many iterations in findDepthOfNode()");
                 break;
             }

@@ -1,3 +1,4 @@
+import { EagleConfig } from './EagleConfig';
 import { ParameterTable } from './ParameterTable';
 import { Setting } from './Setting';
 import * as ko from "knockout";
@@ -125,7 +126,7 @@ export class UiModeSystem {
                 localStorage.setItem('UiModes', JSON.stringify(uiModesObj));
                 localStorage.setItem('activeUiMode', UiModeSystem.getActiveUiMode().getName());
                 UiModeSystem.localStorageUpdateCoolDown = false;
-            }, 1000)
+            }, EagleConfig.STANDARD_UI_LONG_TIMEOUT);
         }else{
             return
         }
