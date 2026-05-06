@@ -130,14 +130,7 @@ def validate_remote_url(url: str) -> None:
 
     for *_, sockaddr in addr_infos:
         ip = ipaddress.ip_address(sockaddr[0])
-        if (
-            ip.is_private
-            or ip.is_loopback
-            or ip.is_link_local
-            or ip.is_reserved
-            or ip.is_unspecified
-            or ip.is_multicast
-        ):
+        if not ip.is_global:
             raise ValueError("URL resolves to a non-public address")
 
 
