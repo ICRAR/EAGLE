@@ -489,9 +489,13 @@ export class Utils {
         return fullFileName;
     }
 
-    static showUserMessage (title : string, message : string) : void {
+    static showUserMessage (title : string, message : string, html: boolean = false) : void {
         $('#messageModalTitle').text(title);
-        $('#messageModalMessage').html(message);
+        if (html) {
+            $('#messageModalMessage').html(Utils.markdown2html(message));
+        } else {
+            $('#messageModalMessage').text(message);
+        }
         $('#messageModal').modal("show");
     }
 
@@ -565,7 +569,7 @@ export class Utils {
     static requestUserString(title : string, message : string, defaultString: string, isPassword: boolean): Promise<string> {
         return new Promise(async(resolve, reject) => {
             $('#inputModalTitle').text(title);
-            $('#inputModalMessage').html(message);
+            $('#inputModalMessage').html(Utils.markdown2html(message));
             $('#inputModalInput').attr('type', isPassword ? 'password' : 'text');
 
             $('#inputModalInput').val(defaultString);
@@ -591,7 +595,7 @@ export class Utils {
     static requestUserText(title : string, message : string, defaultText: string, readonly: boolean = false) : Promise<string> {
         return new Promise(async(resolve, reject) => {
             $('#inputTextModalTitle').text(title);
-            $('#inputTextModalMessage').html(message);
+            $('#inputTextModalMessage').html(Utils.markdown2html(message));
 
             $('#inputTextModalInput').val(defaultText);
             $('#inputTextModalInput').prop('readonly', readonly);
@@ -691,7 +695,7 @@ export class Utils {
     static requestUserNumber(title : string, message : string, defaultNumber: number) : Promise<number> {
         return new Promise(async(resolve, reject) => {
             $('#inputModalTitle').text(title);
-            $('#inputModalMessage').html(message);
+            $('#inputModalMessage').html(Utils.markdown2html(message));
             $('#inputModalInput').val(defaultNumber);
 
             // store data about the choices, callback, result on the modal HTML element
@@ -716,7 +720,7 @@ export class Utils {
     static async requestUserChoice(title : string, message : string, choices : string[], selectedChoiceIndex : number, allowCustomChoice : boolean, customChoiceText : string): Promise<string> {
         return new Promise(async(resolve, reject) => {
             $('#choiceModalTitle').text(title);
-            $('#choiceModalMessage').html(message);
+            $('#choiceModalMessage').html(Utils.markdown2html(message));
             $('#choiceModalCustomChoiceText').text(customChoiceText);
             $('#choiceModalString').val("");
 
@@ -769,7 +773,7 @@ export class Utils {
     static async requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string, confirmSetting: Setting): Promise<boolean> {
         return new Promise(async(resolve, reject) => {
             $('#confirmModalTitle').text(title);
-            $('#confirmModalMessage').html(message);
+            $('#confirmModalMessage').html(Utils.markdown2html(message));
             $('#confirmModalAffirmativeAnswer').text(affirmativeAnswer);
             $('#confirmModalNegativeAnswer').text(negativeAnswer);
 
@@ -801,7 +805,7 @@ export class Utils {
     static async requestUserOptions(title: string, message: string, option0: string, option1: string, option2: string, defaultOptionIndex: number): Promise<string> {
         return new Promise(async(resolve, reject) => {
             $('#optionsModalTitle').text(title);
-            $('#optionsModalMessage').html(message);
+            $('#optionsModalMessage').html(Utils.markdown2html(message));
             $('#optionsModalOption0').text(option0);
             $('#optionsModalOption1').text(option1);
             $('#optionsModalOption2').text(option2);
@@ -883,7 +887,7 @@ export class Utils {
                 resolve(field);
             }
             $('#editFieldModal').data('callback', callback);
-            $("#editFieldModalTitle").html(title);
+            $("#editFieldModalTitle").html(Utils.markdown2html(title));
             $('#editFieldModal').data('choices', choices);
             $('#editFieldModal').modal("show");
         });
@@ -1991,7 +1995,76 @@ export class Utils {
         // add some bootstrap CSS to the converted html
         html = html.replaceAll("<table>", "<table class='table'>");
 
-        return html;
+        return Utils.sanitizeHtml(html);
+    }
+
+    // basic html sanitizer that only allows a limited set of tags and attributes, and checks that href/src attributes are safe urls (starting with http, https, or mailto)
+    static sanitizeHtml(html: string): string {
+        const ALLOWED_TAGS = new Set([
+            'p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'del', 'sup', 'sub',
+            'abbr', 'kbd', 'mark', 'q', 'cite',
+            'a', 'ul', 'ol', 'li', 'dl', 'dt', 'dd',
+            'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+            'blockquote', 'code', 'pre', 'table', 'thead', 'tbody', 'tr', 'th', 'td',
+            'hr', 'img', 'span', 'div'
+        ]);
+        const DANGEROUS_TAGS = new Set([
+            'script', 'style', 'iframe', 'object', 'embed',
+            'form', 'input', 'button', 'textarea', 'select',
+            'noscript', 'template', 'link', 'meta', 'base'
+        ]);
+        const ALLOWED_ATTRS: Record<string, Set<string>> = {
+            a:   new Set(['href', 'title', 'target', 'rel']),
+            img: new Set(['src', 'alt', 'title', 'width', 'height']),
+            '*': new Set(['class', 'id']),
+        };
+        const SAFE_URL = /^(?:https?:|mailto:)/i;
+
+        function walk(parent: Element | DocumentFragment): void {
+            for (const child of Array.from(parent.childNodes)) {
+                if (!(child instanceof Element)) continue;
+                const tag = child.tagName.toLowerCase();
+                if (!ALLOWED_TAGS.has(tag)) {
+                    if (DANGEROUS_TAGS.has(tag)) {
+                        // remove element and its entire contents
+                        parent.removeChild(child);
+                    } else {
+                        // sanitize children before unwrapping, then move them into parent
+                        walk(child);
+                        while (child.firstChild) {
+                            parent.insertBefore(child.firstChild, child);
+                        }
+                        parent.removeChild(child);
+                    }
+                    continue;
+                }
+                const allowed = new Set([
+                    ...(ALLOWED_ATTRS[tag] ?? []),
+                    ...(ALLOWED_ATTRS['*'] ?? [])
+                ]);
+                for (const attr of Array.from(child.attributes)) {
+                    const name = attr.name.toLowerCase();
+                    if (!allowed.has(name)) {
+                        child.removeAttribute(attr.name);
+                    } else if (name === 'href' || name === 'src') {
+                        if (!SAFE_URL.test(attr.value.trim())) {
+                            child.removeAttribute(attr.name);
+                        }
+                    }
+                }
+                if (tag === 'a' && child.getAttribute('target') === '_blank') {
+                    child.setAttribute('rel', 'noopener noreferrer');
+                }
+                walk(child);
+            }
+        }
+
+        const tpl = document.createElement('template');
+        tpl.innerHTML = html;
+        walk(tpl.content);
+        const div = document.createElement('div');
+        div.appendChild(tpl.content);
+        return div.innerHTML;
     }
 
     static asBool(value: string) : boolean {
