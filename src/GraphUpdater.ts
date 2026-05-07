@@ -37,11 +37,15 @@ import * as ko from 'knockout';
 
 export class GraphUpdaterFile {
     data: string; // the file data as a string, used for pushing to destination repository
+    update: ko.Observable<boolean>; // whether the user has selected to update this graph or not
+    push: ko.Observable<boolean>; // whether the user has selected to push this graph to the destination repository or not
     file: ko.Observable<RepositoryFile>;
     state: ko.Observable<GraphUpdater.FileStatus>;
 
     constructor(file: RepositoryFile){
         this.data = "";
+        this.update = ko.observable(true);
+        this.push = ko.observable(true);
         this.file = ko.observable(file);
         this.state = ko.observable(GraphUpdater.FileStatus.No);
     }
@@ -274,6 +278,12 @@ export class GraphUpdater {
 
         // loop through each graph, load it, and save it to an array
         for (const graphFile of this.updatedLogicalGraphs()){
+            // abort if user has not selected to update this graph
+            if (!graphFile.update()){
+                graphFile.state(GraphUpdater.FileStatus.Skipped);
+                continue;
+            }
+
             graphFile.state(GraphUpdater.FileStatus.Updating);
 
             // fetch the file data
@@ -341,6 +351,11 @@ export class GraphUpdater {
 
         const files = [];
         for (const graphFile of GraphUpdater.updatedLogicalGraphs()){
+            // skip any files that the user has not selected to push to the destination repository
+            if (!graphFile.push()){
+                continue;
+            }
+
             // skip any files that were not successfully updated
             if (graphFile.state() !== GraphUpdater.FileStatus.Success){
                 continue;
@@ -391,11 +406,32 @@ export class GraphUpdater {
 
         GraphUpdater.hideModal();
     }
+
+    static numberOfFilesToUpdate : ko.PureComputed<number> = ko.pureComputed(() => {
+        let count = 0;
+        for (const graphFile of GraphUpdater.updatedLogicalGraphs()){
+            if (graphFile.update()){
+                count++;
+            }
+        }
+        return count;
+    }, this);
+
+    static numberOfFilesToPush : ko.PureComputed<number> = ko.pureComputed(() => {
+        let count = 0;
+        for (const graphFile of GraphUpdater.updatedLogicalGraphs()){
+            if (graphFile.push() && graphFile.state() === GraphUpdater.FileStatus.Success){
+                count++;
+            }
+        }
+        return count;
+    }, this);
 }
 
 export namespace GraphUpdater {
     export enum FileStatus {
         No = "No",
+        Skipped = "Skipped",
         Updating = "Updating",
         Error = "Error",
         Success = "Success"

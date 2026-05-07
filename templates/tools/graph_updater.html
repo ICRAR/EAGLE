@@ -4,11 +4,29 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="graphUpdaterModalTitle">Graph Updater</h5>
-                <i class="material-symbols-outlined ms-2" data-bind="eagleTooltip: `A tool to update all Logical Graphs within a source repository to the latest version of the EAGLE Logical Graph file format. The updated Logical Graphs will be placed in the specified destination repository.<br/><br/>In typical usage, the destination repository is a branch of the source repository. Once the updated Logical Graphs have been verified by the user, we leave it to the user to merge the new branch.`">info</i>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="container">
+                    <div class="row">
+                        <div class="col">
+                            <p>A tool to update Logical Graphs to the latest version of the EAGLE Logical Graph file format.</p>
+                            <p>Steps:
+                                <ul>
+                                    <li>Select a source repository.</li>
+                                    <li>Click "Fetch Logical Graphs" to load all Logical Graphs from the source repository into memory.</li>
+                                    <li>Review the list of Logical Graphs, deselect any files that don't require updating.</li>
+                                    <li>Click "Update Logical Graphs" to update them in memory.</li>
+                                    <li>Review the updated Logical Graphs, deselect any files that didn't update correctly.</li>
+                                    <li>Select a destination repository.</li>
+                                    <li>Click "Push" to write selected Logical Graphs to the destination repository.</li>
+                                </ul>
+                            </p>
+                            <p>Typically, the destination repository is a branch of the source repository.</p>
+                            <p>Once the updated Logical Graphs have been verified by the user, we leave it to the user to merge the new branch outside of EAGLE.</p>
+                        </div>
+                    </div>
+                    <hr>
                     <div class="row">
                         <div class="col-3">
                             <p>Source Repository:</p>
@@ -42,25 +60,44 @@
                                     <thead>
                                         <tr>
                                             <th scope="col">Graph</th>
-                                            <th scope="col">Updated</th>
+                                            <!-- ko if: GraphUpdater.hasFetched() && !GraphUpdater.hasUpdated() -->
+                                            <th scope="col">Update?</th>
+                                            <!-- /ko -->
+                                            <!-- ko if: GraphUpdater.hasFetched() && (GraphUpdater.isUpdating() || GraphUpdater.hasUpdated()) -->
+                                            <th scope="col">Status</th>
+                                            <!-- /ko -->
+                                            <!-- ko if: GraphUpdater.hasFetched() && GraphUpdater.hasUpdated() -->
+                                            <th scope="col">Push?</th>
+                                            <!-- /ko -->
                                         </tr>
                                     </thead>
                                     <tbody id="graphUpdaterModalGraphTableBody" data-bind="foreach: GraphUpdater.updatedLogicalGraphs">
                                         <tr>
                                             <td data-bind="text: file().pathAndName()"></td>
-                                            <!-- ko if: state() === GraphUpdater.FileStatus.No -->
-                                            <td></td>
+                                            <!-- ko if: GraphUpdater.hasFetched() && !GraphUpdater.hasUpdated() -->
+                                            <td><input type="checkbox" data-bind="checked: update"></td>
                                             <!-- /ko -->
-                                            <!-- ko if: state() === GraphUpdater.FileStatus.Success -->
-                                            <td>Success</td>
+                                            <!-- ko if: GraphUpdater.hasFetched() && (GraphUpdater.isUpdating() || GraphUpdater.hasUpdated()) -->
+                                                <!-- ko if: state() === GraphUpdater.FileStatus.No -->
+                                                <td></td>
+                                                <!-- /ko -->
+                                                <!-- ko if: state() === GraphUpdater.FileStatus.Skipped -->
+                                                <td>Skipped</td>
+                                                <!-- /ko -->
+                                                <!-- ko if: state() === GraphUpdater.FileStatus.Success -->
+                                                <td>Success</td>
+                                                <!-- /ko -->
+                                                <!-- ko if: state() === GraphUpdater.FileStatus.Error -->
+                                                <td>Error</td>
+                                                <!-- /ko -->
+                                                <!-- ko if: state() === GraphUpdater.FileStatus.Updating -->
+                                                <td>
+                                                    <div class="spinner-border spinner-border-sm" role="status"></div>
+                                                </td>
+                                                <!-- /ko -->
                                             <!-- /ko -->
-                                            <!-- ko if: state() === GraphUpdater.FileStatus.Error -->
-                                            <td>Error</td>
-                                            <!-- /ko -->
-                                            <!-- ko if: state() === GraphUpdater.FileStatus.Updating -->
-                                            <td>
-                                                <div class="spinner-border spinner-border-sm" role="status"></div>
-                                            </td>
+                                            <!-- ko if: GraphUpdater.hasFetched() && GraphUpdater.hasUpdated() -->
+                                            <td><input type="checkbox" data-bind="checked: push, enable: state() === GraphUpdater.FileStatus.Success"></td>
                                             <!-- /ko -->
                                         </tr>
                                     </tbody>
@@ -72,7 +109,7 @@
                         <div class="col">
                             <div class="d-grid gap-2">
                                 <button type="button" class="btn btn-primary" id="graphUpdaterModalUpdateButton" data-bind="click: function(){GraphUpdater.update()}">
-                                    Update Logical Graphs
+                                    <span data-bind="text: 'Update ' + GraphUpdater.numberOfFilesToUpdate() + ' Logical Graph(s)'"></span>
                                 </button>
                             </div>
                         </div>
@@ -92,7 +129,7 @@
                         <div class="col">
                             <div class="d-grid gap-2">
                                 <button type="button" class="btn btn-primary" id="graphUpdaterModalPushButton" data-bind="click: function(){GraphUpdater.push()}">
-                                    Push
+                                    <span data-bind="text: 'Push ' + GraphUpdater.numberOfFilesToPush() + ' Logical Graph(s)'"></span>
                                 </button>
                             </div>
                         </div>
