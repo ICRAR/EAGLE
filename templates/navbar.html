@@ -95,7 +95,7 @@
                 <div class="btn-group ms-4 navbarGroup" role="group" aria-label="Basic example" data-bind="css: {'navbarGroupWarning': graphWarnings().length > 0, 'navbarGroupError': graphErrors().length > 0,'navbarGroupSuccess':graphWarnings().length === 0 && graphErrors().length === 0}">
                     <span class="navBarToolBarTitle">Issues</span>
                     <!-- ko if: graphWarnings().length === 0 && graphErrors().length === 0 -->
-                        <button id="checkEagleDone" class="btn navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: showEagleErrors, eagleTooltip: 'Check Graph for Errors'">
+                        <button id="checkEagleDone" class="btn navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: showEagleErrors, eagleTooltip: KeyboardShortcut.idToFullText('check_eagle')">
                             <i class="material-symbols-outlined md-18">done_all</i>
                         </button>
                     <!-- /ko -->

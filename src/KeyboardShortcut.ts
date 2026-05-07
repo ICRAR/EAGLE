@@ -600,7 +600,7 @@ export class KeyboardShortcut {
         // checking and fixing
         new KeyboardShortcut({
             id: "check_eagle",
-            text: "Check Graph",
+            text: "Check Eagle",
             keys: [new Key("!", Modifier.Shift)],
             tags: ['error','errors','fix'],
             run: (eagle): void => {eagle.showEagleErrors();}
