@@ -48,7 +48,13 @@
                         </div>
                     </div>
                     <!-- ko if: GraphUpdater.isFetching() -->
-                        {% include 'modals/loading_spinner.html' %}
+                    <div class="row">
+                        <div class="col">
+                            <div style="position: absolute; width: 100%; height: 128px;">
+                                {% include 'modals/loading_spinner.html' %}
+                            </div>
+                        </div>
+                    </div>
                     <!-- /ko -->
                     <div class="row" data-bind="visible: GraphUpdater.hasFetched()">
                         <div class="col" id="graphUpdaterModalGraphTableCol">
@@ -60,11 +66,12 @@
                                     <thead>
                                         <tr>
                                             <th scope="col">Graph</th>
-                                            <!-- ko if: GraphUpdater.hasFetched() && !GraphUpdater.hasUpdated() -->
+                                            <!-- ko if: GraphUpdater.hasFetched() -->
                                             <th scope="col">Update?</th>
                                             <!-- /ko -->
                                             <!-- ko if: GraphUpdater.hasFetched() && (GraphUpdater.isUpdating() || GraphUpdater.hasUpdated()) -->
                                             <th scope="col">Status</th>
+                                            <th scope="col">Information</th>
                                             <!-- /ko -->
                                             <!-- ko if: GraphUpdater.hasFetched() && GraphUpdater.hasUpdated() -->
                                             <th scope="col">Push?</th>
@@ -74,8 +81,8 @@
                                     <tbody id="graphUpdaterModalGraphTableBody" data-bind="foreach: GraphUpdater.updatedLogicalGraphs">
                                         <tr>
                                             <td data-bind="text: file().pathAndName()"></td>
-                                            <!-- ko if: GraphUpdater.hasFetched() && !GraphUpdater.hasUpdated() -->
-                                            <td><input type="checkbox" data-bind="checked: update"></td>
+                                            <!-- ko if: GraphUpdater.hasFetched() -->
+                                            <td><input type="checkbox" data-bind="checked: update, enable: GraphUpdater.hasFetched() && !GraphUpdater.isUpdating() && !GraphUpdater.hasUpdated()"></td>
                                             <!-- /ko -->
                                             <!-- ko if: GraphUpdater.hasFetched() && (GraphUpdater.isUpdating() || GraphUpdater.hasUpdated()) -->
                                                 <!-- ko if: state() === GraphUpdater.FileStatus.No -->
@@ -95,6 +102,7 @@
                                                     <div class="spinner-border spinner-border-sm" role="status"></div>
                                                 </td>
                                                 <!-- /ko -->
+                                                <td data-bind="text: information()"></td>
                                             <!-- /ko -->
                                             <!-- ko if: GraphUpdater.hasFetched() && GraphUpdater.hasUpdated() -->
                                             <td><input type="checkbox" data-bind="checked: push, enable: state() === GraphUpdater.FileStatus.Success"></td>
@@ -105,10 +113,22 @@
                             <!-- /ko -->
                         </div>
                     </div>
+
+                    <div class="row" data-bind="visible: GraphUpdater.hasFetched() && !GraphUpdater.isUpdating() && !GraphUpdater.hasUpdated() && GraphUpdater.updatedLogicalGraphs().length > 0">
+                        <div class="col">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="checkAutoFix" data-bind="checked: GraphUpdater.autoFix, enable: GraphUpdater.numberOfFilesToUpdate() > 0">
+                                <label class="form-check-label" for="checkAutoFix">
+                                    Fix Graph(s) after updating
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row" data-bind="visible: GraphUpdater.hasFetched() && !GraphUpdater.isUpdating() && !GraphUpdater.hasUpdated() && GraphUpdater.updatedLogicalGraphs().length > 0">
                         <div class="col">
                             <div class="d-grid gap-2">
-                                <button type="button" class="btn btn-primary" id="graphUpdaterModalUpdateButton" data-bind="click: function(){GraphUpdater.update()}">
+                                <button type="button" class="btn btn-primary" id="graphUpdaterModalUpdateButton" data-bind="click: function(){GraphUpdater.update()}, enable: GraphUpdater.numberOfFilesToUpdate() > 0">
                                     <span data-bind="text: 'Update ' + GraphUpdater.numberOfFilesToUpdate() + ' Logical Graph(s)'"></span>
                                 </button>
                             </div>

@@ -41,6 +41,7 @@ export class GraphUpdaterFile {
     push: ko.Observable<boolean>; // whether the user has selected to push this graph to the destination repository or not
     file: ko.Observable<RepositoryFile>;
     state: ko.Observable<GraphUpdater.FileStatus>;
+    information: ko.Observable<string>;
 
     constructor(file: RepositoryFile){
         this.data = "";
@@ -48,6 +49,7 @@ export class GraphUpdaterFile {
         this.push = ko.observable(true);
         this.file = ko.observable(file);
         this.state = ko.observable(GraphUpdater.FileStatus.No);
+        this.information = ko.observable("");
     }
 }
 
@@ -56,6 +58,8 @@ export class GraphUpdater {
     static hasFetched: ko.Observable<boolean> = ko.observable(false);
     static isUpdating: ko.Observable<boolean> = ko.observable(false);
     static hasUpdated: ko.Observable<boolean> = ko.observable(false);
+
+    static autoFix: ko.Observable<boolean> = ko.observable(false);
 
     static sourceRepository: Repository = null;
     static updatedLogicalGraphs: ko.ObservableArray<GraphUpdaterFile> = ko.observableArray([]);
@@ -327,6 +331,15 @@ export class GraphUpdater {
                 graphFile.state(GraphUpdater.FileStatus.Error);
                 continue;
             }
+
+            // if GraphUpdater.autoFix is enabled, attempt to fix any errors in the graph
+            if (GraphUpdater.autoFix()){
+                // TODO: missing
+                console.log("GraphUpdater.autoFix() is enabled, but the auto-fix functionality has not been implemented yet.");
+            }
+
+            // update graph information
+            graphFile.information("Nodes: " + lg.getNumNodes() + ", Edges: " + lg.getNumEdges());
 
             // save to v4 string
             graphFile.data = LogicalGraph.toV4JsonString(lg, false);
