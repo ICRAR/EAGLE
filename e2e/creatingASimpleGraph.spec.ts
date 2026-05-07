@@ -43,10 +43,26 @@ test('Creating a Simple Graph', async ({ page }) => {
   }
 
   //additional little wait to prevent timeouts on the next line
-  await page.waitForTimeout(200);
+  await page.waitForTimeout(250);
 
   //drag an edge from helloWorldApp -> File
-  await page.dragAndDrop('#HelloWorldApp .outputPort', '#File .inputPort',{sourcePosition:{x:2,y:2},targetPosition:{x:2,y:2}})
+  //use center positions instead of edge coordinates for more reliable dragging
+  const srcPortBox = await page.locator('#HelloWorldApp .outputPort').boundingBox();
+  const destPortBox = await page.locator('#File .inputPort').boundingBox();
+  
+  if (srcPortBox && destPortBox) {
+    const srcCenterX = srcPortBox.width / 2;
+    const srcCenterY = srcPortBox.height / 2;
+    const destCenterX = destPortBox.width / 2;
+    const destCenterY = destPortBox.height / 2;
+    
+    await page.dragAndDrop('#HelloWorldApp .outputPort', '#File .inputPort', {
+      sourcePosition: { x: srcCenterX, y: srcCenterY },
+      targetPosition: { x: destCenterX, y: destCenterY }
+    });
+  }
+  
+  await page.waitForTimeout(500);
 
   //click on the input port of the file to open the parameter table modal and highlight the port
   await page.locator('#hello .inputPort').click();

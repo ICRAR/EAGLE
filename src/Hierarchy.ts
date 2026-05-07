@@ -85,13 +85,14 @@ export class Hierarchy {
         function setNodeRelatives(){
             nodeRelative.forEach(function(element:Node){
                 let iterations = 0;
+                const MAX_ITERATIONS = 32;
     
                 if (element === null){
                     return
                 }
     
                 while (true){
-                    if (iterations > 32){
+                    if (iterations > MAX_ITERATIONS){
                         console.error("too many iterations in nodeRelativeForEach");
                         return
                     }
@@ -286,34 +287,5 @@ export class Hierarchy {
         }
         
         eagle.logicalGraph.valueHasMutated();
-    }
-
-    static nodeIsHidden(id: NodeId) : string {
-        const eagle: Eagle = Eagle.getInstance();
-        const node = eagle.logicalGraph().getNodeById(id);
-
-        if (typeof node === 'undefined'){
-            return 'hidden';
-        }
-
-        let nodeHasConnectedInput: boolean = false;
-        let nodeHasConnectedOutput: boolean = false;
-
-        // check if node has connected input and output
-        for (const edge of eagle.logicalGraph().getEdges()){
-            if (edge.getDestNode().getId() === node.getId()){
-                nodeHasConnectedInput = true;
-            }
-
-            if (edge.getSrcNode().getId() === node.getId()){
-                nodeHasConnectedOutput = true;
-            }
-        }
-
-        if (!eagle.showDataNodes() && (node.isData() || node.isGlobal()) && nodeHasConnectedInput && nodeHasConnectedOutput){
-            return 'visible';
-        }
-
-        return 'hidden';
     }
 }

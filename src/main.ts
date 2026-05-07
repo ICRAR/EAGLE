@@ -24,7 +24,8 @@
 
 import * as ko from "knockout";
 import $ from "jquery";
-// Note: jqueryMigrate and jqueryui are included as dependencies in the HTML template
+import "jquery-migrate";
+import "jqueryui";
 import * as bootstrap from 'bootstrap';
 
 import { Category } from './Category';
@@ -163,17 +164,19 @@ $(function(){
 
     loadRepos();
 
-    // auto load a tutorial, if specified on the url
-    autoTutorial();
-
-    //request a first time visitor welcome to eagle if applicable
-    initiateWelcome(firstTimeVisit);
-  
-    // if not first time visit, but version is newer than last seen version, show the versions modal
-    // tutorial=none is used by the playwright tests to skip the welcome message and tutorials
+    // we use tutorial=none in the url for unit tests, because pop ups can cause test failures
     const urlParams = new URLSearchParams(window.location.search);
     const skipTutorial = urlParams.get('tutorial') === 'none';
-    
+
+    if (!skipTutorial) {
+        // auto load a tutorial, if specified on the url
+        autoTutorial();
+
+        //request a first time visitor welcome to eagle if applicable
+        initiateWelcome(firstTimeVisit);
+    }
+  
+    // if not first time visit, but version is newer than last seen version, show the versions modal
     if (!firstTimeVisit && showWhatsNew && !skipTutorial){
         eagle.showWhatsNew();
         // set the last seen version
@@ -188,14 +191,6 @@ $(function(){
         //reset parameter table selection
         ParameterTable.resetSelection()
     });
-
-    $('.modal').on('shown.bs.modal',function(){
-        // modal draggables
-        //the any type is required so we don't have an error when building. at runtime on eagle this actually functions without it.
-        (<any>$('.modal-dialog')).draggable({
-            handle: ".modal-header"
-        });
-    })
 
     //increased click bubble for edit modal flag booleans
     $(".componentCheckbox").on("click",function(event: JQuery.TriggeredEvent){
@@ -391,12 +386,7 @@ function autoTutorial(): void {
 
 function initiateWelcome(firstTimeVisit:boolean): void {
     if(firstTimeVisit){
-        const urlParams = new URLSearchParams(window.location.search);
-        const tutorialName = urlParams.get('tutorial');
-
-        if(tutorialName != 'none'){
-            TutorialSystem.initiateTutorial('Quick Start');
-        }
+        TutorialSystem.initiateTutorial('Quick Start');
     }
 }
 
@@ -415,6 +405,7 @@ declare global {
     type NodeId = Branded<string, "NodeId">
     type FieldId = Branded<string, "FieldId">
     type EdgeId = Branded<string, "EdgeId">
+    type VisualId = Branded<string, "VisualId">
     type RepositoryId = Branded<string, "RepositoryId">
     type RepositoryFileId = Branded<string, "RepositoryFileId">
     type GraphConfigId = Branded<string, "GraphConfigId">

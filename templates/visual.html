@@ -1,0 +1,8 @@
+<div class="node" data-bind="attr:{id:$data.getId()}, style: {left: $data.x(), top: $data.y()}">
+    <!-- ko if:$data.isText() -->
+        {% include 'text_visual.html' %}
+    <!-- /ko -->
+    <!-- ko if:$data.isGroup() -->
+        {% include 'group_visual.html' %}
+    <!-- /ko -->
+</div>
