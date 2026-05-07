@@ -1580,11 +1580,10 @@ export class Utils {
         return errorsWarnings;
     }
 
-    // TODO: maybe re-name, since this checks everything now, not just the graph. And maybe move to Eagle class?
-    static checkGraph(eagle: Eagle): void {
+    static checkEagle(eagle: Eagle): void {
         const graph: LogicalGraph = eagle.logicalGraph();
 
-        LogicalGraph.isValid();
+        LogicalGraph.isValid(graph, eagle);
 
         // check all nodes are valid
         for (const node of graph.getNodes()){
@@ -2402,7 +2401,7 @@ export class Utils {
         eagle.selectedObjects.valueHasMutated();
         eagle.logicalGraph().fileInfo().modified = true;
 
-        eagle.checkGraph();
+        eagle.checkEagle();
         eagle.undo().pushSnapshot(eagle, "Fix");
     }
 
@@ -3105,7 +3104,7 @@ export class Utils {
                 graphConfig.fileInfo().name = Daliuge.DEFAULT_GRAPH_CONFIGURATION_NAME;
                 logicalGraph.addGraphConfig(graphConfig, false);
 
-                eagle.checkGraph();
+                eagle.checkEagle();
                 eagle.undo().pushSnapshot(eagle, "Specify Logical Graph name");
                 eagle.logicalGraph.valueHasMutated();
                 Utils.showNotification("Graph named", filename, "success");

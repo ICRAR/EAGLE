@@ -48,7 +48,7 @@ export class Errors {
                 }
             }
 
-            eagle.checkGraph();
+            eagle.checkEagle();
         }
 
         // show notification

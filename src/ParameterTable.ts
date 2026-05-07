@@ -316,7 +316,7 @@ export class ParameterTable {
         }
 
         // trigger graph check, since changing the usage of a field may break some rules
-        eagle.checkGraph();
+        eagle.checkEagle();
     }
 
     // when a field value is modified in the parameter table, we need to flag the containing palette or logical graph as modified
@@ -336,7 +336,7 @@ export class ParameterTable {
             case Eagle.FileType.Graph:
                 eagle.logicalGraph().fileInfo().modified = true;
 
-                eagle.checkGraph();
+                eagle.checkEagle();
                 break;
         }
     }

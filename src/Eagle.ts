@@ -927,7 +927,7 @@ export class Eagle {
     
                     // TODO: handle errors and warnings
     
-                    eagle.checkGraph();
+                    eagle.checkEagle();
                     eagle.undo().pushSnapshot(eagle, "Insert Logical Graph");
                     eagle.logicalGraph.valueHasMutated();
                 });
@@ -1057,7 +1057,7 @@ export class Eagle {
 
         // flag graph as changed
         this.flagActiveFileModified();
-        this.checkGraph();
+        this.checkEagle();
         this.undo().pushSnapshot(this, "Create Subgraph from Selection");
         this.logicalGraph.valueHasMutated();
     }
@@ -1113,7 +1113,7 @@ export class Eagle {
 
         // flag graph as changed
         this.flagActiveFileModified();
-        this.checkGraph();
+        this.checkEagle();
         this.undo().pushSnapshot(this, "Add Selection to Construct");
         this.logicalGraph.valueHasMutated();
     }
@@ -2520,7 +2520,7 @@ export class Eagle {
         }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT);
 
         // check graph
-        this.checkGraph();
+        this.checkEagle();
         this.undo().clear();
         this.undo().pushSnapshot(this, "Loaded " + file.name);
 
@@ -2682,7 +2682,7 @@ export class Eagle {
         // trigger re-render
         this.logicalGraph.valueHasMutated();
         this.undo().pushSnapshot(this, "Inserted " + file.name);
-        this.checkGraph();
+        this.checkEagle();
 
         // show errors/warnings
         this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
@@ -2774,7 +2774,7 @@ export class Eagle {
         this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
 
         // check EAGLE
-        this.checkGraph();
+        this.checkEagle();
     }
 
     findPaletteByFile = (file : RepositoryFile) : Palette => {
@@ -3198,7 +3198,7 @@ export class Eagle {
         sourceNode.setGroupEnd(this.selectedEdge().isClosesLoop());
         destNode.setGroupStart(this.selectedEdge().isClosesLoop());
 
-        this.checkGraph();
+        this.checkEagle();
 
         const groupStartValue = destNode.getFieldByDisplayText(Daliuge.FieldName.GROUP_START).getValue();
         const groupEndValue = sourceNode.getFieldByDisplayText(Daliuge.FieldName.GROUP_END).getValue();
@@ -3339,7 +3339,7 @@ export class Eagle {
                     }
 
                     // re-check graph, set undo snapshot and trigger re-render
-                    this.checkGraph();
+                    this.checkEagle();
                     this.undo().pushSnapshot(this, "Duplicate selection");
                     this.logicalGraph.valueHasMutated();
                 }
@@ -3551,7 +3551,7 @@ export class Eagle {
         }
 
         // ensure changes are reflected in display
-        this.checkGraph();
+        this.checkEagle();
         this.undo().pushSnapshot(this, "Paste from Clipboard");
         this.logicalGraph.valueHasMutated();
     }
@@ -3648,7 +3648,7 @@ export class Eagle {
         }
 
         // check EAGLE
-        this.checkGraph();
+        this.checkEagle();
     }
 
     addSelectedNodesToPalette = (mode: "normal"|"contextMenuRequest") : void => {
@@ -3855,7 +3855,7 @@ export class Eagle {
                 // flag LG has changed
                 this.logicalGraph().fileInfo().modified = true;
 
-                this.checkGraph();
+                this.checkEagle();
                 this.undo().pushSnapshot(this, "Delete Selection");
                 break;
 
@@ -3919,7 +3919,7 @@ export class Eagle {
         }
 
         // check, undo, modified etc
-        this.checkGraph();
+        this.checkEagle();
         this.undo().pushSnapshot(this, "Add edge " + edge.getId());
         this.logicalGraph().fileInfo().modified = true;
         this.logicalGraph.valueHasMutated();
@@ -4065,7 +4065,7 @@ export class Eagle {
             // select the new node
             this.setSelection(newNode, Eagle.FileType.Graph);
 
-            this.checkGraph();
+            this.checkEagle();
             this.undo().pushSnapshot(this, "Add node " + newNode.getName());
             this.logicalGraph.valueHasMutated();
 
@@ -4142,7 +4142,7 @@ export class Eagle {
         destinationPalette.fileInfo().modified = true;
 
         // check EAGLE
-        this.checkGraph();
+        this.checkEagle();
     }
 
     private buildWritablePaletteNamesList = () : string[] => {
@@ -4309,7 +4309,7 @@ export class Eagle {
         field.setType(newType);
 
         // re-check the graph
-        this.checkGraph();
+        this.checkEagle();
     }
 
     graphEditComment = (object:Node | Edge): void => {
@@ -4395,7 +4395,7 @@ export class Eagle {
         selectedNode.setParent(newParent);
 
         // refresh the display
-        this.checkGraph();
+        this.checkEagle();
         this.undo().pushSnapshot(this, "Change Node Parent");
         this.logicalGraph().fileInfo().modified = true;
         this.selectedObjects.valueHasMutated();
@@ -4537,7 +4537,7 @@ export class Eagle {
             return;
         }
 
-        this.checkGraph();
+        this.checkEagle();
         this.undo().pushSnapshot(this, "Edit Field");
 
         // now that we are done, re-open the params table
@@ -4631,18 +4631,18 @@ export class Eagle {
         Utils.showNotification("Graph URL", "Copied to clipboard", "success");
     }
 
-    checkGraph = (): void => {
-        Utils.checkGraph(this);//validate the graph
+    checkEagle = (): void => {
+        Utils.checkEagle(this);//validate the graph
         const graphErrors = Utils.gatherGraphErrors() //gather all the errors from all of the components
         
         this.graphWarnings(graphErrors.warnings);
         this.graphErrors(graphErrors.errors);
     };
 
-    showGraphErrors = (): void => {
+    showEagleErrors = (): void => {
         //recheck the graph for errors, this is because we cannot rely on the fact that the graph has been checked.
         //this is to ensure that when the user requests to see the graph errors, the information is up to date
-        this.checkGraph();
+        this.checkEagle();
 
         if (this.graphWarnings().length > 0 || this.graphErrors().length > 0){
 
@@ -4650,7 +4650,7 @@ export class Eagle {
             this.errorsMode(Errors.Mode.Graph);
 
             //switch bottom window mode
-            Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(Eagle.BottomWindowMode.GraphErrors)
+            Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(Eagle.BottomWindowMode.EagleErrors)
             //show bottom window
             SideWindow.setShown('bottom',true)
         } else {
@@ -4831,7 +4831,7 @@ export class Eagle {
             }
 
             this.logicalGraph().addVisual(visual);
-            this.checkGraph();
+            this.checkEagle();
             this.undo().pushSnapshot(this, "Add Visual");
             this.logicalGraph().fileInfo().modified = true;
             this.logicalGraph.valueHasMutated();
@@ -4854,7 +4854,7 @@ export class Eagle {
         fileInfo.modified = true;
 
         // check graph (hopefully the 'missing short description' warning will go away)
-        this.checkGraph();
+        this.checkEagle();
     }
 
     editDetailedDescription = async(fileInfo: FileInfo): Promise<void> => {
@@ -4872,7 +4872,7 @@ export class Eagle {
         fileInfo.modified = true;
 
         // check graph (hopefully the 'missing detailed description' warning will go away)
-        this.checkGraph();
+        this.checkEagle();
     }
 
     editNodeDescription = async (node?: Node): Promise<void> => {
@@ -5018,7 +5018,7 @@ export class Eagle {
         oldNode.setCategoryType(newNodeCategoryType);
 
         this.flagActiveFileModified();
-        this.checkGraph();
+        this.checkEagle();
         this.undo().pushSnapshot(this, "Edit Node Category");
         this.logicalGraph().fileInfo().modified = true;
         this.logicalGraph.valueHasMutated();
@@ -5087,7 +5087,7 @@ export class Eagle {
         this.logicalGraph.valueHasMutated();
         this.logicalGraph().fileInfo().modified = true;
         this.logicalGraph().fileInfo.valueHasMutated();
-        this.checkGraph();
+        this.checkEagle();
         this.undo().pushSnapshot(this, "Check for Component Updates");
     }
 
@@ -5138,7 +5138,7 @@ export class Eagle {
         this.logicalGraph.valueHasMutated();
         this.logicalGraph().fileInfo().modified = true;
         this.logicalGraph().fileInfo.valueHasMutated();
-        this.checkGraph();
+        this.checkEagle();
         const updatedNodeNames = updatedNodes.map(n => n.getName()).join(", ");
         this.undo().pushSnapshot(this, "Update Component(s): " + updatedNodeNames);
     }
@@ -5202,7 +5202,7 @@ export class Eagle {
         this.logicalGraph.valueHasMutated();
         this.logicalGraph().fileInfo().modified = true;
         this.logicalGraph().fileInfo.valueHasMutated();
-        this.checkGraph();
+        this.checkEagle();
         const updatedNodeNames = updatedNodes.map(n => n.getName()).join(", ");
         this.undo().pushSnapshot(this, "Fix Component(s): " + updatedNodeNames);
     }
@@ -5291,7 +5291,7 @@ export namespace Eagle
         NodeParameterTable = "NodeParameterTable",
         GraphConfigsTable = "GraphConfigsTable",
         ConfigParameterTable = "ConfigParameterTable",
-        GraphErrors = "GraphErrors"
+        EagleErrors = "EagleErrors"
     }
 
     export enum AddNodeMode {

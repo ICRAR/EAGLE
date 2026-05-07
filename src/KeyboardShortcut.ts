@@ -599,11 +599,11 @@ export class KeyboardShortcut {
 
         // checking and fixing
         new KeyboardShortcut({
-            id: "check_graph",
+            id: "check_eagle",
             text: "Check Graph",
             keys: [new Key("!", Modifier.Shift)],
             tags: ['error','errors','fix'],
-            run: (eagle): void => {eagle.showGraphErrors();}
+            run: (eagle): void => {eagle.showEagleErrors();}
         }),
         new KeyboardShortcut({
             id: "fix_all",
