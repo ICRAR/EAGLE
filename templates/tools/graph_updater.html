@@ -148,8 +148,14 @@
                     <div class="row" data-bind="visible: GraphUpdater.hasUpdated()">
                         <div class="col">
                             <div class="d-grid gap-2">
-                                <button type="button" class="btn btn-primary" id="graphUpdaterModalPushButton" data-bind="click: function(){GraphUpdater.push()}">
+                                <button type="button" class="btn btn-primary" id="graphUpdaterModalPushButton" data-bind="click: function(){GraphUpdater.push()}, enable: !GraphUpdater.isPushing()">
+                                    <!-- ko if: GraphUpdater.isPushing() -->
+                                    <div class="spinner-border spinner-border-sm" role="status"></div>
+                                    <span>Pushing...</span>
+                                    <!-- /ko -->
+                                    <!-- ko ifnot: GraphUpdater.isPushing() -->
                                     <span data-bind="text: 'Push ' + GraphUpdater.numberOfFilesToPush() + ' Logical Graph(s)'"></span>
+                                    <!-- /ko -->
                                 </button>
                             </div>
                         </div>

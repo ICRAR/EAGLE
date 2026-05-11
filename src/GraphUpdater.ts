@@ -58,6 +58,7 @@ export class GraphUpdater {
     static hasFetched: ko.Observable<boolean> = ko.observable(false);
     static isUpdating: ko.Observable<boolean> = ko.observable(false);
     static hasUpdated: ko.Observable<boolean> = ko.observable(false);
+    static isPushing: ko.Observable<boolean> = ko.observable(false);
 
     static autoFix: ko.Observable<boolean> = ko.observable(false);
 
@@ -189,7 +190,7 @@ export class GraphUpdater {
     }
     
     static async showModal(): Promise<void> {
-        GraphUpdater.setState(false, false, false, false);
+        GraphUpdater.setState(false, false, false, false, false);
 
         // add list of repositories to source select
         const srcRepoSelect = $('#graphUpdaterModalSourceRepositorySelect');
@@ -216,29 +217,30 @@ export class GraphUpdater {
         $('#graphUpdaterModal').modal("hide");
     }
 
-    static setState(isFetching: boolean, hasFetched: boolean, isUpdating: boolean, hasUpdated: boolean): void {
+    static setState(isFetching: boolean, hasFetched: boolean, isUpdating: boolean, hasUpdated: boolean, isPushing: boolean): void {
         this.isFetching(isFetching);
         this.hasFetched(hasFetched);
         this.isUpdating(isUpdating);
         this.hasUpdated(hasUpdated);
+        this.isPushing(isPushing);
     }
 
     static onSourceRepositoryChange(): void {
         // reset the updatedLogicalGraphs array and the hasFetched/hasUpdated observables
         this.updatedLogicalGraphs.removeAll();
-        this.setState(false, false, false, false);
+        this.setState(false, false, false, false, false);
     }
 
     static async fetchLogicalGraphs(): Promise<void> {
         console.log("GraphUpdater.fetchLogicalGraphs()");
-        this.setState(true, false, false, false);
+        this.setState(true, false, false, false, false);
 
         // get source repository
         const srcRepoIndex = parseInt($('#graphUpdaterModalSourceRepositorySelect').val() as string);
         const srcRepo = Repositories.repositories()[srcRepoIndex];
         if (srcRepo === null){
             Utils.showNotification("Error", "Source repository not found", "danger");
-            this.setState(false, false, false, false);
+            this.setState(false, false, false, false, false);
             return;
         }
 
@@ -257,13 +259,13 @@ export class GraphUpdater {
             this.updatedLogicalGraphs.push(new GraphUpdaterFile(graphFile));
         }
 
-        this.setState(false, true, false, false);
+        this.setState(false, true, false, false, false);
     }
 
     static async update(): Promise<void> {
         console.log("GraphUpdater.update()");
 
-        this.setState(false, true, true, false);
+        this.setState(false, true, true, false, false);
 
         // determine the correct function to load the file(s), based on the source repository service
         let openRemoteFileFunc: (repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string, filePath: string, fileName: string) => Promise<string>;
@@ -276,7 +278,7 @@ export class GraphUpdater {
                 break;
             default:
                 Utils.showNotification("Error", "Unsupported repository service: " + this.sourceRepository.service, "danger");
-                this.setState(false, false, false, false);
+                this.setState(false, false, false, false, false);
                 return;
         }
 
@@ -347,7 +349,7 @@ export class GraphUpdater {
             graphFile.state(GraphUpdater.FileStatus.Success);
         }
 
-        this.setState(false, true, false, true);
+        this.setState(false, true, false, true, false);
     }
 
     static async push(): Promise<void> {
@@ -358,6 +360,9 @@ export class GraphUpdater {
             Utils.showNotification("Error", "Destination repository not found", "danger");
             return;
         }
+
+        // set state to pushing
+        this.setState(false, true, false, true, true);
 
         // use generic commit message
         const commitMessage = "Updated graphs from " + GraphUpdater.sourceRepository.getNameAndBranch();
@@ -417,6 +422,7 @@ export class GraphUpdater {
             return errorJSON.error;
         }
 
+        GraphUpdater.setState(false, true, false, true, false);
         GraphUpdater.hideModal();
     }
 
