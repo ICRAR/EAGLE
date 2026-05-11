@@ -189,7 +189,21 @@ export class GraphUpdater {
         }
     }
     
+    private static collapseToggleInitialised = false;
+
+    static initCollapseToggle(): void {
+        if (GraphUpdater.collapseToggleInitialised) return;
+        const stepsEl = document.getElementById('graphUpdaterSteps');
+        const toggleEl = document.getElementById('graphUpdaterStepsToggle');
+        if (stepsEl && toggleEl) {
+            stepsEl.addEventListener('show.bs.collapse', () => { toggleEl.textContent = 'Less info...'; });
+            stepsEl.addEventListener('hide.bs.collapse', () => { toggleEl.textContent = 'More info...'; });
+            GraphUpdater.collapseToggleInitialised = true;
+        }
+    }
+
     static async showModal(): Promise<void> {
+        GraphUpdater.initCollapseToggle();
         GraphUpdater.setState(false, false, false, false, false);
 
         // add list of repositories to source select
@@ -445,6 +459,7 @@ export class GraphUpdater {
         }
         return count;
     }, this);
+
 }
 
 export namespace GraphUpdater {

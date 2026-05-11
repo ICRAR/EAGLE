@@ -10,20 +10,22 @@
                 <div class="container">
                     <div class="row">
                         <div class="col">
-                            <p>A tool to update Logical Graphs to the latest version of the EAGLE Logical Graph file format.</p>
-                            <p>Steps:
-                                <ul>
-                                    <li>Select a source repository.</li>
-                                    <li>Click "Fetch Logical Graphs" to load all Logical Graphs from the source repository into memory.</li>
-                                    <li>Review the list of Logical Graphs, deselect any files that don't require updating.</li>
-                                    <li>Click "Update Logical Graphs" to update them in memory.</li>
-                                    <li>Review the updated Logical Graphs, deselect any files that didn't update correctly.</li>
-                                    <li>Select a destination repository.</li>
-                                    <li>Click "Push" to write selected Logical Graphs to the destination repository.</li>
-                                </ul>
-                            </p>
-                            <p>Typically, the destination repository is a branch of the source repository.</p>
-                            <p>Once the updated Logical Graphs have been verified by the user, we leave it to the user to merge the new branch outside of EAGLE.</p>
+                            <p>A tool to update Logical Graphs to the latest version of the EAGLE Logical Graph file format. <a id="graphUpdaterStepsToggle" href="#graphUpdaterSteps" data-bs-toggle="collapse" aria-expanded="false" aria-controls="graphUpdaterSteps">More info...</a></p>
+                            <div class="collapse" id="graphUpdaterSteps">
+                                <p>Steps:
+                                    <ul>
+                                        <li>Select a source repository.</li>
+                                        <li>Click "Fetch Logical Graphs" to load all Logical Graphs from the source repository into memory.</li>
+                                        <li>Review the list of Logical Graphs, deselect any files that don't require updating.</li>
+                                        <li>Click "Update Logical Graphs" to update them in memory.</li>
+                                        <li>Review the updated Logical Graphs, deselect any files that didn't update correctly.</li>
+                                        <li>Select a destination repository.</li>
+                                        <li>Click "Push" to write selected Logical Graphs to the destination repository.</li>
+                                    </ul>
+                                </p>
+                                <p>Typically, the destination repository is a branch of the source repository.</p>
+                                <p>Once the updated Logical Graphs have been verified by the user, we leave it to the user to merge the new branch outside of EAGLE.</p>
+                            </div>
                         </div>
                     </div>
                     <hr>
@@ -165,3 +167,4 @@
         </div>
     </div>
 </div>
+
