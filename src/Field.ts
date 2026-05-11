@@ -195,7 +195,7 @@ export class Field {
         this.readonly(!this.readonly())
 
         // trigger graph check
-        Eagle.getInstance().checkGraph();
+        Eagle.getInstance().checkEagle();
 
         return this;
     }
@@ -245,7 +245,7 @@ export class Field {
         this.precious(!this.precious());
 
         // trigger graph check
-        Eagle.getInstance().checkGraph();
+        Eagle.getInstance().checkEagle();
 
         return this;
     }
@@ -267,7 +267,7 @@ export class Field {
         this.changeable(!this.changeable());
 
         // trigger graph check
-        Eagle.getInstance().checkGraph();
+        Eagle.getInstance().checkEagle();
 
         return this;
     }
@@ -358,7 +358,7 @@ export class Field {
         this.positional(!this.positional());
 
         // trigger graph check
-        Eagle.getInstance().checkGraph();
+        Eagle.getInstance().checkEagle();
 
         return this;
     }

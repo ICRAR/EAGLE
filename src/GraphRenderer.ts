@@ -1798,7 +1798,7 @@ export class GraphRenderer {
     static updateNodeParent(node: Node, parent: Node, allowGraphEditing: boolean): void {
         if (node.getParent() === null || parent === null || (node.getParent().getId() !== parent.getId()) && allowGraphEditing){
             node.setParent(parent);
-            Eagle.getInstance().checkGraph()   
+            Eagle.getInstance().checkEagle()   
         }
     }
 
@@ -2507,7 +2507,7 @@ export class GraphRenderer {
         }
 
         await eagle.addEdge(srcNode, srcPort, destNode, destPort, loopAware, closesLoop);
-        eagle.checkGraph();
+        eagle.checkEagle();
         eagle.undo().pushSnapshot(eagle, "Added edge from " + srcNode.getName() + " to " + destNode.getName());
         eagle.logicalGraph().fileInfo().modified = true;
         eagle.logicalGraph.valueHasMutated();
