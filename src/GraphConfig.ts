@@ -102,7 +102,7 @@ export class GraphConfig {
         }
 
         // re-check graph
-        Eagle.getInstance().checkGraph();
+        Eagle.getInstance().checkEagle();
     }
 
     addValue = (node: Node, field: Field, value: string) => {

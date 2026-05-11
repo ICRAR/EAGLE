@@ -141,7 +141,7 @@ export class Undo {
             Undo.printTable();
         }
 
-        eagle.checkGraph();
+        eagle.checkEagle();
 
         this._updateSelection();
 
@@ -171,7 +171,7 @@ export class Undo {
             Undo.printTable();
         }
 
-        eagle.checkGraph();
+        eagle.checkEagle();
 
         this._updateSelection();
 

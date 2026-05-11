@@ -477,7 +477,7 @@ export class Modals {
         });
 
         $('.parameterTable').on('hidden.bs.modal', function(){
-            eagle.checkGraph();
+            eagle.checkEagle();
         });
 
         $('.eagleTableDisplay').on('shown.bs.modal', function(){

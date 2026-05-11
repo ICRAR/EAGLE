@@ -95,12 +95,12 @@
                 <div class="btn-group ms-4 navbarGroup" role="group" aria-label="Basic example" data-bind="css: {'navbarGroupWarning': graphWarnings().length > 0, 'navbarGroupError': graphErrors().length > 0,'navbarGroupSuccess':graphWarnings().length === 0 && graphErrors().length === 0}">
                     <span class="navBarToolBarTitle">Issues</span>
                     <!-- ko if: graphWarnings().length === 0 && graphErrors().length === 0 -->
-                        <button id="checkGraphDone" class="btn navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: showGraphErrors, eagleTooltip: 'Check Graph for Errors'">
+                        <button id="checkEagleDone" class="btn navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: showEagleErrors, eagleTooltip: KeyboardShortcut.idToFullText('check_eagle')">
                             <i class="material-symbols-outlined md-18">done_all</i>
                         </button>
                     <!-- /ko -->
                     <!-- ko if: graphWarnings().length > 0 || graphErrors().length > 0 -->
-                        <button id="checkGraphWarnings" class="btn navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" style="display:none;" data-bind="click: showGraphErrors, visible:$root.logicalGraph()!=null, css: {'btn-outline-warning': graphWarnings().length > 0, 'btn-outline-danger': graphErrors().length > 0}, eagleTooltip: KeyboardShortcut.idToFullText('check_graph')">
+                        <button id="checkEagleWarnings" class="btn navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" style="display:none;" data-bind="click: showEagleErrors, visible:$root.logicalGraph()!=null, css: {'btn-outline-warning': graphWarnings().length > 0, 'btn-outline-danger': graphErrors().length > 0}, eagleTooltip: KeyboardShortcut.idToFullText('check_eagle')">
                             <span class="badge bg-warning" data-bind="text: graphWarnings().length, visible: graphWarnings().length > 0"></span>
                             <span class="badge bg-danger" data-bind="text: graphErrors().length, visible: graphErrors().length > 0"></span>
                         </button>

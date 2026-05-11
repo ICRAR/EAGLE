@@ -39,14 +39,14 @@ export class TestHelpers {
     static async setShortDescription(page: Page, description: string): Promise<void> {
         await page.evaluate( (description: string) => {
             (window as any).eagle.logicalGraph().fileInfo().shortDescription = description;
-            (window as any).eagle.checkGraph();
+            (window as any).eagle.checkEagle();
         }, description);
     }
 
     static async setDetailedDescription(page: Page, description: string): Promise<void> {
         await page.evaluate( (description: string) => {
             (window as any).eagle.logicalGraph().fileInfo().detailedDescription = description;
-            (window as any).eagle.checkGraph();
+            (window as any).eagle.checkEagle();
         }, description);
     }
 
