@@ -52,7 +52,7 @@
                     <!-- ko if: GraphUpdater.isFetching() -->
                     <div class="row">
                         <div class="col">
-                            <div style="position: absolute; width: 100%; height: 128px;">
+                            <div style="position: relative; height: 128px;">
                                 {% include 'modals/loading_spinner.html' %}
                             </div>
                         </div>
@@ -67,16 +67,33 @@
                                 <table id="graphUpdaterModalGraphTable" class="table table-striped table-bordered table-hover">
                                     <thead>
                                         <tr>
-                                            <th scope="col">Graph</th>
+                                            <th scope="col" rowspan="2">Graph</th>
                                             <!-- ko if: GraphUpdater.hasFetched() -->
-                                            <th scope="col">Update?</th>
+                                            <th scope="col" rowspan="2">Update?</th>
                                             <!-- /ko -->
                                             <!-- ko if: GraphUpdater.hasFetched() && (GraphUpdater.isUpdating() || GraphUpdater.hasUpdated()) -->
-                                            <th scope="col">Status</th>
-                                            <th scope="col">Information</th>
+                                            <th scope="col" rowspan="2">Status</th>
+                                            <th scope="col" rowspan="2">Nodes</th>
+                                            <th scope="col" rowspan="2">Edges</th>
+                                            <!-- ko if: GraphUpdater.autoFix() -->
+                                            <th scope="col" colspan="2">Pre-fix</th>
+                                            <th scope="col" colspan="2">Post-fix</th>
+                                            <!-- /ko -->
+                                            <!-- ko ifnot: GraphUpdater.autoFix() -->
+                                            <th scope="col" rowspan="2">Errors</th>
+                                            <th scope="col" rowspan="2">Warnings</th>
+                                            <!-- /ko -->
                                             <!-- /ko -->
                                             <!-- ko if: GraphUpdater.hasFetched() && GraphUpdater.hasUpdated() -->
-                                            <th scope="col">Push?</th>
+                                            <th scope="col" rowspan="2">Push?</th>
+                                            <!-- /ko -->
+                                        </tr>
+                                        <tr>
+                                            <!-- ko if: GraphUpdater.hasFetched() && (GraphUpdater.isUpdating() || GraphUpdater.hasUpdated()) && GraphUpdater.autoFix() -->
+                                            <th scope="col">Errors</th>
+                                            <th scope="col">Warnings</th>
+                                            <th scope="col">Errors</th>
+                                            <th scope="col">Warnings</th>
                                             <!-- /ko -->
                                         </tr>
                                     </thead>
@@ -104,7 +121,14 @@
                                                     <div class="spinner-border spinner-border-sm" role="status"></div>
                                                 </td>
                                                 <!-- /ko -->
-                                                <td data-bind="text: information()"></td>
+                                                <td data-bind="text: numNodes()"></td>
+                                                <td data-bind="text: numEdges()"></td>
+                                                <td data-bind="text: preFixNumErrors()"></td>
+                                                <td data-bind="text: preFixNumWarnings()"></td>
+                                                <!-- ko if: GraphUpdater.autoFix() -->
+                                                <td data-bind="text: postFixNumErrors()"></td>
+                                                <td data-bind="text: postFixNumWarnings()"></td>
+                                                <!-- /ko -->
                                             <!-- /ko -->
                                             <!-- ko if: GraphUpdater.hasFetched() && GraphUpdater.hasUpdated() -->
                                             <td><input type="checkbox" data-bind="checked: push, enable: state() === GraphUpdater.FileStatus.Success"></td>

@@ -41,7 +41,12 @@ export class GraphUpdaterFile {
     push: ko.Observable<boolean>; // whether the user has selected to push this graph to the destination repository or not
     file: ko.Observable<RepositoryFile>;
     state: ko.Observable<GraphUpdater.FileStatus>;
-    information: ko.Observable<string>;
+    numNodes: ko.Observable<number>;
+    numEdges: ko.Observable<number>;
+    preFixNumErrors: ko.Observable<number>;
+    preFixNumWarnings: ko.Observable<number>;
+    postFixNumErrors: ko.Observable<number>;
+    postFixNumWarnings: ko.Observable<number>;
 
     constructor(file: RepositoryFile){
         this.data = "";
@@ -49,7 +54,12 @@ export class GraphUpdaterFile {
         this.push = ko.observable(true);
         this.file = ko.observable(file);
         this.state = ko.observable(GraphUpdater.FileStatus.No);
-        this.information = ko.observable("");
+        this.numNodes = ko.observable(0);
+        this.numEdges = ko.observable(0);
+        this.preFixNumErrors = ko.observable(0);
+        this.preFixNumWarnings = ko.observable(0);
+        this.postFixNumErrors = ko.observable(0);
+        this.postFixNumWarnings = ko.observable(0);
     }
 }
 
@@ -348,14 +358,25 @@ export class GraphUpdater {
                 continue;
             }
 
+            // run pre-fix validation
+            LogicalGraph.isValid(lg, null);
+            graphFile.preFixNumErrors(lg.getIssues().filter(i => i.validity === Errors.Validity.Error).length);
+            graphFile.preFixNumWarnings(lg.getIssues().filter(i => i.validity === Errors.Validity.Warning).length);
+
             // if GraphUpdater.autoFix is enabled, attempt to fix any errors in the graph
             if (GraphUpdater.autoFix()){
                 // TODO: missing
                 console.log("GraphUpdater.autoFix() is enabled, but the auto-fix functionality has not been implemented yet.");
+
+                // run post-fix validation
+                LogicalGraph.isValid(lg, null);
+                graphFile.postFixNumErrors(lg.getIssues().filter(i => i.validity === Errors.Validity.Error).length);
+                graphFile.postFixNumWarnings(lg.getIssues().filter(i => i.validity === Errors.Validity.Warning).length);
             }
 
             // update graph information
-            graphFile.information("Nodes: " + lg.getNumNodes() + ", Edges: " + lg.getNumEdges());
+            graphFile.numNodes(lg.getNumNodes());
+            graphFile.numEdges(lg.getNumEdges());
 
             // save to v4 string
             graphFile.data = LogicalGraph.toV4JsonString(lg, false);
