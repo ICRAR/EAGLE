@@ -365,8 +365,8 @@ export class GraphUpdater {
 
             // if GraphUpdater.autoFix is enabled, attempt to fix any errors in the graph
             if (GraphUpdater.autoFix()){
-                // TODO: missing
-                console.log("GraphUpdater.autoFix() is enabled, but the auto-fix functionality has not been implemented yet.");
+                // fixAll errors/warnings in the graph
+                LogicalGraph.fixAll(lg);
 
                 // run post-fix validation
                 LogicalGraph.isValid(lg, null);

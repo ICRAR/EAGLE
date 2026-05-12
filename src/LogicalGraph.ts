@@ -1489,4 +1489,28 @@ export class LogicalGraph {
             }
         }
     }
+
+    static fixAll = (graph: LogicalGraph): void => {
+        let numIssues   = Infinity;
+        let numIterations = 0;
+        const MAX_ITERATIONS = 10;
+
+        while (numIssues !== graph.issues().length){
+            if (numIterations > MAX_ITERATIONS){
+                console.warn("Too many iterations in fixAll()");
+                break;
+            }
+            numIterations = numIterations+1;
+
+            numIssues = graph.issues().length;
+
+            for (const {issue, validity} of graph.issues()){
+                if (issue.fix !== null){
+                    issue.fix();
+                }
+            }
+
+            LogicalGraph.isValid(graph, null);
+        }
+    }
 }
