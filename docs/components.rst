@@ -130,3 +130,57 @@ For example, consider a store with the name 'environment_vars' and parameter 'sc
 A second drop could reference this value in the parameter 'working_dir' by setting the parameter field to ``$environment_vars.scratch_dir``
 
 Dynamic getting and setting of such variables are currently unsupported; they remain static variables, an editor accessible replacement for commonly used configuration files.
+
+Graph Visuals
+-------------
+
+Graph Visuals are non-executable overlay elements that can be placed on the graph canvas to improve readability and document intent. They are purely cosmetic — they are not saved as part of the workflow logic and are not passed to the execution engine.
+
+There are two types of Graph Visual:
+
+* **Text Visual** — a resizable box containing user-authored text (with Markdown support) that can be freely positioned on the canvas or pinned to a specific node, edge, or other visual via a *visual edge*.
+* **Group Visual** — a resizable, coloured background region used to visually cluster related components together.
+
+Adding Graph Visuals
+~~~~~~~~~~~~~~~~~~~~
+
+Graph Visuals are added via the right-click context menu on the empty graph canvas:
+
+1. Right-click on an empty area of the graph canvas.
+2. Hover over the **Graph Visuals** submenu.
+3. Select **Add Text Visual** or **Add Group Visual**.
+
+The visual will appear at the location where you right-clicked and can be dragged to any position on the canvas.
+
+Using Text Visuals
+~~~~~~~~~~~~~~~~~~
+
+A Text Visual is useful for annotating a graph with labels, descriptions, or explanations that are visible while editing. The content is written in Markdown, so headers, bold/italic text, links, and lists are all supported.
+
+To edit the content of a Text Visual, right-click it and select **Edit Content**. A text editor will open where you can enter or update the Markdown text.
+
+A Text Visual can optionally be connected to a node or edge with a *visual edge*. Drag from the connector port on the visual to the target node or edge to create the link. The connection is drawn as a line between the visual and its target, making it clear which element the annotation refers to. To remove the connection, right-click the line and select **Delete**.
+
+.. note::
+   A Text Visual with no content will produce a graph validation warning. Add some content or delete the visual to resolve it.
+
+Using Group Visuals
+~~~~~~~~~~~~~~~~~~~
+
+A Group Visual is a coloured background rectangle that sits beneath graph components. Place it around a set of related nodes to make high-level structure visible at a glance — for example, to mark out a processing stage or a logical subsection of the workflow.
+
+Group Visuals can be resized by dragging their edges, and their background colour can be changed from the inspector panel when the visual is selected.
+
+Right-click Options
+~~~~~~~~~~~~~~~~~~~
+
+Both visual types share a common set of right-click actions:
+
+* **Duplicate** — creates a copy of the visual at a small offset from the original.
+* **Delete** — removes the visual from the graph.
+
+Text Visuals additionally offer:
+
+* **Edit Content** — opens the Markdown editor for the visual's text content.
+
+Visual edges (the connector lines between a Text Visual and a target element) can be deleted by right-clicking the line itself and selecting **Delete**.
