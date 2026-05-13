@@ -317,7 +317,14 @@ export class GraphUpdater {
             graphFile.state(GraphUpdater.FileStatus.Updating);
 
             // fetch the file data
-            const fileData: string = await openRemoteFileFunc(graphFile.file().repository.service, graphFile.file().repository.name, graphFile.file().repository.branch, graphFile.file().path, graphFile.file().name);
+            let fileData: string;
+            try {
+                fileData = await openRemoteFileFunc(graphFile.file().repository.service, graphFile.file().repository.name, graphFile.file().repository.branch, graphFile.file().path, graphFile.file().name);
+            } catch (error) {
+                console.error("Error fetching remote file:", graphFile.file().name, "Error:", error);
+                graphFile.state(GraphUpdater.FileStatus.Error);
+                continue;
+            }
 
             // determine if graph is OJS or V4
             const graphObject = JSON.parse(fileData);
