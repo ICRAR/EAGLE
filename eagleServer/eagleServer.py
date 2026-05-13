@@ -720,7 +720,10 @@ def open_git_hub_file():
 
     if extension != ".md":
         # parse JSON
-        graph = json.loads(raw_data)
+        try:
+            graph = json.loads(raw_data)
+        except json.decoder.JSONDecodeError as e:
+            return app.response_class(response=json.dumps({"error": "File contains invalid JSON: " + str(e)}), status=400, mimetype="application/json")
 
         if isinstance(graph, list):
             return app.response_class(response=json.dumps({"error":"File JSON data is a list, this file could be a Physical Graph instead of a Logical Graph."}), status=404, mimetype="application/json")
@@ -837,7 +840,10 @@ def open_git_lab_file():
 
     if extension != ".md":
         # parse JSON
-        graph = json.loads(raw_data)
+        try:
+            graph = json.loads(raw_data)
+        except json.decoder.JSONDecodeError as e:
+            return app.response_class(response=json.dumps({"error": "File contains invalid JSON: " + str(e)}), status=400, mimetype="application/json")
 
         if not "modelData" in graph:
             graph["modelData"] = {}
@@ -926,7 +932,10 @@ def open_url_file():
         return app.response_class(response=json.dumps({"error":str(e)}), status=404, mimetype="application/json")
 
     # parse JSON
-    graph = json.loads(raw_data)
+    try:
+        graph = json.loads(raw_data)
+    except json.decoder.JSONDecodeError as e:
+        return app.response_class(response=json.dumps({"error": "File contains invalid JSON: " + str(e)}), status=400, mimetype="application/json")
 
     if not "modelData" in graph:
         graph["modelData"] = {}
