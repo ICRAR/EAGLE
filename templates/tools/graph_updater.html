@@ -99,7 +99,7 @@
                                     </thead>
                                     <tbody id="graphUpdaterModalGraphTableBody" data-bind="foreach: GraphUpdater.updatedLogicalGraphs">
                                         <tr>
-                                            <td data-bind="text: file().pathAndName()"></td>
+                                            <td><a data-bind="attr: { href: file().getUrl() }, text: file().pathAndName()" target="_blank"></a></td>
                                             <!-- ko if: GraphUpdater.hasFetched() -->
                                             <td><input type="checkbox" data-bind="checked: update, enable: GraphUpdater.hasFetched() && !GraphUpdater.isUpdating() && !GraphUpdater.hasUpdated()"></td>
                                             <!-- /ko -->
