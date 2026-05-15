@@ -271,7 +271,6 @@ export class Tutorial {
     }
 
     initiateStep = (tutStep: TutorialStep, autoAlternateHighlightTarget: JQuery<HTMLElement> | null): void => {
-        const that = this; // TODO: needed?
         $(':focus').trigger("blur");
 
         const targetFunc = tutStep.getTargetFunc()
@@ -284,13 +283,13 @@ export class Tutorial {
 
         //call the correct function depending on which type of tutorial step this is
         if (tutStep.getType() === TutorialStep.Type.Info) {
-            that.initiateInfoStep(tutStep, autoAlternateHighlightTarget)
+            this.initiateInfoStep(tutStep, autoAlternateHighlightTarget)
         } else if (tutStep.getType() === TutorialStep.Type.Press) {
-            that.initiatePressStep(tutStep, autoAlternateHighlightTarget)
+            this.initiatePressStep(tutStep, autoAlternateHighlightTarget)
         } else if (tutStep.getType() === TutorialStep.Type.Input) {
-            that.initiateInputStep(tutStep, autoAlternateHighlightTarget)
+            this.initiateInputStep(tutStep, autoAlternateHighlightTarget)
         } else if (tutStep.getType() === TutorialStep.Type.Condition) {
-            that.initiateConditionStep(tutStep, autoAlternateHighlightTarget)
+            this.initiateConditionStep(tutStep, autoAlternateHighlightTarget)
         }
     }
 
