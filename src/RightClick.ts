@@ -33,7 +33,7 @@ export class RightClick {
 
     // TODO: global event
     static checkSearchField() : void {
-        const searchField = $((event as any).target)
+        const searchField = $((event as InputEvent).target)
 
         if (typeof searchField === 'undefined') {
             console.warn('Search field not found in checkSearchField()');
@@ -56,7 +56,8 @@ export class RightClick {
         if(searchValue !== ''){
             //if the search bar is not empty
             $('#rightClickPaletteList').hide()
-            $((event as any).target).parent().find('a').show()
+            //when the search bar is not empty, we show the 'x' button for clearing the search bar
+            searchField.parent().find('a').show()
             $('#paletteNodesSearchResult').remove()
             $('#customContextMenu .searchBarContainer').after("<div id='paletteNodesSearchResult'></div>")
 
@@ -89,7 +90,7 @@ export class RightClick {
             }
         } else{
             //if the search bar is empty
-            $((event as any).target).parent().find('a').hide()
+            searchField.parent().find('a').hide()
             $('#rightClickPaletteList').show()
             $('#paletteNodesSearchResult').remove()
         }
