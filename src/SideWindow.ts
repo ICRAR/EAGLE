@@ -224,18 +224,14 @@ export class SideWindow {
         }
 
         // get window settings
-        const leftWindowWidthSetting = Setting.find(Setting.LEFT_WINDOW_WIDTH);
-        const rightWindowWidthSetting = Setting.find(Setting.RIGHT_WINDOW_WIDTH);
-        const bottomWindowHeightSetting = Setting.find(Setting.BOTTOM_WINDOW_HEIGHT);
+        const leftWindowWidth = Setting.findValue<number>(Setting.LEFT_WINDOW_WIDTH, -1);
+        const rightWindowWidth = Setting.findValue<number>(Setting.RIGHT_WINDOW_WIDTH, -1);
+        const bottomWindowHeight = Setting.findValue<number>(Setting.BOTTOM_WINDOW_HEIGHT, -1);
 
-        if (typeof leftWindowWidthSetting === "undefined" || typeof rightWindowWidthSetting === "undefined" || typeof bottomWindowHeightSetting === "undefined"){
+        if (leftWindowWidth === -1 || rightWindowWidth === -1 || bottomWindowHeight === -1){
             console.warn("One or more window settings are undefined!");
             return false;
         }
-
-        const leftWindowWidth : number = leftWindowWidthSetting.value() as number;
-        const rightWindowWidth : number = rightWindowWidthSetting.value() as number;
-        const bottomWindowHeight : number = bottomWindowHeightSetting.value() as number;
 
         if (isNaN(eagle.leftWindow().size())){
             console.warn("Had to reset left window width from invalid state (NaN)!");

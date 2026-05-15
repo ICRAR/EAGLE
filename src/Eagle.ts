@@ -304,7 +304,7 @@ export class Eagle {
 
     deployDefaultTranslationAlgorithm = async () => {
         const translatorAlgorithmDefault = Setting.findValue<string>(Setting.TRANSLATOR_ALGORITHM_DEFAULT, Translator.DEFAULT_TRANSLATION_ALGORITHM);
-        const defaultTranslatorAlgorithmMethod : string = Utils.getUIValue('#'+ translatorAlgorithmDefault + ' .generatePgt', Translator.DEFAULT_TRANSLATION_ALGORITHM);
+        const defaultTranslatorAlgorithmMethod : string = Utils.getUIValue('#'+ translatorAlgorithmDefault + ' .generatePgt', 'val', Translator.DEFAULT_TRANSLATION_ALGORITHM);
         try {
             await this.translator().genPGT(defaultTranslatorAlgorithmMethod, false);
         } catch (error){
@@ -536,13 +536,12 @@ export class Eagle {
         let bottomWindow = 0
 
         if(Setting.findValue<boolean>(Setting.BOTTOM_WINDOW_VISIBLE, false)){
-            const bottomWindowHeight = $('#bottomWindow').height()
-            bottomWindow = bottomWindowHeight !== undefined ? bottomWindowHeight : 0
+            bottomWindow = Utils.getUIValue('#bottomWindow', 'height', 0);
         }
 
         // get width and height of the logical graph parent container
-        const logicalGraphParentWidth = $('#logicalGraphParent').width() || 0;
-        const logicalGraphParentHeight = $('#logicalGraphParent').height() || 0;
+        const logicalGraphParentWidth = Utils.getUIValue('#logicalGraphParent', 'width', 0);
+        const logicalGraphParentHeight = Utils.getUIValue('#logicalGraphParent', 'height', 0);
 
         //calculating scale multipliers needed for each, height and width in order to fit the graph
         const containerHeight = logicalGraphParentHeight - bottomWindow
@@ -924,7 +923,13 @@ export class Eagle {
             const reader = new FileReader();
             reader.readAsText(file, "UTF-8");
             reader.onload = function (evt) {
-                const data: string = evt.target?.result?.toString() || "";
+                let data: string = evt.target?.result?.toString();
+
+                if (!data) {
+                    console.error("loadLocalGraphFile: file is empty or could not be read");
+                    Utils.showUserMessage("Error", "File is empty or could not be read.");
+                    data = "";
+                }
 
                 eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
                     eagle.logicalGraph(lg);
@@ -969,7 +974,13 @@ export class Eagle {
             const reader = new FileReader();
             reader.readAsText(file, "UTF-8");
             reader.onload = function (evt) {
-                const data: string = evt.target?.result?.toString() || "";
+                let data: string = evt.target?.result?.toString();
+
+                if (!data) {
+                    console.error("insertLocalGraphFile: file is empty or could not be read");
+                    Utils.showUserMessage("Error", "File is empty or could not be read.");
+                    data = "";
+                }
 
                 eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
                     const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().location.getText(), "", Category.SubGraph);
@@ -1387,7 +1398,13 @@ export class Eagle {
             const reader = new FileReader();
             reader.readAsText(file, "UTF-8");
             reader.onload = function (evt) {
-                const data: string = evt.target?.result?.toString() || "";
+                let data: string = evt.target?.result?.toString();
+
+                if (!data) {
+                    console.error("loadLocalPaletteFile: file is empty or could not be read");
+                    Utils.showUserMessage("Error", "File is empty or could not be read.");
+                    data = "";
+                }
 
                 eagle._loadPaletteJSON(data, fileFullPath);
 
@@ -1463,7 +1480,14 @@ export class Eagle {
             const reader = new FileReader();
             reader.readAsText(file, "UTF-8");
             reader.onload = function (evt) {
-                const data: string = evt.target?.result?.toString() || "";
+                let data: string = evt.target?.result?.toString();
+
+                if (!data) {
+                    console.error("loadLocalGraphConfigFile: file is empty or could not be read");
+                    Utils.showUserMessage("Error", "File is empty or could not be read.");
+                    data = "";
+                }
+
                 let dataObject;
 
                 try {
@@ -3438,7 +3462,7 @@ export class Eagle {
 
     statusBarScroll = (_data:any, e:any) : void => {
         e.preventDefault();
-        const leftPos = $('#statusBar').scrollLeft();
+        const leftPos = Utils.getUIValue('#statusBar', 'scrollLeft', 0);
         $('#statusBar').scrollLeft(leftPos + e.originalEvent.deltaY)
     }
 
@@ -4850,9 +4874,9 @@ export class Eagle {
             const bottomWindowVisible = Setting.findValue<boolean>(Setting.BOTTOM_WINDOW_VISIBLE, false);
 
             // get logical graph display area dimensions
-            const logicalGraphParentWidth = $('#logicalGraphParent').width() || 0;
-            const logicalGraphParentHeight = $('#logicalGraphParent').height() || 0;
-            const bottomWindowHeight = $('#bottomWindow').height() || 0;
+            const logicalGraphParentWidth = Utils.getUIValue('#logicalGraphParent', 'width', 0);
+            const logicalGraphParentHeight = Utils.getUIValue('#logicalGraphParent', 'height', 0);
+            const bottomWindowHeight = Utils.getUIValue('#bottomWindow', 'height', 0);
 
             // get visible screen size
             let minX = leftWindowVisible ? this.leftWindow().size()+MARGIN: 0+MARGIN;

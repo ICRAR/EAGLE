@@ -435,7 +435,8 @@ export class LogicalGraph {
             if (sourceNode.getCategoryType() === Category.Type.Construct){
                 const srcIdAndPort = sourceNode.findPortInApplicationsById(edge.getSrcPort().getId());
                 if (typeof srcIdAndPort.node === 'undefined'){
-                    // TODO: add error
+                    const error = "Could not find embedded application for source node of edge " + edge.getId();
+                    errorsWarnings.errors.push(Errors.Message(error));
                 } else {
                     const warning = "Updated source node of edge " + edge.getId() + " from construct " + edge.getSrcNode().getId() + " to embedded application " + srcIdAndPort.node.getId();
                     errorsWarnings.warnings.push(Errors.Message(warning));
@@ -445,7 +446,8 @@ export class LogicalGraph {
             if (destinationNode.getCategoryType() === Category.Type.Construct){
                 const destKeyAndPort = destinationNode.findPortInApplicationsById(edge.getDestPort().getId());
                 if (typeof destKeyAndPort.node === 'undefined'){
-                    // TODO: add error
+                    const error = "Could not find embedded application for destination node of edge " + edge.getId();
+                    errorsWarnings.errors.push(Errors.Message(error));
                 } else {
                     const warning = "Updated destination node of edge " + edge.getId() + " from construct " + edge.getDestNode().getId() + " to embedded application " + destKeyAndPort.node.getId();
                     errorsWarnings.warnings.push(Errors.Message(warning));

@@ -149,7 +149,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
         //this handler is for a PORT position, meaning it will run twice for a field that has both input and output ports
         //the update function is called initially and then whenever a change to a utilised observable occurs
         const eagle : Eagle = Eagle.getInstance();
-        //const n: Node = ko.utils.unwrapObservable(valueAccessor()).n;
         const f: Field = ko.utils.unwrapObservable(valueAccessor()).f;
         const dataType: "inputPort" | "outputPort" = ko.utils.unwrapObservable(valueAccessor()).type;
         // determine the 'node' and 'field' attributes (for this way of using this binding)
@@ -196,7 +195,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
         
         // determine port position
         const currentNodePos = node.getPosition();
-        let averageAngle
+        let averageAngle = 0;
 
         if(connectedField){
 
@@ -234,7 +233,6 @@ ko.bindingHandlers.graphRendererPortPosition = {
                     break;
                 default:
                     console.warn("disconnected field with dataType:", dataType);
-                    averageAngle = 0
                     break;
             }
         }
@@ -900,14 +898,13 @@ export class GraphRenderer {
         if(edge !== null || addArrowForce){
             let arrowContainer = $('#draggingEdge polygon')
 
-            // TODO: not sure about this change, it think the structure of branches here is a little hard to understand
             if(!addArrowForce){
                 if (edge !== null) {
                     arrowContainer = $('#' + edge.getId() + " polygon")
                 }
             }
 
-            //we are hiding the arrows if the edge is too short
+            // we are hiding the arrows if the edge is too short
             if(!hideArrow){
                 let arrowAngle = 0
                 let arrowPosX = 0
@@ -1538,7 +1535,6 @@ export class GraphRenderer {
         if (parent !== null){
             GraphRenderer.nodeParentRadiusPreDrag = parent.getRadius();
         }
-        //GraphRenderer.nodeParentRadiusPreDrag = Eagle.getInstance().logicalGraph().getNodeById(parent?.getId())?.getRadius()
     }
 
     static findNodesInRegion(left: number, right: number, top: number, bottom: number): (Node | Visual)[] {
@@ -2236,6 +2232,7 @@ export class GraphRenderer {
             if (GraphRenderer.dragCurrentPosition !== null){
                 x = GraphRenderer.dragCurrentPosition.x
             } else {
+                console.warn("SCREEN_TO_GRAPH_POSITION_X called with null x and no drag current position, defaulting to 0");
                 x = 0;
             }
         }
@@ -2249,6 +2246,7 @@ export class GraphRenderer {
             if (GraphRenderer.dragCurrentPosition !== null){
                 y = GraphRenderer.dragCurrentPosition.y
             } else {
+                console.warn("SCREEN_TO_GRAPH_POSITION_Y called with null y and no drag current position, defaulting to 0");
                 y = 0;
             }
         }

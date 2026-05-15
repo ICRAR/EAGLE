@@ -461,13 +461,13 @@ export class RightClick {
         })
     }
 
-    // TODO: event var used in function is the deprecated global, we should get access to the event via some other method
     static edgeDropCreateNode = (data: Node[]) : void => {
+        const event: MouseEvent = (window.event as MouseEvent);
+
         RightClick.requestCustomContextMenu(data, 'edgeDropCreate');
 
         // prevent bubbling events
-        // TODO: get event from somewhere instead of global
-        (event as any).stopPropagation();
+        event.stopPropagation();
     }
 
     static editNodeFuncCode = () : void => {
@@ -740,6 +740,6 @@ export class RightClick {
         }
         // adding a listener to function options that closes the menu if an option is clicked
         // TODO: get event from somewhere instead of global
-        $('#customContextMenu a').on('click',function(){if($((event as any).target).parents('.searchBarContainer').length){return}RightClick.closeCustomContextMenu(true)})
+        $('#customContextMenu a').on('click',function(){if($((thisEvent).target).parents('.searchBarContainer').length){return}RightClick.closeCustomContextMenu(true)})
     }
 }

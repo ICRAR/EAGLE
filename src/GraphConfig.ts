@@ -349,7 +349,6 @@ export class GraphConfigField {
     clone = (): GraphConfigField => {
         const result = new GraphConfigField(this.field());
 
-        //result.field(this.field());
         result.value(this.value());
         result.comment(this.comment());
 

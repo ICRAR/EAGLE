@@ -922,9 +922,9 @@ export class Utils {
     }
 
     static validateCustomRepository() : boolean {
-        const repositoryService : string = <string>$('#gitCustomRepositoryModalRepositoryServiceSelect').val();
-        const repositoryName : string = <string>$('#gitCustomRepositoryModalRepositoryNameInput').val();
-        const repositoryBranch : string = <string>$('#gitCustomRepositoryModalRepositoryBranchInput').val();
+        const repositoryService : string = Utils.getUIValue('#gitCustomRepositoryModalRepositoryServiceSelect', 'val', "");
+        const repositoryName : string = Utils.getUIValue('#gitCustomRepositoryModalRepositoryNameInput', 'val', "");
+        const repositoryBranch : string = Utils.getUIValue('#gitCustomRepositoryModalRepositoryBranchInput', 'val', "");
 
         $('#gitCustomRepositoryModalRepositoryNameInput').removeClass('is-invalid');
         $('#gitCustomRepositoryModalRepositoryBranchInput').removeClass('is-invalid');
@@ -1426,15 +1426,7 @@ export class Utils {
 
     static getInspectorOffset() : number {
         const offset = 10
-        let statusBarElementHeight: number = 0;
-        const statusBarElement = $('#statusBar')
-        
-        if (statusBarElement.length) {
-            const height = statusBarElement.height();
-            if (typeof height === 'number') {
-                statusBarElementHeight = height;
-            }
-        }
+        const statusBarElementHeight: number = Utils.getUIValue('#statusBar', 'height', 0);
 
         const statusBarAndOffsetHeightVH = ((statusBarElementHeight + offset) / window.innerHeight)*100
         return this.getBottomWindowHeight() + statusBarAndOffsetHeightVH
@@ -2945,8 +2937,7 @@ export class Utils {
     }
 
     static snapToGrid(coord: number, offset: number) : number {
-        const gridSizeSetting = Setting.find(Setting.SNAP_TO_GRID_SIZE);
-        const gridSize : number = gridSizeSetting ? gridSizeSetting.value() as number : 10;
+        const gridSize = Setting.findValue<number>(Setting.SNAP_TO_GRID_SIZE, 10);
 
         return (gridSize * Math.round((coord + offset)/gridSize)) - offset;
     }
@@ -3215,8 +3206,37 @@ export class Utils {
         return name.replace(/[^a-zA-Z0-9_\-\.]/g, "_");
     }
 
-    static getUIValue(selector: string, defaultValue: string): string {
-        const value = $(selector).val();
-        return value ? value.toString() : defaultValue;
+    // Reads a value from a DOM element using a zero-argument jQuery method (e.g. 'val').
+    // Returns defaultValue if the element returns null or undefined (e.g. element not in DOM,
+    // or method not applicable to element type).
+    // NOTE: 'as T' is a compile-time assertion only — no runtime conversion is performed.
+    // If the jQuery method returns a different type than T (e.g. val() always returns a string,
+    // even when T is inferred as number from the defaultValue), a console warning is emitted
+    // but the raw value is still returned. Use parseInt/Number/etc. at the call site if needed.
+    static getUIValue<T>(selector: string, method: keyof JQuery, defaultValue: T): T {
+        const element = $(selector);
+
+        // warn if the selector matched nothing or more elements than expected, and return the default
+        if (element.length === 0) {
+            console.warn(`Utils.getUIValue: no elements found for selector '${selector}', returning defaultValue: ${defaultValue}`);
+            return defaultValue;
+        } else if (element.length > 1) {
+            console.warn(`Utils.getUIValue: selector '${selector}' matched ${element.length} elements, expected 1, returning defaultValue: ${defaultValue}`);
+            return defaultValue;
+        }
+
+        // call the jQuery method (e.g. val(), height(), width(), etc) with no arguments
+        const fn = element[method] as () => T | null | undefined;
+        const value = fn.call(element);
+
+        if (value !== null && value !== undefined) {
+            // warn if the runtime type of the result doesn't match the type of defaultValue
+            if (typeof value !== typeof defaultValue) {
+                console.warn(`Utils.getUIValue: type mismatch for '${selector}'.${String(method)}() — expected ${typeof defaultValue}, got ${typeof value}`);
+            }
+            return value as T;
+        }
+
+        return defaultValue;
     }
 }

@@ -20,8 +20,7 @@ export class Modals {
         $('#inputModal').on('hidden.bs.modal', function(){
             const returnType = $('#inputModal').data('returnType');
             const completed: boolean = $('#inputModal').data('completed');
-            const inputModalInputValue = $('#inputModalInput').val();
-            const input: string = inputModalInputValue ? inputModalInputValue.toString() : "";
+            const input: string = Utils.getUIValue('#inputModalInput', 'val', "");
 
             switch (returnType){
                 case "string": {
@@ -72,8 +71,7 @@ export class Modals {
                 console.log("No callback called when #inputTextModal hidden");
             } else {
                 const completed: boolean = $('#inputTextModal').data('completed');
-                const inputModalInputValue = $('#inputTextModalInput').val();
-                const input: string = inputModalInputValue ? inputModalInputValue.toString() : "";
+                const input: string = Utils.getUIValue('#inputTextModalInput', 'val', "");
                 callback(completed, input);
             }
 
@@ -199,11 +197,9 @@ export class Modals {
                 } else {
                     // check selected option in select tag
                     const choices : string[] = $('#choiceModal').data('choices');
-                    const choiceModalSelectValue = $('#choiceModalSelect').val();
-                    const choiceIndex : number = choiceModalSelectValue ? parseInt(choiceModalSelectValue.toString(), 10) : 0;
+                    const choiceIndex : number = parseInt(Utils.getUIValue('#choiceModalSelect', 'val', "0"), 10);
                     const choice = $('#choiceModalSelect option:selected').text();
-                    const customChoiceValue = $('#choiceModalString').val();
-                    const customChoice = customChoiceValue ? customChoiceValue.toString() : "";
+                    const customChoice = Utils.getUIValue('#choiceModalString', 'val', "");
 
                     // if the last item in the select was selected, then return the custom value,
                     // otherwise return the selected choice
@@ -228,14 +224,7 @@ export class Modals {
         });
 
         $('#choiceModalSelect').on('change', function(){
-            const choiceModalSelectValue = $('#choiceModalSelect').val();
-            const choice : number = choiceModalSelectValue ? parseInt(choiceModalSelectValue.toString(), 10) : 0;
-
-            //checking if the value of the select element is valid
-            if(!choiceModalSelectValue || choice > $('#choiceModalSelect option').length){
-                $('#choiceModalSelect').val(0)
-                console.warn('Invalid selection value (', choice, '), resetting to 0');
-            }
+            const choice : number = parseInt(Utils.getUIValue('#choiceModalSelect', 'val', "0"), 10);
 
             // check selected option in select tag
             const choices : string[] = $('#choiceModal').data('choices');
@@ -331,17 +320,17 @@ export class Modals {
                     callback(false, FileLocation.Unknown, "");
                 } else {
                     // check selected option in select tag
-                    const repositoryService : Repository.Service = <Repository.Service>$('#gitCommitModalRepositoryServiceSelect').val();
+                    const repositoryService : Repository.Service = Utils.getUIValue('#gitCommitModalRepositoryServiceSelect', 'val', Repository.Service.Unknown);
                     const repositories : Repository[] = $('#gitCommitModal').data('repositories');
-                    const repositoryNameChoice : number = parseInt(Utils.getUIValue('#gitCommitModalRepositoryNameSelect', "0"), 10);
+                    const repositoryNameChoice : number = parseInt(Utils.getUIValue('#gitCommitModalRepositoryNameSelect', 'val', "0"), 10);
 
                     // split repository text (with form: "name (branch)") into name and branch strings
                     const repositoryName : string = repositories[repositoryNameChoice].name;
                     const repositoryBranch : string = repositories[repositoryNameChoice].branch;
 
-                    const filePath : string = Utils.getUIValue('#gitCommitModalFilePathInput', "");
-                    let fileName : string = Utils.getUIValue('#gitCommitModalFileNameInput', "");
-                    const commitMessage : string = Utils.getUIValue('#gitCommitModalCommitMessageInput', "");
+                    const filePath : string = Utils.getUIValue('#gitCommitModalFilePathInput', 'val', "");
+                    let fileName : string = Utils.getUIValue('#gitCommitModalFileNameInput', 'val', "");
+                    const commitMessage : string = Utils.getUIValue('#gitCommitModalCommitMessageInput', 'val', "");
 
                     // ensure that the graph filename ends with ".graph" or ".palette" as appropriate
                     const fileType : Eagle.FileType = $('#gitCommitModal').data('fileType');
@@ -365,7 +354,7 @@ export class Modals {
             $('#gitCommitModal').removeData(['callback', 'completed', 'fileType', 'repositories']);
         });
         $('#gitCommitModalRepositoryServiceSelect').on('change', function(){
-            const repositoryService : Repository.Service = <Repository.Service>$('#gitCommitModalRepositoryServiceSelect').val();
+            const repositoryService : Repository.Service = Utils.getUIValue('#gitCommitModalRepositoryServiceSelect', 'val', Repository.Service.Unknown);
             const repositories: Repository[] = Repositories.getList(repositoryService);
             $('#gitCommitModal').data('repositories', repositories);
             Utils.updateGitCommitRepositoriesList(repositories, null);
@@ -403,9 +392,9 @@ export class Modals {
                 } else {
 
                     // check selected option in select tag
-                    const repositoryService : Repository.Service = <Repository.Service>Utils.getUIValue('#gitCustomRepositoryModalRepositoryServiceSelect', Repository.Service.Unknown);
-                    const repositoryName : string = Utils.getUIValue('#gitCustomRepositoryModalRepositoryNameInput', "");
-                    const repositoryBranch : string = Utils.getUIValue('#gitCustomRepositoryModalRepositoryBranchInput', "");
+                    const repositoryService : Repository.Service = <Repository.Service>Utils.getUIValue('#gitCustomRepositoryModalRepositoryServiceSelect', 'val', Repository.Service.Unknown);
+                    const repositoryName : string = Utils.getUIValue('#gitCustomRepositoryModalRepositoryNameInput', 'val', "");
+                    const repositoryBranch : string = Utils.getUIValue('#gitCustomRepositoryModalRepositoryBranchInput', 'val', "");
 
                     callback(true, repositoryService, repositoryName, repositoryBranch);
                 }
@@ -547,20 +536,15 @@ export class Modals {
 
     static validateCommitModalFileNameInputText(): void {
         const inputElement = $("#gitCommitModalFileNameInput");
-        const inputElementValue = inputElement.val();
-
-        if (typeof inputElementValue === "undefined"){
-            console.error("Input element value is undefined in validateCommitModalFileNameInputText");
-            return;
-        }
+        const inputElementValue = Utils.getUIValue('#gitCommitModalFileNameInput', 'val', "");
 
         const fileTypeData = $('#gitCommitModal').data('fileType');
         const fileType: Eagle.FileType = fileTypeData ? fileTypeData : Eagle.FileType.Unknown;
         
         const isValid = (fileType === Eagle.FileType.Unknown) ||
-            (fileType === Eagle.FileType.Graph && inputElementValue.toString().endsWith(".graph")) ||
-            (fileType === Eagle.FileType.Palette && inputElementValue.toString().endsWith(".palette")) ||
-            (fileType === Eagle.FileType.GraphConfig && inputElementValue.toString().endsWith(".graphConfig"));
+            (fileType === Eagle.FileType.Graph && inputElementValue.endsWith(".graph")) ||
+            (fileType === Eagle.FileType.Palette && inputElementValue.endsWith(".palette")) ||
+            (fileType === Eagle.FileType.GraphConfig && inputElementValue.endsWith(".graphConfig"));
 
         Modals._setValidClasses(inputElement, isValid);
     }
