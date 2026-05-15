@@ -2,6 +2,7 @@ import * as ko from "knockout";
 
 import { Daliuge } from "./Daliuge";
 import { Eagle } from './Eagle';
+import { EagleConfig } from "./EagleConfig";
 import { Field } from './Field';
 import { LogicalGraph } from "./LogicalGraph";
 import { Node } from "./Node";
@@ -335,7 +336,7 @@ export class ParameterTable {
         }
 
         // trigger graph check, since changing the usage of a field may break some rules
-        eagle.checkGraph();
+        eagle.checkEagle();
     }
 
     // when a field value is modified in the parameter table, we need to flag the containing palette or logical graph as modified
@@ -364,7 +365,7 @@ export class ParameterTable {
             case Eagle.FileType.Graph:
                 eagle.logicalGraph().fileInfo().modified = true;
 
-                eagle.checkGraph();
+                eagle.checkEagle();
                 break;
         }
     }
@@ -695,7 +696,7 @@ export class ParameterTable {
             setTimeout(() => {
                 //update the contents of the parameter table and its sorting arrow display
                 ParameterTable.updateContent(eagle.selectedNode())
-            }, 50);
+            }, EagleConfig.STANDARD_UI_TINY_TIMEOUT);
         }
 
         //make sure the right click menu is closed
@@ -747,7 +748,7 @@ export class ParameterTable {
             $(".parameterTable .modal-body").animate({
                 scrollTop: (fieldIndex*ParameterTable.ROW_HEIGHT)
             }, 1000);
-        }, 100);
+        }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT);
     }
 
     static duplicateParameter = (field: Field) : void => {
@@ -776,7 +777,7 @@ export class ParameterTable {
             $(".parameterTable .modal-body").animate({
                 scrollTop: (fieldIndex*ParameterTable.ROW_HEIGHT)
             }, 1000);
-        }, 100);
+        }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT);
     }
 
     static duplicateTableRow = (field: Field) : void => {

@@ -108,7 +108,7 @@ export class GraphConfig {
         }
 
         // re-check graph
-        Eagle.getInstance().checkGraph();
+        Eagle.getInstance().checkEagle();
     }
 
     addValue = (node: Node, field: Field, value: string | null) => {
@@ -133,6 +133,10 @@ export class GraphConfig {
 
         return typeof f !== 'undefined';
     }
+
+    getNameHTML : ko.PureComputed<string> = ko.pureComputed(() => {
+        return Utils.markdown2html(this.fileInfo().name);
+    }, this); 
 
     static fromJson(data: any, lg: LogicalGraph, errorsWarnings: Errors.ErrorsWarnings) : GraphConfig {
         const result: GraphConfig = new GraphConfig();
