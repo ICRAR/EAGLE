@@ -199,6 +199,22 @@ export class Setting {
         return setting.value() as T;
     }
 
+    static findPerpetualDefaultValue<T>(key : string, defaultValue: T) : T{
+        const setting = Setting.find(key);
+
+        if (typeof setting === "undefined"){
+            console.warn("No setting", key, ", returning default value:", defaultValue);
+            return defaultValue;
+        }
+
+        if (!setting.getPerpetual()){
+            console.warn("Setting with key", key, "is not perpetual, but findPerpetualDefaultValue was called on it. Returning the regular default value for this setting.");
+        }
+
+        // return the perpetual default value cast to the expected type
+        return setting.getPerpetualDefaultVal() as T;
+    }
+
     static setValue(key : string, value : validValueTypes) : void {
         const setting = Setting.find(key);
         if (typeof setting === "undefined"){

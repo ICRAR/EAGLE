@@ -224,9 +224,9 @@ export class SideWindow {
         }
 
         // get window settings
-        const leftWindowWidth = Setting.findValue<number>(Setting.LEFT_WINDOW_WIDTH, -1);
-        const rightWindowWidth = Setting.findValue<number>(Setting.RIGHT_WINDOW_WIDTH, -1);
-        const bottomWindowHeight = Setting.findValue<number>(Setting.BOTTOM_WINDOW_HEIGHT, -1);
+        const leftWindowWidth = Setting.findPerpetualDefaultValue<number>(Setting.LEFT_WINDOW_WIDTH, -1);
+        const rightWindowWidth = Setting.findPerpetualDefaultValue<number>(Setting.RIGHT_WINDOW_WIDTH, -1);
+        const bottomWindowHeight = Setting.findPerpetualDefaultValue<number>(Setting.BOTTOM_WINDOW_HEIGHT, -1);
 
         if (leftWindowWidth === -1 || rightWindowWidth === -1 || bottomWindowHeight === -1){
             console.warn("One or more window settings are undefined!");
