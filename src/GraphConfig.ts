@@ -4,6 +4,7 @@ import { Eagle } from "./Eagle";
 import { Errors } from "./Errors";
 import { Field } from "./Field";
 import { FileInfo } from "./FileInfo";
+import { Id } from "./Id";
 import { LogicalGraph } from "./LogicalGraph";
 import { Node } from "./Node";
 import { Utils } from "./Utils";
@@ -21,7 +22,7 @@ export class GraphConfig {
         this.fileInfo().type = Eagle.FileType.GraphConfig;
         this.fileInfo().readonly = false;
         this.fileInfo().builtIn = false;
-        this.id = ko.observable(Utils.generateGraphConfigId());
+        this.id = ko.observable(Id.generateGraphConfigId());
         this.nodes = ko.observable(new Map());
     }
 

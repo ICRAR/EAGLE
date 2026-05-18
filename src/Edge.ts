@@ -30,6 +30,7 @@ import { Eagle } from './Eagle';
 import { EagleConfig } from './EagleConfig';
 import { Errors } from './Errors';
 import { Field } from './Field';
+import { Id } from './Id';
 import { Node } from './Node';
 import { Utils } from './Utils';
 import { LogicalGraph } from "./LogicalGraph";
@@ -50,7 +51,7 @@ export class Edge {
     private y : ko.Observable<number>;
 
     constructor(comment: string, srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean, selectionRelative : boolean){
-        this.id = Utils.generateEdgeId();
+        this.id = Id.generateEdgeId();
         this.comment = ko.observable(comment);
 
         this.srcNode = srcNode;

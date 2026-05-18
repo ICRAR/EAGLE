@@ -31,6 +31,7 @@ import { Eagle } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { Errors } from './Errors';
 import { Field } from './Field';
+import { Id } from './Id';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
 
@@ -75,7 +76,7 @@ export class Node {
                                                    // TODO: unused? shall we remove it?
 
     constructor(name : string, description : string, comment : string, category : Category){
-        this.id = ko.observable(Utils.generateNodeId());
+        this.id = ko.observable(Id.generateNodeId());
         this.name = ko.observable(name);
         this.description = ko.observable(description);
         this.comment = ko.observable(comment);
@@ -1020,7 +1021,7 @@ export class Node {
 
         if (typeof groupStartField === 'undefined'){
             // create a new groupStart field (clone from Daliuge)
-            groupStartField = Daliuge.groupStartField.clone().setId(Utils.generateFieldId()).setValue(value.toString());
+            groupStartField = Daliuge.groupStartField.clone().setId(Id.generateFieldId()).setValue(value.toString());
 
             // add field to node
             this.addField(groupStartField);
@@ -1036,7 +1037,7 @@ export class Node {
 
         if (typeof groupEndField === 'undefined'){
             // create a new groupEnd field (clone from Daliuge)
-            groupEndField = Daliuge.groupEndField.clone().setId(Utils.generateFieldId()).setValue(value.toString());
+            groupEndField = Daliuge.groupEndField.clone().setId(Id.generateFieldId()).setValue(value.toString());
 
             // add field to node
             this.addField(groupEndField);
@@ -1147,7 +1148,7 @@ export class Node {
     copy = () : Node => {
         const result : Node = new Node(this.name(), this.description(), this.comment(), this.category());
 
-        result.id(Utils.generateNodeId());
+        result.id(Id.generateNodeId());
         result.x(this.x());
         result.y(this.y());
         result.categoryType(this.categoryType());
@@ -1161,7 +1162,7 @@ export class Node {
 
         // copy fields
         for (const field of this.fields().values()){
-            const newField = field.clone().setId(Utils.generateFieldId());
+            const newField = field.clone().setId(Id.generateFieldId());
             result.fields().set(newField.getId(), newField);
         }
         // if any fields were added, we need to trigger the valueHasMutated to update any observers
@@ -1388,7 +1389,7 @@ export class Node {
     }
 
     addEmptyField = () : Node => {
-        const newField = new Field(this, Utils.generateFieldId(), "New Parameter", "", "", "", false, Daliuge.DataType.String, false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.NoPort);
+        const newField = new Field(this, Id.generateFieldId(), "New Parameter", "", "", "", false, Daliuge.DataType.String, false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.NoPort);
         this.addField(newField);
         return this;
     }
@@ -1453,7 +1454,7 @@ export class Node {
 
         if (id === null){
             errorsWarnings.warnings.push(Errors.Message("Node has undefined id, generating new id"));
-            id = Utils.generateNodeId();
+            id = Id.generateNodeId();
         }
 
         let name = "";
@@ -1616,13 +1617,13 @@ export class Node {
 
         // handle obsolete 'precious' attribute, add it as a 'persist' field
         if (typeof nodeData.precious !== 'undefined'){
-            const persistField = Daliuge.persistField.clone().setId(Utils.generateFieldId()).setValue(nodeData.precious.toString());
+            const persistField = Daliuge.persistField.clone().setId(Id.generateFieldId()).setValue(nodeData.precious.toString());
             node.addField(persistField);
         }
 
         // handle obsolete 'streaming' attribute, add it as a 'streaming' field
         if (typeof nodeData.streaming !== 'undefined'){
-            const streamingField = Daliuge.streamingField.clone().setId(Utils.generateFieldId()).setValue(nodeData.streaming.toString());
+            const streamingField = Daliuge.streamingField.clone().setId(Id.generateFieldId()).setValue(nodeData.streaming.toString());
             node.addField(streamingField);
         }
 

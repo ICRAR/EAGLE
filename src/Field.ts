@@ -8,6 +8,7 @@ import { EagleConfig } from "./EagleConfig";
 import { Edge } from "./Edge";
 import { Errors } from './Errors';
 import { GraphConfigField } from "./GraphConfig";
+import { Id } from './Id';
 import { Node } from './Node';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
@@ -825,7 +826,7 @@ export class Field {
     }
 
     static fromOJSJson(data : any, node: Node, changeable: boolean) : Field {
-        let id: FieldId = Utils.generateFieldId();
+        let id: FieldId = Id.generateFieldId();
         let name: string = "";
         let description: string = "";
         let readonly: boolean = false;
@@ -947,7 +948,7 @@ export class Field {
     }
 
     static fromV4Json(data: any, node: Node, changeable: boolean): Field {
-        let id: FieldId = Utils.generateFieldId();
+        let id: FieldId = Id.generateFieldId();
         let name: string = "";
         let value: string = "";
         let defaultValue: string = "";

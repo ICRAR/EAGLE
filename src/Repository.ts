@@ -4,6 +4,7 @@ import { Eagle } from './Eagle';
 import { GitHub } from './GitHub';
 import { GitLab } from "./GitLab";
 import { FileLocation } from "./FileLocation";
+import { Id } from './Id';
 import { RepositoryFolder } from './RepositoryFolder';
 import { RepositoryFile } from './RepositoryFile';
 import { Utils } from './Utils';
@@ -22,7 +23,7 @@ export class Repository {
     folders : ko.ObservableArray<RepositoryFolder>
 
     constructor(service : Repository.Service, name : string, branch : string, isBuiltIn : boolean){
-        this._id = Utils.generateRepositoryId();
+        this._id = Id.generateRepositoryId();
         this.name = name;
         this.service = service;
         this.branch = branch;

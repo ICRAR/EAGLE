@@ -38,6 +38,7 @@ import { FileLocation } from "./FileLocation";
 import { GraphConfig } from "./GraphConfig";
 import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 import { GraphRenderer } from "./GraphRenderer";
+import { Id } from "./Id";
 import { KeyboardShortcut } from './KeyboardShortcut';
 import { LogicalGraph } from './LogicalGraph';
 import { Modals } from "./Modals";
@@ -69,55 +70,6 @@ export class Utils {
     static v4GraphSchema : object = {};
     static v4PaletteSchema : object = {};
     static v4GraphConfigSchema : object = {};
-
-    static generateNodeId(): NodeId {
-        return Utils._uuidv4() as NodeId;
-    }
-
-    static generateFieldId(): FieldId {
-        return Utils._uuidv4() as FieldId;
-    }
-
-    static generateEdgeId(): EdgeId {
-        return Utils._uuidv4() as EdgeId;
-    }
-
-    static generateGraphConfigId(): GraphConfigId {
-        return Utils._uuidv4() as GraphConfigId;
-    }
-
-    static generateRepositoryId(): RepositoryId {
-        return Utils._uuidv4() as RepositoryId;
-    }
-
-    static generateRepositoryFileId(): RepositoryFileId {
-        return Utils._uuidv4() as RepositoryFileId;
-    }
-
-    static generateVisualId(): VisualId {
-        return Utils._uuidv4() as VisualId;
-    }
-
-
-    /**
-     * Generates a UUID.
-     * See https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
-     * NOTE: the main code path uses the widely-supported crypto.randomUUID()
-     *       in the unlikely case this is unavailable, we use the (slightly) less
-     *       random version that doesn't require the
-     *       crypto.getRandomValues() call that is not available in NodeJS
-     */
-
-    static _uuidv4() : string {
-        if (typeof crypto.randomUUID !== "undefined"){
-            return crypto.randomUUID();
-        }
-
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-            const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        });
-    }
 
     static padStart(input: number, length: number): string {
         let result: string = input.toString();
@@ -169,14 +121,14 @@ export class Utils {
             // if this node has inputApp, set the inputApp id
             if (inputApplication !== null){
                 if (inputApplication.getId() === null){
-                    inputApplication.setId(Utils.generateNodeId());
+                    inputApplication.setId(Id.generateNodeId());
                 }
             }
 
             // if this node has outputApp, set the outputApp id
             if (outputApplication !== null){
                 if (outputApplication.getId() === null){
-                    outputApplication.setId(Utils.generateNodeId());
+                    outputApplication.setId(Id.generateNodeId());
                 }
             }
         }
@@ -2195,7 +2147,7 @@ export class Utils {
     }
 
     static fixFieldId(_eagle: Eagle, field: Field){
-        field.setId(Utils.generateFieldId());
+        field.setId(Id.generateFieldId());
     }
 
     static fixFieldValue(_eagle: Eagle, node: Node, exampleField: Field, value: string){
@@ -2205,7 +2157,7 @@ export class Utils {
         if (typeof field === 'undefined'){
             field = exampleField
                 .clone()
-                .setId(Utils.generateFieldId());
+                .setId(Id.generateFieldId());
             node.addField(field);
         }
 
@@ -2403,7 +2355,7 @@ export class Utils {
         // create the new field that will be used for the required field
         const field: Field = requiredField
                 .clone()
-                .setId(Utils.generateFieldId());
+            .setId(Id.generateFieldId());
         node.addField(field);
 
         // try to set a reasonable default value for some known fields
@@ -2442,11 +2394,11 @@ export class Utils {
     }
 
     static newNodeId(graph: LogicalGraph, nodeId: NodeId){
-        graph.updateNodeId(nodeId, Utils.generateNodeId());
+        graph.updateNodeId(nodeId, Id.generateNodeId());
     }
 
     static newEdgeId(graph: LogicalGraph, edgeId: EdgeId){
-        const newEdgeId = Utils.generateEdgeId();
+        const newEdgeId = Id.generateEdgeId();
 
         // loop through all fields and update any edges that reference this edge id
         for (const node of graph.getNodes()){
@@ -2464,7 +2416,7 @@ export class Utils {
 
     static newFieldId(eagle: Eagle, node: Node, field: Field): void {
         const oldId = field.getId();
-        const newId: FieldId = Utils.generateFieldId();
+        const newId: FieldId = Id.generateFieldId();
     
         // loop over all edges
         for (const edge of eagle.logicalGraph().getEdges()){
@@ -2483,7 +2435,7 @@ export class Utils {
     }
     
     static newGraphConfigId(graph: LogicalGraph, graphConfigId: GraphConfigId): void {
-        graph.updateGraphConfigId(graphConfigId, Utils.generateGraphConfigId());
+        graph.updateGraphConfigId(graphConfigId, Id.generateGraphConfigId());
     }
 
     static showEdge(eagle: Eagle, edge: Edge | undefined): void {
@@ -2543,7 +2495,7 @@ export class Utils {
 
     static generateNewNodeId(object: Palette | LogicalGraph, node: Node){
         object.removeNode(node);
-        node.setId(Utils.generateNodeId());
+        node.setId(Id.generateNodeId());
 
         if (object instanceof Palette){
             object.addNode(node, true);
@@ -3019,7 +2971,7 @@ export class Utils {
     // duplicate a node, and all its fields
     // NOTE: if the node has an input or output application, those will NOT be duplicated!
     static duplicateNode(node: Node): Node {
-        const newNodeId = Utils.generateNodeId();
+        const newNodeId = Id.generateNodeId();
 
         // set appropriate key for node (one that is not already in use)
         // NOTE: we remove the fields here, and re-add them one-by-one, this seems easier than changing both the key and value in the fields map
@@ -3036,7 +2988,7 @@ export class Utils {
         for (const field of node.getFields()){
             const clonedField = field
                 .clone()
-                .setId(Utils.generateFieldId())
+                .setId(Id.generateFieldId())
                 .setNode(newNode);
             newNode.addField(clonedField);
         }

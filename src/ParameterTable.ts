@@ -4,6 +4,7 @@ import { Daliuge } from "./Daliuge";
 import { Eagle } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { Field } from './Field';
+import { Id } from "./Id";
 import { LogicalGraph } from "./LogicalGraph";
 import { Node } from "./Node";
 import { RightClick } from "./RightClick";
@@ -758,7 +759,7 @@ export class ParameterTable {
 
         const copiedField = field
             .clone()
-            .setId(Utils.generateFieldId())
+            .setId(Id.generateFieldId())
             .setChangeable(true)
             .setDisplayText(newFieldText);
 

@@ -44,6 +44,7 @@ import { GraphConfig } from "./GraphConfig";
 import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 import { GraphRenderer } from "./GraphRenderer";
 import { Hierarchy } from './Hierarchy';
+import { Id } from './Id';
 import { KeyboardShortcut } from './KeyboardShortcut';
 import { LogicalGraph } from './LogicalGraph';
 import { Modals } from "./Modals";
@@ -1838,7 +1839,7 @@ export class Eagle {
         const newConfigName = Utils.generateGraphConfigName(config);
         const clone = config
             .clone()
-            .setId(Utils.generateGraphConfigId());
+            .setId(Id.generateGraphConfigId());
         clone.fileInfo().name = newConfigName;
 
         // add duplicate to LG
@@ -2766,7 +2767,7 @@ export class Eagle {
                 this.logicalGraph().addGraphConfig(graphConfig);
             } else if (userOption === "Load as Separate Config"){
                 graphConfig.fileInfo().name = graphConfig.fileInfo().name + " (copy)";
-                graphConfig.setId(Utils.generateGraphConfigId());
+                graphConfig.setId(Id.generateGraphConfigId());
                 this.logicalGraph().addGraphConfig(graphConfig);
             } else {
                 // do nothing
@@ -4314,13 +4315,13 @@ export class Eagle {
 
                 // make sure we can find a port on the PythonMemberFunction
                 if (typeof sourcePort === 'undefined'){
-                    sourcePort = Daliuge.selfFieldComponent.clone().setId(Utils.generateFieldId());
+                    sourcePort = Daliuge.selfFieldComponent.clone().setId(Id.generateFieldId());
                     newNode.addField(sourcePort);
                     Utils.showNotification("Component Warning", "The PythonMemberFunction does not have a '" + Daliuge.FieldName.SELF + "' port. Added this port to enable connection.", "warning");
                 }
 
                 // create a new input/output "object" port on the PythonObject
-                const inputOutputPort: Field = Daliuge.selfFieldComponent.clone().setId(Utils.generateFieldId()).setType(sourcePort.getType());
+                const inputOutputPort: Field = Daliuge.selfFieldComponent.clone().setId(Id.generateFieldId()).setType(sourcePort.getType());
                 pythonObjectNode.addField(inputOutputPort);
 
                 // add edge to Logical Graph (connecting the PythonMemberFunction and the automatically-generated PythonObject)
@@ -5022,7 +5023,7 @@ export class Eagle {
                 intermediaryComponent = new Node("Data", "Data Component", "", Category.Data);
             } else {
                 //intermediaryComponent = Utils.duplicateNode(intermediaryComponent);
-                intermediaryComponent = intermediaryComponent.clone().setId(Utils.generateNodeId());
+                intermediaryComponent = intermediaryComponent.clone().setId(Id.generateNodeId());
             }
 
             // if edge DOES NOT connect two applications, process normally
@@ -5089,7 +5090,7 @@ export class Eagle {
 
             // Add the intermediary component to the graph
             //const newNode : Node = this.logicalGraph().addDataComponentToGraph(intermediaryComponent, dataComponentPosition);              // DOESN't WORK!! io port is not rendered
-            const newNode = (await this.addNodeToLogicalGraph(intermediaryComponent, Utils.generateNodeId(), Eagle.AddNodeMode.Default))[0]; // WORKS!! (just location is not used)
+            const newNode = (await this.addNodeToLogicalGraph(intermediaryComponent, Id.generateNodeId(), Eagle.AddNodeMode.Default))[0]; // WORKS!! (just location is not used)
 
             newNode.setPosition(dataComponentPosition.x, dataComponentPosition.y);
 
