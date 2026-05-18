@@ -75,7 +75,7 @@ export class Node {
                                                    // TODO: unused? shall we remove it?
 
     constructor(name : string, description : string, comment : string, category : Category){
-        this.id = ko.observable("" as NodeId);//Utils.generateNodeId());
+        this.id = ko.observable(Utils.generateNodeId());
         this.name = ko.observable(name);
         this.description = ko.observable(description);
         this.comment = ko.observable(comment);
