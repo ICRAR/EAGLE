@@ -1,41 +1,58 @@
 Hello World Example
 ===================
 
-Graph Creation
---------------
+This page walks through the complete lifecycle of a simple EAGLE workflow — from building a graph, to saving it, to translating and executing it. The example used is the **Hello World** graph, which is included in the `EAGLE graph repository <https://eagle.icrar.org/?service=GitHub&repository=ICRAR/EAGLE-graph-repo&branch=master&path=examples&filename=HelloWorld-simple.graph>`_ and can be opened directly in the public instance.
 
-This video provides detailed instructions for constructing the "Hello World" :doc:`Logical Graph Template <graphs>`. In most documentation, and the EAGLE interface, this is referred to as a graph. It is a visual depiction of the relationships between different :doc:`components <components>` integrated into a workflow. You can also directly play around with the editor and the HelloWorld example graph on our `public installation <https://eagle.icrar.org/?service=GitHub&repository=ICRAR/EAGLE-graph-repo&branch=master&path=examples&filename=HelloWorld-simple.graph>`_. The rest of this document provides a detailed description of the functionality and usage of EAGLE.
+Building the Graph
+------------------
 
+The Hello World graph uses two components from the Builtin Components palette: a ``String2JSON`` node that produces a greeting string, and a ``HelloWorldApp`` node that consumes it and writes output to a ``File`` data component.
+
+The following video walks through building this graph from scratch:
 
 .. raw:: html
     :file: _static/helloWorld_creation_video.html
 
-The graph cannot itself be executed on any hardware; it must first be translated into a :doc:`Physical Graph Template <graphs>` via an algorithm that will optimise it for efficiency and parallel processing. This translated graph can then be entered into the queue on the chosen facility for execution.
+Key points from the video:
 
-Saving a graph to GitHub
-------------------------
+- Drag components from the palette panel onto the canvas.
+- Connect the output port of ``String2JSON`` to the input port of ``HelloWorldApp`` by dragging between ports.
+- The ``File`` data component receives the output of ``HelloWorldApp`` — select it and set a filename in the inspector, or leave it blank and DALiuGE will generate a unique name at runtime.
+- Select any node and edit its parameters in the inspector panel on the right. For ``HelloWorldApp``, the ``Greet`` argument controls what is printed.
 
-To save a graph to GitHub, you will need to add a repository that you have permission to write to. You may need to create a new repository if you don't already have access to one.
+Saving to GitHub
+----------------
 
-A GitHub Personal Access Token is required to save a graph to a repository. The steps required to generate one are demonstrated in the following video, as well as adding a custom repository. You can also follow the `instructions on GitHub <https://docs.github.com/en/enterprise-server@3.4/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token>`_.
+Before the graph can be translated or shared, save it to a GitHub repository. A Personal Access Token with ``repo`` scope is required — follow the `GitHub instructions <https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token>`_ to generate one, then add it under **Settings → External Services**.
 
 .. raw:: html
     :file: _static/helloWorld_save_graph.html
 
-Translating a graph
--------------------
+Translating the Graph
+---------------------
 
-The graph created in EAGLE needs to be translated into a :doc:`Physical Graph Template <graphs>` before it can be executed. This video will step you through the process of translating a simple Hello World graph.
+A Logical Graph Template cannot be executed directly. It must first be translated into a Physical Graph Template by the DALiuGE translation engine, which maps the workflow onto a cluster topology.
+
+To translate, click the **Translate** button in the navbar. The translated graph opens in a new browser tab showing the Physical Graph Template.
 
 .. raw:: html
     :file: _static/helloWorld_translate_graph.html
 
-Executing a graph
------------------
+Executing the Graph
+-------------------
 
-This video shows one method of executing the :doc:`Physical Graph Template <graphs>` using a an execution engine that is running in a local Docker container. There are many other ways this step may be performed.
+With a Physical Graph Template available, it can be submitted for execution. The video below shows one way to do this using a local DALiuGE execution engine running in Docker.
 
 .. raw:: html
     :file: _static/helloWorld_execute_graph.html
+
+During execution, EAGLE displays the graph and highlights the progress of each component. Failures are shown immediately, making this view useful for debugging during development.
+
+Next Steps
+----------
+
+- Try modifying the ``Greet`` argument on ``HelloWorldApp`` to print a different message.
+- Add a ``Scatter`` construct around ``HelloWorldApp`` to run it in parallel across multiple inputs — see :doc:`Graphs <graphs>` for details on constructs.
+- Explore the full Hello World with parallelism example: `HelloWorld-Universe.graph <https://eagle.icrar.org/?service=GitHub&repository=ICRAR/EAGLE-graph-repo&branch=master&path=examples&filename=HelloWorld-Universe.graph>`_.
 
 

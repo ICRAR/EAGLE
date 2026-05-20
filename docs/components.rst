@@ -1,132 +1,180 @@
 Components
 ==========
 
-Components are created by application developers and others to be used within an
-EAGLE workflow. The components payload or code exists outside of EAGLE, and may be
-*Application Components* such as command line (shell) code, in-line Python and C/C++ dynamic libraries, and MPI code; or they can be *Data Components*, such as Memory, File, S3 and NGAS. Each of these provide different underlying functionality and integration.
+A **component** is the building block of an EAGLE workflow. Each component is a self-contained description of an executable unit — an application, a data store, or a structural construct — along with its inputs, outputs, and parameters. Components are purely descriptive; the actual application code lives outside EAGLE and is invoked at execution time by the DALiuGE engine.
 
-To create a workflow, EAGLE only needs to access JSON representations of each component, which contain enough information to translate the workflow into a graph and then execute it correctly. These JSON files are referred to as *component descriptions* or :doc:`Palettes <palettes>`.
+Components are stored in JSON files and organised into :doc:`palettes <palettes>` for easy reuse across workflows.
 
-During the execution of a workflow, the executables and data wrapped by a component description have to be available to the execution engine; however, during the development of a Palette or translation into a Physical Graph Template, these don't need to be accessible by EAGLE.
+.. figure:: _static/images/placeholder.png
+   :width: 600px
+   :align: center
+   :alt: [screenshot: several component types on the canvas — a Python app, a memory node, a file node, and a scatter construct]
+   :figclass: align-center
 
-In this documentation, no distinction is made between the component's external code and its description unless it is necessary for clarity.
+   A selection of component types: an application, two data components, and a construct.
 
-.. figure:: _static/images/components.png
-  :width: 400px
-  :align: center
-  :alt: An example of components in EAGLE
-  :figclass: align-center
+Component Types
+---------------
 
-  An example of different types of components in EAGLE. Each component has inputs and outputs. They can be arranged as parents and children, and their inputs and outputs can be linked using *edges*.
+Application Components
+""""""""""""""""""""""
 
-Each component has a set of inputs and outputs, as well as exposed parameters. Executable code called by an Application Component may range from the most simple -- for example, just a single mathematical operation in Python or C, to a complete and complex workflow all by itself. The inner workings of the Application Component are not handled or even visible within EAGLE.
+Application components wrap executable code. The DALiuGE engine imports and runs the specified application at execution time.
 
-In combination, components allow the parallel reduction of many individual data sets.
+.. list-table::
+   :widths: 25 75
+   :header-rows: 1
 
-Component parameterisation
---------------------------
+   * - Type
+     - Description
+   * - **Python App** (PyFuncApp)
+     - Runs a Python function or class. The *Application Class* parameter specifies the fully-qualified import path, e.g. ``dlg.apps.simple.HelloWorldApp``.
+   * - **Bash Shell App**
+     - Executes a shell command. Useful for wrapping command-line tools.
+   * - **Dynamic Library App** (DynlibApp)
+     - Loads and calls a compiled C/C++ dynamic library.
+   * - **MPI App**
+     - Runs an MPI-parallel application across multiple compute nodes.
+   * - **Docker App**
+     - Runs an application inside a Docker container. See `Creating Components for Docker Images`_ below.
 
-In general components require inputs and produce outputs and very often they require some static input parameters and optional keyword parameters as well. An EAGLE component requires two sets of distinct parameters, *Component parameters* and *Application arguments*. *Component parameters* are parameters required for the DALiuGE engine to manage and instatiate the component itself. The *Application arguments* are parameters exposed by the actual application or payload code. For example, the *Application Class* *Component parameter* contains a dot delimited string allowing the DALiuGE engine to import the actual payload code at run-time. In the HelloWorldApp (which is part of the Builin Component palette), the *Application Class* parameter is set to ``dlg.apps.simple.HelloWorldApp`` and ``readonly``. That `HelloWorldApp` also has an *Application argument* called ``Greet``, which is set to ``World`` and ``readwrite`` by default. Changing the value of that argument to ``Universe`` will result in an output of ``Hello Universe``. 
+Data Components
+"""""""""""""""
 
-In addition component parameters and application arguments can be used as an `Input port` and/or as an `Output port`. By default that means that the *value* of that parameter or argument is read and/or written from/to a port or essentially from/to the previous/next component. For our HelloWorldApp that means that the value for ``Greet`` could be generated by another component and then fed into the actual application. The whole example, including some paralellism, can be explored directly in `EAGLE <http://localhost:8888/?service=GitHub&repository=ICRAR/EAGLE-graph-repo&branch=master&path=examples&filename=HelloWorld-Universe.graph>`_, the following is just a screenshot.
+Data components represent storage between application steps. Unlike application components, they do not run code — they hold data that flows between applications.
 
-.. figure:: _static/images/HelloWorldUniverse.png
-  :width: 400px
-  :align: center
-  :alt: HelloWorldUniverse example graph in EAGLE
-  :figclass: align-center
+.. list-table::
+   :widths: 25 75
+   :header-rows: 1
 
-  An example of different types of components in EAGLE. Each component has inputs and outputs. They can be arranged as parents and children, and their inputs and outputs can be linked using *edges*.
+   * - Type
+     - Description
+   * - **Memory**
+     - Stores data in RAM. The fastest option; data is lost when the session ends. Recommended for intermediate results within a workflow.
+   * - **File**
+     - Reads or writes a file on disk. If no filename is set, DALiuGE generates a unique name at runtime.
+   * - **S3**
+     - Reads or writes an object in an S3-compatible object store.
+   * - **NGAS**
+     - Reads or writes data via the NGAS archiving system.
 
-This graph is using two Python components ``String2JSON`` and the ``HelloWorldApp`` It also uses a ``Scatter`` and a ``Gather`` construct. ``String2JSON`` generates a JSON string using the value of an *Application argument* called ``string``. In the example the value is an array with 6 values. The ``Scatter`` construct is splitting this up 6-ways, where the number 6 is a *Component parameter* of the ``Scatter`` construct and can be changed there. Inside the ``Scatter`` there is first the *Element* memory component, which is passed on to the ``HelloWorldApp`` as the value for the *Application argument* ``Greet``. The ``HelloWorldApp`` is directed to write to a ``Greeting`` memory component. That ``Greeting`` component is used as an input to the ``Gather``, which has a *Component parameter* called ``Number of inputs`` set to 3. This means that it is gathering 3 inputs and writes those inputs to the ``File`` component inside the ``Gather``. Since there are 6 inputs from the ``Scatter``, this will result in two Files being generated in order to gather all the inputs. As a final result there will be two files inside the ``Gather`` each containing three greetings from the original list generated by ``String2JSON``. Note that the ``File`` component is not specifying an absolute name or path in its *Component parameter* settings. In this case DALiuGE will generate a unique filename and place that in the associated session directory at run time. That way any files generated during a workflow will not overwrite each other and it is thus recommended to leave that *Component argument* empty. Note also, that DALiuGE allows to exchange data component types, e.g. from *File* to *Memory* without the application needing to be changed  (this does not work for Bash components, since they can't read or write from/to memory).
+Construct Components
+""""""""""""""""""""
 
-Creating Components for Docker Images
--------------------------------------
+Constructs control the execution structure of a workflow. They wrap other components and define how work is distributed or collected.
 
-The process for generating component descriptions for applications contained in Docker images is as follows:
+.. list-table::
+   :widths: 25 75
+   :header-rows: 1
 
-Locate the image you wish to use on Docker Hub. For example, the ICRAR images are stored at https://hub.docker.com/u/icrar
+   * - Type
+     - Description
+   * - **Scatter**
+     - Splits an input dataset into *N* independent chunks and distributes them to components inside the construct. The ``Number of copies`` parameter controls the degree of parallelism.
+   * - **Gather**
+     - Collects results from parallel branches. ``Number of inputs`` sets how many inputs are gathered before the construct completes.
+   * - **Loop**
+     - Repeats the components inside it for a fixed number of iterations.
+   * - **Group By**
+     - Groups data by a key before passing it downstream.
+   * - **MKN**
+     - Maps *M* inputs to *K* outputs across *N* workers.
 
-Create a new graph and then create one Docker node from the Template Palette
+Parameters and Ports
+--------------------
 
-.. figure:: _static/images/components/new_node.png
-  :width: 210px
-  :align: center
-  :alt: A new graph containing a single Docker node
-  :figclass: align-center
+Every component exposes two categories of fields, visible in the inspector panel when a node is selected.
 
-  A new graph containing a single Docker node
+Component Parameters
+""""""""""""""""""""
 
-Click the node to modify its attributes:
+Parameters required by the DALiuGE engine to manage the component. These include settings such as the *Application Class* import path, execution constraints, and resource requirements. Most component parameters are set once by the component author and rarely need to be changed by graph builders.
 
-* The "Image" field should contain the name of the image, for example, icrar/leap_cli
-* The "Tag" field should contain the image tag, for example, 0.8.1.
-* The "Digest" field should contain the hexadecimal hash of that version.
-* The "Command"
-* The "User"
-* The "Ensure User And Switch"
-* The "Remove Container"
-* The "Additional Bindings"
+Application Arguments
+"""""""""""""""""""""
 
-.. figure:: _static/images/components/modify_parameters.png
-  :width: 500px
-  :align: center
-  :alt: Modify the Docker node parameters with data from the Docker image
-  :figclass: align-center
+Arguments passed directly to the application payload — the equivalent of command-line arguments or function keyword arguments. These are the values that graph builders typically adjust per-workflow. For example, the ``Greet`` argument on ``HelloWorldApp`` controls what string is printed.
 
-  Modify the Docker node parameters with data from the Docker image
+A parameter or argument can also be promoted to an **input port** or **output port**, meaning its value is read from or written to an upstream or downstream component via an edge, rather than being set statically.
 
+.. figure:: _static/images/placeholder.png
+   :width: 500px
+   :align: center
+   :alt: [screenshot: inspector panel showing component parameters and application arguments for a Python App node]
+   :figclass: align-center
 
-Important Notes on Docker Images
---------------------------------
+   The inspector panel showing parameters and arguments for a Python App component.
 
-DALiuGE can only execute applications from Docker containers that satisfy the following requirements:
+Connecting Components with Edges
+---------------------------------
 
-* pack a Bash shell (/bin/bash)
-* pack /usr/bin/cat
-* pack /etc/passwd
-* It is also recommended to pack /usr/bin/ls.
+An output port on one component can be connected to an input port on another component using an **edge**. Edges are drawn as arrows on the canvas and represent data flowing from one component to the next, triggering execution.
 
+To draw an edge, drag from an output port (right side of a node) to an input port (left side of another node). EAGLE validates the connection and shows a warning or error if it is inadvisable or invalid.
 
-Linking Components with Edges
------------------------------
+.. figure:: _static/images/placeholder.png
+   :width: 600px
+   :align: center
+   :alt: [screenshot: three components connected by two edges with a valid connection indicator]
+   :figclass: align-center
 
-Within EAGLE, an output port from one component may be connected to the input port of another component via an *edge*. This is illustrated graphically by an arrow linking the two. An edge represents an event triggered by one component that in turn triggers other components to be processed.
-
-It is only possible to link components that meet certain criteria, and some edges are inadvisable as they may affect performance. EAGLE provides error and warning messages when these edges are created.
-
-.. figure:: _static/images/components2.png
-  :width: 500px
-  :align: center
-  :alt: An example of components linked together with edges
-  :figclass: align-center
-
-  Here three components are linked together with edges.
-
+   Three components connected by edges.
 
 .. figure:: _static/images/edgeWarning.png
-  :width: 400px
-  :align: center
-  :alt: An example of a warning provided for an edge
-  :figclass: align-center
+   :width: 400px
+   :align: center
+   :alt: An example of a warning provided for an edge
+   :figclass: align-center
 
 .. figure:: _static/images/edgeError.png
-  :width: 400px
-  :align: center
-  :alt: An example of an error provided for an edge
-  :figclass: align-center
+   :width: 400px
+   :align: center
+   :alt: An example of an error provided for an edge
+   :figclass: align-center
 
-  A warning message (above) and an error message (below) caused by the creation of an edge that may affect performance or is invalid.
+   A warning (above) and an error (below) shown when a problematic edge is created.
 
 Environment Variables
 ---------------------
-DALiuGE and, by extension, EAGLE support globally accessible environment variables in the form of ``EnvironmentVars`` components.
-These components act as a globally available key-value store.
-Other drops' parameters can reference parameters specified in this component. The translator and runtime engine handles filling these values in during workflow execution.
-Importantly, each ``EnvironmentVars`` component in a graph needs a unique name to avoid variable aliasing.
-Reference a store's variable in another component using the following syntax:
-``$store_name.var_name``
-For example, consider a store with the name 'environment_vars' and parameter 'scratch_dir: '/users/me/scratch''.
-A second drop could reference this value in the parameter 'working_dir' by setting the parameter field to ``$environment_vars.scratch_dir``
 
-Dynamic getting and setting of such variables are currently unsupported; they remain static variables, an editor accessible replacement for commonly used configuration files.
+``EnvironmentVars`` components act as a named, graph-wide key-value store. Any other component in the graph can reference a value from an ``EnvironmentVars`` store using the syntax:
+
+.. code-block:: text
+
+   $store_name.var_name
+
+For example, if an ``EnvironmentVars`` component is named ``environment_vars`` and contains a parameter ``scratch_dir`` set to ``/users/me/scratch``, another component can reference it by setting its ``working_dir`` parameter to:
+
+.. code-block:: text
+
+   $environment_vars.scratch_dir
+
+Each ``EnvironmentVars`` component in a graph must have a unique name to avoid conflicts. These variables are static — they are substituted at translation time and cannot be dynamically read or written during execution.
+
+Creating Components for Docker Images
+--------------------------------------
+
+To use an application packaged in a Docker image:
+
+1. Create a new graph and drag a **Docker** node from the Component Templates palette onto the canvas.
+2. Select the node and fill in the following parameters in the inspector:
+
+   - **Image** — the Docker Hub image name, e.g. ``icrar/leap_cli``
+   - **Tag** — the image tag, e.g. ``0.8.1``
+   - **Digest** — the hexadecimal digest of that image version
+   - **Command** — the command to run inside the container
+   - **User** — the user to run as
+   - **Additional Bindings** — any host paths to mount into the container
+
+.. figure:: _static/images/placeholder.png
+   :width: 500px
+   :align: center
+   :alt: [screenshot: inspector panel for a Docker component with image, tag, and command fields filled in]
+   :figclass: align-center
+
+   Configuring a Docker component in the inspector panel.
+
+3. Once configured, the component can be saved to a palette for reuse — see :doc:`Palettes <palettes>`.
+
+.. note::
+   DALiuGE requires Docker images to include ``/bin/bash``, ``/usr/bin/cat``, and ``/etc/passwd``. Including ``/usr/bin/ls`` is also recommended.

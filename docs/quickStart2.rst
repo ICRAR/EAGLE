@@ -1,37 +1,86 @@
-Quick Start Guide
-=================
+Quick Start
+===========
 
-Here are some step-by-step instructions and videos to help you get up and running with EAGLE quickly. You can play around with the editor on our `public installation <https://eagle.icrar.org/?service=GitHub&repository=ICRAR/EAGLE-graph-repo&branch=master&path=examples&filename=HelloWorld-simple.graph>`_. The rest of this document provides a detailed description of the functionality and usage of EAGLE.
+This page introduces the EAGLE interface and walks through the core workflow: loading a palette, building a graph, and saving it. You can follow along on the `public EAGLE instance <https://eagle.icrar.org>`_ without installing anything.
 
-Loading a Palette
------------------
+The Interface
+-------------
 
-EAGLE workflows are made up of :doc:`components <components>` that represent executable code or data that will be called when the graph is executed. To simplify the process of creating a workflow, multiple components may be collected together in a :doc:`palette <palettes>` designed for a certain domain, such as Radio Astronomy.
+.. figure:: _static/images/placeholder.png
+   :width: 700px
+   :align: center
+   :alt: [screenshot: the EAGLE interface with labels pointing to the canvas, palette panel, inspector panel, and navbar]
+   :figclass: align-center
 
-To load a palette from a GitHub repository, you first need to create a GitHub Personal Access Token. The steps required are demonstrated in this video.
+   The EAGLE interface. Canvas (centre), palette panel (left), inspector panel (right), navbar (top).
+
+EAGLE has four main areas:
+
+- **Canvas** — the main workspace where you drag, arrange, and connect components to build a graph.
+- **Palette panel** (left) — lists components from all loaded palettes, searchable by name. Drag a component onto the canvas to add it to the graph.
+- **Inspector panel** (right) — shows and edits the properties of the currently selected node, edge, or graph. When nothing is selected it shows graph-level information.
+- **Navbar** (top) — access to file operations, graph validation, translation, settings, and repositories.
+
+Connecting to GitHub
+--------------------
+
+EAGLE loads palettes and saves graphs to and from GitHub and GitLab repositories. Before doing either you need to provide an access token.
+
+1. Open **Settings** (cog icon in the navbar, or press ``O``).
+2. Go to the **External Services** tab.
+3. Paste your **GitHub Access Token** into the corresponding field.
+
+.. note::
+   To generate a token, follow the `GitHub instructions <https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token>`_. The token needs at least ``repo`` scope to read and write graph files.
+
+The following video demonstrates generating a token and connecting to a repository:
 
 .. raw:: html
     :file: _static/video1.html
 
-Creating a new graph
---------------------
+Loading a Palette
+-----------------
 
-You can begin creating a new graph by using the "New" menu and selecting "Create New Graph". With a palette already loaded, the components may be added to the workspace. Things to keep in mind are:
+Components are grouped into *palettes* — curated collections for a specific domain or project. To load one:
 
-* Components processed by each node on the cluster are set as parents, with components processed by GPUs on each node set as children.
-* Selecting "Memory" for Data Components minimises the number of times data is moved around.
+1. Open the **Repositories** panel from the navbar.
+2. Add a repository (e.g. ``ICRAR/EAGLE-graph-repo``) and browse to a palette file (``*.palette``).
+3. Click the palette to load it. Its components appear in the palette panel on the left.
 
-The following video provides a walkthrough for the creation of a specific graph, showing many of the features used to construct a workflow in EAGLE. A video providing a brief background overview of this workflow `may be viewed here <https://vimeo.com/458850054>`_, with a more detailed presentation `available here <https://vimeo.com/481476735>`_.
+EAGLE also includes a built-in **Builtin Components** palette that is always available, containing standard components for common tasks.
+
+Creating a Graph
+----------------
+
+1. From the **New** menu, select **Create New Graph**.
+2. Drag components from the palette panel onto the canvas.
+3. Connect components by dragging from an **output port** (right side of a node) to an **input port** (left side of another node). EAGLE will indicate whether the connection is valid.
+4. Select any component to view and edit its parameters in the inspector panel.
+
+.. figure:: _static/images/placeholder.png
+   :width: 700px
+   :align: center
+   :alt: [screenshot: a small graph with three connected nodes on the canvas]
+   :figclass: align-center
+
+   A simple graph with three connected components.
+
+The following video provides a walkthrough for building a graph:
 
 .. raw:: html
     :file: _static/video2.html
 
-Saving a graph to gitHub
-------------------------
+Validating a Graph
+------------------
 
-To save a graph to GitHub, you will need to add a repository that you have permission to write to. You may need to create a new repository if you don't already have access to one.
+Click the **Check Graph** button (tick icon) in the navbar at any time to validate the current graph. EAGLE checks for issues such as unconnected ports, missing descriptions, invalid edges, and empty text visuals. Errors and warnings are listed in the panel that opens.
 
-Similarly to loading a palette, a GitHub Personal Access Token is required to save a graph to a repository. These steps are repeated in the following video, as well as adding a custom repository.
+Saving a Graph
+--------------
+
+To save to GitHub, click the **cloud** icon in the navbar, choose the target repository and path, and confirm. EAGLE will commit the graph as a ``.graph`` JSON file.
+
+To save locally, click the **floppy disk** icon instead.
 
 .. raw:: html
     :file: _static/video3.html

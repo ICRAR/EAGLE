@@ -1,116 +1,154 @@
 Settings
-===================
+========
 
-The settings in Eagle include user experience and interface related options. By default, Eagle is simplified by hiding a lot of functionality via the UI modes. These settings may also affect permissions of what may be modified. The settings menu can be found in the nav-bar as a cog icon, or by pressing the keyboard shortcut 'O'.
+The Settings panel controls EAGLE's behaviour, permissions, and connections to external services. Open it via the cog icon in the navbar, or by pressing ``O``.
 
-.. figure:: _static/images/eagle_settings_screenshot.png
-  :width: 90%
-  :align: center
-  :alt: An example of a palette in EAGLE
-  :figclass: align-center
+.. figure:: _static/images/placeholder.png
+   :width: 700px
+   :align: center
+   :alt: [screenshot: the Settings panel open, showing the five tabs along the top]
+   :figclass: align-center
 
-  An example of a palette with a focused set of components for a single workflow
+   The Settings panel with its five tabs.
+
+Settings are grouped into five tabs: **User Options**, **UI Options**, **Advanced Editing**, **External Services**, and **Developer**.
 
 UI Modes
 --------
 
-Ui modes are collections of settings creating separate workspaces, each designed with a specific use case in mind.
+UI modes are preset configurations of settings designed for specific use cases. Switching modes changes multiple settings at once, enabling or restricting functionality to match the task at hand.
 
-**Minimal** - Designed for student use or when the goal is loading a graph, tweaking its key attributes and executing it through the translator.
+.. list-table::
+   :widths: 20 80
+   :header-rows: 1
 
-**Graph** - Unlocks the permissions required for graph creation from pre-existing palettes and palette components
-
-**Component** - Change all values on palette and graph components, as well as graph deployment functionality
-
-**Expert** - Unlocks everything Eagle has to offer
-
-Tabs Breakdown
---------------
-
-**User Options**  -  General user experience options
-
-**UI Options**  -  Settings that can simplify, hide or show sections of the UI that might not be necessary for a use case
-
-**Advanced Editing**  -  Permission settings that unlock the ability to edit more components
-
-**External Services**  -  This is where external services such as github and docker can be set up
-
-**Developer**  -  Settings used by developers to debug Eagle
+   * - Mode
+     - Intended use
+   * - **Minimal**
+     - Loading an existing graph, adjusting a few key parameters, and submitting for translation. Hides most editing functionality.
+   * - **Graph**
+     - Building workflows from existing palette components. Enables graph editing and edge drawing.
+   * - **Component**
+     - Developing and fine-tuning components, including modifying ports and parameters. Enables palette editing.
+   * - **Expert**
+     - Full access to all EAGLE features, including developer tools.
 
 User Options
-""""""""""""
+------------
 
-**Reset Action Confirmations** - Enable all action confirmation prompts. EAGLE allows users to skip confirmation dialogs by clicking "Don't show me again" when dismissing them. This setting allows users to undo that action, re-enabling the confirmation dialogs.
+**Reset Action Confirmations**
+   Re-enables all confirmation prompts that were previously dismissed with "Don't show me again".
 
-**Disable JSON Validation** - Allow EAGLE to load/save/send-to-translator graphs and palettes that would normally fail validation against schema.
+**Disable JSON Validation**
+   Allows EAGLE to load, save, and send to the translator graphs and palettes that would otherwise fail JSON schema validation.
 
-**Overwrite Existing Translator Tab** - When translating a graph, overwrite an existing translator tab.
+**Overwrite Existing Translator Tab**
+   When translating, replaces the existing translator tab rather than opening a new one.
 
+UI Options
+----------
 
-UI options
-""""""""""
+**Show Non-Key Parameters**
+   Displays parameters that are not marked as key parameters for the current graph. Hidden by default to reduce clutter.
 
-**Show non key parameters** - Show additional parameters that are not marked as key parameters for the current graph.
+**Translator Mode**
+   Controls how much of the translation interface is shown.
 
-**Translator Mode** - There are a few modes affecting the amount of permissions available:  **minimal** - using default algorithm and settings, hiding the translation tab. **Default** - using default algorithm allowing for some extra control via the translation tab. **Expert** - Offers additional translating algorithms.
+   - *Minimal* — translates using default settings with no additional controls.
+   - *Default* — exposes the translation tab with basic algorithm controls.
+   - *Expert* — unlocks additional translation algorithms.
 
-**Graph Zoom Divisor** - The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.
+**Graph Zoom Divisor**
+   Adjusts zoom sensitivity. A larger value produces finer zoom steps.
 
-**Show edge/node errors/warnings in Graph** - Show the errors/warnings found for the selected node/edge in the inspector, below the other editor widgets. Errors and warnings are always shown the the checkGraph display in the navbar.
+**Show Edge/Node Errors and Warnings in Graph**
+   Displays issue indicators directly on nodes and edges in the canvas, in addition to the Check Graph panel.
 
 Advanced Editing
-""""""""""""""""
+----------------
 
-**Allow Invalid Edges** - Allow the user to create edges in the graph, even if they would normally be determined invalid.
+These settings unlock the ability to modify parts of EAGLE that are read-only by default.
 
-**Allow Component Editing** - Allow the user to add/remove ports and parameters from components.
+**Allow Graph Editing**
+   Required to create and edit graphs.
 
-**Allow Modify Graph Configurations** - Allow the user to add/remove parameters from graph configurations.
+**Allow Palette Editing**
+   Required to create and edit palettes.
 
-**Allow Graph Editing** - Allow the user to create and edit graphs.
+**Allow Readonly Palette Editing**
+   Allows modifying the built-in palettes that are otherwise locked.
 
-**Allow Palette Editing** - Allow the user to create and edit palettes.
+**Allow Component Editing**
+   Required to add, remove, or modify ports and parameters on components.
 
-**Allow Readonly Palette Editing** - Allow the user to modify palettes that would otherwise be readonly. These are usually only the default loaded palettes.
+**Allow Modify Graph Configurations**
+   Required to create and edit graph configurations.
 
-**Allow Edge Editing** - Allow the user to edit edge attributes.
+**Allow Edge Editing**
+   Required to edit the attributes of existing edges.
 
-**Filter Node Suggestions** - Filter node options when drawing edges into empty space.
+**Allow Invalid Edges**
+   Permits drawing edges that would normally be rejected as invalid.
 
-**Value Editing** - Set which values are allowed to be edited. Possible values are: "Config Only", "Normal", "Readonly". "Config Only" means that only parameters within graph configurations are editable. "Normal" means that all parameters are editable, except those flagged as readonly. "Readonly" means that even readonly parameters are editable.
+**Filter Node Suggestions**
+   When enabled, only compatible components are shown in the auto-suggest menu when dragging an edge into empty space.
 
-**Auto-complete edges level** - Specifies the minimum validity level of auto-complete edges displayed when dragging a new edge
+**Auto-complete Edges Level**
+   Sets the minimum validity level for edges shown in the auto-complete suggestion list.
+
+**Value Editing**
+   Controls which parameter values can be edited.
+
+   - *Config Only* — only parameters within active graph configurations are editable.
+   - *Normal* — all read-write parameters are editable.
+   - *Readonly* — even read-only parameters can be overridden.
 
 External Services
-"""""""""""""""""
+-----------------
 
-**Translator URL** - The URL of the translator server
+**Translator URL**
+   The URL of the DALiuGE translation engine. Set this to connect EAGLE to a running translator instance.
 
-**GitHub Access Token** - A users access token for GitHub repositories.
+**GitHub Access Token**
+   Personal access token for reading and writing to GitHub repositories. Requires at least ``repo`` scope. See the `GitHub documentation <https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token>`_ for instructions.
 
-**GitLab Access Token** - A users access token for GitLab repositories.
+**GitLab Access Token**
+   Personal access token for GitLab repositories.
 
-**Docker Hub Username** - The username to use when retrieving data on images stored on Docker Hub.
+**Docker Hub Username**
+   Username used when querying Docker Hub for image information in the Docker component browser.
 
 Developer
-"""""""""
+---------
 
-**Show Developer Notifications** - EAGLE generates a number of messages intended to alert developers to unusual occurrences or issues. Enabling this setting displays those messages.
+These settings are intended for EAGLE developers and are not needed for normal use.
 
-**Show File Loading Warnings** - Display list of issues with files encountered during loading.
+**Show Developer Notifications**
+   Displays internal diagnostic messages generated by EAGLE.
 
-**Open Translator In Current Tab** - When translating a graph, display the output of the translator in the current tab.
+**Show File Loading Warnings**
+   Displays a list of issues encountered when loading a graph or palette file.
 
-**Create Applications For Construct Ports** - When loading old graph files with ports on construct nodes, move the port to an embedded application.
+**Open Translator In Current Tab**
+   Renders the translator output in the current browser tab rather than opening a new one.
 
-**Skip 'Closes Loop' Edges In JSON Output** - We've recently added edges to the LinkDataArray that 'close' loop constructs and set the 'group_start' and 'group_end' automatically. In the short-term, such edges are not supported by the translator. This setting will keep the new edges during saving/loading, but remove them before sending the graph to the translator.
+**Create Applications For Construct Ports**
+   When loading older graph files that have ports directly on construct nodes, automatically moves those ports to an embedded application node.
 
-**Print Undo State To JS Console** - Prints the state of the undo memory whenever a change occurs. The state is written to the browser's javascript console.
+**Skip 'Closes Loop' Edges In JSON Output**
+   Removes loop-closing edges before sending the graph to the translator. A temporary workaround for translator compatibility.
 
-**Display all Category options** - Displays all category options when changing the category of a node
+**Print Undo State To JS Console**
+   Logs the full undo history to the browser console whenever a change is made. Useful for debugging state management.
 
-**Allow modified graph translation** - Allow users to submit graphs for translation even when not saved or committed
+**Display All Category Options**
+   Shows all available category values in the node category selector, including rarely-used types.
 
-**Apply active graph config before translation** - Apply the active graph config to the graph before sending the graph for translation
+**Allow Modified Graph Translation**
+   Permits submitting a graph for translation even if it has unsaved local changes.
 
-**Fetch repository for URLs** - Automatically fetch the contents of the object's repository when a graph/palette is specified in the URL
+**Apply Active Graph Config Before Translation**
+   Applies the currently active graph configuration to the graph before sending it to the translator.
+
+**Fetch Repository for URLs**
+   Automatically loads the repository contents when a graph or palette is specified via URL parameters.

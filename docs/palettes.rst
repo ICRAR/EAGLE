@@ -1,74 +1,77 @@
 Palettes
 ========
 
-A palette is a collection of :doc:`Components <components>` defined for a
-specific domain or sub-domain -- for instance for radio astronomy, or for a
-specific workflow used within radio astronomy. They are a convenient way to
-provide a focused set of components and make them available within your workflow
-development environment.
+A **palette** is a curated collection of :doc:`components <components>` packaged as a JSON file and loaded into EAGLE for use when building graphs. Palettes let you organise components by domain, project, or purpose, so that graph builders work with a focused, relevant set of building blocks rather than searching through every component ever created.
 
-.. figure:: _static/images/palette.png
-  :width: 250px
-  :align: center
-  :alt: An example of a palette in EAGLE
-  :figclass: align-center
+EAGLE includes a **Builtin Components** palette that is always available, containing standard components for common tasks. Additional palettes are loaded from GitHub or GitLab repositories.
 
-  An example of a palette with a focused set of components for a single workflow
+.. figure:: _static/images/placeholder.png
+   :width: 300px
+   :align: center
+   :alt: [screenshot: the palette panel showing a loaded palette with several components listed]
+   :figclass: align-center
 
-The breadth and depth of a palette is completely up to the palette developers.
-One palette could contain every possible component for a domain, or it could be
-much more narrow and cover a single sub-domain or software package.
+   A palette loaded in EAGLE, showing its components in the left panel.
 
-A palette developed for astronomy could potentially contain hundreds or thousands of radio
-astronomy components, which would make it difficult to zero in on components
-necessary to process an optical image. A more focused sub-domain palette could,
-for instance, focus on one single experiment or instrument and only offer
-components relevant to processing that data for a specific science goal.
+Loading a Palette
+-----------------
 
-Palettes can be generated/developed in two main ways, automatic and manual in EAGLE.
+To load a palette from a remote repository:
 
+1. Ensure your GitHub or GitLab access token is set under **Settings → External Services**.
+2. Open the **Repositories** panel from the navbar.
+3. Add the repository containing your palette (e.g. ``ICRAR/EAGLE-graph-repo``) if not already listed.
+4. Browse to the ``.palette`` file and click it to load.
+
+The palette's components immediately appear in the palette panel, ready to drag onto the canvas. Multiple palettes can be loaded at the same time.
 
 Creating Palettes Automatically from Source Code
-------------------------------------------------
+-------------------------------------------------
 
-We have developed a stand-alone `tool <https://icrar.github.io/dlg_paletteGen/>`_ to automatically generate palettes from source code. It has been used to create palettes for a number of small and large code repositories and works without any modification of the code. In addition it can also extract the more dedicated component descriptions specifically written for DALiuGE.
+The recommended way to create a palette for a Python codebase is the `dlg_paletteGen <https://icrar.github.io/dlg_paletteGen/>`_ tool. It inspects source code and docstrings to automatically generate a ``.palette`` file with component descriptions, parameters, and port definitions — no manual JSON editing required.
 
-Creating Palettes within EAGLE
-------------------------------
+This is particularly useful for large codebases and ensures that component descriptions stay in sync with the code.
 
-EAGLE can also be used to create new palettes from scratch. To create Palettes within EAGLE,
-first open the EAGLE settings and enable the "Allow Palette Editing" setting.
+Creating Palettes Manually in EAGLE
+-------------------------------------
 
-The next step is to create a component you would like to place in a palette
-within the EAGLE graph editor. Typically, as user would use a component within
-the "All Nodes" palette as a starting point for a new component. For example, to
-create a component for some Python code, a user would drag a "Python App" from
-the "All Nodes" palette into the graph editor as a starting point.
+For fine-tuning components or building small palettes by hand, EAGLE's built-in palette editor can be used.
 
-Next, the user would customise the "Python App" component, changing the name and
-description as well as the *Application Class* component argument, and adding parameters and ports as appropriate.
+First, enable palette editing:
 
-Once the component is complete, it should be saved to a palette using the
-"Add Selected Node to Palette" button at the top of the node inspector.
-Since graphs usually require many components, a user could create and modify
-multiple components within the graph editor, then add them all to a palette at
-once, using the "Add Graph Nodes to Palette" button in the navbar. Obviously this process is quite hands-on and tedious and thus not really suited to create many components from scratch. However, it is very useful for fine-tuing existing components parameters, default values and ports.
+1. Open **Settings** (``O``).
+2. Under **Advanced Editing**, enable **Allow Palette Editing**.
 
-.. figure:: _static/images/components/navbar_button.png
-  :width: 240px
-  :align: center
-  :alt: Click the "Add graph nodes to Palette" button in the navbar
-  :figclass: align-center
+Building components in the graph editor:
 
-  Click the "Add graph nodes to Palette" button in the navbar
+1. From the **Builtin Components** or **Component Templates** palette, drag a suitable base component onto the canvas — for example, a **Python App** for a new Python component.
+2. Select the component and edit its properties in the inspector panel:
 
-The user can then click the "cloud" icon to save to git, or the "floppy disk" icon to save locally.
-As with other components, we'd recommend saving to your own EAGLE GitHub or GitLab repository in a folder named after the palettes focus or use.
+   - Set the **Name** and **Description**.
+   - Set the **Application Class** parameter to the fully-qualified Python import path.
+   - Add, remove, or modify **ports** and **parameters** as needed (requires **Allow Component Editing** enabled in Settings).
 
-.. figure:: _static/images/components/new_palette.png
-  :width: 500px
-  :align: center
-  :alt: The new palette containing a Docker component description
-  :figclass: align-center
+3. Once the component is ready, click **Add Selected Node to Palette** in the inspector, or use **Add Graph Nodes to Palette** in the navbar to add all nodes at once.
 
-  The new palette containing a Docker component description
+.. figure:: _static/images/placeholder.png
+   :width: 300px
+   :align: center
+   :alt: [screenshot: the "Add graph nodes to Palette" button in the navbar]
+   :figclass: align-center
+
+   The "Add graph nodes to Palette" button in the navbar.
+
+Saving a Palette
+----------------
+
+To save to GitHub, click the **cloud** icon and choose the target repository and path. To save locally, click the **floppy disk** icon.
+
+Palettes are saved as ``.palette`` JSON files and can be loaded back into any EAGLE instance. We recommend saving palettes to a dedicated repository, in a folder named after the palette's domain or purpose.
+
+.. figure:: _static/images/placeholder.png
+   :width: 500px
+   :align: center
+   :alt: [screenshot: a palette file open in the repository browser showing its component list]
+   :figclass: align-center
+
+   A saved palette viewed in the repository browser.

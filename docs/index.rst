@@ -1,87 +1,54 @@
 EAGLE :sup:`π`
 ==============
 
-
-Welcome to the documentation for the Editor for the Astronomical Graph Language Environment (EAGLE). 
-
-.. figure:: _static/images/eagle_eagle.png
-  :width: 400px
-  :align: center
-  :alt: An example of components in EAGLE
-  :figclass: align-center
-
-
-EAGLE is the UI of the `DALiuGE <https://daliuge.readthedocs.io>`_ workflow development and execution framework. It is an interface designed to streamline and simplify workflow development, while creating a clear separation of different concerns and operational constraints. A major aim of EAGLE and its larger workflow creation model is to allow code to be as re-usable as possible, while still enabling highly optimised and integrated ways of implementing or migrating algorithms. It is also concerned with optimising the granularity and potential parallelism of workflows.
+**EAGLE** (Editor for the Astronomical Graph Language Environment) is the visual workflow editor for the `DALiuGE <https://daliuge.readthedocs.io>`_ execution framework. It provides a drag-and-drop interface for composing data-processing workflows as graphs of reusable components, which can then be translated and executed on HPC facilities.
 
 .. raw:: html
     :file: _static/intro_map.html
 
-.. .. figure:: _static/images/full_process_diagram.png
-..   :width: 600px
-..   :align: center
-..   :alt: Diagram of the full process from applications, to EAGLE workflows, to execution
-..   :figclass: align-center
-..
-..   Diagram of the full process from applications, to EAGLE workflows, to execution
+No installation is required to try EAGLE — a public instance is available at `eagle.icrar.org <https://eagle.icrar.org>`_.
 
-.. _application:
+The Workflow Pipeline
+---------------------
 
-As illustrated in the above diagram, an EAGLE workflow may integrate any number of applications that have been developed for different purposes. These may range from simple command line shell scripts to Python programs, C/C++ dynamic libraries and MPI applications.
+An EAGLE workflow moves through four stages from design to execution:
 
-.. _component:
+.. list-table::
+   :widths: 30 70
+   :header-rows: 0
 
-Workflows within EAGLE are built from :doc:`Components <components>`. Some components provide compatibility with applications developed separately to EAGLE, while others are stand-alone.
-
-.. _component-description:
-
-Components are loaded into EAGLE via JSON files, referred to as Component Descriptions, containing all the specifications required for EAGLE to display and integrate each component.
-
-.. _palette:
-
-A :doc:`palette <palettes>` is used to group components together, to make it easier and more efficient to access components that are relevant to a particular workflow or domain.
-
-.. _graph-construction:
-
-Within the EAGLE drag-and-drop interface, :doc:`Logical Graph Templates <graphs>` are constructed.
-
-.. _graph-parameters:
-
-EAGLE allows values to be set for the exposed parameters of each component. Once these parameters are defined for a specific workflow, the graph is no longer considered a template, and is referred to as a :doc:`Logical Graph <graphs>`.
-
-Translation
-===========
-
-A completed Logical Graph may then be translated  by the DALiuGE translation engine, using a selected algorithm. A translated graph is referred to as a :doc:`Physical Graph Template <graphs>`.
-
-Execution
-=========
-
-The final step is execution. This occurs on a selected facility, where the Physical Graph Template is mapped to specific computer nodes. At this stage it is a :doc:`Physical Graph <graphs>`.
+   * - :doc:`Logical Graph Template <graphs>` (LGT)
+     - A reusable, parameterised graph created in EAGLE. Defines the structure of a workflow without fixing execution details.
+   * - :doc:`Logical Graph <graphs>` (LG)
+     - An LGT with all parameters set for a specific run. Ready for translation.
+   * - :doc:`Physical Graph Template <graphs>` (PGT)
+     - Produced by the DALiuGE translator. Maps the LG onto a cluster topology using one of several available algorithms.
+   * - :doc:`Physical Graph <graphs>` (PG)
+     - The PGT bound to specific hardware nodes and submitted for execution.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Getting started
+   :caption: Getting Started
    :hidden:
 
    Installation <installation>
    Quick Start <quickStart2>
-   Settings <settings>
    Hello World Example <helloWorld>
 
 .. toctree::
    :maxdepth: 2
-   :caption: EAGLE Concepts
+   :caption: Working with EAGLE
    :hidden:
 
    Components <components>
    Palettes <palettes>
-   Templates and Graphs <graphs>
+   Graphs <graphs>
    Annotating Graphs <annotating>
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Reference
+   :hidden:
 
-.. Indices and tables
-.. ==================
-.. * :ref:`genindex`
-.. * :ref:`modindex`
-.. * :ref:`search`
+   Settings <settings>
 
