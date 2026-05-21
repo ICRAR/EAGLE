@@ -336,7 +336,7 @@ async function autoLoad() {
             }
 
             // add repository to repository list
-            await eagle.repositories()._addCustomRepository(realService, repository, branch);
+            await Repositories._addCustomRepository(realService, repository, branch);
             Utils.showNotification("Add Repository", "Repository added successfully!", "success");
         } else {
             // load file
@@ -352,7 +352,7 @@ async function autoLoad() {
         // check whether the source repository is already known to EAGLE
         if (repo === null){
             // if not found, add the repository
-            await eagle.repositories()._addCustomRepository(service, repository, branch);
+            await Repositories._addCustomRepository(service, repository, branch);
 
             // then look for it again
             repo = Repositories.get(service, repository, branch);

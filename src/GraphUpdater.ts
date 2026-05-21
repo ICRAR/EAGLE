@@ -231,14 +231,24 @@ export class GraphUpdater {
             srcRepoSelect.append(option);
         }
 
-        // add list of repositories to destination select
+        // add custom option and list of repositories to destination select
         const destRepoSelect = $('#graphUpdaterModalDestinationRepositorySelect');
         destRepoSelect.empty();
+        // Add custom option as default
+        const customOptionValue = "-1";
+        const customOption = $('<option></option>')
+            .attr("value", customOptionValue)
+            .text("Auto-generate new branch on source repository")
+            .prop("selected", true);
+        destRepoSelect.append(customOption);
         for (let i = 0 ; i < Repositories.repositories().length; i++){
             const repo = Repositories.repositories()[i];
             const option = $('<option></option>').attr("value", i).text(repo.getNameAndBranch());
             destRepoSelect.append(option);
         }
+
+        // Set the custom option as selected by default
+        destRepoSelect.val(customOptionValue);
 
         $('#graphUpdaterModal').modal("toggle");
     }
@@ -278,19 +288,18 @@ export class GraphUpdater {
         // set the source repository
         this.sourceRepository = srcRepo;
 
-        // fetch and expand the source repository if needed
-        await this.sourceRepository.expandAll();
-        
-        // find all graphs in source repository
-        const srcGraphs = await this.sourceRepository.findAllGraphs();
-
-        // add all the graphs to the updatedLogicalGraphs array
+        // empty array to hold graph files found in source repository
         this.updatedLogicalGraphs.removeAll();
-        for (const graphFile of srcGraphs){
+
+        // fetch/expand and find all graphs in source repository as files become available
+        await this.sourceRepository.expandAllAndFindGraphs(async (graphFile) => {
             this.updatedLogicalGraphs.push(new GraphUpdaterFile(graphFile));
-        }
+            ko.tasks.runEarly();
+            await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+        });
 
         this.setState(false, true, false, false, false, false);
+        console.log("GraphUpdater.fetchLogicalGraphs() - completed. Found " + this.updatedLogicalGraphs().length + " graph(s) in source repository.");
     }
 
     static async update(): Promise<void> {
@@ -370,6 +379,7 @@ export class GraphUpdater {
                     console.error("Error parsing graph file:", graphFile.file().name, "Error:", error);
                 }
                 graphFile.state(GraphUpdater.FileStatus.Error);
+                graphFile.push(false); // uncheck the push checkbox for this graph since there was an error updating it
                 continue;
             }
 
@@ -403,8 +413,85 @@ export class GraphUpdater {
     }
 
     static async push(): Promise<void> {
-        // get destination repository
-        const destRepoIndex = parseInt($('#graphUpdaterModalDestinationRepositorySelect').val() as string);
+
+        // get destination repository or handle custom option
+        const destRepoValue = $('#graphUpdaterModalDestinationRepositorySelect').val() as string;
+        if (destRepoValue === "-1") {
+            // auto-generate new branch on source repository
+            const srcRepoIndex = parseInt($('#graphUpdaterModalSourceRepositorySelect').val() as string);
+            const srcRepo = Repositories.repositories()[srcRepoIndex];
+            if (!srcRepo) {
+                Utils.showNotification("Error", "Source repository not found", "danger");
+                return;
+            }
+
+            // generate a new branch name
+            const now = new Date();
+            const pad = (n: number) => n.toString().padStart(2, '0');
+            const branchDate = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}`;
+            const branchTime = `${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+            const newBranchName = `graph-updates-${branchDate}-${branchTime}`;
+            
+            // find the user's token for the source repository service
+            let token: string;
+            switch (srcRepo.service){
+                case Repository.Service.GitHub:
+                    token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY, "");
+                    break;
+                case Repository.Service.GitLab:
+                    token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY, "");
+                    break;
+                default:
+                    Utils.showNotification("Error", "Unsupported repository service: " + srcRepo.service, "danger");
+                    return;
+            }
+
+            // call backend to create branch using Utils.httpPostJSON
+            try {
+                const responseStr = await Utils.httpPostJSON("/createBranch", {
+                    service: srcRepo.service,
+                    repository: srcRepo.name,
+                    sourceBranch: srcRepo.branch,
+                    newBranch: newBranchName,
+                    token: token
+                });
+                let response;
+                try {
+                    response = typeof responseStr === "string" ? JSON.parse(responseStr) : responseStr;
+                } catch (e) {
+                    response = responseStr;
+                }
+                if (response.error) {
+                    Utils.showNotification("Error", response.error, "danger");
+                    return;
+                }
+                // Add new repo to EAGLE's list
+                await Repositories._addCustomRepository(srcRepo.service, srcRepo.name, newBranchName);
+                Utils.showNotification("Success", `Branch '${newBranchName}' created and added.`, "success");
+                // Set destination select to new repo and continue push
+                const destRepoSelect = $('#graphUpdaterModalDestinationRepositorySelect');
+                // Find the new repo index
+                const repos = Repositories.repositories();
+                let newIndex = -1;
+                for (let i = 0; i < repos.length; i++) {
+                    if (repos[i].service === srcRepo.service && repos[i].name === srcRepo.name && repos[i].branch === newBranchName) {
+                        newIndex = i;
+                        break;
+                    }
+                }
+                if (newIndex === -1) {
+                    Utils.showNotification("Error", "Failed to find new repository after branch creation.", "danger");
+                    return;
+                }
+                destRepoSelect.val(newIndex.toString());
+                // Call push again with new selection
+                GraphUpdater.push();
+            } catch (error) {
+                Utils.showNotification("Error", `Failed to create branch: ${error}`, "danger");
+            }
+            return;
+        }
+        const destRepoIndex = parseInt(destRepoValue);
         const destRepo = Repositories.repositories()[destRepoIndex];
         if (destRepo === null){
             Utils.showNotification("Error", "Destination repository not found", "danger");

@@ -88,34 +88,30 @@ export class Repository {
     }
 
     // TODO: a bit of repeated code here, could we make traverseFolder accept a folder OR a repository?
-    findAllGraphs = () : RepositoryFile[] => {
-        const graphs: RepositoryFile[] = [];
-
-        const traverseFolder = (folder: RepositoryFolder) : void => {
+    findAllGraphs = async (callback: (file: RepositoryFile) => void | Promise<void>) : Promise<void> => {
+        const traverseFolder = async (folder: RepositoryFolder) : Promise<void> => {
             for (const file of folder.files()){
                 if (file.type === Eagle.FileType.Graph){
-                    graphs.push(file);
+                    await callback(file);
                 }
             }
 
             for (const subFolder of folder.folders()){
-                traverseFolder(subFolder);
+                await traverseFolder(subFolder);
             }
         }
 
         // check top-level files
         for (const file of this.files()){
             if (file.type === Eagle.FileType.Graph){
-                graphs.push(file);
+                await callback(file);
             }
         }
 
         // check folders
         for (const folder of this.folders()){
-            traverseFolder(folder);
+            await traverseFolder(folder);
         }
-
-        return graphs;
     }
 
     // browse down into a repository, along the path, and return the RepositoryFolder there
@@ -195,6 +191,33 @@ export class Repository {
         }
 
         await this.select();
+
+        for (const folder of this.folders()){
+            await traverseFolder(folder);
+        }
+    }
+
+    // expand all directories and emit graph files as soon as each level is available
+    expandAllAndFindGraphs = async (callback: (file: RepositoryFile) => void | Promise<void>) : Promise<void> => {
+        const emitGraphs = async (files: RepositoryFile[]) : Promise<void> => {
+            for (const file of files){
+                if (file.type === Eagle.FileType.Graph){
+                    await callback(file);
+                }
+            }
+        }
+
+        const traverseFolder = async (folder: RepositoryFolder) : Promise<void> => {
+            await folder.select();
+            await emitGraphs(folder.files());
+
+            for (const subFolder of folder.folders()){
+                await traverseFolder(subFolder);
+            }
+        }
+
+        await this.select();
+        await emitGraphs(this.files());
 
         for (const folder of this.folders()){
             await traverseFolder(folder);

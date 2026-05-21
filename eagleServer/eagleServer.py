@@ -383,6 +383,50 @@ def get_docker_image_tags():
     return jsonify(data)
 
 
+# Create a new branch on GitHub or GitLab
+@app.route("/createBranch", methods=["POST"])
+def create_branch():
+    """
+    FLASK POST routing method for '/createBranch'
+
+    Creates a new branch from a source branch on GitHub or GitLab.
+    Expects JSON: {service, repository, sourceBranch, newBranch, token (optional)}
+    """
+    content = request.get_json(silent=True)
+    service = content.get("service")
+    repo_name = content.get("repository")
+    source_branch = content.get("sourceBranch")
+    new_branch = content.get("newBranch")
+    token = content.get("token", None)
+
+    if not service or not repo_name or not source_branch or not new_branch:
+        return jsonify({"error": "Missing required parameters."})
+
+    try:
+        if service.lower() == "github":
+            g = github.Github(token) if token else github.Github()
+            repo = g.get_repo(repo_name)
+            # Get the source branch reference
+            source_ref = repo.get_git_ref(f"heads/{source_branch}")
+            # Create the new branch reference
+            repo.create_git_ref(ref=f"refs/heads/{new_branch}", sha=source_ref.object.sha)
+            return jsonify({"success": True, "service": "github", "repository": repo_name, "newBranch": new_branch})
+        elif service.lower() == "gitlab":
+            gl = gitlab.Gitlab('https://gitlab.com', private_token=token, api_version=4) if token else gitlab.Gitlab('https://gitlab.com', api_version=4)
+            project = gl.projects.get(repo_name)
+            # Create the new branch
+            branch = project.branches.create({'branch': new_branch, 'ref': source_branch})
+            return jsonify({"success": True, "service": "gitlab", "repository": repo_name, "newBranch": new_branch})
+        else:
+            return jsonify({"error": f"Unknown service: {service}"})
+    except github.GithubException as ge:
+        return jsonify({"error": f"GitHub error: {str(ge)}"})
+    except gitlab.exceptions.GitlabCreateError as gle:
+        return jsonify({"error": f"GitLab error: {str(gle)}"})
+    except Exception as e:
+        return jsonify({"error": f"Unexpected error: {str(e)}"})
+    
+    
 @app.route("/saveFileToRemoteGithub", methods=["POST"])
 def save_git_hub_file():
     """

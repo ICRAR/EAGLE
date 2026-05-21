@@ -87,10 +87,10 @@ export class Repositories {
             return;
         }
 
-        this._addCustomRepository(customRepository.service, customRepository.name, customRepository.branch);
+        Repositories._addCustomRepository(customRepository.service, customRepository.name, customRepository.branch);
     };
 
-    _addCustomRepository = async (repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string) => {
+    static async _addCustomRepository(repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string) {
         // create repo
         const newRepo = new Repository(repositoryService, repositoryName, repositoryBranch, false);
 
