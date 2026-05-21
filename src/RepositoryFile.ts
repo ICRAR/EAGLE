@@ -1,6 +1,7 @@
 import * as ko from "knockout";
 
 import { Eagle } from './Eagle';
+import { Id } from './Id';
 import { Repository } from './Repository';
 import { Utils } from './Utils';
 
@@ -13,7 +14,7 @@ export class RepositoryFile {
     isFetching: ko.Observable<boolean>;
 
     constructor(repository : Repository, path : string, name : string){
-        this._id = Utils.generateRepositoryFileId();
+        this._id = Id.generateRepositoryFileId();
         this.repository = repository;
         this.name = name;
         this.path = path;

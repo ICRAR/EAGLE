@@ -4,6 +4,7 @@ import { Eagle } from './Eagle';
 import { GitHub } from './GitHub';
 import { GitLab } from "./GitLab";
 import { FileLocation } from "./FileLocation";
+import { Id } from './Id';
 import { RepositoryFolder } from './RepositoryFolder';
 import { RepositoryFile } from './RepositoryFile';
 import { Utils } from './Utils';
@@ -22,7 +23,7 @@ export class Repository {
     folders : ko.ObservableArray<RepositoryFolder>
 
     constructor(service : Repository.Service, name : string, branch : string, isBuiltIn : boolean){
-        this._id = Utils.generateRepositoryId();
+        this._id = Id.generateRepositoryId();
         this.name = name;
         this.service = service;
         this.branch = branch;
@@ -120,7 +121,7 @@ export class Repository {
     // browse down into a repository, along the path, and return the RepositoryFolder there
     // or if no path, just return the Repository
     // or if path not found, return null
-    findPath = (path: string): Repository | RepositoryFolder => {
+    findPath = (path: string): Repository | RepositoryFolder | null => {
         if (path === ""){
             return this;
         }
@@ -233,7 +234,7 @@ export class Repository {
 
     deleteFile = (file: RepositoryFile) : void => {
         let pointer: Repository | RepositoryFolder = this;
-        let lastPointer: Repository | RepositoryFolder = null;
+        let lastPointer: Repository | RepositoryFolder = pointer;
         const fileIsInTopLevelOfRepo: boolean = file.path === "";
 
         if (!fileIsInTopLevelOfRepo){

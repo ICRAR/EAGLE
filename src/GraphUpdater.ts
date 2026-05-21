@@ -26,6 +26,7 @@ import { Eagle } from './Eagle';
 import { Errors } from './Errors';
 import { GitHub } from './GitHub';
 import { GitLab } from './GitLab';
+import { Id } from './Id';
 import { LogicalGraph } from './LogicalGraph';
 import { Repositories } from './Repositories';
 import { Repository } from './Repository';
@@ -146,7 +147,7 @@ export class GraphUpdater {
 
         // build keyToId map from nodes
         for (const node of graphObject["nodeDataArray"]){
-            const newId = Utils.generateNodeId();
+            const newId = Id.generateNodeId();
 
             keyToId.set(node.key, newId);
             node.id = newId;
@@ -154,13 +155,13 @@ export class GraphUpdater {
 
             // input app
             if (node.inputApplicationKey !== null){
-                const inputAppId = Utils.generateNodeId();
+                const inputAppId = Id.generateNodeId();
                 keyToId.set(node.inputApplicationKey, inputAppId);
                 node.inputApplicationId = inputAppId;
             }
             // output app
             if (node.outputApplicationKey !== null){
-                const outputAppId = Utils.generateNodeId();
+                const outputAppId = Id.generateNodeId();
                 keyToId.set(node.outputApplicationKey, outputAppId);
                 node.outputApplicationId = outputAppId;
             }
@@ -431,10 +432,10 @@ export class GraphUpdater {
         let repoToken: string;
         switch (destRepo.service){
             case Repository.Service.GitHub:
-                repoToken = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
+                repoToken = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY, "");
                 break;
             case Repository.Service.GitLab:
-                repoToken = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY);
+                repoToken = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY, "");
                 break;
             default:
                 Utils.showNotification("Error", "Unsupported repository service: " + destRepo.service, "danger");

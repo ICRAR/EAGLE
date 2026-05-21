@@ -4,6 +4,7 @@ VERSION
 *.egg-info
 build/*
 docs/build
+docs/_build
 docs/static
 *.swp
 .vscode/*

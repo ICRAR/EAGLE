@@ -1,0 +1,84 @@
+Annotating Graphs
+=================
+
+EAGLE provides several ways to add human-readable documentation directly to a graph. These range from graph-level descriptions that explain the overall purpose of a workflow, through per-node and per-edge comments, to free-form visual overlays on the canvas. None of these annotations affect execution — they exist purely to aid understanding and communication between graph authors and readers.
+
+Graph Descriptions
+------------------
+
+Every graph carries two description fields stored in its *Graph Info*:
+
+* **Short Description** — a brief summary of what the graph does, shown in graph listings and tooltips.
+* **Detailed Description** — a longer Markdown-formatted explanation of the graph's purpose, design decisions, or usage instructions.
+
+Both fields support Markdown formatting. They can be edited from the inspector panel when nothing is selected, or via **Show Graph Info** in the right-click canvas menu. The Graph Info panel also shows automatically populated metadata such as the EAGLE version used to create the graph and the file's save history.
+
+.. note::
+   EAGLE will produce a validation warning for graphs that are missing a short or detailed description. Filling in both fields is recommended before sharing a graph.
+
+Graph Visuals
+-------------
+
+Graph Visuals are non-executable overlay elements placed directly on the graph canvas to help a reader understand the graph at a glance. They provide high-level documentation of structure and intent that sits above the detail of individual nodes and edges.
+
+There are two types, commonly used together:
+
+* **Text Visual** — a resizable box containing Markdown text. Typically used to explain what a section of the graph does, why it exists, or what a reader should pay attention to. Can optionally be connected to a specific node, edge, or Group Visual with a *visual edge* to make the association explicit.
+* **Group Visual** — a resizable, coloured background region. Used to visually delineate sections of the graph, so that a Text Visual explaining a stage can be paired with the coloured region that contains all the nodes belonging to it. Together, Text and Group Visuals let an author partition a complex graph into clearly labelled, self-explanatory sections.
+
+.. figure:: _static/images/graph_visuals_example.jpg
+  :width: 600px
+  :align: center
+  :alt: A graph with Text and Group Visuals annotating its sections
+  :figclass: align-center
+
+  An example graph using Text Visuals and Group Visuals to partition and label distinct processing stages.
+
+To add a Graph Visual, right-click on an empty area of the canvas, hover over the **Graph Visuals** submenu, and select **Add Text Visual** or **Add Group Visual**. The visual appears at the cursor position and can be dragged freely.
+
+To edit the content of a Text Visual, right-click it and select **Edit Content**. To connect a Text Visual to a node or edge, drag from the connector port on the visual to the target element. The resulting *visual edge* is drawn as a line between the two; it can be deleted by right-clicking it and selecting **Delete**.
+
+Group Visuals can be resized by dragging their edges and their background colour can be changed from the inspector panel.
+
+.. note::
+   A Text Visual with no content will produce a graph validation warning. Add some content or delete the visual to resolve it.
+
+Node Descriptions and Comments
+-------------------------------
+
+Each component node carries two separate text fields for annotation that serve distinct purposes:
+
+* **Description** — a technical explanation of how the node itself works: its algorithm, expected inputs and outputs, and any important implementation details. For components generated from source code using the `dlg_paletteGen <https://icrar.github.io/dlg_paletteGen/>`_ tool, the description is extracted automatically from the code's docstrings and typically does not need to be edited by the user. It describes the component in isolation, independent of any particular workflow.
+* **Comment** — a graph-specific note explaining how this node is being used within the current workflow and why it is significant here. Where the description answers *"what does this component do?"*, the comment answers *"why is this component here, and what role does it play in this graph?"*.
+
+Both fields support Markdown. To edit either, right-click a node on the graph canvas and select **Open Description** or **Open Comment**. The current content of both fields is visible in the node inspector panel.
+
+.. list-table::
+   :widths: 50 50
+
+   * - .. figure:: _static/images/node_description.jpg
+          :width: 100%
+          :alt: The node inspector panel showing the Description field
+          :figclass: align-center
+
+          The Description field — a technical explanation of the component authored by the component developer.
+
+     - .. figure:: _static/images/node_comment.jpg
+          :width: 100%
+          :alt: The node inspector panel showing the Comment field
+          :figclass: align-center
+
+          The Comment field — a graph-specific note explaining why this node is used here.
+
+Edge Comments
+-------------
+
+Edges between components can also carry a Markdown comment. This is useful for explaining why a particular connection exists or what data is expected to flow along it. To add or edit an edge comment, right-click the edge and select **Edit Comment**. When a comment is present, it is displayed as a small label on the edge in the graph canvas.
+
+.. figure:: _static/images/edge_comment.jpg
+  :width: 500px
+  :align: center
+  :alt: An edge with a comment label visible on the graph canvas
+  :figclass: align-center
+
+  An edge with a comment label displayed on the graph canvas.
