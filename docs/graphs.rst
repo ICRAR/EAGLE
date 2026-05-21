@@ -41,7 +41,7 @@ Right-clicking on an empty area of the canvas opens a context menu with addition
 Selecting and Editing Components
 """""""""""""""""""""""""""""""""
 
-Click a node to select it. Its properties appear in the inspector panel on the right. From there you can:
+Click a node to select it. Its properties appear in the inspector. From there you can:
 
 - Edit application arguments and component parameters.
 - View the component's description and add a comment.
@@ -56,7 +56,7 @@ Drag from an **output port** (right side of a node) to an **input port** (left s
 
 Dragging from a port into empty canvas space opens a component search menu — select a component to add it and automatically connect it.
 
-.. figure:: _static/images/placeholder.png
+.. figure:: _static/images/graph_with_edge_warning.png
    :width: 700px
    :align: center
    :alt: [screenshot: a graph with several nodes, some connected by edges, one edge showing a warning indicator]
@@ -88,7 +88,7 @@ To add components inside a construct, drag them onto the construct on the canvas
    * - **MKN**
      - Processes data in *M*-to-*K* batches across *N* workers.
 
-.. figure:: _static/images/placeholder.png
+.. figure:: _static/images/scatter_gather_construct.png
    :width: 600px
    :align: center
    :alt: [screenshot: a Scatter construct containing two app nodes and a memory node, connected to a Gather]
@@ -139,7 +139,7 @@ Translation converts a Logical Graph into a Physical Graph Template by mapping w
 
 The translator tab offers multiple algorithm choices under **Settings → UI Options → Translator Mode**. The **Expert** translator mode exposes additional algorithms for workflows with specific performance requirements.
 
-.. figure:: _static/images/placeholder.png
+.. figure:: _static/images/physical_graph_template_view.png
    :width: 600px
    :align: center
    :alt: [screenshot: the Physical Graph Template view showing components mapped to cluster nodes]

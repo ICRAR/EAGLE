@@ -18,7 +18,7 @@ Key points from the video:
 - Drag components from the palette panel onto the canvas.
 - Connect the output port of ``String2JSON`` to the input port of ``HelloWorldApp`` by dragging between ports.
 - The ``File`` data component receives the output of ``HelloWorldApp`` — select it and set a filename in the inspector, or leave it blank and DALiuGE will generate a unique name at runtime.
-- Select any node and edit its parameters in the inspector panel on the right. For ``HelloWorldApp``, the ``Greet`` argument controls what is printed.
+- Select any node and edit its parameters in the inspector. For ``HelloWorldApp``, the ``Greet`` argument controls what is printed.
 
 Saving to GitHub
 ----------------

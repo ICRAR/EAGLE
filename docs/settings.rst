@@ -3,7 +3,7 @@ Settings
 
 The Settings panel controls EAGLE's behaviour, permissions, and connections to external services. Open it via the cog icon in the navbar, or by pressing ``O``.
 
-.. figure:: _static/images/placeholder.png
+.. figure:: _static/images/settings_panel.png
    :width: 700px
    :align: center
    :alt: [screenshot: the Settings panel open, showing the five tabs along the top]

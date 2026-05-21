@@ -6,19 +6,21 @@ This page introduces the EAGLE interface and walks through the core workflow: lo
 The Interface
 -------------
 
-.. figure:: _static/images/placeholder.png
+.. figure:: _static/images/interface_overview.png
    :width: 700px
    :align: center
-   :alt: [screenshot: the EAGLE interface with labels pointing to the canvas, palette panel, inspector panel, and navbar]
+   :alt: [screenshot: the EAGLE interface with labels pointing to the canvas, palette panel, inspector, right panel, editor panel, and navbar]
    :figclass: align-center
 
-   The EAGLE interface. Canvas (centre), palette panel (left), inspector panel (right), navbar (top).
+   The EAGLE interface. Canvas (centre), palette panel (left), inspector (floating card), right panel (right), editor panel (bottom), navbar (top).
 
-EAGLE has four main areas:
+EAGLE has six main areas:
 
 - **Canvas** — the main workspace where you drag, arrange, and connect components to build a graph.
 - **Palette panel** (left) — lists components from all loaded palettes, searchable by name. Drag a component onto the canvas to add it to the graph.
-- **Inspector panel** (right) — shows and edits the properties of the currently selected node, edge, or graph. When nothing is selected it shows graph-level information.
+- **Inspector** (floating card, bottom-left of the canvas) — always visible. Shows graph-level information when nothing is selected. When a node, edge, or group of objects is selected it shows their properties and available actions, including quick access to key parameter values.
+- **Right panel** (right) — a collapsible panel with three tabs: **Repositories** (browse and load graphs, palettes, and configs from GitHub/GitLab), **Hierarchy** (a tree view of the graph structure), and **Translation** (translation options).
+- **Editor panel** (bottom) — a collapsible panel with four tabs: **Node Parameter Table** (full parameter list for the selected node), **Config Parameter Table** (graph-level key attributes), **Graph Configurations** (manage named configurations), and **Issues** (graph errors and warnings).
 - **Navbar** (top) — access to file operations, graph validation, translation, settings, and repositories.
 
 Connecting to GitHub
@@ -55,9 +57,9 @@ Creating a Graph
 1. From the **New** menu, select **Create New Graph**.
 2. Drag components from the palette panel onto the canvas.
 3. Connect components by dragging from an **output port** (right side of a node) to an **input port** (left side of another node). EAGLE will indicate whether the connection is valid.
-4. Select any component to view and edit its parameters in the inspector panel.
+4. Select any component to view and edit its parameters in the inspector.
 
-.. figure:: _static/images/placeholder.png
+.. figure:: _static/images/simple_graph.png
    :width: 700px
    :align: center
    :alt: [screenshot: a small graph with three connected nodes on the canvas]

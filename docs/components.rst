@@ -5,7 +5,7 @@ A **component** is the building block of an EAGLE workflow. Each component is a 
 
 Components are stored in JSON files and organised into :doc:`palettes <palettes>` for easy reuse across workflows.
 
-.. figure:: _static/images/placeholder.png
+.. figure:: _static/images/component_types_canvas.png
    :width: 600px
    :align: center
    :alt: [screenshot: several component types on the canvas — a Python app, a memory node, a file node, and a scatter construct]
@@ -83,7 +83,7 @@ Constructs control the execution structure of a workflow. They wrap other compon
 Parameters and Ports
 --------------------
 
-Every component exposes two categories of fields, visible in the inspector panel when a node is selected.
+Every component exposes two categories of fields, visible in the inspector when a node is selected.
 
 Component Parameters
 """"""""""""""""""""
@@ -97,13 +97,13 @@ Arguments passed directly to the application payload — the equivalent of comma
 
 A parameter or argument can also be promoted to an **input port** or **output port**, meaning its value is read from or written to an upstream or downstream component via an edge, rather than being set statically.
 
-.. figure:: _static/images/placeholder.png
+.. figure:: _static/images/inspector_parameters.png
    :width: 500px
    :align: center
-   :alt: [screenshot: inspector panel showing component parameters and application arguments for a Python App node]
+   :alt: [screenshot: the inspector showing component parameters and application arguments for a Python App node]
    :figclass: align-center
 
-   The inspector panel showing parameters and arguments for a Python App component.
+   The inspector showing parameters and arguments for a Python App component.
 
 Connecting Components with Edges
 ---------------------------------
@@ -112,7 +112,7 @@ An output port on one component can be connected to an input port on another com
 
 To draw an edge, drag from an output port (right side of a node) to an input port (left side of another node). EAGLE validates the connection and shows a warning or error if it is inadvisable or invalid.
 
-.. figure:: _static/images/placeholder.png
+.. figure:: _static/images/edge_valid_connection.png
    :width: 600px
    :align: center
    :alt: [screenshot: three components connected by two edges with a valid connection indicator]
@@ -166,13 +166,13 @@ To use an application packaged in a Docker image:
    - **User** — the user to run as
    - **Additional Bindings** — any host paths to mount into the container
 
-.. figure:: _static/images/placeholder.png
+.. figure:: _static/images/inspector_docker_component.png
    :width: 500px
    :align: center
-   :alt: [screenshot: inspector panel for a Docker component with image, tag, and command fields filled in]
+   :alt: [screenshot: the inspector showing a Docker component with image, tag, and command fields filled in]
    :figclass: align-center
 
-   Configuring a Docker component in the inspector panel.
+   Configuring a Docker component in the inspector.
 
 3. Once configured, the component can be saved to a palette for reuse — see :doc:`Palettes <palettes>`.
 
