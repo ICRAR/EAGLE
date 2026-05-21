@@ -3191,4 +3191,50 @@ export class Utils {
 
         return defaultValue;
     }
+
+    static buildUrl(service: Repository.Service, repositoryName: string, repositoryBranch: string, path: string, filename: string): string;
+    static buildUrl(service: Repository.Service, repositoryName: string, repositoryBranch: string): string;
+    static buildUrl(service: Repository.Service, downloadUrl: string): string;
+    static buildUrl(service: Repository.Service, arg1: string, repositoryBranch?: string, path?: string, filename?: string): string {
+        if (repositoryBranch !== undefined && path !== undefined && filename !== undefined) {
+            const repositoryName = arg1;
+
+            if (service === Repository.Service.Url){
+                console.warn("Utils.buildUrl with repositoryName, repositoryBranch, path and filename is not intended for Repository.Service.Url, unexpected service:", service);
+            }
+
+            let url = window.location.origin;
+            url += "/?service=" + service;
+            url += "&repository=" + repositoryName;
+            url += "&branch=" + repositoryBranch;
+            url += "&path=" + encodeURI(path);
+            url += "&filename=" + encodeURI(filename);
+            return url;
+        }
+
+        if (repositoryBranch !== undefined && path === undefined && filename === undefined) {
+            const repositoryName = arg1;
+
+            if (service === Repository.Service.Url){
+                console.warn("Utils.buildUrl with repositoryName and repositoryBranch is not intended for Repository.Service.Url, unexpected service:", service);
+            }
+
+            let url = window.location.origin;
+            url += "/?service=" + service;
+            url += "&repository=" + repositoryName;
+            url += "&branch=" + repositoryBranch;
+            return url;
+        }
+
+        const downloadUrl = arg1;
+        if (service !== Repository.Service.Url){
+            console.warn("Utils.buildUrl with downloadUrl is only intended for Repository.Service.Url, unexpected service:", service);
+        }
+
+        let url = window.location.origin;
+        url += "/?service=" + service;
+        url += "&url=" + downloadUrl;
+
+        return url;
+    }
 }

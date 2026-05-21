@@ -53,12 +53,6 @@ export class RepositoryFile {
     }, this);
 
     getUrl : ko.PureComputed<string> = ko.pureComputed(() => {
-        let url = window.location.origin;
-        url += "/?service=" + this.repository.service;
-        url += "&repository=" + this.repository.name;
-        url += "&branch=" + this.repository.branch;
-        url += "&path=" + encodeURI(this.path);
-        url += "&filename=" + encodeURI(this.name);
-        return url;
+        return Utils.buildUrl(this.repository.service, this.repository.name, this.repository.branch, this.path, this.name);
     }, this);
 }

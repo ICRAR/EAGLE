@@ -48,6 +48,8 @@ export class GraphUpdaterFile {
     preFixNumWarnings: ko.Observable<number>;
     postFixNumErrors: ko.Observable<number>;
     postFixNumWarnings: ko.Observable<number>;
+    updatedFileUrl: ko.Observable<string>;
+    updatedPathAndName: ko.Observable<string>;
 
     constructor(file: RepositoryFile){
         this.data = "";
@@ -61,6 +63,8 @@ export class GraphUpdaterFile {
         this.preFixNumWarnings = ko.observable(0);
         this.postFixNumErrors = ko.observable(0);
         this.postFixNumWarnings = ko.observable(0);
+        this.updatedFileUrl = ko.observable(null);
+        this.updatedPathAndName = ko.observable(null);
     }
 }
 
@@ -70,6 +74,7 @@ export class GraphUpdater {
     static isUpdating: ko.Observable<boolean> = ko.observable(false);
     static hasUpdated: ko.Observable<boolean> = ko.observable(false);
     static isPushing: ko.Observable<boolean> = ko.observable(false);
+    static hasPushed: ko.Observable<boolean> = ko.observable(false);
 
     static autoFix: ko.Observable<boolean> = ko.observable(false);
 
@@ -215,7 +220,7 @@ export class GraphUpdater {
 
     static async showModal(): Promise<void> {
         GraphUpdater.initCollapseToggle();
-        GraphUpdater.setState(false, false, false, false, false);
+        GraphUpdater.setState(false, false, false, false, false, false);
 
         // add list of repositories to source select
         const srcRepoSelect = $('#graphUpdaterModalSourceRepositorySelect');
@@ -242,30 +247,31 @@ export class GraphUpdater {
         $('#graphUpdaterModal').modal("hide");
     }
 
-    static setState(isFetching: boolean, hasFetched: boolean, isUpdating: boolean, hasUpdated: boolean, isPushing: boolean): void {
+    static setState(isFetching: boolean, hasFetched: boolean, isUpdating: boolean, hasUpdated: boolean, isPushing: boolean, hasPushed: boolean): void {
         this.isFetching(isFetching);
         this.hasFetched(hasFetched);
         this.isUpdating(isUpdating);
         this.hasUpdated(hasUpdated);
         this.isPushing(isPushing);
+        this.hasPushed(hasPushed);
     }
 
     static onSourceRepositoryChange(): void {
         // reset the updatedLogicalGraphs array and the hasFetched/hasUpdated observables
         this.updatedLogicalGraphs.removeAll();
-        this.setState(false, false, false, false, false);
+        this.setState(false, false, false, false, false, false);
     }
 
     static async fetchLogicalGraphs(): Promise<void> {
         console.log("GraphUpdater.fetchLogicalGraphs()");
-        this.setState(true, false, false, false, false);
+        this.setState(true, false, false, false, false, false);
 
         // get source repository
         const srcRepoIndex = parseInt($('#graphUpdaterModalSourceRepositorySelect').val() as string);
         const srcRepo = Repositories.repositories()[srcRepoIndex];
         if (srcRepo === null){
             Utils.showNotification("Error", "Source repository not found", "danger");
-            this.setState(false, false, false, false, false);
+            this.setState(false, false, false, false, false, false);
             return;
         }
 
@@ -284,13 +290,13 @@ export class GraphUpdater {
             this.updatedLogicalGraphs.push(new GraphUpdaterFile(graphFile));
         }
 
-        this.setState(false, true, false, false, false);
+        this.setState(false, true, false, false, false, false);
     }
 
     static async update(): Promise<void> {
         console.log("GraphUpdater.update()");
 
-        this.setState(false, true, true, false, false);
+        this.setState(false, true, true, false, false, false);
 
         // determine the correct function to load the file(s), based on the source repository service
         let openRemoteFileFunc: (repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string, filePath: string, fileName: string) => Promise<string>;
@@ -303,7 +309,7 @@ export class GraphUpdater {
                 break;
             default:
                 Utils.showNotification("Error", "Unsupported repository service: " + this.sourceRepository.service, "danger");
-                this.setState(false, false, false, false, false);
+                this.setState(false, false, false, false, false, false);
                 return;
         }
 
@@ -324,6 +330,7 @@ export class GraphUpdater {
             } catch (error) {
                 console.error("Error fetching remote file:", graphFile.file().name, "Error:", error);
                 graphFile.state(GraphUpdater.FileStatus.Error);
+                graphFile.push(false); // uncheck the push checkbox for this graph since there was an error updating it
                 continue;
             }
 
@@ -392,7 +399,7 @@ export class GraphUpdater {
             graphFile.state(GraphUpdater.FileStatus.Success);
         }
 
-        this.setState(false, true, false, true, false);
+        this.setState(false, true, false, true, false, false);
     }
 
     static async push(): Promise<void> {
@@ -405,7 +412,7 @@ export class GraphUpdater {
         }
 
         // set state to pushing
-        this.setState(false, true, false, true, true);
+        this.setState(false, true, false, true, true, false);
 
         // use generic commit message
         const commitMessage = "Updated graphs from " + GraphUpdater.sourceRepository.getNameAndBranch();
@@ -426,6 +433,12 @@ export class GraphUpdater {
                 "path": graphFile.file().pathAndName(),
                 "jsonData": graphFile.data
             });
+
+            // update the updatedFileUrl and updatedPathAndName observables for display in the UI after push is complete
+            const newPathAndName = graphFile.file().pathAndName();
+            graphFile.updatedPathAndName(newPathAndName);
+            const newUrl = Utils.buildUrl(destRepo.service, destRepo.name, destRepo.branch, graphFile.file().path, graphFile.file().name);
+            graphFile.updatedFileUrl(newUrl);
         }
 
         // get the users github/gitlab token from the settings
@@ -465,8 +478,7 @@ export class GraphUpdater {
             return errorJSON.error;
         }
 
-        GraphUpdater.setState(false, true, false, true, false);
-        GraphUpdater.hideModal();
+        GraphUpdater.setState(false, true, false, true, false, true);
     }
 
     static numberOfFilesToUpdate : ko.PureComputed<number> = ko.pureComputed(() => {

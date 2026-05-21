@@ -64,13 +64,7 @@ export class Repositories {
     }
 
     static generateUrl(repository: Repository): string {
-        let url = window.location.origin;
-
-        url += "/?service=" + repository.service;
-        url += "&repository=" + repository.name;
-        url += "&branch=" + repository.branch;
-
-        return url;
+        return Utils.buildUrl(repository.service, repository.name, repository.branch);
     }
 
     // use a custom modal to ask user for repository service and url at the same time
