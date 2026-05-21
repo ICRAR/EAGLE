@@ -1,5 +1,9 @@
 {
     "compilerOptions": {
+        // Strict type checking
+        "strict": true,
+
+        // Additional checks
         "allowUnreachableCode": false,
         "allowUnusedLabels": false,
         "rootDir": "./src",
@@ -10,18 +14,22 @@
         "noImplicitReturns": true,
         "noImplicitThis": false,  // TODO: make true when possible
         "noFallthroughCasesInSwitch": true,
-        "noUnusedLocals": false, // NOTE: would like to set this to true, but sometimes functions are only used within knockout html
-        "noUnusedParameters": false,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "forceConsistentCasingInFileNames": true,
         "strictNullChecks" : false,
         "strictFunctionTypes": false,
         "strictPropertyInitialization": false,
         "ignoreDeprecations": "6.0",
         "module": "umd",
         "moduleResolution": "node",
-        "target": "es2015",
+        "target": "es2021",
         "lib": ["es2021", "dom"],
+        "esModuleInterop": true,
+        "isolatedModules": true,
         "allowJs": false,
         "types": ["node", "jquery", "jqueryui", "jquery-migrate", "bootstrap", "bootstrap-notify"]
     },
-    "include": ["./src/**/*.ts"]
+    "include": ["./src/**/*.ts"],
+    "exclude": ["node_modules", "static", "build", "e2e"]
 }

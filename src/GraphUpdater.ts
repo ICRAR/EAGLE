@@ -26,6 +26,7 @@ import { Eagle } from './Eagle';
 import { Errors } from './Errors';
 import { GitHub } from './GitHub';
 import { GitLab } from './GitLab';
+import { Id } from './Id';
 import { LogicalGraph } from './LogicalGraph';
 import { Repositories } from './Repositories';
 import { Repository } from './Repository';
@@ -106,7 +107,7 @@ export class GraphUpdater {
 
         // build keyToId map from nodes
         for (const node of graphObject["nodeDataArray"]){
-            const newId = Utils.generateNodeId();
+            const newId = Id.generateNodeId();
 
             keyToId.set(node.key, newId);
             node.id = newId;
@@ -114,13 +115,13 @@ export class GraphUpdater {
 
             // input app
             if (node.inputApplicationKey !== null){
-                const inputAppId = Utils.generateNodeId();
+                const inputAppId = Id.generateNodeId();
                 keyToId.set(node.inputApplicationKey, inputAppId);
                 node.inputApplicationId = inputAppId;
             }
             // output app
             if (node.outputApplicationKey !== null){
-                const outputAppId = Utils.generateNodeId();
+                const outputAppId = Id.generateNodeId();
                 keyToId.set(node.outputApplicationKey, outputAppId);
                 node.outputApplicationId = outputAppId;
             }
@@ -250,7 +251,7 @@ export class GraphUpdater {
             }
 
             // try to load the file
-            await new Promise<void>((resolve, reject) => {
+            await new Promise<void>((resolve, _reject) => {
                 openRemoteFileFunc(row.service, row.name, row.branch, row.folder, row.file, (error: string, data: string) => {
                     // if file fetched successfully
                     if (error === null){

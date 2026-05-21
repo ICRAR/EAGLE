@@ -24,6 +24,7 @@
 
 import * as ko from "knockout";
 
+import { Id } from './Id';
 import { Utils } from './Utils';
 import { LogicalGraph } from "./LogicalGraph";
 import { Edge } from "./Edge";
@@ -47,7 +48,7 @@ export class Visual {
     private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}> //keeps track of visual errors
 
     constructor(type: Visual.Type, content: string) {
-        this.id = ko.observable(Utils.generateVisualId());
+        this.id = ko.observable(Id.generateVisualId());
         this.x = ko.observable(0);
         this.y = ko.observable(0);
 
@@ -189,7 +190,7 @@ export class Visual {
         return result;
     }
 
-    static fromJson(visualData: any, lg: LogicalGraph, errorsWarnings: Errors.ErrorsWarnings) : Visual {
+    static fromJson(visualData: any, lg: LogicalGraph, _errorsWarnings: Errors.ErrorsWarnings) : Visual {
         const id: VisualId = visualData.id as VisualId;
         const x: number = visualData.x;
         const y: number = visualData.y;
