@@ -189,7 +189,7 @@
                         </div>
                         <div class="col">
                             <div class="form-group">
-                                <select class="form-control" id="graphUpdaterModalDestinationRepositorySelect">
+                                <select class="form-control" id="graphUpdaterModalDestinationRepositorySelect" data-bind="event: { change: function(){GraphUpdater.onDestinationRepositoryChange()} }">
                                 </select>
                             </div>
                         </div>
@@ -203,13 +203,17 @@
                                 </button>
                                 <!-- /ko -->
                                 <!-- ko ifnot: GraphUpdater.hasPushed() -->
-                                    <button type="button" class="btn btn-primary" id="graphUpdaterModalPushButton" data-bind="click: function(){GraphUpdater.push()}, enable: !GraphUpdater.isPushing()">
+                                    <button type="button" class="btn btn-primary" id="graphUpdaterModalPushButton" data-bind="click: function(){GraphUpdater.push()}, enable: GraphUpdater.isUpdated()">
+                                        <!-- ko if: GraphUpdater.isUpdated() -->
+                                            <span data-bind="text: 'Push ' + GraphUpdater.numberOfFilesToPush() + ' Logical Graph(s)'"></span>
+                                        <!-- /ko -->
+                                        <!-- ko if: GraphUpdater.isAutoGeneratingBranch() -->
+                                            <div class="spinner-border spinner-border-sm" role="status"></div>
+                                            <span>Auto-generating branch...</span>
+                                        <!-- /ko -->
                                         <!-- ko if: GraphUpdater.isPushing() -->
                                             <div class="spinner-border spinner-border-sm" role="status"></div>
                                             <span>Pushing...</span>
-                                        <!-- /ko -->
-                                        <!-- ko ifnot: GraphUpdater.isPushing() -->
-                                            <span data-bind="text: 'Push ' + GraphUpdater.numberOfFilesToPush() + ' Logical Graph(s)'"></span>
                                         <!-- /ko -->
                                     </button>
                                 <!-- /ko -->

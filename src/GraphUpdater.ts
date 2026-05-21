@@ -69,16 +69,12 @@ export class GraphUpdaterFile {
 }
 
 export class GraphUpdater {
-    static isFetching: ko.Observable<boolean> = ko.observable(false);
-    static hasFetched: ko.Observable<boolean> = ko.observable(false);
-    static isUpdating: ko.Observable<boolean> = ko.observable(false);
-    static hasUpdated: ko.Observable<boolean> = ko.observable(false);
-    static isPushing: ko.Observable<boolean> = ko.observable(false);
-    static hasPushed: ko.Observable<boolean> = ko.observable(false);
+    static state: ko.Observable<GraphUpdater.Status>;
 
     static autoFix: ko.Observable<boolean> = ko.observable(false);
 
     static sourceRepository: Repository = null;
+    static destinationRepository: Repository = null;
     static updatedLogicalGraphs: ko.ObservableArray<GraphUpdaterFile> = ko.observableArray([]);
 
     // NOTE: for use in translation of OJS object to internal graph representation
@@ -220,7 +216,7 @@ export class GraphUpdater {
 
     static async showModal(): Promise<void> {
         GraphUpdater.initCollapseToggle();
-        GraphUpdater.setState(false, false, false, false, false, false);
+        GraphUpdater.state(GraphUpdater.Status.Start);
 
         // add list of repositories to source select
         const srcRepoSelect = $('#graphUpdaterModalSourceRepositorySelect');
@@ -257,31 +253,26 @@ export class GraphUpdater {
         $('#graphUpdaterModal').modal("hide");
     }
 
-    static setState(isFetching: boolean, hasFetched: boolean, isUpdating: boolean, hasUpdated: boolean, isPushing: boolean, hasPushed: boolean): void {
-        this.isFetching(isFetching);
-        this.hasFetched(hasFetched);
-        this.isUpdating(isUpdating);
-        this.hasUpdated(hasUpdated);
-        this.isPushing(isPushing);
-        this.hasPushed(hasPushed);
-    }
-
     static onSourceRepositoryChange(): void {
         // reset the updatedLogicalGraphs array and the hasFetched/hasUpdated observables
         this.updatedLogicalGraphs.removeAll();
-        this.setState(false, false, false, false, false, false);
+        this.state(GraphUpdater.Status.Start);
+    }
+
+    static onDestinationRepositoryChange(): void {
+        this.state(GraphUpdater.Status.Updated);
     }
 
     static async fetchLogicalGraphs(): Promise<void> {
         console.log("GraphUpdater.fetchLogicalGraphs()");
-        this.setState(true, false, false, false, false, false);
+        this.state(GraphUpdater.Status.Fetching);
 
         // get source repository
         const srcRepoIndex = parseInt($('#graphUpdaterModalSourceRepositorySelect').val() as string);
         const srcRepo = Repositories.repositories()[srcRepoIndex];
         if (srcRepo === null){
             Utils.showNotification("Error", "Source repository not found", "danger");
-            this.setState(false, false, false, false, false, false);
+            this.state(GraphUpdater.Status.Start);
             return;
         }
 
@@ -298,14 +289,14 @@ export class GraphUpdater {
             await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
         });
 
-        this.setState(false, true, false, false, false, false);
+        this.state(GraphUpdater.Status.Fetched);
         console.log("GraphUpdater.fetchLogicalGraphs() - completed. Found " + this.updatedLogicalGraphs().length + " graph(s) in source repository.");
     }
 
     static async update(): Promise<void> {
         console.log("GraphUpdater.update()");
 
-        this.setState(false, true, true, false, false, false);
+        this.state(GraphUpdater.Status.Updating);
 
         // determine the correct function to load the file(s), based on the source repository service
         let openRemoteFileFunc: (repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string, filePath: string, fileName: string) => Promise<string>;
@@ -318,7 +309,7 @@ export class GraphUpdater {
                 break;
             default:
                 Utils.showNotification("Error", "Unsupported repository service: " + this.sourceRepository.service, "danger");
-                this.setState(false, false, false, false, false, false);
+                this.state(GraphUpdater.Status.Start);
                 return;
         }
 
@@ -409,21 +400,16 @@ export class GraphUpdater {
             graphFile.state(GraphUpdater.FileStatus.Success);
         }
 
-        this.setState(false, true, false, true, false, false);
+        GraphUpdater.state(GraphUpdater.Status.Updated);
     }
 
     static async push(): Promise<void> {
-
         // get destination repository or handle custom option
         const destRepoValue = $('#graphUpdaterModalDestinationRepositorySelect').val() as string;
+
+        // check if the user selected the custom option to auto-generate a new branch on the source repository
         if (destRepoValue === "-1") {
-            // auto-generate new branch on source repository
-            const srcRepoIndex = parseInt($('#graphUpdaterModalSourceRepositorySelect').val() as string);
-            const srcRepo = Repositories.repositories()[srcRepoIndex];
-            if (!srcRepo) {
-                Utils.showNotification("Error", "Source repository not found", "danger");
-                return;
-            }
+            GraphUpdater.state(GraphUpdater.Status.AutoGeneratingBranch);
 
             // generate a new branch name
             const now = new Date();
@@ -434,7 +420,7 @@ export class GraphUpdater {
             
             // find the user's token for the source repository service
             let token: string;
-            switch (srcRepo.service){
+            switch (this.sourceRepository.service){
                 case Repository.Service.GitHub:
                     token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY, "");
                     break;
@@ -442,16 +428,17 @@ export class GraphUpdater {
                     token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY, "");
                     break;
                 default:
-                    Utils.showNotification("Error", "Unsupported repository service: " + srcRepo.service, "danger");
+                    Utils.showNotification("Error", "Unsupported repository service: " + this.sourceRepository.service, "danger");
+                    GraphUpdater.state(GraphUpdater.Status.Updated);
                     return;
             }
 
-            // call backend to create branch using Utils.httpPostJSON
+            // call eagleServer to create branch
             try {
                 const responseStr = await Utils.httpPostJSON("/createBranch", {
-                    service: srcRepo.service,
-                    repository: srcRepo.name,
-                    sourceBranch: srcRepo.branch,
+                    service: this.sourceRepository.service,
+                    repository: this.sourceRepository.name,
+                    sourceBranch: this.sourceRepository.branch,
                     newBranch: newBranchName,
                     token: token
                 });
@@ -463,46 +450,47 @@ export class GraphUpdater {
                 }
                 if (response.error) {
                     Utils.showNotification("Error", response.error, "danger");
+                    GraphUpdater.state(GraphUpdater.Status.Updated);
                     return;
                 }
-                // Add new repo to EAGLE's list
-                await Repositories._addCustomRepository(srcRepo.service, srcRepo.name, newBranchName);
-                Utils.showNotification("Success", `Branch '${newBranchName}' created and added.`, "success");
-                // Set destination select to new repo and continue push
-                const destRepoSelect = $('#graphUpdaterModalDestinationRepositorySelect');
-                // Find the new repo index
-                const repos = Repositories.repositories();
-                let newIndex = -1;
-                for (let i = 0; i < repos.length; i++) {
-                    if (repos[i].service === srcRepo.service && repos[i].name === srcRepo.name && repos[i].branch === newBranchName) {
-                        newIndex = i;
-                        break;
-                    }
-                }
-                if (newIndex === -1) {
-                    Utils.showNotification("Error", "Failed to find new repository after branch creation.", "danger");
-                    return;
-                }
-                destRepoSelect.val(newIndex.toString());
-                // Call push again with new selection
-                GraphUpdater.push();
+
+                // add new repo to the repository list
+                this.destinationRepository = await Repositories._addCustomRepository(this.sourceRepository.service, this.sourceRepository.name, newBranchName);                
+                GraphUpdater.state(GraphUpdater.Status.AutoGeneratedBranch);
             } catch (error) {
                 Utils.showNotification("Error", `Failed to create branch: ${error}`, "danger");
+                GraphUpdater.state(GraphUpdater.Status.Updated);
             }
-            return;
+        } else {
+            const destRepoIndex = parseInt(destRepoValue);
+            this.destinationRepository =Repositories.repositories()[destRepoIndex];
         }
-        const destRepoIndex = parseInt(destRepoValue);
-        const destRepo = Repositories.repositories()[destRepoIndex];
-        if (destRepo === null){
+
+        // check that we have a valid destination repository at this point
+        if (this.destinationRepository === null){
             Utils.showNotification("Error", "Destination repository not found", "danger");
             return;
         }
 
+        // get the users github/gitlab token from the settings
+        let repoToken: string;
+        switch (this.destinationRepository.service){
+            case Repository.Service.GitHub:
+                repoToken = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY, "");
+                break;
+            case Repository.Service.GitLab:
+                repoToken = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY, "");
+                break;
+            default:
+                Utils.showNotification("Error", "Unsupported repository service: " + this.destinationRepository.service, "danger");
+                return;
+        }
+
         // set state to pushing
-        this.setState(false, true, false, true, true, false);
+        GraphUpdater.state(GraphUpdater.Status.Pushing);
 
         // use generic commit message
-        const commitMessage = "Updated graphs from " + GraphUpdater.sourceRepository.getNameAndBranch();
+        const commitMessage = "Updated graphs from " + this.sourceRepository.getNameAndBranch();
 
         const files = [];
         for (const graphFile of GraphUpdater.updatedLogicalGraphs()){
@@ -524,28 +512,14 @@ export class GraphUpdater {
             // update the updatedFileUrl and updatedPathAndName observables for display in the UI after push is complete
             const newPathAndName = graphFile.file().pathAndName();
             graphFile.updatedPathAndName(newPathAndName);
-            const newUrl = Utils.buildUrl(destRepo.service, destRepo.name, destRepo.branch, graphFile.file().path, graphFile.file().name);
+            const newUrl = Utils.buildUrl(this.destinationRepository.service, this.destinationRepository.name, this.destinationRepository.branch, graphFile.file().path, graphFile.file().name);
             graphFile.updatedFileUrl(newUrl);
-        }
-
-        // get the users github/gitlab token from the settings
-        let repoToken: string;
-        switch (destRepo.service){
-            case Repository.Service.GitHub:
-                repoToken = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY, "");
-                break;
-            case Repository.Service.GitLab:
-                repoToken = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY, "");
-                break;
-            default:
-                Utils.showNotification("Error", "Unsupported repository service: " + destRepo.service, "danger");
-                return;
         }
 
         // build the commit JSON string
         const commitJson = {
-            "repositoryName": destRepo.name,
-            "repositoryBranch": destRepo.branch,
+            "repositoryName": this.destinationRepository.name,
+            "repositoryBranch": this.destinationRepository.branch,
             "token": repoToken,
             "files": files,
             "commitMessage": commitMessage
@@ -555,17 +529,17 @@ export class GraphUpdater {
 
         // write all the files to the destination repository
         try {
-           await eagle.saveFilesToRemote(destRepo, JSON.stringify(commitJson));
+           await eagle.saveFilesToRemote(this.destinationRepository, JSON.stringify(commitJson));
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
             const errorJSON = JSON.parse(errorMessage);
 
-            Utils.showUserMessage("Error", errorJSON.error + "<br/><br/>NOTE: These error messages provided by " + destRepo.service + " are not very helpful. Please contact EAGLE admin to help with further investigation.");
+            Utils.showUserMessage("Error", errorJSON.error + "<br/><br/>NOTE: These error messages provided by " + this.destinationRepository.service + " are not very helpful. Please contact EAGLE admin to help with further investigation.");
             console.error("Error: " + errorJSON.error);
             return errorJSON.error;
         }
 
-        GraphUpdater.setState(false, true, false, true, false, true);
+        GraphUpdater.state(GraphUpdater.Status.Pushed);
     }
 
     static numberOfFilesToUpdate : ko.PureComputed<number> = ko.pureComputed(() => {
@@ -588,6 +562,25 @@ export class GraphUpdater {
         return count;
     }, this);
 
+    static isFetching: ko.PureComputed<boolean> = ko.pureComputed(() => GraphUpdater.state() === GraphUpdater.Status.Fetching);
+    static isUpdating: ko.PureComputed<boolean> = ko.pureComputed(() => GraphUpdater.state() === GraphUpdater.Status.Updating);
+    static isUpdated: ko.PureComputed<boolean> = ko.pureComputed(() => GraphUpdater.state() === GraphUpdater.Status.Updated);
+    static isAutoGeneratingBranch: ko.PureComputed<boolean> = ko.pureComputed(() => GraphUpdater.state() === GraphUpdater.Status.AutoGeneratingBranch);
+    static isPushing: ko.PureComputed<boolean> = ko.pureComputed(() => GraphUpdater.state() === GraphUpdater.Status.Pushing);
+
+    static hasFetched: ko.PureComputed<boolean> = ko.pureComputed(() => {
+        return [GraphUpdater.Status.Fetched, GraphUpdater.Status.Updating, GraphUpdater.Status.Updated, GraphUpdater.Status.AutoGeneratingBranch, GraphUpdater.Status.AutoGeneratedBranch, GraphUpdater.Status.Pushing, GraphUpdater.Status.Pushed].includes(GraphUpdater.state());
+    });
+    static hasUpdated: ko.PureComputed<boolean> = ko.pureComputed(() => {
+        return [GraphUpdater.Status.Updated, GraphUpdater.Status.AutoGeneratingBranch, GraphUpdater.Status.AutoGeneratedBranch, GraphUpdater.Status.Pushing, GraphUpdater.Status.Pushed].includes(GraphUpdater.state());
+    });
+    static hasAutoGeneratedBranch: ko.PureComputed<boolean> = ko.pureComputed(() => {
+        return [GraphUpdater.Status.AutoGeneratedBranch, GraphUpdater.Status.Pushing, GraphUpdater.Status.Pushed].includes(GraphUpdater.state());
+    });
+    static hasPushed: ko.PureComputed<boolean> = ko.pureComputed(() => {
+        return [GraphUpdater.Status.Pushed].includes(GraphUpdater.state());
+    });
+
 }
 
 export namespace GraphUpdater {
@@ -598,4 +591,18 @@ export namespace GraphUpdater {
         Error = "Error",
         Success = "Success"
     }
+
+    export enum Status {
+        Start = "Start",
+        Fetching = "Fetching",
+        Fetched = "Fetched",
+        Updating = "Updating",
+        Updated = "Updated",
+        AutoGeneratingBranch = "AutoGeneratingBranch",
+        AutoGeneratedBranch = "AutoGeneratedBranch",
+        Pushing = "Pushing",
+        Pushed = "Pushed"
+    }
 }
+
+GraphUpdater.state = ko.observable(GraphUpdater.Status.Start);

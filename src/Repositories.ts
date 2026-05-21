@@ -90,7 +90,7 @@ export class Repositories {
         Repositories._addCustomRepository(customRepository.service, customRepository.name, customRepository.branch);
     };
 
-    static async _addCustomRepository(repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string) {
+    static async _addCustomRepository(repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string): Promise<Repository> {
         // create repo
         const newRepo = new Repository(repositoryService, repositoryName, repositoryBranch, false);
 
@@ -100,6 +100,8 @@ export class Repositories {
         // add to Repositories, and re-sort the repository list
         Repositories.repositories.push(newRepo);
         Repositories.sort();
+
+        return newRepo;
     }
 
     removeCustomRepository = async (repository : Repository): Promise<void> => {
