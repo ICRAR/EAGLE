@@ -59,7 +59,7 @@
                     </div>
                     <div class="row" data-bind="visible: GraphUpdater.isFetching() || GraphUpdater.hasFetched()">
                         <div class="col" id="graphUpdaterModalGraphTableCol">
-                            <!-- ko if: GraphUpdater.updatedLogicalGraphs().length === 0 -->
+                            <!-- ko if: GraphUpdater.updatedLogicalGraphs().length === 0 && GraphUpdater.hasFetched() -->
                                 <span class="d-block text-center">No logical graphs found in repository branch</span>
                             <!-- /ko -->
                             <!-- ko if: GraphUpdater.updatedLogicalGraphs().length > 0 -->
@@ -116,7 +116,7 @@
                                                 <td>Success</td>
                                                 <!-- /ko -->
                                                 <!-- ko if: state() === GraphUpdater.FileStatus.Error -->
-                                                <td>Error</td>
+                                                <td data-bind="eagleTooltip: error">Error</td>
                                                 <!-- /ko -->
                                                 <!-- ko if: state() === GraphUpdater.FileStatus.Updating -->
                                                 <td>

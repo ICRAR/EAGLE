@@ -42,6 +42,7 @@ export class GraphUpdaterFile {
     push: ko.Observable<boolean>; // whether the user has selected to push this graph to the destination repository or not
     file: ko.Observable<RepositoryFile>;
     state: ko.Observable<GraphUpdater.FileStatus>;
+    error: ko.Observable<string>; // if there was an error updating this graph, the error message is stored here for display in the UI
     numNodes: ko.Observable<number>;
     numEdges: ko.Observable<number>;
     preFixNumErrors: ko.Observable<number>;
@@ -57,6 +58,7 @@ export class GraphUpdaterFile {
         this.push = ko.observable(true);
         this.file = ko.observable(file);
         this.state = ko.observable(GraphUpdater.FileStatus.No);
+        this.error = ko.observable("");
         this.numNodes = ko.observable(0);
         this.numEdges = ko.observable(0);
         this.preFixNumErrors = ko.observable(0);
@@ -328,8 +330,10 @@ export class GraphUpdater {
             try {
                 fileData = await openRemoteFileFunc(graphFile.file().repository.service, graphFile.file().repository.name, graphFile.file().repository.branch, graphFile.file().path, graphFile.file().name);
             } catch (error) {
-                console.error("Error fetching remote file:", graphFile.file().name, "Error:", error);
+                const errorMessage = "Error fetching remote file: " + graphFile.file().name + ", Error: " + error;
+                console.error(errorMessage);
                 graphFile.state(GraphUpdater.FileStatus.Error);
+                graphFile.error(errorMessage);
                 graphFile.push(false); // uncheck the push checkbox for this graph since there was an error updating it
                 continue;
             }
@@ -364,12 +368,16 @@ export class GraphUpdater {
                 lg = fromJsonFunc(graphObject, graphFile.file().name, {"errors":[], "warnings":[]});
             }
             catch (error) {
+                let errorMessage: string;
+
                 if (schemaVersion === Setting.SchemaVersion.Unknown){
-                    console.error("Error parsing graph file with unknown schema version, defaulted to OJS parser. File:", graphFile.file().name, "Error:", error);
+                    errorMessage = "Error parsing graph file with unknown schema version, defaulted to OJS parser. File: " + graphFile.file().name + ", Error: " + error;
                 } else {
-                    console.error("Error parsing graph file:", graphFile.file().name, "Error:", error);
+                    errorMessage = "Error parsing graph file: " + graphFile.file().name + ", Error: " + error;
                 }
+                console.error(errorMessage);
                 graphFile.state(GraphUpdater.FileStatus.Error);
+                graphFile.error(errorMessage);
                 graphFile.push(false); // uncheck the push checkbox for this graph since there was an error updating it
                 continue;
             }
