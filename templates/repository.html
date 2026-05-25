@@ -33,6 +33,10 @@
                 <!-- /ko -->
                 <a href="#" data-bind="click: function(){console.log('TODO')}" data-html="true"><span>Reload</span></a>
                 <a href="#" data-bind="click: $root.repositories().copyRepository, attr: {id: htmlId() + '-copy'}"><span>Copy URL</span></a>
+                <a href="#" data-bind="click: $root.repositories().createBranch, attr: {id: htmlId() + '-create-branch'}"><span>Create Branch</span></a>
+                <a href="#" data-bind="click: $data.expandAll, attr: {id: htmlId() + '-expand'}"><span>Expand All</span></a>
+                <a href="#" data-bind="click: $data.refresh, attr: {id: htmlId() + '-refresh'}"><span>Refresh</span></a>
+                <a href="#" data-bind="click: $root.showGraphUpdaterModal"><span data-bind="text: KeyboardShortcut.idToKeysText('graph_updater', true)"></span></a>
             </div>
         </div>
         
