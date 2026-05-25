@@ -24,22 +24,16 @@
                 <span data-bind="text: name + ' (' + branch + ')'"></span>
             </a>
         </div>
-        
-        <button type="button" class="material-symbols-outlined md-18 dropdown-toggle dropdown-control paletteTripleDot iconHoverEffect" data-bs-toggle="dropdown">more_vert</button>
-        <div class="dropdown-menu dropdown-area">
-            <!-- ko ifnot: isBuiltIn -->
-            <a href="#" data-bind="click: $root.repositories().removeCustomRepository" data-html="true"><span>Remove</span></a>
-            <!-- /ko -->
-            <a href="#" data-bind="click: function(){$root.reloadPalette($data, $index())}" data-html="true"><span>Reload</span></a>
-            <a href="#" data-bind="click: $data.copyUrl"><span>Copy URL</span></a>
-
-        </div>
 
         <div class="col col-2 repo-actions">
-            <!-- ko ifnot: isBuiltIn -->
-                <i class="material-symbols-outlined filled md-18 interactive iconHoverEffect" data-bind="click: $root.repositories().removeCustomRepository, attr: {id: htmlId() + '-eject'}">eject</i>
-            <!-- /ko -->
-            <i class="material-symbols-outlined md-18 interactive iconHoverEffect" data-bind="click: $root.repositories().copyRepository, attr: {id: htmlId() + '-copy'}">content_copy</i>
+            <button type="button" class="material-symbols-outlined md-18 dropdown-toggle dropdown-control repositoryTripleDot iconHoverEffect" data-bs-toggle="dropdown">more_vert</button>
+            <div class="dropdown-menu dropdown-area">
+                <!-- ko ifnot: isBuiltIn -->
+                    <a href="#" data-bind="click: $root.repositories().removeCustomRepository, attr: {id: htmlId() + '-eject'}" data-html="true"><span>Remove</span></a>
+                <!-- /ko -->
+                <a href="#" data-bind="click: function(){console.log('TODO')}" data-html="true"><span>Reload</span></a>
+                <a href="#" data-bind="click: $root.repositories().copyRepository, attr: {id: htmlId() + '-copy'}"><span>Copy URL</span></a>
+            </div>
         </div>
         
         <!-- ko if: expanded -->

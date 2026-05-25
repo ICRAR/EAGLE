@@ -1290,6 +1290,10 @@ select.form-control{
     padding:1px;
 }
 
+.paletteTripleDot:after{
+    display: none;
+}
+
 .paletteHeaderIcon button, .paletteHeaderIcon i{
     right: -50%;
     top: 50%;
@@ -1304,10 +1308,6 @@ select.form-control{
 .paletteHeaderIcon button{
     right:15px;
     pointer-events: auto;
-}
-
-.paletteTripleDot:after{
-    display: none;
 }
 
 .paletteFetching{
@@ -1777,6 +1777,50 @@ select.form-control{
 
 .repoContainer{
     padding:0px 10px;
+}
+
+#repositoryList .dropdown-menu{
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    z-index: 4;
+    background-color: #0059a5;
+    border: black solid 1px;
+    border-radius: 6px;
+    pointer-events: auto;
+    width:min-content;
+}
+
+#repositoryList .dropdown-menu a{
+    color: white;
+    text-decoration: none;
+    white-space: nowrap;
+    display: block;
+}
+
+#repositoryList .dropdown-menu span{
+    display: block;
+    width: 100%;
+    padding:0px 10px;
+    white-space: nowrap;
+}
+
+#repositoryList .dropdown-menu a:hover,
+#repositoryList .dropdown-menu span:hover{
+    background-color: #001d3b;
+    color: white;
+}
+
+.repositoryTripleDot{
+    position: absolute;
+    right: 35px;
+    background: none;
+    border: none;
+    z-index: 3;
+}
+
+.repositoryTripleDot:after{
+    display: none;
 }
 
 .repoIndent{
