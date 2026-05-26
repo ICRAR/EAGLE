@@ -27,9 +27,20 @@ test('LogicalGraph.clone() does not share references with original', async ({ pa
     await page.waitForTimeout(200);
 
     // draw an edge from HelloWorldApp output to File input
+    await page.waitForTimeout(250);
+    const srcPortBox = await page.locator('#HelloWorldApp .outputPort').boundingBox();
+    const destPortBox = await page.locator('#File .inputPort').boundingBox();
+
+    expect(srcPortBox).not.toBeNull();
+    expect(destPortBox).not.toBeNull();
+
+    if (!srcPortBox || !destPortBox) {
+        throw new Error('Could not locate source or destination port for drag operation');
+    }
+
     await page.dragAndDrop('#HelloWorldApp .outputPort', '#File .inputPort', {
-        sourcePosition: { x: 2, y: 2 },
-        targetPosition: { x: 2, y: 2 }
+        sourcePosition: { x: srcPortBox.width / 2, y: srcPortBox.height / 2 },
+        targetPosition: { x: destPortBox.width / 2, y: destPortBox.height / 2 }
     });
     await page.waitForTimeout(500);
 
