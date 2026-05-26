@@ -9,10 +9,14 @@ build:
     python: "3.10"
   jobs:
     post_checkout:
-      # Only publish documentation for exact Git tags.
+      # Only publish documentation for tag builds on Read the Docs.
+      # Use RTD build metadata as the primary signal to avoid relying on git tags
+      # being available in the checkout (e.g., shallow clones).
       # Exit code 183 tells Read the Docs to cancel the build cleanly.
       - |
-        git describe --exact-match --tags HEAD >/dev/null 2>&1 || exit 183
+        if [ "${READTHEDOCS_VERSION_TYPE:-}" != "tag" ]; then
+          exit 183
+        fi
 
 # Build documentation in the "docs/" directory with Sphinx
 sphinx:
