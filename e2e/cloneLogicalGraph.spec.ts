@@ -24,7 +24,6 @@ test('LogicalGraph.clone() does not share references with original', async ({ pa
 
     // center the graph
     await page.getByRole('button', { name: 'filter_center_focus' }).click();
-    await page.waitForTimeout(200);
 
     // draw an edge from HelloWorldApp output to File input
     await page.waitForTimeout(250);
