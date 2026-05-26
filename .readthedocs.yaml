@@ -7,6 +7,12 @@ build:
   os: ubuntu-22.04
   tools:
     python: "3.10"
+  jobs:
+    post_checkout:
+      # Only publish documentation for exact Git tags.
+      # Exit code 183 tells Read the Docs to cancel the build cleanly.
+      - |
+        git describe --exact-match --tags HEAD >/dev/null 2>&1 || exit 183
 
 # Build documentation in the "docs/" directory with Sphinx
 sphinx:
