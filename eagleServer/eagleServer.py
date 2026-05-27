@@ -39,7 +39,6 @@ import ssl
 
 import github
 import gitlab
-import pkg_resources
 from flask import Flask, request, render_template, jsonify, send_from_directory
 
 import config.config
@@ -67,9 +66,11 @@ if sys.version_info[0] == 2:
 #      because it can be overwritten by the user's command line
 TEMP_FILE_FOLDER = config.config.TEMP_FILE_FOLDER
 
-templdir = pkg_resources.resource_filename(__name__, "../templates")
-staticdir = pkg_resources.resource_filename(__name__, "../static")
-srcdir = pkg_resources.resource_filename(__name__, "../src")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+templdir = os.path.normpath(os.path.join(BASE_DIR, "..", "templates"))
+staticdir = os.path.normpath(os.path.join(BASE_DIR, "..", "static"))
+srcdir = os.path.normpath(os.path.join(BASE_DIR, "..", "src"))
 
 app = Flask(__name__, template_folder=templdir, static_folder=staticdir)
 app.config.from_object("config")
