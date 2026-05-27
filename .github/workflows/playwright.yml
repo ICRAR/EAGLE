@@ -24,7 +24,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install .
       - name: Install python setuptools
-        run: pip install setuptools==81.0.0
+        run: pip install setuptools
       - name: Compile Typescript
         run: |
           npx tsc --version
@@ -32,7 +32,7 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Start server
-        run: python eagleServer/eagleServer.py -t /tmp &
+        run: python eagleServer/eagleServer.py -t /tmp --debug &
       - name: Install Playwright
         run: npm install @playwright/test@latest
       - name: Run Playwright tests

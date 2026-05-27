@@ -1270,13 +1270,14 @@ export class GraphRenderer {
     static endDrag(object: Node | Visual) : void {
         const eagle = Eagle.getInstance();
 
-        if (GraphRenderer.selectionRegionStart === null || GraphRenderer.selectionRegionEnd === null){
-            console.warn("endDrag called with null selection region points");
-            return;
-        }
-
         // if we dragged a selection region
         if (GraphRenderer.isDraggingSelectionRegion){
+
+            if (GraphRenderer.selectionRegionStart === null || GraphRenderer.selectionRegionEnd === null){
+                console.warn("endDrag called with null selection region points");
+                return;
+            }
+
             const nodes: (Node|Visual)[] = GraphRenderer.findNodesInRegion(GraphRenderer.selectionRegionStart.x, GraphRenderer.selectionRegionEnd.x, GraphRenderer.selectionRegionStart.y, GraphRenderer.selectionRegionEnd.y);
             
             //checking if there was no drag distance, if so we are clicking a single object and we will toggle its selection
