@@ -73,7 +73,7 @@ export class GraphUpdaterFile {
 export class GraphUpdater {
     static state: ko.Observable<GraphUpdater.Status>;
 
-    static autoFix: ko.Observable<boolean> = ko.observable(false);
+    static autoFix: ko.Observable<boolean> = ko.observable(true);
 
     static sourceRepository: Repository = null;
     static destinationRepository: Repository = null;
