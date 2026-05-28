@@ -1568,22 +1568,29 @@ export class LogicalGraph {
         let numIterations = 0;
         const MAX_ITERATIONS = 10;
 
-        while (numIssues !== graph.issues().length){
+        let issues = Utils.gatherGraphIssues(graph);
+        console.log("fixAll() found", issues.length, "issues");
+
+        while (numIssues !== issues.length){
+            numIssues = issues.length;
+
             if (numIterations > MAX_ITERATIONS){
                 console.warn("Too many iterations in fixAll()");
                 break;
             }
             numIterations = numIterations+1;
 
-            numIssues = graph.issues().length;
-
-            for (const {issue} of graph.issues()){
+            for (const {issue} of issues){
                 if (issue.fix !== null){
+                    console.log("Iteration", numIterations, "Applying fix for issue:", issue.message);
                     issue.fix();
                 }
             }
 
+            // re-test
             LogicalGraph.isValid(graph, null);
+            issues = Utils.gatherGraphIssues(graph);
+            console.log("fixAll() found", issues.length, "issues after iteration", numIterations);
         }
     }
 }

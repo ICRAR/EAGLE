@@ -1524,7 +1524,7 @@ export class Utils {
 
         // check all nodes are valid
         for (const node of palette.getNodes()){
-            Node.isValid(node, Eagle.FileType.Palette);
+            Node.isValid(Eagle.getInstance().logicalGraph(), node, Eagle.FileType.Palette);
             paletteIssues.push(...node.getIssues())
             // errorsWarnings.errors.push(...nodeErrorsWarnings.errors)
             // errorsWarnings.warnings.push(...nodeErrorsWarnings.warnings)
@@ -1541,14 +1541,12 @@ export class Utils {
         return errorsWarnings;
     }
 
-    static checkEagle(eagle: Eagle): void {
-        const graph: LogicalGraph = eagle.logicalGraph();
-
-        LogicalGraph.isValid(graph, eagle);
+    static checkGraph(graph: LogicalGraph): void {
+        LogicalGraph.isValid(graph, null);
 
         // check all nodes are valid
         for (const node of graph.getNodes()){
-            Node.isValid(node, Eagle.FileType.Graph);
+            Node.isValid(graph, node, Eagle.FileType.Graph);
         }
 
         // check all edges are valid
@@ -1578,13 +1576,19 @@ export class Utils {
                 continue;
             }
 
-            Edge.isValid(eagle, false, edge.getId(), edge.getSrcNode().getId(), edge.getSrcPort().getId(), edge.getDestNode().getId(), edge.getDestPort().getId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {warnings: [], errors: []});
+            Edge.isValid(graph, false, edge.getId(), edge.getSrcNode().getId(), edge.getSrcPort().getId(), edge.getDestNode().getId(), edge.getDestPort().getId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {warnings: [], errors: []});
         }
 
         // check all visuals are valid
         for (const visual of graph.getVisuals()){
             Visual.isValid(visual);
         }
+    }
+
+    static checkEagle(eagle: Eagle): void {
+        const graph: LogicalGraph = eagle.logicalGraph();
+
+        Utils.checkGraph(graph);
 
         // check uniqueness of ids EAGLE-wide (including palettes and graph)
         const ids = new Set<string>();
@@ -1676,11 +1680,8 @@ export class Utils {
         }
     }
 
-    static gatherGraphErrors(): Errors.ErrorsWarnings {
-        const eagle = Eagle.getInstance()
-        const errorsWarnings: Errors.ErrorsWarnings = {warnings: [], errors: []};
+    static gatherGraphIssues(graph: LogicalGraph): {issue:Errors.Issue, validity:Errors.Validity}[] {
         const graphIssues : {issue:Errors.Issue, validity:Errors.Validity}[] = []
-        const graph : LogicalGraph = eagle.logicalGraph()
 
         //gather all the errors
         //from nodes
@@ -1726,6 +1727,16 @@ export class Utils {
 
         //from logical graph
         graphIssues.push(...graph.getIssues())
+
+        return graphIssues;
+    }
+
+    static updateGraphErrorsWarnings(): Errors.ErrorsWarnings {
+        const eagle = Eagle.getInstance()
+        const errorsWarnings: Errors.ErrorsWarnings = {warnings: [], errors: []};
+        const graph : LogicalGraph = eagle.logicalGraph()
+
+        const graphIssues = Utils.gatherGraphIssues(graph);
 
         //sort all issues into warnings or errors
         for(const error of graphIssues){

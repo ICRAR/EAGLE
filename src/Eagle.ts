@@ -5011,7 +5011,7 @@ export class Eagle {
 
     checkEagle = (): void => {
         Utils.checkEagle(this);//validate the graph
-        const graphErrors = Utils.gatherGraphErrors() //gather all the errors from all of the components
+        const graphErrors = Utils.updateGraphErrorsWarnings() //gather all the errors from all of the components
         
         this.graphWarnings(graphErrors.warnings);
         this.graphErrors(graphErrors.errors);

@@ -9,6 +9,7 @@ import { Edge } from "./Edge";
 import { Errors } from './Errors';
 import { GraphConfigField } from "./GraphConfig";
 import { Id } from './Id';
+import { LogicalGraph } from './LogicalGraph';
 import { Node } from './Node';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
@@ -1001,7 +1002,7 @@ export class Field {
         return f;
     }
 
-    static isValid(node:Node, field:Field, location:Eagle.FileType){
+    static isValid(graph: LogicalGraph, node:Node, field:Field, location:Eagle.FileType){
         const eagle = Eagle.getInstance()
         field.issues([]) //clear old issues
     
@@ -1097,7 +1098,7 @@ export class Field {
         // check that PythonObject's self port is input for only one edge
         if (node.getCategory() === Category.PythonObject && field.getDisplayText() === Daliuge.FieldName.SELF){
             let numSelfPortConnections: number = 0;
-            for (const edge of eagle.logicalGraph().getEdges()){
+            for (const edge of graph.getEdges()){
                 if (edge.getDestPort().getId() === field.getId()){
                     numSelfPortConnections += 1;
                 }

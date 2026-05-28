@@ -383,9 +383,10 @@ export class GraphUpdater {
             }
 
             // run pre-fix validation
-            LogicalGraph.isValid(lg, null);
-            graphFile.preFixNumErrors(lg.getIssues().filter(i => i.validity === Errors.Validity.Error).length);
-            graphFile.preFixNumWarnings(lg.getIssues().filter(i => i.validity === Errors.Validity.Warning).length);
+            Utils.checkGraph(lg);
+            const preFixIssues = Utils.gatherGraphIssues(lg);
+            graphFile.preFixNumErrors(preFixIssues.filter(issue => issue.validity === Errors.Validity.Error || issue.validity === Errors.Validity.Impossible || issue.validity === Errors.Validity.Unknown).length);
+            graphFile.preFixNumWarnings(preFixIssues.filter(issue => issue.validity === Errors.Validity.Warning).length);
 
             // if GraphUpdater.autoFix is enabled, attempt to fix any errors in the graph
             if (GraphUpdater.autoFix()){
@@ -393,9 +394,10 @@ export class GraphUpdater {
                 LogicalGraph.fixAll(lg);
 
                 // run post-fix validation
-                LogicalGraph.isValid(lg, null);
-                graphFile.postFixNumErrors(lg.getIssues().filter(i => i.validity === Errors.Validity.Error).length);
-                graphFile.postFixNumWarnings(lg.getIssues().filter(i => i.validity === Errors.Validity.Warning).length);
+                Utils.checkGraph(lg);
+                const postFixIssues = Utils.gatherGraphIssues(lg);
+                graphFile.postFixNumErrors(postFixIssues.filter(issue => issue.validity === Errors.Validity.Error || issue.validity === Errors.Validity.Impossible || issue.validity === Errors.Validity.Unknown).length);
+                graphFile.postFixNumWarnings(postFixIssues.filter(issue => issue.validity === Errors.Validity.Warning).length);
             }
 
             // update graph information
