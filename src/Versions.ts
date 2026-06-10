@@ -1,5 +1,19 @@
 export const versions = [
   {
+    version: 'v7.0.0',
+    date: new Date("2026-06-10"),
+    changes: [
+      `Major expansion of the Graph Updater tool: per-graph update/push controls, auto-fix by default, improved status/details, and optional auto-generated destination branches`,
+      `Large refactor of graph checking/fix logic so validation and fixes operate on the graph being checked rather than relying on global Eagle state`,
+      `Security hardening across client and server: broader HTML sanitisation, safer external link handling, SSRF protection on server URL fetches, and debug mode disabled by default`,
+      `Improved error handling and user feedback when fetching/updating graphs from eagleServer, including clearer UI error reporting`,
+      `Undo/graph integrity fixes, including snapshot hashing to detect true JSON changes and fixes to graph cloning and key/id update edge cases`,
+      `TypeScript/build compatibility updates (including TS6 compatibility work and stabilization), plus multiple type/import fixes`,
+      `UI/interaction fixes and polish, including drag behaviour fixes, text visual connection improvements, and table/modal usability improvements`,
+      `General code quality pass with removal of magic numbers, duplicated logic, dead code, and legacy compatibility shims`
+    ]
+  },
+  {
     version: 'v6.10.0',
     date: new Date("2026-03-25"),
     changes: [
