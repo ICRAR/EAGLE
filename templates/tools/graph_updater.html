@@ -148,7 +148,12 @@
                                             <td><input type="checkbox" data-bind="checked: push, enable: state() === GraphUpdater.FileStatus.Success && !GraphUpdater.hasPushed()"></td>
                                             <!-- /ko -->
                                             <!-- ko if: GraphUpdater.hasPushed() -->
-                                            <td><a data-bind="attr: { href: updatedFileUrl() }, text: updatedPathAndName() " target="_blank"></a></td>
+                                                <!-- ko if: state() === GraphUpdater.FileStatus.Success -->
+                                                    <td><a data-bind="attr: { href: updatedFileUrl() }" target="_blank">Load</a></td>
+                                                <!-- /ko -->
+                                                <!-- ko if: state() !== GraphUpdater.FileStatus.Success -->
+                                                    <td></td>
+                                                <!-- /ko -->
                                             <!-- /ko -->
                                         </tr>
                                     </tbody>
