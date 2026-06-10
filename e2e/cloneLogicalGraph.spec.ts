@@ -24,12 +24,27 @@ test('LogicalGraph.clone() does not share references with original', async ({ pa
 
     // center the graph
     await page.getByRole('button', { name: 'filter_center_focus' }).click();
-    await page.waitForTimeout(200);
 
     // draw an edge from HelloWorldApp output to File input
+    const srcPort = page.locator('#HelloWorldApp .outputPort');
+    const destPort = page.locator('#File .inputPort');
+
+    await expect(srcPort, 'source port should be visible before dragging').toBeVisible();
+    await expect(destPort, 'destination port should be visible before dragging').toBeVisible();
+
+    const requireBox = (box: { width: number; height: number } | null, message: string) => {
+        expect(box, message).not.toBeNull();
+        return box as { width: number; height: number };
+    };
+
+    const [srcPortBox, destPortBox] = [
+        requireBox(await srcPort.boundingBox(), 'source port should have a bounding box before dragging'),
+        requireBox(await destPort.boundingBox(), 'destination port should have a bounding box before dragging')
+    ];
+
     await page.dragAndDrop('#HelloWorldApp .outputPort', '#File .inputPort', {
-        sourcePosition: { x: 2, y: 2 },
-        targetPosition: { x: 2, y: 2 }
+        sourcePosition: { x: srcPortBox.width / 2, y: srcPortBox.height / 2 },
+        targetPosition: { x: destPortBox.width / 2, y: destPortBox.height / 2 }
     });
     await page.waitForTimeout(500);
 
