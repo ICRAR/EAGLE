@@ -1563,13 +1563,16 @@ export class LogicalGraph {
         }
     }
 
-    static fixAll = (graph: LogicalGraph): void => {
+    static fixAll = (graph: LogicalGraph, includeWarnings: boolean = true): void => {
         let numIssues   = Infinity;
         let numIterations = 0;
         const MAX_ITERATIONS = 10;
 
         let issues = Utils.gatherGraphIssues(graph);
-        console.log("fixAll() found", issues.length, "issues");
+        if (!includeWarnings){
+            issues = issues.filter(entry => entry.validity !== Errors.Validity.Warning);
+        }
+        console.log("fixAll() found", issues.length, includeWarnings ? "issues" : "non-warning issues");
 
         while (numIssues !== issues.length){
             numIssues = issues.length;
@@ -1590,7 +1593,10 @@ export class LogicalGraph {
             // re-test
             LogicalGraph.isValid(graph, null);
             issues = Utils.gatherGraphIssues(graph);
-            console.log("fixAll() found", issues.length, "issues after iteration", numIterations);
+            if (!includeWarnings){
+                issues = issues.filter(entry => entry.validity !== Errors.Validity.Warning);
+            }
+            console.log("fixAll() found", issues.length, includeWarnings ? "issues" : "non-warning issues", "after iteration", numIterations);
         }
     }
 }

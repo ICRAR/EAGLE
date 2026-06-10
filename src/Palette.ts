@@ -367,7 +367,8 @@ export class Palette {
 
     findNodeByNameAndCategory = (nameAndCategory: Category) : Node | undefined=> {
         for (const node of this.nodes().values()){
-            if (node.getName() === nameAndCategory && node.getCategory() === nameAndCategory){
+            // callers provide a category; return a prototype node for that category.
+            if (node.getCategory() === nameAndCategory){
                 return node;
             }
         }

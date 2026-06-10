@@ -2048,12 +2048,12 @@ export class Utils {
         return value.toLowerCase() === "true";
     }
 
-    static fixDeleteEdge(eagle: Eagle, edgeId: EdgeId): void {
-        eagle.logicalGraph().removeEdgeById(edgeId);
+    static fixDeleteEdge(graph: LogicalGraph, edgeId: EdgeId): void {
+        graph.removeEdgeById(edgeId);
     }
 
-    static fixDisableEdgeLoopAware(eagle: Eagle, edgeId: EdgeId): void {
-        eagle.logicalGraph().getEdgeById(edgeId)?.setLoopAware(false);
+    static fixDisableEdgeLoopAware(graph: LogicalGraph, edgeId: EdgeId): void {
+        graph.getEdgeById(edgeId)?.setLoopAware(false);
     }
 
     static fixPortType(_eagle: Eagle, sourcePort: Field, destinationPort: Field): void {
@@ -2068,6 +2068,22 @@ export class Utils {
         node.setCategory(category);
         node.setCategoryType(categoryType);
 
+        // Align non-port fields with the destination category prototype so category upgrades
+        // do not introduce missing-required-field or wrong-parameter-type errors.
+        Utils.copyFieldsFromPrototype(node, Palette.BUILTIN_PALETTE_NAME, category);
+
+        // Ensure category/categoryType required fields exist and have correct parameter types,
+        // even if a matching palette prototype cannot be found.
+        Utils.enforceRequiredFieldsForCategory(_eagle, node);
+
+        // Some legacy graphs can retain one or more dropclass fields with an Unknown type
+        // after category migration. Normalize all of them to Component explicitly.
+        for (const field of node.getFields()){
+            if (field.getDisplayText() === Daliuge.FieldName.DROP_CLASS && field.getParameterType() !== Daliuge.FieldType.Component){
+                field.setParameterType(Daliuge.FieldType.Component);
+            }
+        }
+
         // lookup category data
         const categoryData = CategoryData.getCategoryData(category);
 
@@ -2075,8 +2091,42 @@ export class Utils {
         node.setColor(categoryData.color);
     }
 
+    private static enforceRequiredFieldsForCategory(eagle: Eagle, node: Node): void {
+        // categoryType requirements
+        for (const requirement of Daliuge.categoryTypeFieldsRequired){
+            if (!requirement.categoryTypes.includes(node.getCategoryType())){
+                continue;
+            }
+
+            for (const requiredField of requirement.fields){
+                const existingField = node.findFieldByDisplayText(requiredField.getDisplayText());
+                if (typeof existingField === 'undefined'){
+                    Utils.addMissingRequiredField(eagle, node, requiredField);
+                } else if (existingField.getParameterType() !== requiredField.getParameterType()){
+                    Utils.fixFieldParameterType(eagle, node, existingField, requiredField.getParameterType());
+                }
+            }
+        }
+
+        // category-specific requirements
+        for (const requirement of Daliuge.categoryFieldsRequired){
+            if (!requirement.categories.includes(node.getCategory())){
+                continue;
+            }
+
+            for (const requiredField of requirement.fields){
+                const existingField = node.findFieldByDisplayText(requiredField.getDisplayText());
+                if (typeof existingField === 'undefined'){
+                    Utils.addMissingRequiredField(eagle, node, requiredField);
+                } else if (existingField.getParameterType() !== requiredField.getParameterType()){
+                    Utils.fixFieldParameterType(eagle, node, existingField, requiredField.getParameterType());
+                }
+            }
+        }
+    }
+
     // NOTE: merges field1 into field0
-    static fixNodeMergeFields(eagle: Eagle, node: Node, fieldId0: FieldId, fieldId1: FieldId){
+    static fixNodeMergeFields(graph: LogicalGraph, node: Node, fieldId0: FieldId, fieldId1: FieldId){
         if (fieldId0 === fieldId1){
             console.warn("fixNodeMergeFields(): Aborted, field ids are the same.");
             return;
@@ -2117,7 +2167,7 @@ export class Utils {
         field0.setUsage(newUsage);
 
         // update all edges to use new field
-        Utils._mergeEdges(eagle, field1, field0);
+        Utils._mergeEdges(graph, field1, field0);
 
         // force re-draw of node
         node.redraw()
@@ -2142,9 +2192,9 @@ export class Utils {
         return result;
     }
 
-    static _mergeEdges(eagle: Eagle, oldField: Field, newField: Field){
+    static _mergeEdges(graph: LogicalGraph, oldField: Field, newField: Field){
         // update all edges to use new field
-        for (const edge of eagle.logicalGraph().getEdges()){
+        for (const edge of graph.getEdges()){
             // update src port
             if (edge.getSrcPort().getId() === oldField.getId()){
                 edge.setSrcPort(newField);
@@ -2243,12 +2293,12 @@ export class Utils {
         }
     }
 
-    static fixFieldEdges(eagle: Eagle, field: Field){
+    static fixFieldEdges(graph: LogicalGraph, field: Field){
         // clear all edges from field
         field.clearEdges();
 
         // re-add all edges that reference this field
-        for (const edge of eagle.logicalGraph().getEdges()){
+        for (const edge of graph.getEdges()){
             if (edge.getSrcPort().getId() === field.getId() || edge.getDestPort().getId() === field.getId()){
                 field.addEdge(edge);
             }
@@ -2337,19 +2387,119 @@ export class Utils {
         field.setParameterType(newType);
     }
 
-    static fixAppToAppEdge(eagle: Eagle, edge: Edge | undefined){
+    static addIntermediateDataNodeForAppToAppEdge(
+        graph: LogicalGraph,
+        srcNode: Node,
+        srcPort: Field,
+        destNode: Node,
+        destPort: Field,
+        loopAware: boolean,
+        closesLoop: boolean
+    ): Edge | null {
+        // consult the DEFAULT_DATA_NODE setting to determine which category of intermediate data node to use
+        const defaultData = Setting.findValue<string>(Setting.DEFAULT_DATA_NODE, Category.Memory);
+        let intermediaryComponent = Utils.getPaletteComponentByName(defaultData || "");
+
+        // if intermediaryComponent is undefined (not found), then choose something guaranteed to be available
+        // if intermediaryComponent is defined (found), then duplicate the node so that we don't modify the original in the palette
+        if (typeof intermediaryComponent === 'undefined'){
+            intermediaryComponent = new Node("Data", "Data Component", "", Category.Data);
+        } else {
+            intermediaryComponent = intermediaryComponent.clone().setId(Id.generateNodeId());
+        }
+
+        // by default, use the positions of the nodes themselves to calculate position of new node
+        let srcNodePosition = srcNode.getPosition();
+        let destNodePosition = destNode.getPosition();
+
+        // if source or destination node is an embedded application, use position of parent construct node
+        const srcNodeEmbed = srcNode.getEmbed();
+        const destNodeEmbed = destNode.getEmbed();
+        if (srcNodeEmbed !== null){
+            srcNodePosition = srcNodeEmbed.getPosition();
+        }
+        if (destNodeEmbed !== null){
+            destNodePosition = destNodeEmbed.getPosition();
+        }
+
+        // count number of edges between source and destination
+        const PORT_HEIGHT : number = 24;
+        const numIncidentEdges = graph.countEdgesIncidentOnNode(srcNode);
+
+        // calculate a position for a new data component, halfway between the srcPort and destPort
+        const dataComponentPosition = {
+            x: (srcNodePosition.x + destNodePosition.x) / 2.0,
+            y: (srcNodePosition.y + (numIncidentEdges * PORT_HEIGHT) + destNodePosition.y + (numIncidentEdges * PORT_HEIGHT)) / 2.0
+        };
+
+        // configure the new node
+        const newNode = intermediaryComponent;
+        newNode.setPosition(dataComponentPosition.x, dataComponentPosition.y);
+
+        // set name of new node (use user-facing name)
+        newNode.setName(srcPort.getDisplayText());
+
+        // find InputOutput port on node, which matches the source port dataType
+        const inputOutputPort = newNode.findPortByMatchingType(srcPort.getType(), [Daliuge.FieldUsage.InputOutput]);
+        if (inputOutputPort === null){
+            return null;
+        }
+
+        // if the port is changeable, set its display text and description to match the source port
+        if (inputOutputPort.isChangeable()){
+            inputOutputPort.setDisplayText(srcPort.getDisplayText());
+            inputOutputPort.setDescription(srcPort.getDescription());
+        }
+
+        const srcNodeParent = srcNode.getParent();
+        const destNodeParent = destNode.getParent();
+
+        // set the parent of the new node
+        // by default, set parent to parent of dest node,
+        newNode.setParent(destNodeParent);
+
+        // if source node is a child of dest node, make the new node a child too
+        if (srcNodeParent !== null && srcNodeParent.getId() === destNode.getId()){
+            newNode.setParent(destNode);
+        }
+
+        // if dest node is a child of source node, make the new node a child too
+        if (destNodeParent !== null && destNodeParent.getId() === srcNode.getId()){
+            newNode.setParent(srcNode);
+        }
+
+        // add intermediary node and create TWO edges, one from src to data component, one from data component to dest
+        graph.addNodeComplete(newNode);
+        const firstEdge : Edge = new Edge('', srcNode, srcPort, newNode, inputOutputPort, loopAware, closesLoop, false);
+        const secondEdge : Edge = new Edge('', newNode, inputOutputPort, destNode, destPort, loopAware, closesLoop, false);
+        graph.addEdgeComplete(firstEdge);
+        graph.addEdgeComplete(secondEdge);
+
+        return firstEdge;
+    }
+
+    static fixAppToAppEdge(graph: LogicalGraph, edge: Edge | undefined){
         if (typeof edge === 'undefined'){
             console.warn("fixAppToAppEdge(): edge is undefined");
             return;
         }
 
+        const originalEdgeId = edge.getId();
         const srcNode: Node = edge.getSrcNode();
         const destNode: Node = edge.getDestNode();
         const srcPort: Field = edge.getSrcPort();
         const destPort: Field = edge.getDestPort();
+        const loopAware = edge.isLoopAware();
+        const closesLoop = edge.isClosesLoop();
 
-        eagle.logicalGraph().removeEdgeById(edge.getId());
-        eagle.addEdge(srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop())
+        const firstEdge = Utils.addIntermediateDataNodeForAppToAppEdge(graph, srcNode, srcPort, destNode, destPort, loopAware, closesLoop);
+        if (firstEdge === null){
+            console.warn("fixAppToAppEdge(): Unable to find suitable port on intermediary component");
+            return;
+        }
+
+        // only remove the original edge once replacement has succeeded
+        graph.removeEdgeById(originalEdgeId);
     }
 
     static addMissingRequiredField(_eagle: Eagle, node: Node, requiredField: Field){
@@ -2385,6 +2535,7 @@ export class Utils {
 
                     field.setValue(dropClassField.getDefaultValue());
                     field.setDefaultValue(dropClassField.getDefaultValue());
+                    field.setChangeable(dropClassField.isChangeable());
                 }
 
                 break;

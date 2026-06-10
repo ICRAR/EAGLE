@@ -1084,11 +1084,11 @@ export class Field {
 
             if (field.getDisplayText() === field1.getDisplayText() && field.getParameterType() === field1.getParameterType()){
                 if (field.getId() === field1.getId()){
-                    const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") has multiple attributes with the same display text and id (" + field.getDisplayText() + ").", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixNodeMergeFields(eagle, node, field.getId(), field1.getId())}, "Merge fields");
+                    const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") has multiple attributes with the same display text and id (" + field.getDisplayText() + ").", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixNodeMergeFields(graph, node, field.getId(), field1.getId())}, "Merge fields");
                     field.issues().push({issue:issue,validity:Errors.Validity.Warning})
                     // errorsWarnings.warnings.push(issue);
                 } else {
-                    const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") has multiple attributes with the same display text (" + field.getDisplayText() + ").", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixNodeMergeFields(eagle, node, field.getId(), field1.getId())}, "Merge fields");
+                    const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") has multiple attributes with the same display text (" + field.getDisplayText() + ").", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixNodeMergeFields(graph, node, field.getId(), field1.getId())}, "Merge fields");
                     field.issues().push({issue:issue,validity:Errors.Validity.Warning})
                     // errorsWarnings.warnings.push(issue);
                 }
@@ -1161,12 +1161,12 @@ export class Field {
         // check that all edges on this field actually start or end on the field
         for (const edge of field.edges().values()){
             if (edge.getSrcPort().getId() !== field.getId() && edge.getDestPort().getId() !== field.getId()){
-                const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") field (" + field.getDisplayText() + ") has edge that isn't connected to the field", function(){Utils.showNode(eagle, location, field.getNode())}, function(){Utils.fixFieldEdges(eagle, field)}, "Regenerate the list of edges for this field");
+                const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") field (" + field.getDisplayText() + ") has edge that isn't connected to the field", function(){Utils.showNode(eagle, location, field.getNode())}, function(){Utils.fixFieldEdges(graph, field)}, "Regenerate the list of edges for this field");
                 field.issues().push({issue:issue, validity:Errors.Validity.Error});
             }
 
             if (edge.getSrcNode().getId() !== field.getNode().getId() && edge.getDestNode().getId() !== field.getNode().getId()){
-                const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") field (" + field.getDisplayText() + ") has edge that isn't connected to the field", function(){Utils.showNode(eagle, location, field.getNode())}, function(){Utils.fixFieldEdges(eagle, field)}, "Regenerate the list of edges for this field");
+                const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") field (" + field.getDisplayText() + ") has edge that isn't connected to the field", function(){Utils.showNode(eagle, location, field.getNode())}, function(){Utils.fixFieldEdges(graph, field)}, "Regenerate the list of edges for this field");
                 field.issues().push({issue:issue, validity:Errors.Validity.Error});
             }
         }

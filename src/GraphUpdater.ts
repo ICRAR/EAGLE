@@ -391,7 +391,7 @@ export class GraphUpdater {
             // if GraphUpdater.autoFix is enabled, attempt to fix any errors in the graph
             if (GraphUpdater.autoFix()){
                 // fixAll errors/warnings in the graph
-                LogicalGraph.fixAll(lg);
+                LogicalGraph.fixAll(lg, false);
 
                 // run post-fix validation
                 Utils.checkGraph(lg);
