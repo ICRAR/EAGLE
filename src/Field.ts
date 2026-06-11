@@ -970,7 +970,11 @@ export class Field {
         if (typeof data.name !== 'undefined')
             name = data.name;
         if (typeof data.value !== 'undefined')
-            value = data.value.toString();
+            if (data.value !== null){
+                value = data.value.toString();
+            } else {
+                value = null;
+            }
         if (typeof data.defaultValue !== 'undefined')
             defaultValue = data.defaultValue.toString();
         if (typeof data.description !== 'undefined')
