@@ -52,6 +52,7 @@ export class LogicalGraph {
     constructor(){
         this.fileInfo = ko.observable(new FileInfo());
         this.fileInfo().type = Eagle.FileType.Graph;
+        this.fileInfo().schemaVersion = Setting.SchemaVersion.V4;
         this.fileInfo().readonly = false;
         this.fileInfo().builtIn = false;
         this.nodes = ko.observable(new Map<NodeId, Node>());
