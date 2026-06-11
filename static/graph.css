@@ -59,6 +59,7 @@
 .container, .header{
    z-index: 3;
    pointer-events: all;
+   height:100%;
 }
 
 .node .container, .constructOutputApp, .constructInputApp{

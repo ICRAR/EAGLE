@@ -40,24 +40,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row mb-3" data-bind="visible: !GraphUpdater.hasFetched()">
-                        <div class="col">
-                            <div class="d-grid gap-2">
-                                <button type="button" class="btn btn-primary" id="graphUpdaterModalFetchButton" data-bind="click: function(){GraphUpdater.fetchLogicalGraphs()}, enable: !GraphUpdater.isFetching()">
-                                    <!-- ko if: !GraphUpdater.hasFetched() -->
-                                    <!-- ko if: !GraphUpdater.isFetching() -->
-                                    Fetch Logical Graphs
-                                    <!-- /ko -->
-                                    <!-- ko if: GraphUpdater.isFetching() -->
-                                    <div class="spinner-border spinner-border-sm" role="status"></div>
-                                    Fetching Logical Graphs...
-                                    <!-- /ko -->
-                                    <!-- /ko -->
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row" data-bind="visible: GraphUpdater.isFetching() || GraphUpdater.hasFetched()">
+                    <div class="row mb-3" data-bind="visible: GraphUpdater.isFetching() || GraphUpdater.hasFetched()">
                         <div class="col" id="graphUpdaterModalGraphTableCol">
                             <!-- ko if: GraphUpdater.updatedLogicalGraphs().length === 0 && GraphUpdater.hasFetched() -->
                                 <span class="d-block text-center">No logical graphs found in repository branch</span>
@@ -173,7 +156,42 @@
                         </div>
                     </div>
 
-                    <div class="row" data-bind="visible: GraphUpdater.hasFetched() && !GraphUpdater.hasUpdated() && GraphUpdater.updatedLogicalGraphs().length > 0">
+                    <div class="row" data-bind="visible: GraphUpdater.hasUpdated()">
+                        <div class="col-3">
+                            <p>Destination Repository:</p>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <select class="form-control" id="graphUpdaterModalDestinationRepositorySelect" data-bind="event: { change: function(){GraphUpdater.onDestinationRepositoryChange()} }">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+                <div class="modal-footer" style="justify-content:space-between;">
+
+                    <div data-bind="visible: !GraphUpdater.hasFetched()">
+                        <div class="col">
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-primary" id="graphUpdaterModalFetchButton" data-bind="click: function(){GraphUpdater.fetchLogicalGraphs()}, enable: !GraphUpdater.isFetching()">
+                                    <!-- ko if: !GraphUpdater.hasFetched() -->
+                                    <!-- ko if: !GraphUpdater.isFetching() -->
+                                    Fetch Logical Graphs
+                                    <!-- /ko -->
+                                    <!-- ko if: GraphUpdater.isFetching() -->
+                                    <div class="spinner-border spinner-border-sm" role="status"></div>
+                                    Fetching Logical Graphs...
+                                    <!-- /ko -->
+                                    <!-- /ko -->
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div data-bind="visible: GraphUpdater.hasFetched() && !GraphUpdater.hasUpdated() && GraphUpdater.updatedLogicalGraphs().length > 0">
                         <div class="col">
                             <div class="d-grid gap-2">
                                 <button type="button" class="btn btn-primary" id="graphUpdaterModalUpdateButton" data-bind="click: function(){GraphUpdater.update()}, enable: GraphUpdater.numberOfFilesToUpdate() > 0 && !GraphUpdater.isUpdating()">
@@ -188,18 +206,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row" data-bind="visible: GraphUpdater.hasUpdated()">
-                        <div class="col-3">
-                            <p>Destination Repository:</p>
-                        </div>
-                        <div class="col">
-                            <div class="form-group">
-                                <select class="form-control" id="graphUpdaterModalDestinationRepositorySelect" data-bind="event: { change: function(){GraphUpdater.onDestinationRepositoryChange()} }">
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row" data-bind="visible: GraphUpdater.hasUpdated()">
+                    
+                    <div data-bind="visible: GraphUpdater.hasUpdated()">
                         <div class="col">
                             <div class="d-grid gap-2">
                                 <!-- ko if: GraphUpdater.hasPushed() -->
@@ -226,7 +234,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
         </div>
     </div>
 </div>

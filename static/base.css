@@ -814,12 +814,12 @@ color: #00bb00;}
     overflow:unset;
 }
 
-.rightWindow ::-webkit-scrollbar-thumb, .parameterTable ::-webkit-scrollbar-thumb, #issuesDisplay ::-webkit-scrollbar-thumb{
+.rightWindow ::-webkit-scrollbar-thumb, .parameterTable ::-webkit-scrollbar-thumb, #issuesDisplay ::-webkit-scrollbar-thumb, .modal ::-webkit-scrollbar-thumb{
     background: #002349;
     border-radius: 5px;
 }
 
-.rightWindow ::-webkit-scrollbar-track, .parameterTable ::-webkit-scrollbar-track{
+.rightWindow ::-webkit-scrollbar-track, .parameterTable ::-webkit-scrollbar-track, #issuesDisplay ::-webkit-scrollbar-track, .modal ::-webkit-scrollbar-track{
     background: rgb(216 221 240);
     border-radius: 5px;
 }
@@ -2938,9 +2938,26 @@ ul.nav.navbar-nav .dropdown-item:hover,ul.nav.navbar-nav .dropdown-item:focus{
 
 #graphUpdaterModalGraphTableCol {
     max-height: 500px;
-    overflow-y: auto;
+    /* overflow-y: auto; */
 }
 
 .material-symbols-outlined.filled{
     font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+}
+
+.modal-content .row:has(> #graphUpdaterModalGraphTableCol) {
+    overflow-y: auto;
+    height:calc(100% - 191px);/* ugly but it works to make the graph table take up all space available to it while keeping the header and footer visible */
+}
+
+#graphUpdaterModalGraphTable thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: lightslategrey;
+    color: white;
+}
+
+#graphUpdaterModalGraphTable thead tr{
+    border-top: solid 0px black; /* workaround to fix a text clipping issue with static header row */
 }
