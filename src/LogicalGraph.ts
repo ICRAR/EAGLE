@@ -1572,7 +1572,6 @@ export class LogicalGraph {
         if (!includeWarnings){
             issues = issues.filter(entry => entry.validity !== Errors.Validity.Warning);
         }
-        console.log("fixAll() found", issues.length, includeWarnings ? "issues" : "non-warning issues");
 
         while (numIssues !== issues.length){
             numIssues = issues.length;
@@ -1585,7 +1584,6 @@ export class LogicalGraph {
 
             for (const {issue} of issues){
                 if (issue.fix !== null){
-                    console.log("Iteration", numIterations, "Applying fix for issue:", issue.message);
                     issue.fix();
                 }
             }
@@ -1596,7 +1594,6 @@ export class LogicalGraph {
             if (!includeWarnings){
                 issues = issues.filter(entry => entry.validity !== Errors.Validity.Warning);
             }
-            console.log("fixAll() found", issues.length, includeWarnings ? "issues" : "non-warning issues", "after iteration", numIterations);
         }
     }
 }

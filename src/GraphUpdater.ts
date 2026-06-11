@@ -266,7 +266,6 @@ export class GraphUpdater {
     }
 
     static async fetchLogicalGraphs(): Promise<void> {
-        console.log("GraphUpdater.fetchLogicalGraphs()");
         this.state(GraphUpdater.Status.Fetching);
 
         // get source repository
@@ -292,12 +291,9 @@ export class GraphUpdater {
         });
 
         this.state(GraphUpdater.Status.Fetched);
-        console.log("GraphUpdater.fetchLogicalGraphs() - completed. Found " + this.updatedLogicalGraphs().length + " graph(s) in source repository.");
     }
 
     static async update(): Promise<void> {
-        console.log("GraphUpdater.update()");
-
         this.state(GraphUpdater.Status.Updating);
 
         // determine the correct function to load the file(s), based on the source repository service
