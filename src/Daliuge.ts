@@ -233,14 +233,6 @@ export namespace Daliuge {
     export const categoryFieldsRequired = [
         {
             categories: [
-                Category.MKN
-            ],
-            fields: [
-                Daliuge.kField
-            ]
-        },
-        {
-            categories: [
                 Category.Scatter
             ],
             fields: [

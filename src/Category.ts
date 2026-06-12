@@ -3,7 +3,6 @@ export enum Category {
 
     Scatter = "Scatter",
     Gather = "Gather",
-    MKN = "MKN",
     GroupBy = "GroupBy",
     Loop = "Loop",
 
@@ -31,7 +30,6 @@ export enum Category {
     GlobalVariables = "GlobalVariables",
 
     Service = "Service",
-    ExclusiveForceNode = "ExclusiveForceNode",
 
     Branch = "Branch",
 

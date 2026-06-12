@@ -627,10 +627,6 @@ export class Node {
         return this.category() === Category.SubGraph;
     }
 
-    isExclusiveForceNode = () : boolean => {
-        return this.category() === Category.ExclusiveForceNode;
-    }
-
     isDocker = () : boolean => {
         return this.category() === Category.Docker;
     }
@@ -645,10 +641,6 @@ export class Node {
 
     isGather = () : boolean => {
         return this.category() === Category.Gather;
-    }
-
-    isMKN = () : boolean => {
-        return this.category() === Category.MKN;
     }
 
     isLoop = () : boolean => {
@@ -1332,22 +1324,6 @@ export class Node {
     }
 
     getLocalMultiplicity = () : number => {
-        if (this.isMKN()){
-            const k = this.findFieldByDisplayText(Daliuge.FieldName.K);
-
-            if (typeof k === 'undefined'){
-                return 1;
-            }
-
-            const kValue = k.getValue();
-
-            if (kValue === null){
-                return 1;
-            }
-
-            return parseInt(kValue, 10);
-        }
-
         if (this.isScatter()){
             const numCopies = this.findFieldByDisplayText(Daliuge.FieldName.NUM_OF_COPIES);
 

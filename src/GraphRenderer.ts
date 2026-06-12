@@ -61,9 +61,6 @@ ko.bindingHandlers.nodeRenderHandler = {
         if(node.isScatter()){
             $(element).children().children().children('.body').css({'border-style':'double','border-width':'7px'})
         }
-        if(node.isExclusiveForceNode()){
-            $(element).children().children().children('.body').css({'background-color':'white'})
-        }
 
         node.getPosition() // this line is needed because referencing position here causes this update function to run when the node position gets updated aka. when we are dragging a node on the graph
         const nodeParent = node.getParent();

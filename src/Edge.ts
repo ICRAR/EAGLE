@@ -542,8 +542,6 @@ export class Edge {
 
             if(destNodeParent !== null && destNodeParent.getCategory() === Category.Loop || srcNodeParent !== null && srcNodeParent.getCategory() === Category.Loop){
                 associatedConstructType = Category.Loop
-            }else if(destNodeParent !== null && destNodeParent.getCategory() === Category.ExclusiveForceNode || srcNodeParent !== null && srcNodeParent.getCategory() === Category.ExclusiveForceNode){
-                associatedConstructType = Category.ExclusiveForceNode
             }
         }
 
@@ -568,7 +566,7 @@ export class Edge {
         }
 
         // if link is not a parent, child or sibling, then warn user
-        if (associatedConstructType !== Category.ExclusiveForceNode && associatedConstructType !== Category.Loop && !isSibling && !isParentOfConstruct && !isChildOfConstruct && !destPortIsEmbeddedAppOfSibling && !srcPortIsEmbeddedAppOfSibling){
+        if (associatedConstructType !== Category.Loop && !isSibling && !isParentOfConstruct && !isChildOfConstruct && !destPortIsEmbeddedAppOfSibling && !srcPortIsEmbeddedAppOfSibling){
             Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Warning, Errors.Show("Edge is not between siblings, or between a child and its parent's embedded Application. It could be incorrect or computationally expensive", function(){Utils.showEdge(eagle, edge);}), showNotification, showConsole, errorsWarnings);
         }
 
