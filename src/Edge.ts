@@ -529,20 +529,15 @@ export class Edge {
         const isParentOfConstruct : boolean = sourceParent !== null && destinationEmbed !== null && sourceParent.getId() === destinationEmbed.getId(); // is the connection from a child of a construct to an embedded app of the same construct
         const isChildOfConstruct : boolean = destinationParent !== null && sourceEmbed !== null && destinationParent.getId() === sourceEmbed.getId(); //is the connections from an embedded app of a construct to a child of that same construct
         const isSibling : boolean = (sourceParent !== null && destinationParent !== null && sourceParent.getId() === destinationParent.getId()) || (sourceParent === null && destinationParent === null); // do the two nodes have the same parent
-        let associatedConstructType : Category = Category.Unknown; //the category type of the parent construct of the source or destination node
+        let associatedConstructIsLoop : boolean = false; // whether the associated parent construct (if any) is a Loop
 
         //these checks are to see if the source or destination node are embedded apps whose parent is a sibling of the other source or destination node
         const destPortIsEmbeddedAppOfSibling : boolean = sourceParent !== null && destinationEmbed !== null && sourceParent.getId() === destinationEmbed?.getParent()?.getId();
         const srcPortIsEmbeddedAppOfSibling : boolean = destinationParent !== null && sourceEmbed !== null && destinationParent.getId() === sourceEmbed?.getParent()?.getId();
 
-        //checking the type of the parent nodes
+        // determine if parent construct (if any) is a Loop
         if(!isSibling){
-            const srcNodeParent = sourceNode.getParent()
-            const destNodeParent = destinationNode.getParent()
-
-            if(destNodeParent !== null && destNodeParent.getCategory() === Category.Loop || srcNodeParent !== null && srcNodeParent.getCategory() === Category.Loop){
-                associatedConstructType = Category.Loop
-            }
+            associatedConstructIsLoop = Edge.isAssociatedConstructLoop(sourceNode, destinationNode);
         }
 
         if (sourcePort !== null && destinationPort !== null){
@@ -559,14 +554,14 @@ export class Edge {
             || srcPortIsEmbeddedAppOfSibling && loopAware
             || sourceNode.isEmbedded() && destinationNode.hasParent() && sourceEmbed !== null && destinationParent !== null &&sourceEmbed.getId() === destinationParent.getId() && loopAware
             || destinationNode.isEmbedded() && sourceNode.hasParent() && destinationEmbed !== null && sourceParent !== null && destinationEmbed.getId() === sourceParent.getId() && loopAware
-            || associatedConstructType !== Category.Loop && loopAware
+            || !associatedConstructIsLoop && loopAware
         ){
             const x = Errors.ShowFix("Edge between two siblings should not be loop aware", function(){Utils.showEdge(eagle, edge);}, function(){if (edgeId !== null) {Utils.fixDisableEdgeLoopAware(eagle, edgeId);}}, "Disable loop aware on the edge.");
             Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Warning, x, showNotification, showConsole, errorsWarnings);
         }
 
         // if link is not a parent, child or sibling, then warn user
-        if (associatedConstructType !== Category.Loop && !isSibling && !isParentOfConstruct && !isChildOfConstruct && !destPortIsEmbeddedAppOfSibling && !srcPortIsEmbeddedAppOfSibling){
+        if (!associatedConstructIsLoop && !isSibling && !isParentOfConstruct && !isChildOfConstruct && !destPortIsEmbeddedAppOfSibling && !srcPortIsEmbeddedAppOfSibling){
             Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Warning, Errors.Show("Edge is not between siblings, or between a child and its parent's embedded Application. It could be incorrect or computationally expensive", function(){Utils.showEdge(eagle, edge);}), showNotification, showConsole, errorsWarnings);
         }
 
@@ -684,5 +679,11 @@ export class Edge {
                 edge.issues.push({issue:issue, validity:linkValid})
             }
         }
+    }
+
+    private static isAssociatedConstructLoop(sourceNode: Node, destinationNode: Node): boolean {
+        const srcParent = sourceNode.getParent();
+        const destParent = destinationNode.getParent();
+        return (srcParent !== null && srcParent.getCategory() === Category.Loop) || (destParent !== null && destParent.getCategory() === Category.Loop);
     }
 }
