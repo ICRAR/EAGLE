@@ -257,9 +257,6 @@
 .icon-dynamic_library_object:before {
   content: "\e915";
 }
-.icon-force_node:before {
-  content: "\e916";
-}
 .icon-gather:before {
   content: "\e917";
 }
@@ -277,9 +274,6 @@
 }
 .icon-loop:before {
   content: "\e91c";
-}
-.icon-many_to_many:before {
-  content: "\e91d";
 }
 .icon-memory:before {
   content: "\e91e";
