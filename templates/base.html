@@ -16,6 +16,7 @@
         <link rel="stylesheet" href="static/fonts.css">
         <link rel="stylesheet" href="static/fonts/material-symbols/index.css">
         <link rel="stylesheet" href="static/tables.css">
+        <link rel="stylesheet" href="static/externals/highlight-github.min.css">
 
         <link rel="shortcut icon" href="static/assets/img/favicon.png" type="image/x-icon">
 
@@ -26,6 +27,8 @@
             require(["bootstrap-notify"]);
             require(["ajv"]);
             require(["marked"]);
+            require(["marked-highlight"]);
+            require(["highlight.js"]);
             require(["codemirror", "codemirror/mode/python/python", "codemirror/mode/javascript/javascript","codemirror/mode/markdown/markdown"], function(CodeMirror){window.CodeMirror = CodeMirror;}); // adds CodeMirror object to the global namespace
             require(["bindingHandlers/readonly"]);
             require(["bindingHandlers/disabled"]);
