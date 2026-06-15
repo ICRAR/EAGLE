@@ -23,7 +23,7 @@
 */
 
 import Ajv from "ajv";
-import * as Showdown from "showdown";
+import { marked } from "marked";
 
 import { Category } from './Category';
 import { CategoryData } from "./CategoryData";
@@ -1945,18 +1945,7 @@ export class Utils {
             return "";
         }
 
-        const converter = new Showdown.Converter();
-        converter.setOption('tables', true);
-        let html = converter.makeHtml(markdown);
-
-        // check that the returned html is not null
-        if (html === null){
-            console.warn("Could not convert markdown to html! Input:", markdown);
-            return "";
-        }
-
-        // add some bootstrap CSS to the converted html
-        html = html.replaceAll("<table>", "<table class='table'>");
+        const html = marked(markdown, { async: false }).replaceAll("<table>", "<table class='table'>");
 
         return Utils.sanitizeHtml(html);
     }

@@ -11,7 +11,7 @@ require.config({
         "bootstrap": "./static/externals/bootstrap.bundle.min",
         "bootstrap-notify": "./static/externals/bootstrap-notify.min",
         "ajv": "./static/externals/ajv.min",
-        "showdown": "./static/externals/showdown.min",
+        "marked": "./static/externals/marked.min",
         "bindingHandlers/readonly":"./static/built/bindingHandlers/readonly",
         "bindingHandlers/disabled":"./static/built/bindingHandlers/disabled",
         "bindingHandlers/eagleTooltip":"./static/built/bindingHandlers/eagleTooltip",
