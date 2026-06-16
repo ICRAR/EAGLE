@@ -302,6 +302,7 @@ def get_git_hub_files_all():
     folder_name, repo_name = extract_folder_and_repo_names(repo_name)
 
     # authenticate or not
+    credentials_ignored = False
     g = github.Github(repo_token) if repo_token else github.Github()
 
     try:
@@ -310,8 +311,20 @@ def get_git_hub_files_all():
         print("UnknownObjectException {1}: {0}".format(str(uoe), repo_name))
         return jsonify({"error":uoe.message})
     except github.GithubException as ge:
-        print("GithubException {1}: {0}".format(str(ge), repo_name))
-        return jsonify({"error":ge.data.get("message", str(ge))})
+        if ge.status == 401 and repo_token:
+            # bad credentials - fall back to anonymous access for public repos
+            print("GithubException 401 for {0}, retrying anonymously".format(repo_name))
+            credentials_ignored = True
+            g = github.Github()
+            try:
+                repo = g.get_repo(repo_name)
+            except github.UnknownObjectException as uoe:
+                return jsonify({"error":uoe.message})
+            except github.GithubException as ge2:
+                return jsonify({"error":ge2.data.get("message", str(ge2))})
+        else:
+            print("GithubException {1}: {0}".format(str(ge), repo_name))
+            return jsonify({"error":ge.data.get("message", str(ge))})
 
     # get results
     d = parse_github_folder(repo, repo_path, repo_branch)
@@ -323,7 +336,7 @@ def get_git_hub_files_all():
         return jsonify({"error":str(d)})
 
     # return correct result
-    return jsonify(d)
+    return jsonify({"files": d, "credentialsIgnored": credentials_ignored})
 
 
 @app.route("/getGitLabFilesAll", methods=["POST"])
@@ -345,13 +358,16 @@ def get_git_lab_files_all():
         app.logger.error("KeyError in getGitLabFilesAll: %s", ke)
         return jsonify({"error":"Repository, Branch or Token not specified in request"}), 400
 
+    credentials_ignored = False
     if repo_token:
         gl = gitlab.Gitlab('https://gitlab.com', private_token=repo_token, api_version=4)
         try:
             gl.auth()
         except gitlab.exceptions.GitlabAuthenticationError as gae:
-            print("GitlabAuthenticationError {1}: {0}".format(str(gae), repo_name))
-            return jsonify({"error": "Gitlab Authentication Error. Access token may be invalid." + "\n" + str(gae)})
+            # bad credentials - fall back to anonymous access for public repos
+            print("GitlabAuthenticationError {1}: {0}, retrying anonymously".format(str(gae), repo_name))
+            credentials_ignored = True
+            gl = gitlab.Gitlab('https://gitlab.com', api_version=4)
     else:
         gl = gitlab.Gitlab('https://gitlab.com', api_version=4)
 
@@ -365,7 +381,7 @@ def get_git_lab_files_all():
     d = parse_gitlab_folder(items, repo_path)
 
     # return correct result
-    return jsonify(d)
+    return jsonify({"files": d, "credentialsIgnored": credentials_ignored})
 
 
 @app.route("/getDockerImages", methods=["POST"])
@@ -630,10 +646,23 @@ def open_git_hub_file():
         filename = folder_name + "/" + filename
 
     # use authentication or not
+    credentials_ignored = False
     g = github.Github(repo_token) if repo_token else github.Github()
 
     try:
         repo = g.get_repo(repo_name)
+    except github.GithubException as ge:
+        if ge.status == 401 and repo_token:
+            # bad credentials - fall back to anonymous access for public repos
+            print("GithubException 401 for {0}, retrying anonymously".format(repo_name))
+            credentials_ignored = True
+            g = github.Github()
+            try:
+                repo = g.get_repo(repo_name)
+            except Exception as e:
+                return jsonify({"error": str(e)}), 404
+        else:
+            return jsonify({"error": ge.data.get("message", str(ge))}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 404
 
@@ -690,15 +719,10 @@ def open_git_hub_file():
 
         json_data = json.dumps(graph, indent=4)
 
-        response = app.response_class(
-            response=json.dumps(json_data), status=200, mimetype="application/json"
-        )
+        return jsonify({"data": json_data, "credentialsIgnored": credentials_ignored})
     else:
-        response = app.response_class(
-            response=raw_data, status=200, mimetype="text/plain"
-        )
-    
-    return response
+        raw_str = raw_data if isinstance(raw_data, str) else raw_data.decode("utf-8")
+        return jsonify({"data": raw_str, "credentialsIgnored": credentials_ignored})
 
 
 @app.route("/deleteRemoteGithubFile", methods=["POST"])
@@ -765,13 +789,16 @@ def open_git_lab_file():
     #print("folder_name", folder_name, "repo_name", repo_name, "filename", filename)
 
     # get the data from gitlab
+    credentials_ignored = False
     if repo_token:
         gl = gitlab.Gitlab('https://gitlab.com', private_token=repo_token, api_version=4)
         try:
             gl.auth()
-        except Exception as e:
-            app.logger.exception("GitLab auth failed for %s", repo_name)
-            return jsonify({"error": str(e)}), 404
+        except gitlab.exceptions.GitlabAuthenticationError:
+            # bad credentials - fall back to anonymous access for public repos
+            print("GitLab auth failed for {0}, retrying anonymously".format(repo_name))
+            credentials_ignored = True
+            gl = gitlab.Gitlab('https://gitlab.com', api_version=4)
     else:
         gl = gitlab.Gitlab('https://gitlab.com', api_version=4)
 
@@ -803,15 +830,9 @@ def open_git_lab_file():
 
         json_data = json.dumps(graph, indent=4)
 
-        response = app.response_class(
-            response=json.dumps(json_data), status=200, mimetype="application/json"
-        )
+        return jsonify({"data": json_data, "credentialsIgnored": credentials_ignored})
     else:
-        response = app.response_class(
-            response=raw_data, status=200, mimetype="text/plain"
-        )
-        
-    return response
+        return jsonify({"data": raw_data, "credentialsIgnored": credentials_ignored})
 
 
 @app.route("/deleteRemoteGitlabFile", methods=["POST"])
