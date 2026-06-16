@@ -28,6 +28,7 @@ import { Category } from './Category';
 import { Eagle } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { Edge } from './Edge';
+import { Visual } from './Visual';
 import { Errors } from './Errors';
 import { Field } from './Field';
 import { FileInfo } from './FileInfo';
@@ -35,7 +36,6 @@ import { FileLocation } from "./FileLocation";
 import { GraphConfig } from './GraphConfig';
 import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 import { Node } from './Node';
-import { RepositoryFile } from './RepositoryFile';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
 
@@ -43,21 +43,24 @@ export class LogicalGraph {
     fileInfo : ko.Observable<FileInfo>;
     private nodes : ko.Observable<Map<NodeId, Node>>;
     private edges : ko.Observable<Map<EdgeId, Edge>>;
+    private visuals : ko.Observable<Map<VisualId, Visual>>;
     private graphConfigs : ko.Observable<Map<GraphConfigId, GraphConfig>>;
-    private activeGraphConfigId : ko.Observable<GraphConfigId>;
+    private activeGraphConfigId : ko.Observable<GraphConfigId | null>;
 
     private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}> //keeps track of higher level errors on the graph
 
     constructor(){
         this.fileInfo = ko.observable(new FileInfo());
         this.fileInfo().type = Eagle.FileType.Graph;
+        this.fileInfo().schemaVersion = Setting.SchemaVersion.V4;
         this.fileInfo().readonly = false;
         this.fileInfo().builtIn = false;
         this.nodes = ko.observable(new Map<NodeId, Node>());
         this.edges = ko.observable(new Map<EdgeId, Edge>());
+        this.visuals = ko.observable(new Map<VisualId, Visual>());
         this.graphConfigs = ko.observable(new Map<GraphConfigId, GraphConfig>());
         this.activeGraphConfigId = ko.observable(null); // can be null, or an id (can't be undefined)
-        this.issues = ko.observableArray([])
+        this.issues = ko.observableArray<{issue:Errors.Issue, validity:Errors.Validity}>([]);
     }
 
     static toOJSJson(graph : LogicalGraph, forTranslation : boolean) : object {
@@ -83,7 +86,7 @@ export class LogicalGraph {
         for (const edge of graph.edges().values()){
 
             // depending on the settings and purpose, skip close-loop edges
-            if (forTranslation && Setting.findValue(Setting.SKIP_CLOSE_LOOP_EDGES)){
+            if (forTranslation && Setting.findValue<boolean>(Setting.SKIP_CLOSE_LOOP_EDGES, false)){
                 if (edge.isClosesLoop()){
                     continue;
                 }
@@ -108,17 +111,26 @@ export class LogicalGraph {
             }
 
             // for OJS format, we actually store links using the node keys of the construct, not the node keys of the embedded applications
-            if (srcNode.isEmbedded()){
-                srcId = srcNode.getEmbed().getId();
+            const srcEmbed = srcNode.getEmbed();
+            const destEmbed = destNode.getEmbed();
+            if (srcEmbed){
+                srcId = srcEmbed.getId();
             }
-            if (destNode.isEmbedded()){
-                destId = destNode.getEmbed().getId();
+            if (destEmbed){
+                destId = destEmbed.getId();
             }
 
             linkData.from = srcId;
             linkData.to   = destId;
 
             result.linkDataArray.push(linkData);
+        }
+
+        // add visuals
+        result.visualDataArray = [];
+        for (const visual of graph.visuals().values()){
+            const visualData : any = Visual.toJson(visual);
+            result.visualDataArray.push(visualData);
         }
 
         // add graph configurations
@@ -133,7 +145,7 @@ export class LogicalGraph {
         return result;
     }
 
-    static toV4Json(graph: LogicalGraph, forTranslation: boolean) : object {
+    static toV4Json(graph: LogicalGraph, _forTranslation: boolean) : object {
         const result : any = {};
 
         result.modelData = FileInfo.toV4Json(graph.fileInfo());
@@ -145,15 +157,16 @@ export class LogicalGraph {
             const nodeData : any = Node.toV4GraphJson(node);
             result.nodes[id] = nodeData;
 
+            const inputApplication = node.getInputApplication();
+            const outputApplication = node.getOutputApplication();
+
             // add input and output applications to the top-level nodes dict
-            if (node.hasInputApplication()){
-                const inputApp = node.getInputApplication();
-                result.nodes[inputApp.getId()] = Node.toV4GraphJson(inputApp);
+            if (inputApplication !== null){
+                result.nodes[inputApplication.getId()] = Node.toV4GraphJson(inputApplication);
             }
 
-            if (node.hasOutputApplication()){
-                const outputApp = node.getOutputApplication();
-                result.nodes[outputApp.getId()] = Node.toV4GraphJson(outputApp);
+            if (outputApplication !== null){
+                result.nodes[outputApplication.getId()] = Node.toV4GraphJson(outputApplication);
             }
         }
 
@@ -165,6 +178,13 @@ export class LogicalGraph {
             result.edges[id] = edgeData;
         }
 
+        // visuals
+        result.visuals = {};
+        for (const [id, visual] of graph.visuals()){
+            const visualData : any = Visual.toJson(visual);
+            result.visuals[id] = visualData;
+        }
+
         // add graph configurations
         result.graphConfigurations = {};
         for (const gc of graph.graphConfigs().values()){
@@ -173,7 +193,7 @@ export class LogicalGraph {
 
         // saving the id of the active graph configuration
         result.activeGraphConfigId = Eagle.getInstance().logicalGraph().activeGraphConfigId();
-
+        
         return result;
     }
 
@@ -189,12 +209,13 @@ export class LogicalGraph {
         // if we are sending this graph for translation, then only provide the "active" graph configuration, or an empty array if none exist
         // otherwise, add all graph configurations
         if (forTranslation){
-            if (graph.activeGraphConfigId() === null){
+            const activeGraphConfig = graph.getActiveGraphConfig();
+
+            if (typeof activeGraphConfig === "undefined"){
                 result += '"graphConfigurations": {},\n';
             } else {
                 const graphConfigurations: any = {};
-                graphConfigurations[graph.activeGraphConfigId().toString()] = GraphConfig.toJson(graph.getActiveGraphConfig());
-
+                graphConfigurations[activeGraphConfig.getId()] = GraphConfig.toJson(activeGraphConfig);
                 result += '"graphConfigurations": ' + JSON.stringify(graphConfigurations, null, EagleConfig.JSON_INDENT) + ",\n";
             }
         } else {
@@ -202,7 +223,8 @@ export class LogicalGraph {
         }
 
         result += '"nodeDataArray": ' + JSON.stringify(json.nodeDataArray, null, EagleConfig.JSON_INDENT) + ",\n";
-        result += '"linkDataArray": ' + JSON.stringify(json.linkDataArray, null, EagleConfig.JSON_INDENT) + "\n";
+        result += '"linkDataArray": ' + JSON.stringify(json.linkDataArray, null, EagleConfig.JSON_INDENT) + ",\n";
+        result += '"visualDataArray": ' + JSON.stringify(json.visualDataArray, null, EagleConfig.JSON_INDENT) + "\n";
         result += "}\n";
 
         return result;
@@ -221,12 +243,13 @@ export class LogicalGraph {
         // if we are sending this graph for translation, then only provide the "active" graph configuration, or an empty array if none exist
         // otherwise, add all graph configurations
         if (forTranslation){
-            if (graph.activeGraphConfigId() === null){
+            const activeGraphConfig = graph.getActiveGraphConfig();
+
+            if (typeof activeGraphConfig === "undefined"){
                 result += '"graphConfigurations": {},\n';
             } else {
                 const graphConfigurations: any = {};
-                graphConfigurations[graph.activeGraphConfigId().toString()] = GraphConfig.toJson(graph.getActiveGraphConfig());
-
+                graphConfigurations[activeGraphConfig.getId()] = GraphConfig.toJson(activeGraphConfig);
                 result += '"graphConfigurations": ' + JSON.stringify(graphConfigurations, null, EagleConfig.JSON_INDENT) + ",\n";
             }
         } else {
@@ -234,7 +257,8 @@ export class LogicalGraph {
         }
 
         result += '"nodes": ' + JSON.stringify(json.nodes, null, EagleConfig.JSON_INDENT) + ",\n";
-        result += '"edges": ' + JSON.stringify(json.edges, null, EagleConfig.JSON_INDENT) + "\n";
+        result += '"edges": ' + JSON.stringify(json.edges, null, EagleConfig.JSON_INDENT) + ",\n";
+        result += '"visuals": ' + JSON.stringify(json.visuals, null, EagleConfig.JSON_INDENT) + "\n";
         result += "}\n";
 
         return result;
@@ -258,7 +282,7 @@ export class LogicalGraph {
         return result;
     }
 
-    static fromOJSJson(dataObject : any, filename: string, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph {
+    static fromOJSJson(dataObject : any, filename: string | null, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph {
         // create new logical graph object
         const result : LogicalGraph = new LogicalGraph();
         const nodeDataIdToNodeId: Map<string, NodeId> = new Map();
@@ -270,6 +294,11 @@ export class LogicalGraph {
         // add nodes
         for (const nodeData of dataObject.nodeDataArray){
             const nodeDataId = Node.determineNodeId(nodeData);
+
+            if (nodeDataId === null){
+                continue;
+            }
+
             const newNode = Node.fromOJSJson(nodeData, errorsWarnings, false);
 
             if (newNode === null){
@@ -279,12 +308,15 @@ export class LogicalGraph {
             result.nodes().set(newNode.getId(), newNode);
             nodeDataIdToNodeId.set(nodeDataId, newNode.getId());
 
+            const inputApplication = newNode.getInputApplication();
+            const outputApplication = newNode.getOutputApplication();
+
             // add input and output applications to the top-level nodes list
-            if (newNode.hasInputApplication()){
-                result.nodes().set(newNode.getInputApplication().getId(), newNode.getInputApplication());
+            if (inputApplication !== null){
+                result.nodes().set(inputApplication.getId(), inputApplication);
             }
-            if (newNode.hasOutputApplication()){
-                result.nodes().set(newNode.getOutputApplication().getId(), newNode.getOutputApplication());
+            if (outputApplication !== null){
+                result.nodes().set(outputApplication.getId(), outputApplication);
             }
 
             result.nodes.valueHasMutated();
@@ -304,11 +336,24 @@ export class LogicalGraph {
             }
 
             const nodeDataId = Node.determineNodeId(nodeData);
+
+            if (nodeDataId === null){
+                continue;
+            }
+
             const nodeId = nodeDataIdToNodeId.get(nodeDataId);
             const parentId = nodeDataIdToNodeId.get(parentDataId);
 
+            if (typeof nodeId === 'undefined' || typeof parentId === 'undefined'){
+                continue;
+            }
+
             const node = result.nodes().get(nodeId);
             const parent = result.nodes().get(parentId);
+
+            if (typeof node === 'undefined' || typeof parent === 'undefined'){
+                continue;
+            }
 
             node.setParent(parent);
         }
@@ -326,6 +371,20 @@ export class LogicalGraph {
 
             newEdge.getSrcPort().addEdge(newEdge);
             newEdge.getDestPort().addEdge(newEdge);
+        }
+
+        // add visuals
+        if (typeof dataObject.visualDataArray !== 'undefined'){
+            for (const visualData of dataObject.visualDataArray){       
+                const newVisual = Visual.fromJson(visualData, result, errorsWarnings);
+
+                if (newVisual === null){
+                    continue;
+                }
+
+                result.visuals().set(newVisual.getId(), newVisual);
+                result.visuals.valueHasMutated();
+            }
         }
 
         // load configs (if present)
@@ -376,15 +435,25 @@ export class LogicalGraph {
             // if source node or destination node is a construct, then something is wrong, constructs should not have ports
             if (sourceNode.getCategoryType() === Category.Type.Construct){
                 const srcIdAndPort = sourceNode.findPortInApplicationsById(edge.getSrcPort().getId());
-                const warning = "Updated source node of edge " + edge.getId() + " from construct " + edge.getSrcNode().getId() + " to embedded application " + srcIdAndPort.node.getId();
-                errorsWarnings.warnings.push(Errors.Message(warning));
-                edge.getSrcNode().setId(srcIdAndPort.node.getId());
+                if (typeof srcIdAndPort.node === 'undefined'){
+                    const error = "Could not find embedded application for source node of edge " + edge.getId();
+                    errorsWarnings.errors.push(Errors.Message(error));
+                } else {
+                    const warning = "Updated source node of edge " + edge.getId() + " from construct " + edge.getSrcNode().getId() + " to embedded application " + srcIdAndPort.node.getId();
+                    errorsWarnings.warnings.push(Errors.Message(warning));
+                    edge.getSrcNode().setId(srcIdAndPort.node.getId());
+                }
             }
             if (destinationNode.getCategoryType() === Category.Type.Construct){
                 const destKeyAndPort = destinationNode.findPortInApplicationsById(edge.getDestPort().getId());
-                const warning = "Updated destination node of edge " + edge.getId() + " from construct " + edge.getDestNode().getId() + " to embedded application " + destKeyAndPort.node.getId();
-                errorsWarnings.warnings.push(Errors.Message(warning));
-                edge.getDestNode().setId(destKeyAndPort.node.getId());
+                if (typeof destKeyAndPort.node === 'undefined'){
+                    const error = "Could not find embedded application for destination node of edge " + edge.getId();
+                    errorsWarnings.errors.push(Errors.Message(error));
+                } else {
+                    const warning = "Updated destination node of edge " + edge.getId() + " from construct " + edge.getDestNode().getId() + " to embedded application " + destKeyAndPort.node.getId();
+                    errorsWarnings.warnings.push(Errors.Message(warning));
+                    edge.getDestNode().setId(destKeyAndPort.node.getId());
+                }
             }
         }
 
@@ -412,12 +481,18 @@ export class LogicalGraph {
         // second pass through the nodes
         // used to set parent, embed, subject, inputApplication, outputApplication
         for (const [nodeId, nodeData] of Object.entries(dataObject.nodes)){
-            const embed: Node = result.getNodeById((<any>nodeData).embedId);
-            const parent: Node = result.getNodeById((<any>nodeData).parentId);
-            const inputApplication: Node = result.getNodeById((<any>nodeData).inputApplicationId);
-            const outputApplication: Node = result.getNodeById((<any>nodeData).outputApplicationId);
+            const embed = result.getNodeById((<any>nodeData).embedId);
+            const parent = result.getNodeById((<any>nodeData).parentId);
+            const inputApplication = result.getNodeById((<any>nodeData).inputApplicationId);
+            const outputApplication = result.getNodeById((<any>nodeData).outputApplicationId);
 
-            const node: Node = result.getNodeById(nodeId as NodeId);
+            const node = result.getNodeById(nodeId as NodeId);
+
+            if (typeof node === 'undefined'){
+                console.error("No node found with id " + nodeId);
+                continue;
+            }
+
             if (typeof embed !== 'undefined'){
                 node.setEmbed(embed);
             }
@@ -448,6 +523,20 @@ export class LogicalGraph {
             edge.getDestPort().addEdge(edge);
         }
 
+        // add visuals
+        if (typeof dataObject.visuals !== 'undefined'){
+            for (const [visualId, visualData] of Object.entries(dataObject.visuals)){
+                const visual = Visual.fromJson(visualData, result, errorsWarnings);
+
+                if (visual === null){
+                    continue;
+                }
+
+                result.visuals().set(visualId as VisualId, visual);
+                result.visuals.valueHasMutated();
+            }
+        }
+
         // load configs
         for (const [gcId, gcData] of Object.entries(dataObject.graphConfigurations)){
             const gc = GraphConfig.fromJson(gcData, result, errorsWarnings);
@@ -455,6 +544,15 @@ export class LogicalGraph {
             result.graphConfigs().set(gcId as GraphConfigId, gc);
         }
         result.graphConfigs.valueHasMutated();
+
+        // check for missing name
+        if (result.fileInfo().name === "" && filename !== null){
+            const error : string = "FileInfo.name is empty. Setting name to " + filename;
+            errorsWarnings.warnings.push(Errors.Message(error));
+
+            result.fileInfo().name = filename;
+            result.fileInfo().location.repositoryFileName(filename);
+        }
 
         //if the saved 'activeGraphConfigId' is empty or missing, we use the last one in the array, else we set the saved one as active                
         if(typeof dataObject.activeGraphConfigId === 'undefined' || dataObject.activeGraphConfigId === ''){
@@ -489,11 +587,14 @@ export class LogicalGraph {
         this.nodes().forEach(function(node: Node){
             nodes.push(node)
             if(node.isConstruct()){
-                if(node.getInputApplication()!= null){
-                    nodes.push(node.getInputApplication())
+                const inputApplication = node.getInputApplication();
+                const outputApplication = node.getOutputApplication();
+
+                if(inputApplication != null){
+                    nodes.push(inputApplication)
                 }
-                if(node.getOutputApplication() != null){
-                    nodes.push(node.getOutputApplication())
+                if(outputApplication != null){
+                    nodes.push(outputApplication)
                 }
             }
         })
@@ -540,6 +641,23 @@ export class LogicalGraph {
 
     getEdgeById = (id: EdgeId): Edge | undefined => {
         return this.edges().get(id);
+    }
+
+    addVisual = (visual : Visual) => {
+        this.visuals().set(visual.getId(), visual);
+        this.visuals.valueHasMutated();
+    }
+
+    getVisuals = () : MapIterator<Visual> => {
+        return this.visuals().values();
+    }
+
+    getNumVisuals = () : number => {
+        return this.visuals().size;
+    }
+
+    getVisualById = (id: VisualId): Visual | undefined => {
+        return this.visuals().get(id);
     }
 
     getCommentNodes = () : Node[] => {
@@ -601,14 +719,14 @@ export class LogicalGraph {
             //focus on and select the name field of the newly added config in the configurations table, ready to rename. this requires a little wait, to allow the ui to update
             setTimeout(() => {
                 $('#graphConfigurationsTableWrapper .activeConfig .column-name input').focus().select()
-            }, 100);
+            }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT);
 
             Utils.showNotification("Graph Config added to Logical Graph", config.fileInfo().name, "success");
         }
 
         const eagle: Eagle = Eagle.getInstance();
         eagle.undo().pushSnapshot(eagle, "Added a new graph configuration (" + config.fileInfo().name + ")");
-        eagle.checkGraph();
+        eagle.checkEagle();
     }
 
     removeGraphConfig = (config: GraphConfig): void => {
@@ -625,14 +743,19 @@ export class LogicalGraph {
         eagle.undo().pushSnapshot(eagle, "Removed graph configuration " + name);
 
         // check graph
-        eagle.checkGraph();
+        eagle.checkEagle();
     }
 
     getActiveGraphConfig = (): GraphConfig | undefined => {
-        return this.getGraphConfigById(this.activeGraphConfigId())
+        const activeGraphConfigId = this.activeGraphConfigId();
+        if (activeGraphConfigId === null){
+            return undefined;
+        }
+
+        return this.getGraphConfigById(activeGraphConfigId);
     }
 
-    setActiveGraphConfig = (configId: GraphConfigId): void => {
+    setActiveGraphConfig = (configId: GraphConfigId | null): void => {
         this.activeGraphConfigId(configId)
     }
 
@@ -680,26 +803,66 @@ export class LogicalGraph {
         // copy nodes
         for (const [id, node] of this.nodes()){
             result.nodes().set(id, node.clone());
-            result.nodes.valueHasMutated();
         }
+
+        // flag nodes as having changed
+        result.nodes.valueHasMutated();
 
         // copy edges
         for (const [id, edge] of this.edges()){
-            result.edges().set(id, edge.clone());
-            result.edges.valueHasMutated();
+            const clonedEdge = edge.clone();
 
-            edge.getSrcPort().addEdge(edge);
-            edge.getDestPort().addEdge(edge);
+            // remap cloned edge's node/port references to the cloned graph's nodes/ports
+            const clonedSrcNode = result.nodes().get(edge.getSrcNode().getId() as NodeId);
+            const clonedDestNode = result.nodes().get(edge.getDestNode().getId() as NodeId);
+
+            // if we can't find the source or destination node for this edge in the cloned graph, then something went wrong with cloning, skip this edge and log a warning
+            if (clonedSrcNode === undefined || clonedDestNode === undefined){
+                console.warn("clone(): Could not find source or destination node for edge", edge.getId(), "skipping edge");
+                clonedEdge.setSrcNode(null);
+                clonedEdge.setDestNode(null);
+                continue;
+            }
+
+            clonedEdge.setSrcNode(clonedSrcNode);
+            clonedEdge.setDestNode(clonedDestNode);
+
+            const clonedSrcPort = clonedSrcNode.getFieldById(edge.getSrcPort().getId());
+            const clonedDestPort = clonedDestNode.getFieldById(edge.getDestPort().getId());
+
+            if (clonedSrcPort !== undefined){
+                clonedEdge.setSrcPort(clonedSrcPort);
+                clonedSrcPort.addEdge(clonedEdge);
+            }
+            if (clonedDestPort !== undefined){
+                clonedEdge.setDestPort(clonedDestPort);
+                clonedDestPort.addEdge(clonedEdge);
+            }
+
+            result.edges().set(id, clonedEdge);
         }
+
+        // flag edges as having changed
+        result.edges.valueHasMutated();
+
+        // copy visuals
+        for (const [id, visual] of this.visuals()){
+            result.visuals().set(id, visual.clone());
+        }
+
+        // flag visuals as having changed
+        result.visuals.valueHasMutated();
 
         // copy graph configs
         for (const graphConfig of this.graphConfigs().values()){
             const clone = graphConfig.clone();
             result.graphConfigs().set(clone.getId(), clone);
-            result.graphConfigs.valueHasMutated();
         }
 
-        //copy active graph config id state
+        // flag graph configs as having changed
+        result.graphConfigs.valueHasMutated();
+
+        // copy active graph config id state
         result.activeGraphConfigId(this.activeGraphConfigId());
 
         return result;
@@ -758,7 +921,7 @@ export class LogicalGraph {
         return newNode;
     }
 
-    findNodeIdByNodeName = (name: string): NodeId => {
+    findNodeIdByNodeName = (name: string): NodeId | null=> {
         for (const [id, node] of this.nodes()){
             if (node.getName() === name){
                 return id;
@@ -836,12 +999,15 @@ export class LogicalGraph {
         // delete edges incident on this node
         this.removeEdgesById(id);
 
+        const inputApplication = node.getInputApplication();
+        const outputApplication = node.getOutputApplication();
+
         // delete edges incident on the embedded apps of this node
-        if (node.hasInputApplication()){
-            this.removeEdgesById(node.getInputApplication().getId());
+        if (inputApplication !== null){
+            this.removeEdgesById(inputApplication.getId());
         }
-        if (node.hasOutputApplication()){
-            this.removeEdgesById(node.getOutputApplication().getId());
+        if (outputApplication !== null){
+            this.removeEdgesById(outputApplication.getId());
         }
 
         // search through nodes in graph, looking for one with the correct key
@@ -856,17 +1022,20 @@ export class LogicalGraph {
                 break;
             }
 
+            const inputApplication = node.getInputApplication();
+            const outputApplication = node.getOutputApplication();
+
             // delete the input application
-            if (node.hasInputApplication() && node.getInputApplication().getId() === id){
-                this.nodes().delete(node.getInputApplication().getId());
+            if (inputApplication !== null && inputApplication.getId() === id){
+                this.nodes().delete(inputApplication.getId());
                 this.nodes.valueHasMutated();
                 node.setInputApplication(null);
                 break;
             }
 
             // delete the output application
-            if (node.hasOutputApplication() && node.getOutputApplication().getId() === id){
-                this.nodes().delete(node.getOutputApplication().getId());
+            if (outputApplication !== null && outputApplication.getId() === id){
+                this.nodes().delete(outputApplication.getId());
                 this.nodes.valueHasMutated();
                 node.setOutputApplication(null);
                 break;
@@ -879,12 +1048,12 @@ export class LogicalGraph {
         }
 
         // remove inputApplication and outputApplication from the nodes map
-        if (node.hasInputApplication()){
-            this.nodes().delete(node.getInputApplication().getId());
+        if (inputApplication !== null){
+            this.nodes().delete(inputApplication.getId());
             this.nodes.valueHasMutated();
         }
-        if (node.hasOutputApplication()){
-            this.nodes().delete(node.getOutputApplication().getId());
+        if (outputApplication !== null){
+            this.nodes().delete(outputApplication.getId());
             this.nodes.valueHasMutated();
         }
     }
@@ -927,6 +1096,18 @@ export class LogicalGraph {
         this.edges.valueHasMutated();
     }
 
+    removeVisualById = (id: VisualId) : void => {
+        const visual = this.visuals().get(id);
+
+        if (typeof visual === 'undefined'){
+            console.warn("removeVisualById(): Could not find visual with id", id);
+            return;
+        }
+
+        this.visuals().delete(id);
+        this.visuals.valueHasMutated();
+    }
+
     removeFieldFromNodeById = (node : Node, fieldId: FieldId) : void => {
         if (node === null){
             console.warn("Could not remove port from null node");
@@ -960,7 +1141,7 @@ export class LogicalGraph {
         // get reference to EAGLE
         const eagle: Eagle = Eagle.getInstance();
 
-        eagle.checkGraph();
+        eagle.checkEagle();
         eagle.undo().pushSnapshot(eagle, "Remove port from node");
         eagle.flagActiveFileModified();
         eagle.selectedObjects.valueHasMutated();
@@ -982,12 +1163,13 @@ export class LogicalGraph {
     }
 
     findMultiplicity = (node : Node) : number => {
-        let n : Node = node;
+        let n : Node | null = node;
         let result : number = 1;
         let iterations : number = 0;
+        const MAX_ITERATIONS = 10;
 
         while (true){
-            if (iterations > 10){
+            if (iterations > MAX_ITERATIONS){
                 console.error("too many iterations in findMultiplicity()");
                 break;
             }
@@ -1010,7 +1192,7 @@ export class LogicalGraph {
         return result;
     }
 
-    checkForNodeAt = (x: number, y: number, radius: number, findEligibleGroups: boolean = false) : Node => {
+    checkForNodeAt = (x: number, y: number, radius: number, findEligibleGroups: boolean = false) : Node | null => {
         const overlaps : Node[] = [];
         const eagle = Eagle.getInstance();
 
@@ -1055,7 +1237,7 @@ export class LogicalGraph {
 
         // once found all the overlaps, we return the most-leaf (highest depth) node
         let maxDepth: number = -1;
-        let maxDepthOverlap: Node = null;
+        let maxDepthOverlap: Node | null = null;
 
         for (const overlap of overlaps){
             const depth = this.findDepthById(overlap.getId());
@@ -1072,7 +1254,13 @@ export class LogicalGraph {
     // TODO: we might be able to just make this findDepth(node: Node)
     findDepthById = (id: NodeId) : number => {
         const node = this.nodes().get(id);
-        let parent: Node = node.getParent();
+
+        if (typeof node === 'undefined'){
+            console.error("findDepthById(): could not find node with id", id);
+            return -1;
+        }
+
+        let parent = node.getParent();
         let depth = 0;
         let iterations = 0;
 
@@ -1111,7 +1299,7 @@ export class LogicalGraph {
     getChildrenOfNodeById = (id: NodeId) : Node[] => {
         const result: Node[] = [];
 
-        for (const [nodeId, node] of this.nodes()){
+        for (const [_nodeId, node] of this.nodes()){
             const parent = node.getParent();
             if ((id === null && parent === null) || (parent !== null && parent.getId() === id)){
                 result.push(node);
@@ -1144,7 +1332,10 @@ export class LogicalGraph {
 
         // write nodes to result in sorted order
         for (const idPlusDepth of idPlusDepths){
-            result.push(this.nodes().get(idPlusDepth.id));
+            const n = this.nodes().get(idPlusDepth.id);
+            if (n !== undefined) {
+                result.push(n);    
+            }
         }
 
         return result;
@@ -1186,10 +1377,12 @@ export class LogicalGraph {
         return radius;
     }
 
-    static isValid () : void {
+    private static withEagle(eagle: Eagle | null, fn: (e: Eagle) => void): () => void {
+        return eagle !== null ? () => fn(eagle) : () => {};
+    }
+
+    static isValid (graph: LogicalGraph, eagle: Eagle | null) : void {
         //here should be the higher level graph wide checks for graph validity
-        const eagle = Eagle.getInstance()
-        const graph = eagle.logicalGraph()
 
         // clear old issues
         graph.issues([]);
@@ -1198,7 +1391,7 @@ export class LogicalGraph {
         if (graph.fileInfo().isInitiated() && graph.fileInfo().shortDescription === ''){
             const issue: Errors.Issue = Errors.Show(
                 "Graph does not have a short description.",
-                function(){eagle.editShortDescription(graph.fileInfo())}
+                LogicalGraph.withEagle(eagle, e => e.editShortDescription(graph.fileInfo()))
             );
             graph.issues.push({issue : issue, validity : Errors.Validity.Warning})
         }
@@ -1207,7 +1400,7 @@ export class LogicalGraph {
         if (graph.fileInfo().isInitiated() && graph.fileInfo().detailedDescription === ''){
             const issue: Errors.Issue = Errors.Show(
                 "Graph does not have a detailed description.",
-                function(){eagle.editDetailedDescription(graph.fileInfo())}
+                LogicalGraph.withEagle(eagle, e => e.editDetailedDescription(graph.fileInfo()))
             );
             graph.issues.push({issue : issue, validity : Errors.Validity.Warning})
         }
@@ -1217,7 +1410,7 @@ export class LogicalGraph {
             if (node.getId() !== id){
                 const issue: Errors.Issue = Errors.ShowFix(
                     "Node (" + id + ") id does not match the key in the nodes dictionary",
-                    function(){Utils.showNode(eagle, Eagle.FileType.Graph, node)},
+                    LogicalGraph.withEagle(eagle, e => Utils.showNode(e, Eagle.FileType.Graph, node)),
                     function(){node.setId(id)},
                     "Set node id to match key in nodes dictionary"
                 );
@@ -1230,7 +1423,7 @@ export class LogicalGraph {
             if (!FileLocation.match(graphConfig.fileInfo().graphLocation, graph.fileInfo().location)){
                 const issue: Errors.Issue = Errors.ShowFix(
                     "Graph Config (" + graphConfig.fileInfo().name + ") graph location does not match the location of the parent graph",
-                    function(){Utils.showGraphConfig(eagle, graphConfig.getId())},
+                    LogicalGraph.withEagle(eagle, e => Utils.showGraphConfig(e, graphConfig.getId())),
                     function(){graphConfig.fileInfo().graphLocation = graph.fileInfo().location.clone()},
                     "Set graph config's graph location to match that of the graph"
                 );
@@ -1241,20 +1434,20 @@ export class LogicalGraph {
         // check all edges in the edges dict are also present in the srcPort or destPort edges dict
         for (const [id, edge] of graph.edges()){
             if (typeof edge.getSrcPort() === 'undefined' || typeof edge.getDestPort() === 'undefined'){
-                const issue: Errors.Issue = Errors.Show("Edge (" + id + ") has undefined srcPort or undefined destPort", function(){Utils.showEdge(eagle, edge)});
+                const issue: Errors.Issue = Errors.Show("Edge (" + id + ") has undefined srcPort or undefined destPort", LogicalGraph.withEagle(eagle, e => Utils.showEdge(e, edge)));
                 graph.issues.push({issue:issue, validity: Errors.Validity.Error});
                 continue;
             }
 
             // check source port
             if (typeof edge.getSrcPort().getEdgeById(id) === 'undefined'){
-                const issue: Errors.Issue = Errors.Show("Edge (" + id + ") is not present in source port edges list", function(){Utils.showEdge(eagle, edge)});
+                const issue: Errors.Issue = Errors.Show("Edge (" + id + ") is not present in source port edges list", LogicalGraph.withEagle(eagle, e => Utils.showEdge(e, edge)));
                 graph.issues.push({issue:issue, validity: Errors.Validity.Error});
             }
 
             // check destination port
             if (typeof edge.getDestPort().getEdgeById(id) === 'undefined'){
-                const issue: Errors.Issue = Errors.Show("Edge (" + id + ") is not present in destination port edges list", function(){Utils.showEdge(eagle, edge)});
+                const issue: Errors.Issue = Errors.Show("Edge (" + id + ") is not present in destination port edges list", LogicalGraph.withEagle(eagle, e => Utils.showEdge(e, edge)));
                 graph.issues.push({issue:issue, validity: Errors.Validity.Error});
             }
         }
@@ -1264,11 +1457,54 @@ export class LogicalGraph {
             if (edge.getId() !== id){
                 const issue: Errors.Issue = Errors.ShowFix(
                     "Edge (" + id + ") id does not match the key in the edges dictionary",
-                    function(){Utils.showEdge(eagle, edge)},
+                    LogicalGraph.withEagle(eagle, e => Utils.showEdge(e, edge)),
                     function(){edge.setId(id)},
                     "Set edge id to match key in edges dictionary"
                 );
                 graph.issues.push({issue : issue, validity : Errors.Validity.Error})
+            }
+        }
+
+        for (const [id, visual] of graph.visuals()){
+            
+            // check that all visuals in the visuals dict have a key that matches the id inside the visual
+            if (visual.getId() !== id){
+                const issue: Errors.Issue = Errors.ShowFix(
+                    "Visual (" + id + ") id does not match the key in the visuals dictionary",
+                    LogicalGraph.withEagle(eagle, e => Utils.showVisual(e, visual)),
+                    function(){visual.setId(id)},
+                    "Set visual id to match key in visuals dictionary"
+                );
+                graph.issues.push({issue : issue, validity : Errors.Validity.Error})
+            }
+
+            // check that the visual's target exists within the graph
+            if (visual.hasTarget()){
+                const target = visual.getTarget();
+                let targetExists = false;
+
+                // check if target is a node
+                if (target instanceof Node){
+                    targetExists = typeof graph.getNodeById(target.getId()) !== 'undefined';
+                }
+                // check if target is an edge
+                else if (target instanceof Edge){
+                    targetExists = typeof graph.getEdgeById(target.getId()) !== 'undefined';
+                }
+                // check if target is a visual
+                else if (target instanceof Visual){
+                    targetExists = typeof graph.getVisualById(target.getId()) !== 'undefined';
+                }
+
+                if (!targetExists){
+                    const issue: Errors.Issue = Errors.ShowFix(
+                        "Visual (" + id + ") target does not exist in the graph",
+                        LogicalGraph.withEagle(eagle, e => Utils.showVisual(e, visual)),
+                        function(){visual.setTarget(null)},
+                        "Reset visual target to empty state"
+                    );
+                    graph.issues.push({issue : issue, validity : Errors.Validity.Error})
+                }
             }
         }
 
@@ -1296,13 +1532,13 @@ export class LogicalGraph {
         for (const graphConfig of graph.getGraphConfigs()){
             for (const graphConfigNode of graphConfig.getNodes()){
                 // check that node exists in graph
-                const graphNode: Node = graph.nodes().get(graphConfigNode.getNode().getId());
+                const graphNode = graph.nodes().get(graphConfigNode.getNode().getId());
 
                 if (typeof graphNode === 'undefined'){
                     const issue: Errors.Issue = Errors.Fix(
                         "Node in graph config (" + graphConfig.fileInfo().name + ") is not present in Logical Graph",
                         function(){
-                            graphConfig.removeNode(graphNode);
+                            graphConfig.removeNodeById(graphConfigNode.getNode().getId());
                         },
                         "Delete node from graph config"
                     );
@@ -1311,7 +1547,7 @@ export class LogicalGraph {
                 }
 
                 for (const graphConfigField of graphConfigNode.getFields()){
-                    const graphField: Field = graphNode.getFieldById(graphConfigField.getField().getId());
+                    const graphField = graphNode.getFieldById(graphConfigField.getField().getId());
 
                     if (typeof graphField === 'undefined'){
                         const issue: Errors.Issue = Errors.Fix(

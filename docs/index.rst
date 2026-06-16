@@ -76,6 +76,7 @@ The final step is execution. This occurs on a selected facility, where the Physi
    Components <components>
    Palettes <palettes>
    Templates and Graphs <graphs>
+   Annotating Graphs <annotating>
 
 
 .. Indices and tables

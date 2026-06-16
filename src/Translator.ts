@@ -44,6 +44,8 @@ export class Translator {
     rmode : ko.Observable<number>;
     isTranslating: ko.Observable<boolean>
 
+    static readonly DEFAULT_TRANSLATION_ALGORITHM: string = "agl-1";
+
     constructor(){
         this.numberOfIslands = ko.observable(0);
         this.numberOfNodes = ko.observable(1);
@@ -61,8 +63,8 @@ export class Translator {
 
     submit = (translatorURL : string, formElements : { [index: string]: string }) : void => {
         // consult EAGLE settings to determine whether to open the translator in a new tab
-        const translateInCurrentTab: boolean = Setting.findValue(Setting.OPEN_TRANSLATOR_IN_CURRENT_TAB);
-        const overwriteTranslationTab: boolean = Setting.findValue(Setting.OVERWRITE_TRANSLATION_TAB);
+        const translateInCurrentTab: boolean = Setting.findValue<boolean>(Setting.OPEN_TRANSLATOR_IN_CURRENT_TAB, false);
+        const overwriteTranslationTab: boolean = Setting.findValue<boolean>(Setting.OVERWRITE_TRANSLATION_TAB, false);
 
         // create form element
         const form = document.createElement("form");
@@ -131,7 +133,7 @@ export class Translator {
         const isLocalFile: boolean = eagle.logicalGraph().fileInfo().location.repositoryService() === Repository.Service.File;
 
         // check if the graph is committed before translation
-        if (!Setting.findValue(Setting.TEST_TRANSLATE_MODE) && !isLocalFile && this._checkGraphModified(eagle)){
+        if (!Setting.findValue<boolean>(Setting.TEST_TRANSLATE_MODE, false) && !isLocalFile && this._checkGraphModified(eagle)){
             Utils.showNotification("Saving graph", "Automatically saving modified graph prior to translation", "info");
 
             // use the async function here, so that we can check isModified after saving
@@ -148,14 +150,14 @@ export class Translator {
             }
         }
 
-        const translatorURL : string = Setting.findValue(Setting.TRANSLATOR_URL);
+        const translatorURL : string = Setting.findValue<string>(Setting.TRANSLATOR_URL, "");
         console.log("Eagle.getPGT() : ", "algorithm name:", algorithmName, "translator URL", translatorURL);
 
         this._genPGT(eagle, translatorURL, algorithmName, testingMode);
     }
 
     private _checkGraphModified = (eagle: Eagle): boolean => {
-        return eagle.logicalGraph().fileInfo().modified && !Setting.findValue(Setting.ALLOW_MODIFIED_GRAPH_TRANSLATION);
+        return eagle.logicalGraph().fileInfo().modified && !Setting.findValue<boolean>(Setting.ALLOW_MODIFIED_GRAPH_TRANSLATION, false);
     }
 
     private _genPGT = (eagle: Eagle, translatorURL: string, algorithmName : string, testingMode: boolean) : void => {
@@ -163,7 +165,7 @@ export class Translator {
         const lgClone: LogicalGraph = eagle.logicalGraph().clone();
 
         // get the version of JSON we are using
-        const version: Setting.SchemaVersion = Setting.findValue(Setting.DALIUGE_SCHEMA_VERSION);
+        const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
 
         // convert to JSON
         const jsonString: string = LogicalGraph.toJsonString(lgClone, true, version);
@@ -181,7 +183,7 @@ export class Translator {
         eagle.translator().submit(translatorURL, translatorData);
 
         // if developer setting is enabled, write the translator-ready JSON to the console
-        if (Setting.findValue(Setting.PRINT_TRANSLATOR_JSON_TO_JS_CONSOLE)){
+        if (Setting.findValue<boolean>(Setting.PRINT_TRANSLATOR_JSON_TO_JS_CONSOLE, false)){
             console.log("Translator Json");
             console.log("---------");
             console.log(translatorData);
@@ -192,11 +194,11 @@ export class Translator {
     }
 
     algorithmVisible = (algorithm: string) : boolean => {
-        const normalTranslatorMode :boolean = Setting.findValue(Setting.USER_TRANSLATOR_MODE) === Setting.TranslatorMode.Normal;
+        const normalTranslatorMode :boolean = Setting.findValue<Setting.TranslatorMode>(Setting.USER_TRANSLATOR_MODE, Setting.TranslatorMode.Normal) === Setting.TranslatorMode.Normal;
         if(!normalTranslatorMode){
             return true
         }
-        if(algorithm === Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT)){
+        if(algorithm === Setting.findValue<string>(Setting.TRANSLATOR_ALGORITHM_DEFAULT, "agl-1")){
             return true
         }
     
@@ -204,16 +206,16 @@ export class Translator {
     }
         
     setUrl = async () : Promise<void> => {
-        const translatorURLSetting : Setting = Setting.find(Setting.TRANSLATOR_URL);
+        const defaultUrl = Setting.findValue<string>(Setting.TRANSLATOR_URL, "");
 
         let userString: string;
         try {
-            userString = await Utils.requestUserString("Translator Url", "Enter the Translator Url", translatorURLSetting.value(), false);
+            userString = await Utils.requestUserString("Translator Url", "Enter the Translator Url", defaultUrl, false);
         } catch (error){
             console.error(error);
             return;
         }
 
-        translatorURLSetting.value(userString);
+        Setting.setValue(Setting.TRANSLATOR_URL, userString);
     };
 }

@@ -23,9 +23,9 @@
                                     <i class="material-symbols-outlined interactive" data-bs-placement="right" data-bind="eagleTooltip: $data.getGitHTML()" data-bs-toggle="tooltip" data-html="true">link</i>
                                     <i class="material-symbols-outlined interactive" data-bs-placement="right" data-bind="eagleTooltip: 'Id: '+$data.getId()" data-bs-toggle="tooltip" data-html="true">fingerprint</i>
                                     <i class="material-symbols-outlined filled interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: $data.getInspectorDescriptionHTML(), click: $root.editNodeDescription" data-bs-toggle="tooltip" data-html="true">library_books</i>
-                                    <i class="material-symbols-outlined filled interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: $data.getInspectorCommentHTML(), click: $root.editNodeComment" data-bs-toggle="tooltip" data-html="true">chat</i>
+                                    <i class="material-symbols-outlined filled interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: $data.getInspectorCommentHTML(), click: function(){$root.editNodeComment($data)}" data-bs-toggle="tooltip" data-html="true">chat</i>
                                     <!-- ko if: $data.getAllErrorsWarnings().errors.length > 0 || $data.getAllErrorsWarnings().warnings.length > 0 -->
-                                        <i class="material-symbols-outlined filled interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: $data.getNodeIssuesHtml(), style:{'color': $data.getIconColor()}, click: $root.showGraphErrors" data-bs-toggle="tooltip" data-html="true">error</i>
+                                        <i class="material-symbols-outlined filled interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: $data.getNodeIssuesHtml(), style:{'color': $data.getIconColor()}, click: $root.showEagleErrors" data-bs-toggle="tooltip" data-html="true">error</i>
                                     <!-- /ko -->
                                 </div>
                                 <div class="col-7 col text-right">
@@ -181,7 +181,7 @@
                                 <div class="col-4 col">
                                     <i class="material-symbols-outlined filled interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: $data.getInspectorCommentHTML(), click: $root.editEdgeComment" data-bs-toggle="tooltip" data-html="true">chat</i>
                                     <!-- ko if: $data.getErrorsWarnings().errors.length > 0 || $data.getErrorsWarnings().warnings.length > 0 -->
-                                        <i class="material-symbols-outlined filled interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: $data.getNodeIssuesHtml(), style:{'color': $data.getIconColor()}, click: $root.showGraphErrors" data-bs-toggle="tooltip" data-html="true">error</i>
+                                        <i class="material-symbols-outlined filled interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: $data.getNodeIssuesHtml(), style:{'color': $data.getIconColor()}, click: $root.showEagleErrors" data-bs-toggle="tooltip" data-html="true">error</i>
                                     <!-- /ko -->
                                 </div>
                                 <div class="col-8 col text-right">
@@ -358,7 +358,15 @@
                                 <h5>Num Nodes: </h5>
                             </div>  
                             <div class="col-6 col contentObjectValue">
-                                <span data-bind="text:$root.logicalGraph().getNodes().length"></span>
+                                <span data-bind="text:$root.logicalGraph().nodes().size"></span>
+                            </div>
+                        </div>
+                        <div class="row inspectorEdgeSrcNodeId contentObject">
+                            <div class="col-6 col contentObjectTitle">
+                                <h5>Num Edges: </h5>
+                            </div>  
+                            <div class="col-6 col contentObjectValue">
+                                <span data-bind="text:$root.logicalGraph().edges().size"></span>
                             </div>
                         </div>
                         <div class="row inspectorEdgeSrcNodeId contentObject">

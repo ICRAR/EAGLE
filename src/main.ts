@@ -133,16 +133,14 @@ $(function(){
         }
 
         // hide the ?mode=x part of the url
-        window.history.replaceState(null, null, window.location.origin + window.location.pathname);
+        window.history.replaceState(null, "", window.location.origin + window.location.pathname);
     }
 
     // load the default palette
     eagle.loadDefaultPalettes();
 
     // set other state based on settings values
-    if (Setting.findValue(Setting.SNAP_TO_GRID)){
-        eagle.snapToGrid(Setting.findValue(Setting.SNAP_TO_GRID));
-    }
+    eagle.snapToGrid(Setting.findValue<boolean>(Setting.SNAP_TO_GRID, false));
 
     // load schemas
     Utils.loadSchemas();
@@ -154,7 +152,7 @@ $(function(){
     Modals.init(eagle);
 
     // add a listener for the beforeunload event, helps warn users before leaving webpage with unsaved changes
-    window.onbeforeunload = () => (eagle.areAnyFilesModified() && Setting.findValue(Setting.CONFIRM_DISCARD_CHANGES)) ? "Check graph" : null;
+    window.onbeforeunload = () => (eagle.areAnyFilesModified() && Setting.findValue<boolean>(Setting.CONFIRM_DISCARD_CHANGES, true)) ? "Check graph" : null;
 
     // keyboard shortcut event listener
     document.onkeydown = KeyboardShortcut.processKey;
@@ -162,17 +160,19 @@ $(function(){
 
     loadRepos();
 
-    // auto load a tutorial, if specified on the url
-    autoTutorial();
-
-    //request a first time visitor welcome to eagle if applicable
-    initiateWelcome(firstTimeVisit);
-  
-    // if not first time visit, but version is newer than last seen version, show the versions modal
-    // tutorial=none is used by the playwright tests to skip the welcome message and tutorials
+    // we use tutorial=none in the url for unit tests, because pop ups can cause test failures
     const urlParams = new URLSearchParams(window.location.search);
     const skipTutorial = urlParams.get('tutorial') === 'none';
-    
+
+    if (!skipTutorial) {
+        // auto load a tutorial, if specified on the url
+        autoTutorial();
+
+        //request a first time visitor welcome to eagle if applicable
+        initiateWelcome(firstTimeVisit);
+    }
+  
+    // if not first time visit, but version is newer than last seen version, show the versions modal
     if (!firstTimeVisit && showWhatsNew && !skipTutorial){
         eagle.showWhatsNew();
         // set the last seen version
@@ -344,8 +344,8 @@ async function autoLoad() {
     }
 
     // if developer setting enabled, fetch the repository that this graph belongs to (if the repository is in the list of known repositories)
-    if (serviceIsGit && Setting.findValue(Setting.FETCH_REPOSITORY_FOR_URLS)){
-        let repo: Repository = Repositories.get(service, repository, branch);
+    if (serviceIsGit && Setting.findValue<boolean>(Setting.FETCH_REPOSITORY_FOR_URLS, false)){
+        let repo: Repository | null = Repositories.get(service, repository, branch);
 
         // check whether the source repository is already known to EAGLE
         if (repo === null){
@@ -382,12 +382,7 @@ function autoTutorial(): void {
 
 function initiateWelcome(firstTimeVisit:boolean): void {
     if(firstTimeVisit){
-        const urlParams = new URLSearchParams(window.location.search);
-        const tutorialName = urlParams.get('tutorial');
-
-        if(tutorialName != 'none'){
-            TutorialSystem.initiateTutorial('Quick Start');
-        }
+        TutorialSystem.initiateTutorial('Quick Start');
     }
 }
 
@@ -406,6 +401,7 @@ declare global {
     type NodeId = Branded<string, "NodeId">
     type FieldId = Branded<string, "FieldId">
     type EdgeId = Branded<string, "EdgeId">
+    type VisualId = Branded<string, "VisualId">
     type RepositoryId = Branded<string, "RepositoryId">
     type RepositoryFileId = Branded<string, "RepositoryFileId">
     type GraphConfigId = Branded<string, "GraphConfigId">

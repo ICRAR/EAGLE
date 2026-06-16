@@ -34,6 +34,7 @@ ko.bindingHandlers.eagleTooltip = {
         // manual tooltip open system to allow for hovering on the tooltips
         let stillHovering = false
         jQueryElement.on('mouseenter', function () {
+            const event = window.event as MouseEvent;
             event.stopImmediatePropagation()
             event.stopPropagation()
             event.preventDefault()
@@ -46,7 +47,7 @@ ko.bindingHandlers.eagleTooltip = {
                 jQueryElement.attr("data-bs-placement", "right");
             }
 
-            let html = ko.unwrap(valueAccessor())
+            const html = ko.unwrap(valueAccessor())
             let result = ''
             let size = EagleConfig.EAGLE_TOOLTIP_DEFAULT_MAX_WIDTH + 'px' //default size
             let content = ''
@@ -162,7 +163,7 @@ ko.bindingHandlers.eagleTooltip = {
                     bootstrapTooltip.hide();
                     stillHovering = false
                 }
-            },100)
+            }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT);
         })
     }
 };

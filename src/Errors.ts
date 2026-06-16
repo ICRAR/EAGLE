@@ -24,9 +24,10 @@ export class Errors {
         let numErrors   = Infinity;
         let numWarnings = Infinity;
         let numIterations = 0;
+        const MAX_ITERATIONS = 10;
 
         while (numWarnings !== eagle.graphWarnings().length || numErrors !== eagle.graphErrors().length){
-            if (numIterations > 10){
+            if (numIterations > MAX_ITERATIONS){
                 console.warn("Too many iterations in fixAll()");
                 break;
             }
@@ -47,7 +48,7 @@ export class Errors {
                 }
             }
 
-            eagle.checkGraph();
+            eagle.checkEagle();
         }
 
         // show notification
@@ -113,11 +114,35 @@ export class Errors {
 
         return count;
     }, this);
+
+    // helper function to convert unknown error type to string
+    // typically used in catch blocks where the error type is unknown
+    static UnknownToError(error: unknown): string {
+        // handle Error objects
+        if (error instanceof Error){
+            return error.message;
+        }
+
+        // handle JSON
+        if (typeof error === "string"){
+            try {
+                const errorObj = JSON.parse(error);
+                if (errorObj.error){
+                    return errorObj.error;
+                }
+            } catch (err){
+                // not JSON, ignore
+                return error;
+            }
+        }
+
+        return String(error);
+    }
 }
 
 export namespace Errors
 {
-    export type Issue = {message: string, show: () => void, fix: () => void, fixDescription: string};
+    export type Issue = {message: string, show: (() => void) | null, fix: (() => void) | null, fixDescription: string};
     export type ErrorsWarnings = {warnings: Issue[], errors: Issue[]};
     
     export enum Validity {

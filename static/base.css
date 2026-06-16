@@ -14,6 +14,10 @@ body {
     font-weight:400;
 }
 
+p {
+    display: inline-block;
+}
+
 #graphArea {
     position: fixed;
     top: 82px;
@@ -81,7 +85,7 @@ body {
     top: 10px;
 }
 
-#checkGraphWarnings span{
+#checkEagleWarnings span{
     top: -3px;
 }
 
@@ -186,11 +190,29 @@ body {
     margin-left: 2px;
 }
 
+#navBarToolBar .navbarGroup .iconDropdown .dropdown-toggle{
+    padding: 0px 10px;
+}
+
+#navBarToolBar .navbarGroup .iconDropdown .dropdown-toggle::after{
+    content:none;
+}
+
+#navBarToolBar .navbarGroup .iconDropdown .dropdown-menu{
+    min-width: auto;
+}
+
+#navBarToolBar .navbarGroup .iconDropdown .dropdown-menu button{
+    width:fit-content;
+    display: inline-block;
+    margin-top: unset;
+}
+
 #navBarToolBar .navbarGroup i{
     font-size: 20px;
 }
 
-#checkGraphDone i{
+#checkEagleDone i{
 color: #00bb00;}
 
 #navBarToolBar .navbarGroup button:first-of-type{

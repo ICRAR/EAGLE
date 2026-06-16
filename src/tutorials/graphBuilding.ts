@@ -16,14 +16,14 @@ newTut.newTutStep("Creating a New Graph", "First we are going to create a new gr
 
 newTut.newTutStep("Creating a New Graph", "<em>Click on 'New'.</em>", function(){return $("#navbarDropdownGraph").parent().find('.dropdown-item').first()})
 .setType(TutorialStep.Type.Press)
-.setPreFunction(function(){TutorialSystem.activeTutCurrentStep.getTargetFunc()().parent().addClass('forceShow')}) //keeping the navbar graph dropdown open
+.setPreFunction(function(){TutorialSystem.activeTutCurrentStep.forceShowTargetParent()}) //keeping the navbar graph dropdown open
 .setBackPreFunction(function(){$("#navbarDropdownGraph").parent().find('#createNewGraph').removeClass('forceShow')})//allowing the 'new' drop drop down section to close
 .setBackSkip(true)
 
 newTut.newTutStep("Creating a New Graph", "<em>Click on 'Create new graph'</em>", function(){return $("#navbarDropdownGraph").parent().find('#createNewGraph')})
 .setType(TutorialStep.Type.Press)
-.setPreFunction(function(){TutorialSystem.activeTutCurrentStep.getTargetFunc()().parent().addClass('forceShow')})//keeping the 'new' drop drop down section open as well
-.setBackPreFunction(function(){$("#navbarDropdownGraph").parent().find('.dropdown-item').first().parent().addClass('forceShow');TutorialSystem.activeTutCurrentStep.getTargetFunc()().parent().addClass('forceShow')})//force showing both of the navbar graph drop downs
+.setPreFunction(function(){TutorialSystem.activeTutCurrentStep.forceShowTargetParent()})//keeping the 'new' drop drop down section open as well
+.setBackPreFunction(function(){$("#navbarDropdownGraph").parent().find('.dropdown-item').first().parent().addClass('forceShow');TutorialSystem.activeTutCurrentStep.forceShowTargetParent()})//force showing both of the navbar graph drop downs
 .setBackSkip(true)
 
 newTut.newTutStep("Creating a new graph", "Then just <em>give it a name and press enter</em>", function(){return $("#inputModalInput")})
@@ -79,7 +79,7 @@ newTut.newTutStep("Graph Nodes", "Once added into your graph, the component is i
 newTut.newTutStep("Editing Components", "The inspector panel provides access to the complete set of specifications of a component.", function(){return $("#inspector")})
 .setWaitType(TutorialStep.Wait.Delay)
 .setDelayAmount(200)
-.setPreFunction(function(){Setting.find(Setting.INSPECTOR_COLLAPSED_STATE).setValue(false)})
+.setPreFunction(function(){Setting.setValue(Setting.INSPECTOR_COLLAPSED_STATE, false)})
 
 newTut.newTutStep("The Parameter Table", "<em>Click to open the node fields table and continue.</em>", function(){return $("#inspector #openNodeParamsTable")})
 .setWaitType(TutorialStep.Wait.Element)
@@ -126,15 +126,15 @@ newTut.newTutStep("Connecting nodes", "<em>Click and hold the output Port of the
 .setAlternateHighlightTargetFunc(function(){return $("#logicalGraphParent")})
 .setConditionFunction(function(eagle:Eagle){if(eagle.logicalGraph().getNumEdges() != 0){return true}else{return false}}) //check if there are any edges present in the graph
 
-newTut.newTutStep("Graph Errors and warnings", "This is the error checking system, it is showing a check mark, so we did everything correctly. If there are errors in the graph you are able to troubleshoot them by clicking here.", function(){return $("#checkGraphWarnings")})
+newTut.newTutStep("Graph Errors and warnings", "This is the error checking system, it is showing a check mark, so we did everything correctly. If there are errors in the graph you are able to troubleshoot them by clicking here.", function(){return $("#checkEagleWarnings")})
 
 newTut.newTutStep("Saving a Graph", "Options to save your graph are available in the graph menu <em>Click on 'Graph' to continue.</em>", function(){return $("#navbarDropdownGraph")})
 .setType(TutorialStep.Type.Press)
-.setPreFunction(function(eagle:Eagle){Utils.closeErrorsModal()})
+.setPreFunction(function(_eagle:Eagle){Utils.closeErrorsModal()})
 .setBackPreFunction(function(){$('.forceShow').removeClass('forceShow');$(".dropdown-toggle").removeClass("show");$(".dropdown-menu").removeClass("show")}) //allowing the graph navbar dropdown to hide
 
 newTut.newTutStep("Saving a Graph", "You are able to download the graph in the 'local storage' section, or save the graph into your github repository under 'git storage'", function(){return $("#navbarDropdownGraph").parent().find('.dropdown-menu')})
-.setPreFunction(function(){TutorialSystem.activeTutCurrentStep.getTargetFunc()().addClass('forceShow')}) //keeping the navbar graph dropdown open
+.setPreFunction(function(){TutorialSystem.activeTutCurrentStep.forceShowTargetParent()}) //keeping the navbar graph dropdown open
 .setBackSkip(true)
 
 newTut.newTutStep("Well Done!", "You have completed the Hello world graph creation tutorial! Be sure to check our <a target='_blank' href='https://eagle-dlg.readthedocs.io'>online documentation</a> for additional help and guidance.", function(){return $("#logicalGraphParent")})
