@@ -368,6 +368,9 @@ def get_git_lab_files_all():
             print("GitlabAuthenticationError {1}: {0}, retrying anonymously".format(str(gae), repo_name))
             credentials_ignored = True
             gl = gitlab.Gitlab('https://gitlab.com', api_version=4)
+        except gitlab.exceptions.GitlabError as ge:
+            print("GitlabError during auth {1}: {0}".format(str(ge), repo_name))
+            return jsonify({"error": "GitLab error during authentication: " + str(ge)})
     else:
         gl = gitlab.Gitlab('https://gitlab.com', api_version=4)
 
@@ -799,6 +802,9 @@ def open_git_lab_file():
             print("GitLab auth failed for {0}, retrying anonymously".format(repo_name))
             credentials_ignored = True
             gl = gitlab.Gitlab('https://gitlab.com', api_version=4)
+        except gitlab.exceptions.GitlabError as ge:
+            app.logger.exception("GitLab error during auth for %s", repo_name)
+            return jsonify({"error": "GitLab error during authentication: " + str(ge)}), 404
     else:
         gl = gitlab.Gitlab('https://gitlab.com', api_version=4)
 
@@ -832,7 +838,8 @@ def open_git_lab_file():
 
         return jsonify({"data": json_data, "credentialsIgnored": credentials_ignored})
     else:
-        return jsonify({"data": raw_data, "credentialsIgnored": credentials_ignored})
+        raw_str = raw_data if isinstance(raw_data, str) else raw_data.decode("utf-8")
+        return jsonify({"data": raw_str, "credentialsIgnored": credentials_ignored})
 
 
 @app.route("/deleteRemoteGitlabFile", methods=["POST"])
