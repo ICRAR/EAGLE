@@ -134,15 +134,6 @@ export class GitHub {
                 return;
             }
 
-            // warn if credentials were ignored (bad token, fell back to anonymous access)
-            if (data.credentialsIgnored){
-                Utils.showNotification(
-                    "GitHub Access Token",
-                    "The GitHub access token is invalid and was ignored while loading " + repository.name + " / " + path + ". The repository was accessed anonymously.",
-                    "warning"
-                );
-            }
-
             // flag as fetched and expand by default
             location.fetched(true);
             location.expanded(true);
