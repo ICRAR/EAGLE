@@ -105,7 +105,11 @@ export class GitLab {
 
             // warn if credentials were ignored (bad token, fell back to anonymous access)
             if (data.credentialsIgnored){
-                Utils.showNotification("GitLab Access Token", "The GitLab access token is invalid and was ignored. The repository was accessed anonymously.", "warning");
+                Utils.showNotification(
+                    "GitLab Access Token",
+                    "The GitLab access token is invalid and was ignored while loading " + repository.name + " / " + path + ". The repository was accessed anonymously.",
+                    "warning"
+                );
             }
 
             // flag as fetched and expand by default
@@ -202,7 +206,11 @@ export class GitLab {
 
             // warn if credentials were ignored (bad token, fell back to anonymous access)
             if (data.credentialsIgnored){
-                Utils.showNotification("GitLab Access Token", "The GitLab access token is invalid and was ignored. The file was loaded from a public repository.", "warning");
+                Utils.showNotification(
+                    "GitLab Access Token",
+                    "The GitLab access token is invalid and was ignored while loading " + repositoryName + " / " + repositoryBranch + " / " + fullFileName + ". The file was loaded from a public repository.",
+                    "warning"
+                );
             }
 
             resolve(data.data);
