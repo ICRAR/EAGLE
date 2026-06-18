@@ -83,6 +83,7 @@ newTut.newTutStep("Editing Components", "The inspector panel provides access to 
 
 newTut.newTutStep("The Parameter Table", "<em>Click to open the node fields table and continue.</em>", function(){return $("#inspector #openNodeParamsTable")})
 .setWaitType(TutorialStep.Wait.Element)
+.setDelayAmount(300)
 .setType(TutorialStep.Type.Press)
 
 newTut.newTutStep("The Parameter Table", " The Component Parameters are settings pertaining to the DALiuGE component wrapper, the Application Arguments are settings exposed by the underlying application code.", function(){return $('.parameterTable thead')})
