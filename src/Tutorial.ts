@@ -69,7 +69,21 @@ export class TutorialSystem {
                     e.preventDefault()
                     e.stopImmediatePropagation()
                     if(TutorialSystem.activeTutCurrentStep.getType() === TutorialStep.Type.Press){
-                        $(':focus').trigger("click")
+                        const targetFunc = TutorialSystem.activeTutCurrentStep.getTargetFunc();
+                        const targetElement = targetFunc ? targetFunc() : $();
+
+                        if (targetElement.length > 0) {
+                            const targetNode = targetElement.get(0);
+
+                            if (targetNode instanceof HTMLElement) {
+                                targetNode.focus();
+                                targetNode.click();
+                            } else {
+                                targetElement.first().trigger("focus").trigger("click")
+                            }
+                        } else {
+                            $(':focus').trigger("click")
+                        }
                     }
                     break;
 

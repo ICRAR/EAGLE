@@ -13,11 +13,14 @@ newTut.newTutStep("Left Panel", "This panel displays the components available to
 newTut.newTutStep("Graph Canvas", "In the graph canvas you can construct graphs using components from the palettes.", function(){return $("#logicalGraphParent")})
 
 newTut.newTutStep("Right Panel", "This Panel houses your repositories, allowing for loading of palettes and graphs. The Hierarchy tab, for a better overview of the graph structure. And the Translate tab, which is where translation options can be set.", function(){return $(".rightWindow")})
+    .setPreFunction(function(){SideWindow.setShown('right', true);})
 
 newTut.newTutStep("Hints Bar", "Keep an eye on this section to learn important shortcuts and methods. The content changes when selecting different components in the canvas.", function(){return $("#statusBar")})
 
 newTut.newTutStep("Inspector", "Shows information and possible actions of the currently selected item, or the graph when nothing is selected.", function(){return $("#inspector")})
-    .setPreFunction(function(){SideWindow.setShown('right', true); Setting.setValue(Setting.INSPECTOR_COLLAPSED_STATE, false);})
+    .setWaitType(TutorialStep.Wait.Delay)
+    .setDelayAmount(300)
+    .setPreFunction(function(){Setting.setValue(Setting.INSPECTOR_COLLAPSED_STATE, false);})
 
 newTut.newTutStep("User Interface Element Tooltips", "Much of Eagle's interface is using icons. You can always hover over the icons and most of the other elements to get more information on what they do.", function(){return $("#navbarSupportedContent .btn-group")})
     .setBackPreFunction(function (_eagle) {Utils.hideShortcutsModal()})
