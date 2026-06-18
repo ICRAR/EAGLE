@@ -2,6 +2,7 @@ import { Eagle } from '../Eagle';
 import { RightClick } from '../RightClick';
 import { TutorialStep, TutorialSystem } from '../Tutorial';
 import { Setting } from '../Setting';
+import { ParameterTable } from '../ParameterTable';
 
 const newTut = TutorialSystem.newTutorial('Graph Configurations', 'An introduction to using graph configurations.')
 
@@ -43,8 +44,6 @@ newTut.newTutStep("Right Click to add a hello world app node", "Use the right cl
 newTut.newTutStep("Add a hello world app node", "<em>Search for 'hello' and press enter</em>", function(){return $("#rightClickSearchBar")})
 .setType(TutorialStep.Type.Condition)
 .setConditionFunction(function(){return TutorialSystem.isRequestedNodeSelected('HelloWorldApp')})
-// .setType(TutorialStep.Type.Input)
-// .setExpectedInput('hello')
 .setBackSkip(true)
 
 newTut.newTutStep("Right Click to add a file node", "Use the right click menu to add a second node. <em>Right click on the graph to bring up a 'add node' menu</em>", function(){return $("#logicalGraphParent")})
@@ -56,8 +55,6 @@ newTut.newTutStep("Right Click to add a file node", "Use the right click menu to
 newTut.newTutStep("Add a file node", "<em>Search for 'file' and press enter</em>", function(){return $("#rightClickSearchBar")})
 .setType(TutorialStep.Type.Condition)
 .setConditionFunction(function(){return TutorialSystem.isRequestedNodeSelected('File')})
-// .setType(TutorialStep.Type.Input)
-// .setExpectedInput('file')
 .setBackSkip(true)
 
 newTut.newTutStep("Connecting nodes", "<em>Click and hold the output Port of the hello world app and drag over near the file node's input port, until you see the edge from the cursor turn a deep purple, then release.</em>",  function(){return $('#portContainer .' + TutorialSystem.initiateSimpleFindGraphNodeIdByNodeName('HelloWorldApp')+' .outputPort')})
@@ -81,23 +78,18 @@ newTut.newTutStep("Adding Graph Configuration Fields", "<em>Click to open the no
 .setWaitType(TutorialStep.Wait.Delay)
 .setDelayAmount(400)
 
-newTut.newTutStep("Creating Graph Configurations", "Lets flag the 'greet' field of who we are greeting as a graph configuration field. This button appears when hovering on the field name. <em>Click on the heart to flag this field as graph configuration field.</em>", function(){return $('.column_DisplayText button').first()})
+newTut.newTutStep("Setting Up Graph Configurations", "Lets flag the 'greet' field of who we are greeting as a graph configuration field. This button appears when hovering on the field name. <em>Click on the heart to flag this field as graph configuration field.</em>", function(){return $('.column_DisplayText button').first()})
 .setType(TutorialStep.Type.Press)
 .setPreFunction(function(){setTimeout(function(){$('.column_DisplayText button').first().css('visibility','visible')},200)})
-// .setBackPreFunction(function(){$('#openNodeFieldsTable').trigger("click")})
 .setWaitType(TutorialStep.Wait.Delay)
 .setDelayAmount(700)
+.setBackPreFunction(function(){ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal);})
 
-newTut.newTutStep("Creating Graph Configurations", "A graph may have many configurations for different purposes. <em>Enter a descriptive name such as 'Simple Hello World' and click OK</em>",function(){return $('#inputModal .affirmativeBtn')})
+newTut.newTutStep("Using Graph Configurations", "You can view the fields that have been added to the current graph configuration by opening the Graph Attributes Configuration table here. <em>click to continue</em>", function(){return $('#bottomTabKeyParamsSwitcher')})
 .setType(TutorialStep.Type.Press)
-.setAlternateHighlightTargetFunc(function(){return $('#inputModal .modal-content')})
-.setWaitType(TutorialStep.Wait.Delay)
-.setDelayAmount(200)
+.setBackSkip(true)
 
-newTut.newTutStep("Graph Configurations", "You can view the graph configuration fields by opening the Graph Configurations table here. <em>click to continue</em>", function(){return $('#bottomTabKeyParamsSwitcher')})
-.setType(TutorialStep.Type.Press)
-
-newTut.newTutStep("Graph Configurations", "Our 'greet' field has been added to the graph configuration, where we can quickly change it for future runs of the graph. <em>next to continue</em>", function(){return $('.column_DisplayText').first()})
+newTut.newTutStep("Using Graph Configurations", "Our 'greet' field has been added to the graph configuration, where we can quickly change it for future runs of the graph. <em>next to continue</em>", function(){return $('.column_DisplayText').first()})
 .setAlternateHighlightTargetFunc(function(){return $('.parameterTable')})
 .setWaitType(TutorialStep.Wait.Delay)
 .setDelayAmount(200)
@@ -107,14 +99,21 @@ newTut.newTutStep("Adjusting Graph Configurations", "We should describe what the
 
 newTut.newTutStep("Adjusting Graph Configurations", "For example, lets greet John. <em>Type 'John' and press enter to continue.</em>", function(){return $('.tableFieldStringValueInput').first()})
 .setType(TutorialStep.Type.Input)
+.setBackPreFunction(function(){ParameterTable.openTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.Normal);})
 
 newTut.newTutStep("Managing Graph Configurations", "<em>Click to Switch to the graph configurations table</em>", function(){return $('#bottomTabGraphConfigurationsSwitcher')})
 .setType(TutorialStep.Type.Press)
+.setBackSkip(true)
 
 newTut.newTutStep("Managing Graph Configurations", "In this table we can view, edit, copy or delete existing graph configurations saved in this graph. <em>next to continue</em>", function(){return $('#graphConfigurationsTableWrapper tr').first()})
 .setWaitType(TutorialStep.Wait.Delay)
 .setDelayAmount(200)
 .setAlternateHighlightTargetFunc(function(){return $('#bottomWindow .content')})
+
+newTut.newTutStep("Setting Up Graph Configurations", "Every graph will have a configuration automatically added. A graph may have many configurations for different purposes. <em>Enter a descriptive name for your intended use case such as 'Simple Hello World test'</em>",function(){return $('#graphConfigurationsTableWrapper tbody tr:first .column-name')})
+.setAlternateHighlightTargetFunc(function(){return $('#graphConfigurationsTable')})
+.setWaitType(TutorialStep.Wait.Delay)
+.setDelayAmount(200)
 
 newTut.newTutStep("Managing Graph Configurations", "Lets say we want another version of this config, but also be able to easily change the output file path. First, we must duplicate our existing graph configuration. <em>Click to duplicate our first configuration</em>", function(){return $('.btmWindowDuplicateBtn').first()})
 .setType(TutorialStep.Type.Press)
@@ -123,7 +122,9 @@ newTut.newTutStep("Managing Graph Configurations", "Our configuration has been d
 .setAlternateHighlightTargetFunc(function(){return $('#bottomWindow .content')})
 
 newTut.newTutStep("Activating Graph Configurations", "As you can see, the newly created configuration is active. You can change the active config or disable them by using the toggle buttons. <em>next to continue</em>", function(){return $('.column-active:last')})
+.setDelayAmount(500)
 .setAlternateHighlightTargetFunc(function(){return $('#bottomWindow .content')})
+.setBackPreFunction(function(){ParameterTable.openTable(Eagle.BottomWindowMode.GraphConfigsTable, ParameterTable.SelectType.Normal);})
 
 newTut.newTutStep("Adding another field", "<em>Click on the File node named 'hello' to select it.</em>",  function(){return TutorialSystem.initiateFindGraphNodeIdByNodeName('hello')})
 .setType(TutorialStep.Type.Condition)
@@ -135,12 +136,13 @@ newTut.newTutStep("Adding another field", "<em>Click on the File node named 'hel
 newTut.newTutStep("Adding another field", "<em>Click on the heart to flag the file path field as a graph configuration field.</em>", function(){return $('.column_DisplayText button').first()})
 .setType(TutorialStep.Type.Press)
 .setPreFunction(function(){setTimeout(function(){$('.column_DisplayText button').first().css('visibility','visible')},200)})
-.setBackPreFunction(function(){ $('#bottomTabParamsTableSwitcher').trigger('click'); setTimeout(function(){$('.column_DisplayText button').first().css('visibility','visible')},200)})
+.setBackPreFunction(function(){ $('#bottomTabParamsTableSwitcher').trigger('click'); setTimeout(function(){$('.column_DisplayText button').first().click(); $('.column_DisplayText button').first().css('visibility','visible')},200)})
 .setWaitType(TutorialStep.Wait.Delay)
 .setDelayAmount(700)
 
 newTut.newTutStep("Adding another field", "Switch back to the graph configuration fields table <em>Click to Switch</em>", function(){return $('#bottomTabKeyParamsSwitcher')})
 .setType(TutorialStep.Type.Press)
+.setBackSkip(true)
 
 newTut.newTutStep("Adjusting Graph Configurations", "We can see that the FilePath field has been added to our graph configuration. Describe what it does, such as 'the output file path of the graph' <em>Type a description and press Enter</em>", function(){return $('.tableFieldCommentInput').eq(1)})
 .setType(TutorialStep.Type.Input)
