@@ -1,5 +1,7 @@
 import {Eagle} from './Eagle';
 import { EagleConfig } from './EagleConfig';
+import { Setting } from './Setting';
+import { SideWindow } from './SideWindow';
 import { Utils } from './Utils';
 
 export class TutorialSystem {
@@ -23,6 +25,8 @@ export class TutorialSystem {
                 TutorialSystem.activeTutCurrentStepIndex = 0
                 TutorialSystem.activeTut.initiateTutStep(TutorialStep.Direction.Next)
                 TutorialSystem.addTutKeyboardShortcuts()
+
+                TutorialSystem.activeTut.ensureUIState()
                 return;
             }
         }
@@ -65,7 +69,21 @@ export class TutorialSystem {
                     e.preventDefault()
                     e.stopImmediatePropagation()
                     if(TutorialSystem.activeTutCurrentStep.getType() === TutorialStep.Type.Press){
-                        $(':focus').trigger("click")
+                        const targetFunc = TutorialSystem.activeTutCurrentStep.getTargetFunc();
+                        const targetElement = targetFunc ? targetFunc() : $();
+
+                        if (targetElement.length > 0) {
+                            const targetNode = targetElement.get(0);
+
+                            if (targetNode instanceof HTMLElement) {
+                                targetNode.focus();
+                                targetNode.click();
+                            } else {
+                                targetElement.first().trigger("focus").trigger("click")
+                            }
+                        } else {
+                            $(':focus').trigger("click")
+                        }
                     }
                     break;
 
@@ -717,6 +735,22 @@ export class Tutorial {
             this.tutButtonNext()
         }
     }
+
+    ensureUIState = (): void => {
+        // Ensure the left window is visible
+        SideWindow.setShown('left', true);
+
+        // Ensure the right window is visible
+        SideWindow.setShown('right', true);
+
+        // Ensure the graph inspector is visible
+        Setting.setValue(Setting.INSPECTOR_COLLAPSED_STATE, false);
+
+        // Ensure the bottom window is hidden
+        SideWindow.setShown('bottom', false);
+    }
+
+    
 }
 
 export class TutorialStep {

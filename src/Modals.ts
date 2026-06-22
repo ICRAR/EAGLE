@@ -172,6 +172,9 @@ export class Modals {
             const editor = $('#inputMarkdownModal').data('editor');
             if (editor){
                 editor.refresh();
+                setTimeout(() => {
+                    editor.focus();
+                }, 0);
             } else {
                 console.error("No 'editor' data attribute found on modal");
             }

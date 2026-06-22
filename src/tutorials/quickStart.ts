@@ -1,40 +1,47 @@
 import { TutorialStep, TutorialSystem } from '../Tutorial';
 import { Utils } from '../Utils';
+import { SideWindow } from '../SideWindow';
+import { Setting } from '../Setting';
 
 const newTut = TutorialSystem.newTutorial('Quick Start', 'This tutorial is an introductory tour around Eagle to get the user familiar with the user interface.')
 
 newTut.newTutStep("Welcome to Eagle!", "Welcome to the basic UI tutorial for EAGLE, the Editor for the Advanced Graph Language Environment. You can quit this tutorial anytime using the 'exit' button or ESC key. Please refer to the main <a target='_blank' href='https://eagle-dlg.readthedocs.io'>documentation</a> for in-depth information.", function(){return $("#eagleAndVersion a")})
 
 newTut.newTutStep("Left Panel", "This panel displays the components available to construct graphs. The components are organised in so-called <a target='_blank' href='https://eagle-dlg.readthedocs.io/en/master/palettes.html'>Palettes</a>. By default EAGLE loads two palettes, which are part of the core system, but users can develop their own palettes as well and load them here.", function(){return $(".leftWindow")})
+    .setPreFunction(function(){SideWindow.setShown('left', true);})
 
 newTut.newTutStep("Graph Canvas", "In the graph canvas you can construct graphs using components from the palettes.", function(){return $("#logicalGraphParent")})
 
 newTut.newTutStep("Right Panel", "This Panel houses your repositories, allowing for loading of palettes and graphs. The Hierarchy tab, for a better overview of the graph structure. And the Translate tab, which is where translation options can be set.", function(){return $(".rightWindow")})
+    .setPreFunction(function(){SideWindow.setShown('right', true);})
 
 newTut.newTutStep("Hints Bar", "Keep an eye on this section to learn important shortcuts and methods. The content changes when selecting different components in the canvas.", function(){return $("#statusBar")})
 
 newTut.newTutStep("Inspector", "Shows information and possible actions of the currently selected item, or the graph when nothing is selected.", function(){return $("#inspector")})
+    .setWaitType(TutorialStep.Wait.Delay)
+    .setDelayAmount(300)
+    .setPreFunction(function(){Setting.setValue(Setting.INSPECTOR_COLLAPSED_STATE, false);})
 
 newTut.newTutStep("User Interface Element Tooltips", "Much of Eagle's interface is using icons. You can always hover over the icons and most of the other elements to get more information on what they do.", function(){return $("#navbarSupportedContent .btn-group")})
     .setBackPreFunction(function (_eagle) {Utils.hideShortcutsModal()})
 
 newTut.newTutStep("Help", "This is where you can find various documentation to aid in learning your way around EAGLE. <em>Click on 'Help' to continue.</em>", function(){return $("#navbarDropdownHelp")})
-.setType(TutorialStep.Type.Press)
-.setBackPreFunction(function(){$('.forceShow').removeClass('forceShow');$('.modal').modal("hide");}) //allowing the graph navbar dropdown to hide
+    .setType(TutorialStep.Type.Press)
+    .setBackPreFunction(function(){$('.forceShow').removeClass('forceShow');$('.modal').modal("hide");}) //allowing the graph navbar dropdown to hide
 
 newTut.newTutStep("Tutorials", "All the of our tutorials, including this one, will always be available here.", function(){return $("#navTutorials")})
-.setPreFunction(function(){TutorialSystem.activeTutCurrentStep.forceShowTargetParent();$("#navTutorials").find('.dropDropDown').addClass('forceShow')}) //keeping the navbar graph dropdown open and showing the contents of the tutorials drop down
-.setBackPreFunction(function(){$("#navTutorials").find('.dropDropDown').addClass('forceShow')})//showing the contents of the tutorials drop down
+    .setPreFunction(function(){TutorialSystem.activeTutCurrentStep.forceShowTargetParent();$("#navTutorials").find('.dropDropDown').addClass('forceShow')}) //keeping the navbar graph dropdown open and showing the contents of the tutorials drop down
+    .setBackPreFunction(function(){$("#navTutorials").find('.dropDropDown').addClass('forceShow')})//showing the contents of the tutorials drop down
 
 newTut.newTutStep("Read The Docs", "This is a link to our in depth documentation on Read The Docs.", function(){return $("#onlineDocs")})
-.setPreFunction(function(){$("#navTutorials").find('.dropDropDown').removeClass('forceShow')}) //hiding the contents of the tutorials drop down
-.setBackPreFunction(function(){$('.modal').modal("hide");}) //hide the modal in case it has been opened by the user
+    .setPreFunction(function(){$("#navTutorials").find('.dropDropDown').removeClass('forceShow')}) //hiding the contents of the tutorials drop down
+    .setBackPreFunction(function(){$('.modal').modal("hide");}) //hide the modal in case it has been opened by the user
 
 newTut.newTutStep("Keyboard Shortcuts", "Eagle has many keyboard shortcuts to boost productivity, this is the cheat sheet. The shortcut for this is [K]", function(){return $("#keyboardShortcuts")})
-.setBackPreFunction(function(){TutorialSystem.activeTutCurrentStep.forceShowTargetParent()}) //hide the modal in case it has been opened by the user // TODO: check comment is correct
+    .setBackPreFunction(function(){TutorialSystem.activeTutCurrentStep.forceShowTargetParent()}) //hide the modal in case it has been opened by the user // TODO: check comment is correct
 
 newTut.newTutStep("Quick Actions", "Use this tool to look up and run functions or discover documentation available in EAGLE.", function(){return $("#quickAction")})
-.setPreFunction(function(){$(".forceShow").removeClass("forceShow"); $("#navbarDropdownHelp").trigger('mouseleave');}) //hide the quick action tooltip
+    .setPreFunction(function(){$(".forceShow").removeClass("forceShow"); $("#navbarDropdownHelp").trigger('mouseleave');}) //hide the quick action tooltip
 
 newTut.newTutStep("Click To Open Settings", "The settings modal allows you to customize EAGLE's user experience. By default, EAGLE is simplified by hiding a lot of functionality via the UI modes. To find out more check our <a target='_blank' href='https://eagle-dlg.readthedocs.io/en/master/settings.html#settings'>settings documentation</a>. <em>Click the Settings Button to continue.</em>", function(){return $("#settings")})
     .setType(TutorialStep.Type.Press)
