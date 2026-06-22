@@ -10,7 +10,8 @@ export const versions = [
       `Undo/graph integrity fixes, including snapshot hashing to detect true JSON changes and fixes to graph cloning and key/id update edge cases`,
       `TypeScript/build compatibility updates (including TS6 compatibility work and stabilization), plus multiple type/import fixes`,
       `UI/interaction fixes and polish, including drag behaviour fixes, text visual connection improvements, and table/modal usability improvements`,
-      `General code quality pass with removal of magic numbers, duplicated logic, dead code, and legacy compatibility shims`
+      `General code quality pass with removal of magic numbers, duplicated logic, dead code, and legacy compatibility shims`,
+      `Fixes for tutorials`
     ]
   },
   {
