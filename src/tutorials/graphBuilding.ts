@@ -97,7 +97,7 @@ newTut.newTutStep("The Parameter Table", " The Component Parameters are settings
 .setDelayAmount(300)
 .setAlternateHighlightTargetFunc(function(){return $("#bottomWindow .tableBody")})
 
-newTut.newTutStep("Enter a Name", "In case of this hello world app we can change who we are greeting. <em>Enter a name and press enter to continue.</em>", function(){return $('.tableFieldStringValueInput').first()})
+newTut.newTutStep("Enter a Name", "In case of this hello world app we can change who we are greeting. <em>Enter a name, then click Next to continue.</em>", function(){return $('.tableFieldStringValueInput').first()})
 .setPreFunction(function(){ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal);})
 .setWaitType(TutorialStep.Wait.Delay)
 .setDelayAmount(300)
@@ -137,7 +137,7 @@ newTut.newTutStep("Connecting nodes", "<em>Click and hold the output Port of the
 .setAlternateHighlightTargetFunc(function(){return $("#logicalGraphParent")})
 .setConditionFunction(function(eagle:Eagle){if(eagle.logicalGraph().getNumEdges() != 0){return true}else{return false}}) //check if there are any edges present in the graph
 
-newTut.newTutStep("Graph Errors and warnings", "This is the error checking system, it is showing a check mark, so we did everything correctly. If there are errors in the graph you are able to troubleshoot them by clicking here.", function(){return $("#checkEagleWarnings")})
+newTut.newTutStep("Graph Errors and warnings", "This is the error checking system. If there are errors or warnings in the graph you are able to troubleshoot them by clicking here.", function(){return $("#checkEagleWarnings")})
 
 newTut.newTutStep("Saving a Graph", "Options to save your graph are available in the graph menu <em>Click on 'Graph' to continue.</em>", function(){return $("#navbarDropdownGraph")})
 .setType(TutorialStep.Type.Press)
