@@ -418,6 +418,50 @@ def get_docker_image_tags():
     return jsonify(data)
 
 
+# Create a new branch on GitHub or GitLab
+@app.route("/createBranch", methods=["POST"])
+def create_branch():
+    """
+    FLASK POST routing method for '/createBranch'
+
+    Creates a new branch from a source branch on GitHub or GitLab.
+    Expects JSON: {service, repository, sourceBranch, newBranch, token (optional)}
+    """
+    content = request.get_json(silent=True)
+    service = content.get("service")
+    repo_name = content.get("repository")
+    source_branch = content.get("sourceBranch")
+    new_branch = content.get("newBranch")
+    token = content.get("token", None)
+
+    if not service or not repo_name or not source_branch or not new_branch:
+        return jsonify({"error": "Missing required parameters."})
+
+    try:
+        if service.lower() == "github":
+            g = github.Github(token) if token else github.Github()
+            repo = g.get_repo(repo_name)
+            # Get the source branch reference
+            source_ref = repo.get_git_ref(f"heads/{source_branch}")
+            # Create the new branch reference
+            repo.create_git_ref(ref=f"refs/heads/{new_branch}", sha=source_ref.object.sha)
+            return jsonify({"success": True, "service": "github", "repository": repo_name, "newBranch": new_branch})
+        elif service.lower() == "gitlab":
+            gl = gitlab.Gitlab('https://gitlab.com', private_token=token, api_version=4) if token else gitlab.Gitlab('https://gitlab.com', api_version=4)
+            project = gl.projects.get(repo_name)
+            # Create the new branch
+            branch = project.branches.create({'branch': new_branch, 'ref': source_branch})
+            return jsonify({"success": True, "service": "gitlab", "repository": repo_name, "newBranch": new_branch})
+        else:
+            return jsonify({"error": f"Unknown service: {service}"})
+    except github.GithubException as ge:
+        return jsonify({"error": f"GitHub error: {str(ge)}"})
+    except gitlab.exceptions.GitlabCreateError as gle:
+        return jsonify({"error": f"GitLab error: {str(gle)}"})
+    except Exception as e:
+        return jsonify({"error": f"Unexpected error: {str(e)}"})
+    
+    
 @app.route("/saveFileToRemoteGithub", methods=["POST"])
 def save_git_hub_file():
     """
@@ -456,7 +500,10 @@ def save_git_hub_file():
     # get SHA from branch
     branch_sha = branch_ref.object.sha
 
-    set_metadata_for_ingress(graph, "GitHub", repo_name, repo_branch, filename)
+    try:
+        set_metadata_for_ingress(graph, "GitHub", repo_name, repo_branch, filename)
+    except Exception as e:
+        return github_exception_handler(e, "Error in set_metadata_for_ingress", repo_name, repo_branch)
 
     # The 'indent=4' option is used for nice formatting. Without it the file is stored as a single line.
     json_data = json.dumps(graph, indent=4)
@@ -486,6 +533,86 @@ def save_git_hub_file():
         return github_exception_handler(e, "Error in edit", repo_name, repo_branch)
 
     return jsonify({"success": True})
+
+
+@app.route("/saveFilesToRemoteGithub", methods=["POST"])
+def save_git_hub_files():
+    """
+    FLASK POST routing method for '/saveFilesToRemoteGithub'
+
+    Save file(s) to a GitHub repository. The POST request content is a JSON string containing the repository name, branch, access token, and commit message. Plus a JSON array containing each files name and data in JSON format.
+    """
+    # Extract parameters and file content from json.
+    content = request.get_json(silent=True)
+    repo_name = content["repositoryName"]
+    repo_branch = content["repositoryBranch"]
+    repo_token = content["token"]
+    files = content["files"]  # contains "path" and "jsonData" for each file. The path should include the filename.
+    commit_message = content["commitMessage"]
+
+    g = github.Github(repo_token)
+
+    # get repo
+    try:
+        repo = g.get_repo(repo_name)
+    except github.GithubException as e:
+        return github_exception_handler(e, "Error in get_repo", repo_name, repo_branch)
+
+    # Set branch
+    try:
+        branch_ref = repo.get_git_ref("heads/" + repo_branch)
+    except github.GithubException as e:
+        # repository might be empty
+        return github_exception_handler(e, "Error in get_git_ref", repo_name, repo_branch)
+
+    # get SHA from branch
+    branch_sha = branch_ref.object.sha
+
+    # build a list of InputGitTreeElement objects to create the new commit
+    tree_elements = []
+
+    # add the files
+    for file in files:
+        path = file["path"]
+
+        # parse the json string
+        try:
+            graphObject = json.loads(file["jsonData"])
+        except json.JSONDecodeError as e:
+            return github_exception_handler(e, "Error in json.loads for file " + path, repo_name, repo_branch)
+
+        # set standard metadata for the file
+        try:
+            set_metadata_for_ingress(graphObject, "GitHub", repo_name, repo_branch, path)
+        except Exception as e:
+            return github_exception_handler(e, "Error in set_metadata_for_ingress for file " + path, repo_name, repo_branch)
+
+        # The 'indent=4' option is used for nice formatting. Without it the file is stored as a single line.
+        json_data = json.dumps(graphObject, indent=4)
+
+        tree_element = github.InputGitTreeElement(
+            path=path, mode="100644", type="blob", content=json_data
+        )
+        tree_elements.append(tree_element)
+
+    # Commit to GitHub repo.
+    latest_commit = repo.get_git_commit(branch_sha)
+    base_tree = latest_commit.tree
+    try:
+        new_tree = repo.create_git_tree(
+            tree_elements,
+            base_tree,
+        )
+    except github.GithubException as e:
+        # repository might not have permission
+        return github_exception_handler(e, "Error in create_git_tree", repo_name, repo_branch)
+
+    new_commit = repo.create_git_commit(
+        message=commit_message, parents=[latest_commit], tree=new_tree
+    )
+    branch_ref.edit(sha=new_commit.sha, force=False)
+
+    return "ok"
 
 
 # helper function to handle github exceptions consistently
@@ -529,7 +656,6 @@ def save_git_lab_file():
 
     # Add repo and file name in the graph.
     set_metadata_for_ingress(graph, "GitLab", repo_name, repo_branch, filename)
-    
 
     # The 'indent=4' option is used for nice formatting. Without it the file is stored as a single line.
     json_data = json.dumps(graph, indent=4)
@@ -671,7 +797,10 @@ def open_git_hub_file():
 
     if extension != ".md":
         # parse JSON
-        graph = json.loads(raw_data)
+        try:
+            graph = json.loads(raw_data)
+        except json.decoder.JSONDecodeError as e:
+            return app.response_class(response=json.dumps({"error": "File contains invalid JSON: " + str(e)}), status=400, mimetype="application/json")
 
         if isinstance(graph, list):
             return jsonify({"error": "File JSON data is a list, this file could be a Physical Graph instead of a Logical Graph."}), 404
@@ -788,7 +917,10 @@ def open_git_lab_file():
 
     if extension != ".md":
         # parse JSON
-        graph = json.loads(raw_data)
+        try:
+            graph = json.loads(raw_data)
+        except json.decoder.JSONDecodeError as e:
+            return app.response_class(response=json.dumps({"error": "File contains invalid JSON: " + str(e)}), status=400, mimetype="application/json")
 
         if not "modelData" in graph:
             graph["modelData"] = {}
@@ -873,7 +1005,7 @@ def open_url_file():
     except ValueError as e:
         app.logger.warning("SSRF attempt blocked for URL %r: %s", url, e)
         return jsonify({"error": "Invalid URL"}), 400
-
+    
     # download via http get
     try:
         graph = fetch_json_url(url, label="remote URL")

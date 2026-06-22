@@ -64,13 +64,7 @@ export class Repositories {
     }
 
     static generateUrl(repository: Repository): string {
-        let url = window.location.origin;
-
-        url += "/?service=" + repository.service;
-        url += "&repository=" + repository.name;
-        url += "&branch=" + repository.branch;
-
-        return url;
+        return Utils.buildUrl(repository.service, repository.name, repository.branch);
     }
 
     // use a custom modal to ask user for repository service and url at the same time
@@ -93,10 +87,10 @@ export class Repositories {
             return;
         }
 
-        this._addCustomRepository(customRepository.service, customRepository.name, customRepository.branch);
+        Repositories._addCustomRepository(customRepository.service, customRepository.name, customRepository.branch);
     };
 
-    _addCustomRepository = async (repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string) => {
+    static async _addCustomRepository(repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string): Promise<Repository> {
         // create repo
         const newRepo = new Repository(repositoryService, repositoryName, repositoryBranch, false);
 
@@ -106,6 +100,8 @@ export class Repositories {
         // add to Repositories, and re-sort the repository list
         Repositories.repositories.push(newRepo);
         Repositories.sort();
+
+        return newRepo;
     }
 
     removeCustomRepository = async (repository : Repository): Promise<void> => {

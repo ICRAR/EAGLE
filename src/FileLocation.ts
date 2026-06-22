@@ -2,6 +2,7 @@ import * as ko from "knockout";
 
 import { Errors } from "./Errors";
 import { Repository } from "./Repository";
+import { Utils } from "./Utils";
 
 export class FileLocation {
     repositoryService: ko.Observable<Repository.Service>;
@@ -123,20 +124,17 @@ export class FileLocation {
     }
 
     static generateUrl(fileLocation: FileLocation): string {
-        let url = window.location.origin;
-
-        url += "/?service=" + fileLocation.repositoryService();
-
         if (fileLocation.repositoryService() === Repository.Service.Url){
-            url += "&url=" + fileLocation.downloadUrl();
+            return Utils.buildUrl(fileLocation.repositoryService(), fileLocation.downloadUrl());
         } else {
-            url += "&repository=" + fileLocation.repositoryName();
-            url += "&branch=" + fileLocation.repositoryBranch();
-            url += "&path=" + encodeURI(fileLocation.repositoryPath());
-            url += "&filename=" + encodeURI(fileLocation.repositoryFileName());
+            return Utils.buildUrl(
+                fileLocation.repositoryService(),
+                fileLocation.repositoryName(),
+                fileLocation.repositoryBranch(),
+                fileLocation.repositoryPath(),
+                fileLocation.repositoryFileName()
+            );
         }
-
-        return url;
     }
 
     static match(fl0: FileLocation, fl1: FileLocation): boolean {

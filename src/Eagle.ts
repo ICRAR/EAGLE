@@ -2152,6 +2152,62 @@ export class Eagle {
         });
     }
 
+
+    /**
+     * Saves a file to the remote server repository.
+     *
+     * Assumes that all files are in the same repository. Even though multiple files can be passed in, only the first file is used to determine
+     * the repository service and URL.
+     */
+    saveFilesToRemote = async (repository: Repository, jsonString : string): Promise<void> => {
+        return new Promise(async(resolve, reject) => {
+            let url : string;
+
+            switch (repository.service){
+                case Repository.Service.GitHub:
+                    url = '/saveFilesToRemoteGithub';
+                    break;
+                case Repository.Service.GitLab:
+                    url = '/saveFilesToRemoteGitlab';
+                    break;
+                default:
+                    Utils.showUserMessage("Error", "Unknown repository service : " + repository.service);
+                    reject("Unknown repository service : " + repository.service);
+                    return;
+            }
+
+            // POST JSON
+            try {
+                await Utils.httpPostJSONString(url, jsonString);
+            } catch (error){
+                Utils.showUserMessage("Error", error + "<br/><br/>These error messages provided by " + repository.service + " are not very helpful. Please contact EAGLE admin to help with further investigation.");
+                console.error("Error: " + JSON.stringify(error, null, EagleConfig.JSON_INDENT));
+                reject(error);
+                return;
+            }
+
+            // we have to refresh this whole path, since any part of it might be new
+            try {
+                await repository.refresh();
+            } catch (error){
+                console.log("error during refreshPath", error);
+            }
+
+            // show repo in the right window
+            this.changeRightWindowMode(Eagle.RightWindowMode.Repository);
+
+            // Show success message
+            if (repository.service === Repository.Service.GitHub){
+                Utils.showNotification("Success", "Saved file(s) to GitHub repository.", "success");
+            }
+            if (repository.service === Repository.Service.GitLab){
+                Utils.showNotification("Success", "Saved file(s) to GitLab repository.", "success");
+            }
+
+            resolve();
+        });
+    }
+
     /**
      * Performs a Git commit of a graph/palette. Asks user for a file name before saving.
      */
@@ -4955,7 +5011,7 @@ export class Eagle {
 
     checkEagle = (): void => {
         Utils.checkEagle(this);//validate the graph
-        const graphErrors = Utils.gatherGraphErrors() //gather all the errors from all of the components
+        const graphErrors = Utils.updateGraphErrorsWarnings() //gather all the errors from all of the components
         
         this.graphWarnings(graphErrors.warnings);
         this.graphErrors(graphErrors.errors);
@@ -5013,23 +5069,9 @@ export class Eagle {
 
             const twoEventPorts : boolean = srcPort.getIsEvent() && destPort.getIsEvent();
 
-            // consult the DEFAULT_DATA_NODE setting to determine which category of intermediate data node to use
-            const defaultData = Setting.findValue<string>(Setting.DEFAULT_DATA_NODE, Category.Memory);
-            let intermediaryComponent = Utils.getPaletteComponentByName(defaultData || "");
-
-            // if intermediaryComponent is undefined (not found), then choose something guaranteed to be available
-            // if intermediaryComponent is defined (found), then duplicate the node so that we don't modify the original in the palette
-            if (typeof intermediaryComponent === 'undefined'){
-                intermediaryComponent = new Node("Data", "Data Component", "", Category.Data);
-            } else {
-                //intermediaryComponent = Utils.duplicateNode(intermediaryComponent);
-                intermediaryComponent = intermediaryComponent.clone().setId(Id.generateNodeId());
-            }
-
             // if edge DOES NOT connect two applications, process normally
             // if edge connects two event ports, process normally
-            // if the definition of the intermediaryComponent cannot be found, process normally
-            if (!edgeConnectsTwoApplications || twoEventPorts || (edgeConnectsTwoApplications && intermediaryComponent === null)){
+            if (!edgeConnectsTwoApplications || twoEventPorts){
                 const edge : Edge = new Edge('', srcNode, srcPort, destNode, destPort, loopAware, closesLoop, false);
                 this.logicalGraph().addEdgeComplete(edge);
 
@@ -5064,76 +5106,12 @@ export class Eagle {
                 return;
             }
 
-            // by default, use the positions of the nodes themselves to calculate position of new node
-            let srcNodePosition = srcNode.getPosition();
-            let destNodePosition = destNode.getPosition();
-
-            // if source or destination node is an embedded application, use position of parent construct node
-            const srcNodeEmbed = srcNode.getEmbed();
-            const destNodeEmbed = destNode.getEmbed();
-            if (srcNodeEmbed !== null){
-                srcNodePosition = srcNodeEmbed.getPosition();
-            }
-            if (destNodeEmbed !== null){
-                destNodePosition = destNodeEmbed.getPosition();
-            }
-
-            // count number of edges between source and destination
-            const PORT_HEIGHT : number = 24;
-            const numIncidentEdges = this.logicalGraph().countEdgesIncidentOnNode(srcNode);
-
-            // calculate a position for a new data component, halfway between the srcPort and destPort
-            const dataComponentPosition = {
-                x: (srcNodePosition.x + destNodePosition.x) / 2.0,
-                y: (srcNodePosition.y + (numIncidentEdges * PORT_HEIGHT) + destNodePosition.y + (numIncidentEdges * PORT_HEIGHT)) / 2.0
-            };
-
-            // Add the intermediary component to the graph
-            //const newNode : Node = this.logicalGraph().addDataComponentToGraph(intermediaryComponent, dataComponentPosition);              // DOESN't WORK!! io port is not rendered
-            const newNode = (await this.addNodeToLogicalGraph(intermediaryComponent, Id.generateNodeId(), Eagle.AddNodeMode.Default))[0]; // WORKS!! (just location is not used)
-
-            newNode.setPosition(dataComponentPosition.x, dataComponentPosition.y);
-
-            // set name of new node (use user-facing name)
-            newNode.setName(srcPort.getDisplayText());
-
-            // find InputOutput port on node, which matches the source port dataType
-            const inputOutputPort = newNode.findPortByMatchingType(srcPort.getType(), [Daliuge.FieldUsage.InputOutput]);
-            if (inputOutputPort === null){
+            const firstEdge = Utils.addIntermediateDataNodeForAppToAppEdge(this.logicalGraph(), srcNode, srcPort, destNode, destPort, loopAware, closesLoop);
+            if (firstEdge === null){
                 Utils.showNotification("Add Edge Error", "Unable to find suitable port on intermediary component", "danger");
                 reject("Unable to find suitable port on intermediary component");
                 return;
             }
-
-            // if the port is changeable, set its display text and description to match the source port
-            if (inputOutputPort.isChangeable()){
-                inputOutputPort.setDisplayText(srcPort.getDisplayText());
-                inputOutputPort.setDescription(srcPort.getDescription());
-            }
-
-            const srcNodeParent = srcNode.getParent();
-            const destNodeParent = destNode.getParent();
-
-            // set the parent of the new node
-            // by default, set parent to parent of dest node,
-            newNode.setParent(destNodeParent);
-
-            // if source node is a child of dest node, make the new node a child too
-            if (srcNodeParent !== null && srcNodeParent.getId() === destNode.getId()){
-                newNode.setParent(destNode);
-            }
-
-            // if dest node is a child of source node, make the new node a child too
-            if (destNodeParent !== null && destNodeParent.getId() === srcNode.getId()){
-                newNode.setParent(srcNode);
-            }
-
-            // create TWO edges, one from src to data component, one from data component to dest
-            const firstEdge : Edge = new Edge('', srcNode, srcPort, newNode, inputOutputPort, loopAware, closesLoop, false);
-            const secondEdge : Edge = new Edge('', newNode, inputOutputPort, destNode, destPort, loopAware, closesLoop, false);
-
-            this.logicalGraph().addEdgeComplete(firstEdge);
-            this.logicalGraph().addEdgeComplete(secondEdge);
 
             // reply with one of the edges
             resolve(firstEdge);

@@ -399,13 +399,14 @@ export class Edge {
         return e;
     }
 
-    static isValid(eagle: Eagle, draggingPortMode: boolean, edgeId: EdgeId | null, sourceNodeId: NodeId, sourcePortId: FieldId, destinationNodeId: NodeId, destinationPortId: FieldId, loopAware: boolean, closesLoop: boolean, showNotification: boolean, showConsole: boolean, errorsWarnings: Errors.ErrorsWarnings) : Errors.Validity {
+    static isValid(graph: LogicalGraph, draggingPortMode: boolean, edgeId: EdgeId | null, sourceNodeId: NodeId, sourcePortId: FieldId, destinationNodeId: NodeId, destinationPortId: FieldId, loopAware: boolean, closesLoop: boolean, showNotification: boolean, showConsole: boolean, errorsWarnings: Errors.ErrorsWarnings) : Errors.Validity {
+        const eagle = Eagle.getInstance();
         let impossibleEdge : boolean = false;
         let draggingEdgeFixable : boolean = false;
         let edge: Edge | undefined = undefined;
 
         if (edgeId !== null){
-            edge = eagle.logicalGraph().getEdgeById(edgeId);
+            edge = graph.getEdgeById(edgeId);
         }   
 
         // if this is a real edge, then clear its issues, otherwise, if this is just a temp test edge, don't worry
@@ -437,8 +438,8 @@ export class Edge {
         }
 
         // get references to actual source and destination nodes (from the ids)
-        const sourceNode = eagle.logicalGraph().getNodeById(sourceNodeId);
-        const destinationNode = eagle.logicalGraph().getNodeById(destinationNodeId);
+        const sourceNode = graph.getNodeById(sourceNodeId);
+        const destinationNode = graph.getNodeById(destinationNodeId);
 
         if (typeof sourceNode === "undefined" || typeof destinationNode === "undefined"){
             return Errors.Validity.Unknown;
@@ -490,7 +491,7 @@ export class Edge {
         // check that we are not connecting an Application component to an Application component, that is not supported
         if (sourceNode.getCategoryType() === Category.Type.Application && destinationNode.getCategoryType() === Category.Type.Application){
             if (!sourcePort.getIsEvent() || !destinationPort.getIsEvent()){
-                Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Fixable, Errors.ShowFix("Application nodes may not be connected directly to other Application nodes", function(){Utils.showEdge(eagle, edge);}, function(){Utils.fixAppToAppEdge(eagle, edge);}, "Add intermediate Data node between edge's source and destination app nodes"), showNotification, showConsole, errorsWarnings);
+                Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Fixable, Errors.ShowFix("Application nodes may not be connected directly to other Application nodes", function(){Utils.showEdge(eagle, edge);}, function(){Utils.fixAppToAppEdge(graph, edge);}, "Add intermediate Data node between edge's source and destination app nodes"), showNotification, showConsole, errorsWarnings);
             }
         }
 
@@ -556,7 +557,7 @@ export class Edge {
             || destinationNode.isEmbedded() && sourceNode.hasParent() && destinationEmbed !== null && sourceParent !== null && destinationEmbed.getId() === sourceParent.getId() && loopAware
             || !associatedConstructIsLoop && loopAware
         ){
-            const x = Errors.ShowFix("Edge between two siblings should not be loop aware", function(){Utils.showEdge(eagle, edge);}, function(){if (edgeId !== null) {Utils.fixDisableEdgeLoopAware(eagle, edgeId);}}, "Disable loop aware on the edge.");
+            const x = Errors.ShowFix("Edge between two siblings should not be loop aware", function(){Utils.showEdge(eagle, edge);}, function(){if (edgeId !== null) {Utils.fixDisableEdgeLoopAware(graph, edgeId);}}, "Disable loop aware on the edge.");
             Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Warning, x, showNotification, showConsole, errorsWarnings);
         }
 
@@ -566,12 +567,12 @@ export class Edge {
         }
 
         // check if the edge already exists in the graph, there is no point in a duplicate
-        for (const edge of eagle.logicalGraph().getEdges()){
+        for (const edge of graph.getEdges()){
             const isSrcMatch = edge.getSrcNode().getId() === sourceNodeId && edge.getSrcPort().getId() === sourcePortId;
             const isDestMatch = edge.getDestNode().getId() === destinationNodeId && edge.getDestPort().getId() === destinationPortId;
 
             if ( isSrcMatch && isDestMatch && edge.getId() !== edgeId){
-                const x = Errors.ShowFix("Edge is a duplicate. Another edge with the same source port and destination port already exists", function(){Utils.showEdge(eagle, edge);}, function(){if (edgeId !== null) {Utils.fixDeleteEdge(eagle, edgeId);}}, "Delete edge");
+                const x = Errors.ShowFix("Edge is a duplicate. Another edge with the same source port and destination port already exists", function(){Utils.showEdge(eagle, edge);}, function(){if (edgeId !== null) {Utils.fixDeleteEdge(graph, edgeId);}}, "Delete edge");
                 Edge.isValidLog(edge, draggingPortMode, Errors.Validity.Error, x, showNotification, showConsole, errorsWarnings);
             }
         }

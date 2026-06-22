@@ -32,6 +32,7 @@ import { EagleConfig } from "./EagleConfig";
 import { Errors } from './Errors';
 import { Field } from './Field';
 import { Id } from './Id';
+import { LogicalGraph } from './LogicalGraph';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
 
@@ -2049,7 +2050,7 @@ export class Node {
         return node;
     }
 
-    static isValid(node: Node, location: Eagle.FileType) : void {
+    static isValid(graph: LogicalGraph, node: Node, location: Eagle.FileType) : void {
         const eagle = Eagle.getInstance()
         node.issues([])//clear old issues
 
@@ -2060,7 +2061,7 @@ export class Node {
 
         // looping through and checking all the fields on the node
         for (const field of node.fields().values()){
-            Field.isValid(node,field, location)
+            Field.isValid(graph, node, field, location)
         }
 
         // check that all fields present in the original (palette) component have the changeable property set correctly (to false)
@@ -2087,12 +2088,12 @@ export class Node {
         if(node.isConstruct()){
             //checking the input application if one is present
             if(inputApplication !== null){
-                Node.isValid(inputApplication, location)
+                Node.isValid(graph, inputApplication, location)
             }
 
             //checking the output application if one is present
             if(outputApplication !== null){
-                Node.isValid(outputApplication, location)
+                Node.isValid(graph, outputApplication, location)
             }
         }
         
@@ -2212,7 +2213,7 @@ export class Node {
         // check that node has at least one connected edge, otherwise what purpose does it serve?
         let hasInputEdge: boolean = false;
         let hasOutputEdge: boolean = false;
-        for (const edge of eagle.logicalGraph().getEdges()){
+        for (const edge of graph.getEdges()){
             if (!hasOutputEdge && edge.getSrcNode().getId() === node.getId()){
                 hasOutputEdge = true;
             }

@@ -2077,8 +2077,6 @@ export class GraphRenderer {
     }
 
     static createEdge(srcNode: Node, srcPort: Field, destNode: Node, destPort: Field){
-        const eagle = Eagle.getInstance();
-
         // check if edge is back-to-front (input-to-output), if so, swap the source and destination
         const backToFront : boolean = GraphRenderer.portDragSourcePortIsInput;
         const realSourceNode: Node       = backToFront ? destNode : srcNode;
@@ -2092,7 +2090,7 @@ export class GraphRenderer {
         }
 
         // check if link is valid
-        const linkValid : Errors.Validity = Edge.isValid(eagle, true, null, realSourceNode.getId(), realSourcePort.getId(), realDestinationNode.getId(), realDestinationPort.getId(), false, false, true, true, {errors:[], warnings:[]});
+        const linkValid : Errors.Validity = Edge.isValid(Eagle.getInstance().logicalGraph(), true, null, realSourceNode.getId(), realSourcePort.getId(), realDestinationNode.getId(), realDestinationPort.getId(), false, false, true, true, {errors:[], warnings:[]});
 
         // abort if edge is invalid
         const allowInvalidEdges = Setting.findValue<boolean>(Setting.ALLOW_INVALID_EDGES, false);
@@ -2408,9 +2406,9 @@ export class GraphRenderer {
             for (const port of node.getPorts()){
                 let isValid: Errors.Validity
                 if(!GraphRenderer.portDragSourcePortIsInput){
-                    isValid = Edge.isValid(eagle, true, null, sourceNode.getId(), sourcePort.getId(), node.getId(), port.getId(), false, false, false, false, {errors:[], warnings:[]});
+                    isValid = Edge.isValid(eagle.logicalGraph(), true, null, sourceNode.getId(), sourcePort.getId(), node.getId(), port.getId(), false, false, false, false, {errors:[], warnings:[]});
                 }else{
-                    isValid = Edge.isValid(eagle, true, null, node.getId(), port.getId(), sourceNode.getId(), sourcePort.getId(), false, false, false, false, {errors:[], warnings:[]});
+                    isValid = Edge.isValid(eagle.logicalGraph(), true, null, node.getId(), port.getId(), sourceNode.getId(), sourcePort.getId(), false, false, false, false, {errors:[], warnings:[]});
                 }
                 const isValidIndex: number = Object.values(Errors.Validity).indexOf(isValid);
 
@@ -2490,7 +2488,6 @@ export class GraphRenderer {
             return;
         }
 
-        const eagle = Eagle.getInstance();
         GraphRenderer.destinationPort = port;
         GraphRenderer.destinationNode = port.getNode();
 
@@ -2506,9 +2503,9 @@ export class GraphRenderer {
         let isValid: Errors.Validity
 
         if(!GraphRenderer.portDragSourcePortIsInput){
-            isValid = Edge.isValid(eagle, true, null, portDragSourceNode.getId(), portDragSourcePort.getId(), GraphRenderer.destinationNode.getId(), GraphRenderer.destinationPort.getId(), false, false, false, false, {errors:[], warnings:[]});
+            isValid = Edge.isValid(Eagle.getInstance().logicalGraph(), true, null, portDragSourceNode.getId(), portDragSourcePort.getId(), GraphRenderer.destinationNode.getId(), GraphRenderer.destinationPort.getId(), false, false, false, false, {errors:[], warnings:[]});
         }else{
-            isValid = Edge.isValid(eagle, true, null, GraphRenderer.destinationNode.getId(), GraphRenderer.destinationPort.getId(), portDragSourceNode.getId(), portDragSourcePort.getId(), false, false, false, false, {errors:[], warnings:[]});
+            isValid = Edge.isValid(Eagle.getInstance().logicalGraph(), true, null, GraphRenderer.destinationNode.getId(), GraphRenderer.destinationPort.getId(), portDragSourceNode.getId(), portDragSourcePort.getId(), false, false, false, false, {errors:[], warnings:[]});
         }
         GraphRenderer.isDraggingPortValid(isValid);
     }

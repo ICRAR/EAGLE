@@ -1563,4 +1563,38 @@ export class LogicalGraph {
             }
         }
     }
+
+    static fixAll = (graph: LogicalGraph, includeWarnings: boolean = true): void => {
+        let numIssues   = Infinity;
+        let numIterations = 0;
+        const MAX_ITERATIONS = 10;
+
+        let issues = Utils.gatherGraphIssues(graph);
+        if (!includeWarnings){
+            issues = issues.filter(entry => entry.validity !== Errors.Validity.Warning);
+        }
+
+        while (numIssues !== issues.length){
+            numIssues = issues.length;
+
+            if (numIterations > MAX_ITERATIONS){
+                console.warn("Too many iterations in fixAll()");
+                break;
+            }
+            numIterations = numIterations+1;
+
+            for (const {issue} of issues){
+                if (issue.fix !== null){
+                    issue.fix();
+                }
+            }
+
+            // re-test
+            LogicalGraph.isValid(graph, null);
+            issues = Utils.gatherGraphIssues(graph);
+            if (!includeWarnings){
+                issues = issues.filter(entry => entry.validity !== Errors.Validity.Warning);
+            }
+        }
+    }
 }
