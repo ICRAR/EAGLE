@@ -11,7 +11,9 @@ require.config({
         "bootstrap": "./static/externals/bootstrap.bundle.min",
         "bootstrap-notify": "./static/externals/bootstrap-notify.min",
         "ajv": "./static/externals/ajv.min",
-        "showdown": "./static/externals/showdown.min",
+        "marked": "./static/externals/marked.min",
+        "marked-highlight": "./static/externals/marked-highlight.min",
+        "highlightjs": "./static/externals/highlight.min",
         "bindingHandlers/readonly":"./static/built/bindingHandlers/readonly",
         "bindingHandlers/disabled":"./static/built/bindingHandlers/disabled",
         "bindingHandlers/eagleTooltip":"./static/built/bindingHandlers/eagleTooltip",
@@ -69,6 +71,14 @@ require.config({
         "bootstrap": {
             deps: ["jquery"],
             exports: "bootstrap"
+        },
+        "highlightjs": {
+            exports: "hljs"
+        }
+    },
+    map: {
+        "*": {
+            "highlight.js": "highlightjs"
         }
     },
     packages: [{
