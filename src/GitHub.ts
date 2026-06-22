@@ -142,7 +142,7 @@ export class GitHub {
             location.files.removeAll();
             location.folders.removeAll();
 
-            const fileNames : string[] = data[""];
+            const fileNames : string[] = data.files[""];
 
             // sort the fileNames
             fileNames.sort(Repository.fileSortFunc);
@@ -156,7 +156,7 @@ export class GitHub {
             }
 
             // add folders to repo
-            for (const path in data){
+            for (const path in data.files){
                 // skip the root directory
                 if (path === ""){
                     continue;
@@ -224,7 +224,17 @@ export class GitHub {
                 reject(error);
                 return;
             }
-            resolve(data);
+
+            // warn if credentials were ignored (bad token, fell back to anonymous access)
+            if (data.credentialsIgnored){
+                Utils.showNotification(
+                    "GitHub Access Token",
+                    "The GitHub access token is invalid and was ignored while loading " + repositoryName + " / " + repositoryBranch + " / " + fullFileName + ". The file was loaded from a public repository.",
+                    "warning"
+                );
+            }
+
+            resolve(data.data);
         });
     }
 
