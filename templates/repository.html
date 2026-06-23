@@ -1,4 +1,4 @@
-<div class="container repoContainer">
+<div class="container-fluid repoContainer">
     <div class="row">
         <div class="col-1 col">
             <!-- ko if: isFetching -->
@@ -19,17 +19,20 @@
             <!-- /ko -->
             <!-- /ko -->
         </div>
-        <div class="col-9 col">
+        <div class="col-10 col">
             <a href="" data-bind="attr: {id: htmlId}, click: select, eagleTooltip: '|||' +  name + ' (' + branch + ') |||'" data-bs-placement="left">
                 <span data-bind="text: name + ' (' + branch + ')'"></span>
             </a>
         </div>
         
-        <div class="col col-2 repo-actions">
-            <!-- ko ifnot: isBuiltIn -->
-                <i class="material-symbols-outlined filled md-18 interactive iconHoverEffect" data-bind="click: $root.repositories().removeCustomRepository, attr: {id: htmlId() + '-eject'}">eject</i>
-            <!-- /ko -->
-            <i class="material-symbols-outlined md-18 interactive iconHoverEffect" data-bind="click: $root.repositories().copyRepository, attr: {id: htmlId() + '-copy'}">content_copy</i>
+        <div class="col col-1 repo-actions dropdown">
+            <button type="button" class="material-symbols-outlined md-18 dropdown-toggle dropdown-control repoTripleDot iconHoverEffect" data-bs-toggle="dropdown">more_vert</button>
+            <div class="dropdown-menu dropdown-area">
+                <!-- ko ifnot: isBuiltIn -->
+                <a href="#" data-bind="click: $root.repositories().removeCustomRepository, attr: {id: htmlId() + '-remove'}"><span>Remove</span></a>
+                <!-- /ko -->
+                <a href="#" data-bind="click: $root.repositories().copyRepository, attr: {id: htmlId() + '-copy'}"><span>Copy</span></a>
+            </div>
         </div>
         
         <!-- ko if: expanded -->
