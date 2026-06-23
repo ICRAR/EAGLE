@@ -225,6 +225,17 @@ export class TestHelpers {
         });
     }
 
+    static async waitForNotificationAndDismiss(page: Page): Promise<void> {
+        await page.locator('div[data-notify="container"]').first().waitFor({state: 'attached'});
+        await page.locator('button[data-notify="dismiss"]').first().click();
+        await page.locator('div[data-notify="container"]').first().waitFor({state: 'detached'});
+    }
+
+    static async openGraphMenuAndSelect(page: Page, menuItemId: string): Promise<void> {
+        await page.locator('#navbarDropdownGraph').click();
+        await page.locator('#' + menuItemId).click();
+    }
+
     static async dragEdge(page: Page, sourceNodeName: string, destNodeName: string): Promise<void> {
         // draw an edge from HelloWorldApp output to File input
         const srcPort = page.locator('#' + sourceNodeName + ' .outputPort');

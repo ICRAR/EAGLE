@@ -63,9 +63,7 @@ test('Creating a Simple Graph', async ({ page }) => {
   await page.locator('.closeBottomWindowBtn').getByRole('button').click();
 
   // check that the graph has the expected number of nodes
-  const numNodesPreDelete = await page.evaluate(() => {
-    return (<any>window).eagle.logicalGraph().getNumNodes();
-  });
+  const numNodesPreDelete = await TestHelpers.getNodeCount(page);
 
   await expect(numNodesPreDelete).toBe(2);
 
@@ -83,9 +81,7 @@ test('Creating a Simple Graph', async ({ page }) => {
   await page.waitForTimeout(500);
 
   // check that the graph has the expected number of nodes
-  const numNodesPostDelete = await page.evaluate(() => {
-    return (<any>window).eagle.logicalGraph().getNumNodes();
-  });
+  const numNodesPostDelete = await TestHelpers.getNodeCount(page);
 
   await expect(numNodesPostDelete).toBe(2);
 
