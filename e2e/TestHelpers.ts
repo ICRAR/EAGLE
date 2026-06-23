@@ -2,7 +2,7 @@ import fs from 'fs';
 import https from 'https';
 import http from 'http';
 import path from 'path';
-import type { Page } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 
 export class TestHelpers {
     // Set the specified UI mode
@@ -18,6 +18,31 @@ export class TestHelpers {
         await page.waitForTimeout(500);
         await page.getByRole('button', { name: 'OK' }).click();
         await page.waitForTimeout(500);
+    }
+
+    static async waitForTutorialStep(page: Page, title: string): Promise<void> {
+        await page.locator('#tutorialInfoPopUp').waitFor({ state: 'attached', timeout: 10000 });
+        await expect(page.locator('#tutorialInfoPopUp .tutorialInfoTitle h4')).toContainText(title, { timeout: 5000 });
+    }
+
+    static async clickTutorialNext(page: Page): Promise<void> {
+        await page.locator('#tutorialInfoPopUp .tutNextBtn').click();
+        await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: 5000 });
+    }
+
+    static async runTutorialInfoStep(page: Page, title: string): Promise<void> {
+        await test.step(`Tutorial info step: ${title}`, async () => {
+            await TestHelpers.waitForTutorialStep(page, title);
+            await TestHelpers.clickTutorialNext(page);
+        });
+    }
+
+    static async runTutorialPressStep(page: Page, title: string, selector: string): Promise<void> {
+        await test.step(`Tutorial press step: ${title}`, async () => {
+            await TestHelpers.waitForTutorialStep(page, title);
+            await page.locator(selector).click();
+            await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: 5000 });
+        });
     }
 
     static async createNewGraph(page: Page): Promise<void> {
