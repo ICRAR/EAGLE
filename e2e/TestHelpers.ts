@@ -183,6 +183,12 @@ export class TestHelpers {
         });
     }
 
+    static async getEdgeCount(page: Page): Promise<number> {
+        return await page.evaluate( () => {
+            return (window as any).eagle.logicalGraph().getNumEdges();
+        });
+    }
+
     static async undo(page: Page): Promise<void> {
         return await page.press('body','z');
     }
