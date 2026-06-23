@@ -100,10 +100,11 @@ export class TestHelpers {
                         await page.locator('#tutorialInfoPopUp .tutEndBtn').click();
                         await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: 5000 });
                     } else if (stepInfo.stepType === 1) {
-                        // Prefer clicking the tutorial target to better match real user interaction.
+                        // Press steps are advanced by clicking the tutorial target element, simulating real user clicks.
+                        // This is more realistic than synthetic keyboard events.
                         const clickedTarget = await TestHelpers.clickTutorialPressTarget(page);
                         if (!clickedTarget) {
-                            // Fallback for legacy steps that only listen for Enter.
+                            // Fallback for legacy tutorial steps that only listen for Enter key events.
                             await page.keyboard.press('Enter');
                         }
                         await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: 5000 });
@@ -267,8 +268,22 @@ export class TestHelpers {
         return '';
     }
 
+    /**
+     * Clicks the current tutorial Press step's target element using Playwright mouse interaction.
+     * This simulates real user click behavior more accurately than synthetic Enter key presses.
+     * 
+     * @param page - Playwright page object
+     * @returns true if the target was clicked, false if no clickable target was found
+     * 
+     * Strategy:
+     * 1. Resolve the tutorial target via TutorialSystem.activeTutCurrentStep.getTargetFunc()
+     * 2. Prefer clickable child elements (buttons, links, inputs, node bodies) over the container
+     * 3. Calculate viewport-relative coordinates (center of the element)
+     * 4. Use Playwright mouse.click() to trigger real pointer events
+     */
     private static async clickTutorialPressTarget(page: Page): Promise<boolean> {
         const clickPosition = await page.evaluate(() => {
+            // Get the tutorial target element from the active step.
             const tutorialTarget = (window as any).TutorialSystem?.activeTutCurrentStep?.getTargetFunc?.();
             if (!tutorialTarget || tutorialTarget.length === 0) {
                 return null;
@@ -279,14 +294,18 @@ export class TestHelpers {
                 return null;
             }
 
+            // Prefer native interactive elements (buttons, links, inputs) or graph nodes (.body)
+            // over the container itself, as these are what a user would actually click.
             const preferredClickable = targetEl.querySelector('button, a, input, textarea, select, .body') as HTMLElement | null;
             const clickable = preferredClickable ?? targetEl;
             const rect = clickable.getBoundingClientRect();
 
+            // Ensure the element is visible and has dimensions.
             if (rect.width <= 0 || rect.height <= 0) {
                 return null;
             }
 
+            // Return center point in viewport coordinates for Playwright mouse interaction.
             return {
                 x: rect.left + rect.width / 2,
                 y: rect.top + rect.height / 2,
@@ -297,6 +316,7 @@ export class TestHelpers {
             return false;
         }
 
+        // Use Playwright's mouse API to dispatch real pointer events.
         await page.mouse.click(clickPosition.x, clickPosition.y);
         return true;
     }
@@ -369,7 +389,8 @@ export class TestHelpers {
             return;
         }
 
-        // Attempt -2: resolve node id by name and click rendered graph node body.
+        // Attempt -2: resolve node by name in logicalGraph and click its rendered body on canvas.
+        // This is the most direct Playwright path when we know the exact node name.
         const nodeBodySelector = await page.evaluate((name: string) => {
             const nodeId = (window as any).eagle?.logicalGraph?.()?.findNodeIdByNodeName?.(name);
             if (!nodeId) {
@@ -394,7 +415,8 @@ export class TestHelpers {
             }
         }
 
-        // Attempt -1: use the tutorial target element ID and click it through Playwright.
+        // Attempt -1: extract ID from tutorial target and search for matching nodes on canvas.
+        // Useful when the tutorial system knows which element to target but we need to verify it's rendered.
         const tutorialTargetSelector = await page.evaluate(() => {
             const tutorialTarget = (window as any).TutorialSystem?.activeTutCurrentStep?.getTargetFunc?.();
             if (!tutorialTarget || tutorialTarget.length === 0) {
@@ -455,7 +477,8 @@ export class TestHelpers {
             }
         }
 
-        // Attempt 0: click the active tutorial target element by coordinates.
+        // Attempt 0: click tutorial target directly via viewport coordinates (Playwright mouse).
+        // User-like interaction: resolves the element and clicks its center point.
         const targetClickPos = await page.evaluate(() => {
             const tutorialTarget = (window as any).TutorialSystem?.activeTutCurrentStep?.getTargetFunc?.();
             if (!tutorialTarget || tutorialTarget.length === 0) {
@@ -483,7 +506,8 @@ export class TestHelpers {
             }
         }
 
-        // Attempt 1: click any matching label by coordinates.
+        // Attempt 1: find graph node labels matching the requested name and click them.
+        // Fallback for when node selection target isn't directly available but labels are visible.
         const labelClickPos = await page.evaluate((name: string) => {
             const candidateSelectors = [
                 '#logicalGraphParent .node p',
@@ -521,7 +545,8 @@ export class TestHelpers {
             }
         }
 
-        // Attempt 2: force click on text node if present.
+        // Attempt 2: use Playwright's text locator to find and click matching text (Playwright native).
+        // Helpful when the node name appears as readable text in the UI.
         const textLocator = page.getByText(nodeName, { exact: true }).first();
         if (await textLocator.count() > 0) {
             await textLocator.click({ force: true, timeout: 3000 });
@@ -530,7 +555,8 @@ export class TestHelpers {
             }
         }
 
-        // Attempt 3: select from the Hierarchy panel (UI path, avoids canvas hit testing).
+        // Attempt 3: navigate to Hierarchy panel and select the node via the UI.
+        // Most reliable fallback: uses the app's own selection handler, avoids canvas hit-testing issues.
         const hierarchyTab = page.getByRole('button', { name: 'Hierarchy' }).first();
         if (await hierarchyTab.count() > 0) {
             await hierarchyTab.click({ force: true, timeout: 3000 });
