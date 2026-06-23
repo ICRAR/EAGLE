@@ -243,7 +243,7 @@ export class TestHelpers {
     }
 
     static async dragEdge(page: Page, sourceNodeName: string, destNodeName: string): Promise<void> {
-        // draw an edge from HelloWorldApp output to File input
+        // draw an edge from source output to destination input
         const srcPort = page.locator('#' + sourceNodeName + ' .outputPort');
         const destPort = page.locator('#' + destNodeName + ' .inputPort');
     
@@ -260,7 +260,7 @@ export class TestHelpers {
             requireBox(await destPort.boundingBox(), 'destination port should have a bounding box before dragging')
         ];
     
-        await page.dragAndDrop('#' + sourceNodeName + ' .outputPort', '#' + destNodeName + ' .inputPort', {
+        await srcPort.dragTo(destPort, {
             sourcePosition: { x: srcPortBox.width / 2, y: srcPortBox.height / 2 },
             targetPosition: { x: destPortBox.width / 2, y: destPortBox.height / 2 }
         });
