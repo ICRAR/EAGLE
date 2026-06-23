@@ -3,6 +3,7 @@ import https from 'https';
 import http from 'http';
 import path from 'path';
 import type { Page } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 
 export class TestHelpers {
     // Set the specified UI mode
@@ -221,6 +222,30 @@ export class TestHelpers {
     static async getNumWarningsErrors(page: Page): Promise<number> {
         return await page.evaluate(() => {
             return (window as any).eagle.graphWarnings().length + (window as any).eagle.graphErrors().length;
+        });
+    }
+
+    static async dragEdge(page: Page, sourceNodeName: string, destNodeName: string): Promise<void> {
+        // draw an edge from HelloWorldApp output to File input
+        const srcPort = page.locator('#' + sourceNodeName + ' .outputPort');
+        const destPort = page.locator('#' + destNodeName + ' .inputPort');
+    
+        await expect(srcPort, 'source port should be visible before dragging').toBeVisible();
+        await expect(destPort, 'destination port should be visible before dragging').toBeVisible();
+    
+        const requireBox = (box: { width: number; height: number } | null, message: string) => {
+            expect(box, message).not.toBeNull();
+            return box as { width: number; height: number };
+        };
+    
+        const [srcPortBox, destPortBox] = [
+            requireBox(await srcPort.boundingBox(), 'source port should have a bounding box before dragging'),
+            requireBox(await destPort.boundingBox(), 'destination port should have a bounding box before dragging')
+        ];
+    
+        await page.dragAndDrop('#' + sourceNodeName + ' .outputPort', '#' + destNodeName + ' .inputPort', {
+            sourcePosition: { x: srcPortBox.width / 2, y: srcPortBox.height / 2 },
+            targetPosition: { x: destPortBox.width / 2, y: destPortBox.height / 2 }
         });
     }
 }
