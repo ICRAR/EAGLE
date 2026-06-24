@@ -158,6 +158,61 @@ export class Repositories {
         }
     }
 
+    createBranch = async (repository: Repository, branchName: string): Promise<void> => {
+        // find the user's token for the source repository service
+        let token: string;
+        switch (repository.service){
+            case Repository.Service.GitHub:
+                token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY, "");
+                break;
+            case Repository.Service.GitLab:
+                token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY, "");
+                break;
+            default:
+                Utils.showNotification("Error", "Unsupported repository service: " + repository.service, "danger");
+                throw new Error("Unsupported repository service: " + repository.service);
+        }
+
+        // call eagleServer to create branch
+        const responseStr = await Utils.httpPostJSON("/createBranch", {
+            service: repository.service,
+            repository: repository.name,
+            sourceBranch: repository.branch,
+            newBranch: branchName,
+            token: token
+        });
+        let response;
+        try {
+            response = typeof responseStr === "string" ? JSON.parse(responseStr) : responseStr;
+        } catch (e) {
+            response = responseStr;
+        }
+        if (response.error) {
+            Utils.showNotification("Error", response.error, "danger");
+            return;
+        }
+
+        // add new repo to the repository list
+        await Repositories._addCustomRepository(repository.service, repository.name, branchName);
+
+        // show success notification
+        Utils.showNotification("Branch Created", `Successfully created branch '${branchName}'`, "success");
+    };
+
+    promptCreateBranch = async (repository: Repository): Promise<void> => {
+        let branchName: string;
+        try {
+            branchName = await Utils.requestUserString("Create Branch", "Enter a name for the new branch", "", false);
+        } catch {
+            return; // user cancelled
+        }
+        try {
+            await this.createBranch(repository, branchName);
+        } catch (error) {
+            Utils.showNotification("Error", `Failed to create branch: ${error}`, "danger");
+        }
+    };
+
     static sort() : void {
         Repositories.repositories.sort(Repository.repositoriesSortFunc);
     }
