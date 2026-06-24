@@ -16,7 +16,7 @@ test('Adding and Removing Repositories', async ({ page }) => {
   if(await page.locator('#ICRAR_daliuge_yan-812-2').count() === 1){
     await page.locator('.repoContainer').filter({has:page.locator(repoHTMLId)}).hover()
     await page.locator('.repoContainer').filter({has:page.locator(repoHTMLId)}).locator('button.repoTripleDot').click()
-    await page.locator('.repoContainer').filter({has:page.locator(repoHTMLId)}).getByText('Eject').click()
+    await page.locator('.repoContainer').filter({has:page.locator(repoHTMLId)}).getByText('Remove').click()
   }
 
   //click the add repository button

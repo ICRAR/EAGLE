@@ -158,7 +158,7 @@ export class Repositories {
         }
     }
 
-    createBranch = async (repository: Repository, branchName: string): Promise<void> => {
+    createBranch = async (repository: Repository, branchName: string): Promise<Repository> => {
         // find the user's token for the source repository service
         let token: string;
         switch (repository.service){
@@ -169,7 +169,6 @@ export class Repositories {
                 token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY, "");
                 break;
             default:
-                Utils.showNotification("Error", "Unsupported repository service: " + repository.service, "danger");
                 throw new Error("Unsupported repository service: " + repository.service);
         }
 
@@ -188,15 +187,11 @@ export class Repositories {
             response = responseStr;
         }
         if (response.error) {
-            Utils.showNotification("Error", response.error, "danger");
-            return;
+            throw new Error(response.error);
         }
 
-        // add new repo to the repository list
-        await Repositories._addCustomRepository(repository.service, repository.name, branchName);
-
-        // show success notification
-        Utils.showNotification("Branch Created", `Successfully created branch '${branchName}'`, "success");
+        // add new repo to the repository list and return the created instance
+        return Repositories._addCustomRepository(repository.service, repository.name, branchName);
     };
 
     promptCreateBranch = async (repository: Repository): Promise<void> => {
@@ -208,6 +203,7 @@ export class Repositories {
         }
         try {
             await this.createBranch(repository, branchName);
+            Utils.showNotification("Branch Created", `Successfully created branch '${branchName}'`, "success");
         } catch (error) {
             Utils.showNotification("Error", `Failed to create branch: ${error}`, "danger");
         }
