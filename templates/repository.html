@@ -36,6 +36,7 @@
                 <a href="#" data-bind="click: expandAll, attr: {id: htmlId() + '-expand'}"><span>Expand</span></a>
                 <a href="#" data-bind="click: collapseAll, attr: {id: htmlId() + '-collapse'}"><span>Collapse</span></a>
                 <a href="#" data-bind="click: refresh, attr: {id: htmlId() + '-refresh'}"><span>Refresh</span></a>
+                <a href="#" data-bind="click: function(data){ GraphUpdater.showModal(data) }, attr: {id: htmlId() + '-update-all-graphs'}"><span>Update All Graphs</span></a>
             </div>
         </div>
         

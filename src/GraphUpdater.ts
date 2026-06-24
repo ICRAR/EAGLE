@@ -216,7 +216,7 @@ export class GraphUpdater {
         }
     }
 
-    static async showModal(): Promise<void> {
+    static async showModal(preSelectRepository?: Repository): Promise<void> {
         GraphUpdater.initCollapseToggle();
         GraphUpdater.state(GraphUpdater.Status.Start);
 
@@ -227,6 +227,14 @@ export class GraphUpdater {
             const repo = Repositories.repositories()[i];
             const option = $('<option></option>').attr("value", i).text(repo.getNameAndBranch());
             srcRepoSelect.append(option);
+        }
+
+        // pre-select source repository if provided
+        if (preSelectRepository !== undefined){
+            const repoIndex = Repositories.repositories().indexOf(preSelectRepository);
+            if (repoIndex !== -1){
+                srcRepoSelect.val(repoIndex);
+            }
         }
 
         // add custom option and list of repositories to destination select
