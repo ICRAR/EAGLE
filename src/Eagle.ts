@@ -202,6 +202,26 @@ export class Eagle {
         return Eagle._instance;
     }
 
+    /**
+     * Centralized confirmation for saving in legacy OJS format.
+     * Returns true if the save should proceed, false if the user cancels.
+     */
+    static async confirmOjsSave(version: Setting.SchemaVersion): Promise<boolean> {
+        if (version !== Setting.SchemaVersion.OJS) {
+            return true;
+        }
+        if (!Setting.findValue<boolean>(Setting.CONFIRM_OJS_FORMAT, true)) {
+            return true;
+        }
+        return Utils.requestUserConfirm(
+            "Older Format Warning",
+            "You are saving in the older OJS format. The newer V4 format is recommended. Continue saving in OJS format?",
+            "Continue",
+            "Cancel",
+            Setting.find(Setting.CONFIRM_OJS_FORMAT)
+        );
+    }
+
     areAnyFilesModified = () : boolean => {
         // check the logical graph
         if (this.logicalGraph().fileInfo().modified){
@@ -2446,9 +2466,8 @@ export class Eagle {
             const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
 
             // warn if saving in older OJS format (not applicable to GraphConfig which has no version-dependent serialization)
-            if (file.type !== Eagle.FileType.GraphConfig && version === Setting.SchemaVersion.OJS && Setting.findValue<boolean>(Setting.CONFIRM_OJS_FORMAT, true)) {
-                const confirmed = await Utils.requestUserConfirm("Older Format Warning", "You are saving in the older OJS format. The newer V4 format is recommended. Continue saving in OJS format?", "Continue", "Cancel", Setting.find(Setting.CONFIRM_OJS_FORMAT));
-                if (!confirmed) { resolve(); return; }
+            if (file.type !== Eagle.FileType.GraphConfig) {
+                if (!await Eagle.confirmOjsSave(version)) { resolve(); return; }
             }
 
             const clone: LogicalGraph | Palette | GraphConfig = obj.clone();
@@ -3109,10 +3128,7 @@ export class Eagle {
             const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
 
             // warn if saving in older OJS format
-            if (version === Setting.SchemaVersion.OJS && Setting.findValue<boolean>(Setting.CONFIRM_OJS_FORMAT, true)) {
-                const confirmed = await Utils.requestUserConfirm("Older Format Warning", "You are saving in the older OJS format. The newer V4 format is recommended. Continue saving in OJS format?", "Continue", "Cancel", Setting.find(Setting.CONFIRM_OJS_FORMAT));
-                if (!confirmed) { resolve(); return; }
-            }
+            if (!await Eagle.confirmOjsSave(version)) { resolve(); return; }
 
             // clone the palette and remove github info ready for local save
             const p_clone : Palette = palette.clone();
@@ -3174,10 +3190,7 @@ export class Eagle {
             const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
 
             // warn if saving in older OJS format
-            if (version === Setting.SchemaVersion.OJS && Setting.findValue<boolean>(Setting.CONFIRM_OJS_FORMAT, true)) {
-                const confirmed = await Utils.requestUserConfirm("Older Format Warning", "You are saving in the older OJS format. The newer V4 format is recommended. Continue saving in OJS format?", "Continue", "Cancel", Setting.find(Setting.CONFIRM_OJS_FORMAT));
-                if (!confirmed) { resolve(); return; }
-            }
+            if (!await Eagle.confirmOjsSave(version)) { resolve(); return; }
 
             // clone the logical graph and remove github info ready for local save
             const lg_clone : LogicalGraph = this.logicalGraph().clone();
@@ -3296,10 +3309,7 @@ export class Eagle {
         const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
 
         // warn if saving in older OJS format
-        if (version === Setting.SchemaVersion.OJS && Setting.findValue<boolean>(Setting.CONFIRM_OJS_FORMAT, true)) {
-            const confirmed = await Utils.requestUserConfirm("Older Format Warning", "You are saving in the older OJS format. The newer V4 format is recommended. Continue saving in OJS format?", "Continue", "Cancel", Setting.find(Setting.CONFIRM_OJS_FORMAT));
-            if (!confirmed) return;
-        }
+        if (!await Eagle.confirmOjsSave(version)) return;
 
         const defaultRepository: Repository = new Repository(palette.fileInfo().location.repositoryService(), palette.fileInfo().location.repositoryName(), palette.fileInfo().location.repositoryBranch(), false);
 
