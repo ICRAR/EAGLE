@@ -726,7 +726,8 @@ export class Node {
     },this)
 
     getNameHTML : ko.PureComputed<string> = ko.pureComputed(() => {
-        return Utils.markdown2html(this.name());
+        // return Utils.markdown2html(this.name());
+        return this.name();
     }, this);
 
     getHelpHTML : ko.PureComputed<string> = ko.pureComputed(() => {
