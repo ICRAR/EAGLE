@@ -2442,10 +2442,17 @@ export class Eagle {
         return new Promise(async(resolve, reject) => {
             console.log("saveDiagramToGit() repositoryName", file.repository.name, "fileType", file.type, "filePath", file.path, "fileName", file.name, "commitMessage", commitMessage);
 
+            // get version (hoisted for OJS format check)
+            const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
+
+            // warn if saving in older OJS format (not applicable to GraphConfig which has no version-dependent serialization)
+            if (file.type !== Eagle.FileType.GraphConfig && version === Setting.SchemaVersion.OJS && Setting.findValue<boolean>(Setting.CONFIRM_OJS_FORMAT, true)) {
+                const confirmed = await Utils.requestUserConfirm("Older Format Warning", "You are saving in the older OJS format. The newer V4 format is recommended. Continue saving in OJS format?", "Continue", "Cancel", Setting.find(Setting.CONFIRM_OJS_FORMAT));
+                if (!confirmed) { resolve(); return; }
+            }
+
             const clone: LogicalGraph | Palette | GraphConfig = obj.clone();
             clone.fileInfo().updateEagleInfo();
-
-            const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
 
             let jsonString: string = "";
             switch (file.type){
@@ -3084,6 +3091,7 @@ export class Eagle {
         Setting.setValue(Setting.CONFIRM_DISCARD_CHANGES,true)
         Setting.setValue(Setting.CONFIRM_NODE_CATEGORY_CHANGES,true)
         Setting.setValue(Setting.CONFIRM_REMOVE_REPOSITORIES,true)
+        Setting.setValue(Setting.CONFIRM_OJS_FORMAT, true)
         Utils.showNotification("Success", "Confirmation message pop ups re-enabled", "success");
     }
 
@@ -3097,13 +3105,19 @@ export class Eagle {
                 fileName = sanitizedName.length > 0 ? sanitizedName : "palette";
             }
 
+            // get version (hoisted for OJS format check)
+            const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
+
+            // warn if saving in older OJS format
+            if (version === Setting.SchemaVersion.OJS && Setting.findValue<boolean>(Setting.CONFIRM_OJS_FORMAT, true)) {
+                const confirmed = await Utils.requestUserConfirm("Older Format Warning", "You are saving in the older OJS format. The newer V4 format is recommended. Continue saving in OJS format?", "Continue", "Cancel", Setting.find(Setting.CONFIRM_OJS_FORMAT));
+                if (!confirmed) { resolve(); return; }
+            }
+
             // clone the palette and remove github info ready for local save
             const p_clone : Palette = palette.clone();
             p_clone.fileInfo().removeGitInfo();
             p_clone.fileInfo().updateEagleInfo();
-
-            // get version
-            const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
 
             // convert to json
             const jsonString: string = Palette.toJsonString(p_clone, version);
@@ -3156,13 +3170,19 @@ export class Eagle {
                 return;
             }
 
+            // get version (hoisted for OJS format check)
+            const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
+
+            // warn if saving in older OJS format
+            if (version === Setting.SchemaVersion.OJS && Setting.findValue<boolean>(Setting.CONFIRM_OJS_FORMAT, true)) {
+                const confirmed = await Utils.requestUserConfirm("Older Format Warning", "You are saving in the older OJS format. The newer V4 format is recommended. Continue saving in OJS format?", "Continue", "Cancel", Setting.find(Setting.CONFIRM_OJS_FORMAT));
+                if (!confirmed) { resolve(); return; }
+            }
+
             // clone the logical graph and remove github info ready for local save
             const lg_clone : LogicalGraph = this.logicalGraph().clone();
             lg_clone.fileInfo().removeGitInfo();
             lg_clone.fileInfo().updateEagleInfo();
-
-            // get version
-            const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
 
             // convert to json
             const jsonString: string = LogicalGraph.toJsonString(lg_clone, false, version);
@@ -3272,6 +3292,15 @@ export class Eagle {
     savePaletteToGit = async (palette: Palette): Promise<void> => {
         console.log("savePaletteToGit()", palette.fileInfo().name, palette.fileInfo().type);
 
+        // get version (hoisted for OJS format check)
+        const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
+
+        // warn if saving in older OJS format
+        if (version === Setting.SchemaVersion.OJS && Setting.findValue<boolean>(Setting.CONFIRM_OJS_FORMAT, true)) {
+            const confirmed = await Utils.requestUserConfirm("Older Format Warning", "You are saving in the older OJS format. The newer V4 format is recommended. Continue saving in OJS format?", "Continue", "Cancel", Setting.find(Setting.CONFIRM_OJS_FORMAT));
+            if (!confirmed) return;
+        }
+
         const defaultRepository: Repository = new Repository(palette.fileInfo().location.repositoryService(), palette.fileInfo().location.repositoryName(), palette.fileInfo().location.repositoryBranch(), false);
 
         let commit: RepositoryCommit;
@@ -3313,9 +3342,6 @@ export class Eagle {
         // clone the palette
         const p_clone : Palette = palette.clone();
         p_clone.fileInfo().updateEagleInfo();
-
-        // get version
-        const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
 
         // convert to json
         const jsonString: string = Palette.toJsonString(p_clone, version);
