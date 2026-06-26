@@ -83,14 +83,16 @@ export class Undo {
         this.rear(0);
     }
 
-    pushSnapshot = (eagle: Eagle, description: string) : void => {
+    pushSnapshot = (eagle: Eagle, description: string, force: boolean = false) : void => {
         const previousIndex = (this.current() + Undo.MEMORY_SIZE - 1) % Undo.MEMORY_SIZE;
         const previousSnapshot : Snapshot | null = this.memory()[previousIndex];
         const newContent: object = LogicalGraph.toOJSJson(eagle.logicalGraph(), false)
         const newSnapshot: Snapshot = new Snapshot(description, newContent);
 
         // check if newContent matches old content, if so, no need to push
-        if (previousSnapshot !== null && previousSnapshot.hash === newSnapshot.hash){
+        // (unless force=true, which bypasses this check for operations like fixAll
+        //  that may make only non-serializable changes but still need a snapshot boundary)
+        if (!force && previousSnapshot !== null && previousSnapshot.hash === newSnapshot.hash){
             console.log("Undo.pushSnapshot() : content hasn't changed, abort!");
             return;
         }
@@ -223,6 +225,8 @@ export class Undo {
             console.warn("Undo memory at index", index, "is null");
             return;
         }
+
+        console.log("Undo._loadFromIndex(): loading snapshot", index, ":", snapshot.description());
 
         const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
         const dataObject: LogicalGraph = LogicalGraph.fromOJSJson(snapshot.data(), null, errorsWarnings);

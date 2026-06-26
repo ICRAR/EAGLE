@@ -17,44 +17,63 @@ export class Errors {
         return {message: message, show: show, fix: fix, fixDescription: fixDescription};
     }
 
+    // Guard flag: prevents re-entrant or rapid back-to-back calls (e.g. held key) from
+    // each pushing their own partial-fix snapshot into the undo history.
+    private static _fixAllRunning: boolean = false;
+
     static fixAll() : void {
-        const eagle: Eagle = Eagle.getInstance();
-        const initialNumWarnings = eagle.graphWarnings().length;
-        const initialNumErrors = eagle.graphErrors().length;
-        let numErrors   = Infinity;
-        let numWarnings = Infinity;
-        let numIterations = 0;
-        const MAX_ITERATIONS = 10;
-
-        while (numWarnings !== eagle.graphWarnings().length || numErrors !== eagle.graphErrors().length){
-            if (numIterations > MAX_ITERATIONS){
-                console.warn("Too many iterations in fixAll()");
-                break;
-            }
-            numIterations = numIterations+1;
-
-            numWarnings = eagle.graphWarnings().length;
-            numErrors = eagle.graphErrors().length;
-
-            for (const error of eagle.graphErrors()){
-                if (error.fix !== null){
-                    error.fix();
-                }
-            }
-
-            for (const warning of eagle.graphWarnings()){
-                if (warning.fix !== null){
-                    warning.fix();
-                }
-            }
-
-            eagle.checkEagle();
+        if (Errors._fixAllRunning){
+            return;
         }
+        Errors._fixAllRunning = true;
 
-        // show notification
-        Utils.showNotification("Fix All Graph Errors", initialNumErrors + " error(s), " + numErrors + " remain. " + initialNumWarnings + " warning(s), " + numWarnings + " remain.", "info");
+        try {
+            const eagle: Eagle = Eagle.getInstance();
+            const initialNumWarnings = eagle.graphWarnings().length;
+            const initialNumErrors = eagle.graphErrors().length;
+            let numErrors   = Infinity;
+            let numWarnings = Infinity;
+            let numIterations = 0;
+            const MAX_ITERATIONS = 10;
 
-        Utils.postFixFunc(eagle);
+            while (numWarnings !== eagle.graphWarnings().length || numErrors !== eagle.graphErrors().length){
+                if (numIterations > MAX_ITERATIONS){
+                    console.warn("Too many iterations in fixAll()");
+                    break;
+                }
+                numIterations = numIterations+1;
+
+                numWarnings = eagle.graphWarnings().length;
+                numErrors = eagle.graphErrors().length;
+
+                for (const error of eagle.graphErrors()){
+                    if (error.fix !== null){
+                        error.fix();
+                    }
+                }
+
+                for (const warning of eagle.graphWarnings()){
+                    if (warning.fix !== null){
+                        warning.fix();
+                    }
+                }
+
+                eagle.checkEagle();
+            }
+
+            // show notification
+            Utils.showNotification("Fix All Graph Errors", initialNumErrors + " error(s), " + numErrors + " remain. " + initialNumWarnings + " warning(s), " + numWarnings + " remain.", "info");
+
+            // Only push a snapshot when the fix loop actually ran at least once (i.e. there
+            // were fixable issues). postFixFunc uses force=true so the snapshot is never
+            // silently skipped due to a hash collision — fixes may alter only non-serializable
+            // in-memory state while still needing an undo boundary.
+            if (numIterations > 0){
+                Utils.postFixFunc(eagle);
+            }
+        } finally {
+            Errors._fixAllRunning = false;
+        }
     }
 
     static hasWarnings(errorsWarnings: Errors.ErrorsWarnings) : boolean {
