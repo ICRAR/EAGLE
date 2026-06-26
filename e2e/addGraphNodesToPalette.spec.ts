@@ -15,7 +15,8 @@ test('Add graph nodes to a new custom palette', async ({ page }) => {
     // expand the first palette (Builtin Components) and add a HelloWorldApp to the graph
     await TestHelpers.expandPalette(page, 0);
     await page.locator('#addPaletteNodeHelloWorldApp').click();
-    await page.waitForTimeout(500);
+    // wait for the node to actually appear in the graph before proceeding
+    await page.waitForFunction(() => (window as any).eagle.logicalGraph().getNumNodes() > 0);
 
     // click the "Add Graph Nodes To Palette" button in the navbar
     await page.locator('#addGraphNodesToPalette').click();
@@ -23,7 +24,6 @@ test('Add graph nodes to a new custom palette', async ({ page }) => {
     // the choice modal appears; since no writable palettes exist yet, the custom
     // name input is directly available - fill in a new palette name and confirm
     await TestHelpers.enterCustomChoiceName(page, 'myTestPalette');
-    await page.waitForTimeout(500);
 
     // verify no error dialog appeared
     await expect(page.locator('#userMessageModal')).not.toBeVisible();

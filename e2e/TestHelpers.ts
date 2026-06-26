@@ -232,11 +232,11 @@ export class TestHelpers {
 
     // Fill the custom name field in the choice modal and confirm
     static async enterCustomChoiceName(page: Page, name: string): Promise<void> {
-        const input = page.getByRole('textbox', { name: 'Custom Port Name' });
+        const input = page.locator('#choiceModalString');
         await input.waitFor({ state: 'visible' });
         await input.fill(name);
-        const okButton = page.getByRole('button', { name: 'OK' });
-        await okButton.waitFor({ state: 'visible' });
-        await okButton.click();
+        await page.locator('#choiceModalAffirmativeButton').click();
+        // wait for the modal to fully close so the requestUserChoice promise has resolved
+        await page.locator('#choiceModal').waitFor({ state: 'hidden' });
     }
 }
