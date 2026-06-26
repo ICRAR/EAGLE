@@ -227,14 +227,16 @@ export class TestHelpers {
     // Expand a palette accordion by index
     static async expandPalette(page: Page, paletteIndex: number): Promise<void> {
         await page.locator('#palette' + paletteIndex).click();
-        await page.waitForTimeout(250);
+        await page.locator('#collapse' + paletteIndex).waitFor({ state: 'visible' });
     }
 
     // Fill the custom name field in the choice modal and confirm
     static async enterCustomChoiceName(page: Page, name: string): Promise<void> {
-        await page.getByRole('textbox', { name: 'Custom Port Name' }).click();
-        await page.getByRole('textbox', { name: 'Custom Port Name' }).fill(name);
-        await page.waitForTimeout(500);
-        await page.getByRole('button', { name: 'OK' }).click();
+        const input = page.getByRole('textbox', { name: 'Custom Port Name' });
+        await input.waitFor({ state: 'visible' });
+        await input.fill(name);
+        const okButton = page.getByRole('button', { name: 'OK' });
+        await okButton.waitFor({ state: 'visible' });
+        await okButton.click();
     }
 }
