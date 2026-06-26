@@ -31,7 +31,7 @@ case "$1" in
         echo ""
         echo ""
         echo ">>>>> docker-slim output <<<<<<<<<"
-        slim build --include-shell --include-path /usr/local/lib --include-path /usr/local/bin icrar/eagle:${VCS_TAG}
+        slim build --include-shell --include-path /usr/local/lib --include-path /usr/local/bin --tag icrar/eagle.slim:${VCS_TAG} icrar/eagle:${VCS_TAG}
 	# docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock dslim/slim build --include-shell --include-path /usr/local/lib --include-path /usr/local/bin icrar/eagle:${VCS_TAG} 
 	;;
     *)
