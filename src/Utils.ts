@@ -2551,10 +2551,7 @@ export class Utils {
         eagle.logicalGraph().fileInfo().modified = true;
 
         eagle.checkEagle();
-        // force=true: fixes may only change non-serializable in-memory state, so the
-        // snapshot must always be pushed when called from a fix operation to ensure
-        // the undo stack has a proper boundary and doesn't skip back past the fix.
-        eagle.undo().pushSnapshot(eagle, "Fix", true);
+        eagle.undo().pushSnapshot(eagle, "Fix");
     }
 
     static newNodeId(graph: LogicalGraph, nodeId: NodeId){
