@@ -110,6 +110,14 @@ export class TutorialSystem {
         return x
     }
 
+    static getTutorials(): Tutorial[] {
+        return Array.from(tutorialArray);
+    }
+
+    static getTutorialNames(): string[] {
+        return TutorialSystem.getTutorials().map((tutorial) => tutorial.getName());
+    }
+
     static initiateFindGraphNodeIdByNodeName(name:string) : JQuery<HTMLElement> {
         return $('#logicalGraph #'+Eagle.getInstance().logicalGraph().findNodeIdByNodeName(name)+'.container')
     }
