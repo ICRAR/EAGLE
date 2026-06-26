@@ -25,6 +25,7 @@
 import { Category } from './Category';
 import { Field } from './Field';
 import { Node } from './Node';
+import { Repository } from './Repository';
 
 export class Daliuge {
     // automatically loaded palettes
@@ -88,6 +89,15 @@ export namespace Daliuge {
 
         //bash
         COMMAND = "command",
+
+        // subgraph reference
+        SERVICE = "service",
+        REPOSITORY = "repository",
+        BRANCH = "branch",
+        COMMIT = "commit",
+        PATH = "path",
+        CONFIGURATION_NAME = "configuration_name",
+        CONFIGURATION = "configuration"
     }
 
     export enum DataType {
@@ -199,6 +209,15 @@ export namespace Daliuge {
     export const persistField = new Field(dummyNode, FieldName.PERSIST as FieldId, FieldName.PERSIST, "false", "false", "Specifies whether this data component contains data that should not be deleted after execution", false, Daliuge.DataType.Boolean, false, [], false, Daliuge.FieldType.Component, Daliuge.FieldUsage.NoPort);
     export const streamingField = new Field(dummyNode, FieldName.STREAMING as FieldId, FieldName.STREAMING, "false", "false", "Specifies whether this data component streams input and output data", false, Daliuge.DataType.Boolean, false, [], false, Daliuge.FieldType.Component, Daliuge.FieldUsage.NoPort);
 
+    export const graphServiceField = new Field(dummyNode, FieldName.SERVICE as FieldId, FieldName.SERVICE, "", "", "The name of the service hosting the subgraph. Usually GitHub or GitLab", false, Daliuge.DataType.String, false, [Repository.Service.GitHub, Repository.Service.GitLab], false, Daliuge.FieldType.Component, Daliuge.FieldUsage.NoPort);
+    export const graphRepositoryField = new Field(dummyNode, FieldName.REPOSITORY as FieldId, FieldName.REPOSITORY, "", "", "The repository containing the subgraph", false, Daliuge.DataType.String, false, [], false, Daliuge.FieldType.Component, Daliuge.FieldUsage.NoPort);
+    export const graphBranchField = new Field(dummyNode, FieldName.BRANCH as FieldId, FieldName.BRANCH, "", "", "The branch of the repository containing the subgraph", false, Daliuge.DataType.String, false, [], false, Daliuge.FieldType.Component, Daliuge.FieldUsage.NoPort);
+    export const graphCommitField = new Field(dummyNode, FieldName.COMMIT as FieldId, FieldName.COMMIT, "", "", "The commit of the repository containing the subgraph", false, Daliuge.DataType.String, false, [], false, Daliuge.FieldType.Component, Daliuge.FieldUsage.NoPort);
+    export const graphPathField = new Field(dummyNode, FieldName.PATH as FieldId, FieldName.PATH, "", "", "The path to the subgraph within the repository", false, Daliuge.DataType.String, false, [], false, Daliuge.FieldType.Component, Daliuge.FieldUsage.NoPort);
+    export const graphConfigurationNameField = new Field(dummyNode, FieldName.CONFIGURATION_NAME as FieldId, FieldName.CONFIGURATION_NAME, "", Daliuge.DEFAULT_GRAPH_CONFIGURATION_NAME, "The name of the subgraph configuration to use", false, Daliuge.DataType.String, false, [], false, Daliuge.FieldType.Component, Daliuge.FieldUsage.NoPort);
+    export const graphConfigurationField = new Field(dummyNode, FieldName.CONFIGURATION as FieldId, FieldName.CONFIGURATION, "", "", "The subgraph configuration to use", false, Daliuge.DataType.Json, false, [], false, Daliuge.FieldType.Component, Daliuge.FieldUsage.InputPort);
+    
+
     // This list defines the fields required for ALL nodes belonging to a given Category.Type
     export const categoryTypeFieldsRequired = [
         {
@@ -299,6 +318,21 @@ export namespace Daliuge {
             ],
             fields: [
                 Daliuge.baseNameField
+            ]
+        },
+        {
+            categories: [
+                Category.SubGraphReference
+            ],
+            fields: [
+                Daliuge.dropClassField,
+                Daliuge.graphServiceField,
+                Daliuge.graphRepositoryField,
+                Daliuge.graphBranchField,
+                Daliuge.graphCommitField,
+                Daliuge.graphPathField,
+                Daliuge.graphConfigurationNameField,
+                Daliuge.graphConfigurationField
             ]
         }
     ];

@@ -34,6 +34,7 @@ export enum Category {
     Branch = "Branch",
 
     SubGraph = "SubGraph",
+    SubGraphReference = "SubGraphReference",
 
     Unknown = "Unknown",
     None = "None",
