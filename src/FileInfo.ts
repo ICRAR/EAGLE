@@ -471,6 +471,7 @@ export class FileInfo {
 
         const fileName = Utils.getFileNameFromFullPath(modelData.filePath);
         const filePath = Utils.getFilePathFromFullPath(modelData.filePath);
+        const repoService = modelData.repoService ?? Repository.Service.Unknown;
 
         result.name = fileName;
         result.shortDescription = modelData.shortDescription ?? "";
@@ -486,11 +487,21 @@ export class FileInfo {
         result.schemaVersion = modelData.schemaVersion ?? "";
         result.readonly = modelData.readonly ?? true;
 
-        result.location.repositoryService(modelData.repoService ?? Repository.Service.Unknown);
+        result.location.repositoryService(repoService);
         result.location.repositoryBranch(modelData.repoBranch ?? "");
         result.location.repositoryName(modelData.repo ?? "");
-        result.location.repositoryPath(filePath);
-        result.location.repositoryFileName(fileName);
+
+        // For URL-backed graphs we store the full URL in repositoryFileName and
+        // keep repositoryPath empty. This matches updateFileInfo() behavior and
+        // keeps graphLocation comparisons stable across undo reloads.
+        if (repoService === Repository.Service.Url){
+            const url = modelData.downloadUrl ?? modelData.filePath ?? "";
+            result.location.repositoryPath("");
+            result.location.repositoryFileName(url);
+        } else {
+            result.location.repositoryPath(filePath);
+            result.location.repositoryFileName(fileName);
+        }
         result.location.commitHash(modelData.commitHash ?? "");
         result.location.downloadUrl(modelData.downloadUrl ?? "");
 
