@@ -223,4 +223,18 @@ export class TestHelpers {
             return (window as any).eagle.graphWarnings().length + (window as any).eagle.graphErrors().length;
         });
     }
+
+    // Expand a palette accordion by index
+    static async expandPalette(page: Page, paletteIndex: number): Promise<void> {
+        await page.locator('#palette' + paletteIndex).click();
+        await page.waitForTimeout(250);
+    }
+
+    // Fill the custom name field in the choice modal and confirm
+    static async enterCustomChoiceName(page: Page, name: string): Promise<void> {
+        await page.getByRole('textbox', { name: 'Custom Port Name' }).click();
+        await page.getByRole('textbox', { name: 'Custom Port Name' }).fill(name);
+        await page.waitForTimeout(500);
+        await page.getByRole('button', { name: 'OK' }).click();
+    }
 }

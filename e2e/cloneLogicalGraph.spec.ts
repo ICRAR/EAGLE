@@ -9,8 +9,7 @@ test('LogicalGraph.clone() does not share references with original', async ({ pa
     await TestHelpers.setUIMode(page, "Expert");
 
     // expand the Builtin Components palette
-    await page.locator('#palette0').click();
-    await page.waitForTimeout(250);
+    await TestHelpers.expandPalette(page, 0);
 
     // add a HelloWorldApp node
     await page.locator('#addPaletteNodeHelloWorldApp').click();

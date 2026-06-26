@@ -4513,7 +4513,7 @@ export class Eagle {
         }
 
         // if user asked for a new palette, create one
-        if (createIfNotFound && p === null){
+        if (createIfNotFound && p === undefined){
             p = new Palette();
             p.fileInfo().name = name;
             p.fileInfo().readonly = false;

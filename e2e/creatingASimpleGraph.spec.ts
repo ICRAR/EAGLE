@@ -12,8 +12,7 @@ test('Creating a Simple Graph', async ({ page }) => {
   await TestHelpers.setUIMode(page, "Expert");
 
   //expand the 'Builtin Components' palette
-  await page.locator('#palette0').click();
-  await page.waitForTimeout(250);
+  await TestHelpers.expandPalette(page, 0);
 
   //add a helloworld app to the graph by clicking it's icon
   await page.locator('#addPaletteNodeHelloWorldApp').click();

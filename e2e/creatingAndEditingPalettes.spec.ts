@@ -12,8 +12,7 @@ test('Creating and editing Palettes', async ({ page }) => {
   await TestHelpers.setUIMode(page, 'Expert');
 
   //expand the 'Builtin Components' palette
-  await page.locator('#palette0').click();
-  await page.waitForTimeout(250);
+  await TestHelpers.expandPalette(page, 0);
 
   //right click the hello world app in the palette
   await page.locator('#palette_0_CopyApp').click({
@@ -23,13 +22,8 @@ test('Creating and editing Palettes', async ({ page }) => {
   //click menu item add to another palette
   await page.getByText('Add to another palette').click();
 
-  //select the input field to give the new palette a name
-  await page.getByRole('textbox', { name: 'Custom Port Name' }).click();
-  //write test
-  await page.getByRole('textbox', { name: 'Custom Port Name' }).fill('test');
-  //timeout for bootstrap animation and confirm the modal
-  await page.waitForTimeout(500);
-  await page.getByRole('button', { name: 'OK' }).click();
+  //enter the new palette name and confirm
+  await TestHelpers.enterCustomChoiceName(page, 'test');
 
   await page.close();
 });
