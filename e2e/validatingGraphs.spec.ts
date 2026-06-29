@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { TestHelpers } from './TestHelpers';
 
 const GRAPHS = [
   // SDP Pipelines
@@ -15,18 +16,11 @@ test('Validating Graphs', async ({ page }) => {
   for (const graphUrl of GRAPHS){
     await page.goto('http://localhost:8888/?tutorial=none&service=Url&url='+graphUrl);
 
-    // wait for the 'graph load success' notification to be shown
-    await page.locator('div[data-notify="container"]').waitFor({state: 'attached'});
-
-    // dismiss notification
-    await page.locator('button[data-notify="dismiss"]').click();
-
-    // wait for the 'graph load success' notification to be dismissed
-    await page.locator('div[data-notify="container"]').waitFor({state: 'detached'});
+    // wait for the 'graph load success' notification to be shown, then dismiss it
+    await TestHelpers.waitForNotificationAndDismiss(page);
 
     // navigate menus and click the "validate" item
-    await page.locator('#navbarDropdownGraph').click();
-    await page.locator('#validateGraph').click();
+    await TestHelpers.openGraphMenuAndSelect(page, 'validateGraph');
 
     // wait for the validation
     await page.locator('div[data-notify="container"]').waitFor({state: 'attached'});
