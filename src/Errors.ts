@@ -34,6 +34,7 @@ export class Errors {
             let numErrors   = Infinity;
             let numWarnings = Infinity;
             let numIterations = 0;
+            let appliedFixes = false;
             const MAX_ITERATIONS = 10;
 
             while (numWarnings !== eagle.graphWarnings().length || numErrors !== eagle.graphErrors().length){
@@ -49,12 +50,14 @@ export class Errors {
                 for (const error of eagle.graphErrors()){
                     if (error.fix !== null){
                         error.fix();
+                        appliedFixes = true;
                     }
                 }
 
                 for (const warning of eagle.graphWarnings()){
                     if (warning.fix !== null){
                         warning.fix();
+                        appliedFixes = true;
                     }
                 }
 
@@ -64,11 +67,8 @@ export class Errors {
             // show notification
             Utils.showNotification("Fix All Graph Errors", initialNumErrors + " error(s), " + numErrors + " remain. " + initialNumWarnings + " warning(s), " + numWarnings + " remain.", "info");
 
-            // Only push a snapshot when the fix loop actually ran at least once (i.e. there
-            // were fixable issues). postFixFunc uses force=true so the snapshot is never
-            // silently skipped due to a hash collision — fixes may alter only non-serializable
-            // in-memory state while still needing an undo boundary.
-            if (numIterations > 0){
+            // Only push a snapshot when at least one fix function actually ran.
+            if (appliedFixes){
                 Utils.postFixFunc(eagle);
             }
         } finally {

@@ -3,7 +3,7 @@ import { TestHelpers } from './TestHelpers';
 
 // Regression test for: fix all issues, do other actions, undo — previously fixed
 // errors/warnings must NOT reappear.
-// https://github.com/ICRAR/EAGLE/issues/<issue-number>
+// https://github.com/ICRAR/EAGLE/issues/1667
 //
 // Reproduction steps:
 // 1. Open a graph that has fixable warnings/errors
@@ -38,7 +38,9 @@ test('Undo after fixAll does not reintroduce fixed errors', async ({ page }) => 
     await page.locator('div[data-notify="container"]').waitFor({ state: 'attached' });
     await page.locator('button[data-notify="dismiss"]').click();
     await page.locator('div[data-notify="container"]').waitFor({ state: 'detached' });
-    await page.waitForTimeout(300);
+
+    // Wait until graph state settles after applying fixes.
+    await expect.poll(async () => await TestHelpers.getNumWarningsErrors(page)).toBeLessThanOrEqual(initialCount);
 
     // capture the post-fix count — this is the count that must be preserved after undo
     const postFixCount = await TestHelpers.getNumWarningsErrors(page);
@@ -56,26 +58,26 @@ test('Undo after fixAll does not reintroduce fixed errors', async ({ page }) => 
     });
 
     // delete first node via the eagle API directly
-    await page.evaluate((id: string) => {
+    await page.evaluate(async (id: string) => {
         const eagle = (window as any).eagle;
         const node = eagle.logicalGraph().getNodeById(id);
         if (node) {
             eagle.setSelection(node, (window as any).Eagle.FileType.Graph);
-            eagle.deleteSelection(false, true, false);
+            await eagle.deleteSelection(false, true, false);
         }
     }, nodeIds[0]);
-    await page.waitForTimeout(300);
+    await expect.poll(async () => await TestHelpers.getNodeCount(page)).toBe(nodeCount - 1);
 
     // delete second node
-    await page.evaluate((id: string) => {
+    await page.evaluate(async (id: string) => {
         const eagle = (window as any).eagle;
         const node = eagle.logicalGraph().getNodeById(id);
         if (node) {
             eagle.setSelection(node, (window as any).Eagle.FileType.Graph);
-            eagle.deleteSelection(false, true, false);
+            await eagle.deleteSelection(false, true, false);
         }
     }, nodeIds[1]);
-    await page.waitForTimeout(300);
+    await expect.poll(async () => await TestHelpers.getNodeCount(page)).toBe(nodeCount - 2);
 
     // verify two nodes were deleted
     const nodeCountAfterDelete = await TestHelpers.getNodeCount(page);
@@ -83,14 +85,7 @@ test('Undo after fixAll does not reintroduce fixed errors', async ({ page }) => 
 
     // undo once (restores one deletion)
     await TestHelpers.undo(page);
-    await page.waitForTimeout(300);
-
-    // dismiss any undo notification
-    const notif = page.locator('div[data-notify="container"]');
-    if (await notif.isVisible()) {
-        await page.locator('button[data-notify="dismiss"]').click();
-        await page.waitForTimeout(200);
-    }
+    await expect.poll(async () => await TestHelpers.getNodeCount(page)).toBe(nodeCount - 1);
 
     // one node should be back
     const nodeCountAfterUndo = await TestHelpers.getNodeCount(page);
