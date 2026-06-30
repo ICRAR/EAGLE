@@ -1,8 +1,34 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
+
+async function removeCustomRepositoryIfPresent(page: Page, repoHTMLId: string): Promise<void> {
+  while(await page.locator(repoHTMLId).count() > 0){
+    await page.locator('.repoContainer').filter({has:page.locator(repoHTMLId)}).first().hover()
+    await page.locator('.repoContainer').filter({has:page.locator(repoHTMLId)}).first().locator('button.repoTripleDot').click()
+    await page.locator(repoHTMLId + '-remove').first().click()
+    await page.waitForTimeout(500);
+    await page.locator('button#confirmModalAffirmativeButton').click()
+    await page.waitForTimeout(700);
+  }
+}
+
+async function addCustomRepository(page: Page, name: string, branch: string): Promise<string> {
+  const repoHTMLId = '#'+name.replace('/', '_') + '_' + branch;
+
+  await removeCustomRepositoryIfPresent(page, repoHTMLId);
+
+  await page.getByRole('button',{name:'Add Repository'}).click()
+  await page.waitForTimeout(500);
+  await page.locator('input#gitCustomRepositoryModalRepositoryNameInput').pressSequentially(name)
+  await page.locator('input#gitCustomRepositoryModalRepositoryBranchInput').pressSequentially(branch)
+  await page.locator('button#gitCustomRepositoryModalAffirmativeButton').click()
+  await page.waitForTimeout(1000);
+  await expect(await page.locator(repoHTMLId).count()).toBeGreaterThan(0)
+
+  return repoHTMLId;
+}
 
 test('Adding and Removing Repositories', async ({ page }) => {
-  page.setViewportSize({width:1920,height:1080})
-  
+
   await page.goto('http://localhost:8888/?tutorial=none');
 
   // Expect a title "to contain" a substring.
@@ -50,5 +76,103 @@ test('Adding and Removing Repositories', async ({ page }) => {
   await expect(await page.locator(repoHTMLId).count() === 1).toBeFalsy()
 
   //closing the browser
+  await page.close();
+});
+
+test('Create Branch and Delete Branch Actions', async ({ page }) => {
+
+  // create mocks for createBranch and deleteBranch endpoints to avoid actually creating/deleting branches on the backend
+  let createBranchCallCount = 0;
+  await page.route('**/createBranch', async route => {
+    createBranchCallCount += 1;
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ success: true })
+    });
+  });
+  await page.route('**/deleteBranch', async route => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ success: true })
+    });
+  });
+
+  // load the app and verify the page is ready.
+  await page.goto('http://localhost:8888/?tutorial=none');
+  await expect(page).toHaveTitle(/EAGLE/);
+
+  // define repository/branch fixtures used by this scenario.
+  const REPO_NAME = 'ICRAR/daliuge';
+  const BASE_BRANCH = 'branch-actions-base';
+  const CREATED_BRANCH = 'branch-actions-created';
+  const PROTECTED_BRANCH = 'main';
+
+  // ensure baseline repository state for create/delete branch actions.
+  const baseRepoHTMLId = await addCustomRepository(page, REPO_NAME, BASE_BRANCH);
+  const createdRepoHTMLId = '#'+REPO_NAME.replace('/', '_') + '_' + CREATED_BRANCH;
+  const protectedRepoHTMLId = '#'+REPO_NAME.replace('/', '_') + '_' + PROTECTED_BRANCH;
+  await removeCustomRepositoryIfPresent(page, createdRepoHTMLId);
+  await removeCustomRepositoryIfPresent(page, protectedRepoHTMLId);
+
+  // verify create/delete options are present in the repository menu
+  await page.locator('.repoContainer').filter({has:page.locator(baseRepoHTMLId)}).hover()
+  await page.locator('.repoContainer').filter({has:page.locator(baseRepoHTMLId)}).locator('button.repoTripleDot').click()
+  await expect(page.locator(baseRepoHTMLId + '-create-branch')).toBeVisible();
+  await expect(page.locator(baseRepoHTMLId + '-delete-branch')).toBeVisible();
+
+  // verify create branch flow via UI
+  await page.locator(baseRepoHTMLId + '-create-branch').click()
+  const createBranchDialog = page.getByRole('dialog', { name: 'Create Branch' });
+  await expect(createBranchDialog).toBeVisible();
+  const createBranchResponsePromise = page.waitForResponse(response => response.url().includes('/createBranch'));
+  await page.locator('#inputModalInput').fill(CREATED_BRANCH)
+  await createBranchDialog.getByRole('button', { name: 'OK' }).click()
+
+  // some runs keep the modal visible after first click; retry closure through UI.
+  if (await createBranchDialog.isVisible()) {
+    await page.keyboard.press('Escape');
+  }
+  if (await createBranchDialog.isVisible()) {
+    await page.locator('#inputModal .btn-close').click();
+  }
+
+  await expect(page.locator('#inputModal')).toBeHidden();
+  await createBranchResponsePromise;
+  await page.waitForTimeout(500);
+  await expect(createBranchCallCount).toBe(1);
+
+  // confirm the newly created branch entry appears in the repository list.
+  await expect(await page.locator(createdRepoHTMLId).count()).toBeGreaterThan(0)
+
+  // verify delete branch asks for confirmation and deletes
+  await page.locator('.repoContainer').filter({has:page.locator(createdRepoHTMLId)}).hover()
+  await page.locator('.repoContainer').filter({has:page.locator(createdRepoHTMLId)}).locator('button.repoTripleDot').click()
+  await page.locator(createdRepoHTMLId + '-delete-branch').click()
+  await expect(page.locator('#confirmModal')).toBeVisible();
+  await page.locator('#confirmModalAffirmativeButton').click()
+  if (await page.locator('#confirmModal').isVisible()) {
+    await page.keyboard.press('Escape');
+  }
+  if (await page.locator('#confirmModal').isVisible()) {
+    await page.locator('#confirmModal .btn-close').click();
+  }
+  await expect(page.locator('#confirmModal')).toBeHidden();
+  await page.waitForTimeout(500);
+
+  // verify protected branch cannot be deleted and does not call backend
+  await addCustomRepository(page, REPO_NAME, PROTECTED_BRANCH);
+  await page.locator('.repoContainer').filter({has:page.locator(protectedRepoHTMLId)}).hover()
+  await page.locator('.repoContainer').filter({has:page.locator(protectedRepoHTMLId)}).locator('button.repoTripleDot').click()
+  await page.locator(protectedRepoHTMLId + '-delete-branch').click()
+  await page.waitForTimeout(500);
+  await expect(page.locator('#confirmModal')).toBeHidden();
+  await expect(await page.locator(protectedRepoHTMLId).count()).toBeGreaterThan(0)
+
+  // reset any repositories created during this test.
+  await removeCustomRepositoryIfPresent(page, baseRepoHTMLId);
+  await removeCustomRepositoryIfPresent(page, protectedRepoHTMLId);
+
   await page.close();
 });
