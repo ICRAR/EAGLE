@@ -67,6 +67,17 @@ export class Repositories {
         return Utils.buildUrl(repository.service, repository.name, repository.branch);
     }
 
+    static getWebUrl(repository: Repository): string {
+        switch (repository.service){
+            case Repository.Service.GitHub:
+                return "https://github.com/" + encodeURI(repository.name) + "/tree/" + encodeURIComponent(repository.branch);
+            case Repository.Service.GitLab:
+                return "https://gitlab.com/" + encodeURI(repository.name) + "/-/tree/" + encodeURIComponent(repository.branch);
+            default:
+                throw new Error("Unsupported repository service: " + repository.service);
+        }
+    }
+
     // use a custom modal to ask user for repository service and url at the same time
     addCustomRepository = async () => {
         let customRepository: Repository;
@@ -136,6 +147,16 @@ export class Repositories {
         } catch (error) {
             Utils.showNotification("Repository URL", "Failed to copy to clipboard", "danger");
             console.error("Failed to copy repository URL:", error);
+        }
+    }
+
+    openRepositoryInBrowser = async (repository: Repository): Promise<void> => {
+        const url = Repositories.getWebUrl(repository);
+        const win = window.open(url, "_blank");
+        if (win) {
+            win.focus();
+        } else {
+            alert("Please allow popups for this website");
         }
     }
 
