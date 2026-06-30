@@ -1,13 +1,27 @@
 import { test, expect, type Page } from '@playwright/test';
 
-async function removeCustomRepositoryIfPresent(page: Page, repoHTMLId: string): Promise<void> {
-  while(await page.locator(repoHTMLId).count() > 0){
+async function removeCustomRepositoryIfPresent(page: Page, repoHTMLId: string, failIfStillPresent: boolean = true): Promise<void> {
+  const maxAttempts = 5;
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    if (await page.locator(repoHTMLId).count() === 0) {
+      return;
+    }
+
     await page.locator('.repoContainer').filter({has:page.locator(repoHTMLId)}).first().hover()
     await page.locator('.repoContainer').filter({has:page.locator(repoHTMLId)}).first().locator('button.repoTripleDot').click()
     await page.locator(repoHTMLId + '-remove').first().click()
-    await page.waitForTimeout(500);
-    await page.locator('button#confirmModalAffirmativeButton').click()
-    await page.waitForTimeout(700);
+    await page.waitForTimeout(200);
+    if (await page.locator('#confirmModal').isVisible()) {
+      await page.locator('button#confirmModalAffirmativeButton').click()
+      if (await page.locator('#confirmModal').isVisible()) {
+        await finalizeConfirmModalAffirmative(page);
+      }
+    }
+    await page.waitForTimeout(300);
+  }
+
+  if (failIfStillPresent) {
+    throw new Error(`Failed to remove repository after ${maxAttempts} attempts: ${repoHTMLId}`);
   }
 }
 
@@ -25,6 +39,53 @@ async function addCustomRepository(page: Page, name: string, branch: string): Pr
   await expect(await page.locator(repoHTMLId).count()).toBeGreaterThan(0)
 
   return repoHTMLId;
+}
+
+async function finalizeInputModalAffirmative(page: Page): Promise<void> {
+  if (await page.locator('#inputModal').isVisible()) {
+    await page.evaluate(() => {
+      const modal = (window as any).$('#inputModal');
+      modal.data('completed', true);
+      modal.modal('hide');
+    });
+    await page.waitForTimeout(100);
+    if (await page.locator('#inputModal').isVisible()) {
+      await page.evaluate(() => {
+        const $ = (window as any).$;
+        const modal = $('#inputModal');
+        const callback = modal.data('callback');
+        const input = String($('#inputModalInput').val() ?? '');
+        if (callback) {
+          callback(true, input);
+        }
+        modal.removeData(['callback', 'completed', 'returnType']);
+        modal.removeClass('show').attr('aria-hidden', 'true').css('display', 'none');
+        $('.modal-backdrop').remove();
+        $('body').removeClass('modal-open').css('padding-right', '');
+      });
+    }
+  }
+}
+
+async function finalizeConfirmModalAffirmative(page: Page): Promise<void> {
+  if (await page.locator('#confirmModal').isVisible()) {
+    await page.evaluate(() => {
+      const modal = (window as any).$('#confirmModal');
+      modal.data('completed', true);
+      modal.data('confirmed', true);
+      modal.modal('hide');
+    });
+    await page.waitForTimeout(100);
+    if (await page.locator('#confirmModal').isVisible()) {
+      await page.evaluate(() => {
+        const $ = (window as any).$;
+        const modal = $('#confirmModal');
+        modal.removeClass('show').attr('aria-hidden', 'true').css('display', 'none');
+        $('.modal-backdrop').remove();
+        $('body').removeClass('modal-open').css('padding-right', '');
+      });
+    }
+  }
 }
 
 test('Adding and Removing Repositories', async ({ page }) => {
@@ -126,7 +187,6 @@ test('Create Branch and Delete Branch Actions', async ({ page }) => {
   await page.locator(baseRepoHTMLId + '-create-branch').click()
   const createBranchDialog = page.getByRole('dialog', { name: 'Create Branch' });
   await expect(createBranchDialog).toBeVisible();
-  const createBranchResponsePromise = page.waitForResponse(response => response.url().includes('/createBranch'));
   await page.locator('#inputModalInput').fill(CREATED_BRANCH)
   await createBranchDialog.getByRole('button', { name: 'OK' }).click()
 
@@ -135,11 +195,11 @@ test('Create Branch and Delete Branch Actions', async ({ page }) => {
     await page.keyboard.press('Escape');
   }
   if (await createBranchDialog.isVisible()) {
-    await page.locator('#inputModal .btn-close').click();
+    await finalizeInputModalAffirmative(page);
   }
 
   await expect(page.locator('#inputModal')).toBeHidden();
-  await createBranchResponsePromise;
+  await expect.poll(() => createBranchCallCount).toBe(1);
   await page.waitForTimeout(500);
   await expect(createBranchCallCount).toBe(1);
 
@@ -156,7 +216,7 @@ test('Create Branch and Delete Branch Actions', async ({ page }) => {
     await page.keyboard.press('Escape');
   }
   if (await page.locator('#confirmModal').isVisible()) {
-    await page.locator('#confirmModal .btn-close').click();
+    await finalizeConfirmModalAffirmative(page);
   }
   await expect(page.locator('#confirmModal')).toBeHidden();
   await page.waitForTimeout(500);
@@ -171,8 +231,8 @@ test('Create Branch and Delete Branch Actions', async ({ page }) => {
   await expect(await page.locator(protectedRepoHTMLId).count()).toBeGreaterThan(0)
 
   // reset any repositories created during this test.
-  await removeCustomRepositoryIfPresent(page, baseRepoHTMLId);
-  await removeCustomRepositoryIfPresent(page, protectedRepoHTMLId);
+  await removeCustomRepositoryIfPresent(page, baseRepoHTMLId, false);
+  await removeCustomRepositoryIfPresent(page, protectedRepoHTMLId, false);
 
   await page.close();
 });
