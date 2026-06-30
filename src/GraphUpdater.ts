@@ -456,16 +456,11 @@ export class GraphUpdater {
 
         // get the users github/gitlab token from the settings
         let repoToken: string;
-        switch (this.destinationRepository.service){
-            case Repository.Service.GitHub:
-                repoToken = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY, "");
-                break;
-            case Repository.Service.GitLab:
-                repoToken = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY, "");
-                break;
-            default:
-                Utils.showNotification("Error", "Unsupported repository service: " + this.destinationRepository.service, "danger");
-                return;
+        try {
+            repoToken = Utils.getServiceToken(this.destinationRepository.service);
+        } catch (error) {
+            Utils.showNotification("Error", String(error), "danger");
+            return;
         }
 
         // set state to pushing

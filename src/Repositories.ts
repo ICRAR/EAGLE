@@ -181,17 +181,7 @@ export class Repositories {
 
     createBranch = async (repository: Repository, branchName: string): Promise<Repository> => {
         // find the user's token for the source repository service
-        let token: string;
-        switch (repository.service){
-            case Repository.Service.GitHub:
-                token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY, "");
-                break;
-            case Repository.Service.GitLab:
-                token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY, "");
-                break;
-            default:
-                throw new Error("Unsupported repository service: " + repository.service);
-        }
+        const token = Utils.getServiceToken(repository.service);
 
         // call eagleServer to create branch
         const responseStr = await Utils.httpPostJSON("/createBranch", {
@@ -217,17 +207,7 @@ export class Repositories {
 
     deleteBranch = async (repository: Repository): Promise<void> => {
         // find the user's token for the source repository service
-        let token: string;
-        switch (repository.service){
-            case Repository.Service.GitHub:
-                token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY, "");
-                break;
-            case Repository.Service.GitLab:
-                token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY, "");
-                break;
-            default:
-                throw new Error("Unsupported repository service: " + repository.service);
-        }
+        const token = Utils.getServiceToken(repository.service);
 
         // call eagleServer to delete branch
         const responseStr = await Utils.httpPostJSON("/deleteBranch", {
