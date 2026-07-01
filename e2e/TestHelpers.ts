@@ -865,6 +865,20 @@ export class TestHelpers {
         });
     }
 
+    // Expand a palette accordion by index
+    static async expandPalette(page: Page, paletteIndex: number): Promise<void> {
+        await page.locator('#palette' + paletteIndex).click();
+        await page.waitForTimeout(250);
+    }
+
+    // Fill the custom name field in the choice modal and confirm
+    static async enterCustomChoiceName(page: Page, name: string): Promise<void> {
+        await page.getByRole('textbox', { name: 'Custom Port Name' }).click();
+        await page.getByRole('textbox', { name: 'Custom Port Name' }).fill(name);
+        await page.waitForTimeout(500);
+        await page.getByRole('button', { name: 'OK' }).click();
+    }
+
     static async waitForNotificationAndDismiss(page: Page): Promise<void> {
         await page.locator('div[data-notify="container"]').first().waitFor({state: 'attached'});
         await page.locator('button[data-notify="dismiss"]').first().click();

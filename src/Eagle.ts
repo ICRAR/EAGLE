@@ -202,6 +202,26 @@ export class Eagle {
         return Eagle._instance;
     }
 
+    /**
+     * Centralized confirmation for saving in legacy OJS format.
+     * Returns true if the save should proceed, false if the user cancels.
+     */
+    static async confirmOjsSave(version: Setting.SchemaVersion): Promise<boolean> {
+        if (version !== Setting.SchemaVersion.OJS) {
+            return true;
+        }
+        if (!Setting.findValue<boolean>(Setting.CONFIRM_OJS_FORMAT, true)) {
+            return true;
+        }
+        return Utils.requestUserConfirm(
+            "Older Format Warning",
+            "You are saving in the older OJS format. The newer V4 format is recommended. Continue saving in OJS format?",
+            "Continue",
+            "Cancel",
+            Setting.find(Setting.CONFIRM_OJS_FORMAT)
+        );
+    }
+
     areAnyFilesModified = () : boolean => {
         // check the logical graph
         if (this.logicalGraph().fileInfo().modified){
@@ -2442,10 +2462,16 @@ export class Eagle {
         return new Promise(async(resolve, reject) => {
             console.log("saveDiagramToGit() repositoryName", file.repository.name, "fileType", file.type, "filePath", file.path, "fileName", file.name, "commitMessage", commitMessage);
 
+            // get version (hoisted for OJS format check)
+            const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
+
+            // warn if saving in older OJS format (not applicable to GraphConfig which has no version-dependent serialization)
+            if (file.type !== Eagle.FileType.GraphConfig) {
+                if (!await Eagle.confirmOjsSave(version)) { resolve(); return; }
+            }
+
             const clone: LogicalGraph | Palette | GraphConfig = obj.clone();
             clone.fileInfo().updateEagleInfo();
-
-            const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
 
             let jsonString: string = "";
             switch (file.type){
@@ -2479,16 +2505,11 @@ export class Eagle {
             // get access token for this type of repository
             let token : string;
 
-            switch (file.repository.service){
-                case Repository.Service.GitHub:
-                    token = Setting.findValue<string>(Setting.GITHUB_ACCESS_TOKEN_KEY, "");
-                    break;
-                case Repository.Service.GitLab:
-                    token = Setting.findValue<string>(Setting.GITLAB_ACCESS_TOKEN_KEY, "");
-                    break;
-                default:
-                    reject("Unknown repository service. Not GitHub or GitLab!");
-                    return;
+            try {
+                token = Utils.getServiceToken(file.repository.service);
+            } catch (error) {
+                reject(error);
+                return;
             }
 
             // check that access token is defined
@@ -3084,6 +3105,7 @@ export class Eagle {
         Setting.setValue(Setting.CONFIRM_DISCARD_CHANGES,true)
         Setting.setValue(Setting.CONFIRM_NODE_CATEGORY_CHANGES,true)
         Setting.setValue(Setting.CONFIRM_REMOVE_REPOSITORIES,true)
+        Setting.setValue(Setting.CONFIRM_OJS_FORMAT, true)
         Utils.showNotification("Success", "Confirmation message pop ups re-enabled", "success");
     }
 
@@ -3097,13 +3119,16 @@ export class Eagle {
                 fileName = sanitizedName.length > 0 ? sanitizedName : "palette";
             }
 
+            // get version (hoisted for OJS format check)
+            const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
+
+            // warn if saving in older OJS format
+            if (!await Eagle.confirmOjsSave(version)) { resolve(); return; }
+
             // clone the palette and remove github info ready for local save
             const p_clone : Palette = palette.clone();
             p_clone.fileInfo().removeGitInfo();
             p_clone.fileInfo().updateEagleInfo();
-
-            // get version
-            const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
 
             // convert to json
             const jsonString: string = Palette.toJsonString(p_clone, version);
@@ -3156,13 +3181,16 @@ export class Eagle {
                 return;
             }
 
+            // get version (hoisted for OJS format check)
+            const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
+
+            // warn if saving in older OJS format
+            if (!await Eagle.confirmOjsSave(version)) { resolve(); return; }
+
             // clone the logical graph and remove github info ready for local save
             const lg_clone : LogicalGraph = this.logicalGraph().clone();
             lg_clone.fileInfo().removeGitInfo();
             lg_clone.fileInfo().updateEagleInfo();
-
-            // get version
-            const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
 
             // convert to json
             const jsonString: string = LogicalGraph.toJsonString(lg_clone, false, version);
@@ -3272,6 +3300,12 @@ export class Eagle {
     savePaletteToGit = async (palette: Palette): Promise<void> => {
         console.log("savePaletteToGit()", palette.fileInfo().name, palette.fileInfo().type);
 
+        // get version (hoisted for OJS format check)
+        const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
+
+        // warn if saving in older OJS format
+        if (!await Eagle.confirmOjsSave(version)) return;
+
         const defaultRepository: Repository = new Repository(palette.fileInfo().location.repositoryService(), palette.fileInfo().location.repositoryName(), palette.fileInfo().location.repositoryBranch(), false);
 
         let commit: RepositoryCommit;
@@ -3292,16 +3326,11 @@ export class Eagle {
         // get access token for this type of repository
         let token : string;
 
-        switch (commit.location.repositoryService()){
-            case Repository.Service.GitHub:
-                token = Setting.findValue<string>(Setting.GITHUB_ACCESS_TOKEN_KEY, "");
-                break;
-            case Repository.Service.GitLab:
-                token = Setting.findValue<string>(Setting.GITLAB_ACCESS_TOKEN_KEY, "");
-                break;
-            default:
-                Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
-                return;
+        try {
+            token = Utils.getServiceToken(commit.location.repositoryService());
+        } catch (error) {
+            Utils.showUserMessage("Error", String(error));
+            return;
         }
 
         // check that access token is defined
@@ -3313,9 +3342,6 @@ export class Eagle {
         // clone the palette
         const p_clone : Palette = palette.clone();
         p_clone.fileInfo().updateEagleInfo();
-
-        // get version
-        const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
 
         // convert to json
         const jsonString: string = Palette.toJsonString(p_clone, version);
@@ -4513,7 +4539,7 @@ export class Eagle {
         }
 
         // if user asked for a new palette, create one
-        if (createIfNotFound && p === null){
+        if (createIfNotFound && p === undefined){
             p = new Palette();
             p.fileInfo().name = name;
             p.fileInfo().readonly = false;

@@ -9,8 +9,7 @@ test('Undo duplicate snapshot detection', async ({ page }) => {
     await TestHelpers.setUIMode(page, 'Expert');
 
     // expand the 'Builtin Components' palette and add a HelloWorldApp node
-    await page.locator('#palette0').click();
-    await page.waitForTimeout(250);
+    await TestHelpers.expandPalette(page, 0);
     await page.locator('#palette_0_HelloWorldApp').scrollIntoViewIfNeeded();
     await page.locator('#addPaletteNodeHelloWorldApp').click();
 

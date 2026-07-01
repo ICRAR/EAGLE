@@ -25,7 +25,6 @@
 import { Repository } from './Repository';
 import { RepositoryFolder } from './RepositoryFolder';
 import { RepositoryFile } from './RepositoryFile';
-import { Setting } from './Setting';
 import { Utils } from './Utils';
 import { EagleStorage } from './EagleStorage';
 
@@ -62,7 +61,7 @@ export class GitLab {
      */
     static async loadRepoContent(repository : Repository, path: string): Promise<void> {
         return new Promise(async(resolve, reject) => {
-            const token = Setting.findValue<string>(Setting.GITLAB_ACCESS_TOKEN_KEY, "");
+            const token = Utils.getServiceToken(Repository.Service.GitLab);
 
             // get location
             const location: Repository | RepositoryFolder | null = repository.findPath(path);
@@ -174,7 +173,7 @@ export class GitLab {
      */
     static async openRemoteFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string): Promise<string> {
         return new Promise(async(resolve, reject) => {
-            const token = Setting.findValue<string>(Setting.GITLAB_ACCESS_TOKEN_KEY, "");
+            const token = Utils.getServiceToken(Repository.Service.GitLab);
 
             const fullFileName : string = Utils.joinPath(filePath, fileName);
 
@@ -210,7 +209,7 @@ export class GitLab {
 
     static deleteRemoteFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string){
         return new Promise(async(resolve, reject) => {
-            const token = Setting.findValue<string>(Setting.GITLAB_ACCESS_TOKEN_KEY, "");
+            const token = Utils.getServiceToken(Repository.Service.GitLab);
 
             if (token === null || token === "") {
                 Utils.showUserMessage("Access Token", "The GitLab access token is not set! To open GitLab repositories, set the token via settings.");

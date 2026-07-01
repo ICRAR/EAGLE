@@ -479,6 +479,49 @@ def create_branch():
         return jsonify({"error": f"GitLab error: {str(gle)}"})
     except Exception as e:
         return jsonify({"error": f"Unexpected error: {str(e)}"})
+
+
+# Delete a branch on GitHub or GitLab
+@app.route("/deleteBranch", methods=["POST"])
+def delete_branch():
+    """
+    FLASK POST routing method for '/deleteBranch'
+
+    Deletes a branch on GitHub or GitLab.
+    Expects JSON: {service, repository, branchToDelete, token (optional)}
+    """
+    content = request.get_json(silent=True)
+    service = content.get("service")
+    repo_name = content.get("repository")
+    branch_to_delete = content.get("branchToDelete")
+    token = content.get("token", None)
+
+    if not service or not repo_name or not branch_to_delete:
+        return jsonify({"error": "Missing required parameters."})
+
+    if branch_to_delete.strip().lower() in {"master", "main"}:
+        return jsonify({"error": f"Refusing to delete protected branch: {branch_to_delete}"})
+
+    try:
+        if service.lower() == "github":
+            g = github.Github(token) if token else github.Github()
+            repo = g.get_repo(repo_name)
+            branch_ref = repo.get_git_ref(f"heads/{branch_to_delete}")
+            branch_ref.delete()
+            return jsonify({"success": True, "service": "github", "repository": repo_name, "deletedBranch": branch_to_delete})
+        elif service.lower() == "gitlab":
+            gl = gitlab.Gitlab('https://gitlab.com', private_token=token, api_version=4) if token else gitlab.Gitlab('https://gitlab.com', api_version=4)
+            project = gl.projects.get(repo_name)
+            project.branches.delete(branch_to_delete)
+            return jsonify({"success": True, "service": "gitlab", "repository": repo_name, "deletedBranch": branch_to_delete})
+        else:
+            return jsonify({"error": f"Unknown service: {service}"})
+    except github.GithubException as ge:
+        return jsonify({"error": f"GitHub error: {str(ge)}"})
+    except gitlab.exceptions.GitlabDeleteError as glde:
+        return jsonify({"error": f"GitLab error: {str(glde)}"})
+    except Exception as e:
+        return jsonify({"error": f"Unexpected error: {str(e)}"})
     
     
 @app.route("/saveFileToRemoteGithub", methods=["POST"])
