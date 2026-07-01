@@ -7,6 +7,12 @@ import { test, expect, type Page } from '@playwright/test';
 export class TestHelpers {
     private static contextMenuAnchorIndex = 0;
     private static lastContextMenuPoint: { x: number; y: number } | null = null;
+    private static readonly TutorialStepType = {
+        Info: 0,
+        Press: 1,
+        Input: 2,
+        Condition: 3,
+    } as const;
 
     // Set the specified UI mode
     static async setUIMode(page: Page, mode: 'Student' | 'Minimal' | 'Graph' | 'Component' | 'Expert') {
@@ -84,70 +90,82 @@ export class TestHelpers {
                     // tutorialInfoPopUp can be recreated between steps, so always wait for it here
                     await page.locator('#tutorialInfoPopUp').waitFor({ state: 'attached', timeout: 7000 });
 
-                    // TutorialStep.Type.Info = 0, Press = 1, Input = 2, Condition = 3
-                    if (stepInfo.stepType === 0) {
-                        const nextBtn = page.locator('#tutorialInfoPopUp .tutNextBtn');
+                    switch (stepInfo.stepType) {
+                        case TestHelpers.TutorialStepType.Info: {
+                            const nextBtn = page.locator('#tutorialInfoPopUp .tutNextBtn');
 
-                        if (await nextBtn.count() > 0) {
-                            const clickedNext = await TestHelpers.clickElementByViewportCenter(page, '#tutorialInfoPopUp .tutNextBtn');
-                            if (!clickedNext) {
-                                await nextBtn.click();
+                            if (await nextBtn.count() > 0) {
+                                const clickedNext = await TestHelpers.clickElementByViewportCenter(page, '#tutorialInfoPopUp .tutNextBtn');
+                                if (!clickedNext) {
+                                    await nextBtn.click();
+                                }
+                                try {
+                                    await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: 1500 });
+                                } catch {
+                                    await page.keyboard.press('ArrowRight');
+                                    await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: 5000 });
+                                }
+                                return;
+                            }
+
+                            // Last Info step has no Next button; end the tutorial.
+                            const clickedEnd = await TestHelpers.clickElementByViewportCenter(page, '#tutorialInfoPopUp .tutEndBtn');
+                            if (!clickedEnd) {
+                                await page.locator('#tutorialInfoPopUp .tutEndBtn').click();
                             }
                             try {
                                 await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: 1500 });
                             } catch {
-                                await page.keyboard.press('ArrowRight');
+                                await page.keyboard.press('Escape');
                                 await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: 5000 });
                             }
-                            return;
+                            break;
                         }
 
-                        // Last Info step has no Next button; end the tutorial.
-                        const clickedEnd = await TestHelpers.clickElementByViewportCenter(page, '#tutorialInfoPopUp .tutEndBtn');
-                        if (!clickedEnd) {
-                            await page.locator('#tutorialInfoPopUp .tutEndBtn').click();
-                        }
-                        try {
-                            await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: 1500 });
-                        } catch {
-                            await page.keyboard.press('Escape');
-                            await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: 5000 });
-                        }
-                    } else if (stepInfo.stepType === 1) {
-                        // Press steps are advanced by clicking the tutorial target element, simulating real user clicks.
-                        // This is more realistic than synthetic keyboard events.
-                        const clickedTarget = await TestHelpers.clickTutorialPressTarget(page);
-                        if (!clickedTarget) {
-                            // Fallback for legacy tutorial steps that only listen for Enter key events.
-                            await page.keyboard.press('Enter');
-                        }
-                        await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: 5000 });
-                    } else if (stepInfo.stepType === 2) {
-                        if (stepInfo.testStepFunction) {
-                            await TestHelpers.runTutorialCustomStep(page, stepInfo.testStepFunction);
-                        } else {
-                            const inputText = TestHelpers.getTutorialInputText(stepInfo.title, stepInfo.expectedInput);
-                            const submittedToTarget = await TestHelpers.submitTutorialInputToTarget(page, inputText);
-
-                            // Fallback if tutorial target is unavailable.
-                            if (!submittedToTarget) {
-                                if (inputText.length > 0) {
-                                    await page.keyboard.type(inputText);
-                                }
+                        case TestHelpers.TutorialStepType.Press: {
+                            // Press steps are advanced by clicking the tutorial target element, simulating real user clicks.
+                            // This is more realistic than synthetic keyboard events.
+                            const clickedTarget = await TestHelpers.clickTutorialPressTarget(page);
+                            if (!clickedTarget) {
+                                // Fallback for legacy tutorial steps that only listen for Enter key events.
                                 await page.keyboard.press('Enter');
                             }
+                            await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: 5000 });
+                            break;
                         }
 
-                        await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: 10000 });
-                    } else if (stepInfo.stepType === 3) {
-                        if (!stepInfo.testStepFunction) {
-                            throw new Error(`Condition step '${stepInfo.title}' requires a test hook. Add .setTestStepFunction(...) in the tutorial definition.`);
+                        case TestHelpers.TutorialStepType.Input: {
+                            if (stepInfo.testStepFunction) {
+                                await TestHelpers.runTutorialCustomStep(page, stepInfo.testStepFunction);
+                            } else {
+                                const inputText = TestHelpers.getTutorialInputText(stepInfo.title, stepInfo.expectedInput);
+                                const submittedToTarget = await TestHelpers.submitTutorialInputToTarget(page, inputText);
+
+                                // Fallback if tutorial target is unavailable.
+                                if (!submittedToTarget) {
+                                    if (inputText.length > 0) {
+                                        await page.keyboard.type(inputText);
+                                    }
+                                    await page.keyboard.press('Enter');
+                                }
+                            }
+
+                            await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: 10000 });
+                            break;
                         }
 
-                        await TestHelpers.runTutorialCustomStep(page, stepInfo.testStepFunction);
-                        await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: 7000 });
-                    } else {
-                        throw new Error(`Unsupported tutorial step type ${stepInfo.stepType} at step '${stepInfo.title}'`);
+                        case TestHelpers.TutorialStepType.Condition: {
+                            if (!stepInfo.testStepFunction) {
+                                throw new Error(`Condition step '${stepInfo.title}' requires a test hook. Add .setTestStepFunction(...) in the tutorial definition.`);
+                            }
+
+                            await TestHelpers.runTutorialCustomStep(page, stepInfo.testStepFunction);
+                            await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: 7000 });
+                            break;
+                        }
+
+                        default:
+                            throw new Error(`Unsupported tutorial step type ${stepInfo.stepType} at step '${stepInfo.title}'`);
                     }
                 });
             } catch (error) {
