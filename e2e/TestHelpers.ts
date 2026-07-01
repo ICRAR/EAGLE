@@ -185,8 +185,64 @@ export class TestHelpers {
         throw new Error(`Tutorial '${tutorialName}' did not complete within ${maxSteps} steps.`);
     }
 
+    private static parseTutorialCustomStepHook(testStepFunction: string): { command: string; args: string[] } {
+        const raw = testStepFunction.trim();
+
+        // Structured format option 1: JSON object
+        // Example: {"command":"connectNodes","args":["HelloWorldApp","File"]}
+        if (raw.startsWith('{')) {
+            const parsed = JSON.parse(raw) as { command?: unknown; args?: unknown; arg1?: unknown; arg2?: unknown };
+            const command = typeof parsed.command === 'string' ? parsed.command : '';
+
+            if (!command) {
+                throw new Error(`Invalid tutorial custom step JSON: missing 'command' in '${testStepFunction}'`);
+            }
+
+            if (Array.isArray(parsed.args)) {
+                return {
+                    command,
+                    args: parsed.args.map((arg) => String(arg)),
+                };
+            }
+
+            const args: string[] = [];
+            if (parsed.arg1 !== undefined) {
+                args.push(String(parsed.arg1));
+            }
+            if (parsed.arg2 !== undefined) {
+                args.push(String(parsed.arg2));
+            }
+
+            return { command, args };
+        }
+
+        // Structured format option 2: JSON tuple-like array
+        // Example: ["connectNodes","HelloWorldApp","File"]
+        if (raw.startsWith('[')) {
+            const parsed = JSON.parse(raw) as unknown;
+            if (!Array.isArray(parsed) || parsed.length === 0) {
+                throw new Error(`Invalid tutorial custom step JSON array: '${testStepFunction}'`);
+            }
+
+            const [command, ...args] = parsed;
+            if (typeof command !== 'string' || command.length === 0) {
+                throw new Error(`Invalid tutorial custom step JSON array command: '${testStepFunction}'`);
+            }
+
+            return {
+                command,
+                args: args.map((arg) => String(arg)),
+            };
+        }
+
+        // Legacy format: command:arg1:arg2
+        const [command, ...args] = raw.split(':');
+        return { command, args };
+    }
+
     private static async runTutorialCustomStep(page: Page, testStepFunction: string): Promise<void> {
-        const [command, arg1, arg2] = testStepFunction.split(':');
+        const { command, args } = TestHelpers.parseTutorialCustomStepHook(testStepFunction);
+        const [arg1, arg2] = args;
 
         if (command === 'centerGraph') {
             await TestHelpers.centerGraphOnCanvas(page);
