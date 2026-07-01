@@ -88,6 +88,24 @@ async function finalizeConfirmModalAffirmative(page: Page): Promise<void> {
   }
 }
 
+async function closeInputModalWithoutCompleting(page: Page): Promise<void> {
+  if (await page.locator('#inputModal').isVisible()) {
+    await page.locator('#inputModal button.btn-close').click();
+    await page.waitForTimeout(100);
+
+    if (await page.locator('#inputModal').isVisible()) {
+      await page.evaluate(() => {
+        const $ = (window as any).$;
+        const modal = $('#inputModal');
+        modal.data('completed', false);
+        modal.modal('hide');
+      });
+    }
+
+    await expect(page.locator('#inputModal')).toBeHidden();
+  }
+}
+
 test('Adding and Removing Repositories', async ({ page }) => {
 
   await page.goto('http://localhost:8888/?tutorial=none');
@@ -248,6 +266,37 @@ test('Create Branch and Delete Branch Actions', async ({ page }) => {
   // reset any repositories created during this test.
   await removeCustomRepositoryIfPresent(page, baseRepoHTMLId, false);
   await removeCustomRepositoryIfPresent(page, protectedRepoHTMLId, false);
+
+  await page.close();
+});
+
+test('requestUserString validator UX for URL and Save As', async ({ page }) => {
+
+  await page.goto('http://localhost:8888/?tutorial=none');
+  await expect(page).toHaveTitle(/EAGLE/);
+
+  // verify URL prompt blocks invalid URL input with inline feedback
+  await page.locator('#navbarDropdownGraph').click();
+  await page.locator('#createNewGraphFromUrl').click();
+  await expect(page.locator('#inputModal')).toBeVisible();
+  await page.locator('#inputModalInput').fill('not-a-valid-url');
+  await page.locator('#inputModal button.affirmativeBtn').click();
+  await expect(page.locator('#inputModal')).toBeVisible();
+  await expect(page.locator('#inputModalInput')).toHaveClass(/is-invalid/);
+  await expect(page.locator('#inputModalInvalidFeedback')).toContainText('URL is not a valid URL.');
+  await closeInputModalWithoutCompleting(page);
+
+  // verify Save As prompt blocks empty filename with inline feedback
+  await page.locator('#navbarDropdownGraph').click();
+  await page.getByText('Local Storage').first().hover();
+  await page.locator('#saveAsGraph').click();
+  await expect(page.locator('#inputModal')).toBeVisible();
+  await page.locator('#inputModalInput').fill('   ');
+  await page.locator('#inputModal button.affirmativeBtn').click();
+  await expect(page.locator('#inputModal')).toBeVisible();
+  await expect(page.locator('#inputModalInput')).toHaveClass(/is-invalid/);
+  await expect(page.locator('#inputModalInvalidFeedback')).toContainText('Filename cannot be empty.');
+  await closeInputModalWithoutCompleting(page);
 
   await page.close();
 });

@@ -250,12 +250,6 @@ export class Repositories {
             return; // user cancelled
         }
 
-        const branchNameValidationError = Repositories.validateBranchName(branchName);
-        if (branchNameValidationError !== null){
-            Utils.showNotification("Error", branchNameValidationError, "danger");
-            return;
-        }
-
         try {
             await this.createBranch(repository, branchName);
             Utils.showNotification("Branch Created", `Successfully created branch '${branchName}'`, "success");

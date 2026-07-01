@@ -185,14 +185,15 @@ export class Utils {
 
             let userString;
             try {
-                userString = await Utils.requestUserString("New " + fileType, "Enter " + fileType + " name", defaultName, false);
+                userString = await Utils.requestUserString(
+                    "New " + fileType,
+                    "Enter " + fileType + " name",
+                    defaultName,
+                    false,
+                    Utils.nonEmptyStringValidator(fileType + " name")
+                );
             } catch(error) {
                 reject(error);
-                return;
-            }
-
-            if (userString === ""){
-                reject( "Specified name is not valid for new " + fileType);
                 return;
             }
 
@@ -545,6 +546,38 @@ export class Utils {
             message = fileType + " editing is not permitted in the current UI mode (" + uiMode + ")";
         }
         Utils.showNotification(action, message, "warning");
+    }
+
+    static nonEmptyStringValidator(label: string): Modals.UserStringValidator {
+        return (userString: string): string | null => {
+            if (userString.trim() === ""){
+                return label + " cannot be empty.";
+            }
+
+            return null;
+        };
+    }
+
+    static httpUrlStringValidator(label: string = "URL"): Modals.UserStringValidator {
+        return (userString: string): string | null => {
+            const trimmed = userString.trim();
+            if (trimmed === ""){
+                return label + " cannot be empty.";
+            }
+
+            let parsedUrl: URL;
+            try {
+                parsedUrl = new URL(trimmed);
+            } catch (_error) {
+                return label + " is not a valid URL.";
+            }
+
+            if (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:"){
+                return label + " must start with http:// or https://.";
+            }
+
+            return null;
+        };
     }
 
     static requestUserString(title : string, message : string, defaultString: string, isPassword: boolean, validator?: Modals.UserStringValidator): Promise<string> {
@@ -1980,7 +2013,7 @@ export class Utils {
     }
 
     static async userEnterCommitMessage(modalMessage: string) : Promise<string> {
-        return Utils.requestUserString("Saving to git", modalMessage, "", false);
+        return Utils.requestUserString("Saving to git", modalMessage, "", false, Utils.nonEmptyStringValidator("Commit message"));
     }
 
     // TODO: could we return a list of KeyboardShortcut here?

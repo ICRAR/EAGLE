@@ -210,7 +210,7 @@ export class Translator {
 
         let userString: string;
         try {
-            userString = await Utils.requestUserString("Translator Url", "Enter the Translator Url", defaultUrl, false);
+            userString = await Utils.requestUserString("Translator Url", "Enter the Translator Url", defaultUrl, false, Utils.httpUrlStringValidator("Translator URL"));
         } catch (error){
             console.error(error);
             return;
