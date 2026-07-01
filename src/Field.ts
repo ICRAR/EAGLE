@@ -800,6 +800,7 @@ export class Field {
             precious:field.precious(),
             options:field.options(),
             positional:field.positional(),
+            changeable:field.changeable(),
             encoding:field.encoding(),
             id: field.id(),
             parameterType: Daliuge.fieldTypeToDlgMap[field.parameterType()] || Daliuge.DLGFieldType.Unknown,
@@ -818,6 +819,7 @@ export class Field {
             precious:field.precious(),
             options:field.options(),
             positional:field.positional(),
+            changeable:field.changeable(),
             encoding:field.encoding(),
             id: field.id(),
             parameterType: field.parameterType(),
@@ -841,6 +843,7 @@ export class Field {
         let usage: Daliuge.FieldUsage = Daliuge.FieldUsage.NoPort;
         let isEvent: boolean = false;
         let encoding: Daliuge.Encoding = Daliuge.Encoding.Pickle;
+        let fieldChangeable: boolean = changeable;
 
         if (typeof data.id !== 'undefined')
             id = data.id;
@@ -870,6 +873,8 @@ export class Field {
             options = data.options;
         if (typeof data.positional !== 'undefined')
             positional = data.positional;
+        if (typeof data.changeable !== 'undefined')
+            fieldChangeable = data.changeable;
 
         // handle legacy fieldType
         if (typeof data.fieldType !== 'undefined'){
@@ -914,7 +919,7 @@ export class Field {
         const result = new Field(node, id, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage);
         result.isEvent(isEvent);
         result.encoding(encoding);
-        result.changeable(changeable);
+        result.changeable(fieldChangeable);
         return result;
     }
 
@@ -964,6 +969,7 @@ export class Field {
 
         let event: boolean = false;
         let encoding: Daliuge.Encoding = Daliuge.Encoding.Pickle;
+        let fieldChangeable: boolean = changeable;
 
         if (typeof data.id !== 'undefined')
             id = data.id;
@@ -989,6 +995,8 @@ export class Field {
             options = data.options;
         if (typeof data.positional !== 'undefined')
             positional = data.positional;
+        if (typeof data.changeable !== 'undefined')
+            fieldChangeable = data.changeable;
         if (typeof data.parameterType !== 'undefined')
             parameterType = data.parameterType;
         if (typeof data.usage !== 'undefined')
@@ -1002,7 +1010,7 @@ export class Field {
         const f = new Field(node, id, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage);
         f.isEvent(event);
         f.encoding(encoding);
-        f.changeable(changeable);
+        f.changeable(fieldChangeable);
         return f;
     }
 
