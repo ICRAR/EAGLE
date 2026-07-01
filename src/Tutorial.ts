@@ -110,6 +110,14 @@ export class TutorialSystem {
         return x
     }
 
+    static getTutorials(): Tutorial[] {
+        return Array.from(tutorialArray);
+    }
+
+    static getTutorialNames(): string[] {
+        return TutorialSystem.getTutorials().map((tutorial) => tutorial.getName());
+    }
+
     static initiateFindGraphNodeIdByNodeName(name:string) : JQuery<HTMLElement> {
         return $('#logicalGraph #'+Eagle.getInstance().logicalGraph().findNodeIdByNodeName(name)+'.container')
     }
@@ -172,7 +180,7 @@ export class Tutorial {
     }
 
     newTutStep = (title:string, description:string, selector:() => JQuery<HTMLElement>) : TutorialStep =>{
-        const x = new TutorialStep(title, description, TutorialStep.Type.Info, TutorialStep.Wait.None,null, selector, null, null, false, "", null, null)
+        const x = new TutorialStep(title, description, TutorialStep.Type.Info, TutorialStep.Wait.None, null, selector, null, null, false, "", null, null, null)
         this.tutorialSteps.push(x)
         return x
     }
@@ -765,11 +773,12 @@ export class TutorialStep {
     private preFunc: ((eagle: Eagle) => void) | null;
     private backPreFunc: ((eagle: Eagle) => void) | null;
     private conditionFunc : ((eagle: Eagle) => boolean) | null;
+    private testStepFunction: string | null;
 
     private backSkip : boolean;
     private expectedInput : string;
 
-    constructor(title: string, text: string, type: TutorialStep.Type, waitType: TutorialStep.Wait, delayAmount: number | null, targetFunc: () => JQuery<HTMLElement>, preFunc: ((eagle: Eagle) => void) | null, backPreFunc: ((eagle: Eagle) => void) | null, backSkip:boolean, expectedInput:string, conditionFunc:((eagle: Eagle) => boolean) | null, alternateHighlightTargetFunc: (() => JQuery<HTMLElement>) | null) {
+    constructor(title: string, text: string, type: TutorialStep.Type, waitType: TutorialStep.Wait, delayAmount: number | null, targetFunc: () => JQuery<HTMLElement>, preFunc: ((eagle: Eagle) => void) | null, backPreFunc: ((eagle: Eagle) => void) | null, backSkip:boolean, expectedInput:string, conditionFunc:((eagle: Eagle) => boolean) | null, alternateHighlightTargetFunc: (() => JQuery<HTMLElement>) | null, testStepFunction: string | null) {
         this.title = title;
         this.text = text;
         this.type = type;
@@ -781,6 +790,7 @@ export class TutorialStep {
         this.preFunc = preFunc;
         this.backPreFunc = backPreFunc;
         this.conditionFunc = conditionFunc;
+        this.testStepFunction = testStepFunction;
         
         this.backSkip = backSkip
         this.expectedInput = expectedInput;
@@ -834,6 +844,10 @@ export class TutorialStep {
         return this.alternateHighlightTargetFunc;
     }
 
+    getTestStepFunction = (): string | null => {
+        return this.testStepFunction;
+    }
+
     setType = (newType:TutorialStep.Type): this => {
         this.type = newType;
         return this
@@ -876,6 +890,11 @@ export class TutorialStep {
 
     setAlternateHighlightTargetFunc = (newAlternateHighlightTargetFunc:() => JQuery<HTMLElement>): this => {
         this.alternateHighlightTargetFunc = newAlternateHighlightTargetFunc;
+        return this
+    }
+
+    setTestStepFunction = (newTestStepFunction:string): this => {
+        this.testStepFunction = newTestStepFunction;
         return this
     }
 

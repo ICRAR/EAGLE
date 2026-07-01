@@ -26,6 +26,7 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
     viewport: { width: 1920, height: 1080 },
+    deviceScaleFactor: 1,
     launchOptions:{
       // slowMo: 500 //use for debugging to more easily see what is happening
     }
@@ -36,27 +37,24 @@ export default defineConfig({
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] ,
-        deviceScaleFactor: undefined,
-        launchOptions:{
-          args:['--window-size=1920,1080'],
-        }
+        viewport: { width: 1920, height: 1080 },
+        deviceScaleFactor: 1
       }
     },
 
     {
       name: 'firefox',
       use: { ...devices['Firefox']  ,
-        deviceScaleFactor: undefined,
-        launchOptions:{
-          args:['--window-size=1920,1080'],
-        }
+        viewport: { width: 1920, height: 1080 },
+        deviceScaleFactor: 1
       }
     },
 
     {
       name: 'webkit',
       use: { ...devices['Desktop Safari']  ,
-        deviceScaleFactor: undefined,
+        viewport: { width: 1920, height: 1080 },
+        deviceScaleFactor: 1
       },
       
     },
