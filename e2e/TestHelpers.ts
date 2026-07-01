@@ -279,4 +279,22 @@ export class TestHelpers {
             targetPosition: { x: destPortBox.width / 2, y: destPortBox.height / 2 }
         });
     }
+
+    static async closeInputModalWithoutCompleting(page: Page): Promise<void> {
+        if (await page.locator('#inputModal').isVisible()) {
+            await page.locator('#inputModal button.btn-close').click();
+            await page.waitForTimeout(100);
+
+            if (await page.locator('#inputModal').isVisible()) {
+                await page.evaluate(() => {
+                    const $ = (window as any).$;
+                    const modal = $('#inputModal');
+                    modal.data('completed', false);
+                    modal.modal('hide');
+                });
+            }
+
+            await expect(page.locator('#inputModal')).toBeHidden();
+        }
+    }
 }

@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { TestHelpers } from './TestHelpers';
 
 async function removeCustomRepositoryIfPresent(page: Page, repoHTMLId: string, failIfStillPresent: boolean = true): Promise<void> {
   const maxAttempts = 5;
@@ -85,24 +86,6 @@ async function finalizeConfirmModalAffirmative(page: Page): Promise<void> {
         $('body').removeClass('modal-open').css('padding-right', '');
       });
     }
-  }
-}
-
-async function closeInputModalWithoutCompleting(page: Page): Promise<void> {
-  if (await page.locator('#inputModal').isVisible()) {
-    await page.locator('#inputModal button.btn-close').click();
-    await page.waitForTimeout(100);
-
-    if (await page.locator('#inputModal').isVisible()) {
-      await page.evaluate(() => {
-        const $ = (window as any).$;
-        const modal = $('#inputModal');
-        modal.data('completed', false);
-        modal.modal('hide');
-      });
-    }
-
-    await expect(page.locator('#inputModal')).toBeHidden();
   }
 }
 
@@ -284,7 +267,7 @@ test('requestUserString validator UX for URL and Save As', async ({ page }) => {
   await expect(page.locator('#inputModal')).toBeVisible();
   await expect(page.locator('#inputModalInput')).toHaveClass(/is-invalid/);
   await expect(page.locator('#inputModalInvalidFeedback')).toContainText('URL is not a valid URL.');
-  await closeInputModalWithoutCompleting(page);
+  await TestHelpers.closeInputModalWithoutCompleting(page);
 
   // verify Save As prompt blocks empty filename with inline feedback
   await page.locator('#navbarDropdownGraph').click();
@@ -296,7 +279,7 @@ test('requestUserString validator UX for URL and Save As', async ({ page }) => {
   await expect(page.locator('#inputModal')).toBeVisible();
   await expect(page.locator('#inputModalInput')).toHaveClass(/is-invalid/);
   await expect(page.locator('#inputModalInvalidFeedback')).toContainText('Filename cannot be empty.');
-  await closeInputModalWithoutCompleting(page);
+  await TestHelpers.closeInputModalWithoutCompleting(page);
 
   await page.close();
 });
