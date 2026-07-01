@@ -89,14 +89,30 @@ export class TestHelpers {
                         const nextBtn = page.locator('#tutorialInfoPopUp .tutNextBtn');
 
                         if (await nextBtn.count() > 0) {
-                            await nextBtn.click();
-                            await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: 5000 });
+                            const clickedNext = await TestHelpers.clickElementByViewportCenter(page, '#tutorialInfoPopUp .tutNextBtn');
+                            if (!clickedNext) {
+                                await nextBtn.click();
+                            }
+                            try {
+                                await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: 1500 });
+                            } catch {
+                                await page.keyboard.press('ArrowRight');
+                                await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: 5000 });
+                            }
                             return;
                         }
 
                         // Last Info step has no Next button; end the tutorial.
-                        await page.locator('#tutorialInfoPopUp .tutEndBtn').click();
-                        await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: 5000 });
+                        const clickedEnd = await TestHelpers.clickElementByViewportCenter(page, '#tutorialInfoPopUp .tutEndBtn');
+                        if (!clickedEnd) {
+                            await page.locator('#tutorialInfoPopUp .tutEndBtn').click();
+                        }
+                        try {
+                            await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: 1500 });
+                        } catch {
+                            await page.keyboard.press('Escape');
+                            await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: 5000 });
+                        }
                     } else if (stepInfo.stepType === 1) {
                         // Press steps are advanced by clicking the tutorial target element, simulating real user clicks.
                         // This is more realistic than synthetic keyboard events.
@@ -315,6 +331,32 @@ export class TestHelpers {
         }
 
         // Use Playwright's mouse API to dispatch real pointer events.
+        await page.mouse.click(clickPosition.x, clickPosition.y);
+        return true;
+    }
+
+    private static async clickElementByViewportCenter(page: Page, selector: string): Promise<boolean> {
+        const clickPosition = await page.evaluate((targetSelector: string) => {
+            const el = document.querySelector(targetSelector) as HTMLElement | null;
+            if (!el) {
+                return null;
+            }
+
+            const rect = el.getBoundingClientRect();
+            if (rect.width <= 0 || rect.height <= 0) {
+                return null;
+            }
+
+            return {
+                x: rect.left + rect.width / 2,
+                y: rect.top + rect.height / 2,
+            };
+        }, selector);
+
+        if (!clickPosition) {
+            return false;
+        }
+
         await page.mouse.click(clickPosition.x, clickPosition.y);
         return true;
     }
