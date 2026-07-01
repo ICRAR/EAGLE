@@ -1823,11 +1823,15 @@ select.form-control{
     visibility: hidden;
 }
 
-#repositoryList ul.repositories .repoFile:hover .repo-actions button.repoTripleDot {
+#repositoryList ul.repositories .repoContainer:hover .repo-actions button.repoTripleDot {
     visibility: visible;
 }
 
-#repositoryList ul.repositories .repoContainer:hover .repo-actions button.repoTripleDot {
+#repositoryList ul.repositories .repoFile .repo-actions {
+    visibility: hidden;
+}
+
+#repositoryList ul.repositories .repoFile:hover .repo-actions {
     visibility: visible;
 }
 
