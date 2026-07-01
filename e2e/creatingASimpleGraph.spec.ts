@@ -45,22 +45,7 @@ test('Creating a Simple Graph', async ({ page }) => {
   await page.waitForTimeout(250);
 
   //drag an edge from helloWorldApp -> File
-  //use center positions instead of edge coordinates for more reliable dragging
-  const srcPortBox = await page.locator('#HelloWorldApp .outputPort').boundingBox();
-  const destPortBox = await page.locator('#File .inputPort').boundingBox();
-  
-  if (srcPortBox && destPortBox) {
-    const srcCenterX = srcPortBox.width / 2;
-    const srcCenterY = srcPortBox.height / 2;
-    const destCenterX = destPortBox.width / 2;
-    const destCenterY = destPortBox.height / 2;
-    
-    await page.dragAndDrop('#HelloWorldApp .outputPort', '#File .inputPort', {
-      sourcePosition: { x: srcCenterX, y: srcCenterY },
-      targetPosition: { x: destCenterX, y: destCenterY }
-    });
-  }
-  
+  await TestHelpers.dragEdge(page, 'HelloWorldApp', 'File');
   await page.waitForTimeout(500);
 
   //click on the input port of the file to open the parameter table modal and highlight the port
@@ -77,9 +62,7 @@ test('Creating a Simple Graph', async ({ page }) => {
   await page.locator('.closeBottomWindowBtn').getByRole('button').click();
 
   // check that the graph has the expected number of nodes
-  const numNodesPreDelete = await page.evaluate(() => {
-    return (<any>window).eagle.logicalGraph().getNumNodes();
-  });
+  const numNodesPreDelete = await TestHelpers.getNodeCount(page);
 
   await expect(numNodesPreDelete).toBe(2);
 
@@ -97,9 +80,7 @@ test('Creating a Simple Graph', async ({ page }) => {
   await page.waitForTimeout(500);
 
   // check that the graph has the expected number of nodes
-  const numNodesPostDelete = await page.evaluate(() => {
-    return (<any>window).eagle.logicalGraph().getNumNodes();
-  });
+  const numNodesPostDelete = await TestHelpers.getNodeCount(page);
 
   await expect(numNodesPostDelete).toBe(2);
 

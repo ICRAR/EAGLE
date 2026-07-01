@@ -25,39 +25,15 @@ test('LogicalGraph.clone() does not share references with original', async ({ pa
     await page.getByRole('button', { name: 'filter_center_focus' }).click();
 
     // draw an edge from HelloWorldApp output to File input
-    const srcPort = page.locator('#HelloWorldApp .outputPort');
-    const destPort = page.locator('#File .inputPort');
+    await TestHelpers.dragEdge(page, 'HelloWorldApp', 'File');
 
-    await expect(srcPort, 'source port should be visible before dragging').toBeVisible();
-    await expect(destPort, 'destination port should be visible before dragging').toBeVisible();
-
-    const requireBox = (box: { width: number; height: number } | null, message: string) => {
-        expect(box, message).not.toBeNull();
-        return box as { width: number; height: number };
-    };
-
-    const [srcPortBox, destPortBox] = [
-        requireBox(await srcPort.boundingBox(), 'source port should have a bounding box before dragging'),
-        requireBox(await destPort.boundingBox(), 'destination port should have a bounding box before dragging')
-    ];
-
-    await page.dragAndDrop('#HelloWorldApp .outputPort', '#File .inputPort', {
-        sourcePosition: { x: srcPortBox.width / 2, y: srcPortBox.height / 2 },
-        targetPosition: { x: destPortBox.width / 2, y: destPortBox.height / 2 }
-    });
     await page.waitForTimeout(500);
 
     // verify we have nodes and edges to clone
-    const preCheck = await page.evaluate(() => {
-        const eagle = (<any>window).eagle;
-        const lg = eagle.logicalGraph();
-        return {
-            numNodes: lg.getNumNodes(),
-            numEdges: lg.getNumEdges()
-        };
-    });
-    expect(preCheck.numNodes).toBeGreaterThanOrEqual(2);
-    expect(preCheck.numEdges).toBeGreaterThanOrEqual(1);
+    const preCheckNodes = await TestHelpers.getNodeCount(page);
+    const preCheckEdges = await TestHelpers.getEdgeCount(page);
+    expect(preCheckNodes).toBeGreaterThanOrEqual(2);
+    expect(preCheckEdges).toBeGreaterThanOrEqual(1);
 
     // clone the graph and verify no shared references
     const result = await page.evaluate(() => {

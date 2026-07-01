@@ -1344,14 +1344,16 @@ select.form-control{
     width:min-content;
 }
 
-.leftWindow .dropdown-menu a{
+.leftWindow .dropdown-menu a,
+#repositoryList .dropdown-menu a{
     color: white;
     text-decoration: none;
     white-space: nowrap;
     display: block;
 }
 
-.leftWindow .dropdown-menu span{
+.leftWindow .dropdown-menu span,
+#repositoryList .dropdown-menu span{
     display: block;
     width: 100%;
     padding:0px 10px;
@@ -1374,12 +1376,14 @@ select.form-control{
     color: white;
 }
 
-.leftWindow .dropdown-menu span:hover{
+.leftWindow .dropdown-menu span:hover,
+#repositoryList .dropdown-menu span:hover{
     background-color: #001d3b;
     color: white;
 }
 
-.leftWindow .dropdown-menu a:hover{
+.leftWindow .dropdown-menu a:hover,
+#repositoryList .dropdown-menu a:hover{
     background-color: #001d3b;
     color: white;
 }
@@ -1770,15 +1774,6 @@ select.form-control{
     padding: 0px 4px;
 }
 
-#repositoryList .col-9{
-    max-width: 79%;
-}
-
-#repositoryList .col-10{
-    max-width: 83.33333333%;
-    width: auto;
-}
-
 .repoContainer{
     padding:0px 10px;
 }
@@ -1806,16 +1801,50 @@ select.form-control{
     font-size: 22px;
 }
 
-#repositoryList ul.repositories .repo-actions i.material-symbols-outlined.md-18 {
+#repositoryList .col.repo-actions{
+    overflow: visible;
+}
+
+#repositoryList > .row > .col{
+    overflow: visible;
+}
+
+.repoTripleDot{
+    background: none;
+    border: none;
+    padding: 1px;
+}
+
+.repoTripleDot:after{
+    display: none;
+}
+
+#repositoryList ul.repositories .repo-actions button.repoTripleDot {
     visibility: hidden;
 }
 
-#repositoryList ul.repositories .repoFile:hover .repo-actions i.material-symbols-outlined.md-18 {
+#repositoryList ul.repositories .repoContainer:hover .repo-actions button.repoTripleDot {
     visibility: visible;
 }
 
-#repositoryList ul.repositories .repoContainer:hover .repo-actions i.material-symbols-outlined.md-18 {
+#repositoryList ul.repositories .repoFile .repo-actions {
+    visibility: hidden;
+}
+
+#repositoryList ul.repositories .repoFile:hover .repo-actions {
     visibility: visible;
+}
+
+#repositoryList .dropdown-menu{
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    z-index: 4;
+    background-color: #0059a5;
+    border: black solid 1px;
+    border-radius: 6px;
+    pointer-events: auto;
+    width: min-content;
 }
 
 #nodeList ul.nodes {
