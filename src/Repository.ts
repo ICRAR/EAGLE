@@ -184,16 +184,40 @@ export class Repository {
     // expand all the directories
     expandAll = async () : Promise<void> => {
         async function traverseFolder(folder: RepositoryFolder) : Promise<void> {
-            await folder.select();
+            if (folder.fetched()){
+                folder.expanded(true);
+            } else {
+                await folder.select();
+            }
             for (const subFolder of folder.folders()){
                 await traverseFolder(subFolder);
             }
         }
 
-        await this.select();
+        if (this.fetched()){
+            this.expanded(true);
+        } else {
+            await this.select();
+        }
 
         for (const folder of this.folders()){
             await traverseFolder(folder);
+        }
+    }
+
+    // collapse all the directories
+    collapseAll = (): void => {
+        function traverseFolder(folder: RepositoryFolder): void {
+            folder.expanded(false);
+            for (const subFolder of folder.folders()){
+                traverseFolder(subFolder);
+            }
+        }
+
+        this.expanded(false);
+
+        for (const folder of this.folders()){
+            traverseFolder(folder);
         }
     }
 
