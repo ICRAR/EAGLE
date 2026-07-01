@@ -28,14 +28,11 @@ case "$1" in
         python updateVersion.py
         $COMPOSE -f ./docker/docker-compose.dep.yml build
         echo "Build finished! Slimming the image now"
-        echo "This requires to interact with the intermediate server."
-        echo "Please open the EAGLE settings and put the gitHub and gitLab API keys in"
-        echo "and then try to access the repositories. Else this will not work in the"
-        echo "resulting slimmed image."
         echo ""
         echo ""
         echo ">>>>> docker-slim output <<<<<<<<<"
-        docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock dslim/slim build --include-shell --include-path /usr/local/lib --include-path /usr/local/bin icrar/eagle:${VCS_TAG} 
+        slim build --include-shell --include-path /usr/local/lib --include-path /usr/local/bin --tag icrar/eagle.slim:${VCS_TAG} icrar/eagle:${VCS_TAG}
+	# docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock dslim/slim build --include-shell --include-path /usr/local/lib --include-path /usr/local/bin icrar/eagle:${VCS_TAG} 
 	;;
     *)
         echo "Usage: build_eagle.sh <dep|dev|slim>"

@@ -1,7 +1,4 @@
 import { test, expect } from '@playwright/test';
-import fs from 'fs';
-import https from 'https';
-import path from 'path';
 import { TestHelpers } from './TestHelpers';
 
 const INPUT_GRAPH_LOCATION: string = "data/LoopWithBranch.graph";

@@ -726,7 +726,7 @@ export class Field {
     }
 
     getHelpHtml = () : string => {
-        return "###"+ this.getDisplayText() + "\n" + this.getDescription();
+        return "### " + this.getDisplayText() + "\n" + this.getDescription();
     }
 
     isInputPeek = () : boolean => {

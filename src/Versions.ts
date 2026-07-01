@@ -1,5 +1,13 @@
 export const versions = [
   {
+    version: 'v7.0.1',
+    date: new Date("2026-06-25"),
+    changes: [
+      `Fixed issues with node names in graph`,
+      `Fixed issues with port names not displaying`
+    ]
+  },
+  {
     version: 'v7.0.0',
     date: new Date("2026-06-10"),
     changes: [

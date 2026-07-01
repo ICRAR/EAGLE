@@ -22,6 +22,7 @@ test('Tutorials', async ({ page }) => {
     });
 
     expect(tutorials.length).toBeGreaterThan(0);
+    console.log(`[tutorial-test] starting: ${tutorials.length} tutorials`);
 
     for (const tutorialName of tutorials) {
         await test.step(`Run tutorial: ${tutorialName}`, async () => {

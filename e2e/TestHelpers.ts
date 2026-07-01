@@ -2,7 +2,7 @@ import fs from 'fs';
 import https from 'https';
 import http from 'http';
 import path from 'path';
-import { expect, test, type Page } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 
 export class TestHelpers {
     private static contextMenuAnchorIndex = 0;
@@ -74,12 +74,10 @@ export class TestHelpers {
             });
 
             if (!stepInfo.hasActiveTutorial) {
-                console.log(`[tutorial] completed: ${tutorialName}`);
                 return;
             }
 
             const stepDescriptor = `${tutorialName} | ${stepInfo.index + 1}/${stepInfo.total} | ${stepInfo.title} | type=${stepInfo.stepType}`;
-            console.log(`[tutorial-step] start: ${stepDescriptor}${stepInfo.testStepFunction ? ` | hook=${stepInfo.testStepFunction}` : ''}`);
 
             try {
                 await test.step(`Tutorial step ${stepInfo.index + 1}/${stepInfo.total}: ${stepInfo.title}`, async () => {
@@ -136,16 +134,16 @@ export class TestHelpers {
                         throw new Error(`Unsupported tutorial step type ${stepInfo.stepType} at step '${stepInfo.title}'`);
                     }
                 });
-                console.log(`[tutorial-step] ok: ${stepDescriptor}`);
             } catch (error) {
-                console.error(`[tutorial-step] FAILED: ${stepDescriptor}${stepInfo.testStepFunction ? ` | hook=${stepInfo.testStepFunction}` : ''}`);
+                if (error instanceof Error) {
+                    error.message = `Tutorial step failed: ${stepDescriptor}. ${error.message}`;
+                }
                 throw error;
             }
 
             const isStillActive = await page.evaluate(() => (window as any).TutorialSystem?.activeTut !== null);
             if (!isStillActive) {
                 await expect(page.locator('#tutorialInfoPopUp')).toHaveCount(0);
-                console.log(`[tutorial] completed: ${tutorialName}`);
                 return;
             }
         }
@@ -243,7 +241,7 @@ export class TestHelpers {
                 throw new Error(`Missing source/destination node names in test step function '${testStepFunction}'`);
             }
 
-            await TestHelpers.connectNodesByName(page, arg1, arg2);
+            await TestHelpers.dragEdge(page, arg1, arg2);
             return;
         }
 
@@ -615,42 +613,6 @@ export class TestHelpers {
         }
     }
 
-    private static async connectNodesByName(page: Page, sourceNodeName: string, destinationNodeName: string): Promise<void> {
-        const sourceCandidates = [
-            `#${sourceNodeName} .outputPort`,
-            `#portContainer .${sourceNodeName} .outputPort`,
-        ];
-        const destinationCandidates = [
-            `#${destinationNodeName} .inputPort`,
-            `#portContainer .${destinationNodeName} .inputPort`,
-        ];
-
-        let sourcePort: string | null = null;
-        let destinationPort: string | null = null;
-
-        for (const selector of sourceCandidates) {
-            if (await page.locator(selector).count() > 0) {
-                sourcePort = selector;
-                break;
-            }
-        }
-
-        for (const selector of destinationCandidates) {
-            if (await page.locator(selector).count() > 0) {
-                destinationPort = selector;
-                break;
-            }
-        }
-
-        if (!sourcePort || !destinationPort) {
-            throw new Error(`Could not find source '${sourceNodeName}' or destination '${destinationNodeName}' ports via interface selectors.`);
-        }
-
-        await page.locator(sourcePort).first().waitFor({ state: 'visible', timeout: 10000 });
-        await page.locator(destinationPort).first().waitFor({ state: 'visible', timeout: 10000 });
-        await page.dragAndDrop(sourcePort, destinationPort, { timeout: 10000 });
-    }
-
     static async createNewGraph(page: Page): Promise<void> {
         // click 'New Graph' from the 'File' menu
         await page.locator('#navbarDropdownGraph').click();
@@ -813,6 +775,12 @@ export class TestHelpers {
         });
     }
 
+    static async getEdgeCount(page: Page): Promise<number> {
+        return await page.evaluate( () => {
+            return (window as any).eagle.logicalGraph().getNumEdges();
+        });
+    }
+
     static async undo(page: Page): Promise<void> {
         return await page.press('body','z');
     }
@@ -852,6 +820,41 @@ export class TestHelpers {
     static async getNumWarningsErrors(page: Page): Promise<number> {
         return await page.evaluate(() => {
             return (window as any).eagle.graphWarnings().length + (window as any).eagle.graphErrors().length;
+        });
+    }
+
+    static async waitForNotificationAndDismiss(page: Page): Promise<void> {
+        await page.locator('div[data-notify="container"]').first().waitFor({state: 'attached'});
+        await page.locator('button[data-notify="dismiss"]').first().click();
+        await page.locator('div[data-notify="container"]').first().waitFor({state: 'detached'});
+    }
+
+    static async openGraphMenuAndSelect(page: Page, menuItemId: string): Promise<void> {
+        await page.locator('#navbarDropdownGraph').click();
+        await page.locator('#' + menuItemId).click();
+    }
+
+    static async dragEdge(page: Page, sourceNodeName: string, destNodeName: string): Promise<void> {
+        // draw an edge from source output to destination input
+        const srcPort = page.locator('#' + sourceNodeName + ' .outputPort');
+        const destPort = page.locator('#' + destNodeName + ' .inputPort');
+    
+        await expect(srcPort, 'source port should be visible before dragging').toBeVisible();
+        await expect(destPort, 'destination port should be visible before dragging').toBeVisible();
+    
+        const requireBox = (box: { width: number; height: number } | null, message: string) => {
+            expect(box, message).not.toBeNull();
+            return box as { width: number; height: number };
+        };
+    
+        const [srcPortBox, destPortBox] = [
+            requireBox(await srcPort.boundingBox(), 'source port should have a bounding box before dragging'),
+            requireBox(await destPort.boundingBox(), 'destination port should have a bounding box before dragging')
+        ];
+    
+        await srcPort.dragTo(destPort, {
+            sourcePosition: { x: srcPortBox.width / 2, y: srcPortBox.height / 2 },
+            targetPosition: { x: destPortBox.width / 2, y: destPortBox.height / 2 }
         });
     }
 }
