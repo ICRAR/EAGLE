@@ -547,7 +547,7 @@ export class Utils {
         Utils.showNotification(action, message, "warning");
     }
 
-    static requestUserString(title : string, message : string, defaultString: string, isPassword: boolean): Promise<string> {
+    static requestUserString(title : string, message : string, defaultString: string, isPassword: boolean, validator?: Modals.UserStringValidator): Promise<string> {
         return new Promise(async(resolve, reject) => {
             $('#inputModalTitle').text(title);
             $('#inputModalMessage').html(Utils.markdown2html(message));
@@ -555,9 +555,35 @@ export class Utils {
 
             $('#inputModalInput').val(defaultString);
 
+            const validateInput = (): boolean => {
+                if (typeof validator === 'undefined'){
+                    $('#inputModalInput').removeClass('is-valid is-invalid');
+                    $('#inputModalInvalidFeedback').hide().text('');
+                    $('#inputModal').data('isValid', true);
+                    return true;
+                }
+
+                const userString = Utils.getUIValue('#inputModalInput', 'val', "");
+                const reason = validator(userString);
+                const isValid = reason === null;
+
+                $('#inputModal').data('isValid', isValid);
+                $('#inputModalInput').toggleClass('is-valid', isValid);
+                $('#inputModalInput').toggleClass('is-invalid', !isValid);
+
+                if (isValid){
+                    $('#inputModalInvalidFeedback').hide().text('');
+                } else {
+                    $('#inputModalInvalidFeedback').show().text(reason);
+                }
+
+                return isValid;
+            };
+
             // store data about the choices, callback, result on the modal HTML element
             // so that the info is available to event handlers
             $('#inputModal').data('completed', false);
+            $('#inputModal').data('isValid', true);
 
             const callback: Modals.UserStringCallback = (completed : boolean, userString : string) => {
                 if (!completed){
@@ -568,6 +594,14 @@ export class Utils {
             };
             $('#inputModal').data('callback', callback);
             $('#inputModal').data('returnType', "string");
+            $('#inputModal').data('validateInput', validateInput);
+
+            $('#inputModalInput').off('input.requestUserStringValidation');
+            $('#inputModalInput').on('input.requestUserStringValidation', function(){
+                validateInput();
+            });
+
+            validateInput();
 
             $('#inputModal').modal("show");
         });

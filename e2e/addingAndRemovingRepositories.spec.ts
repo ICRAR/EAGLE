@@ -187,6 +187,21 @@ test('Create Branch and Delete Branch Actions', async ({ page }) => {
   await page.locator(baseRepoHTMLId + '-create-branch').click()
   const createBranchDialog = page.getByRole('dialog', { name: 'Create Branch' });
   await expect(createBranchDialog).toBeVisible();
+
+  // optional coverage: invalid branch names stay blocked and show validation feedback
+  await page.locator('#inputModalInput').fill('   ')
+  await createBranchDialog.getByRole('button', { name: 'OK' }).click()
+  await expect(page.locator('#inputModal')).toBeVisible();
+  await expect(page.locator('#inputModalInput')).toHaveClass(/is-invalid/)
+  await expect(page.locator('#inputModalInvalidFeedback')).toContainText('Branch name cannot be empty.')
+
+  await page.locator('#inputModalInput').fill('bad branch')
+  await createBranchDialog.getByRole('button', { name: 'OK' }).click()
+  await expect(page.locator('#inputModal')).toBeVisible();
+  await expect(page.locator('#inputModalInput')).toHaveClass(/is-invalid/)
+  await expect(page.locator('#inputModalInvalidFeedback')).toContainText('Branch name cannot contain whitespace.')
+  await expect(createBranchCallCount).toBe(0);
+
   await page.locator('#inputModalInput').fill(CREATED_BRANCH)
   await createBranchDialog.getByRole('button', { name: 'OK' }).click()
 

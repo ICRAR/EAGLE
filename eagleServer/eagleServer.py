@@ -456,6 +456,11 @@ def create_branch():
     if not service or not repo_name or not source_branch or not new_branch:
         return jsonify({"error": "Missing required parameters."})
 
+    if new_branch.strip() == "":
+        return jsonify({"error": "Branch name cannot be empty."})
+    if any(char.isspace() for char in new_branch):
+        return jsonify({"error": "Branch name cannot contain whitespace."})
+
     try:
         if service.lower() == "github":
             g = github.Github(token) if token else github.Github()

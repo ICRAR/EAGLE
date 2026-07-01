@@ -67,6 +67,18 @@ export class Repositories {
         return Utils.buildUrl(repository.service, repository.name, repository.branch);
     }
 
+    static validateBranchName(branchName: string): string | null {
+        if (branchName.trim() === ""){
+            return "Branch name cannot be empty.";
+        }
+
+        if (/\s/.test(branchName)){
+            return "Branch name cannot contain whitespace.";
+        }
+
+        return null;
+    }
+
     static getWebUrl(repository: Repository): string {
         switch (repository.service){
             case Repository.Service.GitHub:
@@ -233,10 +245,17 @@ export class Repositories {
     promptCreateBranch = async (repository: Repository): Promise<void> => {
         let branchName: string;
         try {
-            branchName = await Utils.requestUserString("Create Branch", "Enter a name for the new branch", "", false);
+            branchName = await Utils.requestUserString("Create Branch", "Enter a name for the new branch", "", false, Repositories.validateBranchName);
         } catch {
             return; // user cancelled
         }
+
+        const branchNameValidationError = Repositories.validateBranchName(branchName);
+        if (branchNameValidationError !== null){
+            Utils.showNotification("Error", branchNameValidationError, "danger");
+            return;
+        }
+
         try {
             await this.createBranch(repository, branchName);
             Utils.showNotification("Branch Created", `Successfully created branch '${branchName}'`, "success");
