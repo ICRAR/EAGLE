@@ -67,6 +67,17 @@ export class Repositories {
         return Utils.buildUrl(repository.service, repository.name, repository.branch);
     }
 
+    static getWebUrl(repository: Repository): string {
+        switch (repository.service){
+            case Repository.Service.GitHub:
+                return "https://github.com/" + encodeURI(repository.name) + "/tree/" + encodeURIComponent(repository.branch);
+            case Repository.Service.GitLab:
+                return "https://gitlab.com/" + encodeURI(repository.name) + "/-/tree/" + encodeURIComponent(repository.branch);
+            default:
+                throw new Error("Unsupported repository service: " + repository.service);
+        }
+    }
+
     // use a custom modal to ask user for repository service and url at the same time
     addCustomRepository = async () => {
         let customRepository: Repository;
@@ -139,6 +150,16 @@ export class Repositories {
         }
     }
 
+    openRepositoryInBrowser = async (repository: Repository): Promise<void> => {
+        const url = Repositories.getWebUrl(repository);
+        const win = window.open(url, "_blank");
+        if (win) {
+            win.focus();
+        } else {
+            alert("Please allow popups for this website");
+        }
+    }
+
     private _removeCustomRepository = (repository : Repository) : void => {
 
         // abort if the repository is one of those that is builtin to the app
@@ -160,17 +181,7 @@ export class Repositories {
 
     createBranch = async (repository: Repository, branchName: string): Promise<Repository> => {
         // find the user's token for the source repository service
-        let token: string;
-        switch (repository.service){
-            case Repository.Service.GitHub:
-                token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY, "");
-                break;
-            case Repository.Service.GitLab:
-                token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY, "");
-                break;
-            default:
-                throw new Error("Unsupported repository service: " + repository.service);
-        }
+        const token = Utils.getServiceToken(repository.service);
 
         // call eagleServer to create branch
         const responseStr = await Utils.httpPostJSON("/createBranch", {
@@ -194,6 +205,31 @@ export class Repositories {
         return Repositories._addCustomRepository(repository.service, repository.name, branchName);
     };
 
+    deleteBranch = async (repository: Repository): Promise<void> => {
+        // find the user's token for the source repository service
+        const token = Utils.getServiceToken(repository.service);
+
+        // call eagleServer to delete branch
+        const responseStr = await Utils.httpPostJSON("/deleteBranch", {
+            service: repository.service,
+            repository: repository.name,
+            branchToDelete: repository.branch,
+            token: token
+        });
+        let response;
+        try {
+            response = typeof responseStr === "string" ? JSON.parse(responseStr) : responseStr;
+        } catch (_e) {
+            response = responseStr;
+        }
+        if (response.error) {
+            throw new Error(response.error);
+        }
+
+        // Remove deleted branch from local repository list and storage.
+        this._removeCustomRepository(repository);
+    };
+
     promptCreateBranch = async (repository: Repository): Promise<void> => {
         let branchName: string;
         try {
@@ -206,6 +242,33 @@ export class Repositories {
             Utils.showNotification("Branch Created", `Successfully created branch '${branchName}'`, "success");
         } catch (error) {
             Utils.showNotification("Error", `Failed to create branch: ${error}`, "danger");
+        }
+    };
+
+    promptDeleteBranch = async (repository: Repository): Promise<void> => {
+        const protectedBranches = ["master", "main"];
+        const branchName = repository.branch.trim().toLowerCase();
+        if (protectedBranches.includes(branchName)) {
+            Utils.showNotification("Delete Branch", `Cannot delete protected branch '${repository.branch}'`, "danger");
+            return;
+        }
+
+        const confirmed = await Utils.requestUserConfirm(
+            "Delete Branch",
+            `Delete branch '${repository.branch}' from repository '${repository.name}'?`,
+            "Delete",
+            "Cancel",
+            undefined
+        );
+        if (!confirmed){
+            return;
+        }
+
+        try {
+            await this.deleteBranch(repository);
+            Utils.showNotification("Branch Deleted", `Successfully deleted branch '${repository.branch}'`, "success");
+        } catch (error) {
+            Utils.showNotification("Error", `Failed to delete branch: ${error}`, "danger");
         }
     };
 

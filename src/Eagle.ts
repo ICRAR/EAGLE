@@ -2505,16 +2505,11 @@ export class Eagle {
             // get access token for this type of repository
             let token : string;
 
-            switch (file.repository.service){
-                case Repository.Service.GitHub:
-                    token = Setting.findValue<string>(Setting.GITHUB_ACCESS_TOKEN_KEY, "");
-                    break;
-                case Repository.Service.GitLab:
-                    token = Setting.findValue<string>(Setting.GITLAB_ACCESS_TOKEN_KEY, "");
-                    break;
-                default:
-                    reject("Unknown repository service. Not GitHub or GitLab!");
-                    return;
+            try {
+                token = Utils.getServiceToken(file.repository.service);
+            } catch (error) {
+                reject(error);
+                return;
             }
 
             // check that access token is defined
@@ -3331,16 +3326,11 @@ export class Eagle {
         // get access token for this type of repository
         let token : string;
 
-        switch (commit.location.repositoryService()){
-            case Repository.Service.GitHub:
-                token = Setting.findValue<string>(Setting.GITHUB_ACCESS_TOKEN_KEY, "");
-                break;
-            case Repository.Service.GitLab:
-                token = Setting.findValue<string>(Setting.GITLAB_ACCESS_TOKEN_KEY, "");
-                break;
-            default:
-                Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
-                return;
+        try {
+            token = Utils.getServiceToken(commit.location.repositoryService());
+        } catch (error) {
+            Utils.showUserMessage("Error", String(error));
+            return;
         }
 
         // check that access token is defined
