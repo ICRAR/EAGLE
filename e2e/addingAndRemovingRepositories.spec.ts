@@ -189,7 +189,7 @@ test('Create Branch and Delete Branch Actions', async ({ page }) => {
   const createBranchDialog = page.getByRole('dialog', { name: 'Create Branch' });
   await expect(createBranchDialog).toBeVisible();
 
-  // optional coverage: invalid branch names stay blocked and show validation feedback
+  // invalid branch names stay blocked and show validation feedback
   await page.locator('#inputModalInput').fill('   ')
   await createBranchDialog.getByRole('button', { name: 'OK' }).click()
   await expect(page.locator('#inputModal')).toBeVisible();
