@@ -14,8 +14,23 @@ declare const CodeMirror: any;
 export class Modals {
     static init(eagle : Eagle) : void {
         // #inputModal - requestUserInput()
-        $('#inputModal .modal-footer button.affirmativeBtn').on('click', function(){
+        $('#inputModal .modal-footer button.affirmativeBtn').on('click', function(event){
+            if ($('#inputModal').data('returnType') === "string"){
+                const validateInput = $('#inputModal').data('validateInput');
+                if (typeof validateInput === 'function'){
+                    validateInput();
+                }
+
+                const isValid = $('#inputModal').data('isValid');
+                if (isValid === false){
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return;
+                }
+            }
+
             $('#inputModal').data('completed', true);
+            $('#inputModal').modal('hide');
         });
         $('#inputModal').on('hidden.bs.modal', function(){
             const returnType = $('#inputModal').data('returnType');
@@ -46,7 +61,10 @@ export class Modals {
             }
 
             // remove data stored on modal
-            $('#inputModal').removeData(['callback', 'completed', 'returnType']);
+            $('#inputModal').removeData(['callback', 'completed', 'returnType', 'isValid', 'validateInput']);
+            $('#inputModalInput').removeClass('is-valid is-invalid');
+            $('#inputModalInvalidFeedback').hide().text('');
+            $('#inputModalInput').off('input.requestUserStringValidation');
         });
         $('#inputModal').on('shown.bs.modal', function(){
             $('#inputModalInput').trigger("focus");
@@ -54,6 +72,18 @@ export class Modals {
         $('#inputModalInput').on('keypress', function(e){
             if(TutorialSystem.activeTut === null){
                 if (e.key === "Enter"){
+                    if ($('#inputModal').data('returnType') === "string"){
+                        const validateInput = $('#inputModal').data('validateInput');
+                        if (typeof validateInput === 'function'){
+                            validateInput();
+                        }
+
+                        const isValid = $('#inputModal').data('isValid');
+                        if (isValid === false){
+                            return;
+                        }
+                    }
+
                     $('#inputModal').data('completed', true);
                     $('#inputModal').modal('hide');
                 }
@@ -650,6 +680,7 @@ export class Modals {
 
 export namespace Modals {
     export type UserStringCallback = (completed: boolean, userString: string) => void;
+    export type UserStringValidator = (userString: string) => string | null;
     export type UserTextCallback = (completed: boolean, userText: string) => void;
     export type UserFieldCallback = (field: Field | null) => void; // NOTE: completed is not required, since all changes happen to the field directly (immediately)
     export type UserConfirmCallback = (completed: boolean, confirmed: boolean) => void;
