@@ -580,6 +580,58 @@ export class Utils {
         };
     }
 
+    static branchNameStringValidator(label: string = "Branch name"): Modals.UserStringValidator {
+        return (userString: string): string | null => {
+            const nonEmptyResult = Utils.nonEmptyStringValidator(label)(userString);
+            if (nonEmptyResult !== null){
+                return nonEmptyResult;
+            }
+
+            if (/\s/.test(userString)){
+                return label + " cannot contain whitespace.";
+            }
+
+            if (userString.startsWith("-") ){
+                return label + " cannot start with '-'.";
+            }
+
+            if (userString === "@"){
+                return label + " cannot be '@'.";
+            }
+
+            if (userString.includes("@{")){
+                return label + " cannot contain '@{'.";
+            }
+
+            if (userString.includes("..")){
+                return label + " cannot contain '..'.";
+            }
+
+            if (userString.startsWith("/") || userString.endsWith("/") || userString.includes("//")){
+                return label + " cannot contain empty path segments.";
+            }
+
+            if (userString.endsWith(".")){
+                return label + " cannot end with '.'.";
+            }
+
+            if (userString.endsWith(".lock")){
+                return label + " cannot end with '.lock'.";
+            }
+
+            const components = userString.split("/");
+            if (components.some(component => component.startsWith("."))){
+                return label + " cannot have path segments starting with '.'.";
+            }
+
+            if (/[\x00-\x1F\x7F~^:?*\[\\]/.test(userString)){
+                return label + " contains invalid characters.";
+            }
+
+            return null;
+        };
+    }
+
     static requestUserString(title : string, message : string, defaultString: string, isPassword: boolean, validator?: Modals.UserStringValidator): Promise<string> {
         return new Promise(async(resolve, reject) => {
             $('#inputModalTitle').text(title);

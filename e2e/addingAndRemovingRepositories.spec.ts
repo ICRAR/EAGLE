@@ -201,6 +201,12 @@ test('Create Branch and Delete Branch Actions', async ({ page }) => {
   await expect(page.locator('#inputModal')).toBeVisible();
   await expect(page.locator('#inputModalInput')).toHaveClass(/is-invalid/)
   await expect(page.locator('#inputModalInvalidFeedback')).toContainText('Branch name cannot contain whitespace.')
+
+  await page.locator('#inputModalInput').fill('bad..branch')
+  await createBranchDialog.getByRole('button', { name: 'OK' }).click()
+  await expect(page.locator('#inputModal')).toBeVisible();
+  await expect(page.locator('#inputModalInput')).toHaveClass(/is-invalid/)
+  await expect(page.locator('#inputModalInvalidFeedback')).toContainText("Branch name cannot contain '..'.")
   await expect(createBranchCallCount).toBe(0);
 
   await page.locator('#inputModalInput').fill(CREATED_BRANCH)
