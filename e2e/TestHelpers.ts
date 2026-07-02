@@ -281,11 +281,21 @@ export class TestHelpers {
     }
 
     static async closeInputModalWithoutCompleting(page: Page): Promise<void> {
-        if (await page.locator('#inputModal').isVisible()) {
-            await page.locator('#inputModal button.btn-close').click();
-            await page.waitForTimeout(100);
+        const inputModal = page.locator('#inputModal');
 
-            if (await page.locator('#inputModal').isVisible()) {
+        if (page.isClosed()) {
+            return;
+        }
+
+        if (await inputModal.isVisible()) {
+            await page.locator('#inputModal button.btn-close').click();
+            await inputModal.waitFor({state: 'hidden'}).catch(() => {});
+
+            if (page.isClosed()) {
+                return;
+            }
+
+            if (await inputModal.isVisible().catch(() => false)) {
                 await page.evaluate(() => {
                     const $ = (window as any).$;
                     const modal = $('#inputModal');
@@ -294,7 +304,9 @@ export class TestHelpers {
                 });
             }
 
-            await expect(page.locator('#inputModal')).toBeHidden();
+            if (!page.isClosed()) {
+                await expect(inputModal).toBeHidden();
+            }
         }
     }
 }
