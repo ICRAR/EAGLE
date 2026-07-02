@@ -288,8 +288,13 @@ export class TestHelpers {
         }
 
         if (await inputModal.isVisible()) {
-            await page.locator('#inputModal button.btn-close').click();
-            await inputModal.waitFor({state: 'hidden'}).catch(() => {});
+            await page.evaluate(() => {
+                const $ = (window as any).$;
+                const modal = $('#inputModal');
+                modal.data('completed', false);
+                modal.modal('hide');
+            });
+            await inputModal.waitFor({state: 'hidden', timeout: 1500}).catch(() => {});
 
             if (page.isClosed()) {
                 return;
@@ -302,6 +307,7 @@ export class TestHelpers {
                     modal.data('completed', false);
                     modal.modal('hide');
                 });
+                await inputModal.waitFor({state: 'hidden', timeout: 2000}).catch(() => {});
             }
 
             if (!page.isClosed()) {

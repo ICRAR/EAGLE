@@ -14,7 +14,7 @@ declare const CodeMirror: any;
 export class Modals {
     static init(eagle : Eagle) : void {
         // #inputModal - requestUserInput()
-        $('#inputModal .modal-footer button.affirmativeBtn').on('click', function(){
+        $('#inputModal .modal-footer button.affirmativeBtn').on('click', function(event){
             if ($('#inputModal').data('returnType') === "string"){
                 const validateInput = $('#inputModal').data('validateInput');
                 if (typeof validateInput === 'function'){
@@ -23,11 +23,14 @@ export class Modals {
 
                 const isValid = $('#inputModal').data('isValid');
                 if (isValid === false){
+                    event.preventDefault();
+                    event.stopPropagation();
                     return;
                 }
             }
 
             $('#inputModal').data('completed', true);
+            $('#inputModal').modal('hide');
         });
         $('#inputModal').on('hidden.bs.modal', function(){
             const returnType = $('#inputModal').data('returnType');

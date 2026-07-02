@@ -184,33 +184,69 @@ test('Create Branch and Delete Branch Actions', async ({ page }) => {
   await expect(page.locator(baseRepoHTMLId + '-create-branch')).toBeVisible();
   await expect(page.locator(baseRepoHTMLId + '-delete-branch')).toBeVisible();
 
-  // verify create branch flow via UI
-  await page.locator(baseRepoHTMLId + '-create-branch').click()
-  const createBranchDialog = page.getByRole('dialog', { name: 'Create Branch' });
-  await expect(createBranchDialog).toBeVisible();
+  const openCreateBranchModal = async (): Promise<void> => {
+    const createBranchAction = page.locator(baseRepoHTMLId + '-create-branch');
+    let clicked = false;
+
+    for (let attempt = 0; attempt < 4; attempt++) {
+      await page.locator('.repoContainer').filter({has:page.locator(baseRepoHTMLId)}).hover()
+      await page.locator('.repoContainer').filter({has:page.locator(baseRepoHTMLId)}).locator('button.repoTripleDot').click()
+
+      const isVisible = await createBranchAction.isVisible().catch(() => false);
+      if (!isVisible) {
+        await createBranchAction.waitFor({state: 'visible', timeout: 1500}).catch(() => {});
+      }
+
+      if (await createBranchAction.isVisible().catch(() => false)) {
+        await createBranchAction.click();
+        clicked = true;
+        break;
+      }
+    }
+
+    if (!clicked) {
+      throw new Error('Could not open Create Branch action menu item after multiple attempts');
+    }
+
+    await expect(page.locator('#inputModal')).toBeVisible();
+    await expect(page.locator('#inputModalInput')).toBeVisible();
+  };
 
   // invalid branch names stay blocked and show validation feedback
+  await openCreateBranchModal();
   await page.locator('#inputModalInput').fill('   ')
-  await createBranchDialog.getByRole('button', { name: 'OK' }).click()
+  await page.locator('#inputModal button.affirmativeBtn').click()
   await expect(page.locator('#inputModal')).toBeVisible();
   await expect(page.locator('#inputModalInput')).toHaveClass(/is-invalid/)
   await expect(page.locator('#inputModalInvalidFeedback')).toContainText('Branch name cannot be empty.')
+  await expect(createBranchCallCount).toBe(0);
+  await TestHelpers.closeInputModalWithoutCompleting(page);
 
+  await openCreateBranchModal();
   await page.locator('#inputModalInput').fill('bad branch')
-  await createBranchDialog.getByRole('button', { name: 'OK' }).click()
+  await page.locator('#inputModal button.affirmativeBtn').click()
   await expect(page.locator('#inputModal')).toBeVisible();
   await expect(page.locator('#inputModalInput')).toHaveClass(/is-invalid/)
   await expect(page.locator('#inputModalInvalidFeedback')).toContainText('Branch name cannot contain whitespace.')
+  await expect(createBranchCallCount).toBe(0);
+  await TestHelpers.closeInputModalWithoutCompleting(page);
 
+  await openCreateBranchModal();
   await page.locator('#inputModalInput').fill('bad..branch')
-  await createBranchDialog.getByRole('button', { name: 'OK' }).click()
+  await page.locator('#inputModal button.affirmativeBtn').click()
   await expect(page.locator('#inputModal')).toBeVisible();
   await expect(page.locator('#inputModalInput')).toHaveClass(/is-invalid/)
   await expect(page.locator('#inputModalInvalidFeedback')).toContainText("Branch name cannot contain '..'.")
   await expect(createBranchCallCount).toBe(0);
+  await TestHelpers.closeInputModalWithoutCompleting(page);
 
+  // verify successful create branch flow via UI
+  await openCreateBranchModal();
   await page.locator('#inputModalInput').fill(CREATED_BRANCH)
-  await createBranchDialog.getByRole('button', { name: 'OK' }).click()
+  await page.locator('#inputModal button.affirmativeBtn').click()
+
+  const createBranchDialog = page.getByRole('dialog', { name: 'Create Branch' });
+  const inputModal = page.locator('#inputModal');
 
   // some runs keep the modal visible after first click; retry closure through UI.
   if (await createBranchDialog.isVisible()) {
@@ -220,7 +256,7 @@ test('Create Branch and Delete Branch Actions', async ({ page }) => {
     await finalizeInputModalAffirmative(page);
   }
 
-  await expect(page.locator('#inputModal')).toBeHidden();
+  await expect(inputModal).toBeHidden();
   await expect.poll(() => createBranchCallCount).toBe(1);
   await page.waitForTimeout(500);
   await expect(createBranchCallCount).toBe(1);
