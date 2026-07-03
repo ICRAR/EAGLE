@@ -7,6 +7,9 @@ import { test, expect, type Page } from '@playwright/test';
 export class TestHelpers {
     //How many times we will attempt to run a tutorial step before failing the test.
     private static readonly MAX_ATTEMPTS_PER_STEP = 5;
+    private static readonly UI_SETTLE_TIMEOUT = 500;
+    private static readonly SHORT_TIMEOUT = 5000;
+    private static readonly LONG_TIMEOUT = 10000;
     // Counts how many times we have opened the canvas context menu.
     private static contextMenuAnchorIndex = 0;
     // Stores the last right-click position so we do not use the exact same spot twice in a row.
@@ -29,19 +32,19 @@ export class TestHelpers {
         uiModeSelect.selectOption({value: mode})
 
         // close settings modal (wait is needed, bootstrap is not ready to close the modal again that quickly)
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
         await page.getByRole('button', { name: 'OK' }).click();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
     }
 
     static async waitForTutorialStep(page: Page, title: string): Promise<void> {
-        await page.locator('#tutorialInfoPopUp').waitFor({ state: 'attached', timeout: 10000 });
-        await expect(page.locator('#tutorialInfoPopUp .tutorialInfoTitle h4')).toContainText(title, { timeout: 5000 });
+        await page.locator('#tutorialInfoPopUp').waitFor({ state: 'attached', timeout: TestHelpers.LONG_TIMEOUT });
+        await expect(page.locator('#tutorialInfoPopUp .tutorialInfoTitle h4')).toContainText(title, { timeout: TestHelpers.SHORT_TIMEOUT });
     }
 
     static async clickTutorialNext(page: Page): Promise<void> {
         await page.locator('#tutorialInfoPopUp .tutNextBtn').click();
-        await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: 5000 });
+        await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: TestHelpers.SHORT_TIMEOUT });
     }
 
     static async runTutorialInfoStep(page: Page, title: string): Promise<void> {
@@ -55,7 +58,7 @@ export class TestHelpers {
         await test.step(`Tutorial press step: ${title}`, async () => {
             await TestHelpers.waitForTutorialStep(page, title);
             await page.locator(selector).click();
-            await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: 5000 });
+            await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: TestHelpers.SHORT_TIMEOUT });
         });
     }
 
@@ -63,7 +66,7 @@ export class TestHelpers {
         //.step is creating a test step. this is so we know exactly where we failed if something goes wrong.
         await test.step(`Start tutorial: ${tutorialName}`, async () => {
             await page.evaluate((name: string) => (window as any).TutorialSystem.initiateTutorial(name), tutorialName);
-            await page.locator('#tutorialInfoPopUp').waitFor({ state: 'attached', timeout: 10000 });
+            await page.locator('#tutorialInfoPopUp').waitFor({ state: 'attached', timeout: TestHelpers.LONG_TIMEOUT });
         });
 
         console.log(`[tutorial] started: ${tutorialName}`);
@@ -102,7 +105,7 @@ export class TestHelpers {
             try {
                 await test.step(`Tutorial step ${stepInfo.index + 1}/${stepInfo.total}: ${stepInfo.title}`, async () => {
                     // tutorialInfoPopUp can be recreated between steps, so always wait for it here
-                    await page.locator('#tutorialInfoPopUp').waitFor({ state: 'attached', timeout: 7000 });
+                    await page.locator('#tutorialInfoPopUp').waitFor({ state: 'attached', timeout: TestHelpers.LONG_TIMEOUT });
 
                     switch (stepInfo.stepType) {
                         case TestHelpers.TutorialStepType.Info: {
@@ -114,10 +117,10 @@ export class TestHelpers {
                                     await nextBtn.click();
                                 }
                                 try {
-                                    await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: 1500 });
+                                    await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: TestHelpers.SHORT_TIMEOUT });
                                 } catch {
                                     await page.keyboard.press('ArrowRight');
-                                    await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: 5000 });
+                                    await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: TestHelpers.SHORT_TIMEOUT });
                                 }
                                 return;
                             }
@@ -128,10 +131,10 @@ export class TestHelpers {
                                 await page.locator('#tutorialInfoPopUp .tutEndBtn').click();
                             }
                             try {
-                                await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: 1500 });
+                                await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: TestHelpers.SHORT_TIMEOUT });
                             } catch {
                                 await page.keyboard.press('Escape');
-                                await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: 5000 });
+                                await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: TestHelpers.SHORT_TIMEOUT });
                             }
                             break;
                         }
@@ -144,7 +147,7 @@ export class TestHelpers {
                                 // Fallback for legacy tutorial steps that only listen for Enter key events.
                                 await page.keyboard.press('Enter');
                             }
-                            await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: 5000 });
+                            await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: TestHelpers.SHORT_TIMEOUT });
                             break;
                         }
 
@@ -164,7 +167,7 @@ export class TestHelpers {
                                 }
                             }
 
-                            await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: 10000 });
+                            await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: TestHelpers.LONG_TIMEOUT });
                             break;
                         }
 
@@ -174,7 +177,7 @@ export class TestHelpers {
                             }
 
                             await TestHelpers.runTutorialCustomStep(page, stepInfo.testStepFunction);
-                            await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: 7000 });
+                            await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: TestHelpers.LONG_TIMEOUT });
                             break;
                         }
 
@@ -270,7 +273,7 @@ export class TestHelpers {
             }
 
             const canvas = page.locator('#logicalGraphParent').first();
-            await canvas.waitFor({ state: 'visible', timeout: 5000 });
+            await canvas.waitFor({ state: 'visible', timeout: TestHelpers.SHORT_TIMEOUT });
 
             // Right-click around viewport center with pseudo-random offsets and no immediate repeats.
             const viewport = page.viewportSize();
@@ -316,7 +319,7 @@ export class TestHelpers {
                 }, { x, y });
             }
 
-            await menuLocator.waitFor({ state: 'attached', timeout: 5000 });
+            await menuLocator.waitFor({ state: 'attached', timeout: TestHelpers.SHORT_TIMEOUT });
             return;
         }
 
@@ -505,7 +508,7 @@ export class TestHelpers {
                 await page.waitForFunction((name: string) => {
                     const selectedNode = (window as any).eagle?.selectedNode?.();
                     return selectedNode !== null && selectedNode?.getName?.() === name;
-                }, nodeName, { timeout: 1000 });
+                }, nodeName, { timeout: TestHelpers.SHORT_TIMEOUT });
                 return true;
             } catch {
                 return false;
@@ -534,7 +537,7 @@ export class TestHelpers {
             for (const selector of nodeBodySelector) {
                 const nodeBody = page.locator(selector).first();
                 if (await nodeBody.count() > 0) {
-                    await nodeBody.click({ force: true, timeout: 3000 });
+                    await nodeBody.click({ force: true, timeout: TestHelpers.SHORT_TIMEOUT });
                     if (await waitForRequestedSelection()) {
                         return;
                     }
@@ -576,7 +579,7 @@ export class TestHelpers {
             for (const selector of tutorialTargetSelector.nodeBodySelectors) {
                 const bodyLocator = page.locator(selector).first();
                 if (await bodyLocator.count() > 0) {
-                    await bodyLocator.click({ force: true, timeout: 3000 });
+                    await bodyLocator.click({ force: true, timeout: TestHelpers.SHORT_TIMEOUT });
                     if (await waitForRequestedSelection()) {
                         return;
                     }
@@ -586,7 +589,7 @@ export class TestHelpers {
             for (const selector of tutorialTargetSelector.nodeSelectors) {
                 const nodeLocator = page.locator(selector).first();
                 if (await nodeLocator.count() > 0) {
-                    await nodeLocator.click({ force: true, timeout: 3000 });
+                    await nodeLocator.click({ force: true, timeout: TestHelpers.SHORT_TIMEOUT });
                     if (await waitForRequestedSelection()) {
                         return;
                     }
@@ -596,7 +599,7 @@ export class TestHelpers {
             for (const selector of tutorialTargetSelector.containerSelectors) {
                 const containerLocator = page.locator(selector).first();
                 if (await containerLocator.count() > 0) {
-                    await containerLocator.click({ force: true, timeout: 3000 });
+                    await containerLocator.click({ force: true, timeout: TestHelpers.SHORT_TIMEOUT });
                     if (await waitForRequestedSelection()) {
                         return;
                     }
@@ -676,7 +679,7 @@ export class TestHelpers {
         // Helpful when the node name appears as readable text in the UI.
         const textLocator = page.getByText(nodeName, { exact: true }).first();
         if (await textLocator.count() > 0) {
-            await textLocator.click({ force: true, timeout: 3000 });
+            await textLocator.click({ force: true, timeout: TestHelpers.SHORT_TIMEOUT });
             if (await waitForRequestedSelection()) {
                 return;
             }
@@ -686,7 +689,7 @@ export class TestHelpers {
         // Most reliable fallback: uses the app's own selection handler, avoids canvas hit-testing issues.
         const hierarchyTab = page.getByRole('button', { name: 'Hierarchy' }).first();
         if (await hierarchyTab.count() > 0) {
-            await hierarchyTab.click({ force: true, timeout: 3000 });
+            await hierarchyTab.click({ force: true, timeout: TestHelpers.SHORT_TIMEOUT });
 
             const hierarchyNode = page.locator(`.hierarchyNode:has-text("${nodeName}")`).first();
             if (await hierarchyNode.count() > 0) {
@@ -703,7 +706,7 @@ export class TestHelpers {
                 if (graphNodeSelector) {
                     const graphNodeBody = page.locator(graphNodeSelector).first();
                     if (await graphNodeBody.count() > 0) {
-                        await graphNodeBody.click({ force: true, timeout: 3000 });
+                        await graphNodeBody.click({ force: true, timeout: TestHelpers.SHORT_TIMEOUT });
                         if (await waitForRequestedSelection()) {
                             return;
                         }
@@ -747,11 +750,11 @@ export class TestHelpers {
         await page.locator('#navbarDropdownGraph').click();
         await page.locator('#navbarDropdownGraphNew').hover();
         await page.locator('#createNewGraph').click();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
 
         // agree to create a new graph with it's auto-generated name
         await page.getByRole('button', { name: 'OK' }).click();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
 
         // wait for the notification to appear and then dismiss it
         await page.locator('div[data-notify="container"]').first().waitFor({state: 'attached'});
@@ -828,15 +831,15 @@ export class TestHelpers {
         await page.locator('#navbarDropdownGraph').click();
         await page.locator('#navbarDropdownGraphNew').hover();
         await page.locator('#createNewGraphFromJson').click();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
 
         // set the content of the editor in the modal
         await page.evaluate(TestHelpers.setEditorContent, s);
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
 
         // click 'OK' to save the graph
         await page.locator('#inputCodeModal .modal-footer button.btn-primary').click();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
 
         // wait for the notification to appear and then dismiss it
         await page.locator('div[data-notify="container"]').first().waitFor({state: 'attached'});
@@ -852,15 +855,15 @@ export class TestHelpers {
         await page.locator('#navbarDropdownGraph').click();
         await page.locator('#navbarDropdownGraphEdit').hover();
         await page.locator('#insertGraphFromJson').click();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
 
         // set the content of the editor in the modal
         await page.evaluate(TestHelpers.setEditorContent, s);
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
 
         // click 'OK' to save the graph
         await page.locator('#inputCodeModal .modal-footer button.btn-primary').click();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
 
         // wait for the notification to appear and then dismiss it
         await page.locator('div[data-notify="container"]').first().waitFor({state: 'attached'});
@@ -875,14 +878,14 @@ export class TestHelpers {
             // click 'display as JSON' from the 'Graph' menu
             await page.locator('#navbarDropdownGraph').click();
             await page.locator('#displayGraphAsJson').click();
-            await page.waitForTimeout(500);
+            await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
 
             // get JSON from modal
             const outputOJS: string = await page.evaluate(TestHelpers.getEditorContent);
 
-            await page.waitForTimeout(500);
+            await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
             await page.locator('#inputCodeModal button.affirmativeBtn').click()
-            await page.waitForTimeout(500);
+            await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
 
             resolve(outputOJS);
         });
@@ -891,11 +894,11 @@ export class TestHelpers {
     // Set the schema version in the app (OJS or V4)
     static async setSchemaVersion(page: Page, format: 'OJS' | 'V4') {
         await page.locator('#settings').click();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
         await page.locator('#settingCategoryDeveloper').click();
         await page.locator('#settingDaliugeSchemaVersionValue').selectOption({value: format});
         await page.locator('#settingsModalAffirmativeAnswer').click();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
     }
 
     static async getNodeCount(page: Page): Promise<number> {
@@ -955,14 +958,14 @@ export class TestHelpers {
     // Expand a palette accordion by index
     static async expandPalette(page: Page, paletteIndex: number): Promise<void> {
         await page.locator('#palette' + paletteIndex).click();
-        await page.waitForTimeout(250);
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
     }
 
     // Fill the custom name field in the choice modal and confirm
     static async enterCustomChoiceName(page: Page, name: string): Promise<void> {
         await page.getByRole('textbox', { name: 'Custom Port Name' }).click();
         await page.getByRole('textbox', { name: 'Custom Port Name' }).fill(name);
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
         await page.getByRole('button', { name: 'OK' }).click();
     }
 
