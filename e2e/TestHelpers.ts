@@ -4,8 +4,6 @@ import http from 'http';
 import path from 'path';
 import { test, expect, type Page } from '@playwright/test';
 
-import { TutorialStep } from '../src/Tutorial';
-
 export class TestHelpers {
     //How many times we will attempt to run a tutorial step before failing the test.
     private static readonly MAX_ATTEMPTS_PER_STEP = 5;
@@ -16,6 +14,13 @@ export class TestHelpers {
     private static contextMenuAnchorIndex = 0;
     // Stores the last right-click position so we do not use the exact same spot twice in a row.
     private static lastContextMenuPoint: { x: number; y: number } | null = null;
+    // Mirrors TutorialStep.Type values from src/Tutorial.ts without importing browser-only app code.
+    private static readonly TutorialStepType = {
+        Info: 0,
+        Press: 1,
+        Input: 2,
+        Condition: 3,
+    } as const;
 
     // Set the specified UI mode
     static async setUIMode(page: Page, mode: 'Student' | 'Minimal' | 'Graph' | 'Component' | 'Expert') {
@@ -103,7 +108,7 @@ export class TestHelpers {
                     await page.locator('#tutorialInfoPopUp').waitFor({ state: 'attached', timeout: TestHelpers.LONG_TIMEOUT });
 
                     switch (stepInfo.stepType) {
-                        case TutorialStep.Type.Info: {
+                        case TestHelpers.TutorialStepType.Info: {
                             const nextBtn = page.locator('#tutorialInfoPopUp .tutNextBtn');
 
                             if (await nextBtn.count() > 0) {
@@ -134,7 +139,7 @@ export class TestHelpers {
                             break;
                         }
 
-                        case TutorialStep.Type.Press: {
+                        case TestHelpers.TutorialStepType.Press: {
                             // Press steps are advanced by clicking the tutorial target element, simulating real user clicks.
                             // This is more realistic than synthetic keyboard events.
                             const clickedTarget = await TestHelpers.clickTutorialPressTarget(page);
@@ -146,7 +151,7 @@ export class TestHelpers {
                             break;
                         }
 
-                        case TutorialStep.Type.Input: {
+                        case TestHelpers.TutorialStepType.Input: {
                             if (stepInfo.testStepFunction) {
                                 await TestHelpers.runTutorialCustomStep(page, stepInfo.testStepFunction);
                             } else {
@@ -166,7 +171,7 @@ export class TestHelpers {
                             break;
                         }
 
-                        case TutorialStep.Type.Condition: {
+                        case TestHelpers.TutorialStepType.Condition: {
                             if (!stepInfo.testStepFunction) {
                                 throw new Error(`Condition step '${stepInfo.title}' requires a test hook. Add .setTestStepFunction(...) in the tutorial definition.`);
                             }
