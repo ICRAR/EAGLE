@@ -761,6 +761,11 @@ export class Tutorial {
     
 }
 
+    export type TutorialTestHook = {
+        command: string;
+        args?: string[];
+    }
+
 export class TutorialStep {
     private title: string;
     private text: string;
@@ -773,12 +778,12 @@ export class TutorialStep {
     private preFunc: ((eagle: Eagle) => void) | null;
     private backPreFunc: ((eagle: Eagle) => void) | null;
     private conditionFunc : ((eagle: Eagle) => boolean) | null;
-    private testStepFunction: string | null;
+    private testStepFunction: TutorialTestHook | null;
 
     private backSkip : boolean;
     private expectedInput : string;
 
-    constructor(title: string, text: string, type: TutorialStep.Type, waitType: TutorialStep.Wait, delayAmount: number | null, targetFunc: () => JQuery<HTMLElement>, preFunc: ((eagle: Eagle) => void) | null, backPreFunc: ((eagle: Eagle) => void) | null, backSkip:boolean, expectedInput:string, conditionFunc:((eagle: Eagle) => boolean) | null, alternateHighlightTargetFunc: (() => JQuery<HTMLElement>) | null, testStepFunction: string | null) {
+    constructor(title: string, text: string, type: TutorialStep.Type, waitType: TutorialStep.Wait, delayAmount: number | null, targetFunc: () => JQuery<HTMLElement>, preFunc: ((eagle: Eagle) => void) | null, backPreFunc: ((eagle: Eagle) => void) | null, backSkip:boolean, expectedInput:string, conditionFunc:((eagle: Eagle) => boolean) | null, alternateHighlightTargetFunc: (() => JQuery<HTMLElement>) | null, testStepFunction: TutorialTestHook | null) {
         this.title = title;
         this.text = text;
         this.type = type;
@@ -844,7 +849,7 @@ export class TutorialStep {
         return this.alternateHighlightTargetFunc;
     }
 
-    getTestStepFunction = (): string | null => {
+    getTestStepFunction = (): TutorialTestHook | null => {
         return this.testStepFunction;
     }
 
@@ -893,7 +898,7 @@ export class TutorialStep {
         return this
     }
 
-    setTestStepFunction = (newTestStepFunction:string): this => {
+    setTestStepFunction = (newTestStepFunction: TutorialTestHook): this => {
         this.testStepFunction = newTestStepFunction;
         return this
     }

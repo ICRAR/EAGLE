@@ -77,7 +77,7 @@ newTut.newTutStep("Graph Nodes", "Once added into your graph, the component is i
 .setType(TutorialStep.Type.Condition)
 .setWaitType(TutorialStep.Wait.Element)
 .setConditionFunction(function(){return TutorialSystem.isRequestedNodeSelected('HelloWorldApp')})
-.setTestStepFunction('selectNode:HelloWorldApp')
+.setTestStepFunction({ command: 'selectNode', args: ['HelloWorldApp'] })
 .setPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 .setBackPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 
@@ -106,7 +106,7 @@ newTut.newTutStep("Enter a Name", "In case of this hello world app we can change
 newTut.newTutStep("Right Click to add nodes", "There are various right click options available in EAGLE. <em>Right click on the graph to bring up a 'add node' menu</em>", function(){return $("#logicalGraphParent")})
 .setType(TutorialStep.Type.Condition)
 .setConditionFunction(function(){ if($('#customContextMenu').length){return true}else{return false}})
-.setTestStepFunction('openCanvasContextMenu')
+.setTestStepFunction({ command: 'openCanvasContextMenu' })
 .setPreFunction(function(){$('.modal').modal("hide");}) //hiding open modals
 .setBackPreFunction(function(){RightClick.closeCustomContextMenu(true);})
 
@@ -138,7 +138,7 @@ newTut.newTutStep("Connecting nodes", "<em>Click and hold the output Port of the
 .setType(TutorialStep.Type.Condition)
 .setAlternateHighlightTargetFunc(function(){return $("#logicalGraphParent")})
 .setConditionFunction(function(eagle:Eagle){if(eagle.logicalGraph().getNumEdges() != 0){return true}else{return false}}) //check if there are any edges present in the graph
-.setTestStepFunction('connectNodes:HelloWorldApp:File')
+.setTestStepFunction({ command: 'connectNodes', args: ['HelloWorldApp', 'File'] })
 
 newTut.newTutStep("Graph Errors and warnings", "This is the error checking system. If there are errors or warnings in the graph you are able to troubleshoot them by clicking here.", function(){return $("#checkEagleWarnings")})
 
