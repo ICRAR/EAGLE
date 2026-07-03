@@ -70,6 +70,8 @@ export class TestHelpers {
         const stepAttempts = new Map<string, number>();
 
         while (true) {
+            // Snapshot all step fields together (including testStepFunction) because the active tutorial step can
+            // advance while Playwright awaits; this keeps one coherent current-step view, not mixed next-step data.
             const stepInfo = await page.evaluate(() => {
                 const tutSystem = (window as any).TutorialSystem;
                 const currentStep = tutSystem?.activeTutCurrentStep;
