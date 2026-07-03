@@ -5,8 +5,11 @@ import path from 'path';
 import { test, expect, type Page } from '@playwright/test';
 
 export class TestHelpers {
+    // Counts how many times we have opened the canvas context menu.
     private static contextMenuAnchorIndex = 0;
+    // Stores the last right-click position so we do not use the exact same spot twice in a row.
     private static lastContextMenuPoint: { x: number; y: number } | null = null;
+    // Mirrors TutorialStep.Type values from src/Tutorial.ts without importing browser-only app code.
     private static readonly TutorialStepType = {
         Info: 0,
         Press: 1,
