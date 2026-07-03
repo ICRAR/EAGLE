@@ -336,11 +336,12 @@
                     </div>
                     <div class="row">
                         <div class="col-3">
-                            <p>Name *</p>
+                            <p>Slug *</p>
                         </div>
                         <div class="col">
                             <div class="input-group mb-3 has-validation">
-                                <input type="text" class="form-control" id="gitCustomRepositoryModalRepositoryNameInput" placeholder="example-username/example-graph-repository">
+                                <input type="text" class="form-control" id="gitCustomRepositoryModalRepositorySlugInput" placeholder="owner/repository-name">
+                                <div class="invalid-feedback" id="gitCustomRepositoryModalRepositorySlugInputInvalidFeedback"></div>
                             </div>
                         </div>
                     </div>
@@ -351,6 +352,7 @@
                         <div class="col">
                             <div class="input-group mb-3 has-validation">
                                 <input type="text" class="form-control" id="gitCustomRepositoryModalRepositoryBranchInput" placeholder="master">
+                                <div class="invalid-feedback" id="gitCustomRepositoryModalRepositoryBranchInputInvalidFeedback"></div>
                             </div>
                         </div>
                     </div>

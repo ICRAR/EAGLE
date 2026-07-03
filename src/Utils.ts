@@ -580,6 +580,58 @@ export class Utils {
         };
     }
 
+    static repositorySlugStringValidator(label: string = "Repository name"): Modals.UserStringValidator {
+        return (userString: string): string | null => {
+            const nonEmptyResult = Utils.nonEmptyStringValidator(label)(userString);
+            if (nonEmptyResult !== null){
+                return nonEmptyResult;
+            }
+
+            const trimmed = userString.trim();
+            if (trimmed !== userString){
+                return label + " cannot start or end with whitespace.";
+            }
+
+            if (/\s/.test(trimmed)){
+                return label + " cannot contain whitespace.";
+            }
+
+            if (trimmed.startsWith('http://') || trimmed.startsWith('https://')){
+                return label + " must be in the format 'owner/repository', not a URL.";
+            }
+
+            if (trimmed.endsWith('.git')){
+                return label + " cannot end with '.git'.";
+            }
+
+            if (trimmed.startsWith('/') || trimmed.endsWith('/') || trimmed.includes('//')){
+                return label + " must be in the format 'owner/repository'.";
+            }
+
+            const components = trimmed.split('/');
+            if (components.length !== 2){
+                return label + " must be in the format 'owner/repository'.";
+            }
+
+            const [owner, repository] = components;
+            const invalidChars = /[^A-Za-z0-9._-]/;
+
+            if (invalidChars.test(owner) || invalidChars.test(repository)){
+                return label + " can only contain letters, numbers, '.', '_' and '-'.";
+            }
+
+            if (owner === "." || owner === ".." || repository === "." || repository === ".."){
+                return label + " cannot contain '.' or '..' path components.";
+            }
+
+            if (owner.startsWith('.') || repository.startsWith('.')){
+                return label + " cannot have components starting with '.'.";
+            }
+
+            return null;
+        };
+    }
+
     static branchNameStringValidator(label: string = "Branch name"): Modals.UserStringValidator {
         return (userString: string): string | null => {
             const nonEmptyResult = Utils.nonEmptyStringValidator(label)(userString);
@@ -995,7 +1047,7 @@ export class Utils {
 
     static requestUserAddCustomRepository(): Promise<Repository> {
         return new Promise(async(resolve, reject) => {
-            $('#gitCustomRepositoryModalRepositoryNameInput').val("");
+            $('#gitCustomRepositoryModalRepositorySlugInput').val("");
             $('#gitCustomRepositoryModalRepositoryBranchInput').val("");
 
             $('#gitCustomRepositoryModal').data('completed', false);
@@ -1015,34 +1067,35 @@ export class Utils {
 
     static validateCustomRepository() : boolean {
         const repositoryService : string = Utils.getUIValue('#gitCustomRepositoryModalRepositoryServiceSelect', 'val', "");
-        const repositoryName : string = Utils.getUIValue('#gitCustomRepositoryModalRepositoryNameInput', 'val', "");
+        const repositoryName : string = Utils.getUIValue('#gitCustomRepositoryModalRepositorySlugInput', 'val', "");
         const repositoryBranch : string = Utils.getUIValue('#gitCustomRepositoryModalRepositoryBranchInput', 'val', "");
 
-        $('#gitCustomRepositoryModalRepositoryNameInput').removeClass('is-invalid');
-        $('#gitCustomRepositoryModalRepositoryBranchInput').removeClass('is-invalid');
+        const repositoryNameInput = $('#gitCustomRepositoryModalRepositorySlugInput');
+        const repositoryBranchInput = $('#gitCustomRepositoryModalRepositoryBranchInput');
+
+        Modals.applyValidationState(repositoryNameInput, null);
+        Modals.applyValidationState(repositoryBranchInput, null);
 
         // check service
         if (repositoryService.trim() !== Repository.Service.GitHub && repositoryService.trim() !== Repository.Service.GitLab){
             return false;
         }
 
-        // check if name is empty
-        if (repositoryName.trim() == ""){
-            $('#gitCustomRepositoryModalRepositoryNameInput').addClass('is-invalid');
+        const repositoryNameValidationError = Utils.repositorySlugStringValidator("Repository name")(repositoryName);
+        if (repositoryNameValidationError !== null){
+            Modals.applyValidationState(repositoryNameInput, { isValid: false, message: repositoryNameValidationError });
             return false;
         }
 
-        // check if name starts with http:// or https://, or ends with .git
-        if (repositoryName.startsWith('http://') || repositoryName.startsWith('https://') || repositoryName.endsWith('.git')){
-            $('#gitCustomRepositoryModalRepositoryNameInput').addClass('is-invalid');
+        Modals.applyValidationState(repositoryNameInput, { isValid: true });
+
+        const repositoryBranchValidationError = Utils.branchNameStringValidator("Repository branch")(repositoryBranch);
+        if (repositoryBranchValidationError !== null){
+            Modals.applyValidationState(repositoryBranchInput, { isValid: false, message: repositoryBranchValidationError });
             return false;
         }
 
-        // check if branch is empty
-        if (repositoryBranch.trim() == ""){
-            $('#gitCustomRepositoryModalRepositoryBranchInput').addClass('is-invalid');
-            return false;
-        }
+        Modals.applyValidationState(repositoryBranchInput, { isValid: true });
 
         return true;
     }
@@ -1952,41 +2005,6 @@ export class Utils {
         return {valid: valid, errors: ajv.errorsText(ajv.errors)};
     }
 
-    static isAlpha(ch: string){
-        return /^[A-Z]$/i.test(ch);
-    }
-
-    static isNumeric(ch: string){
-        return /^[0-9]$/i.test(ch);
-    }
-
-    static validateField(type: string, value: string) : boolean {
-        let valid: boolean = true;
-
-        // make sure JSON fields are parse-able
-        if (type === Daliuge.DataType.Json){
-            try {
-                JSON.parse(value);
-            } catch(e) {
-                valid = false;
-            }
-        }
-
-        return valid;
-    }
-
-    static validateType(type: string) : boolean {
-        if (typeof(type) === "undefined"){
-            return false;
-        }
-
-        if (type.trim() === ""){
-            return false;
-        }
-
-        return true;
-    }
-
     static async downloadFile(data : string, fileName : string) : Promise<void> {
         return new Promise(async(resolve) => {
             // NOTE: this stuff is a hacky way of saving a file locally
@@ -2003,6 +2021,17 @@ export class Utils {
         });
     }
 
+    static validateType(type: string) : boolean {
+        if (typeof(type) === "undefined"){
+            return false;
+        }
+
+        if (type.trim() === ""){
+            return false;
+        }
+
+        return true;
+    }
 
     static nodesOverlap(n0x: number, n0y: number, n0radius: number, n1x: number, n1y: number, n1radius: number) : boolean {
         const dx = n0x - n1x;
@@ -3522,4 +3551,11 @@ export class Utils {
 
         return url;
     }
+}
+
+export namespace Utils {
+    export type ValidationResult = {
+        isValid: boolean;
+        message?: string;
+    };
 }
