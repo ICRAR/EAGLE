@@ -5,6 +5,8 @@ import path from 'path';
 import { test, expect, type Page } from '@playwright/test';
 
 export class TestHelpers {
+    //How many times we will attempt to run a tutorial step before failing the test.
+    private static readonly MAX_ATTEMPTS_PER_STEP = 5;
     // Counts how many times we have opened the canvas context menu.
     private static contextMenuAnchorIndex = 0;
     // Stores the last right-click position so we do not use the exact same spot twice in a row.
@@ -57,7 +59,7 @@ export class TestHelpers {
         });
     }
 
-    static async runTutorialByName(page: Page, tutorialName: string, maxSteps = 100): Promise<void> {
+    static async runTutorialByName(page: Page, tutorialName: string): Promise<void> {
         //.step is creating a test step. this is so we know exactly where we failed if something goes wrong.
         await test.step(`Start tutorial: ${tutorialName}`, async () => {
             await page.evaluate((name: string) => (window as any).TutorialSystem.initiateTutorial(name), tutorialName);
@@ -65,8 +67,9 @@ export class TestHelpers {
         });
 
         console.log(`[tutorial] started: ${tutorialName}`);
+        const stepAttempts = new Map<string, number>();
 
-        for (let i = 0; i < maxSteps; i++) {
+        while (true) {
             const stepInfo = await page.evaluate(() => {
                 const tutSystem = (window as any).TutorialSystem;
                 const currentStep = tutSystem?.activeTutCurrentStep;
@@ -87,6 +90,13 @@ export class TestHelpers {
             }
 
             const stepDescriptor = `${tutorialName} | ${stepInfo.index + 1}/${stepInfo.total} | ${stepInfo.title} | type=${stepInfo.stepType}`;
+            const stepKey = `${stepInfo.index}:${stepInfo.title}:${stepInfo.stepType}`;
+            const attemptCount = (stepAttempts.get(stepKey) ?? 0) + 1;
+            stepAttempts.set(stepKey, attemptCount);
+
+            if (attemptCount > TestHelpers.MAX_ATTEMPTS_PER_STEP) {
+                throw new Error(`Tutorial '${tutorialName}' exceeded ${TestHelpers.MAX_ATTEMPTS_PER_STEP} attempts on step '${stepInfo.title}' (${stepInfo.index + 1}/${stepInfo.total}).`);
+            }
 
             try {
                 await test.step(`Tutorial step ${stepInfo.index + 1}/${stepInfo.total}: ${stepInfo.title}`, async () => {
@@ -184,8 +194,6 @@ export class TestHelpers {
                 return;
             }
         }
-
-        throw new Error(`Tutorial '${tutorialName}' did not complete within ${maxSteps} steps.`);
     }
 
     private static parseTutorialCustomStepHook(testStepFunction: string): { command: string; args: string[] } {
