@@ -91,7 +91,6 @@ export class TestHelpers {
                 return;
             }
 
-            const stepDescriptor = `${tutorialName} | ${stepInfo.index + 1}/${stepInfo.total} | ${stepInfo.title} | type=${stepInfo.stepType}`;
             const stepKey = `${stepInfo.index}:${stepInfo.title}:${stepInfo.stepType}`;
             const attemptCount = (stepAttempts.get(stepKey) ?? 0) + 1;
             stepAttempts.set(stepKey, attemptCount);
@@ -185,6 +184,7 @@ export class TestHelpers {
                 });
             } catch (error) {
                 if (error instanceof Error) {
+                    const stepDescriptor = `${tutorialName} | ${stepInfo.index + 1}/${stepInfo.total} | ${stepInfo.title} | type=${stepInfo.stepType}`;
                     error.message = `Tutorial step failed: ${stepDescriptor}. ${error.message}`;
                 }
                 throw error;
