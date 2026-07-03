@@ -1,4 +1,4 @@
-import {Eagle} from './Eagle';
+import { Eagle } from './Eagle';
 import { EagleConfig } from './EagleConfig';
 import { Setting } from './Setting';
 import { SideWindow } from './SideWindow';
@@ -912,10 +912,10 @@ export class TutorialStep {
 
 export namespace TutorialStep {
     export enum Type {
-        Info,
-        Press,
-        Input,
-        Condition
+        Info = "Info",
+        Press = "Press",
+        Input = "Input",
+        Condition = "Condition"
     }
 
     export enum Direction {

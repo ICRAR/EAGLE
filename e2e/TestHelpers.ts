@@ -16,10 +16,10 @@ export class TestHelpers {
     private static lastContextMenuPoint: { x: number; y: number } | null = null;
     // Mirrors TutorialStep.Type values from src/Tutorial.ts without importing browser-only app code.
     private static readonly TutorialStepType = {
-        Info: 0,
-        Press: 1,
-        Input: 2,
-        Condition: 3,
+        Info: "Info",
+        Press: "Press",
+        Input: "Input",
+        Condition: "Condition",
     } as const;
 
     // Set the specified UI mode
