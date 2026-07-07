@@ -1,6 +1,5 @@
 import { Daliuge } from './Daliuge';
 import { Eagle } from './Eagle';
-import { Errors } from './Errors';
 import { Field } from './Field';
 import { FileLocation } from "./FileLocation";
 import { Repositories } from './Repositories';
@@ -547,11 +546,7 @@ export class Modals {
     static validateField(type: string, value: string) : Utils.ValidationResult {
         // make sure JSON fields are parse-able
         if (type === Daliuge.DataType.Json){
-            try {
-                JSON.parse(value);
-            } catch(e) {
-                return { isValid: false, message: "Invalid JSON: " + Errors.UnknownToError(e)};
-            }
+            return Utils.jsonStringValidator("JSON")(value);
         }
 
         return { isValid: true };
@@ -585,13 +580,9 @@ export class Modals {
 
         const fileTypeData = $('#gitCommitModal').data('fileType');
         const fileType: Eagle.FileType = fileTypeData ? fileTypeData : Eagle.FileType.Unknown;
-        
-        const isValid = (fileType === Eagle.FileType.Unknown) ||
-            (fileType === Eagle.FileType.Graph && inputElementValue.endsWith(".graph")) ||
-            (fileType === Eagle.FileType.Palette && inputElementValue.endsWith(".palette")) ||
-            (fileType === Eagle.FileType.GraphConfig && inputElementValue.endsWith(".graphConfig"));
 
-        const validationResult: Utils.ValidationResult = { isValid };
+        const validator = Utils.gitCommitFileNameStringValidator(fileType);
+        const validationResult = validator(inputElementValue);
 
         Modals.applyValidationState(inputElement, validationResult);
         $('#gitCommitModalAffirmativeButton').prop('disabled', !validationResult.isValid);
@@ -713,7 +704,7 @@ export class Modals {
 
 export namespace Modals {
     export type UserStringCallback = (completed: boolean, userString: string) => void;
-    export type UserStringValidator = (userString: string) => string | null;
+    export type UserStringValidator = (userString: string) => Utils.ValidationResult;
     export type UserTextCallback = (completed: boolean, userText: string) => void;
     export type UserFieldCallback = (field: Field | null) => void; // NOTE: completed is not required, since all changes happen to the field directly (immediately)
     export type UserConfirmCallback = (completed: boolean, confirmed: boolean) => void;

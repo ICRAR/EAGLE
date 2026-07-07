@@ -549,138 +549,178 @@ export class Utils {
     }
 
     static nonEmptyStringValidator(label: string): Modals.UserStringValidator {
-        return (userString: string): string | null => {
+        return (userString: string): Utils.ValidationResult => {
             if (userString.trim() === ""){
-                return label + " cannot be empty.";
+                return { isValid: false, message: label + " cannot be empty." };
             }
 
-            return null;
+            return { isValid: true };
         };
     }
 
     static httpUrlStringValidator(label: string = "URL"): Modals.UserStringValidator {
-        return (userString: string): string | null => {
+        return (userString: string): Utils.ValidationResult => {
             const trimmed = userString.trim();
             if (trimmed === ""){
-                return label + " cannot be empty.";
+                return { isValid: false, message: label + " cannot be empty." };
             }
 
             let parsedUrl: URL;
             try {
                 parsedUrl = new URL(trimmed);
             } catch (_error) {
-                return label + " is not a valid URL.";
+                return { isValid: false, message: label + " is not a valid URL." };
             }
 
             if (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:"){
-                return label + " must start with http:// or https://.";
+                return { isValid: false, message: label + " must start with http:// or https://." };
             }
 
-            return null;
+            return { isValid: true };
         };
     }
 
     static repositorySlugStringValidator(label: string = "Repository name"): Modals.UserStringValidator {
-        return (userString: string): string | null => {
+        return (userString: string): Utils.ValidationResult => {
             const nonEmptyResult = Utils.nonEmptyStringValidator(label)(userString);
-            if (nonEmptyResult !== null){
+            if (!nonEmptyResult.isValid){
                 return nonEmptyResult;
             }
 
             const trimmed = userString.trim();
             if (trimmed !== userString){
-                return label + " cannot start or end with whitespace.";
+                return { isValid: false, message: label + " cannot start or end with whitespace." };
             }
 
             if (/\s/.test(trimmed)){
-                return label + " cannot contain whitespace.";
+                return { isValid: false, message: label + " cannot contain whitespace." };
             }
 
             if (trimmed.startsWith('http://') || trimmed.startsWith('https://')){
-                return label + " must be in the format 'owner/repository', not a URL.";
+                return { isValid: false, message: label + " must be in the format 'owner/repository', not a URL." };
             }
 
             if (trimmed.endsWith('.git')){
-                return label + " cannot end with '.git'.";
+                return { isValid: false, message: label + " cannot end with '.git'." };
             }
 
             if (trimmed.startsWith('/') || trimmed.endsWith('/') || trimmed.includes('//')){
-                return label + " must be in the format 'owner/repository'.";
+                return { isValid: false, message: label + " must be in the format 'owner/repository'." };
             }
 
             const components = trimmed.split('/');
             if (components.length !== 2){
-                return label + " must be in the format 'owner/repository'.";
+                return { isValid: false, message: label + " must be in the format 'owner/repository'." };
             }
 
             const [owner, repository] = components;
             const invalidChars = /[^A-Za-z0-9._-]/;
 
             if (invalidChars.test(owner) || invalidChars.test(repository)){
-                return label + " can only contain letters, numbers, '.', '_' and '-'.";
+                return { isValid: false, message: label + " can only contain letters, numbers, '.', '_' and '-'." };
             }
 
             if (owner === "." || owner === ".." || repository === "." || repository === ".."){
-                return label + " cannot contain '.' or '..' path components.";
+                return { isValid: false, message: label + " cannot contain '.' or '..' path components." };
             }
 
             if (owner.startsWith('.') || repository.startsWith('.')){
-                return label + " cannot have components starting with '.'.";
+                return { isValid: false, message: label + " cannot have components starting with '.'." };
             }
 
-            return null;
+            return { isValid: true };
         };
     }
 
     static branchNameStringValidator(label: string = "Branch name"): Modals.UserStringValidator {
-        return (userString: string): string | null => {
+        return (userString: string): Utils.ValidationResult => {
             const nonEmptyResult = Utils.nonEmptyStringValidator(label)(userString);
-            if (nonEmptyResult !== null){
+            if (!nonEmptyResult.isValid){
                 return nonEmptyResult;
             }
 
             if (/\s/.test(userString)){
-                return label + " cannot contain whitespace.";
+                return { isValid: false, message: label + " cannot contain whitespace." };
             }
 
             if (userString.startsWith("-") ){
-                return label + " cannot start with '-'.";
+                return { isValid: false, message: label + " cannot start with '-'." };
             }
 
             if (userString === "@"){
-                return label + " cannot be '@'.";
+                return { isValid: false, message: label + " cannot be '@'." };
             }
 
             if (userString.includes("@{")){
-                return label + " cannot contain '@{'.";
+                return { isValid: false, message: label + " cannot contain '@{'." };
             }
 
             if (userString.includes("..")){
-                return label + " cannot contain '..'.";
+                return { isValid: false, message: label + " cannot contain '..'." };
             }
 
             if (userString.startsWith("/") || userString.endsWith("/") || userString.includes("//")){
-                return label + " cannot contain empty path segments.";
+                return { isValid: false, message: label + " cannot contain empty path segments." };
             }
 
             if (userString.endsWith(".")){
-                return label + " cannot end with '.'.";
+                return { isValid: false, message: label + " cannot end with '.'." };
             }
 
             if (userString.endsWith(".lock")){
-                return label + " cannot end with '.lock'.";
+                return { isValid: false, message: label + " cannot end with '.lock'." };
             }
 
             const components = userString.split("/");
             if (components.some(component => component.startsWith("."))){
-                return label + " cannot have path segments starting with '.'.";
+                return { isValid: false, message: label + " cannot have path segments starting with '.'." };
             }
 
             if (/[\x00-\x1F\x7F~^:?*\[\\]/.test(userString)){
-                return label + " contains invalid characters.";
+                return { isValid: false, message: label + " contains invalid characters." };
             }
 
-            return null;
+            return { isValid: true };
+        };
+    }
+
+    static gitCommitFileNameStringValidator(fileType: Eagle.FileType, label: string = "File name"): Modals.UserStringValidator {
+        return (userString: string): Utils.ValidationResult => {
+            if (fileType === Eagle.FileType.Unknown){
+                return { isValid: true };
+            }
+
+            let requiredExtension: string | null = null;
+            switch (fileType){
+                case Eagle.FileType.Graph:
+                    requiredExtension = ".graph";
+                    break;
+                case Eagle.FileType.Palette:
+                    requiredExtension = ".palette";
+                    break;
+                case Eagle.FileType.GraphConfig:
+                    requiredExtension = ".graphConfig";
+                    break;
+                default:
+                    return { isValid: true };
+            }
+
+            if (userString.endsWith(requiredExtension)){
+                return { isValid: true };
+            }
+
+            return { isValid: false, message: label + " must end with '" + requiredExtension + "'." };
+        };
+    }
+
+    static jsonStringValidator(label: string = "JSON"): Modals.UserStringValidator {
+        return (userString: string): Utils.ValidationResult => {
+            try {
+                JSON.parse(userString);
+                return { isValid: true };
+            } catch (error) {
+                return { isValid: false, message: "Invalid " + label + ": " + Errors.UnknownToError(error) };
+            }
         };
     }
 
@@ -701,8 +741,8 @@ export class Utils {
                 }
 
                 const userString = Utils.getUIValue('#inputModalInput', 'val', "");
-                const reason = validator(userString);
-                const isValid = reason === null;
+                const validationResult = validator(userString);
+                const isValid = validationResult.isValid;
 
                 $('#inputModal').data('isValid', isValid);
                 $('#inputModalInput').toggleClass('is-valid', isValid);
@@ -711,7 +751,7 @@ export class Utils {
                 if (isValid){
                     $('#inputModalInvalidFeedback').hide().text('');
                 } else {
-                    $('#inputModalInvalidFeedback').show().text(reason);
+                    $('#inputModalInvalidFeedback').show().text(validationResult.message ?? 'Invalid value.');
                 }
 
                 return isValid;
@@ -1081,17 +1121,17 @@ export class Utils {
             return false;
         }
 
-        const repositoryNameValidationError = Utils.repositorySlugStringValidator("Repository name")(repositoryName);
-        if (repositoryNameValidationError !== null){
-            Modals.applyValidationState(repositoryNameInput, { isValid: false, message: repositoryNameValidationError });
+        const repositoryNameValidationResult = Utils.repositorySlugStringValidator("Repository name")(repositoryName);
+        if (!repositoryNameValidationResult.isValid){
+            Modals.applyValidationState(repositoryNameInput, repositoryNameValidationResult);
             return false;
         }
 
         Modals.applyValidationState(repositoryNameInput, { isValid: true });
 
-        const repositoryBranchValidationError = Utils.branchNameStringValidator("Repository branch")(repositoryBranch);
-        if (repositoryBranchValidationError !== null){
-            Modals.applyValidationState(repositoryBranchInput, { isValid: false, message: repositoryBranchValidationError });
+        const repositoryBranchValidationResult = Utils.branchNameStringValidator("Repository branch")(repositoryBranch);
+        if (!repositoryBranchValidationResult.isValid){
+            Modals.applyValidationState(repositoryBranchInput, repositoryBranchValidationResult);
             return false;
         }
 
