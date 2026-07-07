@@ -22,7 +22,7 @@
                 <a href="#" data-bind="click: openInNewTab, attr: {id: htmlId() + '-open-in-new-tab'}"><span>Open in new tab</span></a>
                 <!-- /ko -->
                 <!-- ko if: getIconUrl() === "device_hub" -->
-                <a href="#" data-bind="click: $root.insertRemoteFile, attr: {id: htmlId() + '-insert'}"><span>Insert</span></a>
+                <a href="#" data-bind="click: $root.insertRemoteFile, attr: {id: htmlId() + '-insert'}"><span>Insert as SubGraph</span></a>
                 <!-- /ko -->
                 <!-- ko if: type === Eagle.FileType.Daliuge || type === Eagle.FileType.Graph || type === Eagle.FileType.Palette -->
                 <a href="#" data-bind="click: $root.deleteRemoteFile, attr: {id: htmlId() + '-delete'}"><span>Delete</span></a>
