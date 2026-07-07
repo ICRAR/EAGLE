@@ -32,7 +32,7 @@ async function addCustomRepository(page: Page, name: string, branch: string): Pr
 
   await page.getByRole('button',{name:'Add Repository'}).click()
   await page.waitForTimeout(500);
-  await page.locator('input#gitCustomRepositoryModalRepositoryNameInput').pressSequentially(name)
+  await page.locator('input#gitCustomRepositoryModalRepositorySlugInput').pressSequentially(name)
   await page.locator('input#gitCustomRepositoryModalRepositoryBranchInput').pressSequentially(branch)
   await page.locator('button#gitCustomRepositoryModalAffirmativeButton').click()
   await page.waitForTimeout(1000);
@@ -113,7 +113,7 @@ test('Adding and Removing Repositories', async ({ page }) => {
   await page.waitForTimeout(500);
 
   //fill out the add repository modal information and confirm the modal
-  await page.locator('input#gitCustomRepositoryModalRepositoryNameInput').pressSequentially(REPO_NAME)
+  await page.locator('input#gitCustomRepositoryModalRepositorySlugInput').pressSequentially(REPO_NAME)
   await page.locator('input#gitCustomRepositoryModalRepositoryBranchInput').pressSequentially(REPO_BRANCH)
   await page.locator('button#gitCustomRepositoryModalAffirmativeButton').click()
 

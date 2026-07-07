@@ -1788,7 +1788,11 @@ select.form-control{
     list-style-type: none;
     text-overflow: ellipsis;
     white-space: nowrap;
-    overflow:  hidden;
+    overflow: visible;
+}
+
+#repositoryList ul.files > li {
+    overflow: visible;
 }
 
 #repositoryList ul.folders {
@@ -1827,11 +1831,11 @@ select.form-control{
     visibility: visible;
 }
 
-#repositoryList ul.repositories .repoFile .repo-actions {
+#repositoryList ul.repositories .repoFile .repo-actions button.repoTripleDot {
     visibility: hidden;
 }
 
-#repositoryList ul.repositories .repoFile:hover .repo-actions {
+#repositoryList ul.repositories .repoFile:hover .repo-actions button.repoTripleDot {
     visibility: visible;
 }
 
