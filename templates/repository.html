@@ -1,4 +1,4 @@
-<div class="container repoContainer">
+<div class="container-fluid repoContainer">
     <div class="row">
         <div class="col-1 col">
             <!-- ko if: isFetching -->
@@ -19,17 +19,32 @@
             <!-- /ko -->
             <!-- /ko -->
         </div>
-        <div class="col-9 col">
+        <div class="col-10 col">
             <a href="" data-bind="attr: {id: htmlId}, click: select, eagleTooltip: '|||' +  name + ' (' + branch + ') |||'" data-bs-placement="left">
                 <span data-bind="text: name + ' (' + branch + ')'"></span>
             </a>
         </div>
         
-        <div class="col col-2 repo-actions">
-            <!-- ko ifnot: isBuiltIn -->
-                <i class="material-symbols-outlined filled md-18 interactive iconHoverEffect" data-bind="click: $root.repositories().removeCustomRepository, attr: {id: htmlId() + '-eject'}">eject</i>
-            <!-- /ko -->
-            <i class="material-symbols-outlined md-18 interactive iconHoverEffect" data-bind="click: $root.repositories().copyRepository, attr: {id: htmlId() + '-copy'}">content_copy</i>
+        <div class="col col-1 repo-actions dropdown">
+            <button type="button" class="material-symbols-outlined md-18 dropdown-toggle dropdown-control repoTripleDot iconHoverEffect" data-bs-toggle="dropdown">more_vert</button>
+            <div class="dropdown-menu dropdown-area">
+                <!-- ko ifnot: isBuiltIn -->
+                <a href="#" data-bind="click: $root.repositories().removeCustomRepository, attr: {id: htmlId() + '-remove'}"><span>Remove</span></a>
+                <!-- /ko -->
+                <a href="#" data-bind="click: $root.repositories().copyRepository, attr: {id: htmlId() + '-copy'}"><span>Copy</span></a>
+                <a href="#" data-bind="click: $root.repositories().promptCreateBranch, attr: {id: htmlId() + '-create-branch'}"><span>Create Branch</span></a>
+                <a href="#" data-bind="click: $root.repositories().promptDeleteBranch, attr: {id: htmlId() + '-delete-branch'}"><span>Delete Branch</span></a>
+                <!-- ko if: service === Repository.Service.GitHub -->
+                <a href="#" data-bind="click: $root.repositories().openRepositoryInBrowser, attr: {id: htmlId() + '-show-on-github'}"><span>Show on GitHub</span></a>
+                <!-- /ko -->
+                <!-- ko if: service === Repository.Service.GitLab -->
+                <a href="#" data-bind="click: $root.repositories().openRepositoryInBrowser, attr: {id: htmlId() + '-show-on-gitlab'}"><span>Show on GitLab</span></a>
+                <!-- /ko -->
+                <a href="#" data-bind="click: expandAll, attr: {id: htmlId() + '-expand'}"><span>Expand</span></a>
+                <a href="#" data-bind="click: collapseAll, attr: {id: htmlId() + '-collapse'}"><span>Collapse</span></a>
+                <a href="#" data-bind="click: refresh, attr: {id: htmlId() + '-refresh'}"><span>Refresh</span></a>
+                <a href="#" data-bind="click: function(data){ GraphUpdater.showModal(data) }, attr: {id: htmlId() + '-update-all-graphs'}"><span>Update All Graphs</span></a>
+            </div>
         </div>
         
         <!-- ko if: expanded -->

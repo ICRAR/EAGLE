@@ -3,6 +3,7 @@ import https from 'https';
 import http from 'http';
 import path from 'path';
 import type { Page } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 
 export class TestHelpers {
     // Set the specified UI mode
@@ -182,6 +183,12 @@ export class TestHelpers {
         });
     }
 
+    static async getEdgeCount(page: Page): Promise<number> {
+        return await page.evaluate( () => {
+            return (window as any).eagle.logicalGraph().getNumEdges();
+        });
+    }
+
     static async undo(page: Page): Promise<void> {
         return await page.press('body','z');
     }
@@ -221,6 +228,55 @@ export class TestHelpers {
     static async getNumWarningsErrors(page: Page): Promise<number> {
         return await page.evaluate(() => {
             return (window as any).eagle.graphWarnings().length + (window as any).eagle.graphErrors().length;
+        });
+    }
+
+    // Expand a palette accordion by index
+    static async expandPalette(page: Page, paletteIndex: number): Promise<void> {
+        await page.locator('#palette' + paletteIndex).click();
+        await page.waitForTimeout(250);
+    }
+
+    // Fill the custom name field in the choice modal and confirm
+    static async enterCustomChoiceName(page: Page, name: string): Promise<void> {
+        await page.getByRole('textbox', { name: 'Custom Port Name' }).click();
+        await page.getByRole('textbox', { name: 'Custom Port Name' }).fill(name);
+        await page.waitForTimeout(500);
+        await page.getByRole('button', { name: 'OK' }).click();
+    }
+
+    static async waitForNotificationAndDismiss(page: Page): Promise<void> {
+        await page.locator('div[data-notify="container"]').first().waitFor({state: 'attached'});
+        await page.locator('button[data-notify="dismiss"]').first().click();
+        await page.locator('div[data-notify="container"]').first().waitFor({state: 'detached'});
+    }
+
+    static async openGraphMenuAndSelect(page: Page, menuItemId: string): Promise<void> {
+        await page.locator('#navbarDropdownGraph').click();
+        await page.locator('#' + menuItemId).click();
+    }
+
+    static async dragEdge(page: Page, sourceNodeName: string, destNodeName: string): Promise<void> {
+        // draw an edge from source output to destination input
+        const srcPort = page.locator('#' + sourceNodeName + ' .outputPort');
+        const destPort = page.locator('#' + destNodeName + ' .inputPort');
+    
+        await expect(srcPort, 'source port should be visible before dragging').toBeVisible();
+        await expect(destPort, 'destination port should be visible before dragging').toBeVisible();
+    
+        const requireBox = (box: { width: number; height: number } | null, message: string) => {
+            expect(box, message).not.toBeNull();
+            return box as { width: number; height: number };
+        };
+    
+        const [srcPortBox, destPortBox] = [
+            requireBox(await srcPort.boundingBox(), 'source port should have a bounding box before dragging'),
+            requireBox(await destPort.boundingBox(), 'destination port should have a bounding box before dragging')
+        ];
+    
+        await srcPort.dragTo(destPort, {
+            sourcePosition: { x: srcPortBox.width / 2, y: srcPortBox.height / 2 },
+            targetPosition: { x: destPortBox.width / 2, y: destPortBox.height / 2 }
         });
     }
 }

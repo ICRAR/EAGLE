@@ -120,6 +120,17 @@ export class Utils {
         return `${graphName}-${configName}.${extension}`;
     }
 
+    static getServiceToken(service: Repository.Service): string {
+        switch (service) {
+            case Repository.Service.GitHub:
+                return Setting.findValue<string>(Setting.GITHUB_ACCESS_TOKEN_KEY, "");
+            case Repository.Service.GitLab:
+                return Setting.findValue<string>(Setting.GITLAB_ACCESS_TOKEN_KEY, "");
+            default:
+                throw new Error("Unsupported repository service: " + service);
+        }
+    }
+
     // TODO: check if this is even necessary. it may only have been necessary when we were setting keys (not ids)
     static setEmbeddedApplicationNodeIds(lg: LogicalGraph): void {
         // loop through nodes, look for embedded nodes with null id, create new id

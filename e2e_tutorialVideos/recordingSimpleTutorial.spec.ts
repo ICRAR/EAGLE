@@ -1,6 +1,7 @@
 // import { test } from '@playwright/test';
 import { test, expect,chromium, Page,Browser } from '@playwright/test';
 import { enableMouseCursor, explainElement, moveMouseCursor, textNotification } from '../playwrightHelpers';
+import { TestHelpers } from '../e2e/TestHelpers';
 
 test.use({ 
   viewport: { width: 2560, height: 1440 },
@@ -149,7 +150,8 @@ test('Hello World Tutorial Video', async ({ page }) => {
   await explainElement(page, inputPort, 'down', 'And this is the input port of the File node.',3000)
   await explainElement(page, outputPort, 'down', 'Drag and drop from one port to the other to create a connection.',4000)
   await moveMouseCursor(page, inputPort)
-  await page.dragAndDrop('#HelloWorldApp .outputPort', '#File .inputPort',{sourcePosition:{x:2,y:2},targetPosition:{x:2,y:2}})
+  await TestHelpers.dragEdge(page, 'HelloWorldApp', 'File');
+  
   await explainElement(page, inputPort, 'down', 'The output of the Hello World App will now be saved to disk as a file.',4000)
 
   //end notification
