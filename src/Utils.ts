@@ -876,7 +876,7 @@ export class Utils {
 
     static requestUserAddCustomRepository(): Promise<Repository> {
         return new Promise(async(resolve, reject) => {
-            $('#gitCustomRepositoryModalRepositoryNameInput').val("");
+            $('#gitCustomRepositoryModalRepositorySlugInput').val("");
             $('#gitCustomRepositoryModalRepositoryBranchInput').val("");
 
             $('#gitCustomRepositoryModal').data('completed', false);
@@ -896,10 +896,10 @@ export class Utils {
 
     static validateCustomRepository() : boolean {
         const repositoryService : string = Utils.getUIValue('#gitCustomRepositoryModalRepositoryServiceSelect', 'val', "");
-        const repositoryName : string = Utils.getUIValue('#gitCustomRepositoryModalRepositoryNameInput', 'val', "");
+        const repositoryName : string = Utils.getUIValue('#gitCustomRepositoryModalRepositorySlugInput', 'val', "");
         const repositoryBranch : string = Utils.getUIValue('#gitCustomRepositoryModalRepositoryBranchInput', 'val', "");
 
-        $('#gitCustomRepositoryModalRepositoryNameInput').removeClass('is-invalid');
+        $('#gitCustomRepositoryModalRepositorySlugInput').removeClass('is-invalid');
         $('#gitCustomRepositoryModalRepositoryBranchInput').removeClass('is-invalid');
 
         // check service
@@ -909,13 +909,13 @@ export class Utils {
 
         // check if name is empty
         if (repositoryName.trim() == ""){
-            $('#gitCustomRepositoryModalRepositoryNameInput').addClass('is-invalid');
+            $('#gitCustomRepositoryModalRepositorySlugInput').addClass('is-invalid');
             return false;
         }
 
         // check if name starts with http:// or https://, or ends with .git
         if (repositoryName.startsWith('http://') || repositoryName.startsWith('https://') || repositoryName.endsWith('.git')){
-            $('#gitCustomRepositoryModalRepositoryNameInput').addClass('is-invalid');
+            $('#gitCustomRepositoryModalRepositorySlugInput').addClass('is-invalid');
             return false;
         }
 

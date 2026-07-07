@@ -364,7 +364,7 @@ export class Modals {
         });
 
         // #gitCustomRepositoryModal - requestUserAddCustomRepository()
-        $('#gitCustomRepositoryModalRepositoryNameInput, #gitCustomRepositoryModalRepositoryBranchInput').on('keyup', function(){
+        $('#gitCustomRepositoryModalRepositorySlugInput, #gitCustomRepositoryModalRepositoryBranchInput').on('keyup', function(){
             // show/hide OK button
             $('#gitCustomRepositoryModalAffirmativeButton').prop('disabled', !Utils.validateCustomRepository());
         });
@@ -376,7 +376,7 @@ export class Modals {
             $('#gitCustomRepositoryModal').data('completed', false);
         });
         $('#gitCustomRepositoryModal').on('shown.bs.modal', function(){
-            $('#gitCustomRepositoryModalRepositoryNameInput').removeClass('is-invalid');
+            $('#gitCustomRepositoryModalRepositorySlugInput').removeClass('is-invalid');
             $('#gitCustomRepositoryModalRepositoryBranchInput').removeClass('is-invalid');
 
             $('#gitCustomRepositoryModalAffirmativeButton').prop('disabled', true);
@@ -396,7 +396,7 @@ export class Modals {
 
                     // check selected option in select tag
                     const repositoryService : Repository.Service = <Repository.Service>Utils.getUIValue('#gitCustomRepositoryModalRepositoryServiceSelect', 'val', Repository.Service.Unknown);
-                    const repositoryName : string = Utils.getUIValue('#gitCustomRepositoryModalRepositoryNameInput', 'val', "");
+                    const repositoryName : string = Utils.getUIValue('#gitCustomRepositoryModalRepositorySlugInput', 'val', "");
                     const repositoryBranch : string = Utils.getUIValue('#gitCustomRepositoryModalRepositoryBranchInput', 'val', "");
 
                     callback(true, repositoryService, repositoryName, repositoryBranch);
