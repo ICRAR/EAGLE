@@ -2960,6 +2960,18 @@ export class Eagle {
         }
     }
 
+    copyRemoteFileUrl = async (file: RepositoryFile): Promise<void> => {
+        const url = file.getUrl();
+
+        try {
+            await navigator.clipboard.writeText(url);
+            Utils.showNotification("File URL", "Copied to clipboard", "success");
+        } catch (error) {
+            Utils.showNotification("File URL", "Failed to copy to clipboard", "danger");
+            console.error("Failed to copy file URL:", error);
+        }
+    }
+
     private _deleteRemoteFile = async (file: RepositoryFile): Promise<void> => {
         // check the service required to delete the file
         let deleteRemoteFileFunc;

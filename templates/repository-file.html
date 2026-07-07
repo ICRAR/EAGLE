@@ -14,10 +14,10 @@
                 <span data-bind="text: $data.name"></span>
             </a>
         </div>
-        <!-- ko if: getIconUrl() === "device_hub" || type === Eagle.FileType.Daliuge || type === Eagle.FileType.Graph || type === Eagle.FileType.Palette -->
         <div class="col col-1 repo-actions dropdown">
             <button type="button" class="material-symbols-outlined md-18 dropdown-toggle dropdown-control repoTripleDot iconHoverEffect" data-bs-toggle="dropdown">more_vert</button>
             <div class="dropdown-menu dropdown-area">
+                <a href="#" data-bind="click: $root.copyRemoteFileUrl, attr: {id: htmlId() + '-copy-url'}"><span>Copy URL</span></a>
                 <!-- ko if: getIconUrl() === "device_hub" -->
                 <a href="#" data-bind="click: $root.insertRemoteFile, attr: {id: htmlId() + '-insert'}"><span>Insert</span></a>
                 <!-- /ko -->
@@ -26,6 +26,5 @@
                 <!-- /ko -->
             </div>
         </div>
-        <!-- /ko -->
     </div>
 </div>
