@@ -213,60 +213,7 @@ export class TestHelpers {
         }
 
         if (command === 'openCanvasContextMenu') {
-            const menuLocator = page.locator('#customContextMenu .searchBarContainer');
-
-            if (await menuLocator.count() > 0) {
-                return;
-            }
-
-            const canvas = page.locator('#logicalGraphParent').first();
-            await canvas.waitFor({ state: 'visible', timeout: TestHelpers.SHORT_TIMEOUT });
-
-            // Right-click around viewport center with pseudo-random offsets and no immediate repeats.
-            const viewport = page.viewportSize();
-            const size = viewport ?? { width: 1280, height: 720 };
-
-            const seed = TestHelpers.contextMenuAnchorIndex;
-            TestHelpers.contextMenuAnchorIndex += 1;
-
-            const angleDeg = (seed * 137.508) % 360;
-            const angle = angleDeg * (Math.PI / 180);
-            const radius = 80 + ((seed * 31) % 70);
-
-            let x = Math.max(80, Math.min(size.width - 80, Math.floor(size.width / 2 + Math.cos(angle) * radius)));
-            let y = Math.max(80, Math.min(size.height - 120, Math.floor(size.height / 2 + Math.sin(angle) * radius)));
-
-            if (TestHelpers.lastContextMenuPoint && TestHelpers.lastContextMenuPoint.x === x && TestHelpers.lastContextMenuPoint.y === y) {
-                x = Math.max(80, Math.min(size.width - 80, x + 35));
-                y = Math.max(80, Math.min(size.height - 120, y + 20));
-            }
-            TestHelpers.lastContextMenuPoint = { x, y };
-
-            // Use Playwright mouse so the app receives real pointer coordinates.
-            await page.mouse.click(x, y, { button: 'right' });
-
-            // Fallback if overlay/event handlers swallowed the native click.
-            if (await menuLocator.count() === 0) {
-                await page.evaluate(({ x, y }) => {
-                    const target = document.querySelector('#logicalGraphParent');
-                    if (!target) {
-                        return;
-                    }
-
-                    const evt = new MouseEvent('contextmenu', {
-                        bubbles: true,
-                        cancelable: true,
-                        view: window,
-                        button: 2,
-                        clientX: x,
-                        clientY: y,
-                    });
-
-                    target.dispatchEvent(evt);
-                }, { x, y });
-            }
-
-            await menuLocator.waitFor({ state: 'attached', timeout: TestHelpers.SHORT_TIMEOUT });
+            await TestHelpers.openCanvasContextMenu(page);
             return;
         }
 
@@ -299,6 +246,63 @@ export class TestHelpers {
         }
 
         throw new Error(`Unknown tutorial test step function '${testStepFunction}'`);
+    }
+
+    private static async openCanvasContextMenu(page: Page): Promise<void> {
+        const menuLocator = page.locator('#customContextMenu .searchBarContainer');
+
+        if (await menuLocator.count() > 0) {
+            return;
+        }
+
+        const canvas = page.locator('#logicalGraphParent').first();
+        await canvas.waitFor({ state: 'visible', timeout: TestHelpers.SHORT_TIMEOUT });
+
+        // Right-click around viewport center with pseudo-random offsets and no immediate repeats.
+        const viewport = page.viewportSize();
+        const size = viewport ?? { width: 1280, height: 720 };
+
+        const seed = TestHelpers.contextMenuAnchorIndex;
+        TestHelpers.contextMenuAnchorIndex += 1;
+
+        const angleDeg = (seed * 137.508) % 360;
+        const angle = angleDeg * (Math.PI / 180);
+        const radius = 80 + ((seed * 31) % 70);
+
+        let x = Math.max(80, Math.min(size.width - 80, Math.floor(size.width / 2 + Math.cos(angle) * radius)));
+        let y = Math.max(80, Math.min(size.height - 120, Math.floor(size.height / 2 + Math.sin(angle) * radius)));
+
+        if (TestHelpers.lastContextMenuPoint && TestHelpers.lastContextMenuPoint.x === x && TestHelpers.lastContextMenuPoint.y === y) {
+            x = Math.max(80, Math.min(size.width - 80, x + 35));
+            y = Math.max(80, Math.min(size.height - 120, y + 20));
+        }
+        TestHelpers.lastContextMenuPoint = { x, y };
+
+        // Use Playwright mouse so the app receives real pointer coordinates.
+        await page.mouse.click(x, y, { button: 'right' });
+
+        // Fallback if overlay/event handlers swallowed the native click.
+        if (await menuLocator.count() === 0) {
+            await page.evaluate(({ x, y }) => {
+                const target = document.querySelector('#logicalGraphParent');
+                if (!target) {
+                    return;
+                }
+
+                const evt = new MouseEvent('contextmenu', {
+                    bubbles: true,
+                    cancelable: true,
+                    view: window,
+                    button: 2,
+                    clientX: x,
+                    clientY: y,
+                });
+
+                target.dispatchEvent(evt);
+            }, { x, y });
+        }
+
+        await menuLocator.waitFor({ state: 'attached', timeout: TestHelpers.SHORT_TIMEOUT });
     }
 
     private static async centerGraphOnCanvas(page: Page): Promise<void> {
@@ -466,201 +470,60 @@ export class TestHelpers {
             return;
         }
 
-        // Attempt -2: resolve node by name in logicalGraph and click its rendered body on canvas.
-        // This is the most direct Playwright path when we know the exact node name.
-        const nodeBodySelector = await page.evaluate((name: string) => {
-            const nodeId = (window as any).eagle?.logicalGraph?.()?.findNodeIdByNodeName?.(name);
+        // Primary path: use Eagle graph data to resolve node id, then click the rendered node element via Playwright.
+        const nodeInfo = await page.evaluate((name: string) => {
+            const eagle = (window as any).eagle;
+            const graph = eagle?.logicalGraph?.();
+            const nodeId = graph?.findNodeIdByNodeName?.(name);
+
             if (!nodeId) {
                 return null;
             }
 
-            return [
-                `#logicalGraphParent .node[id="${nodeId}"] .body`,
-                `#logicalGraph .node[id="${nodeId}"] .body`
-            ];
-        }, nodeName);
+            const node = graph?.getNodeById?.(nodeId);
+            const graphPosition = node?.getPosition?.();
+            const graphToScreen = (window as any).GraphRenderer;
 
-        if (nodeBodySelector) {
-            for (const selector of nodeBodySelector) {
-                const nodeBody = page.locator(selector).first();
-                if (await nodeBody.count() > 0) {
-                    await nodeBody.click({ force: true, timeout: TestHelpers.SHORT_TIMEOUT });
-                    if (await waitForRequestedSelection()) {
-                        return;
-                    }
-                }
-            }
-        }
-
-        // Attempt -1: extract ID from tutorial target and search for matching nodes on canvas.
-        // Useful when the tutorial system knows which element to target but we need to verify it's rendered.
-        const tutorialTargetSelector = await page.evaluate(() => {
-            const tutorialTarget = (window as any).TutorialSystem?.activeTutCurrentStep?.getTargetFunc?.();
-            if (!tutorialTarget || tutorialTarget.length === 0) {
-                return null;
-            }
-
-            const targetEl = tutorialTarget.get(0) as HTMLElement;
-            const targetId = targetEl.getAttribute('id');
-            if (!targetId) {
-                return null;
+            let clickPos: { x: number; y: number } | null = null;
+            if (graphPosition && graphToScreen?.GRAPH_TO_SCREEN_POSITION_X && graphToScreen?.GRAPH_TO_SCREEN_POSITION_Y) {
+                clickPos = {
+                    x: graphToScreen.GRAPH_TO_SCREEN_POSITION_X(graphPosition.x),
+                    y: graphToScreen.GRAPH_TO_SCREEN_POSITION_Y(graphPosition.y),
+                };
             }
 
             return {
-                nodeBodySelectors: [
-                    `#logicalGraphParent .node[id="${targetId}"] .body`,
-                    `#logicalGraph .node[id="${targetId}"] .body`
+                selectors: [
+                    `#logicalGraphParent .node[id="${nodeId}"] .body`,
+                    `#logicalGraph .node[id="${nodeId}"] .body`,
+                    `#logicalGraphParent .node[id="${nodeId}"]`,
+                    `#logicalGraph .node[id="${nodeId}"]`,
                 ],
-                nodeSelectors: [
-                    `#logicalGraphParent .node[id="${targetId}"]`,
-                    `#logicalGraph .node[id="${targetId}"]`
-                ],
-                containerSelectors: [
-                    `#logicalGraphParent [id="${targetId}"].container`,
-                    `#logicalGraph [id="${targetId}"].container`
-                ],
+                clickPos,
             };
-        });
-
-        if (tutorialTargetSelector) {
-            for (const selector of tutorialTargetSelector.nodeBodySelectors) {
-                const bodyLocator = page.locator(selector).first();
-                if (await bodyLocator.count() > 0) {
-                    await bodyLocator.click({ force: true, timeout: TestHelpers.SHORT_TIMEOUT });
-                    if (await waitForRequestedSelection()) {
-                        return;
-                    }
-                }
-            }
-
-            for (const selector of tutorialTargetSelector.nodeSelectors) {
-                const nodeLocator = page.locator(selector).first();
-                if (await nodeLocator.count() > 0) {
-                    await nodeLocator.click({ force: true, timeout: TestHelpers.SHORT_TIMEOUT });
-                    if (await waitForRequestedSelection()) {
-                        return;
-                    }
-                }
-            }
-
-            for (const selector of tutorialTargetSelector.containerSelectors) {
-                const containerLocator = page.locator(selector).first();
-                if (await containerLocator.count() > 0) {
-                    await containerLocator.click({ force: true, timeout: TestHelpers.SHORT_TIMEOUT });
-                    if (await waitForRequestedSelection()) {
-                        return;
-                    }
-                }
-            }
-        }
-
-        // Attempt 0: click tutorial target directly via viewport coordinates (Playwright mouse).
-        // User-like interaction: resolves the element and clicks its center point.
-        const targetClickPos = await page.evaluate(() => {
-            const tutorialTarget = (window as any).TutorialSystem?.activeTutCurrentStep?.getTargetFunc?.();
-            if (!tutorialTarget || tutorialTarget.length === 0) {
-                return null;
-            }
-
-            const targetEl = tutorialTarget.get(0) as HTMLElement;
-            const clickable = (targetEl.querySelector('.body') as HTMLElement | null) || targetEl;
-            const rect = clickable.getBoundingClientRect();
-
-            if (rect.width <= 0 || rect.height <= 0) {
-                return null;
-            }
-
-            return {
-                x: rect.left + rect.width / 2,
-                y: rect.top + rect.height / 2,
-            };
-        });
-
-        if (targetClickPos) {
-            await page.mouse.click(targetClickPos.x, targetClickPos.y);
-            if (await waitForRequestedSelection()) {
-                return;
-            }
-        }
-
-        // Attempt 1: find graph node labels matching the requested name and click them.
-        // Fallback for when node selection target isn't directly available but labels are visible.
-        const labelClickPos = await page.evaluate((name: string) => {
-            const candidateSelectors = [
-                '#logicalGraphParent .node p',
-                '#logicalGraph .node p',
-                '.node p',
-            ];
-
-            for (const selector of candidateSelectors) {
-                const labels = Array.from(document.querySelectorAll(selector)) as HTMLElement[];
-                const label = labels.find((el) => (el.textContent || '').trim() === name);
-
-                if (!label) {
-                    continue;
-                }
-
-                const body = label.closest('.body') as HTMLElement | null;
-                const target = body || label;
-                const rect = target.getBoundingClientRect();
-
-                if (rect.width > 0 && rect.height > 0) {
-                    return {
-                        x: rect.left + rect.width / 2,
-                        y: rect.top + rect.height / 2,
-                    };
-                }
-            }
-
-            return null;
         }, nodeName);
 
-        if (labelClickPos) {
-            await page.mouse.click(labelClickPos.x, labelClickPos.y);
-            if (await waitForRequestedSelection()) {
-                return;
-            }
-        }
-
-        // Attempt 2: use Playwright's text locator to find and click matching text (Playwright native).
-        // Helpful when the node name appears as readable text in the UI.
-        const textLocator = page.getByText(nodeName, { exact: true }).first();
-        if (await textLocator.count() > 0) {
-            await textLocator.click({ force: true, timeout: TestHelpers.SHORT_TIMEOUT });
-            if (await waitForRequestedSelection()) {
-                return;
-            }
-        }
-
-        // Attempt 3: navigate to Hierarchy panel and select the node via the UI.
-        // Most reliable fallback: uses the app's own selection handler, avoids canvas hit-testing issues.
-        const hierarchyTab = page.getByRole('button', { name: 'Hierarchy' }).first();
-        if (await hierarchyTab.count() > 0) {
-            await hierarchyTab.click({ force: true, timeout: TestHelpers.SHORT_TIMEOUT });
-
-            const hierarchyNode = page.locator(`.hierarchyNode:has-text("${nodeName}")`).first();
-            if (await hierarchyNode.count() > 0) {
-                const graphNodeSelector = await hierarchyNode.evaluate((el) => {
-                    const hierarchyId = el.getAttribute('id');
-                    if (!hierarchyId || !hierarchyId.startsWith('hierarchy-node-')) {
-                        return null;
-                    }
-
-                    const graphNodeId = hierarchyId.replace('hierarchy-node-', '');
-                    return `#logicalGraph .node[id="${graphNodeId}"] .body`;
-                });
-
-                if (graphNodeSelector) {
-                    const graphNodeBody = page.locator(graphNodeSelector).first();
-                    if (await graphNodeBody.count() > 0) {
-                        await graphNodeBody.click({ force: true, timeout: TestHelpers.SHORT_TIMEOUT });
-                        if (await waitForRequestedSelection()) {
-                            return;
-                        }
+        if (nodeInfo) {
+            //attempt to click the node using the selectors first, then fallback to clicking the position stored on the node if the selectors fail to find the node.
+            for (const selector of nodeInfo.selectors) {
+                const target = page.locator(selector).first();
+                if (await target.count() > 0) {
+                    await target.click({ force: true, timeout: TestHelpers.SHORT_TIMEOUT });
+                    if (await waitForRequestedSelection()) {
+                        return;
                     }
                 }
             }
+
+            if (nodeInfo.clickPos) {
+                await page.mouse.click(nodeInfo.clickPos.x, nodeInfo.clickPos.y);
+                if (await waitForRequestedSelection()) {
+                    return;
+                }
+            }
         }
+
+        //check if the node is selected, if not throw an error with debug info
 
         if (!(await isRequestedNodeSelected())) {
             const debugInfo = await page.evaluate((name: string) => {
