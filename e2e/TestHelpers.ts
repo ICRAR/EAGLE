@@ -112,7 +112,7 @@ export class TestHelpers {
                             const nextBtn = page.locator('#tutorialInfoPopUp .tutNextBtn');
 
                             if (await nextBtn.count() > 0) {
-                                const clickedNext = await TestHelpers.clickElementByViewportCenter(page, '#tutorialInfoPopUp .tutNextBtn');
+                                const clickedNext = await TestHelpers.clickElementBoundingRectCenter(page, '#tutorialInfoPopUp .tutNextBtn');
                                 if (!clickedNext) {
                                     await nextBtn.click();
                                 }
@@ -126,7 +126,7 @@ export class TestHelpers {
                             }
 
                             // Last Info step has no Next button; end the tutorial.
-                            const clickedEnd = await TestHelpers.clickElementByViewportCenter(page, '#tutorialInfoPopUp .tutEndBtn');
+                            const clickedEnd = await TestHelpers.clickElementBoundingRectCenter(page, '#tutorialInfoPopUp .tutEndBtn');
                             if (!clickedEnd) {
                                 await page.locator('#tutorialInfoPopUp .tutEndBtn').click();
                             }
@@ -232,7 +232,7 @@ export class TestHelpers {
                 throw new Error(`Missing node name in test step function '${testStepFunction}'`);
             }
 
-            await TestHelpers.selectNodeByInterface(page, arg1);
+            await TestHelpers.selectNodeByName(page, arg1);
             return;
         }
 
@@ -315,12 +315,7 @@ export class TestHelpers {
             return expectedInput;
         }
 
-        // Some tutorial steps ask for a description but don't provide expectedInput.
-        if (/description/i.test(title)) {
-            return 'Automated tutorial description.';
-        }
-
-        return '';
+        return 'Automated tutorial description.';
     }
 
     /**
@@ -376,7 +371,7 @@ export class TestHelpers {
         return true;
     }
 
-    private static async clickElementByViewportCenter(page: Page, selector: string): Promise<boolean> {
+    private static async clickElementBoundingRectCenter(page: Page, selector: string): Promise<boolean> {
         const clickPosition = await page.evaluate((targetSelector: string) => {
             const el = document.querySelector(targetSelector) as HTMLElement | null;
             if (!el) {
@@ -446,7 +441,7 @@ export class TestHelpers {
         }, value);
     }
 
-    private static async selectNodeByInterface(page: Page, nodeName: string): Promise<void> {
+    private static async selectNodeByName(page: Page, nodeName: string): Promise<void> {
         const isRequestedNodeSelected = async (): Promise<boolean> => {
             return await page.evaluate((name: string) => {
                 const selectedNode = (window as any).eagle?.selectedNode?.();
@@ -474,13 +469,13 @@ export class TestHelpers {
         const nodeInfo = await page.evaluate((name: string) => {
             const eagle = (window as any).eagle;
             const graph = eagle?.logicalGraph?.();
-            const nodeId = graph?.findNodeIdByNodeName?.(name);
+            const node = graph?.findNodeByName?.(name);
 
-            if (!nodeId) {
+            if (!node) {
                 return null;
             }
 
-            const node = graph?.getNodeById?.(nodeId);
+            const nodeId = node.getId?.();
             const graphPosition = node?.getPosition?.();
             const graphToScreen = (window as any).GraphRenderer;
 

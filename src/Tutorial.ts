@@ -119,11 +119,11 @@ export class TutorialSystem {
     }
 
     static initiateFindGraphNodeIdByNodeName(name:string) : JQuery<HTMLElement> {
-        return $('#logicalGraph #'+Eagle.getInstance().logicalGraph().findNodeIdByNodeName(name)+'.container')
+        return $('#logicalGraph #'+Eagle.getInstance().logicalGraph().findNodeIdByName(name)+'.container')
     }
 
     static initiateSimpleFindGraphNodeIdByNodeName(name:string) : string {
-        const nodeId = Eagle.getInstance().logicalGraph().findNodeIdByNodeName(name)
+        const nodeId = Eagle.getInstance().logicalGraph().findNodeIdByName(name)
         return nodeId === null ? "<name not found" : nodeId;
     }
 
