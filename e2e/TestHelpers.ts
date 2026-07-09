@@ -315,7 +315,7 @@ export class TestHelpers {
             return expectedInput;
         }
 
-        return 'Automated tutorial description.';
+        return 'Automated tutorial text.';
     }
 
     /**
