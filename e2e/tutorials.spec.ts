@@ -7,7 +7,7 @@ test('Tutorials', async ({ page }) => {
     // Bootstrap the app once so we can query which tutorials are currently registered.
     await page.goto('http://localhost:8888/?tutorial=none');
     await expect(page).toHaveTitle(/EAGLE/);
-    await page.waitForFunction(() => (window as any).eagle?.eagleIsReady?.() === true, { timeout: 10000 });
+    await page.waitForFunction(() => (window as any).eagle?.eagleIsReady?.() === true, { timeout: TestHelpers.LONG_TIMEOUT });
 
     const tutorials = await page.evaluate(() => {
         // This is a bit of a hack to get the list of tutorials. We can't directly access the tutorialArray because it's not exposed to the window object, so we have to go through the Eagle instance and then get the tutorials from there.
@@ -29,7 +29,7 @@ test('Tutorials', async ({ page }) => {
             // Start each tutorial from a fresh app state so steps are isolated.
             await page.goto('http://localhost:8888/?tutorial=none');
             await expect(page).toHaveTitle(/EAGLE/);
-            await page.waitForFunction(() => (window as any).eagle?.eagleIsReady?.() === true, { timeout: 10000 });
+            await page.waitForFunction(() => (window as any).eagle?.eagleIsReady?.() === true, { timeout: TestHelpers.LONG_TIMEOUT });
             await TestHelpers.runTutorialByName(page, tutorialName);
         });
     }

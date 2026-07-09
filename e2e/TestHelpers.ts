@@ -7,9 +7,9 @@ import { test, expect, type Page } from '@playwright/test';
 export class TestHelpers {
     //How many times we will attempt to run a tutorial step before failing the test.
     private static readonly MAX_ATTEMPTS_PER_STEP = 5;
-    private static readonly UI_SETTLE_TIMEOUT = 500;
-    private static readonly SHORT_TIMEOUT = 5000;
-    private static readonly LONG_TIMEOUT = 10000;
+    public static readonly UI_SETTLE_TIMEOUT = 500;
+    public static readonly SHORT_TIMEOUT = 5000;
+    public static readonly LONG_TIMEOUT = 10000;
     // Counts how many times we have opened the canvas context menu.
     private static contextMenuAnchorIndex = 0;
     // Stores the last right-click position so we do not use the exact same spot twice in a row.
