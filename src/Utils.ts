@@ -185,14 +185,15 @@ export class Utils {
 
             let userString;
             try {
-                userString = await Utils.requestUserString("New " + fileType, "Enter " + fileType + " name", defaultName, false);
+                userString = await Utils.requestUserString(
+                    "New " + fileType,
+                    "Enter " + fileType + " name",
+                    defaultName,
+                    false,
+                    Utils.nonEmptyStringValidator(fileType + " name")
+                );
             } catch(error) {
                 reject(error);
-                return;
-            }
-
-            if (userString === ""){
-                reject( "Specified name is not valid for new " + fileType);
                 return;
             }
 
@@ -547,7 +548,91 @@ export class Utils {
         Utils.showNotification(action, message, "warning");
     }
 
-    static requestUserString(title : string, message : string, defaultString: string, isPassword: boolean): Promise<string> {
+    static nonEmptyStringValidator(label: string): Modals.UserStringValidator {
+        return (userString: string): string | null => {
+            if (userString.trim() === ""){
+                return label + " cannot be empty.";
+            }
+
+            return null;
+        };
+    }
+
+    static httpUrlStringValidator(label: string = "URL"): Modals.UserStringValidator {
+        return (userString: string): string | null => {
+            const trimmed = userString.trim();
+            if (trimmed === ""){
+                return label + " cannot be empty.";
+            }
+
+            let parsedUrl: URL;
+            try {
+                parsedUrl = new URL(trimmed);
+            } catch (_error) {
+                return label + " is not a valid URL.";
+            }
+
+            if (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:"){
+                return label + " must start with http:// or https://.";
+            }
+
+            return null;
+        };
+    }
+
+    static branchNameStringValidator(label: string = "Branch name"): Modals.UserStringValidator {
+        return (userString: string): string | null => {
+            const nonEmptyResult = Utils.nonEmptyStringValidator(label)(userString);
+            if (nonEmptyResult !== null){
+                return nonEmptyResult;
+            }
+
+            if (/\s/.test(userString)){
+                return label + " cannot contain whitespace.";
+            }
+
+            if (userString.startsWith("-") ){
+                return label + " cannot start with '-'.";
+            }
+
+            if (userString === "@"){
+                return label + " cannot be '@'.";
+            }
+
+            if (userString.includes("@{")){
+                return label + " cannot contain '@{'.";
+            }
+
+            if (userString.includes("..")){
+                return label + " cannot contain '..'.";
+            }
+
+            if (userString.startsWith("/") || userString.endsWith("/") || userString.includes("//")){
+                return label + " cannot contain empty path segments.";
+            }
+
+            if (userString.endsWith(".")){
+                return label + " cannot end with '.'.";
+            }
+
+            if (userString.endsWith(".lock")){
+                return label + " cannot end with '.lock'.";
+            }
+
+            const components = userString.split("/");
+            if (components.some(component => component.startsWith("."))){
+                return label + " cannot have path segments starting with '.'.";
+            }
+
+            if (/[\x00-\x1F\x7F~^:?*\[\\]/.test(userString)){
+                return label + " contains invalid characters.";
+            }
+
+            return null;
+        };
+    }
+
+    static requestUserString(title : string, message : string, defaultString: string, isPassword: boolean, validator?: Modals.UserStringValidator): Promise<string> {
         return new Promise(async(resolve, reject) => {
             $('#inputModalTitle').text(title);
             $('#inputModalMessage').html(Utils.markdown2html(message));
@@ -555,9 +640,35 @@ export class Utils {
 
             $('#inputModalInput').val(defaultString);
 
+            const validateInput = (): boolean => {
+                if (typeof validator === 'undefined'){
+                    $('#inputModalInput').removeClass('is-valid is-invalid');
+                    $('#inputModalInvalidFeedback').hide().text('');
+                    $('#inputModal').data('isValid', true);
+                    return true;
+                }
+
+                const userString = Utils.getUIValue('#inputModalInput', 'val', "");
+                const reason = validator(userString);
+                const isValid = reason === null;
+
+                $('#inputModal').data('isValid', isValid);
+                $('#inputModalInput').toggleClass('is-valid', isValid);
+                $('#inputModalInput').toggleClass('is-invalid', !isValid);
+
+                if (isValid){
+                    $('#inputModalInvalidFeedback').hide().text('');
+                } else {
+                    $('#inputModalInvalidFeedback').show().text(reason);
+                }
+
+                return isValid;
+            };
+
             // store data about the choices, callback, result on the modal HTML element
             // so that the info is available to event handlers
             $('#inputModal').data('completed', false);
+            $('#inputModal').data('isValid', true);
 
             const callback: Modals.UserStringCallback = (completed : boolean, userString : string) => {
                 if (!completed){
@@ -568,6 +679,14 @@ export class Utils {
             };
             $('#inputModal').data('callback', callback);
             $('#inputModal').data('returnType', "string");
+            $('#inputModal').data('validateInput', validateInput);
+
+            $('#inputModalInput').off('input.requestUserStringValidation');
+            $('#inputModalInput').on('input.requestUserStringValidation', function(){
+                validateInput();
+            });
+
+            validateInput();
 
             $('#inputModal').modal("show");
         });
@@ -1946,7 +2065,7 @@ export class Utils {
     }
 
     static async userEnterCommitMessage(modalMessage: string) : Promise<string> {
-        return Utils.requestUserString("Saving to git", modalMessage, "", false);
+        return Utils.requestUserString("Saving to git", modalMessage, "", false, Utils.nonEmptyStringValidator("Commit message"));
     }
 
     // TODO: could we return a list of KeyboardShortcut here?

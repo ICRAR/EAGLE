@@ -279,4 +279,40 @@ export class TestHelpers {
             targetPosition: { x: destPortBox.width / 2, y: destPortBox.height / 2 }
         });
     }
+
+    static async closeInputModalWithoutCompleting(page: Page): Promise<void> {
+        const inputModal = page.locator('#inputModal');
+
+        if (page.isClosed()) {
+            return;
+        }
+
+        if (await inputModal.isVisible()) {
+            await page.evaluate(() => {
+                const $ = (window as any).$;
+                const modal = $('#inputModal');
+                modal.data('completed', false);
+                modal.modal('hide');
+            });
+            await inputModal.waitFor({state: 'hidden', timeout: 1500}).catch(() => {});
+
+            if (page.isClosed()) {
+                return;
+            }
+
+            if (await inputModal.isVisible().catch(() => false)) {
+                await page.evaluate(() => {
+                    const $ = (window as any).$;
+                    const modal = $('#inputModal');
+                    modal.data('completed', false);
+                    modal.modal('hide');
+                });
+                await inputModal.waitFor({state: 'hidden', timeout: 2000}).catch(() => {});
+            }
+
+            if (!page.isClosed()) {
+                await expect(inputModal).toBeHidden();
+            }
+        }
+    }
 }

@@ -1686,7 +1686,7 @@ export class Eagle {
     loadFileFromUrl = async(fileType: Eagle.FileType): Promise<void> => {
         let url: string;
         try {
-            url = await Utils.requestUserString("Url", "Enter Url of " + fileType + " to load", "", false);
+            url = await Utils.requestUserString("Url", "Enter Url of " + fileType + " to load", "", false, Utils.httpUrlStringValidator("URL"));
         } catch(error){
             console.error(error);
             return;
@@ -3268,16 +3268,15 @@ export class Eagle {
 
         let userString: string;
         try {
-            userString = await Utils.requestUserString("Save As", "Please enter a filename for the " + file.fileInfo().type, defaultFilename, false);
+            userString = await Utils.requestUserString(
+                "Save As",
+                "Please enter a filename for the " + file.fileInfo().type,
+                defaultFilename,
+                false,
+                Utils.nonEmptyStringValidator("Filename")
+            );
         } catch (error) {
             console.error(error);
-            return;
-        }
-
-        // abort if user entered empty string
-        if (userString === "") {
-            // abort and notify user
-            Utils.showNotification("Unable to save file with no name", "Please name the file before saving", "danger");
             return;
         }
 
