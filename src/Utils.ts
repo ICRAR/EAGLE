@@ -1121,6 +1121,7 @@ export class Utils {
             return false;
         }
 
+        // check repository name
         const repositoryNameValidationResult = Utils.repositorySlugStringValidator("Repository name")(repositoryName);
         if (!repositoryNameValidationResult.isValid){
             Modals.applyValidationState(repositoryNameInput, repositoryNameValidationResult);
@@ -1129,6 +1130,7 @@ export class Utils {
 
         Modals.applyValidationState(repositoryNameInput, { isValid: true });
 
+        // check repository branch
         const repositoryBranchValidationResult = Utils.branchNameStringValidator("Repository branch")(repositoryBranch);
         if (!repositoryBranchValidationResult.isValid){
             Modals.applyValidationState(repositoryBranchInput, repositoryBranchValidationResult);

@@ -334,9 +334,14 @@ export class Modals {
         // #gitCommitModal - requestUserGitCommit()
         $('#gitCommitModalAffirmativeButton').on('click', function(){
             $('#gitCommitModal').data('completed', true);
+            $('#gitCommitModal').modal('hide');
         });
         $('#gitCommitModalNegativeButton').on('click', function(){
             $('#gitCommitModal').data('completed', false);
+            $('#gitCommitModal').modal('hide');
+        });
+        $('#gitCommitModalFileNameInput').on('input', function(){
+            Modals.validateCommitModalFileNameInputText();
         });
         $('#gitCommitModal').on('shown.bs.modal', function(){
             $('#gitCommitModalAffirmativeButton').trigger("focus");

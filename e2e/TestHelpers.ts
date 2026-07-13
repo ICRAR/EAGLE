@@ -809,6 +809,22 @@ export class TestHelpers {
         });
     }
 
+    static async openRepositoryFileActionsMenu(page: Page, fileHtmlId: string): Promise<void> {
+        const fileRow = page.locator('.repoFile').filter({ has: page.locator('#' + fileHtmlId) }).first();
+        await fileRow.hover();
+        await fileRow.locator('button.repoTripleDot').click();
+    }
+
+    static async runRepositoryFileInsertAction(page: Page, fileHtmlId: string): Promise<void> {
+        await TestHelpers.openRepositoryFileActionsMenu(page, fileHtmlId);
+        await page.locator('#' + fileHtmlId + '-insert').click();
+    }
+
+    static async runRepositoryFileDeleteAction(page: Page, fileHtmlId: string): Promise<void> {
+        await TestHelpers.openRepositoryFileActionsMenu(page, fileHtmlId);
+        await page.locator('#' + fileHtmlId + '-delete').click();
+    }
+    
     static async closeInputModalWithoutCompleting(page: Page): Promise<void> {
         const inputModal = page.locator('#inputModal');
 
