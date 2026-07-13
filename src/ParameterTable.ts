@@ -456,18 +456,19 @@ export class ParameterTable {
             
             let configName: string;
             try {
-                configName = await Utils.requestUserString("New Configuration", "Enter a name for the new configuration", Utils.generateGraphConfigName(graphConfig), false);
+                configName = await Utils.requestUserString(
+                    "New Configuration",
+                    "Enter a name for the new configuration",
+                    Utils.generateGraphConfigName(graphConfig),
+                    false,
+                    Utils.nonEmptyStringValidator("Configuration name")
+                );
             } catch(error){
                 console.error(error);
                 return;
             }
 
             ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal);
-
-            if (configName === ""){
-                Utils.showNotification("Invalid name", "Please enter a name for the new object", "danger");
-                return;
-            }
 
             // set name
             graphConfig.fileInfo().name = configName;

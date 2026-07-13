@@ -456,6 +456,30 @@ def create_branch():
     if not service or not repo_name or not source_branch or not new_branch:
         return jsonify({"error": "Missing required parameters."})
 
+    if new_branch.strip() == "":
+        return jsonify({"error": "Branch name cannot be empty."})
+    if any(char.isspace() for char in new_branch):
+        return jsonify({"error": "Branch name cannot contain whitespace."})
+    if new_branch.startswith("-"):
+        return jsonify({"error": "Branch name cannot start with '-'."})
+    if new_branch == "@":
+        return jsonify({"error": "Branch name cannot be '@'."})
+    if "@{" in new_branch:
+        return jsonify({"error": "Branch name cannot contain '@{'."})
+    if ".." in new_branch:
+        return jsonify({"error": "Branch name cannot contain '..'."})
+    if new_branch.startswith("/") or new_branch.endswith("/") or "//" in new_branch:
+        return jsonify({"error": "Branch name cannot contain empty path segments."})
+    if new_branch.endswith("."):
+        return jsonify({"error": "Branch name cannot end with '.'."})
+    if new_branch.endswith(".lock"):
+        return jsonify({"error": "Branch name cannot end with '.lock'."})
+    if any(segment.startswith(".") for segment in new_branch.split("/")):
+        return jsonify({"error": "Branch name cannot have path segments starting with '.'."})
+    invalid_characters = set("~^:?*[\\")
+    if any(ord(char) < 32 or ord(char) == 127 or char in invalid_characters for char in new_branch):
+        return jsonify({"error": "Branch name contains invalid characters."})
+
     try:
         if service.lower() == "github":
             g = github.Github(token) if token else github.Github()

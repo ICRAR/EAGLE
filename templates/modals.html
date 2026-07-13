@@ -10,7 +10,7 @@
                 <span id="messageModalMessage">Message</span>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary affirmativeBtn" data-bs-dismiss="modal">OK</button>
+                <button type="button" class="btn btn-primary affirmativeBtn">OK</button>
             </div>
         </div>
     </div>
@@ -31,8 +31,9 @@
                     </div>
                     <div class="row">
                         <div class="col">
-                            <div class="input-group mb-3">
+                            <div class="input-group mb-3 has-validation">
                                 <input type="text" class="form-control" id="inputModalInput">
+                                <div class="invalid-feedback" id="inputModalInvalidFeedback"></div>
                             </div>
                         </div>
                     </div>
@@ -335,11 +336,12 @@
                     </div>
                     <div class="row">
                         <div class="col-3">
-                            <p>Name *</p>
+                            <p>Slug *</p>
                         </div>
                         <div class="col">
                             <div class="input-group mb-3 has-validation">
-                                <input type="text" class="form-control" id="gitCustomRepositoryModalRepositorySlugInput" placeholder="example-username/example-graph-repository">
+                                <input type="text" class="form-control" id="gitCustomRepositoryModalRepositorySlugInput" placeholder="owner/repository-name">
+                                <div class="invalid-feedback" id="gitCustomRepositoryModalRepositorySlugInputInvalidFeedback"></div>
                             </div>
                         </div>
                     </div>
@@ -350,6 +352,7 @@
                         <div class="col">
                             <div class="input-group mb-3 has-validation">
                                 <input type="text" class="form-control" id="gitCustomRepositoryModalRepositoryBranchInput" placeholder="master">
+                                <div class="invalid-feedback" id="gitCustomRepositoryModalRepositoryBranchInputInvalidFeedback"></div>
                             </div>
                         </div>
                     </div>

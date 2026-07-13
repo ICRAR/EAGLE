@@ -164,7 +164,9 @@ $(function(){
 
     // we use tutorial=none in the url for unit tests, because pop ups can cause test failures
     const urlParams = new URLSearchParams(window.location.search);
-    const skipTutorial = urlParams.get('tutorial') === 'none';
+    const tutorialParam = urlParams.get('tutorial');
+    const skipTutorial = tutorialParam === 'none';
+    const tutorialRequested = tutorialParam !== null && tutorialParam !== 'none';
 
     if (!skipTutorial) {
         // auto load a tutorial, if specified on the url
@@ -175,7 +177,8 @@ $(function(){
     }
   
     // if not first time visit, but version is newer than last seen version, show the versions modal
-    if (!firstTimeVisit && showWhatsNew && !skipTutorial){
+    // skip if a tutorial was explicitly requested via the url, so it doesn't appear over the tutorial
+    if (!firstTimeVisit && showWhatsNew && !skipTutorial && !tutorialRequested){
         eagle.showWhatsNew();
         // set the last seen version
         localStorage.setItem('lastSeenVersion', (<any>window).version);
