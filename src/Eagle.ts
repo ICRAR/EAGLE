@@ -2952,6 +2952,112 @@ export class Eagle {
         this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
     };
 
+    insertRemoteFileAsReference = async (file : RepositoryFile): Promise<void> => {
+        // flag file as being fetched
+        file.isFetching(true);
+
+        // check the service required to fetch the file
+        let insertRemoteFileFunc: (repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string, filePath: string, fileName: string) => Promise<string>;
+        switch (file.repository.service){
+            case Repository.Service.GitHub:
+                insertRemoteFileFunc = GitHub.openRemoteFile;
+                break;
+            case Repository.Service.GitLab:
+                insertRemoteFileFunc = GitLab.openRemoteFile;
+                break;
+            default:
+                console.warn("Unsure how to fetch file with unknown service ", file.repository.service);
+                return;
+        }
+
+        // load file from github or gitlab
+        let data: string;
+        try {
+            data = await insertRemoteFileFunc(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
+        } catch (error) {
+            Utils.showUserMessage("Error", "Failed to load a file!");
+            console.error(error);
+            return;
+        } finally {
+            // flag fetching as complete
+            file.isFetching(false);
+        }
+
+        // attempt to parse the JSON
+        let dataObject;
+        try {
+            dataObject = JSON.parse(data);
+        }
+        catch(err){
+            Utils.showUserMessage("Error parsing file JSON", Errors.UnknownToError(err));
+            return;
+        }
+
+        const fileTypeLoaded: Eagle.FileType = Utils.determineFileType(dataObject);
+
+        // only do this for graphs at the moment
+        if (fileTypeLoaded !== Eagle.FileType.Graph){
+            Utils.showUserMessage("Error", "Unable to insert non-graph!");
+            console.error("Unable to insert non-graph!");
+            return;
+        }
+
+        // attempt to determine schema version from FileInfo
+        const schemaVersion: Setting.SchemaVersion = Utils.determineSchemaVersion(dataObject);
+
+        // check if we need to update the graph from keys to ids
+        if (GraphUpdater.usesNodeKeys(dataObject)){
+            GraphUpdater.updateKeysToIds(dataObject);
+        }
+
+        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+
+        // use the correct parsing function based on schema version
+        let lg: LogicalGraph;
+        switch (schemaVersion){
+            case Setting.SchemaVersion.OJS:
+            case Setting.SchemaVersion.Unknown:
+                lg = LogicalGraph.fromOJSJson(dataObject, file.name, errorsWarnings);
+                break;
+            case Setting.SchemaVersion.V4:
+                lg = LogicalGraph.fromV4Json(dataObject, file.name, errorsWarnings);
+                break;
+            default:
+                errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
+                return;
+        }
+
+        // check that graph has been named, if not, name the graph before inserting
+        await Utils.ensureGraphIsInitialized(this.logicalGraph());
+
+        const subGraphReferenceNode = this._createSubGraphReferenceNode(file, lg);
+        this.logicalGraph().addNodeComplete(subGraphReferenceNode)
+
+        // trigger re-render
+        this.logicalGraph.valueHasMutated();
+        this.undo().pushSnapshot(this, "Inserted " + file.name + " as SubGraphReference");
+        this.checkEagle();
+
+        // show errors/warnings
+        this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
+
+    };
+
+    private _createSubGraphReferenceNode = (file: RepositoryFile, lg: LogicalGraph): Node => {
+        // create parent node
+        const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().location.getText(), "", Category.SubGraphReference);
+
+        // add Daliuge fields for SubGraphReference nodes to the new node
+        parentNode.addField(Daliuge.graphServiceField.clone().setId(Id.generateFieldId()).setValue(file.repository.service));
+        parentNode.addField(Daliuge.graphRepositoryField.clone().setId(Id.generateFieldId()).setValue(file.repository.name));
+        parentNode.addField(Daliuge.graphBranchField.clone().setId(Id.generateFieldId()).setValue(file.repository.branch));
+        parentNode.addField(Daliuge.graphCommitField.clone().setId(Id.generateFieldId()).setValue(lg.fileInfo().location.commitHash()));
+        parentNode.addField(Daliuge.graphPathField.clone().setId(Id.generateFieldId()).setValue(file.path + file.name));
+        parentNode.addField(Daliuge.graphConfigurationNameField.clone().setId(Id.generateFieldId()).setValue(lg.getActiveGraphConfig().fileInfo().name));
+
+        return parentNode;
+    }
+
     deleteRemoteFile = async (file : RepositoryFile): Promise<void> => {
         // request confirmation from user
         const confirmed = await Utils.requestUserConfirm("Delete?", "Are you sure you wish to delete '" + file.name + "' from this repository?", "Yes", "No", Setting.find(Setting.CONFIRM_DELETE_FILES));
