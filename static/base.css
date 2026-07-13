@@ -1805,7 +1805,7 @@ select.form-control{
     font-size: 22px;
 }
 
-#repositoryList .col.repo-actions{
+#repositoryList .col.repo-file-actions, #repositoryList .col.repo-actions{
     overflow: visible;
 }
 
@@ -1831,11 +1831,11 @@ select.form-control{
     visibility: visible;
 }
 
-#repositoryList ul.repositories .repoFile .repo-actions button.repoTripleDot {
+#repositoryList ul.repositories .repoFile .repo-file-actions button.repoTripleDot {
     visibility: hidden;
 }
 
-#repositoryList ul.repositories .repoFile:hover .repo-actions button.repoTripleDot {
+#repositoryList ul.repositories .repoFile:hover .repo-file-actions button.repoTripleDot {
     visibility: visible;
 }
 
