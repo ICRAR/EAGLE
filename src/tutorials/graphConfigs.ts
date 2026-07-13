@@ -38,29 +38,34 @@ newTut.newTutStep("Creating a new graph", "<em>And 'Ok' to confirm!</em>", funct
 newTut.newTutStep("Right Click to add a hello world app node", "Use the right click menu to add a node. <em>Right click on the graph to bring up a 'add node' menu</em>", function(){return $("#logicalGraphParent")})
 .setType(TutorialStep.Type.Condition)
 .setConditionFunction(function(){ if($('#customContextMenu .searchBarContainer').length){return true}else{return false}})
+.setTestStepFunction({ command: 'openCanvasContextMenu' })
 .setPreFunction(function(){$('.modal').modal("hide");}) //hiding open modals
 .setBackPreFunction(function(){RightClick.closeCustomContextMenu(true);})
 
 newTut.newTutStep("Add a hello world app node", "<em>Search for 'hello' and press enter</em>", function(){return $("#rightClickSearchBar")})
 .setType(TutorialStep.Type.Condition)
 .setConditionFunction(function(){return TutorialSystem.isRequestedNodeSelected('HelloWorldApp')})
+.setTestStepFunction({ command: 'addNodeFromContextMenu', args: ['hello'] })
 .setBackSkip(true)
 
 newTut.newTutStep("Right Click to add a file node", "Use the right click menu to add a second node. <em>Right click on the graph to bring up a 'add node' menu</em>", function(){return $("#logicalGraphParent")})
 .setType(TutorialStep.Type.Condition)
 .setConditionFunction(function(){ if($('#customContextMenu .searchBarContainer').length){return true}else{return false}})
+.setTestStepFunction({ command: 'openCanvasContextMenu' })
 .setPreFunction(function(){$('.modal').modal("hide");}) //hiding open modals
 .setBackPreFunction(function(){RightClick.closeCustomContextMenu(true);})
 
 newTut.newTutStep("Add a file node", "<em>Search for 'file' and press enter</em>", function(){return $("#rightClickSearchBar")})
 .setType(TutorialStep.Type.Condition)
 .setConditionFunction(function(){return TutorialSystem.isRequestedNodeSelected('File')})
+.setTestStepFunction({ command: 'addNodeFromContextMenu', args: ['file'] })
 .setBackSkip(true)
 
 newTut.newTutStep("Connecting nodes", "<em>Click and hold the output Port of the hello world app and drag over near the file node's input port, until you see the edge from the cursor turn a deep purple, then release.</em>",  function(){return $('#portContainer .' + TutorialSystem.initiateSimpleFindGraphNodeIdByNodeName('HelloWorldApp')+' .outputPort')})
 .setType(TutorialStep.Type.Condition)
 .setAlternateHighlightTargetFunc(function(){return $("#logicalGraphParent")})
 .setConditionFunction(function(eagle:Eagle){if(eagle.logicalGraph().getNumEdges() != 0){return true}else{return false}}) //check if there are any edges present in the graph
+.setTestStepFunction({ command: 'connectNodes', args: ['HelloWorldApp', 'File'] })
 
 newTut.newTutStep("Graph Configurations", "Now that we have a working hello world graph, we should set up a graph configuration and flag the important fields. This makes consecutive runs easier and the graph more user friendly. <em>next to continue</em>", function(){return $("#logicalGraphParent")})
 
@@ -68,6 +73,7 @@ newTut.newTutStep("Adding Graph Configuration Fields", "<em>Click on the HelloWo
 .setType(TutorialStep.Type.Condition)
 .setWaitType(TutorialStep.Wait.Element)
 .setConditionFunction(function(){return TutorialSystem.isRequestedNodeSelected('HelloWorldApp')})
+.setTestStepFunction({ command: 'selectNode', args: ['HelloWorldApp'] })
 .setPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 .setBackPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 
@@ -140,6 +146,7 @@ newTut.newTutStep("Adding another field", "<em>Click on the File node named 'hel
 .setType(TutorialStep.Type.Condition)
 .setWaitType(TutorialStep.Wait.Element)
 .setConditionFunction(function(){return TutorialSystem.isRequestedNodeSelected('hello')})
+.setTestStepFunction({command: 'selectNode', args: ['hello']})
 .setPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 .setBackPreFunction(function(eagle:Eagle){eagle.resetEditor()})
 

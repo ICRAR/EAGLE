@@ -921,10 +921,20 @@ export class LogicalGraph {
         return newNode;
     }
 
-    findNodeIdByNodeName = (name: string): NodeId | null=> {
+    findNodeIdByName = (name: string): NodeId | null=> {
         for (const [id, node] of this.nodes()){
             if (node.getName() === name){
                 return id;
+            }
+        }
+
+        return null;
+    }
+
+    findNodeByName = (name: string): Node | null=> {
+        for (const node of this.nodes().values()){
+            if (node.getName() === name){
+                return node;
             }
         }
 

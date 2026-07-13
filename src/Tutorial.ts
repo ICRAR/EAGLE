@@ -1,4 +1,4 @@
-import {Eagle} from './Eagle';
+import { Eagle } from './Eagle';
 import { EagleConfig } from './EagleConfig';
 import { Setting } from './Setting';
 import { SideWindow } from './SideWindow';
@@ -110,12 +110,20 @@ export class TutorialSystem {
         return x
     }
 
+    static getTutorials(): Tutorial[] {
+        return Array.from(tutorialArray);
+    }
+
+    static getTutorialNames(): string[] {
+        return TutorialSystem.getTutorials().map((tutorial) => tutorial.getName());
+    }
+
     static initiateFindGraphNodeIdByNodeName(name:string) : JQuery<HTMLElement> {
-        return $('#logicalGraph #'+Eagle.getInstance().logicalGraph().findNodeIdByNodeName(name)+'.container')
+        return $('#logicalGraph #'+Eagle.getInstance().logicalGraph().findNodeIdByName(name)+'.container')
     }
 
     static initiateSimpleFindGraphNodeIdByNodeName(name:string) : string {
-        const nodeId = Eagle.getInstance().logicalGraph().findNodeIdByNodeName(name)
+        const nodeId = Eagle.getInstance().logicalGraph().findNodeIdByName(name)
         return nodeId === null ? "<name not found" : nodeId;
     }
 
@@ -172,7 +180,7 @@ export class Tutorial {
     }
 
     newTutStep = (title:string, description:string, selector:() => JQuery<HTMLElement>) : TutorialStep =>{
-        const x = new TutorialStep(title, description, TutorialStep.Type.Info, TutorialStep.Wait.None,null, selector, null, null, false, "", null, null)
+        const x = new TutorialStep(title, description, TutorialStep.Type.Info, TutorialStep.Wait.None, null, selector, null, null, false, "", null, null, null)
         this.tutorialSteps.push(x)
         return x
     }
@@ -753,6 +761,11 @@ export class Tutorial {
     
 }
 
+    export type TutorialTestHook = {
+        command: string;
+        args?: string[];
+    }
+
 export class TutorialStep {
     private title: string;
     private text: string;
@@ -765,11 +778,12 @@ export class TutorialStep {
     private preFunc: ((eagle: Eagle) => void) | null;
     private backPreFunc: ((eagle: Eagle) => void) | null;
     private conditionFunc : ((eagle: Eagle) => boolean) | null;
+    private testStepFunction: TutorialTestHook | null;
 
     private backSkip : boolean;
     private expectedInput : string;
 
-    constructor(title: string, text: string, type: TutorialStep.Type, waitType: TutorialStep.Wait, delayAmount: number | null, targetFunc: () => JQuery<HTMLElement>, preFunc: ((eagle: Eagle) => void) | null, backPreFunc: ((eagle: Eagle) => void) | null, backSkip:boolean, expectedInput:string, conditionFunc:((eagle: Eagle) => boolean) | null, alternateHighlightTargetFunc: (() => JQuery<HTMLElement>) | null) {
+    constructor(title: string, text: string, type: TutorialStep.Type, waitType: TutorialStep.Wait, delayAmount: number | null, targetFunc: () => JQuery<HTMLElement>, preFunc: ((eagle: Eagle) => void) | null, backPreFunc: ((eagle: Eagle) => void) | null, backSkip:boolean, expectedInput:string, conditionFunc:((eagle: Eagle) => boolean) | null, alternateHighlightTargetFunc: (() => JQuery<HTMLElement>) | null, testStepFunction: TutorialTestHook | null) {
         this.title = title;
         this.text = text;
         this.type = type;
@@ -781,6 +795,7 @@ export class TutorialStep {
         this.preFunc = preFunc;
         this.backPreFunc = backPreFunc;
         this.conditionFunc = conditionFunc;
+        this.testStepFunction = testStepFunction;
         
         this.backSkip = backSkip
         this.expectedInput = expectedInput;
@@ -834,6 +849,10 @@ export class TutorialStep {
         return this.alternateHighlightTargetFunc;
     }
 
+    getTestStepFunction = (): TutorialTestHook | null => {
+        return this.testStepFunction;
+    }
+
     setType = (newType:TutorialStep.Type): this => {
         this.type = newType;
         return this
@@ -879,6 +898,11 @@ export class TutorialStep {
         return this
     }
 
+    setTestStepFunction = (newTestStepFunction: TutorialTestHook): this => {
+        this.testStepFunction = newTestStepFunction;
+        return this
+    }
+
     forceShowTargetParent() {
         const targetFunc = this.getTargetFunc();
 
@@ -893,10 +917,10 @@ export class TutorialStep {
 
 export namespace TutorialStep {
     export enum Type {
-        Info,
-        Press,
-        Input,
-        Condition
+        Info = "Info",
+        Press = "Press",
+        Input = "Input",
+        Condition = "Condition"
     }
 
     export enum Direction {
