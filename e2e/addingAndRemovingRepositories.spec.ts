@@ -33,7 +33,7 @@ async function addCustomRepository(page: Page, name: string, branch: string): Pr
 
   await page.getByRole('button',{name:'Add Repository'}).click()
   await page.waitForTimeout(500);
-  await page.locator('input#gitCustomRepositoryModalRepositoryNameInput').pressSequentially(name)
+  await page.locator('input#gitCustomRepositoryModalRepositorySlugInput').pressSequentially(name)
   await page.locator('input#gitCustomRepositoryModalRepositoryBranchInput').pressSequentially(branch)
   await page.locator('button#gitCustomRepositoryModalAffirmativeButton').click()
   await page.waitForTimeout(1000);
@@ -114,7 +114,7 @@ test('Adding and Removing Repositories', async ({ page }) => {
   await page.waitForTimeout(500);
 
   //fill out the add repository modal information and confirm the modal
-  await page.locator('input#gitCustomRepositoryModalRepositoryNameInput').pressSequentially(REPO_NAME)
+  await page.locator('input#gitCustomRepositoryModalRepositorySlugInput').pressSequentially(REPO_NAME)
   await page.locator('input#gitCustomRepositoryModalRepositoryBranchInput').pressSequentially(REPO_BRANCH)
   await page.locator('button#gitCustomRepositoryModalAffirmativeButton').click()
 
@@ -322,6 +322,38 @@ test('requestUserString validator UX for URL and Save As', async ({ page }) => {
   await expect(page.locator('#inputModalInput')).toHaveClass(/is-invalid/);
   await expect(page.locator('#inputModalInvalidFeedback')).toContainText('Filename cannot be empty.');
   await TestHelpers.closeInputModalWithoutCompleting(page);
+
+  await page.close();
+});
+
+test('gitCommit filename validator UX', async ({ page }) => {
+  await page.goto('http://localhost:8888/?tutorial=none');
+  await expect(page).toHaveTitle(/EAGLE/);
+
+  // Open modal in a controlled state so only filename validation is under test.
+  await page.evaluate(() => {
+    const w = window as any;
+    const $ = w.$;
+    const graphFileType = w.Eagle?.FileType?.Graph ?? 'Graph';
+
+    $('#gitCommitModal').data('fileType', graphFileType);
+    $('#gitCommitModalFileNameInput').val('invalid-name.txt');
+    $('#gitCommitModal').modal('show');
+    $('#gitCommitModalFileNameInput').trigger('input');
+  });
+
+  await expect(page.locator('#gitCommitModal')).toBeVisible();
+  await expect(page.locator('#gitCommitModalFileNameInput')).toHaveClass(/is-invalid/);
+  await expect(page.locator('#validationFeedback')).toContainText("File name must end with '.graph'.");
+  await expect(page.locator('#gitCommitModalAffirmativeButton')).toBeDisabled();
+
+  // A valid extension should clear invalid state and re-enable commit.
+  await page.locator('#gitCommitModalFileNameInput').fill('valid-name.graph');
+  await expect(page.locator('#gitCommitModalFileNameInput')).toHaveClass(/is-valid/);
+  await expect(page.locator('#gitCommitModalAffirmativeButton')).toBeEnabled();
+
+  await page.locator('#gitCommitModalNegativeButton').click();
+  await expect(page.locator('#gitCommitModal')).toBeHidden();
 
   await page.close();
 });

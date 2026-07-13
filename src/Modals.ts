@@ -394,7 +394,7 @@ export class Modals {
         });
 
         // #gitCustomRepositoryModal - requestUserAddCustomRepository()
-        $('#gitCustomRepositoryModalRepositoryNameInput, #gitCustomRepositoryModalRepositoryBranchInput').on('keyup', function(){
+        $('#gitCustomRepositoryModalRepositorySlugInput, #gitCustomRepositoryModalRepositoryBranchInput').on('keyup', function(){
             // show/hide OK button
             $('#gitCustomRepositoryModalAffirmativeButton').prop('disabled', !Utils.validateCustomRepository());
         });
@@ -406,8 +406,8 @@ export class Modals {
             $('#gitCustomRepositoryModal').data('completed', false);
         });
         $('#gitCustomRepositoryModal').on('shown.bs.modal', function(){
-            $('#gitCustomRepositoryModalRepositoryNameInput').removeClass('is-invalid');
-            $('#gitCustomRepositoryModalRepositoryBranchInput').removeClass('is-invalid');
+            Modals.applyValidationState($('#gitCustomRepositoryModalRepositorySlugInput'), null);
+            Modals.applyValidationState($('#gitCustomRepositoryModalRepositoryBranchInput'), null);
 
             $('#gitCustomRepositoryModalAffirmativeButton').prop('disabled', true);
             $('#gitCustomRepositoryModalAffirmativeButton').trigger("focus");
@@ -426,7 +426,7 @@ export class Modals {
 
                     // check selected option in select tag
                     const repositoryService : Repository.Service = <Repository.Service>Utils.getUIValue('#gitCustomRepositoryModalRepositoryServiceSelect', 'val', Repository.Service.Unknown);
-                    const repositoryName : string = Utils.getUIValue('#gitCustomRepositoryModalRepositoryNameInput', 'val', "");
+                    const repositoryName : string = Utils.getUIValue('#gitCustomRepositoryModalRepositorySlugInput', 'val', "");
                     const repositoryBranch : string = Utils.getUIValue('#gitCustomRepositoryModalRepositoryBranchInput', 'val', "");
 
                     callback(true, repositoryService, repositoryName, repositoryBranch);
@@ -543,6 +543,15 @@ export class Modals {
         });
     }
 
+    static validateField(type: string, value: string) : Utils.ValidationResult {
+        // make sure JSON fields are parse-able
+        if (type === Daliuge.DataType.Json){
+            return Utils.jsonStringValidator("JSON")(value);
+        }
+
+        return { isValid: true };
+    }
+
     static validateFieldModalValueInputText(data: Field, event: Event): void {
         const type: string = data.getType()
         const eventTarget = event.target;
@@ -557,14 +566,12 @@ export class Modals {
 
         // only validate Json fields
         if (realType !== Daliuge.DataType.Json){
-            $(eventTarget).removeClass('is-valid');
-            $(eventTarget).removeClass('is-invalid');
+            Modals.applyValidationState($(eventTarget), null);
             return;
         }
 
-        const isValid = Utils.validateField(realType, value);
-
-        Modals._setValidClasses($(eventTarget), isValid);
+        const validationResult: Utils.ValidationResult = Modals.validateField(realType, value);
+        Modals.applyValidationState($(eventTarget), validationResult);
     }
 
     static validateCommitModalFileNameInputText(): void {
@@ -573,13 +580,12 @@ export class Modals {
 
         const fileTypeData = $('#gitCommitModal').data('fileType');
         const fileType: Eagle.FileType = fileTypeData ? fileTypeData : Eagle.FileType.Unknown;
-        
-        const isValid = (fileType === Eagle.FileType.Unknown) ||
-            (fileType === Eagle.FileType.Graph && inputElementValue.endsWith(".graph")) ||
-            (fileType === Eagle.FileType.Palette && inputElementValue.endsWith(".palette")) ||
-            (fileType === Eagle.FileType.GraphConfig && inputElementValue.endsWith(".graphConfig"));
 
-        Modals._setValidClasses(inputElement, isValid);
+        const validator = Utils.gitCommitFileNameStringValidator(fileType);
+        const validationResult = validator(inputElementValue);
+
+        Modals.applyValidationState(inputElement, validationResult);
+        $('#gitCommitModalAffirmativeButton').prop('disabled', !validationResult.isValid);
     }
 
     static showBrowseDockerHub(image: string, tag: string, callback: Modals.UserDockerHubCallback ) : void {
@@ -606,13 +612,31 @@ export class Modals {
         $('#browseDockerHubModal').modal("toggle");
     }
 
-    static _setValidClasses(target: JQuery<EventTarget>, isValid: boolean){
-        if (isValid){
+    static applyValidationState(target: JQuery<EventTarget>, validationResult: Utils.ValidationResult | null): void {
+        const feedback = target.siblings('.invalid-feedback').first();
+
+        // Neutral state: remove validation classes and clear inline feedback text.
+        if (validationResult === null){
+            target.removeClass('is-valid');
+            target.removeClass('is-invalid');
+            if (feedback.length > 0){
+                feedback.text('');
+            }
+            return;
+        }
+
+        if (validationResult.isValid){
             target.addClass('is-valid');
             target.removeClass('is-invalid');
         } else {
             target.removeClass('is-valid');
             target.addClass('is-invalid');
+        }
+
+        if (typeof validationResult.message !== 'undefined'){
+            if (feedback.length > 0){
+                feedback.text(validationResult.message);
+            }
         }
     }
 
@@ -680,7 +704,7 @@ export class Modals {
 
 export namespace Modals {
     export type UserStringCallback = (completed: boolean, userString: string) => void;
-    export type UserStringValidator = (userString: string) => string | null;
+    export type UserStringValidator = (userString: string) => Utils.ValidationResult;
     export type UserTextCallback = (completed: boolean, userText: string) => void;
     export type UserFieldCallback = (field: Field | null) => void; // NOTE: completed is not required, since all changes happen to the field directly (immediately)
     export type UserConfirmCallback = (completed: boolean, confirmed: boolean) => void;
