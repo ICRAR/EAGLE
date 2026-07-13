@@ -9,18 +9,25 @@
             <i class="material-symbols-outlined md-18" data-bind="text: getIconUrl"></i>
             <!-- /ko -->
         </div>
-        <div class="col col-9">
+        <div class="col col-10">
             <a href="#" data-bind="click: Repositories.selectFile, attr: {id: htmlId}, eagleTooltip: '|||' + $data.name + '|||'" data-bs-placement="left">
                 <span data-bind="text: $data.name"></span>
             </a>
         </div>
-        <div class="col col-2 repo-actions">
-            <!-- ko if: getIconUrl() === "device_hub" -->
-                <i class="material-symbols-outlined md-18 iconHoverEffect" data-bs-placement="left" style="cursor:pointer;top:3px;" data-bind="click: $root.insertRemoteFile, eagleTooltip: 'Insert'">add_box</i>
-            <!-- /ko -->
-            <!-- ko if: type === Eagle.FileType.Daliuge || type === Eagle.FileType.Graph || type === Eagle.FileType.Palette -->
-                <i class="material-symbols-outlined md-18 iconHoverEffect" data-bs-placement="left" style="cursor:pointer;top:3px;" data-bind="click: $root.deleteRemoteFile, eagleTooltip: 'Delete'">delete</i>
-            <!-- /ko -->
+        <div class="col col-1 repo-file-actions dropdown">
+            <button type="button" class="material-symbols-outlined md-18 dropdown-toggle dropdown-control repoTripleDot iconHoverEffect" data-bs-toggle="dropdown">more_vert</button>
+            <div class="dropdown-menu dropdown-area">
+                <a href="#" data-bind="click: copyUrlToClipboard, attr: {id: htmlId() + '-copy-url'}"><span>Copy URL</span></a>
+                <!-- ko if: type === Eagle.FileType.Graph || type === Eagle.FileType.Palette -->
+                <a href="#" data-bind="click: openInNewTab, attr: {id: htmlId() + '-open-in-new-tab'}"><span>Open in new tab</span></a>
+                <!-- /ko -->
+                <!-- ko if: getIconUrl() === "device_hub" -->
+                <a href="#" data-bind="click: $root.insertRemoteFile, attr: {id: htmlId() + '-insert'}"><span>Insert as SubGraph</span></a>
+                <!-- /ko -->
+                <!-- ko if: type === Eagle.FileType.Daliuge || type === Eagle.FileType.Graph || type === Eagle.FileType.Palette -->
+                <a href="#" data-bind="click: $root.deleteRemoteFile, attr: {id: htmlId() + '-delete'}"><span>Delete</span></a>
+                <!-- /ko -->
+            </div>
         </div>
     </div>
 </div>

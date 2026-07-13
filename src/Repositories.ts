@@ -233,10 +233,11 @@ export class Repositories {
     promptCreateBranch = async (repository: Repository): Promise<void> => {
         let branchName: string;
         try {
-            branchName = await Utils.requestUserString("Create Branch", "Enter a name for the new branch", "", false);
+            branchName = await Utils.requestUserString("Create Branch", "Enter a name for the new branch", "", false, Utils.branchNameStringValidator("Branch name"));
         } catch {
             return; // user cancelled
         }
+
         try {
             await this.createBranch(repository, branchName);
             Utils.showNotification("Branch Created", `Successfully created branch '${branchName}'`, "success");

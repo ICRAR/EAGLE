@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { TestHelpers } from './TestHelpers';
 
 async function removeCustomRepositoryIfPresent(page: Page, repoHTMLId: string, failIfStillPresent: boolean = true): Promise<void> {
   const maxAttempts = 5;
@@ -32,7 +33,7 @@ async function addCustomRepository(page: Page, name: string, branch: string): Pr
 
   await page.getByRole('button',{name:'Add Repository'}).click()
   await page.waitForTimeout(500);
-  await page.locator('input#gitCustomRepositoryModalRepositoryNameInput').pressSequentially(name)
+  await page.locator('input#gitCustomRepositoryModalRepositorySlugInput').pressSequentially(name)
   await page.locator('input#gitCustomRepositoryModalRepositoryBranchInput').pressSequentially(branch)
   await page.locator('button#gitCustomRepositoryModalAffirmativeButton').click()
   await page.waitForTimeout(1000);
@@ -113,7 +114,7 @@ test('Adding and Removing Repositories', async ({ page }) => {
   await page.waitForTimeout(500);
 
   //fill out the add repository modal information and confirm the modal
-  await page.locator('input#gitCustomRepositoryModalRepositoryNameInput').pressSequentially(REPO_NAME)
+  await page.locator('input#gitCustomRepositoryModalRepositorySlugInput').pressSequentially(REPO_NAME)
   await page.locator('input#gitCustomRepositoryModalRepositoryBranchInput').pressSequentially(REPO_BRANCH)
   await page.locator('button#gitCustomRepositoryModalAffirmativeButton').click()
 
@@ -183,12 +184,69 @@ test('Create Branch and Delete Branch Actions', async ({ page }) => {
   await expect(page.locator(baseRepoHTMLId + '-create-branch')).toBeVisible();
   await expect(page.locator(baseRepoHTMLId + '-delete-branch')).toBeVisible();
 
-  // verify create branch flow via UI
-  await page.locator(baseRepoHTMLId + '-create-branch').click()
-  const createBranchDialog = page.getByRole('dialog', { name: 'Create Branch' });
-  await expect(createBranchDialog).toBeVisible();
+  const openCreateBranchModal = async (): Promise<void> => {
+    const createBranchAction = page.locator(baseRepoHTMLId + '-create-branch');
+    let clicked = false;
+
+    for (let attempt = 0; attempt < 4; attempt++) {
+      await page.locator('.repoContainer').filter({has:page.locator(baseRepoHTMLId)}).hover()
+      await page.locator('.repoContainer').filter({has:page.locator(baseRepoHTMLId)}).locator('button.repoTripleDot').click()
+
+      const isVisible = await createBranchAction.isVisible().catch(() => false);
+      if (!isVisible) {
+        await createBranchAction.waitFor({state: 'visible', timeout: 1500}).catch(() => {});
+      }
+
+      if (await createBranchAction.isVisible().catch(() => false)) {
+        await createBranchAction.click();
+        clicked = true;
+        break;
+      }
+    }
+
+    if (!clicked) {
+      throw new Error('Could not open Create Branch action menu item after multiple attempts');
+    }
+
+    await expect(page.locator('#inputModal')).toBeVisible();
+    await expect(page.locator('#inputModalInput')).toBeVisible();
+  };
+
+  // invalid branch names stay blocked and show validation feedback
+  await openCreateBranchModal();
+  await page.locator('#inputModalInput').fill('   ')
+  await page.locator('#inputModal button.affirmativeBtn').click()
+  await expect(page.locator('#inputModal')).toBeVisible();
+  await expect(page.locator('#inputModalInput')).toHaveClass(/is-invalid/)
+  await expect(page.locator('#inputModalInvalidFeedback')).toContainText('Branch name cannot be empty.')
+  await expect(createBranchCallCount).toBe(0);
+  await TestHelpers.closeInputModalWithoutCompleting(page);
+
+  await openCreateBranchModal();
+  await page.locator('#inputModalInput').fill('bad branch')
+  await page.locator('#inputModal button.affirmativeBtn').click()
+  await expect(page.locator('#inputModal')).toBeVisible();
+  await expect(page.locator('#inputModalInput')).toHaveClass(/is-invalid/)
+  await expect(page.locator('#inputModalInvalidFeedback')).toContainText('Branch name cannot contain whitespace.')
+  await expect(createBranchCallCount).toBe(0);
+  await TestHelpers.closeInputModalWithoutCompleting(page);
+
+  await openCreateBranchModal();
+  await page.locator('#inputModalInput').fill('bad..branch')
+  await page.locator('#inputModal button.affirmativeBtn').click()
+  await expect(page.locator('#inputModal')).toBeVisible();
+  await expect(page.locator('#inputModalInput')).toHaveClass(/is-invalid/)
+  await expect(page.locator('#inputModalInvalidFeedback')).toContainText("Branch name cannot contain '..'.")
+  await expect(createBranchCallCount).toBe(0);
+  await TestHelpers.closeInputModalWithoutCompleting(page);
+
+  // verify successful create branch flow via UI
+  await openCreateBranchModal();
   await page.locator('#inputModalInput').fill(CREATED_BRANCH)
-  await createBranchDialog.getByRole('button', { name: 'OK' }).click()
+  await page.locator('#inputModal button.affirmativeBtn').click()
+
+  const createBranchDialog = page.getByRole('dialog', { name: 'Create Branch' });
+  const inputModal = page.locator('#inputModal');
 
   // some runs keep the modal visible after first click; retry closure through UI.
   if (await createBranchDialog.isVisible()) {
@@ -198,7 +256,7 @@ test('Create Branch and Delete Branch Actions', async ({ page }) => {
     await finalizeInputModalAffirmative(page);
   }
 
-  await expect(page.locator('#inputModal')).toBeHidden();
+  await expect(inputModal).toBeHidden();
   await expect.poll(() => createBranchCallCount).toBe(1);
   await page.waitForTimeout(500);
   await expect(createBranchCallCount).toBe(1);
@@ -233,6 +291,69 @@ test('Create Branch and Delete Branch Actions', async ({ page }) => {
   // reset any repositories created during this test.
   await removeCustomRepositoryIfPresent(page, baseRepoHTMLId, false);
   await removeCustomRepositoryIfPresent(page, protectedRepoHTMLId, false);
+
+  await page.close();
+});
+
+test('requestUserString validator UX for URL and Save As', async ({ page }) => {
+
+  await page.goto('http://localhost:8888/?tutorial=none');
+  await expect(page).toHaveTitle(/EAGLE/);
+
+  // verify URL prompt blocks invalid URL input with inline feedback
+  await page.locator('#navbarDropdownGraph').click();
+  await page.locator('#createNewGraphFromUrl').click();
+  await expect(page.locator('#inputModal')).toBeVisible();
+  await page.locator('#inputModalInput').fill('not-a-valid-url');
+  await page.locator('#inputModal button.affirmativeBtn').click();
+  await expect(page.locator('#inputModal')).toBeVisible();
+  await expect(page.locator('#inputModalInput')).toHaveClass(/is-invalid/);
+  await expect(page.locator('#inputModalInvalidFeedback')).toContainText('URL is not a valid URL.');
+  await TestHelpers.closeInputModalWithoutCompleting(page);
+
+  // verify Save As prompt blocks empty filename with inline feedback
+  await page.locator('#navbarDropdownGraph').click();
+  await page.getByText('Local Storage').first().hover();
+  await page.locator('#saveAsGraph').click();
+  await expect(page.locator('#inputModal')).toBeVisible();
+  await page.locator('#inputModalInput').fill('   ');
+  await page.locator('#inputModal button.affirmativeBtn').click();
+  await expect(page.locator('#inputModal')).toBeVisible();
+  await expect(page.locator('#inputModalInput')).toHaveClass(/is-invalid/);
+  await expect(page.locator('#inputModalInvalidFeedback')).toContainText('Filename cannot be empty.');
+  await TestHelpers.closeInputModalWithoutCompleting(page);
+
+  await page.close();
+});
+
+test('gitCommit filename validator UX', async ({ page }) => {
+  await page.goto('http://localhost:8888/?tutorial=none');
+  await expect(page).toHaveTitle(/EAGLE/);
+
+  // Open modal in a controlled state so only filename validation is under test.
+  await page.evaluate(() => {
+    const w = window as any;
+    const $ = w.$;
+    const graphFileType = w.Eagle?.FileType?.Graph ?? 'Graph';
+
+    $('#gitCommitModal').data('fileType', graphFileType);
+    $('#gitCommitModalFileNameInput').val('invalid-name.txt');
+    $('#gitCommitModal').modal('show');
+    $('#gitCommitModalFileNameInput').trigger('input');
+  });
+
+  await expect(page.locator('#gitCommitModal')).toBeVisible();
+  await expect(page.locator('#gitCommitModalFileNameInput')).toHaveClass(/is-invalid/);
+  await expect(page.locator('#validationFeedback')).toContainText("File name must end with '.graph'.");
+  await expect(page.locator('#gitCommitModalAffirmativeButton')).toBeDisabled();
+
+  // A valid extension should clear invalid state and re-enable commit.
+  await page.locator('#gitCommitModalFileNameInput').fill('valid-name.graph');
+  await expect(page.locator('#gitCommitModalFileNameInput')).toHaveClass(/is-valid/);
+  await expect(page.locator('#gitCommitModalAffirmativeButton')).toBeEnabled();
+
+  await page.locator('#gitCommitModalNegativeButton').click();
+  await expect(page.locator('#gitCommitModal')).toBeHidden();
 
   await page.close();
 });

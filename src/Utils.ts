@@ -185,14 +185,15 @@ export class Utils {
 
             let userString;
             try {
-                userString = await Utils.requestUserString("New " + fileType, "Enter " + fileType + " name", defaultName, false);
+                userString = await Utils.requestUserString(
+                    "New " + fileType,
+                    "Enter " + fileType + " name",
+                    defaultName,
+                    false,
+                    Utils.nonEmptyStringValidator(fileType + " name")
+                );
             } catch(error) {
                 reject(error);
-                return;
-            }
-
-            if (userString === ""){
-                reject( "Specified name is not valid for new " + fileType);
                 return;
             }
 
@@ -547,7 +548,183 @@ export class Utils {
         Utils.showNotification(action, message, "warning");
     }
 
-    static requestUserString(title : string, message : string, defaultString: string, isPassword: boolean): Promise<string> {
+    static nonEmptyStringValidator(label: string): Modals.UserStringValidator {
+        return (userString: string): Utils.ValidationResult => {
+            if (userString.trim() === ""){
+                return { isValid: false, message: label + " cannot be empty." };
+            }
+
+            return { isValid: true };
+        };
+    }
+
+    static httpUrlStringValidator(label: string = "URL"): Modals.UserStringValidator {
+        return (userString: string): Utils.ValidationResult => {
+            const trimmed = userString.trim();
+            if (trimmed === ""){
+                return { isValid: false, message: label + " cannot be empty." };
+            }
+
+            let parsedUrl: URL;
+            try {
+                parsedUrl = new URL(trimmed);
+            } catch (_error) {
+                return { isValid: false, message: label + " is not a valid URL." };
+            }
+
+            if (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:"){
+                return { isValid: false, message: label + " must start with http:// or https://." };
+            }
+
+            return { isValid: true };
+        };
+    }
+
+    static repositorySlugStringValidator(label: string = "Repository name"): Modals.UserStringValidator {
+        return (userString: string): Utils.ValidationResult => {
+            const nonEmptyResult = Utils.nonEmptyStringValidator(label)(userString);
+            if (!nonEmptyResult.isValid){
+                return nonEmptyResult;
+            }
+
+            const trimmed = userString.trim();
+            if (trimmed !== userString){
+                return { isValid: false, message: label + " cannot start or end with whitespace." };
+            }
+
+            if (/\s/.test(trimmed)){
+                return { isValid: false, message: label + " cannot contain whitespace." };
+            }
+
+            if (trimmed.startsWith('http://') || trimmed.startsWith('https://')){
+                return { isValid: false, message: label + " must be in the format 'owner/repository', not a URL." };
+            }
+
+            if (trimmed.endsWith('.git')){
+                return { isValid: false, message: label + " cannot end with '.git'." };
+            }
+
+            if (trimmed.startsWith('/') || trimmed.endsWith('/') || trimmed.includes('//')){
+                return { isValid: false, message: label + " must be in the format 'owner/repository'." };
+            }
+
+            const components = trimmed.split('/');
+            if (components.length !== 2){
+                return { isValid: false, message: label + " must be in the format 'owner/repository'." };
+            }
+
+            const [owner, repository] = components;
+            const invalidChars = /[^A-Za-z0-9._-]/;
+
+            if (invalidChars.test(owner) || invalidChars.test(repository)){
+                return { isValid: false, message: label + " can only contain letters, numbers, '.', '_' and '-'." };
+            }
+
+            if (owner === "." || owner === ".." || repository === "." || repository === ".."){
+                return { isValid: false, message: label + " cannot contain '.' or '..' path components." };
+            }
+
+            if (owner.startsWith('.') || repository.startsWith('.')){
+                return { isValid: false, message: label + " cannot have components starting with '.'." };
+            }
+
+            return { isValid: true };
+        };
+    }
+
+    static branchNameStringValidator(label: string = "Branch name"): Modals.UserStringValidator {
+        return (userString: string): Utils.ValidationResult => {
+            const nonEmptyResult = Utils.nonEmptyStringValidator(label)(userString);
+            if (!nonEmptyResult.isValid){
+                return nonEmptyResult;
+            }
+
+            if (/\s/.test(userString)){
+                return { isValid: false, message: label + " cannot contain whitespace." };
+            }
+
+            if (userString.startsWith("-") ){
+                return { isValid: false, message: label + " cannot start with '-'." };
+            }
+
+            if (userString === "@"){
+                return { isValid: false, message: label + " cannot be '@'." };
+            }
+
+            if (userString.includes("@{")){
+                return { isValid: false, message: label + " cannot contain '@{'." };
+            }
+
+            if (userString.includes("..")){
+                return { isValid: false, message: label + " cannot contain '..'." };
+            }
+
+            if (userString.startsWith("/") || userString.endsWith("/") || userString.includes("//")){
+                return { isValid: false, message: label + " cannot contain empty path segments." };
+            }
+
+            if (userString.endsWith(".")){
+                return { isValid: false, message: label + " cannot end with '.'." };
+            }
+
+            if (userString.endsWith(".lock")){
+                return { isValid: false, message: label + " cannot end with '.lock'." };
+            }
+
+            const components = userString.split("/");
+            if (components.some(component => component.startsWith("."))){
+                return { isValid: false, message: label + " cannot have path segments starting with '.'." };
+            }
+
+            if (/[\x00-\x1F\x7F~^:?*\[\\]/.test(userString)){
+                return { isValid: false, message: label + " contains invalid characters." };
+            }
+
+            return { isValid: true };
+        };
+    }
+
+    static gitCommitFileNameStringValidator(fileType: Eagle.FileType, label: string = "File name"): Modals.UserStringValidator {
+        return (userString: string): Utils.ValidationResult => {
+            if (fileType === Eagle.FileType.Unknown){
+                return { isValid: true };
+            }
+
+            let requiredExtension: string | null = null;
+            switch (fileType){
+                case Eagle.FileType.Graph:
+                    requiredExtension = ".graph";
+                    break;
+                case Eagle.FileType.Palette:
+                    requiredExtension = ".palette";
+                    break;
+                case Eagle.FileType.GraphConfig:
+                    requiredExtension = ".graphConfig";
+                    break;
+                default:
+                    return { isValid: true };
+            }
+
+            if (userString.endsWith(requiredExtension)){
+                return { isValid: true };
+            }
+
+            return { isValid: false, message: label + " must end with '" + requiredExtension + "'." };
+        };
+    }
+
+    static jsonStringValidator(label: string = "JSON"): Modals.UserStringValidator {
+        return (userString: string): Utils.ValidationResult => {
+            try {
+                JSON.parse(userString);
+                return { isValid: true };
+            } catch (error) {
+                return { isValid: false, message: "Invalid " + label + ": " + Errors.UnknownToError(error) };
+            }
+        };
+    }
+
+    static requestUserString(title : string, message : string, defaultString: string, isPassword: boolean, validator?: Modals.UserStringValidator): Promise<string> {
         return new Promise(async(resolve, reject) => {
             $('#inputModalTitle').text(title);
             $('#inputModalMessage').html(Utils.markdown2html(message));
@@ -555,9 +732,35 @@ export class Utils {
 
             $('#inputModalInput').val(defaultString);
 
+            const validateInput = (): boolean => {
+                if (typeof validator === 'undefined'){
+                    $('#inputModalInput').removeClass('is-valid is-invalid');
+                    $('#inputModalInvalidFeedback').hide().text('');
+                    $('#inputModal').data('isValid', true);
+                    return true;
+                }
+
+                const userString = Utils.getUIValue('#inputModalInput', 'val', "");
+                const validationResult = validator(userString);
+                const isValid = validationResult.isValid;
+
+                $('#inputModal').data('isValid', isValid);
+                $('#inputModalInput').toggleClass('is-valid', isValid);
+                $('#inputModalInput').toggleClass('is-invalid', !isValid);
+
+                if (isValid){
+                    $('#inputModalInvalidFeedback').hide().text('');
+                } else {
+                    $('#inputModalInvalidFeedback').show().text(validationResult.message ?? 'Invalid value.');
+                }
+
+                return isValid;
+            };
+
             // store data about the choices, callback, result on the modal HTML element
             // so that the info is available to event handlers
             $('#inputModal').data('completed', false);
+            $('#inputModal').data('isValid', true);
 
             const callback: Modals.UserStringCallback = (completed : boolean, userString : string) => {
                 if (!completed){
@@ -568,6 +771,14 @@ export class Utils {
             };
             $('#inputModal').data('callback', callback);
             $('#inputModal').data('returnType', "string");
+            $('#inputModal').data('validateInput', validateInput);
+
+            $('#inputModalInput').off('input.requestUserStringValidation');
+            $('#inputModalInput').on('input.requestUserStringValidation', function(){
+                validateInput();
+            });
+
+            validateInput();
 
             $('#inputModal').modal("show");
         });
@@ -876,7 +1087,7 @@ export class Utils {
 
     static requestUserAddCustomRepository(): Promise<Repository> {
         return new Promise(async(resolve, reject) => {
-            $('#gitCustomRepositoryModalRepositoryNameInput').val("");
+            $('#gitCustomRepositoryModalRepositorySlugInput').val("");
             $('#gitCustomRepositoryModalRepositoryBranchInput').val("");
 
             $('#gitCustomRepositoryModal').data('completed', false);
@@ -896,34 +1107,37 @@ export class Utils {
 
     static validateCustomRepository() : boolean {
         const repositoryService : string = Utils.getUIValue('#gitCustomRepositoryModalRepositoryServiceSelect', 'val', "");
-        const repositoryName : string = Utils.getUIValue('#gitCustomRepositoryModalRepositoryNameInput', 'val', "");
+        const repositoryName : string = Utils.getUIValue('#gitCustomRepositoryModalRepositorySlugInput', 'val', "");
         const repositoryBranch : string = Utils.getUIValue('#gitCustomRepositoryModalRepositoryBranchInput', 'val', "");
 
-        $('#gitCustomRepositoryModalRepositoryNameInput').removeClass('is-invalid');
-        $('#gitCustomRepositoryModalRepositoryBranchInput').removeClass('is-invalid');
+        const repositoryNameInput = $('#gitCustomRepositoryModalRepositorySlugInput');
+        const repositoryBranchInput = $('#gitCustomRepositoryModalRepositoryBranchInput');
+
+        Modals.applyValidationState(repositoryNameInput, null);
+        Modals.applyValidationState(repositoryBranchInput, null);
 
         // check service
         if (repositoryService.trim() !== Repository.Service.GitHub && repositoryService.trim() !== Repository.Service.GitLab){
             return false;
         }
 
-        // check if name is empty
-        if (repositoryName.trim() == ""){
-            $('#gitCustomRepositoryModalRepositoryNameInput').addClass('is-invalid');
+        // check repository name
+        const repositoryNameValidationResult = Utils.repositorySlugStringValidator("Repository name")(repositoryName);
+        if (!repositoryNameValidationResult.isValid){
+            Modals.applyValidationState(repositoryNameInput, repositoryNameValidationResult);
             return false;
         }
 
-        // check if name starts with http:// or https://, or ends with .git
-        if (repositoryName.startsWith('http://') || repositoryName.startsWith('https://') || repositoryName.endsWith('.git')){
-            $('#gitCustomRepositoryModalRepositoryNameInput').addClass('is-invalid');
+        Modals.applyValidationState(repositoryNameInput, { isValid: true });
+
+        // check repository branch
+        const repositoryBranchValidationResult = Utils.branchNameStringValidator("Repository branch")(repositoryBranch);
+        if (!repositoryBranchValidationResult.isValid){
+            Modals.applyValidationState(repositoryBranchInput, repositoryBranchValidationResult);
             return false;
         }
 
-        // check if branch is empty
-        if (repositoryBranch.trim() == ""){
-            $('#gitCustomRepositoryModalRepositoryBranchInput').addClass('is-invalid');
-            return false;
-        }
+        Modals.applyValidationState(repositoryBranchInput, { isValid: true });
 
         return true;
     }
@@ -1833,41 +2047,6 @@ export class Utils {
         return {valid: valid, errors: ajv.errorsText(ajv.errors)};
     }
 
-    static isAlpha(ch: string){
-        return /^[A-Z]$/i.test(ch);
-    }
-
-    static isNumeric(ch: string){
-        return /^[0-9]$/i.test(ch);
-    }
-
-    static validateField(type: string, value: string) : boolean {
-        let valid: boolean = true;
-
-        // make sure JSON fields are parse-able
-        if (type === Daliuge.DataType.Json){
-            try {
-                JSON.parse(value);
-            } catch(e) {
-                valid = false;
-            }
-        }
-
-        return valid;
-    }
-
-    static validateType(type: string) : boolean {
-        if (typeof(type) === "undefined"){
-            return false;
-        }
-
-        if (type.trim() === ""){
-            return false;
-        }
-
-        return true;
-    }
-
     static async downloadFile(data : string, fileName : string) : Promise<void> {
         return new Promise(async(resolve) => {
             // NOTE: this stuff is a hacky way of saving a file locally
@@ -1884,6 +2063,17 @@ export class Utils {
         });
     }
 
+    static validateType(type: string) : boolean {
+        if (typeof(type) === "undefined"){
+            return false;
+        }
+
+        if (type.trim() === ""){
+            return false;
+        }
+
+        return true;
+    }
 
     static nodesOverlap(n0x: number, n0y: number, n0radius: number, n1x: number, n1y: number, n1radius: number) : boolean {
         const dx = n0x - n1x;
@@ -1946,7 +2136,7 @@ export class Utils {
     }
 
     static async userEnterCommitMessage(modalMessage: string) : Promise<string> {
-        return Utils.requestUserString("Saving to git", modalMessage, "", false);
+        return Utils.requestUserString("Saving to git", modalMessage, "", false, Utils.nonEmptyStringValidator("Commit message"));
     }
 
     // TODO: could we return a list of KeyboardShortcut here?
@@ -3403,4 +3593,11 @@ export class Utils {
 
         return url;
     }
+}
+
+export namespace Utils {
+    export type ValidationResult = {
+        isValid: boolean;
+        message?: string;
+    };
 }
