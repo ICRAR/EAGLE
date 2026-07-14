@@ -330,29 +330,33 @@ test('gitCommit filename validator UX', async ({ page }) => {
   await page.goto('http://localhost:8888/?tutorial=none');
   await expect(page).toHaveTitle(/EAGLE/);
 
-  // Open modal in a controlled state so only filename validation is under test.
+  // Open modal in a controlled state so filename validation can be exercised through UI input events.
   await page.evaluate(() => {
     const w = window as any;
     const $ = w.$;
     const graphFileType = w.Eagle?.FileType?.Graph ?? 'Graph';
 
     $('#gitCommitModal').data('fileType', graphFileType);
-    $('#gitCommitModalFileNameInput').val('invalid-name.txt');
     $('#gitCommitModal').modal('show');
-    $('#gitCommitModalFileNameInput').trigger('input');
   });
 
   await expect(page.locator('#gitCommitModal')).toBeVisible();
+
+  // Enter an invalid filename and verify inline validation state.
+  await page.locator('#gitCommitModalFileNameInput').fill('invalid-name.txt');
   await expect(page.locator('#gitCommitModalFileNameInput')).toHaveClass(/is-invalid/);
   await expect(page.locator('#validationFeedback')).toContainText("File name must end with '.graph'.");
   await expect(page.locator('#gitCommitModalAffirmativeButton')).toBeDisabled();
 
   // A valid extension should clear invalid state and re-enable commit.
-  await page.locator('#gitCommitModalFileNameInput').fill('valid-name.graph');
+  await page.locator('#gitCommitModalFileNameInput').press('ControlOrMeta+a');
+  await page.locator('#gitCommitModalFileNameInput').pressSequentially('valid-name.graph');
+  await page.locator('#gitCommitModalFileNameInput').press('Tab');
   await expect(page.locator('#gitCommitModalFileNameInput')).toHaveClass(/is-valid/);
   await expect(page.locator('#gitCommitModalAffirmativeButton')).toBeEnabled();
 
   await page.locator('#gitCommitModalNegativeButton').click();
+  await expect(page.locator('#gitCommitModal')).not.toHaveClass(/\bshow\b/);
   await expect(page.locator('#gitCommitModal')).toBeHidden();
 
   await page.close();
