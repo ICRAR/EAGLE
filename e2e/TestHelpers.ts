@@ -10,10 +10,6 @@ export class TestHelpers {
     public static readonly UI_SETTLE_TIMEOUT = 500;
     public static readonly SHORT_TIMEOUT = 5000;
     public static readonly LONG_TIMEOUT = 10000;
-    // Counts how many times we have opened the canvas context menu.
-    private static contextMenuAnchorIndex = 0;
-    // Stores the last right-click position so we do not use the exact same spot twice in a row.
-    private static lastContextMenuPoint: { x: number; y: number } | null = null;
     // Mirrors TutorialStep.Type values from src/Tutorial.ts without importing browser-only app code.
     private static readonly TutorialStepType = {
         Info: "Info",
@@ -258,25 +254,8 @@ export class TestHelpers {
         const canvas = page.locator('#logicalGraphParent').first();
         await canvas.waitFor({ state: 'visible', timeout: TestHelpers.SHORT_TIMEOUT });
 
-        // Right-click around viewport center with pseudo-random offsets and no immediate repeats.
-        const viewport = page.viewportSize();
-        const size = viewport ?? { width: 1280, height: 720 };
-
-        const seed = TestHelpers.contextMenuAnchorIndex;
-        TestHelpers.contextMenuAnchorIndex += 1;
-
-        const angleDeg = (seed * 137.508) % 360;
-        const angle = angleDeg * (Math.PI / 180);
-        const radius = 80 + ((seed * 31) % 70);
-
-        let x = Math.max(80, Math.min(size.width - 80, Math.floor(size.width / 2 + Math.cos(angle) * radius)));
-        let y = Math.max(80, Math.min(size.height - 120, Math.floor(size.height / 2 + Math.sin(angle) * radius)));
-
-        if (TestHelpers.lastContextMenuPoint && TestHelpers.lastContextMenuPoint.x === x && TestHelpers.lastContextMenuPoint.y === y) {
-            x = Math.max(80, Math.min(size.width - 80, x + 35));
-            y = Math.max(80, Math.min(size.height - 120, y + 20));
-        }
-        TestHelpers.lastContextMenuPoint = { x, y };
+        // find a free position on the graph canvas to right-click for context menu
+        const { x, y } = await TestHelpers.findUnoccupiedCanvasClickPoint(page);
 
         // Use Playwright mouse so the app receives real pointer coordinates.
         await page.mouse.click(x, y, { button: 'right' });
@@ -303,6 +282,27 @@ export class TestHelpers {
         }
 
         await menuLocator.waitFor({ state: 'attached', timeout: TestHelpers.SHORT_TIMEOUT });
+    }
+
+    private static async findUnoccupiedCanvasClickPoint(page: Page): Promise<{ x: number; y: number }> {
+        return await page.evaluate(() => {
+            const w = window as any;
+            const eagle = w.eagle;
+            const eagleConfig = w.EagleConfig;
+            const graphRenderer = w.GraphRenderer;
+
+            // find a free position on the graph canvas to right-click for context menu
+            const freePosition = eagle.getNewNodePosition(eagleConfig.NORMAL_NODE_RADIUS);
+
+            // convert graph coordinates to screen coordinates for playwright mouse click
+            const screenX = Math.floor(graphRenderer.GRAPH_TO_SCREEN_POSITION_X(freePosition.x));
+            const screenY = Math.floor(graphRenderer.GRAPH_TO_SCREEN_POSITION_Y(freePosition.y));
+
+            return {
+                x: screenX,
+                y: screenY,
+            };
+        });
     }
 
     private static async centerGraphOnCanvas(page: Page): Promise<void> {
