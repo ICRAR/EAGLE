@@ -3031,7 +3031,16 @@ export class Eagle {
         await Utils.ensureGraphIsInitialized(this.logicalGraph());
 
         const subGraphReferenceNode = this._createSubGraphReferenceNode(file, lg);
+        const newNodePosition = this.getNewNodePosition(subGraphReferenceNode.getRadius());
+        subGraphReferenceNode.setPosition(newNodePosition.x, newNodePosition.y);
         this.logicalGraph().addNodeComplete(subGraphReferenceNode);
+
+        // If the placement search had to expand beyond the visible area, center to bring the new node into view.
+        if (newNodePosition.extended){
+            setTimeout(function(){
+                Eagle.getInstance().centerGraph();
+            }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT);
+        }
 
         // trigger re-render
         this.logicalGraph.valueHasMutated();
@@ -3045,22 +3054,32 @@ export class Eagle {
 
     private _createSubGraphReferenceNode = (file: RepositoryFile, lg: LogicalGraph): Node => {
         // create parent node
-        const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().location.getText(), "", Category.SubGraphReference);
+        const node: Node = new Node(lg.fileInfo().name, lg.fileInfo().location.getText(), "", Category.SubGraphReference);
+
+        // add default Daliuge fields (for Application nodes etc)
+        node.addField(Daliuge.dropClassField.clone().setId(Id.generateFieldId()).setValue(Daliuge.DEFAULT_SUBGRAPHREFERENCE_DROPCLASS_VALUE));
+        node.addField(Daliuge.executionTimeField.clone().setId(Id.generateFieldId()));
+        node.addField(Daliuge.numCpusField.clone().setId(Id.generateFieldId()));
 
         // add Daliuge fields for SubGraphReference nodes to the new node
-        parentNode.addField(Daliuge.graphServiceField.clone().setId(Id.generateFieldId()).setValue(file.repository.service));
-        parentNode.addField(Daliuge.graphRepositoryField.clone().setId(Id.generateFieldId()).setValue(file.repository.name));
-        parentNode.addField(Daliuge.graphBranchField.clone().setId(Id.generateFieldId()).setValue(file.repository.branch));
-        parentNode.addField(Daliuge.graphCommitField.clone().setId(Id.generateFieldId()).setValue(lg.fileInfo().location.commitHash()));
-        parentNode.addField(Daliuge.graphPathField.clone().setId(Id.generateFieldId()).setValue(file.path + file.name));
+        node.addField(Daliuge.graphServiceField.clone().setId(Id.generateFieldId()).setValue(file.repository.service));
+        node.addField(Daliuge.graphRepositoryField.clone().setId(Id.generateFieldId()).setValue(file.repository.name));
+        node.addField(Daliuge.graphBranchField.clone().setId(Id.generateFieldId()).setValue(file.repository.branch));
+        node.addField(Daliuge.graphCommitField.clone().setId(Id.generateFieldId()).setValue(lg.fileInfo().location.commitHash()));
+        node.addField(Daliuge.graphPathField.clone().setId(Id.generateFieldId()).setValue(file.path + file.name));
 
         // add a field for the graph configuration name, which will be used to select which graph configuration to use when the subgraph reference is executed
         const graphConfigurationNameField = Daliuge.graphConfigurationNameField.clone().setId(Id.generateFieldId());
 
-        // set the graph configuration name field to the active graph config name, if one is active
+        // if there is an active graph configuration:
+        // 1. set the value of the graph configuration name field to the name of the active graph configuration
+        // 2. update the input/output ports of the subgraph reference node to match the input/output ports of the active graph configuration
         const activeGraphConfig: GraphConfig | undefined = lg.getActiveGraphConfig();
         if (activeGraphConfig !== undefined){
-            graphConfigurationNameField.setValue(activeGraphConfig.fileInfo().name);
+            const configName: string = activeGraphConfig.fileInfo().name;
+            graphConfigurationNameField.setValue(configName).setDefaultValue(configName);
+
+            this._updateSubGraphReferenceInputOutput(node, activeGraphConfig);
         }
 
         // add options for the graph configuration name field based on the graph configs in the loaded graph
@@ -3069,9 +3088,31 @@ export class Eagle {
         }
 
         // add the graph configuration name field to the parent node
-        parentNode.addField(graphConfigurationNameField);
+        node.addField(graphConfigurationNameField);
 
-        return parentNode;
+        // add an input port for an external graph configuration
+        node.addField(Daliuge.graphConfigurationField.clone().setId(Id.generateFieldId()));
+
+        return node;
+    }
+
+    private _updateSubGraphReferenceInputOutput = (node: Node, graphConfig: GraphConfig): void => {
+        // remove all existing input/output ports from the node, except the external graph configuration input port
+        for (const field of node.getFields()){
+            if (field.isInputPort() || field.isOutputPort()){
+                if (field.getDisplayText() !== Daliuge.FieldName.CONFIGURATION_NAME){
+                    node.removeFieldById(field.getId());
+                }
+            }
+        }
+
+        // add port for each field in the graph configuration
+        for (const graphConfigNode of graphConfig.getNodes()){
+            for (const graphConfigField of graphConfigNode.getFields()){
+                const newField: Field = graphConfigField.getField().clone().setId(Id.generateFieldId());
+                node.addField(newField);
+            }
+        }
     }
 
     deleteRemoteFile = async (file : RepositoryFile): Promise<void> => {

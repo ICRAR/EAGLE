@@ -45,6 +45,7 @@ export class Daliuge {
 export namespace Daliuge {
     export const DEFAULT_PYDATA_VALUE: string = "None";
     export const DEFAULT_PYFUNCAPP_DROPCLASS_VALUE: string = "dlg.apps.pyfunc.PyFuncApp";
+    export const DEFAULT_SUBGRAPHREFERENCE_DROPCLASS_VALUE: string = "dlg.apps.subgraph.SubGraphReference";
     export const DEFAULT_GRAPH_CONFIGURATION_NAME: string = "Default Graph Configuration";
 
     export enum FieldName {
@@ -214,7 +215,7 @@ export namespace Daliuge {
     export const graphBranchField = new Field(dummyNode, FieldName.BRANCH as FieldId, FieldName.BRANCH, "", "", "The branch of the repository containing the subgraph", false, Daliuge.DataType.String, false, [], false, Daliuge.FieldType.Component, Daliuge.FieldUsage.NoPort);
     export const graphCommitField = new Field(dummyNode, FieldName.COMMIT as FieldId, FieldName.COMMIT, "", "", "The commit of the repository containing the subgraph", false, Daliuge.DataType.String, false, [], false, Daliuge.FieldType.Component, Daliuge.FieldUsage.NoPort);
     export const graphPathField = new Field(dummyNode, FieldName.PATH as FieldId, FieldName.PATH, "", "", "The path to the subgraph within the repository", false, Daliuge.DataType.String, false, [], false, Daliuge.FieldType.Component, Daliuge.FieldUsage.NoPort);
-    export const graphConfigurationNameField = new Field(dummyNode, FieldName.CONFIGURATION_NAME as FieldId, FieldName.CONFIGURATION_NAME, "", Daliuge.DEFAULT_GRAPH_CONFIGURATION_NAME, "The name of the subgraph configuration to use", false, Daliuge.DataType.Select, false, [], false, Daliuge.FieldType.Component, Daliuge.FieldUsage.NoPort);
+    export const graphConfigurationNameField = new Field(dummyNode, FieldName.CONFIGURATION_NAME as FieldId, FieldName.CONFIGURATION_NAME, "", "", "The name of the subgraph configuration to use", false, Daliuge.DataType.Select, false, [], false, Daliuge.FieldType.Component, Daliuge.FieldUsage.NoPort);
     export const graphConfigurationField = new Field(dummyNode, FieldName.CONFIGURATION as FieldId, FieldName.CONFIGURATION, "", "", "The subgraph configuration to use", false, Daliuge.DataType.Json, false, [], false, Daliuge.FieldType.Component, Daliuge.FieldUsage.InputPort);
     
 
