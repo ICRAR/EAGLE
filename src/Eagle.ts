@@ -3031,7 +3031,7 @@ export class Eagle {
         await Utils.ensureGraphIsInitialized(this.logicalGraph());
 
         const subGraphReferenceNode = this._createSubGraphReferenceNode(file, lg);
-        this.logicalGraph().addNodeComplete(subGraphReferenceNode)
+        this.logicalGraph().addNodeComplete(subGraphReferenceNode);
 
         // trigger re-render
         this.logicalGraph.valueHasMutated();
@@ -3053,7 +3053,23 @@ export class Eagle {
         parentNode.addField(Daliuge.graphBranchField.clone().setId(Id.generateFieldId()).setValue(file.repository.branch));
         parentNode.addField(Daliuge.graphCommitField.clone().setId(Id.generateFieldId()).setValue(lg.fileInfo().location.commitHash()));
         parentNode.addField(Daliuge.graphPathField.clone().setId(Id.generateFieldId()).setValue(file.path + file.name));
-        parentNode.addField(Daliuge.graphConfigurationNameField.clone().setId(Id.generateFieldId()).setValue(lg.getActiveGraphConfig().fileInfo().name));
+
+        // add a field for the graph configuration name, which will be used to select which graph configuration to use when the subgraph reference is executed
+        const graphConfigurationNameField = Daliuge.graphConfigurationNameField.clone().setId(Id.generateFieldId());
+
+        // set the graph configuration name field to the active graph config name, if one is active
+        const activeGraphConfig: GraphConfig | undefined = lg.getActiveGraphConfig();
+        if (activeGraphConfig !== undefined){
+            graphConfigurationNameField.setValue(activeGraphConfig.fileInfo().name);
+        }
+
+        // add options for the graph configuration name field based on the graph configs in the loaded graph
+        for (const gc of lg.getGraphConfigs()){
+            graphConfigurationNameField.addOption(gc.fileInfo().name);
+        }
+
+        // add the graph configuration name field to the parent node
+        parentNode.addField(graphConfigurationNameField);
 
         return parentNode;
     }
