@@ -231,24 +231,60 @@ export class Utils {
     }
 
     static updateSubGraphReferencePorts(node: Node, graphConfig: GraphConfig): void {
-        const fieldIdsToRemove: FieldId[] = [];
-
-        // Build a snapshot of removable fields first because getFields() iterates a live map.
-        for (const field of Array.from(node.getFields())){
-            if (field.isInputPort() || field.isOutputPort()){
-                if (field.getDisplayText() !== Daliuge.FieldName.CONFIGURATION){
-                    fieldIdsToRemove.push(field.getId());
-                }
+        const graphConfigFieldIds = new Set<FieldId>();
+        for (const graphConfigNode of graphConfig.getNodes()){
+            for (const graphConfigField of graphConfigNode.getFields()){
+                graphConfigFieldIds.add(graphConfigField.getField().getId());
             }
         }
 
-        for (const fieldId of fieldIdsToRemove){
-            node.removeFieldById(fieldId);
+        const fieldsToRemove: Field[] = [];
+
+        // build a list of fields to remove because getFields() iterates a live map.
+        for (const field of Array.from(node.getFields())){
+            if (!(field.isInputPort() || field.isOutputPort())){
+                continue;
+            }
+            if (field.getDisplayText() === Daliuge.FieldName.CONFIGURATION){
+                continue;
+            }
+            if (graphConfigFieldIds.has(field.getId())){
+                continue;
+            }
+            fieldsToRemove.push(field);
         }
 
+        // remove edges connected to any ports that are about to be removed.
+        if (fieldsToRemove.length > 0){
+            const logicalGraph = Eagle.getInstance().logicalGraph();
+            const edgeIdsToRemove = new Set<EdgeId>();
+
+            for (const field of fieldsToRemove){
+                for (const edge of Array.from(field.getEdges())){
+                    edgeIdsToRemove.add(edge.getId());
+                }
+            }
+
+            for (const edgeId of edgeIdsToRemove){
+                logicalGraph.removeEdgeById(edgeId);
+            }
+        }
+
+        // remove fields that are not in the graph config
+        for (const field of fieldsToRemove){
+            node.removeFieldById(field.getId());
+        }
+
+        // add fields from the graph config that are not already in the node
         for (const graphConfigNode of graphConfig.getNodes()){
             for (const graphConfigField of graphConfigNode.getFields()){
-                const newField: Field = graphConfigField.getField().clone().setId(Id.generateFieldId());
+                const graphField = graphConfigField.getField();
+                if (typeof node.getFieldById(graphField.getId()) !== 'undefined'){
+                    continue;
+                }
+
+                // clear the edges of clones; any edges belong to the source subgraph
+                const newField: Field = graphField.clone().clearEdges();
                 node.addField(newField);
             }
         }
