@@ -35,8 +35,13 @@
                                         </button>
                                     <!-- /ko -->
                                     <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph && $data.isDocker() -->
-                                        <button type="button" id="openNodeParamsTable" class="btn btn-secondary btn-sm" data-bind="click: $root.fetchDockerHTML, clickBubble: false, eagleTooltip: 'Browse images on docker hub'" data-bs-placement="left">
+                                        <button type="button" id="openDockerModal" class="btn btn-secondary btn-sm" data-bind="click: $root.fetchDockerHTML, clickBubble: false, eagleTooltip: 'Browse images on docker hub'" data-bs-placement="left">
                                             <i class="icon-docker clickable iconHoverEffect"></i>
+                                        </button>
+                                    <!-- /ko -->
+                                    <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph && $data.isSubGraphReference() -->
+                                        <button type="button" id="refreshSubGraphReference" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.refreshSubGraphReference($data)}, clickBubble: false, eagleTooltip: 'Refresh SubGraph Reference'" data-bs-placement="left">
+                                            <i class="material-symbols-outlined md-20 clickable iconHoverEffect">refresh</i>
                                         </button>
                                     <!-- /ko -->
                                     <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->

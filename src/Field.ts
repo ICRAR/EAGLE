@@ -362,6 +362,11 @@ export class Field {
         return this;
     }
 
+    clearOptions = () : Field => {
+        this.options.removeAll();
+        return this;
+    }
+
     isPositionalArgument = () : boolean => {
         return this.positional();
     }

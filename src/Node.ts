@@ -628,6 +628,10 @@ export class Node {
         return this.category() === Category.SubGraph;
     }
 
+    isSubGraphReference = () : boolean => {
+        return this.category() === Category.SubGraphReference;
+    }
+
     isDocker = () : boolean => {
         return this.category() === Category.Docker;
     }

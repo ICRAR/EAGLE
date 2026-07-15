@@ -45,9 +45,12 @@ import { Errors } from './Errors';
 import { Field } from './Field';
 import { FileInfo } from "./FileInfo";
 import { FileLocation } from "./FileLocation";
+import { GitHub } from "./GitHub";
+import { GitLab } from "./GitLab";
 import { GraphConfig } from "./GraphConfig";
 import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 import { GraphRenderer } from "./GraphRenderer";
+import { GraphUpdater } from "./GraphUpdater";
 import { Id } from "./Id";
 import { KeyboardShortcut } from './KeyboardShortcut';
 import { LogicalGraph } from './LogicalGraph';
@@ -169,6 +172,86 @@ export class Utils {
 
     static getFileTypeFromFileName(fileName : string) : Eagle.FileType {
         return Utils.translateStringToFileType(Utils.getFileExtension(fileName));
+    }
+
+    static async fetchRemoteLogicalGraph(file: RepositoryFile): Promise<{lg: LogicalGraph, errorsWarnings: Errors.ErrorsWarnings}> {
+        file.isFetching(true);
+
+        const fetchers: Partial<Record<Repository.Service, (repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string, filePath: string, fileName: string) => Promise<string>>> = {
+            [Repository.Service.GitHub]: GitHub.openRemoteFile,
+            [Repository.Service.GitLab]: GitLab.openRemoteFile,
+        };
+
+        let data: string;
+        try {
+            const fetcher = fetchers[file.repository.service];
+            if (typeof fetcher === 'undefined'){
+                throw new Error("Unsure how to fetch file with unsupported service: " + file.repository.service);
+            }
+
+            data = await fetcher(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
+        } finally {
+            file.isFetching(false);
+        }
+
+        let dataObject;
+        try {
+            dataObject = JSON.parse(data);
+        } catch (error){
+            throw new Error("Error parsing file JSON: " + Errors.UnknownToError(error));
+        }
+
+        const fileTypeLoaded: Eagle.FileType = Utils.determineFileType(dataObject);
+        if (fileTypeLoaded !== Eagle.FileType.Graph){
+            throw new Error("Unable to load non-graph file as SubGraphReference");
+        }
+
+        // update VERY old graphs
+        if (GraphUpdater.usesNodeKeys(dataObject)){
+            GraphUpdater.updateKeysToIds(dataObject);
+        }
+
+        const schemaVersion: Setting.SchemaVersion = Utils.determineSchemaVersion(dataObject);
+        const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
+
+        let lg: LogicalGraph;
+        switch (schemaVersion){
+            case Setting.SchemaVersion.OJS:
+            case Setting.SchemaVersion.Unknown:
+                lg = LogicalGraph.fromOJSJson(dataObject, file.name, errorsWarnings);
+                break;
+            case Setting.SchemaVersion.V4:
+                lg = LogicalGraph.fromV4Json(dataObject, file.name, errorsWarnings);
+                break;
+            default:
+                throw new Error("Unknown schemaVersion: " + schemaVersion);
+        }
+
+        return {lg, errorsWarnings};
+    }
+
+    static updateSubGraphReferencePorts(node: Node, graphConfig: GraphConfig): void {
+        const fieldIdsToRemove: FieldId[] = [];
+
+        // Build a snapshot of removable fields first because getFields() iterates a live map.
+        for (const field of Array.from(node.getFields())){
+            if (field.isInputPort() || field.isOutputPort()){
+                if (field.getDisplayText() !== Daliuge.FieldName.CONFIGURATION){
+                    fieldIdsToRemove.push(field.getId());
+                }
+            }
+        }
+
+        for (const fieldId of fieldIdsToRemove){
+            node.removeFieldById(fieldId);
+        }
+
+        for (const graphConfigNode of graphConfig.getNodes()){
+            for (const graphConfigField of graphConfigNode.getFields()){
+                const newField: Field = graphConfigField.getField().clone().setId(Id.generateFieldId());
+                node.addField(newField);
+            }
+        }
     }
 
     // NOTE: used for sorting files by filetype

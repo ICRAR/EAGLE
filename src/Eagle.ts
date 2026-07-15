@@ -1742,6 +1742,105 @@ export class Eagle {
         Utils.requestUserCode("json", "Display Node as JSON", jsonString, true);
     }
 
+    refreshSubGraphReference = async (node: Node) : Promise<void> => {
+        // abort if not a SubGraphReference node
+        if (!node.isSubGraphReference()){
+            Utils.showUserMessage("Error", "Selected node is not a SubGraphReference.");
+            return;
+        }
+
+        // get references to the fields that specify the subgraph location
+        const serviceField = node.findFieldByDisplayText(Daliuge.FieldName.SERVICE);
+        const repositoryField = node.findFieldByDisplayText(Daliuge.FieldName.REPOSITORY);
+        const branchField = node.findFieldByDisplayText(Daliuge.FieldName.BRANCH);
+        const commitField = node.findFieldByDisplayText(Daliuge.FieldName.COMMIT);
+        const pathField = node.findFieldByDisplayText(Daliuge.FieldName.PATH);
+        const configurationNameField = node.findFieldByDisplayText(Daliuge.FieldName.CONFIGURATION_NAME);
+
+        // abort if any of the required fields are missing
+        if (typeof serviceField === 'undefined' ||
+            typeof repositoryField === 'undefined' ||
+            typeof branchField === 'undefined' ||
+            typeof commitField === 'undefined' ||
+            typeof pathField === 'undefined' ||
+            typeof configurationNameField === 'undefined') {
+            Utils.showUserMessage("Error", "SubGraphReference node is missing one or more required metadata fields.");
+            return;
+        }
+
+        // abort if service is not GitHub or GitLab
+        const serviceValue = serviceField.getValue() ?? "";
+        if (serviceValue !== Repository.Service.GitHub && serviceValue !== Repository.Service.GitLab){
+            Utils.showUserMessage("Error", "SubGraphReference service must be GitHub or GitLab.");
+            return;
+        }
+
+        const repositoryName = repositoryField.getValue() ?? "";
+        const repositoryBranch = branchField.getValue() ?? "";
+        const fullPath = pathField.getValue() ?? "";
+        const selectedConfigName = configurationNameField.getValue() ?? "";
+
+        if (repositoryName === "" || repositoryBranch === "" || fullPath === "" || selectedConfigName === ""){
+            Utils.showUserMessage("Error", "SubGraphReference metadata is incomplete. Please ensure repository, branch, path, and configuration name are set.");
+            return;
+        }
+
+        const fileName = Utils.getFileNameFromFullPath(fullPath);
+        const filePath = Utils.getFilePathFromFullPath(fullPath);
+        if (fileName === ""){
+            Utils.showUserMessage("Error", "SubGraphReference path does not include a valid filename.");
+            return;
+        }
+
+        // build a RepositoryFile object to fetch the subgraph from the remote repository
+        const repository = new Repository(serviceValue, repositoryName, repositoryBranch, false);
+        const file = new RepositoryFile(repository, filePath, fileName);
+
+        // fetch the logical graph from the remote repository
+        let lg: LogicalGraph;
+        let errorsWarnings: Errors.ErrorsWarnings;
+        try {
+            ({lg, errorsWarnings} = await Utils.fetchRemoteLogicalGraph(file));
+        } catch (error) {
+            Utils.showUserMessage("Error", Errors.UnknownToError(error));
+            console.error(error);
+            return;
+        }
+
+        // check we can find the graph config in the fetched logical graph
+        const graphConfig = lg.getGraphConfigByName(selectedConfigName);
+        if (typeof graphConfig === 'undefined'){
+            Utils.showUserMessage("Error", "Unable to refresh SubGraphReference because Graph Config '" + selectedConfigName + "' was not found in the fetched graph.");
+            return;
+        }
+
+        // update the SubGraphReference node's metadata fields to match the fetched logical graph
+        const resolvedPathAndName = filePath === "" ? fileName : filePath + "/" + fileName;
+        serviceField.setValue(serviceValue).setDefaultValue(serviceValue);
+        repositoryField.setValue(repositoryName).setDefaultValue(repositoryName);
+        branchField.setValue(repositoryBranch).setDefaultValue(repositoryBranch);
+        commitField.setValue(lg.fileInfo().location.commitHash()).setDefaultValue(lg.fileInfo().location.commitHash());
+        pathField.setValue(resolvedPathAndName).setDefaultValue(resolvedPathAndName);
+
+        // clear and re-populate the configuration name field with the names of all graph configs in the fetched logical graph
+        configurationNameField.clearOptions();
+        for (const gc of lg.getGraphConfigs()){
+            configurationNameField.addOption(gc.fileInfo().name);
+        }
+        configurationNameField.setValue(selectedConfigName).setDefaultValue(selectedConfigName);
+
+        // update the ports of the SubGraphReference node to match the ports of the selected graph config
+        Utils.updateSubGraphReferencePorts(node, graphConfig);
+
+        // trigger re-render
+        this.logicalGraph.valueHasMutated();
+        this.undo().pushSnapshot(this, "Refreshed SubGraphReference " + node.getName());
+        this.checkEagle();
+
+        // show errors/warnings from the fetched subgraph
+        this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
+    }
+
     /**
      * Creates a new palette for editing.
      */
@@ -2953,78 +3052,14 @@ export class Eagle {
     };
 
     insertRemoteFileAsReference = async (file : RepositoryFile): Promise<void> => {
-        // flag file as being fetched
-        file.isFetching(true);
-
-        // check the service required to fetch the file
-        let insertRemoteFileFunc: (repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string, filePath: string, fileName: string) => Promise<string>;
-        switch (file.repository.service){
-            case Repository.Service.GitHub:
-                insertRemoteFileFunc = GitHub.openRemoteFile;
-                break;
-            case Repository.Service.GitLab:
-                insertRemoteFileFunc = GitLab.openRemoteFile;
-                break;
-            default:
-                console.warn("Unsure how to fetch file with unknown service ", file.repository.service);
-                return;
-        }
-
-        // load file from github or gitlab
-        let data: string;
+        let lg: LogicalGraph;
+        let errorsWarnings: Errors.ErrorsWarnings;
         try {
-            data = await insertRemoteFileFunc(file.repository.service, file.repository.name, file.repository.branch, file.path, file.name);
+            ({lg, errorsWarnings} = await Utils.fetchRemoteLogicalGraph(file));
         } catch (error) {
-            Utils.showUserMessage("Error", "Failed to load a file!");
+            Utils.showUserMessage("Error", Errors.UnknownToError(error));
             console.error(error);
             return;
-        } finally {
-            // flag fetching as complete
-            file.isFetching(false);
-        }
-
-        // attempt to parse the JSON
-        let dataObject;
-        try {
-            dataObject = JSON.parse(data);
-        }
-        catch(err){
-            Utils.showUserMessage("Error parsing file JSON", Errors.UnknownToError(err));
-            return;
-        }
-
-        const fileTypeLoaded: Eagle.FileType = Utils.determineFileType(dataObject);
-
-        // only do this for graphs at the moment
-        if (fileTypeLoaded !== Eagle.FileType.Graph){
-            Utils.showUserMessage("Error", "Unable to insert non-graph!");
-            console.error("Unable to insert non-graph!");
-            return;
-        }
-
-        // attempt to determine schema version from FileInfo
-        const schemaVersion: Setting.SchemaVersion = Utils.determineSchemaVersion(dataObject);
-
-        // check if we need to update the graph from keys to ids
-        if (GraphUpdater.usesNodeKeys(dataObject)){
-            GraphUpdater.updateKeysToIds(dataObject);
-        }
-
-        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
-
-        // use the correct parsing function based on schema version
-        let lg: LogicalGraph;
-        switch (schemaVersion){
-            case Setting.SchemaVersion.OJS:
-            case Setting.SchemaVersion.Unknown:
-                lg = LogicalGraph.fromOJSJson(dataObject, file.name, errorsWarnings);
-                break;
-            case Setting.SchemaVersion.V4:
-                lg = LogicalGraph.fromV4Json(dataObject, file.name, errorsWarnings);
-                break;
-            default:
-                errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
-                return;
         }
 
         // check that graph has been named, if not, name the graph before inserting
@@ -3066,7 +3101,7 @@ export class Eagle {
         node.addField(Daliuge.graphRepositoryField.clone().setId(Id.generateFieldId()).setValue(file.repository.name));
         node.addField(Daliuge.graphBranchField.clone().setId(Id.generateFieldId()).setValue(file.repository.branch));
         node.addField(Daliuge.graphCommitField.clone().setId(Id.generateFieldId()).setValue(lg.fileInfo().location.commitHash()));
-        node.addField(Daliuge.graphPathField.clone().setId(Id.generateFieldId()).setValue(file.path + file.name));
+        node.addField(Daliuge.graphPathField.clone().setId(Id.generateFieldId()).setValue(file.path + "/" + file.name));
 
         // add a field for the graph configuration name, which will be used to select which graph configuration to use when the subgraph reference is executed
         const graphConfigurationNameField = Daliuge.graphConfigurationNameField.clone().setId(Id.generateFieldId());
@@ -3079,7 +3114,7 @@ export class Eagle {
             const configName: string = activeGraphConfig.fileInfo().name;
             graphConfigurationNameField.setValue(configName).setDefaultValue(configName);
 
-            this._updateSubGraphReferenceInputOutput(node, activeGraphConfig);
+            Utils.updateSubGraphReferencePorts(node, activeGraphConfig);
         }
 
         // add options for the graph configuration name field based on the graph configs in the loaded graph
@@ -3094,25 +3129,6 @@ export class Eagle {
         node.addField(Daliuge.graphConfigurationField.clone().setId(Id.generateFieldId()));
 
         return node;
-    }
-
-    private _updateSubGraphReferenceInputOutput = (node: Node, graphConfig: GraphConfig): void => {
-        // remove all existing input/output ports from the node, except the external graph configuration input port
-        for (const field of node.getFields()){
-            if (field.isInputPort() || field.isOutputPort()){
-                if (field.getDisplayText() !== Daliuge.FieldName.CONFIGURATION_NAME){
-                    node.removeFieldById(field.getId());
-                }
-            }
-        }
-
-        // add port for each field in the graph configuration
-        for (const graphConfigNode of graphConfig.getNodes()){
-            for (const graphConfigField of graphConfigNode.getFields()){
-                const newField: Field = graphConfigField.getField().clone().setId(Id.generateFieldId());
-                node.addField(newField);
-            }
-        }
     }
 
     deleteRemoteFile = async (file : RepositoryFile): Promise<void> => {

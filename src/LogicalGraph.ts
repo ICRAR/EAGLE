@@ -702,6 +702,16 @@ export class LogicalGraph {
         return this.graphConfigs().get(id);
     }
 
+    getGraphConfigByName = (name: string): GraphConfig | undefined => {
+        for (const graphConfig of this.graphConfigs().values()){
+            if (graphConfig.fileInfo().name === name){
+                return graphConfig;
+            }
+        }
+
+        return undefined;
+    }
+
     addGraphConfig = (config: GraphConfig, openGraphConfigUI: boolean = true): void => {
         // update fileInfo of config with data about the graph to which it was added
         config.fileInfo().graphLocation = this.fileInfo().location.clone();
