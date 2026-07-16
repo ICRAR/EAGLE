@@ -4,10 +4,6 @@
 		<!-- <source src="downtown-los-angeles.webm"> -->
 		<track kind="chapters" label="Locations" src="_static/videos/Save_graph.vtt" srclang="en" default>
 	</video>
-	<figcaption>
-		<ol id="save_graph_captions"  class="captions">
-		</ol>
-	</figcaption>
 
 	<!-- Trigger/Open The Modal -->
 	<button id="myBtn4" style="float: right" onclick="myBtn4Click()">Click to see a larger video</button>
@@ -25,26 +21,13 @@
 			<!-- <source src="downtown-los-angeles.webm"> -->
 			<track kind="chapters" label="Locations" src="_static/videos/Save_graph.vtt" srclang="en" default>
 		</video>
-		<figcaption>
-			<ol id="save_graph_captions_modal"  class="captions">
-			</ol>
-		</figcaption>
 	</figure>
 
 </div>
 
 <script>
-var locationList4 = document.getElementById("save_graph_captions"),
-video4 = document.getElementById("save_graph"),
-trackElement4 = video4.getElementsByTagName("track")[0];
-
-all_videos.push([locationList4, video4, trackElement4]);
-
-var locationList4m = document.getElementById("save_graph_captions_modal"),
-video4m = document.getElementById("save_graph_modal"),
-trackElement4m = video4m.getElementsByTagName("track")[0];
-
-all_videos.push([locationList4m, video4m, trackElement4m]);
+var video4 = document.getElementById("save_graph"),
+video4m = document.getElementById("save_graph_modal");
 
 // Get the modal
 var modal4 = document.getElementById("myModal4");

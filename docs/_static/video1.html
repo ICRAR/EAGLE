@@ -4,10 +4,6 @@
 		<!-- <source src="downtown-los-angeles.webm"> -->
 		<track kind="chapters" label="Locations" src="_static/videos/Load_palette.vtt" srclang="en" default>
 	</video>
-	<figcaption>
-		<ol id="load_palette_captions"  class="captions">
-		</ol>
-	</figcaption>
 
 	<!-- Trigger/Open The Modal -->
 	<button id="myBtn5" style="float: right" onclick="myBtn5Click()">Click to see a larger video</button>
@@ -25,26 +21,11 @@
 			<!-- <source src="downtown-los-angeles.webm"> -->
 			<track kind="chapters" label="Locations" src="_static/videos/Load_palette.vtt" srclang="en" default>
 		</video>
-		<figcaption>
-			<ol id="load_palette_captions_modal"  class="captions">
-			</ol>
-		</figcaption>
 	</figure>
 
-</div>
-
 <script>
-var locationList5 = document.getElementById("load_palette_captions"),
-video5 = document.getElementById("load_palette"),
-trackElement5 = video5.getElementsByTagName("track")[0];
-
-var all_videos = [];
-
-all_videos.push([locationList5, video5, trackElement5]);
-
-var locationList5m = document.getElementById("load_palette_captions_modal"),
-video5m = document.getElementById("load_palette_modal"),
-trackElement5m = video5m.getElementsByTagName("track")[0];
+var video5 = document.getElementById("load_palette"),
+video5m = document.getElementById("load_palette_modal");
 
 all_videos.push([locationList5m, video5m, trackElement5m]);
 

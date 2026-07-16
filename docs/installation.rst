@@ -1,119 +1,129 @@
 Installation
 ============
 
-EAGLE can be installed and run in various ways. First off you don't need to install it at all, since there is a version maintained by us under https://eagle.icrar.org. If you want to run EAGLE locally, the various methods are detailed below. Using Docker images, is the preferred method.
+You can use EAGLE online or run it locally.
+
 
 Docker Images
--------------
 
-This is the preferred way to get EAGLE up and running both in an operational and in a development environment. It is based on an image from https://github.com/tiangolo/meinheld-gunicorn-flask-docker and packs meinheld, gunicorn, flask and EAGLE into a docker image. When started, it runs EAGLE as a Flask WSGI application served by multiple gunicorn tasks. There are three different targets to build docker images:
+Docker is the fastest path to a working local instance.
+Available image targets:
 
-    #. deployment (dep)
-    #. development (dev)
-    #. slim (slim)
+#. deployment (dep)
+#. development (dev)
+#. slim (slim)
 
 Deployment Image
 """"""""""""""""
 
-This is probably the most commonly used target. To build a deployment image:
+Build and run the deployment image:
 
 .. code-block:: shell
 
     git clone https://github.com/ICRAR/EAGLE.git
     cd EAGLE
     ./build_eagle.sh dep
-
-This will build an image and tag it with the latest tag found on git. To start this image run:
-
     ./run_eagle.sh dep
 
-The container will be started in the background and the script also attempts to open your preferred web-browser in a new tab. If that does not succeed open the page manually at:
+Open EAGLE at:
 
-    http://localhost:8888
+http://localhost:8888
 
-To stop and remove the deployment container run:
+Stop the container:
+
+.. code-block:: shell
 
     stop_eagle.sh dep
 
 Development Image
-"""""""""""""""""
+""""""""""""""""""""
 
-The development image maps the local host directory to the EAGLE instance installed inside the container and thus allows to modify things on-the-fly. To build a development image run:
+Use this mode when editing frontend files and testing changes quickly.
+
+.. code-block:: shell
 
     ./build_eagle.sh dev
-
-To start this image run:
-
     ./run_eagle.sh dev
 
-This will start the development image in foreground and watch the typescript files for any changes. If changes are detected the compiler will translate the affected files. All changes in the static subdirectory will directly affect the deployed EAGLE instance. The only files which will not be reflected live in the docker image are the main eagleServer files under the eagleServer subdirectory. In order to push changes to those files or in cases where caching is preventing some changes to propagate through the stack calling
+This mode runs in the foreground and watches TypeScript sources.
+Changes under ``static/`` are reflected immediately.
+
+To stop, press ``CTRL+C`` in that terminal.
+
+If backend changes are not picked up, restart gunicorn:
+
+.. code-block:: shell
 
     docker/restart_gunicorn.sh
 
-will likely help.
-
-To stop the running container press CTRL+C in the terminal where the image was started (it is also possible to use './stop_eagle dev' from another command prompt).
-
 Slimmed Deployment Image
 """"""""""""""""""""""""
-This is mainly used for releases, but helps in keeping the size of the final image small. It is using the `SlimToolkit <https://github.com/slimtoolkit/slim>`_
 
-Non-docker installation
------------------------
+This target is mainly for release packaging and smaller image size.
+It uses `SlimToolkit <https://github.com/slimtoolkit/slim>`_.
 
-For debugging and testing in a local environment EAGLE has an internal web server, which is provided by the underlying Flask framework.
+Non-docker Installation
 
-Clone EAGLE repository
-""""""""""""""""""""""
+Use this path for local debugging without Docker.
+
+Clone EAGLE Repository
+"""""""""""""""""""""""
+
+.. code-block:: shell
 
     git clone https://github.com/ICRAR/EAGLE
+    cd EAGLE
 
 Install NPM
 """""""""""
 
-EAGLE is based on typescript and that and the supporting infrastructure needs to be installed first.
+Install Node.js LTS from https://nodejs.org.
+On Linux, you can also use:
 
-MacOSX users should download the latest NodeJS Long Term Support (LTS) installer from https://nodejs.org
-
-Linux users should use apt
+.. code-block:: shell
 
     sudo apt install npm
 
-Install typescript
+Install TypeScript
 """"""""""""""""""
 
-This is a useful tool to install globally
+Install TypeScript globally:
+
+.. code-block:: shell
 
     sudo npm install -g typescript
 
-Install dependencies using NPM
+Install Dependencies Using NPM
 """"""""""""""""""""""""""""""
 
-EAGLE depends on a number of packages. These are listed in package.json. To install all the dependencies:
+Install JavaScript dependencies:
+
+.. code-block:: shell
 
     npm install
 
-within the EAGLE directory.
+Compile TypeScript
+""""""""""""""""""
 
-Compile the Typescript
-""""""""""""""""""""""
+Compile once:
 
-Since Typescript is not interpretable by browsers, the source must be compiled/transcoded into native javascript. Run the Typescript compiler in the EAGLE directory.
+.. code-block:: shell
 
     tsc
 
-If you are actively developing EAGLE, it is recommended to use the Typescript compiler in "watcher mode", in which the tsc process persists, is notified of changes to the Typescript source, and automatically recompiles.
+Or run watch mode while developing:
+
+.. code-block:: shell
 
     tsc -w
 
-Install, create and activate virtualenv
-"""""""""""""""""""""""""""""""""""""""
+Create and Activate a Virtual Environment
+""""""""""""""""""""""""""""""""""""""""""
 
-Virtualenvs are standard in python3 and the recommended method
-is to use pyenv. EAGLE does not impose any particular way of
-using virtual environments, but strongly recommends to use a separate one for EAGLE. Please refer to the documentation of your virtual environment system on how to do this. EAGLE has only been tested with the plain virtualenv and the pyenv. With pyenv this would look like:
+Use a dedicated Python environment.
+Example with ``pyenv``:
 
- .. code-block:: shell
+.. code-block:: shell
 
     pyenv virtualenv -p python3.8 eagle
     pyenv activate eagle
@@ -121,22 +131,24 @@ using virtual environments, but strongly recommends to use a separate one for EA
 Install EAGLE
 """""""""""""
 
+.. code-block:: shell
+
     pip install .
 
 Start Server
 """"""""""""
 
-Simply start it using
+Run the local server:
 
-    $ eagleServer -t /tmp
+.. code-block:: shell
+
+    eagleServer -t /tmp
 
 Tools
------
 
-The repository also contains a tool to update old format graphs into new format files. It is IMPORTANT to run this "updateGraph" tool from within the tools subdirectory:
+To upgrade older graph formats, run ``updateGraph`` from the ``tools`` directory:
 
-    $ cd tools
+.. code-block:: shell
 
-then
-
-    $ ts-node updateGraph.ts <input_file> <output_file>
+    cd tools
+    ts-node updateGraph.ts <input_file> <output_file>

@@ -94,6 +94,7 @@ html_theme_options = {}
 # Adding this so we can increase the width of the central column of text.
 # The custom.css file is in the _static directory.
 html_css_files = [
+    "css/custom.css",
     "css/eagle.css",
 ]
 

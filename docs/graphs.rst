@@ -1,7 +1,8 @@
 Templates and Graphs
 ====================
 
-The process of constructing a workflow using EAGLE begins at the most general level -- a Logical Graph Template, and moves through a series of steps to the most specific level -- a Physical Graph. The steps are shown in the following diagram:
+EAGLE workflows move through four stages.
+You start with intent and end with an executable deployment.
 
 .. raw:: html
     :file: _static/graphs_map.html
@@ -18,7 +19,8 @@ The process of constructing a workflow using EAGLE begins at the most general le
 Logical Graph Template
 ----------------------
 
-Logical Graph Templates are created within the EAGLE drag-and-drop interface. They are usually designed for one experiment or one instrument, but they allow some flexibility in the form of exposed parameters that may be set to different values by the user prior to execution.
+A Logical Graph Template defines workflow structure.
+It includes components, edges, and exposed parameters, but no run-specific values.
 
 .. figure:: _static/images/logical_graph_template.png
   :width: 700px
@@ -28,12 +30,14 @@ Logical Graph Templates are created within the EAGLE drag-and-drop interface. Th
 
   An example of a Logical Graph Template
 
-In an operational environment Logical Graph Templates represent different data processing modes, and after a period of development and use they will become quite stable. They can increase in complexity very quickly; however, if developers approach them as a template and use the ability to expose adjustable parameters, this can highlight the inherent parallelism and potential bottlenecks of complex workflows. Logical Graph Templates provide a birds-eye view of an arbitrarily parallel process, even though parallelism isn't explicitly represented at this stage of the workflow.
+Templates are designed to be reused.
+Keep them stable and expose only parameters users should tune.
 
 Logical Graph
 -------------
 
-Logical Graphs are constructed from Logical Graph Templates by setting the exposed parameters of the graph's :doc:`Components <components>`. In general, most of these parameters are settings that influence the behaviour of the components, while some others control the size or the parameterisation of the data being processed.
+A Logical Graph is a template with parameter values filled in.
+This is where a generic workflow becomes a run-ready logical definition.
 
 .. figure:: _static/images/helloWorld_param.gif
   :width: 200px
@@ -46,7 +50,8 @@ Logical Graphs are constructed from Logical Graph Templates by setting the expos
 Physical Graph Template
 -----------------------
 
-Physical Graph Templates are calculated from Logical Graphs by the DALiuGE translation engine, and then displayed in an additional browser tab. They represent a translation of a Logical Graph into a Directed Acyclic Graph, and a mapping of that graph onto a potentially available cluster.
+The DALiuGE translator converts the Logical Graph into a Physical Graph Template.
+This stage applies partitioning and scheduling decisions for target resources.
 
 .. figure:: _static/images/physical_graph_template.png
   :width: 500px
@@ -56,10 +61,13 @@ Physical Graph Templates are calculated from Logical Graphs by the DALiuGE trans
 
   An example of a Physical Graph Template
 
-The DALiuGE translation engine implements multiple algorithms for the translation, but the result is always a Physical Graph Template partitioned in a way to meet the hardware capabilities and any additional constraints given to the algorithms (e.g. minimise run-time). Since some of the translation algorithms are quite expensive and time consuming to run, it is good practice to generate them as soon as the parameterisation of the reduction run is clear.
+Different translation algorithms may be available.
+Choose based on your constraints, such as runtime or resource usage.
 
 
 Physical Graph
 --------------
 
-Physical Graphs represent the final mapping of the Physical Graph Templates to available computer node(s), in the final step before execution. EAGLE displays the deployed graph and shows progression of the execution. It provides  a visualisation during execution time which is just informative and will not scale to many thousands or millions of tasks. However, it shows failures immediately, providing a helpful tool during graph development. Physical Graphs are completely bound to an actual execution of a workflow, and will be saved as part of the logs.
+A Physical Graph is the deployed form mapped to real compute resources.
+EAGLE shows execution progress and failures for debugging and development.
+Execution records are stored with run logs.
