@@ -28,3 +28,15 @@
 .wy-nav-content {
     max-width: 1000px
 }
+
+/* Keep embedded tutorial videos inline with the document text column. */
+.rst-content figure,
+.rst-content video {
+    max-width: 100%;
+}
+
+.rst-content video {
+    width: 100%;
+    height: auto;
+    display: block;
+}
