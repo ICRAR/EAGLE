@@ -122,16 +122,6 @@ export class Undo {
     }
 
     prevSnapshot = (eagle: Eagle) : void => {
-        const graphContentSignature = (snapshotData: any): string => {
-            // Ignore metadata-only differences and compare only graph content.
-            const content = {
-                nodes: snapshotData?.nodes ?? snapshotData?.nodeDataArray ?? null,
-                edges: snapshotData?.edges ?? snapshotData?.linkDataArray ?? null,
-                visuals: snapshotData?.visuals ?? null,
-            };
-            return JSON.stringify(content);
-        };
-
         const prevIndex = (this.current() + Undo.MEMORY_SIZE - 1) % Undo.MEMORY_SIZE;
 
         // No undo is possible when the cursor is at the rear, or when prevIndex is
@@ -152,13 +142,6 @@ export class Undo {
 
         const targetSnapshot = this.memory()[prevprevIndex];
         if (targetSnapshot === null){
-            Utils.showNotification("Unable to Undo", "No further history available", "warning");
-            return;
-        }
-
-        // If the target snapshot has the same graph content, this would be a no-op
-        // undo step (typically metadata-only history). Treat it as exhausted undo.
-        if (graphContentSignature(prevSnapshot.data()) === graphContentSignature(targetSnapshot.data())){
             Utils.showNotification("Unable to Undo", "No further history available", "warning");
             return;
         }

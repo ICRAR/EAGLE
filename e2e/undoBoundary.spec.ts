@@ -40,15 +40,27 @@ test('Undo exhausted history warns on first boundary keypress', async ({ page })
         $('[data-notify="container"]').remove();
     });
 
-    // first boundary keypress should warn immediately
+    // the first extra undo is still valid on a fresh graph because graph
+    // initialization metadata is recorded in undo history.
     await TestHelpers.undo(page);
 
     const notification = page.locator('div[data-notify="container"]').first();
     await notification.waitFor({ state: 'attached' });
-    await expect(notification.locator('[data-notify="title"]')).toContainText('Unable to Undo');
-    await expect(notification.locator('span[data-notify="message"]')).toContainText('No further history available');
+    await expect(notification.locator('[data-notify="title"]')).toContainText('Undo');
+    await expect(notification.locator('span[data-notify="message"]')).toContainText('Added a new graph configuration');
 
-    // boundary press should not alter graph state
+    // This metadata undo should not alter visible graph state.
+    await expect.poll(async () => await TestHelpers.getNodeCount(page)).toBe(0);
+
+    await page.locator('button[data-notify="dismiss"]').first().click();
+
+    // The next undo is the real boundary.
+    await TestHelpers.undo(page);
+
+    const boundaryNotification = page.locator('div[data-notify="container"]').first();
+    await boundaryNotification.waitFor({ state: 'attached' });
+    await expect(boundaryNotification.locator('[data-notify="title"]')).toContainText('Unable to Undo');
+    await expect(boundaryNotification.locator('span[data-notify="message"]')).toContainText('No further history available');
     await expect.poll(async () => await TestHelpers.getNodeCount(page)).toBe(0);
 
     await page.locator('button[data-notify="dismiss"]').first().click();
@@ -84,7 +96,8 @@ test('Undo still works after add undo add branch', async ({ page }) => {
     await TestHelpers.undo(page);
     await expect.poll(async () => await TestHelpers.getNodeCount(page)).toBe(0);
 
-    // One more undo should now warn because history is exhausted.
+    // One more undo should still be valid because graph initialization metadata
+    // is part of the undo history.
     await page.evaluate(() => {
         const $ = (window as any).$;
         $('[data-notify="container"]').remove();
@@ -94,8 +107,18 @@ test('Undo still works after add undo add branch', async ({ page }) => {
 
     const notification = page.locator('div[data-notify="container"]').first();
     await notification.waitFor({ state: 'attached' });
-    await expect(notification.locator('[data-notify="title"]')).toContainText('Unable to Undo');
-    await expect(notification.locator('span[data-notify="message"]')).toContainText('No further history available');
+    await expect(notification.locator('[data-notify="title"]')).toContainText('Undo');
+    await expect(notification.locator('span[data-notify="message"]')).toContainText('Added a new graph configuration');
+    await expect.poll(async () => await TestHelpers.getNodeCount(page)).toBe(0);
+
+    await page.locator('button[data-notify="dismiss"]').first().click();
+
+    await TestHelpers.undo(page);
+
+    const boundaryNotification = page.locator('div[data-notify="container"]').first();
+    await boundaryNotification.waitFor({ state: 'attached' });
+    await expect(boundaryNotification.locator('[data-notify="title"]')).toContainText('Unable to Undo');
+    await expect(boundaryNotification.locator('span[data-notify="message"]')).toContainText('No further history available');
     await expect.poll(async () => await TestHelpers.getNodeCount(page)).toBe(0);
 
     await page.locator('button[data-notify="dismiss"]').first().click();
