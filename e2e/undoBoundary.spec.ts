@@ -54,3 +54,50 @@ test('Undo exhausted history warns on first boundary keypress', async ({ page })
     await page.locator('button[data-notify="dismiss"]').first().click();
     await page.close();
 });
+
+test('Undo still works after add undo add branch', async ({ page }) => {
+    await page.goto('http://localhost:8888/?tutorial=none');
+
+    await TestHelpers.setUIMode(page, 'Expert');
+    await expect(await TestHelpers.getNodeCount(page)).toBe(0);
+
+    await TestHelpers.expandPalette(page, 0);
+
+    // First add creates the graph.
+    await page.locator('#palette_0_HelloWorldApp').scrollIntoViewIfNeeded();
+    await page.locator('#addPaletteNodeHelloWorldApp').click();
+    await page.waitForTimeout(500);
+    await page.getByRole('button', { name: 'OK' }).click();
+    await page.waitForTimeout(500);
+    await expect.poll(async () => await TestHelpers.getNodeCount(page)).toBe(1);
+
+    // Undo back to empty.
+    await TestHelpers.undo(page);
+    await expect.poll(async () => await TestHelpers.getNodeCount(page)).toBe(0);
+
+    // Branch history by adding a different node.
+    await page.locator('#palette_0_File').scrollIntoViewIfNeeded();
+    await page.locator('#addPaletteNodeFile').click();
+    await expect.poll(async () => await TestHelpers.getNodeCount(page)).toBe(1);
+
+    // Undo should still work immediately on the new branch.
+    await TestHelpers.undo(page);
+    await expect.poll(async () => await TestHelpers.getNodeCount(page)).toBe(0);
+
+    // One more undo should now warn because history is exhausted.
+    await page.evaluate(() => {
+        const $ = (window as any).$;
+        $('[data-notify="container"]').remove();
+    });
+
+    await TestHelpers.undo(page);
+
+    const notification = page.locator('div[data-notify="container"]').first();
+    await notification.waitFor({ state: 'attached' });
+    await expect(notification.locator('[data-notify="title"]')).toContainText('Unable to Undo');
+    await expect(notification.locator('span[data-notify="message"]')).toContainText('No further history available');
+    await expect.poll(async () => await TestHelpers.getNodeCount(page)).toBe(0);
+
+    await page.locator('button[data-notify="dismiss"]').first().click();
+    await page.close();
+});
