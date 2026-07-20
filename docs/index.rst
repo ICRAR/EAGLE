@@ -45,8 +45,8 @@ Components are defined in JSON descriptions so EAGLE can display, validate, and 
 
    Installation <installation>
    Quick Start <quickStart2>
-   Settings <settings>
    Hello World Example <helloWorld>
+   Settings <settings>
 
 .. toctree::
    :maxdepth: 2

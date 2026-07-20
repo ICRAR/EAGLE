@@ -3,20 +3,24 @@ Installation
 
 You can use EAGLE online or run it locally.
 
+- Online: https://eagle.icrar.org
+- Local: Docker (recommended) or a non-Docker setup
 
-Docker Images
+Docker Installation (Recommended)
+---------------------------------
 
-Docker is the fastest path to a working local instance.
+Docker is the fastest way to run EAGLE locally.
+
 Available image targets:
 
 #. deployment (dep)
 #. development (dev)
 #. slim (slim)
 
-Deployment Image
+Deployment image
 """"""""""""""""
 
-Build and run the deployment image:
+Build and run:
 
 .. code-block:: shell
 
@@ -25,30 +29,32 @@ Build and run the deployment image:
     ./build_eagle.sh dep
     ./run_eagle.sh dep
 
-Open EAGLE at:
+Open:
 
 http://localhost:8888
 
-Stop the container:
+Stop:
 
 .. code-block:: shell
 
     stop_eagle.sh dep
 
-Development Image
-""""""""""""""""""""
+Development image
+"""""""""""""""""
 
-Use this mode when editing frontend files and testing changes quickly.
+Use this mode while editing and testing:
 
 .. code-block:: shell
 
     ./build_eagle.sh dev
     ./run_eagle.sh dev
 
-This mode runs in the foreground and watches TypeScript sources.
-Changes under ``static/`` are reflected immediately.
+Notes:
 
-To stop, press ``CTRL+C`` in that terminal.
+- Runs in the foreground.
+- Watches TypeScript source changes.
+- Changes under ``static/`` are reflected immediately.
+- Stop with ``CTRL+C``.
 
 If backend changes are not picked up, restart gunicorn:
 
@@ -56,26 +62,26 @@ If backend changes are not picked up, restart gunicorn:
 
     docker/restart_gunicorn.sh
 
-Slimmed Deployment Image
-""""""""""""""""""""""""
+Slim image
+""""""""""
 
-This target is mainly for release packaging and smaller image size.
+Used mainly for release packaging and smaller image size.
 It uses `SlimToolkit <https://github.com/slimtoolkit/slim>`_.
 
-Non-docker Installation
+Non-Docker Installation
+-----------------------
 
 Use this path for local debugging without Docker.
 
-Clone EAGLE Repository
-"""""""""""""""""""""""
+Setup and dependencies
+""""""""""""""""""""""""
+
+Clone the repository:
 
 .. code-block:: shell
 
     git clone https://github.com/ICRAR/EAGLE
     cd EAGLE
-
-Install NPM
-"""""""""""
 
 Install Node.js LTS from https://nodejs.org.
 On Linux, you can also use:
@@ -84,17 +90,11 @@ On Linux, you can also use:
 
     sudo apt install npm
 
-Install TypeScript
-""""""""""""""""""
-
 Install TypeScript globally:
 
 .. code-block:: shell
 
     sudo npm install -g typescript
-
-Install Dependencies Using NPM
-""""""""""""""""""""""""""""""
 
 Install JavaScript dependencies:
 
@@ -102,55 +102,48 @@ Install JavaScript dependencies:
 
     npm install
 
-Compile TypeScript
-""""""""""""""""""
-
-Compile once:
+Compile TypeScript:
 
 .. code-block:: shell
 
     tsc
 
-Or run watch mode while developing:
+Or use watch mode while developing:
 
 .. code-block:: shell
 
     tsc -w
 
-Create and Activate a Virtual Environment
-""""""""""""""""""""""""""""""""""""""""""
-
-Use a dedicated Python environment.
-Example with ``pyenv``:
+Create and activate a Python environment (example using ``pyenv``):
 
 .. code-block:: shell
 
     pyenv virtualenv -p python3.8 eagle
     pyenv activate eagle
 
-Install EAGLE
-"""""""""""""
+Install EAGLE:
 
 .. code-block:: shell
 
     pip install .
 
-Start Server
-""""""""""""
+Run local server
+""""""""""""""""""
 
-<<<<<<< HEAD
-Run the local server:
+Start EAGLE:
 
 .. code-block:: shell
 
     eagleServer -t /tmp
-=======
-Simply start it (in debug mode) using
 
-    $ eagleServer -t /tmp --debug
->>>>>>> master
+Optional debug mode:
+
+.. code-block:: shell
+
+    eagleServer -t /tmp --debug
 
 Tools
+-----
 
 To upgrade older graph formats, run ``updateGraph`` from the ``tools`` directory:
 
