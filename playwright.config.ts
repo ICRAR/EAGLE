@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { defineConfig, devices } from '@playwright/test';
 
 /**
@@ -8,7 +9,7 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './e2e',
   /* Run tests in files in parallel */
-  fullyParallel: false,
+  fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
@@ -24,6 +25,8 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+    viewport: { width: 1920, height: 1080 },
+    deviceScaleFactor: 1,
     launchOptions:{
       // slowMo: 500 //use for debugging to more easily see what is happening
     }
@@ -34,30 +37,24 @@ export default defineConfig({
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] ,
-        deviceScaleFactor: undefined,
-        viewport:null,
-        launchOptions:{
-          args:['--window-size=1920,1080'],
-        }
+        viewport: { width: 1920, height: 1080 },
+        deviceScaleFactor: 1
       }
     },
 
     {
       name: 'firefox',
       use: { ...devices['Firefox']  ,
-        deviceScaleFactor: undefined,
-        viewport:null,
-        launchOptions:{
-          args:['--window-size=1920,1080'],
-        }
+        viewport: { width: 1920, height: 1080 },
+        deviceScaleFactor: 1
       }
     },
 
     {
       name: 'webkit',
       use: { ...devices['Desktop Safari']  ,
-        deviceScaleFactor: undefined,
-        viewport:null
+        viewport: { width: 1920, height: 1080 },
+        deviceScaleFactor: 1
       },
       
     },

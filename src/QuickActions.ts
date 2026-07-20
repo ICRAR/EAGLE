@@ -14,7 +14,12 @@ export class QuickActions {
 
         setTimeout(function(){
             if(QuickActions.open()){
-                document.getElementById("quickActionSearchbar").focus();
+                const element = document.getElementById("quickActionSearchbar");
+                if (!element) {
+                    console.warn("Element with ID 'quickActionSearchbar' not found.");
+                    return;
+                }
+                element.focus();
                 QuickActions.initiateQuickActionQuickSelect()
             }else{
                 $('body').off('keydown.quickActions')
@@ -208,6 +213,9 @@ export class QuickActions {
                 $('#quickActionSearchbar').trigger("focus")
                 break;
             }
+            
+            //scroll the quick selection item into view
+            $('#quickActionResults .quickActionsFocus').get(0)?.scrollIntoView(false);
         })
         
         $('#quickActionBackground').on('click.quickActionDismiss', function(){

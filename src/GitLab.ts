@@ -25,7 +25,6 @@
 import { Repository } from './Repository';
 import { RepositoryFolder } from './RepositoryFolder';
 import { RepositoryFile } from './RepositoryFile';
-import { Setting } from './Setting';
 import { Utils } from './Utils';
 import { EagleStorage } from './EagleStorage';
 
@@ -41,7 +40,7 @@ export class GitLab {
             // fetch additional gitlab repositories from the server
             let data;
             try {
-                data = await Utils.httpGetJSON("/getGitLabRepositoryList", null) as {repository: string, branch: string}[];
+                data = await Utils.httpGetJSON("/getGitLabRepositoryList", {}) as {repository: string, branch: string}[];
             } catch (error) {
                 console.error(error);
                 resolve(repositories);
@@ -62,16 +61,15 @@ export class GitLab {
      */
     static async loadRepoContent(repository : Repository, path: string): Promise<void> {
         return new Promise(async(resolve, reject) => {
-            const token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY);
-
-            if (token === null || token === "") {
-                Utils.showUserMessage("Access Token", "The GitLab access token is not set! To access GitLab repository, set the token via settings.");
-                reject("The GitLab access token is not set! To access GitLab repository, set the token via settings.");
-                return;
-            }
+            const token = Utils.getServiceToken(Repository.Service.GitLab);
 
             // get location
-            const location: Repository | RepositoryFolder = repository.findPath(path);
+            const location: Repository | RepositoryFolder | null = repository.findPath(path);
+
+            if (location === null) {
+                reject(new Error("Location not found for path: " + path));
+                return;
+            }
 
             // flag the location as being fetched
             location.isFetching(true);
@@ -112,7 +110,7 @@ export class GitLab {
             location.files.removeAll();
             location.folders.removeAll();
 
-            const fileNames : string[] = data[""];
+            const fileNames : string[] = data.files[""];
 
             // sort the fileNames
             fileNames.sort(Repository.fileSortFunc);
@@ -126,7 +124,7 @@ export class GitLab {
             }
 
             // add folders to repo
-            for (const path in data){
+            for (const path in data.files){
                 // skip the root directory
                 if (path === ""){
                     continue;
@@ -175,12 +173,7 @@ export class GitLab {
      */
     static async openRemoteFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string): Promise<string> {
         return new Promise(async(resolve, reject) => {
-            const token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY);
-
-            if (token === null || token === "") {
-                reject("The GitLab access token is not set! To open GitLab repositories, set the token via settings.");
-                return;
-            }
+            const token = Utils.getServiceToken(Repository.Service.GitLab);
 
             const fullFileName : string = Utils.joinPath(filePath, fileName);
 
@@ -200,13 +193,23 @@ export class GitLab {
                 reject(error);
                 return;
             }
-            resolve(data);
+
+            // warn if credentials were ignored (bad token, fell back to anonymous access)
+            if (data.credentialsIgnored){
+                Utils.showNotification(
+                    "GitLab Access Token",
+                    "The GitLab access token is invalid and was ignored while loading " + repositoryName + " / " + repositoryBranch + " / " + fullFileName + ". The file was loaded from a public repository.",
+                    "warning"
+                );
+            }
+
+            resolve(data.data);
         });
     }
 
     static deleteRemoteFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string){
         return new Promise(async(resolve, reject) => {
-            const token = Setting.findValue(Setting.GITLAB_ACCESS_TOKEN_KEY);
+            const token = Utils.getServiceToken(Repository.Service.GitLab);
 
             if (token === null || token === "") {
                 Utils.showUserMessage("Access Token", "The GitLab access token is not set! To open GitLab repositories, set the token via settings.");

@@ -8,15 +8,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: lts/*
       - name: Install dependencies
         run: npm ci
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.12'
       - name: PIP install
@@ -26,16 +26,18 @@ jobs:
       - name: Install python setuptools
         run: pip install setuptools
       - name: Compile Typescript
-        run: tsc
-      - name: Start server
-        run: python eagleServer/eagleServer.py -t /tmp &
-      - name: Install Playwright
-        run: npm install @playwright/test@latest
+        run: |
+          npx tsc --version
+          npx tsc
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
+      - name: Start server
+        run: python eagleServer/eagleServer.py -t /tmp --debug &
+      - name: Install Playwright
+        run: npm install @playwright/test@latest
       - name: Run Playwright tests
         run: npx playwright test
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: playwright-report

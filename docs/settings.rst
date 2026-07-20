@@ -61,6 +61,7 @@ Advanced Editing
 External Services
 """"""""""""""""""""
 
+<<<<<<< HEAD
 - **Translator URL**: DALiuGE translator endpoint.
 - **GitHub Access Token**: token for GitHub read and write actions.
 - **GitLab Access Token**: token for GitLab read and write actions.
@@ -68,6 +69,15 @@ External Services
 - **Explore Palettes Service**: repository host used by Explore Palettes.
 - **Explore Palettes Repository**: repository used by Explore Palettes.
 - **Explore Palettes Branch**: branch used by Explore Palettes.
+=======
+**Translator URL** - The URL of the translator server
+
+**GitHub Access Token** - A users access token for GitHub repositories.
+
+**GitLab Access Token** - A users access token for GitLab repositories.
+
+**Docker Hub Username** - The username to use when retrieving data on images stored on Docker Hub.
+>>>>>>> master
 
 Developer
 """""""""

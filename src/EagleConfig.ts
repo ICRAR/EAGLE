@@ -18,10 +18,14 @@ const colors: ColorMap = {
     errorBackground:             '#ffdcdc',
     warningBackground:           '#ffeac4',
 
+    // visual colors
+    textVisualPortColor:        '#986b7fff',
+    groupVisualBackgroundColor: '#b4d4ff',
+
     // edge colors
     edgeDefault:                 '#58595b',
     edgeDefaultSelected:         '#4247df',
-    commentEdge:                 '#7c7e81',
+    commentEdge:                 '#b9c7dd',
     edgeValid:                   '#32cd32',
     edgeWarning:                 '#ffa500',
     edgeFixable:                 '#6dc7bd',
@@ -51,7 +55,11 @@ export class EagleConfig {
 
     // General UI
     public static readonly DROPDOWN_DISMISS_DELAY: number = 400;
+    public static readonly STANDARD_UI_TINY_TIMEOUT: number = 20;
+    public static readonly STANDARD_UI_SHORT_TIMEOUT: number = 100;
+    public static readonly STANDARD_UI_LONG_TIMEOUT: number = 500;
     public static readonly EDGE_SVG_SIZE: number = 10000;
+    public static readonly EAGLE_TOOLTIP_DEFAULT_MAX_WIDTH: number = 300;
 
     // graph behaviour
     public static readonly NODE_SUGGESTION_RADIUS = 300
@@ -65,17 +73,32 @@ export class EagleConfig {
     public static readonly BRANCH_NODE_RADIUS : number = 32;
     public static readonly CONSTRUCT_NODE_RADIUS: number = 200;
     public static readonly MINIMUM_CONSTRUCT_RADIUS : number = 44;
+    public static readonly COMMENT_NODE_WIDTH : number = 100;
 
     //edge settings
-    public static readonly EDGE_ARROW_SIZE : number = 8;
-    public static readonly EDGE_DISTANCE_ARROW_VISIBILITY : number = 100; //how long does an edge have to be to show the direction arrows
-    public static readonly STRAIGHT_EDGE_SWITCH_DISTANCE : number = 120 //the length of the edge at which it will switch between bezier and straight
+    public static readonly EDGE_THICKNESS : number = 3;
+    public static readonly EDGE_ARROW_SIZE : number = 6;
+    public static readonly EDGE_DISTANCE_ARROW_VISIBILITY : number = 30; //how long does an edge have to be to show the direction arrows
+    public static readonly STRAIGHT_EDGE_SWITCH_DISTANCE : number = 90 //the length of the edge at which it will switch between bezier and straight
     public static readonly EDGE_BEZIER_CURVE_MULT : number = 0.4 //this affects how far away from the start and end of the edge the curve transform handles are
+    public static readonly EDGE_COMMENT_OFFSET_X : number = 2 //how far is the edge comment offset from the center
+    public static readonly EDGE_COMMENT_OFFSET_Y : number = 10 //how far is the edge comment offset from the center
+
+    //visual settings
+    public static readonly TEXT_VISUAL_DEFAULT_WIDTH : number = 150;
+    public static readonly TEXT_VISUAL_DEFAULT_HEIGHT : number = 100;
+    public static readonly GROUP_VISUAL_DEFAULT_WIDTH : number = 100;
+    public static readonly GROUP_VISUAL_DEFAULT_HEIGHT : number = 100;
+    public static readonly VISUAL_DEFAULT_WIDTH : number = 100;
+    public static readonly VISUAL_DEFAULT_HEIGHT : number = 100;
+
 
     // when creating a new construct to enclose a selection, or shrinking a node to enclose its children,
     // this is the default margin that should be left on each side
-    public static readonly CONSTRUCT_MARGIN: number = 30;
+    public static readonly CONSTRUCT_MARGIN: number = 60;
     public static readonly CONSTRUCT_DRAG_OUT_DISTANCE: number = 100;
+
+    public static readonly DUPLICATE_OFFSET: number = 20; // amount (in x and y) by which duplicated nodes will be positioned away from the originals
 
     // number of spaces used for indenting output JSON, makes everything human-readable
     public static readonly JSON_INDENT: number = 4;
@@ -92,7 +115,12 @@ export class EagleConfig {
     }
 
     static initCSS(){
-        const style: CSSStyleDeclaration = $("#logicalGraphParent").get(0).style;
+        const logicalGraphParent = $("#logicalGraphParent").get(0);
+        if (typeof logicalGraphParent === 'undefined'){
+            console.error("EagleConfig.initCSS(): could not find logicalGraphParent element!");
+            return;
+        }
+        const style: CSSStyleDeclaration = logicalGraphParent.style;
 
         //overwriting css variables using colors from EagleConfig. I am using this for simple styling to avoid excessive css data binds in the node html files
         style.setProperty("--selectedBg", EagleConfig.getColor('selectBackground'));
@@ -108,7 +136,15 @@ export class EagleConfig {
         style.setProperty("--matchingEdgeColor", EagleConfig.getColor('edgeAutoComplete'));
         style.setProperty("--nodeOutputColor", EagleConfig.getColor('nodeOutputPort'));
         style.setProperty("--nodeInputColor", EagleConfig.getColor('nodeInputPort'));
+        style.setProperty("--textVisualPortColor", EagleConfig.getColor('textVisualPortColor'));
         style.setProperty("--edgeSVGSize", EagleConfig.EDGE_SVG_SIZE+'px');
-        $("html").get(0).style.setProperty("--hoverHighlight", EagleConfig.getColor('hoverHighlight'));
+        style.setProperty("--edgeThickness", EagleConfig.EDGE_THICKNESS+'px');
+
+        const htmlElement =  $("html").get(0);
+        if (typeof htmlElement === 'undefined'){
+            console.error("EagleConfig.initCSS(): could not find html element!");
+            return;
+        }
+        htmlElement.style.setProperty("--hoverHighlight", EagleConfig.getColor('hoverHighlight'));
     }
 }

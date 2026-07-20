@@ -3,6 +3,8 @@ import * as ko from "knockout";
 import { Eagle } from './Eagle';
 import { GitHub } from './GitHub';
 import { GitLab } from "./GitLab";
+import { FileLocation } from "./FileLocation";
+import { Id } from './Id';
 import { RepositoryFolder } from './RepositoryFolder';
 import { RepositoryFile } from './RepositoryFile';
 import { Utils } from './Utils';
@@ -21,7 +23,7 @@ export class Repository {
     folders : ko.ObservableArray<RepositoryFolder>
 
     constructor(service : Repository.Service, name : string, branch : string, isBuiltIn : boolean){
-        this._id = Utils.generateRepositoryId();
+        this._id = Id.generateRepositoryId();
         this.name = name;
         this.service = service;
         this.branch = branch;
@@ -85,10 +87,37 @@ export class Repository {
         });
     }
 
+    // TODO: a bit of repeated code here, could we make traverseFolder accept a folder OR a repository?
+    findAllGraphs = async (callback: (file: RepositoryFile) => void | Promise<void>) : Promise<void> => {
+        const traverseFolder = async (folder: RepositoryFolder) : Promise<void> => {
+            for (const file of folder.files()){
+                if (file.type === Eagle.FileType.Graph){
+                    await callback(file);
+                }
+            }
+
+            for (const subFolder of folder.folders()){
+                await traverseFolder(subFolder);
+            }
+        }
+
+        // check top-level files
+        for (const file of this.files()){
+            if (file.type === Eagle.FileType.Graph){
+                await callback(file);
+            }
+        }
+
+        // check folders
+        for (const folder of this.folders()){
+            await traverseFolder(folder);
+        }
+    }
+
     // browse down into a repository, along the path, and return the RepositoryFolder there
     // or if no path, just return the Repository
     // or if path not found, return null
-    findPath = (path: string): Repository | RepositoryFolder => {
+    findPath = (path: string): Repository | RepositoryFolder | null => {
         if (path === ""){
             return this;
         }
@@ -117,10 +146,19 @@ export class Repository {
     // expand all the directories along a given path
     expandPath = async (path: string) : Promise<void> => {
         return new Promise(async(resolve, reject) => {
+            if (path === ""){
+                resolve();
+                return;
+            }
+
             let pointer: Repository | RepositoryFolder = this;
             const pathParts: string[] = path.split('/');
 
             for (const pathPart of pathParts){
+                if (pathPart === ""){
+                    break;
+                }
+
                 let foundPathPart = false;
 
                 for (const folder of pointer.folders()){
@@ -141,6 +179,73 @@ export class Repository {
 
             resolve();
         });
+    }
+
+    // expand all the directories
+    expandAll = async () : Promise<void> => {
+        async function traverseFolder(folder: RepositoryFolder) : Promise<void> {
+            if (folder.fetched()){
+                folder.expanded(true);
+            } else {
+                await folder.select();
+            }
+            for (const subFolder of folder.folders()){
+                await traverseFolder(subFolder);
+            }
+        }
+
+        if (this.fetched()){
+            this.expanded(true);
+        } else {
+            await this.select();
+        }
+
+        for (const folder of this.folders()){
+            await traverseFolder(folder);
+        }
+    }
+
+    // collapse all the directories
+    collapseAll = (): void => {
+        function traverseFolder(folder: RepositoryFolder): void {
+            folder.expanded(false);
+            for (const subFolder of folder.folders()){
+                traverseFolder(subFolder);
+            }
+        }
+
+        this.expanded(false);
+
+        for (const folder of this.folders()){
+            traverseFolder(folder);
+        }
+    }
+
+    // expand all directories and emit graph files as soon as each level is available
+    expandAllAndFindGraphs = async (callback: (file: RepositoryFile) => void | Promise<void>) : Promise<void> => {
+        const emitGraphs = async (files: RepositoryFile[]) : Promise<void> => {
+            for (const file of files){
+                if (file.type === Eagle.FileType.Graph){
+                    await callback(file);
+                }
+            }
+        }
+
+        const traverseFolder = async (folder: RepositoryFolder) : Promise<void> => {
+            await folder.select();
+            await emitGraphs(folder.files());
+
+            for (const subFolder of folder.folders()){
+                await traverseFolder(subFolder);
+            }
+        }
+
+        await this.select();
+        await emitGraphs(this.files());
+
+        for (const folder of this.folders()){
+            await traverseFolder(folder);
+        }
     }
 
     // refresh all the directories along a given path
@@ -176,7 +281,7 @@ export class Repository {
 
     deleteFile = (file: RepositoryFile) : void => {
         let pointer: Repository | RepositoryFolder = this;
-        let lastPointer: Repository | RepositoryFolder = null;
+        let lastPointer: Repository | RepositoryFolder = pointer;
         const fileIsInTopLevelOfRepo: boolean = file.path === "";
 
         if (!fileIsInTopLevelOfRepo){
@@ -213,9 +318,9 @@ export class Repository {
         }
     }
 
-    // a dummy repository
+    // a placeholder repository
     // used by some functions when a repository is not actually required, but a placeholder is required for the input arguments
-    public static dummy(){
+    public static placeholder(){
         return new Repository(Repository.Service.Unknown, "", "", false);
     }
 
@@ -303,19 +408,11 @@ export namespace Repository {
 }
 
 export class RepositoryCommit {
-    repositoryService : Repository.Service
-    repositoryName : string
-    repositoryBranch : string
-    filePath : string
-    fileName : string
-    message : string
+    location: FileLocation
+    message: string
 
-    constructor(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath: string, fileName: string, message: string){
-        this.repositoryService = repositoryService;
-        this.repositoryName = repositoryName;
-        this.repositoryBranch = repositoryBranch;
-        this.filePath = filePath;
-        this.fileName = fileName;
+    constructor(fileLocation: FileLocation, message: string){
+        this.location = fileLocation;
         this.message = message;
     }
 }

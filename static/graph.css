@@ -14,8 +14,10 @@
     --matchingEdgeColor:red;
     --nodeOutputColor:red;
     --nodeInputColor:red;
+    --textVisualPortColor:red;
     visibility:hidden;
     --edgeSVGSize: 200px;
+    --edgeThickness: 1px;
 }
 
 #logicalGraph {
@@ -38,7 +40,7 @@
 }
 
 #logicalGraph svg path {
-    stroke-width:4;
+    stroke-width: var(--edgeThickness);
     fill:transparent; 
     stroke:var(--edgeColor);
     pointer-events: all;
@@ -188,7 +190,22 @@
     color: rgb(46 49 146);
 }
 
-.node .body {
+.node .header input{
+    display: none;
+}
+
+/* node headers with class hiddenDataName will be hidden when the node is not selected */
+.node .container:not(.selected) .header .hiddenDataName{
+    visibility: hidden;
+}
+
+/* node header containers that have a child div with class hiddenDataName will not react to pointer events when the node is not selected */
+/* this is the prevent hover tooltips on hidden nodes' titles */
+.node .container:not(.selected) .header > div:has(.hiddenDataName){
+    pointer-events: none;
+}
+
+.node .body{
     position: relative;
     background-color: var(--nodeBackground);
     border-radius: 50%;
@@ -199,8 +216,117 @@
     pointer-events: all;
 }
 
-.node .comment_node .body {
+.node .comment_node{
+    height: auto;
+}
+
+.node .comment_node .commentIcons, .node .groupVisual .commentIcons{
+    position: absolute;
+    display: none;
+    inset: 0px 0px auto 0px;
+}
+
+.node .comment_node .commentIcons button, .node .groupVisual .commentIcons button{
+    position: absolute;
+    top: 4px;
+    right: 10px;
+    z-index:10;
+    background-color:#002e5f;
+    border-radius: 50%;
+    color: white;
+    padding: 0px;
+    width: 17px;
+    height: 17px;
+    font-size: 10px;
+}
+
+.node .groupVisual .commentIcons input{
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index:10;
+    border-radius: 50%;
+    color: white;
+    border: 2px white solid;
+    padding: 0px;
+    width: 25px;
+    height: 25px;
+    font-size: 10px;
+    pointer-events: all;
+}
+
+input[type="color"]::-webkit-color-swatch {
     border: none;
+    border-radius: 50%;
+    box-shadow:0px 0px 2px 0px black inset;
+}
+
+.node .comment_node .body {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    border-radius: 10px;
+    padding:5px 5px 5px 10px;
+}
+
+.node .comment_node .container.selected .commentIcons, .node .groupVisual .container.selected .commentIcons{
+    display: block;
+}
+
+.node .comment_node .container{
+    pointer-events: all;
+}
+
+.node .comment_node .body .content p{
+    margin-bottom: 2px;
+    font-size: 13px;
+}
+
+.node .comment_node .body .content h1{
+    margin-bottom: 2px;
+    font-size: 16px;
+}
+
+.node .comment_node .resizeHandle{
+    position: absolute;
+    bottom: 0px;
+    right: -1px;
+    z-index: 10;
+    color: #2e319266;
+    cursor: ew-resize;
+    display: none;
+    height: 100%;
+    border-left: 4px double;
+    width: 7px;
+}
+
+.node .groupVisual .resizeHandle{
+    position: absolute;
+    bottom: -4px;
+    right: -1px;
+    color: #2e319266;
+    cursor: nwse-resize;
+    display: none;
+    z-index: 16;
+    height: 13px;
+    border-left: 4px double;
+    width: 7px;
+    transform: rotate(45deg);
+    pointer-events: all;
+}
+
+.node .comment_node .container.selected .resizeHandle, .node .groupVisual .container.selected .resizeHandle{
+    display: block;
+}
+
+.node .groupVisual .container{
+    z-index: 0;
+}
+
+.node .groupVisual .body{
+    border: none;
+    border-radius: 10px;
+    box-shadow: none;
 }
 
 .node .innerRing {
@@ -286,6 +412,10 @@
     background-color: var(--nodeInputColor);
 }
 
+#portContainer .port.textVisualPort{
+    background-color: var(--textVisualPortColor);
+}
+
 #portContainer div{
     position: relative;
 }
@@ -310,8 +440,39 @@
     -0.3px  0   0 #ffffff;
 }
 
-#portContainer .selected div .portTitle{
+#portContainer .textVisualPort{
+    visibility:hidden;
+}
+
+#portContainer .textVisualPort.selected{
+    visibility:visible;
+}
+
+#portContainer .textVisualPort .portTitle{
+    top: 5px;
+    left: 12px;
+}
+
+#portContainer .inputPort.selected .portTitle,
+#portContainer .outputPort.selected .portTitle{
     display: block;
+}
+
+#portContainer .textVisualPort.selected .portTitle.selected{
+    display: block;
+}
+
+.edgeComments{
+    position: relative;
+}
+
+.graphComment{
+    position: absolute;
+    font-size: 15px !important;
+    color: white;
+    text-shadow: 0 0 4px black;
+    cursor: pointer;
+    z-index: 15;
 }
 
 .node .container.selected .body {
@@ -386,17 +547,26 @@
     line-height: 14px;
     font-size: 15px;
     color: rgb(46 49 146);
+    cursor:text;
     
     /* white outer border, a bit ugly but the only way i found to do it */
     text-shadow:
-    -0.6px -0.6px 0 #ffffff,
-     0   -0.6px 0 #ffffff,
-     0.6px -0.6px 0 #ffffff,
-     0.6px  0   0 #ffffff,
-     0.6px  0.6px 0 #ffffff,
-     0    0.6px 0 #ffffff,
-    -0.6px  0.6px 0 #ffffff,
-    -0.6px  0   0 #ffffff;
+    -1px -1px 0 #ffffff,
+     0   -1px 0 #ffffff,
+     1px -1px 0 #ffffff,
+     1px  0   0 #ffffff,
+     1px  1px 0 #ffffff,
+     0    1px 0 #ffffff,
+    -1px  1px 0 #ffffff,
+    -1px  0   0 #ffffff;
+}
+
+.node .header .header-name > :first-child {
+    margin-top: 0;
+}
+
+.node .header .header-name > :last-child {
+    margin-bottom: 0;
 }
 
 .construct_node .header .header-name{
@@ -405,9 +575,25 @@
     color: black;
 }
 
+.node .header i{
+    top: -4px;
+    right: -10px;
+}
+
+.node .header.graphDataNode i{
+    top: auto;
+    bottom: -7px;
+    transform: scaleY(-1);
+}
+
+/* if the node is not selected and the node title is hidden, move the comment icon closer to the node body */
+.node .container:not(.selected) .header.graphDataNode:has(.hiddenDataName) i{
+    bottom: 10px;
+    pointer-events: all;
+}
+
 .node.transition{
     transition: width .2s cubic-bezier(0.68, 2.15, 0.5, 0.75), height .2s cubic-bezier(0.68, 2.15, 0.5, 0.75);
-    
 }
 
 .node .graphDataNode{    

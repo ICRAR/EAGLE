@@ -24,9 +24,7 @@
 
 import * as ko from "knockout";
 
-import { Daliuge } from "./Daliuge";
 import { Eagle } from './Eagle';
-import { GraphConfig } from "./GraphConfig";
 import { LogicalGraph } from './LogicalGraph';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
@@ -46,6 +44,8 @@ export class Translator {
     rmode : ko.Observable<number>;
     isTranslating: ko.Observable<boolean>
 
+    static readonly DEFAULT_TRANSLATION_ALGORITHM: string = "agl-1";
+
     constructor(){
         this.numberOfIslands = ko.observable(0);
         this.numberOfNodes = ko.observable(1);
@@ -63,8 +63,8 @@ export class Translator {
 
     submit = (translatorURL : string, formElements : { [index: string]: string }) : void => {
         // consult EAGLE settings to determine whether to open the translator in a new tab
-        const translateInCurrentTab: boolean = Setting.findValue(Setting.OPEN_TRANSLATOR_IN_CURRENT_TAB);
-        const overwriteTranslationTab: boolean = Setting.findValue(Setting.OVERWRITE_TRANSLATION_TAB);
+        const translateInCurrentTab: boolean = Setting.findValue<boolean>(Setting.OPEN_TRANSLATOR_IN_CURRENT_TAB, false);
+        const overwriteTranslationTab: boolean = Setting.findValue<boolean>(Setting.OVERWRITE_TRANSLATION_TAB, false);
 
         // create form element
         const form = document.createElement("form");
@@ -116,7 +116,7 @@ export class Translator {
      * @param testingMode
      * @param format
      */
-     genPGT = async (algorithmName : string, testingMode: boolean, format: Daliuge.SchemaVersion) : Promise<void> => {
+     genPGT = async (algorithmName : string, testingMode: boolean) : Promise<void> => {
         const eagle: Eagle = Eagle.getInstance();
 
         // check if the graph has at least one node
@@ -130,10 +130,10 @@ export class Translator {
         }
 
         // is the graph a local file?
-        const isLocalFile: boolean = eagle.logicalGraph().fileInfo().repositoryService === Repository.Service.File;
+        const isLocalFile: boolean = eagle.logicalGraph().fileInfo().location.repositoryService() === Repository.Service.File;
 
         // check if the graph is committed before translation
-        if (!Setting.findValue(Setting.TEST_TRANSLATE_MODE) && !isLocalFile && this._checkGraphModified(eagle)){
+        if (!Setting.findValue<boolean>(Setting.TEST_TRANSLATE_MODE, false) && !isLocalFile && this._checkGraphModified(eagle)){
             Utils.showNotification("Saving graph", "Automatically saving modified graph prior to translation", "info");
 
             // use the async function here, so that we can check isModified after saving
@@ -150,44 +150,28 @@ export class Translator {
             }
         }
 
-        const translatorURL : string = Setting.findValue(Setting.TRANSLATOR_URL);
+        const translatorURL : string = Setting.findValue<string>(Setting.TRANSLATOR_URL, "");
         console.log("Eagle.getPGT() : ", "algorithm name:", algorithmName, "translator URL", translatorURL);
 
-        // NOTE: we always set the schema version to OJS here, we used to have multiple versions
-        this._genPGT(eagle, translatorURL, algorithmName, testingMode, Daliuge.SchemaVersion.OJS);
+        this._genPGT(eagle, translatorURL, algorithmName, testingMode);
     }
 
     private _checkGraphModified = (eagle: Eagle): boolean => {
-        return eagle.logicalGraph().fileInfo().modified && !Setting.findValue(Setting.ALLOW_MODIFIED_GRAPH_TRANSLATION);
+        return eagle.logicalGraph().fileInfo().modified && !Setting.findValue<boolean>(Setting.ALLOW_MODIFIED_GRAPH_TRANSLATION, false);
     }
 
-    private _genPGT = (eagle: Eagle, translatorURL: string, algorithmName : string, testingMode: boolean, format: Daliuge.SchemaVersion) : void => {
+    private _genPGT = (eagle: Eagle, translatorURL: string, algorithmName : string, testingMode: boolean) : void => {
         // clone the logical graph
         const lgClone: LogicalGraph = eagle.logicalGraph().clone();
 
-        // temporary fix to apply graph config to graph (if developer setting is enabled)
-        if (Setting.findValue(Setting.APPLY_ACTIVE_GRAPH_CONFIG_BEFORE_TRANSLATION)){
-            const activeConfig: GraphConfig = eagle.logicalGraph().getActiveGraphConfig();
+        // get the version of JSON we are using
+        const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
 
-            // if there is a GraphConfig, apply GraphConfig to logicalGraph
-            if (activeConfig !== null){
-                GraphConfig.apply(lgClone, activeConfig);
-            }
-        }
-
-        // get json for logical graph
-        let jsonString: string;
-        switch (format){
-            case Daliuge.SchemaVersion.OJS:
-                jsonString = LogicalGraph.toOJSJsonString(lgClone, true);
-                break;
-            default:
-                console.error("Unsupported graph format for translator!");
-                return;
-        }
+        // convert to JSON
+        const jsonString: string = LogicalGraph.toJsonString(lgClone, true, version);
 
         // validate json
-        Utils.validateJSON(jsonString, Eagle.FileType.Graph);
+        Utils.validateJSON(jsonString, Eagle.FileType.Graph, version);
 
         const translatorData = {
             algo: algorithmName,
@@ -199,7 +183,7 @@ export class Translator {
         eagle.translator().submit(translatorURL, translatorData);
 
         // if developer setting is enabled, write the translator-ready JSON to the console
-        if (Setting.findValue(Setting.PRINT_TRANSLATOR_JSON_TO_JS_CONSOLE)){
+        if (Setting.findValue<boolean>(Setting.PRINT_TRANSLATOR_JSON_TO_JS_CONSOLE, false)){
             console.log("Translator Json");
             console.log("---------");
             console.log(translatorData);
@@ -210,11 +194,11 @@ export class Translator {
     }
 
     algorithmVisible = (algorithm: string) : boolean => {
-        const normalTranslatorMode :boolean = Setting.findValue(Setting.USER_TRANSLATOR_MODE) === Setting.TranslatorMode.Normal;
+        const normalTranslatorMode :boolean = Setting.findValue<Setting.TranslatorMode>(Setting.USER_TRANSLATOR_MODE, Setting.TranslatorMode.Normal) === Setting.TranslatorMode.Normal;
         if(!normalTranslatorMode){
             return true
         }
-        if(algorithm === Setting.findValue(Setting.TRANSLATOR_ALGORITHM_DEFAULT)){
+        if(algorithm === Setting.findValue<string>(Setting.TRANSLATOR_ALGORITHM_DEFAULT, "agl-1")){
             return true
         }
     
@@ -222,16 +206,16 @@ export class Translator {
     }
         
     setUrl = async () : Promise<void> => {
-        const translatorURLSetting : Setting = Setting.find(Setting.TRANSLATOR_URL);
+        const defaultUrl = Setting.findValue<string>(Setting.TRANSLATOR_URL, "");
 
         let userString: string;
         try {
-            userString = await Utils.requestUserString("Translator Url", "Enter the Translator Url", translatorURLSetting.value(), false);
+            userString = await Utils.requestUserString("Translator Url", "Enter the Translator Url", defaultUrl, false, Utils.httpUrlStringValidator("Translator URL"));
         } catch (error){
             console.error(error);
             return;
         }
 
-        translatorURLSetting.value(userString);
+        Setting.setValue(Setting.TRANSLATOR_URL, userString);
     };
 }

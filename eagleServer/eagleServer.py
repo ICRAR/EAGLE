@@ -24,21 +24,23 @@ This is the main module of the EAGLE server side code.
 """
 import argparse
 import base64
+import certifi
 import datetime
 import json
 import logging
 import os
 import sys
-import tempfile
-import six
 import subprocess
 
+import ipaddress
+import socket
+import urllib.error
 import urllib.request
+import urllib.parse
 import ssl
 
 import github
 import gitlab
-import pkg_resources
 from flask import Flask, request, render_template, jsonify, send_from_directory
 
 import config.config
@@ -46,6 +48,89 @@ from config.config import GITHUB_DEFAULT_REPO_LIST
 from config.config import GITLAB_DEFAULT_REPO_LIST
 from config.config import STUDENT_GITHUB_DEFAULT_REPO_LIST
 from config.config import SERVER_PORT
+
+URL_OPEN_TIMEOUT = 20
+
+ALLOWED_URL_SCHEMES = {"http", "https"}
+ALLOWED_URL_EXTENSIONS = {".graph", ".palette"}
+
+
+class RemoteFetchError(Exception):
+    """Raised by fetch_json_url when a remote HTTP fetch fails."""
+    def __init__(self, message: str, status: int):
+        super().__init__(message)
+        self.message = message
+        self.status = status
+
+
+def fetch_json_url(url: str, label: str) -> dict:
+    """
+    Fetch a URL, decode the response, and parse it as JSON.
+
+    Raises RemoteFetchError with an appropriate HTTP status code on any
+    network, HTTP, or parse failure.  All exceptions are logged via the
+    Flask application logger before being re-raised as RemoteFetchError.
+    """
+    ctx = ssl.create_default_context(cafile=certifi.where())
+    try:
+        with urllib.request.urlopen(url, context=ctx, timeout=URL_OPEN_TIMEOUT) as response:
+            return json.loads(response.read().decode())
+    except urllib.error.HTTPError as e:
+        app.logger.exception("%s HTTP %s for %s", label, e.code, url)
+        status = 404 if e.code == 404 else 502
+        raise RemoteFetchError("Failed to fetch remote resource", status) from e
+    except urllib.error.URLError as e:
+        if isinstance(e.reason, (socket.timeout, TimeoutError)):
+            app.logger.exception("Timeout fetching %s: %s", label, url)
+            raise RemoteFetchError("Request timed out", 504) from e
+        app.logger.exception("Network error fetching %s: %s", label, url)
+        raise RemoteFetchError("Failed to reach remote host", 502) from e
+    except Exception as e:
+        app.logger.exception("Unexpected error fetching %s: %s", label, url)
+        raise RemoteFetchError("An unexpected error occurred", 500) from e
+
+
+def validate_remote_url(url: str) -> None:
+    """
+    Validate a user-supplied URL before fetching it server-side.
+
+    Raises ValueError if the URL is not permitted, blocking SSRF attacks
+    that target cloud metadata endpoints (169.254.169.254), loopback,
+    RFC-1918 private ranges, or unexpected URI schemes.
+    """
+    try:
+        parsed = urllib.parse.urlparse(url)
+    except Exception:
+        raise ValueError("URL could not be parsed")
+
+    # 1. Scheme must be http or https
+    if parsed.scheme not in ALLOWED_URL_SCHEMES:
+        raise ValueError("URL scheme not permitted")
+
+    # 2. Hostname must be present
+    host = parsed.hostname
+    if not host:
+        raise ValueError("URL has no host")
+
+    # 3. File extension must be .graph or .palette
+    ext = os.path.splitext(parsed.path)[1].lower()
+    if ext not in ALLOWED_URL_EXTENSIONS:
+        raise ValueError("URL file extension not permitted")
+
+    # 4. Resolve the hostname and check every returned address
+    port = parsed.port or (443 if parsed.scheme == "https" else 80)
+    try:
+        addr_infos = socket.getaddrinfo(host, port, proto=socket.IPPROTO_TCP)
+    except socket.gaierror:
+        raise ValueError("URL host could not be resolved")
+
+    if not addr_infos:
+        raise ValueError("URL host resolved to no addresses")
+
+    for *_, sockaddr in addr_infos:
+        ip = ipaddress.ip_address(sockaddr[0])
+        if not ip.is_global:
+            raise ValueError("URL resolves to a non-public address")
 
 
 class GraphException(Exception):
@@ -55,20 +140,15 @@ class GraphException(Exception):
     pass
 
 
-if sys.version_info[0] == 2:
-    import errno
-
-    class FileExistsError(OSError):
-        def __init__(self, msg):
-            super(FileExistsError, self).__init__(errno.EEXIST, msg)
-
-#NOTE: this global variable is copied rather than imported
+# NOTE: this global variable is copied rather than imported
 #      because it can be overwritten by the user's command line
 TEMP_FILE_FOLDER = config.config.TEMP_FILE_FOLDER
 
-templdir = pkg_resources.resource_filename(__name__, "../templates")
-staticdir = pkg_resources.resource_filename(__name__, "../static")
-srcdir = pkg_resources.resource_filename(__name__, "../src")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+templdir = os.path.normpath(os.path.join(BASE_DIR, "..", "templates"))
+staticdir = os.path.normpath(os.path.join(BASE_DIR, "..", "static"))
+srcdir = os.path.normpath(os.path.join(BASE_DIR, "..", "src"))
 
 app = Flask(__name__, template_folder=templdir, static_folder=staticdir)
 app.config.from_object("config")
@@ -150,46 +230,8 @@ def save():
     Saves a file to local computer.
     """
     content = request.get_json(silent=True)
-    temp_file = tempfile.TemporaryFile()
-
-    try:
-        content["modelData"]["lastModifiedDatetime"] = datetime.datetime.now().timestamp()
-
-        json_string = json.dumps(content)
-        if sys.version_info < (3, 2, 0):
-            temp_file.write(json_string)
-        else:
-            temp_file = tempfile.TemporaryFile(mode="w+t")
-            temp_file.write(json.dumps(content, indent=4, sort_keys=True))
-
-        # Reset the seeker
-        temp_file.seek(0)
-        string = temp_file.read()
-        # Indent json for human readable formatting.
-        graph = json.loads(string)
-        json_data = json.dumps(graph, indent=4)
-        return json_data
-    finally:
-        temp_file.close()
-
-
-@app.route("/openRemoteFileLocalServer/<filetype>/<path:filename>", methods=["POST"])
-def open_file(filetype, filename):
-    """
-    FLASK POST routing method for '/openRemoteFileLocalServer/<filetype>/<path:filename>'
-
-    Opens and retruns a JSON file on a local server
-    """
-    path = request.data.decode().strip("/")
-    path = os.path.join(TEMP_FILE_FOLDER, path)
-    norm_path = os.path.join(os.path.normpath(path), filename)
-
-    json_data = open(norm_path, "r+")
-    data = json.load(json_data)
-    response = app.response_class(
-        response=json.dumps(data), status=200, mimetype="application/json"
-    )
-    return response
+    content["modelData"]["lastModifiedDatetime"] = datetime.datetime.now().timestamp()
+    return json.dumps(content, indent=4, sort_keys=True)
 
 
 @app.route("/getGitHubRepositoryList", methods=["GET"])
@@ -238,71 +280,6 @@ def extract_folder_and_repo_names(repo_name):
     return folder_name, repo_name
 
 
-# NOTE: largely made obsolete by get_git_hub_files_all()
-@app.route("/getGitHubFiles", methods=["POST"])
-def get_git_hub_files():
-    """
-    FLASK POST routing method for '/getGitHubFiles'
-
-    Returns a JSON list of files in a GitHub repository. Both the repository name and the access token have to passed in the POST content.
-    """
-    content = request.get_json(silent=True)
-    repo_name = content["repository"]
-    repo_token = content["token"]
-
-    # Extracting the true repo name and repo folder.
-    folder_name, repo_name = extract_folder_and_repo_names(repo_name)
-
-    g = github.Github(repo_token)
-    repo = g.get_repo(repo_name)
-
-    # Set branch to master.
-    try:
-        master_ref = repo.get_git_ref("heads/master")
-        master_sha = master_ref.object.sha
-    except github.GithubException as e:
-        # repository might be empty
-        print(
-            "Error getting ref to git repo! Repo: {0} Status: {1} Data: {2}".format(
-                str(repo_name), e.status, e.data
-            )
-        )
-        return jsonify({"": []})
-
-    # Getting repository file list.
-    base_tree = repo.get_git_tree(master_sha, recursive=False)
-
-    # Building a dictionary of repository's content {path: filename}.
-    d = {}
-    for el in base_tree.tree:
-        # Flag for whether it is a path in the given repository folder.
-        is_in_folder = el.path.startswith(folder_name + "/")
-        # Only show files that are located in the given repository folder.
-        if folder_name == "" or is_in_folder:
-            elpath = el.path
-            if is_in_folder:
-                # Extract path inside the given folder.
-                elpath = elpath.split(folder_name + "/", 1)[1]
-
-            # Folder.
-            if el.type == "tree":
-                path = elpath
-                if not (path in d.keys()):
-                    d[path] = list()
-
-            # File.
-            if el.type == "blob":
-                path = os.path.dirname(elpath)
-                filename = os.path.basename(elpath)
-                if path in d.keys():
-                    d[path].append(filename)
-                else:
-                    d[path] = list()
-                    d[path].append(filename)
-
-    return jsonify(d)
-
-
 @app.route("/getGitHubFilesAll", methods=["POST"])
 def get_git_hub_files_all():
     """
@@ -318,18 +295,36 @@ def get_git_hub_files_all():
         repo_token = content["token"]
         repo_path = content["path"]
     except KeyError as ke:
-        print("KeyError {1}: {0}".format(str(ke), repo_name))
-        return jsonify({"error":"Repository, Branch or Token not specified in request"})
+        app.logger.error("KeyError in getGitHubFilesAll: %s", ke)
+        return jsonify({"error":"Repository, Branch or Token not specified in request"}), 400
 
     # Extracting the true repo name and repo folder.
     folder_name, repo_name = extract_folder_and_repo_names(repo_name)
-    g = github.Github(repo_token)
+
+    # authenticate or not
+    credentials_ignored = False
+    g = github.Github(repo_token) if repo_token else github.Github()
 
     try:
         repo = g.get_repo(repo_name)
     except github.UnknownObjectException as uoe:
         print("UnknownObjectException {1}: {0}".format(str(uoe), repo_name))
         return jsonify({"error":uoe.message})
+    except github.GithubException as ge:
+        if ge.status == 401 and repo_token:
+            # bad credentials - fall back to anonymous access for public repos
+            print("GithubException 401 for {0}, retrying anonymously".format(repo_name))
+            credentials_ignored = True
+            g = github.Github()
+            try:
+                repo = g.get_repo(repo_name)
+            except github.UnknownObjectException as uoe:
+                return jsonify({"error":uoe.message})
+            except github.GithubException as ge2:
+                return jsonify({"error":ge2.data.get("message", str(ge2))})
+        else:
+            print("GithubException {1}: {0}".format(str(ge), repo_name))
+            return jsonify({"error":ge.data.get("message", str(ge))})
 
     # get results
     d = parse_github_folder(repo, repo_path, repo_branch)
@@ -341,7 +336,7 @@ def get_git_hub_files_all():
         return jsonify({"error":str(d)})
 
     # return correct result
-    return jsonify(d)
+    return jsonify({"files": d, "credentialsIgnored": credentials_ignored})
 
 
 @app.route("/getGitLabFilesAll", methods=["POST"])
@@ -351,6 +346,7 @@ def get_git_lab_files_all():
 
     Returns the list files in a GitLab repository. The POST request content is a JSON string containing repository, branch and token.
     """
+    print("get_git_lab_files_all() called")
     content = request.get_json(silent=True)
 
     try:
@@ -359,16 +355,24 @@ def get_git_lab_files_all():
         repo_token = content["token"]
         repo_path = content["path"]
     except KeyError as ke:
-        print("KeyError {1}: {0}".format(str(ke), repo_name))
-        return jsonify({"error":"Repository, Branch or Token not specified in request"})
+        app.logger.error("KeyError in getGitLabFilesAll: %s", ke)
+        return jsonify({"error":"Repository, Branch or Token not specified in request"}), 400
 
-    gl = gitlab.Gitlab('https://gitlab.com', private_token=repo_token, api_version=4)
-
-    try:
-        gl.auth()
-    except gitlab.exceptions.GitlabAuthenticationError as gae:
-        print("GitlabAuthenticationError {1}: {0}".format(str(gae), repo_name))
-        return jsonify({"error": "Gitlab Authentication Error. Access token may be invalid." + "\n" + str(gae)})
+    credentials_ignored = False
+    if repo_token:
+        gl = gitlab.Gitlab('https://gitlab.com', private_token=repo_token, api_version=4)
+        try:
+            gl.auth()
+        except gitlab.exceptions.GitlabAuthenticationError as gae:
+            # bad credentials - fall back to anonymous access for public repos
+            print("GitlabAuthenticationError {1}: {0}, retrying anonymously".format(str(gae), repo_name))
+            credentials_ignored = True
+            gl = gitlab.Gitlab('https://gitlab.com', api_version=4)
+        except gitlab.exceptions.GitlabError as ge:
+            print("GitlabError during auth {1}: {0}".format(str(ge), repo_name))
+            return jsonify({"error": "GitLab error during authentication: " + str(ge)})
+    else:
+        gl = gitlab.Gitlab('https://gitlab.com', api_version=4)
 
     try:
         project = gl.projects.get(repo_name)
@@ -380,7 +384,7 @@ def get_git_lab_files_all():
     d = parse_gitlab_folder(items, repo_path)
 
     # return correct result
-    return jsonify(d)
+    return jsonify({"files": d, "credentialsIgnored": credentials_ignored})
 
 
 @app.route("/getDockerImages", methods=["POST"])
@@ -395,18 +399,15 @@ def get_docker_images():
     try:
         user_name = content["username"]
     except KeyError as ke:
-        print("KeyError: {0}".format(str(ke)))
-        return jsonify({"error":"Username not specified in request"})
+        app.logger.error("KeyError in getDockerImages: %s", ke)
+        return jsonify({"error":"Username not specified in request"}), 400
 
     docker_url = "https://hub.docker.com/v2/repositories/" + user_name + "/"
 
-    # avoid ssl errors when fetching a URL using urllib.request
-    # https://stackoverflow.com/questions/50236117/scraping-ssl-certificate-verify-failed-error-for-http-en-wikipedia-org
-    ssl._create_default_https_context = ssl._create_unverified_context
-
-    with urllib.request.urlopen(docker_url) as url:
-        data = json.loads(url.read().decode())
-        #print(data)
+    try:
+        data = fetch_json_url(docker_url, label="Docker Hub")
+    except RemoteFetchError as e:
+        return jsonify({"error": e.message}), e.status
 
     return jsonify(data)
 
@@ -423,59 +424,130 @@ def get_docker_image_tags():
     try:
         image_name = content["imagename"]
     except KeyError as ke:
-        print("KeyError: {0}".format(str(ke)))
-        return jsonify({"error":"Imagename not specified in request"})
+        app.logger.error("KeyError in getDockerImageTags: %s", ke)
+        return jsonify({"error":"Imagename not specified in request"}), 400
 
     docker_url = "https://registry.hub.docker.com/v2/repositories/" + image_name + "/tags"
 
-    # avoid ssl errors when fetching a URL using urllib.request
-    # https://stackoverflow.com/questions/50236117/scraping-ssl-certificate-verify-failed-error-for-http-en-wikipedia-org
-    ssl._create_default_https_context = ssl._create_unverified_context
-
-    with urllib.request.urlopen(docker_url) as url:
-        data = json.loads(url.read().decode())
-        #print(data)
+    try:
+        data = fetch_json_url(docker_url, label="Docker Hub")
+    except RemoteFetchError as e:
+        return jsonify({"error": e.message}), e.status
 
     return jsonify(data)
 
 
-@app.route("/getExplorePalettes", methods=["POST"])
-def get_explore_palettes():
+# Create a new branch on GitHub or GitLab
+@app.route("/createBranch", methods=["POST"])
+def create_branch():
     """
-    FLASK POST routing method for '/getExplorePalettes'
+    FLASK POST routing method for '/createBranch'
 
-    Returns a list of palettes from a repository. The POST request content is a JSON string containing the repository name, branch and access token.
+    Creates a new branch from a source branch on GitHub or GitLab.
+    Expects JSON: {service, repository, sourceBranch, newBranch, token (optional)}
     """
     content = request.get_json(silent=True)
+    service = content.get("service")
+    repo_name = content.get("repository")
+    source_branch = content.get("sourceBranch")
+    new_branch = content.get("newBranch")
+    token = content.get("token", None)
+
+    if not service or not repo_name or not source_branch or not new_branch:
+        return jsonify({"error": "Missing required parameters."})
+
+    if new_branch.strip() == "":
+        return jsonify({"error": "Branch name cannot be empty."})
+    if any(char.isspace() for char in new_branch):
+        return jsonify({"error": "Branch name cannot contain whitespace."})
+    if new_branch.startswith("-"):
+        return jsonify({"error": "Branch name cannot start with '-'."})
+    if new_branch == "@":
+        return jsonify({"error": "Branch name cannot be '@'."})
+    if "@{" in new_branch:
+        return jsonify({"error": "Branch name cannot contain '@{'."})
+    if ".." in new_branch:
+        return jsonify({"error": "Branch name cannot contain '..'."})
+    if new_branch.startswith("/") or new_branch.endswith("/") or "//" in new_branch:
+        return jsonify({"error": "Branch name cannot contain empty path segments."})
+    if new_branch.endswith("."):
+        return jsonify({"error": "Branch name cannot end with '.'."})
+    if new_branch.endswith(".lock"):
+        return jsonify({"error": "Branch name cannot end with '.lock'."})
+    if any(segment.startswith(".") for segment in new_branch.split("/")):
+        return jsonify({"error": "Branch name cannot have path segments starting with '.'."})
+    invalid_characters = set("~^:?*[\\")
+    if any(ord(char) < 32 or ord(char) == 127 or char in invalid_characters for char in new_branch):
+        return jsonify({"error": "Branch name contains invalid characters."})
 
     try:
-        # NOTE: repo_service is not currently used
-        repo_service = content["service"]
-        repo_name = content["repository"]
-        repo_branch = content["branch"]
-        repo_token = content["token"]
-    except KeyError as ke:
-        print("KeyError {1}: {0}".format(str(ke), repo_name))
-        return jsonify({"error":"Repository, Branch or Token not specified in request"})
+        if service.lower() == "github":
+            g = github.Github(token) if token else github.Github()
+            repo = g.get_repo(repo_name)
+            # Get the source branch reference
+            source_ref = repo.get_git_ref(f"heads/{source_branch}")
+            # Create the new branch reference
+            repo.create_git_ref(ref=f"refs/heads/{new_branch}", sha=source_ref.object.sha)
+            return jsonify({"success": True, "service": "github", "repository": repo_name, "newBranch": new_branch})
+        elif service.lower() == "gitlab":
+            gl = gitlab.Gitlab('https://gitlab.com', private_token=token, api_version=4) if token else gitlab.Gitlab('https://gitlab.com', api_version=4)
+            project = gl.projects.get(repo_name)
+            # Create the new branch
+            branch = project.branches.create({'branch': new_branch, 'ref': source_branch})
+            return jsonify({"success": True, "service": "gitlab", "repository": repo_name, "newBranch": new_branch})
+        else:
+            return jsonify({"error": f"Unknown service: {service}"})
+    except github.GithubException as ge:
+        return jsonify({"error": f"GitHub error: {str(ge)}"})
+    except gitlab.exceptions.GitlabCreateError as gle:
+        return jsonify({"error": f"GitLab error: {str(gle)}"})
+    except Exception as e:
+        return jsonify({"error": f"Unexpected error: {str(e)}"})
 
-    # Extracting the true repo name and repo folder.
-    # TODO: Only GitHub supported here, add GitLab
-    folder_name, repo_name = extract_folder_and_repo_names(repo_name)
-    g = github.Github(repo_token)
+
+# Delete a branch on GitHub or GitLab
+@app.route("/deleteBranch", methods=["POST"])
+def delete_branch():
+    """
+    FLASK POST routing method for '/deleteBranch'
+
+    Deletes a branch on GitHub or GitLab.
+    Expects JSON: {service, repository, branchToDelete, token (optional)}
+    """
+    content = request.get_json(silent=True)
+    service = content.get("service")
+    repo_name = content.get("repository")
+    branch_to_delete = content.get("branchToDelete")
+    token = content.get("token", None)
+
+    if not service or not repo_name or not branch_to_delete:
+        return jsonify({"error": "Missing required parameters."})
+
+    if branch_to_delete.strip().lower() in {"master", "main"}:
+        return jsonify({"error": f"Refusing to delete protected branch: {branch_to_delete}"})
 
     try:
-        repo = g.get_repo(repo_name)
-    except github.UnknownObjectException as uoe:
-        print("UnknownObjectException {1}: {0}".format(str(uoe), repo_name))
-        return jsonify({"error":str(uoe)}), 400
-
-    # get results
-    d = find_github_palettes(repo, "", repo_branch)
-
-    # return correct result
-    return jsonify(d)
-
-
+        if service.lower() == "github":
+            g = github.Github(token) if token else github.Github()
+            repo = g.get_repo(repo_name)
+            branch_ref = repo.get_git_ref(f"heads/{branch_to_delete}")
+            branch_ref.delete()
+            return jsonify({"success": True, "service": "github", "repository": repo_name, "deletedBranch": branch_to_delete})
+        elif service.lower() == "gitlab":
+            gl = gitlab.Gitlab('https://gitlab.com', private_token=token, api_version=4) if token else gitlab.Gitlab('https://gitlab.com', api_version=4)
+            project = gl.projects.get(repo_name)
+            project.branches.delete(branch_to_delete)
+            return jsonify({"success": True, "service": "gitlab", "repository": repo_name, "deletedBranch": branch_to_delete})
+        else:
+            return jsonify({"error": f"Unknown service: {service}"})
+    except github.GithubException as ge:
+        return jsonify({"error": f"GitHub error: {str(ge)}"})
+    except gitlab.exceptions.GitlabDeleteError as glde:
+        return jsonify({"error": f"GitLab error: {str(glde)}"})
+    except Exception as e:
+        return jsonify({"error": f"Unexpected error: {str(e)}"})
+    
+    
 @app.route("/saveFileToRemoteGithub", methods=["POST"])
 def save_git_hub_file():
     """
@@ -503,40 +575,21 @@ def save_git_hub_file():
     try:
         repo = g.get_repo(repo_name)
     except github.GithubException as e:
-        print(
-            "Error in get_repo({0})! Repo: {1} Status: {2} Data: {3}".format(
-                "heads/" + repo_branch, str(repo_name), e.status, e.data
-            )
-        )
-        return jsonify({"error": e.data["message"]}), 400
+        return github_exception_handler(e, "Error in get_repo", repo_name, repo_branch)
 
     # Set branch
     try:
         branch_ref = repo.get_git_ref("heads/" + repo_branch)
     except github.GithubException as e:
-        # repository might be empty
-        print(
-            "Error in get_git_ref({0})! Repo: {1} Status: {2} Data: {3}".format(
-                "heads/" + repo_branch, str(repo_name), e.status, e.data
-            )
-        )
-        return jsonify({"error": e.data["message"]}), 400
+        return github_exception_handler(e, "Error in get_git_ref", repo_name, repo_branch)
 
     # get SHA from branch
     branch_sha = branch_ref.object.sha
 
-    # Add repo and file name in the graph.
-    graph["modelData"]["repo"] = repo_name
-    graph["modelData"]["repoBranch"] = repo_branch
-    graph["modelData"]["repoService"] = "GitHub"
-    graph["modelData"]["filePath"] = filename
-    # Clean the GitHub file reference.
-    graph["modelData"]["repositoryUrl"] = ""
-    graph["modelData"]["commitHash"] = ""
-    graph["modelData"]["downloadUrl"] = ""
-    graph["modelData"]["lastModifiedName"] = ""
-    graph["modelData"]["lastModifiedEmail"] = ""
-    graph["modelData"]["lastModifiedDatetime"] = 0
+    try:
+        set_metadata_for_ingress(graph, "GitHub", repo_name, repo_branch, filename)
+    except Exception as e:
+        return github_exception_handler(e, "Error in set_metadata_for_ingress", repo_name, repo_branch)
 
     # The 'indent=4' option is used for nice formatting. Without it the file is stored as a single line.
     json_data = json.dumps(graph, indent=4)
@@ -554,13 +607,91 @@ def save_git_hub_file():
             base_tree,
         )
     except github.GithubException as e:
-        # repository might not have permission
-        print(
-            "Error in create_git_tree({0})! Repo: {1} Status: {2} Data: {3}".format(
-                "heads/" + repo_branch, str(repo_name), e.status, e.data
-            )
+        return github_exception_handler(e, "Error in create_git_tree", repo_name, repo_branch)
+
+    new_commit = repo.create_git_commit(
+        message=commit_message, parents=[latest_commit], tree=new_tree
+    )
+
+    try:
+        branch_ref.edit(sha=new_commit.sha, force=False)
+    except github.GithubException as e:
+        return github_exception_handler(e, "Error in edit", repo_name, repo_branch)
+
+    return jsonify({"success": True})
+
+
+@app.route("/saveFilesToRemoteGithub", methods=["POST"])
+def save_git_hub_files():
+    """
+    FLASK POST routing method for '/saveFilesToRemoteGithub'
+
+    Save file(s) to a GitHub repository. The POST request content is a JSON string containing the repository name, branch, access token, and commit message. Plus a JSON array containing each files name and data in JSON format.
+    """
+    # Extract parameters and file content from json.
+    content = request.get_json(silent=True)
+    repo_name = content["repositoryName"]
+    repo_branch = content["repositoryBranch"]
+    repo_token = content["token"]
+    files = content["files"]  # contains "path" and "jsonData" for each file. The path should include the filename.
+    commit_message = content["commitMessage"]
+
+    g = github.Github(repo_token)
+
+    # get repo
+    try:
+        repo = g.get_repo(repo_name)
+    except github.GithubException as e:
+        return github_exception_handler(e, "Error in get_repo", repo_name, repo_branch)
+
+    # Set branch
+    try:
+        branch_ref = repo.get_git_ref("heads/" + repo_branch)
+    except github.GithubException as e:
+        # repository might be empty
+        return github_exception_handler(e, "Error in get_git_ref", repo_name, repo_branch)
+
+    # get SHA from branch
+    branch_sha = branch_ref.object.sha
+
+    # build a list of InputGitTreeElement objects to create the new commit
+    tree_elements = []
+
+    # add the files
+    for file in files:
+        path = file["path"]
+
+        # parse the json string
+        try:
+            graphObject = json.loads(file["jsonData"])
+        except json.JSONDecodeError as e:
+            return github_exception_handler(e, "Error in json.loads for file " + path, repo_name, repo_branch)
+
+        # set standard metadata for the file
+        try:
+            set_metadata_for_ingress(graphObject, "GitHub", repo_name, repo_branch, path)
+        except Exception as e:
+            return github_exception_handler(e, "Error in set_metadata_for_ingress for file " + path, repo_name, repo_branch)
+
+        # The 'indent=4' option is used for nice formatting. Without it the file is stored as a single line.
+        json_data = json.dumps(graphObject, indent=4)
+
+        tree_element = github.InputGitTreeElement(
+            path=path, mode="100644", type="blob", content=json_data
         )
-        return jsonify({"error": e.data["message"]}), 400
+        tree_elements.append(tree_element)
+
+    # Commit to GitHub repo.
+    latest_commit = repo.get_git_commit(branch_sha)
+    base_tree = latest_commit.tree
+    try:
+        new_tree = repo.create_git_tree(
+            tree_elements,
+            base_tree,
+        )
+    except github.GithubException as e:
+        # repository might not have permission
+        return github_exception_handler(e, "Error in create_git_tree", repo_name, repo_branch)
 
     new_commit = repo.create_git_commit(
         message=commit_message, parents=[latest_commit], tree=new_tree
@@ -568,6 +699,19 @@ def save_git_hub_file():
     branch_ref.edit(sha=new_commit.sha, force=False)
 
     return "ok"
+
+
+# helper function to handle github exceptions consistently
+def github_exception_handler(e, description, repo_name, repo_branch):
+    data = getattr(e, "data", None)
+    status = getattr(e, "status", None)
+    message = data.get("message") if isinstance(data, dict) else None
+    print(
+        "{0} ({1})! Repo: {2} Status: {3} Data: {4}".format(
+            description, "heads/" + repo_branch, repo_name, status, data
+        )
+    )
+    return jsonify({"error": message or str(e)}), 400
 
 
 @app.route("/saveFileToRemoteGitlab", methods=["POST"])
@@ -597,17 +741,7 @@ def save_git_lab_file():
     project = gl.projects.get(repo_name)
 
     # Add repo and file name in the graph.
-    graph["modelData"]["repo"] = repo_name
-    graph["modelData"]["repoBranch"] = repo_branch
-    graph["modelData"]["repoService"] = "GitLab"
-    graph["modelData"]["filePath"] = filename
-    # Clean the GitHub file reference.
-    graph["modelData"]["repositoryUrl"] = ""
-    graph["modelData"]["commitHash"] = ""
-    graph["modelData"]["downloadUrl"] = ""
-    graph["modelData"]["lastModifiedName"] = ""
-    graph["modelData"]["lastModifiedEmail"] = ""
-    graph["modelData"]["lastModifiedDatetime"] = 0
+    set_metadata_for_ingress(graph, "GitLab", repo_name, repo_branch, filename)
 
     # The 'indent=4' option is used for nice formatting. Without it the file is stored as a single line.
     json_data = json.dumps(graph, indent=4)
@@ -640,7 +774,50 @@ def save_git_lab_file():
             return jsonify({"error": str(gce)}), 400
 
 
-    return "ok"
+    return jsonify({"success": True})
+
+
+def set_metadata_for_ingress(graph, repo_service, repo_name, repo_branch, filename):
+    # Add repo and file name in the graph.
+    graph["modelData"]["repo"] = repo_name
+    graph["modelData"]["repoBranch"] = repo_branch
+    graph["modelData"]["repoService"] = repo_service
+    graph["modelData"]["filePath"] = filename
+    # Clean the GitHub file reference.
+    graph["modelData"]["repositoryUrl"] = ""
+    graph["modelData"]["commitHash"] = ""
+    graph["modelData"]["downloadUrl"] = ""
+    graph["modelData"]["lastModifiedName"] = ""
+    graph["modelData"]["lastModifiedEmail"] = ""
+    graph["modelData"]["lastModifiedDatetime"] = 0
+
+
+def set_metadata_for_egress(graph, repo_service, repo_name, repo_branch, commit_hash, last_modified_name, last_modified_email, last_modified_datetime, filename, download_url):
+        # replace some data in the header (modelData) of the file with info from git
+        graph["modelData"]["repo"] = repo_name
+        graph["modelData"]["repoBranch"] = repo_branch
+        graph["modelData"]["repoService"] = repo_service
+        graph["modelData"]["filePath"] = filename
+
+        graph["modelData"]["repositoryUrl"] = "TODO"
+        graph["modelData"]["commitHash"] = commit_hash
+        graph["modelData"]["downloadUrl"] = download_url
+        graph["modelData"]["lastModifiedName"] = last_modified_name
+        graph["modelData"]["lastModifiedEmail"] = last_modified_email
+        graph["modelData"]["lastModifiedDatetime"] = last_modified_datetime
+
+        # replace some data in the headers of the graphConfigurations within the file
+        if "graphConfigurations" in graph:
+            for id, graphConfig in graph["graphConfigurations"].items():
+                if "modelData" not in graphConfig:
+                    continue
+                graphLocation = graphConfig["modelData"]["graphLocation"]
+                graphLocation["repositoryUrl"] = "TODO"
+                graphLocation["commitHash"] = commit_hash
+                graphLocation["downloadUrl"] = download_url
+                graphLocation["lastModifiedName"] = last_modified_name
+                graphLocation["lastModifiedEmail"] = last_modified_email
+                graphLocation["lastModifiedDatetime"] = last_modified_datetime
 
 
 @app.route("/openRemoteGithubFile", methods=["POST"])
@@ -653,24 +830,37 @@ def open_git_hub_file():
     content = request.get_json(silent=True)
     repo_name = content["repositoryName"]
     repo_branch = content["repositoryBranch"]
-    repo_service = content["repositoryService"]
     repo_token = content["token"]
     filename = content["filename"]
     extension = os.path.splitext(filename)[1]
 
-    #print("open_git_hub_file()", "repo_name", repo_name, "repo_service", repo_service, "repo_branch", repo_branch, "repo_token", repo_token, "filename", filename, "extension:" + extension + ":")
+    #print("open_git_hub_file()", "repo_name", repo_name, "repo_branch", repo_branch, "repo_token", repo_token, "filename", filename, "extension:" + extension + ":")
 
     # Extracting the true repo name and repo folder.
     folder_name, repo_name = extract_folder_and_repo_names(repo_name)
     if folder_name != "":
         filename = folder_name + "/" + filename
 
-    g = github.Github(repo_token)
+    # use authentication or not
+    credentials_ignored = False
+    g = github.Github(repo_token) if repo_token else github.Github()
+
     try:
         repo = g.get_repo(repo_name)
+    except github.GithubException as ge:
+        if ge.status == 401 and repo_token:
+            # bad credentials - fall back to anonymous access for public repos
+            print("GithubException 401 for {0}, retrying anonymously".format(repo_name))
+            credentials_ignored = True
+            g = github.Github()
+            try:
+                repo = g.get_repo(repo_name)
+            except Exception as e:
+                return jsonify({"error": str(e)}), 404
+        else:
+            return jsonify({"error": ge.data.get("message", str(ge))}), 404
     except Exception as e:
-        print(e)
-        return app.response_class(response=json.dumps({"error":str(e)}), status=404, mimetype="application/json")
+        return jsonify({"error": str(e)}), 404
 
 
     # get commits
@@ -691,7 +881,7 @@ def open_git_hub_file():
         sha = [x.sha for x in tree if x.path == filename]
         if not sha:
             # well, not found..
-            return app.response_class(response=json.dumps({"error":"File not found"}), status=404, mimetype="application/json")
+            return jsonify({"error": "File not found"}), 404
 
         # use the sha to get the blob, then decode it
         blob = repo.get_git_blob(sha[0])
@@ -702,49 +892,36 @@ def open_git_hub_file():
         download_url = "https://raw.githubusercontent.com/" + repo_name + "/" + most_recent_commit.sha + "/" + filename
     except AssertionError as e:
         # download via http get
-        import certifi
-        import ssl
-        raw_data = urllib.request.urlopen(download_url, context=ssl.create_default_context(cafile=certifi.where())).read()
+        raw_data = urllib.request.urlopen(download_url, context=ssl.create_default_context(cafile=certifi.where()), timeout=URL_OPEN_TIMEOUT).read()
 
     if extension != ".md":
         # parse JSON
-        graph = json.loads(raw_data)
+        try:
+            graph = json.loads(raw_data)
+        except json.decoder.JSONDecodeError as e:
+            return app.response_class(response=json.dumps({"error": "File contains invalid JSON: " + str(e)}), status=400, mimetype="application/json")
 
         if isinstance(graph, list):
-            return app.response_class(response=json.dumps({"error":"File JSON data is a list, this file could be a Physical Graph instead of a Logical Graph."}), status=404, mimetype="application/json")
+            return jsonify({"error": "File JSON data is a list, this file could be a Physical Graph instead of a Logical Graph."}), 404
 
         if not "modelData" in graph:
             graph["modelData"] = {}
 
-        # replace some data in the header (modelData) of the file with info from git
-        graph["modelData"]["repo"] = repo_name
-        graph["modelData"]["repoBranch"] = repo_branch
-        graph["modelData"]["repoService"] = "GitHub"
-        graph["modelData"]["filePath"] = filename
-
-        graph["modelData"]["repositoryUrl"] = "TODO"
-        graph["modelData"]["commitHash"] = most_recent_commit.sha
-        graph["modelData"]["downloadUrl"] = download_url
-        graph["modelData"]["lastModifiedName"] = most_recent_commit.commit.committer.name
-        graph["modelData"]["lastModifiedEmail"] = most_recent_commit.commit.committer.email
-        graph["modelData"]["lastModifiedDatetime"] = most_recent_commit.commit.committer.date.timestamp()
+        # add the repository information
+        set_metadata_for_egress(graph, "GitHub", repo_name, repo_branch, most_recent_commit.sha, most_recent_commit.commit.committer.name, most_recent_commit.commit.committer.email, most_recent_commit.commit.committer.date.timestamp(), filename, download_url)
 
         # for palettes, put downloadUrl in every component
         if extension == ".palette":
-            for component in graph["nodeDataArray"]:
-                component["paletteDownloadUrl"] = download_url
+            if "nodeDataArray" in graph:
+                for component in graph["nodeDataArray"]:
+                    component["paletteDownloadUrl"] = download_url
 
         json_data = json.dumps(graph, indent=4)
 
-        response = app.response_class(
-            response=json.dumps(json_data), status=200, mimetype="application/json"
-        )
+        return jsonify({"data": json_data, "credentialsIgnored": credentials_ignored})
     else:
-        response = app.response_class(
-            response=raw_data, status=200, mimetype="text/plain"
-        )
-    
-    return response
+        raw_str = raw_data if isinstance(raw_data, str) else raw_data.decode("utf-8")
+        return jsonify({"data": raw_str, "credentialsIgnored": credentials_ignored})
 
 
 @app.route("/deleteRemoteGithubFile", methods=["POST"])
@@ -769,8 +946,8 @@ def delete_git_hub_file():
     try:
         repo = g.get_repo(repo_name)
     except Exception as e:
-        print(e)
-        return app.response_class(response=json.dumps({"error":str(e)}), status=404, mimetype="application/json")
+        app.logger.exception("GitHub get_repo failed for %s", repo_name)
+        return jsonify({"error": str(e)}), 404
 
     # get commits
     commits = repo.get_commits(sha=repo_branch, path=filename)
@@ -781,9 +958,9 @@ def delete_git_hub_file():
         f = repo.get_contents(filename, ref=most_recent_commit.sha)
         repo.delete_file(f.path, "File removed by EAGLE", f.sha, branch=repo_branch)
     except github.GithubException as e:
-        return app.response_class(response=json.dumps({"error":str(e)}), status=404, mimetype="application/json")
+        return jsonify({"error": str(e)}), 404
 
-    return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
+    return jsonify({"success": True})
 
 
 @app.route("/openRemoteGitlabFile", methods=["POST"])
@@ -811,45 +988,45 @@ def open_git_lab_file():
     #print("folder_name", folder_name, "repo_name", repo_name, "filename", filename)
 
     # get the data from gitlab
-    gl = gitlab.Gitlab('https://gitlab.com', private_token=repo_token, api_version=4)
-
-    try:
-        gl.auth()
-    except Exception as e:
-        print(e)
-        return app.response_class(response=json.dumps({"error":str(e)}), status=404, mimetype="application/json")
+    credentials_ignored = False
+    if repo_token:
+        gl = gitlab.Gitlab('https://gitlab.com', private_token=repo_token, api_version=4)
+        try:
+            gl.auth()
+        except gitlab.exceptions.GitlabAuthenticationError:
+            # bad credentials - fall back to anonymous access for public repos
+            print("GitLab auth failed for {0}, retrying anonymously".format(repo_name))
+            credentials_ignored = True
+            gl = gitlab.Gitlab('https://gitlab.com', api_version=4)
+        except gitlab.exceptions.GitlabError as ge:
+            app.logger.exception("GitLab error during auth for %s", repo_name)
+            return jsonify({"error": "GitLab error during authentication: " + str(ge)}), 404
+    else:
+        gl = gitlab.Gitlab('https://gitlab.com', api_version=4)
 
     project = gl.projects.get(repo_name)
 
     try:
         f = project.files.get(file_path=filename, ref=repo_branch)
     except gitlab.exceptions.GitlabGetError as gle:
-        print("GitLabGetError {0}/{1}/{2}: {3}".format(repo_name, repo_branch, filename, str(gle)))
-        return app.response_class(response=json.dumps({"error":str(gle)}), status=404, mimetype="application/json")
+        app.logger.error("GitLabGetError %s/%s/%s: %s", repo_name, repo_branch, filename, gle)
+        return jsonify({"error": str(gle)}), 404
 
     # get the decoded content
     raw_data = f.decode().decode("utf-8")
 
     if extension != ".md":
         # parse JSON
-        graph = json.loads(raw_data)
+        try:
+            graph = json.loads(raw_data)
+        except json.decoder.JSONDecodeError as e:
+            return app.response_class(response=json.dumps({"error": "File contains invalid JSON: " + str(e)}), status=400, mimetype="application/json")
 
         if not "modelData" in graph:
             graph["modelData"] = {}
 
         # add the repository information
-        graph["modelData"]["repo"] = repo_name
-        graph["modelData"]["repoBranch"] = repo_branch
-        graph["modelData"]["repoService"] = "GitLab"
-        graph["modelData"]["filePath"] = filename
-
-        # TODO: Add the GitLab file information
-        graph["modelData"]["repositoryUrl"] = "TODO"
-        graph["modelData"]["commitHash"] = f.commit_id
-        graph["modelData"]["downloadUrl"] = "TODO"
-        graph["modelData"]["lastModifiedName"] = ""
-        graph["modelData"]["lastModifiedEmail"] = ""
-        graph["modelData"]["lastModifiedDatetime"] = 0
+        set_metadata_for_egress( graph, "GitLab", repo_name, repo_branch, f.commit_id, "", "", 0, filename, "TODO")
 
         # for palettes, put downloadUrl in every component
         if extension == ".palette":
@@ -858,15 +1035,10 @@ def open_git_lab_file():
 
         json_data = json.dumps(graph, indent=4)
 
-        response = app.response_class(
-            response=json.dumps(json_data), status=200, mimetype="application/json"
-        )
+        return jsonify({"data": json_data, "credentialsIgnored": credentials_ignored})
     else:
-        response = app.response_class(
-            response=raw_data, status=200, mimetype="text/plain"
-        )
-        
-    return response
+        raw_str = raw_data if isinstance(raw_data, str) else raw_data.decode("utf-8")
+        return jsonify({"data": raw_str, "credentialsIgnored": credentials_ignored})
 
 
 @app.route("/deleteRemoteGitlabFile", methods=["POST"])
@@ -897,18 +1069,18 @@ def delete_git_lab_file():
     try:
         gl.auth()
     except Exception as e:
-        print(e)
-        return app.response_class(response=json.dumps({"error":str(e)}), status=404, mimetype="application/json")
+        app.logger.exception("GitLab auth failed for %s", repo_name)
+        return jsonify({"error": str(e)}), 404
 
     project = gl.projects.get(repo_name)
 
     try:
         project.files.delete(file_path=filename, branch=repo_branch, commit_message="File removed by EAGLE")
     except gitlab.exceptions.GitlabDeleteError as gle:
-        print("GitLabDeleteError {0}/{1}/{2}: {3}".format(repo_name, repo_branch, filename, str(gle)))
-        return app.response_class(response=json.dumps({"error":str(gle)}), status=404, mimetype="application/json")
+        app.logger.error("GitLabDeleteError %s/%s/%s: %s", repo_name, repo_branch, filename, gle)
+        return jsonify({"error": str(gle)}), 404
 
-    return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
+    return jsonify({"success": True})
 
 
 @app.route("/openRemoteUrlFile", methods=["POST"])
@@ -922,17 +1094,18 @@ def open_url_file():
     url = content["url"]
     extension = os.path.splitext(url)[1]
 
-    # download via http get
-    import certifi
-    import ssl
+    # validate the URL before fetching to prevent SSRF
     try:
-        raw_data = urllib.request.urlopen(url, context=ssl.create_default_context(cafile=certifi.where())).read()
-    except Exception as e:
-        print(e)
-        return app.response_class(response=json.dumps({"error":str(e)}), status=404, mimetype="application/json")
-
-    # parse JSON
-    graph = json.loads(raw_data)
+        validate_remote_url(url)
+    except ValueError as e:
+        app.logger.warning("SSRF attempt blocked for URL %r: %s", url, e)
+        return jsonify({"error": "Invalid URL"}), 400
+    
+    # download via http get
+    try:
+        graph = fetch_json_url(url, label="remote URL")
+    except RemoteFetchError as e:
+        return jsonify({"error": e.message}), e.status
 
     if not "modelData" in graph:
         graph["modelData"] = {}
@@ -965,7 +1138,7 @@ def parse_github_folder(repo, path, branch):
         contents = repo.get_contents(path, ref=branch)
     except github.GithubException as ghe:
         print("GitHubException {1} ({2}): {0}".format(str(ghe), repo.full_name, branch))
-        return ghe.data["message"]
+        return ghe.data.get("message", str(ghe))
 
     while contents:
         file_content = contents.pop(0)
@@ -1008,7 +1181,7 @@ def find_github_palettes(repo, path, branch):
         contents = repo.get_contents(path, ref=branch)
     except github.GithubException as ghe:
         print("GitHubException {1} ({2}): {0}".format(str(ghe), repo.full_name, branch))
-        return ghe.data["message"]
+        return ghe.data.get("message", str(ghe))
 
     while contents:
         file_content = contents.pop(0)
@@ -1026,28 +1199,6 @@ def find_github_palettes(repo, path, branch):
                 result.append({"name":file_content.name, "path":path_without_filename})
 
     return result
-
-
-def save_to_temp(lg_name, logical_graph):
-    """
-    Saves graph to temp folder.
-    """
-    try:
-        new_path = os.path.join(TEMP_FILE_FOLDER, lg_name)
-
-        # Overwrite file on disks.
-        with open(new_path, "w") as outfile:
-            json.dump(logical_graph, outfile, sort_keys=True, indent=4)
-    except Exception as exp:
-        raise GraphException(
-            "Failed to save a pre-translated graph {0}:{1}".format(
-                lg_name, str(exp)
-            )
-        ) from exp
-    finally:
-        pass
-
-    return new_path
 
 
 def parse_args():
@@ -1070,7 +1221,13 @@ def parse_args():
         "--quiet",
         action="store_true",
         help="suppress info logging output from the server",
-
+    )
+    parser.add_argument(
+        "-d",
+        "--debug",
+        action="store_true",
+        default=False,
+        help="enable Flask debug mode (binds to localhost only, for local development)",
     )
     args = parser.parse_args()
 
@@ -1089,7 +1246,7 @@ def parse_args():
 
 def main():
     """
-    Main function of eagleServer, will run the APP indefinetly.
+    Main function of eagleServer, will run the APP indefinitely.
     """
     args = parse_args()
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
@@ -1098,7 +1255,9 @@ def main():
         log = logging.getLogger('werkzeug')
         log.setLevel(logging.ERROR)
 
-    app.run(host="0.0.0.0", debug=True, port=args.port)
+    # If debug mode is enabled, bind to localhost only for security. Otherwise, bind to all interfaces.
+    host = "127.0.0.1" if args.debug else "0.0.0.0"
+    app.run(host=host, debug=args.debug, port=args.port)
 
 
 if __name__ == "__main__":

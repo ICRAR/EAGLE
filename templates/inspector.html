@@ -13,24 +13,25 @@
                                 <input data-bind="value:$data.name, eagleTooltip: $data.getName()"></input>
                             </div>
                             <div class="col-1 col">
-                                <i class="material-icons iconHoverEffect" data-bind="click: Setting.find(Setting.INSPECTOR_COLLAPSED_STATE).toggle, eagleTooltip: KeyboardShortcut.idToFullText('toggle_inspector')">close</i>
+                                <i class="material-symbols-outlined iconHoverEffect" data-bind="click: Setting.find(Setting.INSPECTOR_COLLAPSED_STATE).toggle, eagleTooltip: KeyboardShortcut.idToFullText('toggle_inspector')">close</i>
                             </div>
                         </div> 
                         
                         <div class="headerButtons inspectorHeaderButtons" id="objectInspectorHeaderIconRow">
                             <div class="row">
                                 <div class="col-5 col">
-                                    <i class="material-icons interactive" data-bs-placement="right" data-bind="eagleTooltip: $data.getGitHTML()" data-bs-toggle="tooltip" data-html="true">link</i>
-                                    <i class="material-icons interactive" data-bs-placement="right" data-bind="eagleTooltip: 'Id: '+$data.getId()" data-bs-toggle="tooltip" data-html="true">fingerprint</i>
-                                    <i class="material-icons interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: $data.getInspectorDescriptionHTML(), click: $root.editNodeDescription" data-bs-toggle="tooltip" data-html="true">library_books</i>
+                                    <i class="material-symbols-outlined interactive" data-bs-placement="right" data-bind="eagleTooltip: $data.getGitHTML()" data-bs-toggle="tooltip" data-html="true">link</i>
+                                    <i class="material-symbols-outlined interactive" data-bs-placement="right" data-bind="eagleTooltip: 'Id: '+$data.getId()" data-bs-toggle="tooltip" data-html="true">fingerprint</i>
+                                    <i class="material-symbols-outlined filled interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: $data.getInspectorDescriptionHTML(), click: $root.editNodeDescription" data-bs-toggle="tooltip" data-html="true">library_books</i>
+                                    <i class="material-symbols-outlined filled interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: $data.getInspectorCommentHTML(), click: function(){$root.editNodeComment($data)}" data-bs-toggle="tooltip" data-html="true">chat</i>
                                     <!-- ko if: $data.getAllErrorsWarnings().errors.length > 0 || $data.getAllErrorsWarnings().warnings.length > 0 -->
-                                        <i class="material-icons interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: $data.getNodeIssuesHtml(), style:{'color': $data.getIconColor()}, click: $root.showGraphErrors" data-bs-toggle="tooltip" data-html="true">error</i>
+                                        <i class="material-symbols-outlined filled interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: $data.getNodeIssuesHtml(), style:{'color': $data.getIconColor()}, click: $root.showEagleErrors" data-bs-toggle="tooltip" data-html="true">error</i>
                                     <!-- /ko -->
                                 </div>
                                 <div class="col-7 col text-right">
                                     <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                                         <button type="button" id="openNodeParamsTable" class="btn btn-secondary btn-sm" data-bind="click: function(){ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal);}, clickBubble: false, eagleTooltip: KeyboardShortcut.idToFullText('open_parameter_table')" data-bs-placement="left">
-                                            <i class="material-icons md-20 clickable iconHoverEffect">table_chart</i>
+                                            <i class="material-symbols-outlined filled md-20 clickable iconHoverEffect">table_chart</i>
                                         </button>
                                     <!-- /ko -->
                                     <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph && $data.isDocker() -->
@@ -40,25 +41,20 @@
                                     <!-- /ko -->
                                     <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                                         <button type="button" id="duplicateSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.duplicateSelection('normal')}, clickBubble: false, eagleTooltip: KeyboardShortcut.idToFullText('duplicate_selection')" data-bs-placement="left">
-                                            <i class="material-icons md-20 clickable iconHoverEffect">content_copy</i>
+                                            <i class="material-symbols-outlined md-20 clickable iconHoverEffect">content_copy</i>
                                         </button>
                                         <button type="button" id="displaySelectedNodeAsJson" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.displayNodeAsJson($data)}, clickBubble: false, eagleTooltip: 'Display Node as JSON'" data-bs-placement="left">
-                                            <i class="material-icons md-20 clickable iconHoverEffect">data_object</i>
+                                            <i class="material-symbols-outlined md-20 clickable iconHoverEffect">data_object</i>
                                         </button>
                                     <!-- /ko -->
                                     <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                                         <button type="button" id="addSelectedNodeToPalette" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.addSelectedNodesToPalette('normal')}, clickBubble: false, eagleTooltip: 'Add Selected Node To Palette'" data-bs-placement="left">
-                                            <i class="material-icons md-20 clickable iconHoverEffect">library_add</i>
-                                        </button>
-                                    <!-- /ko -->
-                                    <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph && $data.isComment() -->
-                                        <button type="button" id="connectCommentNode" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.changeNodeSubject()}, clickBubble: false, eagleTooltip: KeyboardShortcut.idToFullText('connect_comment_node')" data-bs-placement="left">
-                                            <i class="material-icons md-20 clickable iconHoverEffect">polyline</i>
+                                            <i class="material-symbols-outlined md-20 clickable iconHoverEffect">library_add</i>
                                         </button>
                                     <!-- /ko -->
                                     <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                                         <button type="button" id="deleteSelectedNode" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.deleteSelection(false,false,false);}, clickBubble: false, eagleTooltip: KeyboardShortcut.idToFullText('delete_selection')" data-bs-placement="left">
-                                            <i class="material-icons md-20 clickable iconHoverEffect">delete</i>
+                                            <i class="material-symbols-outlined md-20 clickable iconHoverEffect">delete</i>
                                         </button>
                                     <!-- /ko -->
                                 </div>
@@ -66,12 +62,12 @@
                         </div>
                         <div class="inspectorContents">
                             <div class="row inspectorParentId contentObject">
-                                <!-- ko ifnot: $data.getParentId() === null -->
+                                <!-- ko ifnot: $data.getParent() === null -->
                                     <div class="col-4 col contentObjectTitle">
                                         <h5>Parent:</h5>
                                     </div>         
                                     <div class="col-8 col contentObjectValue">
-                                        <span data-bind="text:eagle.logicalGraph().findNodeById($data.getParentId()).getName(), eagleTooltip:$data.getParentId()"></span>
+                                        <span data-bind="text:$data.getParent().getName(), eagleTooltip:$data.getParent().getId()"></span>
                                     </div>
                                 <!-- /ko -->
                             </div>
@@ -88,10 +84,10 @@
                                     <h5>Category:</h5>
                                 </div>
                                 <div class="col-8 col contentObjectValue">
-                                    <!-- ko if: $data.getCategoryType() === Category.Type.Data || $data.getCategoryType() === Category.Type.Unknown -->
+                                    <!-- ko if: !Utils.isValidCategoryAndType($data.getCategory(), $data.getCategoryType()) || $data.getCategoryType() === Category.Type.Data -->
                                         <select id="objectInspectorCategorySelect" data-bind="value: $data.getCategory(), options:$root.getEligibleNodeCategories(), event:{change:function(data,event){$root.inspectorChangeNodeCategoryRequest(event)}}, valueAllowUnset: true, disabled: $data.isLocked(), eagleTooltip:'Change the category of a node'"></select>
                                     <!-- /ko -->
-                                    <!-- ko if: $data.getCategoryType() !== Category.Type.Data && $data.getCategoryType() !== Category.Type.Unknown -->
+                                    <!-- ko ifnot: !Utils.isValidCategoryAndType($data.getCategory(), $data.getCategoryType()) || $data.getCategoryType() === Category.Type.Data -->
                                         <span data-bind="text:$data.getCategory()"></span>
                                     <!-- /ko -->
                                 </div>  
@@ -100,40 +96,40 @@
                                 <div class="inspectorField input-group mb-1">
             
                                     <span class="input-group-text" data-bind="text:$data.getDisplayText(), eagleTooltip:$data.getDescription(), click:function(){ParameterTable.openTableAndSelectField($root.selectedNode(), $data)}"></span>
-                                    <!-- ko if: $data.getHtmlInputType() === 'number' || $data.getHtmlInputType() === 'text' || $data.getHtmlInputType() === 'password' -->
 
-                                        <!-- ko if: $data.getType() === 'Integer' -->
-                                            <!-- ko if: $data.getGraphConfigField() -->
-                                                <input class="form-control configValueInput" step="1" onfocus="this.previousValue = this.value" onkeydown="this.previousValue = this.value" oninput="validity.valid || (value = this.previousValue)"  data-bind="eagleTooltip: 'Configured Value',disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: $data.getGraphConfigField().value, attr:{type: $data.getHtmlInputType()},  event: {change: ParameterTable.fieldValueChanged}">    
-                                            <!-- /ko -->
-                                            <!-- ko ifnot: $data.getGraphConfigField() -->
-                                                <input class="form-control" step="1" onfocus="this.previousValue = this.value" onkeydown="this.previousValue = this.value" oninput="validity.valid || (value = this.previousValue)" data-bind=" eagleTooltip: 'Graph Value',disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()},  event: {change: ParameterTable.fieldValueChanged}">
-                                            <!-- /ko -->
+                                    <!-- integer -->
+                                    <!-- ko if: $data.isIntegerValueType() -->
+                                        <!-- ko if: $data.getGraphConfigField() -->
+                                            <input class="form-control configValueInput" type="number" step="1" onfocus="this.previousValue = this.value" onkeydown="this.previousValue = this.value" oninput="validity.valid || (value = this.previousValue)" data-bind="eagleTooltip: 'Configured Value',disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: $data.getGraphConfigField().value, event: {change: ParameterTable.fieldValueChanged}">    
                                         <!-- /ko -->
-
-                                        <!-- ko if: $data.getType() === 'Float' -->
-                                            <!-- ko if: $data.getGraphConfigField() -->
-                                                <input class="form-control configValueInput" data-bind="eagleTooltip: 'Configured Value',disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: $data.getGraphConfigField().value, attr:{type: $data.getHtmlInputType()},  event: {change: ParameterTable.fieldValueChanged}">    
-                                            <!-- /ko -->
-                                            <!-- ko ifnot: $data.getGraphConfigField() -->
-                                                <input class="form-control" data-bind=" eagleTooltip: 'Graph Value',disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()},  event: {change: ParameterTable.fieldValueChanged}">
-                                            <!-- /ko -->
-                                        <!-- /ko -->
-
-                                        <!-- string value -->
-                                        <!-- ko ifnot: $data.getType() === 'Integer' || $data.getType() === 'Float' -->
-                                            <!-- ko if: $data.getGraphConfigField() -->
-                                                <textarea class="form-control configValueInput" rows="1" data-bind="eagleTooltip: 'Configured Value', disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: $data.getGraphConfigField().value, attr:{type: $data.getHtmlInputType()}, event: {change: ParameterTable.fieldValueChanged}"></textarea>
-                                            <!-- /ko -->
-                                            <!-- ko ifnot: $data.getGraphConfigField() -->
-                                                <textarea class="form-control" rows="1" data-bind="eagleTooltip: 'Graph Value', disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, attr:{type: $data.getHtmlInputType()}, event: {change: ParameterTable.fieldValueChanged}"></textarea>
-                                            <!-- /ko -->
-                                            
-                                            <button class="inspectorEditBtn icon-pencil iconHoverEffect" data-bind="click:function(data,event){ParameterTable.requestEditValueCode($data, false)}"></button>
+                                        <!-- ko ifnot: $data.getGraphConfigField() -->
+                                            <input class="form-control" type="number" step="1" onfocus="this.previousValue = this.value" onkeydown="this.previousValue = this.value" oninput="validity.valid || (value = this.previousValue)" data-bind=" eagleTooltip: 'Graph Value',disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, event: {change: ParameterTable.fieldValueChanged}">
                                         <!-- /ko -->
                                     <!-- /ko -->
 
-                                    <!-- ko if: $data.getHtmlInputType() === 'checkbox' -->
+                                    <!-- float -->
+                                    <!-- ko if: $data.isFloatValueType() -->
+                                        <!-- ko if: $data.getGraphConfigField() -->
+                                            <input class="form-control configValueInput" type="number" step="0.1" onfocus="this.previousValue = this.value" onkeydown="this.previousValue = this.value" oninput="validity.valid || (value = this.previousValue)" data-bind="eagleTooltip: 'Configured Value',disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: $data.getGraphConfigField().value, event: {change: ParameterTable.fieldValueChanged}">    
+                                        <!-- /ko -->
+                                        <!-- ko ifnot: $data.getGraphConfigField() -->
+                                            <input class="form-control" type="number" step="0.1" data-bind=" eagleTooltip: 'Graph Value',disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, event: {change: ParameterTable.fieldValueChanged}">
+                                        <!-- /ko -->
+                                    <!-- /ko -->
+
+                                    <!-- string value -->
+                                    <!-- ko if: $data.isStringValueType() -->
+                                        <!-- ko if: $data.getGraphConfigField() -->
+                                            <textarea class="form-control configValueInput" type="text" rows="1" data-bind="eagleTooltip: 'Configured Value', disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: $data.getGraphConfigField().value, event: {change: ParameterTable.fieldValueChanged}"></textarea>
+                                        <!-- /ko -->
+                                        <!-- ko ifnot: $data.getGraphConfigField() -->
+                                            <textarea class="form-control" type="text" rows="1" data-bind="eagleTooltip: 'Graph Value', disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, event: {change: ParameterTable.fieldValueChanged}"></textarea>
+                                        <!-- /ko -->
+                                        <button class="inspectorEditBtn icon-pencil iconHoverEffect" data-bind="click:function(data,event){ParameterTable.requestEditValueField($data, false)}"></button>
+                                    <!-- /ko -->
+
+                                    <!-- boolean -->
+                                    <!-- ko if: $data.isBooleanValueType() -->
                                         <!-- ko if: $data.getGraphConfigField() -->
                                             <div class="checkboxWrapper configValueInput form-control" data-bind="eagleTooltip: 'Configured Value'">
                                                     <input tabindex='-1' data-bind="checked: valIsTrue($data.getGraphConfigField().value()), disabled: ParameterTable.getCurrentParamValueReadonly($data), valueUpdate: ['afterkeydown', 'input'], value: value, event: {change: function(){$data.getGraphConfigField().toggle(); ParameterTable.fieldValueChanged();}}" type="checkbox">
@@ -146,7 +142,8 @@
                                         <!-- /ko -->
                                     <!-- /ko -->
 
-                                    <!-- ko if: $data.getHtmlInputType() === 'select' -->
+                                    <!-- select -->
+                                    <!-- ko if: $data.isSelectValueType() -->
                                         <!-- ko if: $data.getGraphConfigField() -->
                                             <select class="configValueInput form-control" aria-label="Label" aria-describedby="group-addon" data-bs-placement="bottom" data-bind="eagleTooltip: 'Configured Value', disabled: ParameterTable.getCurrentParamValueReadonly($data.getGraphConfigField()), event: {change: ParameterTable.fieldValueChanged}, options: $data.options, value: $data.getGraphConfigField().value">
                                                 <!-- options are added dynamically -->
@@ -175,26 +172,22 @@
                                 <h4>Edge Attributes</h4>
                             </div>
                             <div class="col-1 col">
-                                <i class="material-icons iconHoverEffect" data-bind="click: Setting.find(Setting.INSPECTOR_COLLAPSED_STATE).toggle, eagleTooltip: KeyboardShortcut.idToFullText('toggle_inspector')">close</i>
+                                <i class="material-symbols-outlined iconHoverEffect" data-bind="click: Setting.find(Setting.INSPECTOR_COLLAPSED_STATE).toggle, eagleTooltip: KeyboardShortcut.idToFullText('toggle_inspector')">close</i>
                             </div>
                         </div>
                         
                         <div class="headerButtons inspectorHeaderButtons" id="objectInspectorHeaderIconRow">
                             <div class="row">
                                 <div class="col-4 col">
+                                    <i class="material-symbols-outlined filled interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: $data.getInspectorCommentHTML(), click: $root.editEdgeComment" data-bs-toggle="tooltip" data-html="true">chat</i>
                                     <!-- ko if: $data.getErrorsWarnings().errors.length > 0 || $data.getErrorsWarnings().warnings.length > 0 -->
-                                        <i class="material-icons interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: $data.getNodeIssuesHtml(), style:{'color': $data.getIconColor()}, click: $root.showGraphErrors" data-bs-toggle="tooltip" data-html="true">error</i>
+                                        <i class="material-symbols-outlined filled interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: $data.getNodeIssuesHtml(), style:{'color': $data.getIconColor()}, click: $root.showEagleErrors" data-bs-toggle="tooltip" data-html="true">error</i>
                                     <!-- /ko -->
                                 </div>
                                 <div class="col-8 col text-right">
-                                    <!-- ko if: Setting.findValue(Setting.ALLOW_EDGE_EDITING) -->
-                                        <button type="button" class="btn btn-secondary btn-sm" data-bind="click: $root.editSelectedEdge, eagleTooltip: KeyboardShortcut.idToFullText('modify_selected_edge')">
-                                            <i class="material-icons md-24 clickable iconHoverEffect">edit</i>
-                                        </button>
-                                    <!-- /ko -->
                                     <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
                                         <button  type="button" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.deleteSelection(false,false,false);}, eagleTooltip: KeyboardShortcut.idToFullText('delete_selection')">
-                                            <i class="material-icons md-24 clickable iconHoverEffect">delete</i>
+                                            <i class="material-symbols-outlined md-24 clickable iconHoverEffect">delete</i>
                                         </button>
                                     <!-- /ko -->
                                 </div>
@@ -206,7 +199,7 @@
                                     <h5>Src Node:</h5>
                                 </div>
                                 <div class="col-8 col contentObjectValue">
-                                    <span data-bind="text:$root.logicalGraph().findNodeById($data.getSrcNodeId()).getName(), eagleTooltip:$data.getSrcNodeId()"></span>
+                                    <span data-bind="text:$data.getSrcNode().getName(), eagleTooltip:$data.getSrcNode().getId()"></span>
                                 </div>
                             </div>
                             <div class="row inspectorEdgeSrcPortId contentObject">
@@ -214,7 +207,7 @@
                                     <h5>Src Port:</h5>
                                 </div>
                                 <div class="col-8 col contentObjectValue">
-                                    <span data-bind="text:$root.logicalGraph().findNodeById($data.getSrcNodeId()).findFieldById($data.getSrcPortId())?.getDisplayText(),eagleTooltip:$data.getSrcPortId()"></span>
+                                    <span data-bind="text:$data.getSrcPort().getDisplayText(), eagleTooltip:$data.getSrcPort().getId()"></span>
                                 </div>
                             </div>
                             <div class="row inspectorEdgeDestNodeId contentObject">
@@ -222,7 +215,7 @@
                                     <h5>Dest Node:</h5>
                                 </div>
                                 <div class="col-8 col contentObjectValue">
-                                    <span data-bind="text:$root.logicalGraph().findNodeById($data.getDestNodeId()).getName(),eagleTooltip:$data.getDestNodeId()"></span>
+                                    <span data-bind="text:$data.getDestNode().getName(), eagleTooltip:$data.getDestNode().getId()"></span>
                                 </div>
                             </div>
                             <div class="row inspectorEdgeDestPortId contentObject">
@@ -230,7 +223,7 @@
                                     <h5>Dest Port:</h5>
                                 </div>
                                 <div class="col-8 col contentObjectValue">
-                                    <span data-bind="text: $root.logicalGraph().findNodeById($data.getDestNodeId()).findFieldById($data.getDestPortId()).getDisplayText(),eagleTooltip:$data.getDestPortId()"></span>
+                                    <span data-bind="text:$data.getDestPort().getDisplayText(), eagleTooltip:$data.getDestPort().getId()"></span>
                                 </div>
                             </div>
                             
@@ -240,8 +233,8 @@
                                 </div>
                                 <div class="col-8 col contentObjectValue">
                                     <button class="btn btn-secondary btn-sm radioBtn iconHoverEffect" id="objectInspectorToggleLoopAware" type="button" data-bind="click: function(){$root.selectedEdge().toggleLoopAware();},disabled:!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)">
-                                        <i class="material-icons md-18" data-bind="visible: $root.selectedEdge().isLoopAware()">radio_button_checked</i>
-                                        <i class="material-icons md-18" data-bind="hidden: $root.selectedEdge().isLoopAware()">radio_button_unchecked</i>
+                                        <i class="material-symbols-outlined md-18" data-bind="visible: $root.selectedEdge().isLoopAware()">radio_button_checked</i>
+                                        <i class="material-symbols-outlined md-18" data-bind="hidden: $root.selectedEdge().isLoopAware()">radio_button_unchecked</i>
                                     </button>
                                 </div>
                             </div>
@@ -251,8 +244,8 @@
                                 </div>
                                 <div class="col-8 col contentObjectValue">
                                     <button class="btn btn-secondary btn-sm radioBtn iconHoverEffect" id="objectInspectorToggleClosesLoop" type="button" data-bind="click: $root.toggleEdgeClosesLoop, disabled:!Setting.findValue(Setting.ALLOW_GRAPH_EDITING)">
-                                        <i class="material-icons md-18" data-bind="visible: $root.selectedEdge().isClosesLoop()">radio_button_checked</i>
-                                        <i class="material-icons md-18" data-bind="hidden: $root.selectedEdge().isClosesLoop()">radio_button_unchecked</i>
+                                        <i class="material-symbols-outlined md-18" data-bind="visible: $root.selectedEdge().isClosesLoop()">radio_button_checked</i>
+                                        <i class="material-symbols-outlined md-18" data-bind="hidden: $root.selectedEdge().isClosesLoop()">radio_button_unchecked</i>
                                     </button>
                                 </div>
                             </div>
@@ -271,7 +264,7 @@
                                 <h4>Multi Selection</h4>
                             </div>
                             <div class="col-1 col">
-                                <i class="material-icons iconHoverEffect" data-bind="click: Setting.find(Setting.INSPECTOR_COLLAPSED_STATE).toggle, eagleTooltip: KeyboardShortcut.idToFullText('toggle_inspector')">close</i>
+                                <i class="material-symbols-outlined iconHoverEffect" data-bind="click: Setting.find(Setting.INSPECTOR_COLLAPSED_STATE).toggle, eagleTooltip: KeyboardShortcut.idToFullText('toggle_inspector')">close</i>
                             </div>
                         </div>
                         
@@ -280,17 +273,17 @@
                                 <div class="col-12 col text-right">
                                     <!-- ko if: Eagle.selectedLocation() == Eagle.FileType.Graph || Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                                         <button type="button" id="duplicateSelectedobjects" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.duplicateSelection('normal')}, clickBubble: false, eagleTooltip: KeyboardShortcut.idToFullText('duplicate_selection')" data-bs-placement="left">
-                                            <i  class="material-icons md-20 clickable iconHoverEffect">content_copy</i>
+                                            <i  class="material-symbols-outlined md-20 clickable iconHoverEffect">content_copy</i>
                                         </button>
                                     <!-- /ko -->
                                     <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
                                         <button type="button" id="addSelectedNodesToPalette" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.addSelectedNodesToPalette('normal')}, clickBubble: false, eagleTooltip: 'Add Selected Node To Palette'" data-bs-placement="left">
-                                            <i  class="material-icons md-20 clickable iconHoverEffect">library_add</i>
+                                            <i  class="material-symbols-outlined md-20 clickable iconHoverEffect">library_add</i>
                                         </button>
                                     <!-- /ko -->
                                     <!-- ko if: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
                                         <button  type="button" class="btn btn-secondary btn-sm" data-bind="click: function(){$root.deleteSelection(false,false,false);}, eagleTooltip: KeyboardShortcut.idToFullText('delete_selection')">
-                                            <i class="material-icons md-24 clickable iconHoverEffect">delete</i>
+                                            <i class="material-symbols-outlined md-24 clickable iconHoverEffect">delete</i>
                                         </button>
                                     <!-- /ko -->
                                 </div>
@@ -320,7 +313,7 @@
         <!-- /ko -->      
     
         <!-- ko if: Setting.findValue(Setting.INSPECTOR_COLLAPSED_STATE) -->
-            <i class="material-icons iconHoverEffect" data-bind="click: Setting.find(Setting.INSPECTOR_COLLAPSED_STATE).toggle">info</i>
+            <i class="material-symbols-outlined filled iconHoverEffect" data-bind="click: Setting.find(Setting.INSPECTOR_COLLAPSED_STATE).toggle">info</i>
         <!-- /ko -->
     <!-- /ko -->
 
@@ -335,7 +328,7 @@
                             <h4>Graph Info</h4>
                         </div>
                         <div class="col-1 col iconHoverEffect">
-                            <i class="material-icons" data-bind="click: Setting.find(Setting.INSPECTOR_COLLAPSED_STATE).toggle, eagleTooltip: KeyboardShortcut.idToFullText('toggle_inspector')">close</i>
+                            <i class="material-symbols-outlined" data-bind="click: Setting.find(Setting.INSPECTOR_COLLAPSED_STATE).toggle, eagleTooltip: KeyboardShortcut.idToFullText('toggle_inspector')">close</i>
                         </div>
                     </div>
                     
@@ -343,19 +336,19 @@
                         <div class="row">
                             <div class="col col-6">
                                 <!-- ko if: $root.logicalGraph().fileInfo().repositoryService === Repository.Service.File -->
-                                    <i class="material-icons interactive" data-bs-placement="right" data-bind="eagleTooltip: 'This is a Local Graph File'" data-bs-toggle="tooltip" data-html="true">folder_open</i>
+                                    <i class="material-symbols-outlined interactive" data-bs-placement="right" data-bind="eagleTooltip: 'This is a Local Graph File'" data-bs-toggle="tooltip" data-html="true">folder_open</i>
                                 <!-- /ko -->
                                 <!-- ko if: $root.logicalGraph().fileInfo().repositoryService === Repository.Service.GitHub || $root.logicalGraph().fileInfo().repositoryService === Repository.Service.GitLab -->
-                                    <i class="material-icons interactive" data-bs-placement="right" data-bind="eagleTooltip: 'This is a Graph File from GitHub or GitLab'" data-bs-toggle="tooltip" data-html="true">account_tree</i>
+                                    <i class="material-symbols-outlined interactive" data-bs-placement="right" data-bind="eagleTooltip: 'This is a Graph File from GitHub or GitLab'" data-bs-toggle="tooltip" data-html="true">account_tree</i>
                                 <!-- /ko -->
-                                <i class="material-icons interactive" data-bs-placement="right" data-bind="eagleTooltip: $root.logicalGraph().fileInfo().fullPath()" data-bs-toggle="tooltip" data-html="true">link</i>
+                                <i class="material-symbols-outlined interactive" data-bs-placement="right" data-bind="eagleTooltip: $root.logicalGraph().fileInfo().location.fullPath()" data-bs-toggle="tooltip" data-html="true">link</i>
 
-                                <i id="inspectorGraphInfoBtn" class="material-icons interactive clickable iconHoverEffect" data-bind="eagleTooltip: 'View Graph Model Data', click: function(){Utils.showModelDataModal('Graph Info', $root.logicalGraph().fileInfo());}" data-bs-toggle="tooltip" data-html="true">info</i>
-                                <i id="shortDescriptionEditBtn" class="material-icons interactive clickable iconHoverEffect" data-bind="eagleTooltip: $root.logicalGraph().getInspectorShortDescriptionHTML(), click: $root.editGraphShortDescription" data-bs-toggle="tooltip" data-html="true">sticky_note_2</i>
-                                <i class="material-icons interactive clickable iconHoverEffect" data-bind="eagleTooltip: $root.logicalGraph().getInspectorDetailedDescriptionHTML(), click: $root.editGraphDetailedDescription" data-bs-toggle="tooltip" data-html="true">library_books</i>
+                                <i id="inspectorGraphInfoBtn" class="material-symbols-outlined filled interactive clickable iconHoverEffect" data-bind="eagleTooltip: 'View Graph Model Data', click: function(){Utils.showModelDataModal('Graph Info', $root.logicalGraph().fileInfo());}" data-bs-toggle="tooltip" data-html="true">info</i>
+                                <i id="shortDescriptionEditBtn" class="material-symbols-outlined filled interactive clickable iconHoverEffect" data-bind="style:{'color': $root.logicalGraph().fileInfo().getShortDescriptionBtnColor()}, eagleTooltip: $root.logicalGraph().getInspectorShortDescriptionHTML(), click: function(){$root.editShortDescription($root.logicalGraph().fileInfo())}" data-bs-toggle="tooltip" data-html="true">sticky_note_2</i>
+                                <i id="detailedDescriptionEditBtn" class="material-symbols-outlined filled interactive clickable iconHoverEffect" data-bind="style:{'color': $root.logicalGraph().fileInfo().getDetailedDescriptionBtnColor()}, eagleTooltip: $root.logicalGraph().getInspectorDetailedDescriptionHTML(), click: function(){$root.editDetailedDescription($root.logicalGraph().fileInfo())}" data-bs-toggle="tooltip" data-html="true">library_books</i>
                             </div>
                             <div class="col-6 col text-right">
-                                <i class="material-icons interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: 'View graph configurations table', click: GraphConfigurationsTable.openTable" data-bs-toggle="tooltip" data-html="true">dns</i>
+                                <i class="icon-config_table interactive clickable iconHoverEffect" data-bs-placement="right" data-bind="eagleTooltip: 'View graph configurations table', click: GraphConfigurationsTable.openTable" data-bs-toggle="tooltip" data-html="true"></i>
                             </div>
                         </div>
                     </div>
@@ -365,7 +358,15 @@
                                 <h5>Num Nodes: </h5>
                             </div>  
                             <div class="col-6 col contentObjectValue">
-                                <span data-bind="text:$root.logicalGraph().getNodes().length"></span>
+                                <span data-bind="text:$root.logicalGraph().nodes().size"></span>
+                            </div>
+                        </div>
+                        <div class="row inspectorEdgeSrcNodeId contentObject">
+                            <div class="col-6 col contentObjectTitle">
+                                <h5>Num Edges: </h5>
+                            </div>  
+                            <div class="col-6 col contentObjectValue">
+                                <span data-bind="text:$root.logicalGraph().edges().size"></span>
                             </div>
                         </div>
                         <div class="row inspectorEdgeSrcNodeId contentObject">
@@ -389,7 +390,7 @@
                                 <h5>Active Config: </h5>
                             </div>  
                             <div class="col-6 col contentObjectValue">
-                                <span data-bind="text:$root.logicalGraph().getActiveGraphConfig()?.getName(), eagleTooltip:$root.logicalGraph().getActiveGraphConfig()?.getDescription()"></span>
+                                <span data-bind="text:$root.logicalGraph().getActiveGraphConfig()?.fileInfo().name, eagleTooltip:$root.logicalGraph().getActiveGraphConfig()?.fileInfo().shortDescription"></span>
                             </div>
                         </div>
                         <div class="row inspectorEdgeSrcNodeId contentObject">
@@ -406,7 +407,7 @@
         <!-- /ko -->
             
         <!-- ko if: Setting.findValue(Setting.INSPECTOR_COLLAPSED_STATE) -->
-            <i class="material-icons iconHoverEffect" data-bind="click: Setting.find(Setting.INSPECTOR_COLLAPSED_STATE).toggle, eagleTooltip: KeyboardShortcut.idToFullText('toggle_inspector')">info</i>
+            <i class="material-symbols-outlined filled iconHoverEffect" data-bind="click: Setting.find(Setting.INSPECTOR_COLLAPSED_STATE).toggle, eagleTooltip: KeyboardShortcut.idToFullText('toggle_inspector')">info</i>
         <!-- /ko -->
     <!-- /ko -->
 </div>

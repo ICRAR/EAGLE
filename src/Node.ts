@@ -31,7 +31,8 @@ import { Eagle } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { Errors } from './Errors';
 import { Field } from './Field';
-import { GraphRenderer } from "./GraphRenderer";
+import { Id } from './Id';
+import { LogicalGraph } from './LogicalGraph';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
 
@@ -39,22 +40,22 @@ export class Node {
     private id : ko.Observable<NodeId>;
     private name : ko.Observable<string>;
     private description : ko.Observable<string>;
+    private comment : ko.Observable<string>;
 
     private x : ko.Observable<number>;
     private y : ko.Observable<number>;
 
-    private parentId : ko.Observable<NodeId>;
-    private embedId : ko.Observable<NodeId>;
+    private parent : ko.Observable<Node | null>;     // link to the node of which this node is a child
+    private embed : ko.Observable<Node | null>;      // link to the node in which this node is embedded as an input or output application
+    private children : ko.Observable<Map<NodeId, Node>>;
 
-    private inputApplication : ko.Observable<Node>;
-    private outputApplication : ko.Observable<Node>;
+    private inputApplication : ko.Observable<Node | null>;
+    private outputApplication : ko.Observable<Node | null>;
 
-    private fields : ko.ObservableArray<Field>;
+    private fields : ko.Observable<Map<FieldId, Field>>;
 
     private category : ko.Observable<Category>;
     private categoryType : ko.Observable<Category.Type>;
-
-    private subject : ko.Observable<NodeId>;       // the id of another node that is the subject of this node. used by comment nodes only.
 
     private repositoryUrl : ko.Observable<string>;
     private commitHash : ko.Observable<string>;
@@ -73,73 +74,74 @@ export class Node {
     private drawOrderHint : ko.Observable<number>; // a secondary sorting hint when ordering the nodes for drawing
                                                    // (primary method is using parent-child relationships)
                                                    // a node with greater drawOrderHint is always in front of an element with a lower drawOrderHint
+                                                   // TODO: unused? shall we remove it?
 
-    constructor(name : string, description : string, category : Category){
-        this.id = ko.observable(Utils.generateNodeId());
+    constructor(name : string, description : string, comment : string, category : Category){
+        this.id = ko.observable(Id.generateNodeId());
         this.name = ko.observable(name);
         this.description = ko.observable(description);
+        this.comment = ko.observable(comment);
 
         this.x = ko.observable(0);
         this.y = ko.observable(0);
 
-        this.parentId = ko.observable(null);
-        this.embedId = ko.observable(null);
+        this.parent = ko.observable(null);
+        this.embed = ko.observable(null);
+        this.children = ko.observable(new Map());
 
         this.inputApplication = ko.observable(null);
         this.outputApplication = ko.observable(null);
 
-        this.fields = ko.observableArray([]);
+        this.fields = ko.observable(new Map<FieldId, Field>());
         this.category = ko.observable(category);
 
+        // lookup category data
+        const categoryData = CategoryData.getCategoryData(category);
+
         // lookup correct categoryType based on category
-        this.categoryType = ko.observable(CategoryData.getCategoryData(category).categoryType);
-        this.subject = ko.observable(null);
+        this.categoryType = ko.observable(categoryData.categoryType);
 
         this.repositoryUrl = ko.observable("");
         this.commitHash = ko.observable("");
         this.paletteDownloadUrl = ko.observable("");
         this.dataHash = ko.observable("");
 
-        this.issues = ko.observableArray([]);
+        this.issues = ko.observableArray<{issue:Errors.Issue, validity:Errors.Validity}>([]);
 
-        //graph related things
+        // graph related things
         this.expanded = ko.observable(true);
         this.keepExpanded = ko.observable(false);
         this.peek = ko.observable(false);
 
-        this.color = ko.observable(Utils.getColorForNode(category));
+        this.color = ko.observable(categoryData.color);
         this.drawOrderHint = ko.observable(0);
 
-        if(this.isData()){
-            this.radius = ko.observable(EagleConfig.DATA_NODE_RADIUS);
-        }else if (this.isBranch()){
-            this.radius = ko.observable(EagleConfig.BRANCH_NODE_RADIUS);
-        }else if (this.isGroup()){
-            this.radius = ko.observable(EagleConfig.MINIMUM_CONSTRUCT_RADIUS);
-        }else{
-            this.radius = ko.observable(EagleConfig.NORMAL_NODE_RADIUS);
-        }
+        this.radius = ko.observable(categoryData.radius);
     }
 
     getId = () : NodeId => {
         return this.id();
     }
 
-    setId = (id: NodeId) : void => {
+    setId = (id: NodeId): Node => {
         this.id(id);
 
         // go through all fields on this node, and make sure their nodeIds are all updated, important for ports
-        for (const field of this.fields()){
-            field.setNodeId(id);
+        // TODO: maybe this isn't necessary
+        for (const field of this.fields().values()){
+            field.setNode(this);
         }
+
+        return this;
     }
 
     getName = () : string => {
         return this.name();
     }
 
-    setName = (name : string) : void => {
+    setName = (name : string): Node => {
         this.name(name);
+        return this;
     }
 
     getNameNumLines = (width: number) : number => {
@@ -172,38 +174,51 @@ export class Node {
         return this.description();
     }
 
-    setDescription = (description : string) : void => {
+    setDescription = (description : string): Node => {
         this.description(description);
+        return this;
+    }
+
+    getComment = () : string => {
+        return this.comment();
+    }
+
+    setComment = (comment : string) : void => {
+        this.comment(comment);
     }
 
     getPosition = () : {x:number, y:number} => {
         return {x: this.x(), y: this.y()};
     }
 
-    setPosition = (x: number, y: number) : void => {
+    setPosition = (x: number, y: number): Node => {
         this.x(x)
         this.y(y)
+        return this;
     }
 
-    changePosition = (dx : number, dy : number) : void => {
+    changePosition = (dx : number, dy : number) : Node => {
         this.x(this.x()+dx)
         this.y(this.y()+dy)
+        return this;
     }
 
     getRadius = () : number => {
         return this.radius();
     }
 
-    setRadius = (radius : number) : void => {
+    setRadius = (radius : number) : Node => {
         this.radius(radius);
+        return this;
     }
 
     getColor = () : string => {
         return this.color();
     }
 
-    setColor = (color: string) : void => {
+    setColor = (color: string) : Node => {
         this.color(color);
+        return this;
     }
 
     getDrawOrderHint = () : number => {
@@ -211,50 +226,79 @@ export class Node {
     }
 
     // move node towards the front
-    incrementDrawOrderHint = () : void => {
+    incrementDrawOrderHint = () : Node => {
         this.drawOrderHint(this.drawOrderHint() + 1);
+        return this;
     }
 
     // move node towards the back
-    decrementDrawOrderHint = () : void => {
+    decrementDrawOrderHint = () : Node => {
         this.drawOrderHint(this.drawOrderHint() - 1);
+        return this;
     }
 
-    setDrawOrderHint = (drawOrderHint : number) : void => {
+    setDrawOrderHint = (drawOrderHint : number) : Node => {
         this.drawOrderHint(drawOrderHint);
+        return this;
     }
 
-    getParentId = () : NodeId => {
-        return this.parentId();
+    getParent = () : Node | null => {
+        return this.parent();
     }
 
-    setParentId = (id: NodeId) : void => {
+    setParent = (node: Node | null) : Node => {
         // TODO: maybe we should allow this here and just check for the bad state in checkGraph() ?
         // check that we are not making this node its own parent
-        if (id === this.id()){
+        if (node !== null && node.id() === this.id()){
             console.warn("Setting node as its own parent!");
-            return;
+            return this;
         }
 
-        this.parentId(id);
+        // if this node already has a parent, remove this node from the parent's children
+        const parent = this.parent();
+        if (parent !== null){
+            parent.children().delete(this.getId());
+            parent.children.valueHasMutated();
+        }
+
+        this.parent(node);
+
+        if (node !== null){
+            node.children().set(this.getId(), this);
+            node.children.valueHasMutated();
+        }
+        return this;
     }
 
-    getEmbedId = () : NodeId => {
-        return this.embedId();
+    hasParent = () : boolean => {
+        return this.parent() !== null;
     }
 
-    setEmbedId = (id: NodeId) : void => {
-        this.embedId(id);
+    getEmbed = () : Node | null => {
+        return this.embed();
+    }
+
+    setEmbed = (node: Node | null) : Node => {
+        this.embed(node);
+        return this;
     }
 
     isEmbedded = () : boolean => {
-        return this.embedId() !== null;
+        return this.embed() !== null;
+    }
+
+    getChildren = (): MapIterator<Node> => {
+        return this.children().values();
+    }
+
+    getChildById = (id: NodeId): Node | undefined => {
+        return this.children().get(id);
     }
 
     isStreaming = () : boolean => {
-        const streamingField = this.findFieldByDisplayText(Daliuge.FieldName.STREAMING, Daliuge.FieldType.Component);
+        const streamingField = this.findFieldByDisplayText(Daliuge.FieldName.STREAMING);
 
-        if (streamingField !== null){
+        if (typeof streamingField !== 'undefined'){
             return streamingField.valIsTrue(streamingField.getValue());
         }
 
@@ -262,9 +306,9 @@ export class Node {
     }
 
     isPersist = () : boolean => {
-        const persistField = this.findFieldByDisplayText(Daliuge.FieldName.PERSIST, Daliuge.FieldType.Component);
+        const persistField = this.findFieldByDisplayText(Daliuge.FieldName.PERSIST);
 
-        if (persistField !== null){
+        if (typeof persistField !== 'undefined'){
             return persistField.valIsTrue(persistField.getValue());
         }
 
@@ -275,8 +319,9 @@ export class Node {
         return this.peek();
     }
 
-    setPeek = (value : boolean) : void => {
+    setPeek = (value : boolean) : Node => {
         this.peek(value);
+        return this;
     }
 
     togglePeek = () : void => {
@@ -285,26 +330,40 @@ export class Node {
 
     isLocked : ko.PureComputed<boolean> = ko.pureComputed(() => {
         if(Eagle.selectedLocation() === Eagle.FileType.Graph){
-            const allowComponentEditing : boolean = Setting.findValue(Setting.ALLOW_COMPONENT_EDITING);
+            const allowComponentEditing : boolean = Setting.findValue<boolean>(Setting.ALLOW_COMPONENT_EDITING, false);
             return !allowComponentEditing;
         }else{
-            const allowPaletteEditing : boolean = Setting.findValue(Setting.ALLOW_PALETTE_EDITING);
+            const allowPaletteEditing : boolean = Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false);
             return !allowPaletteEditing;
         }
     }, this);
 
     usageOptions : ko.PureComputed<Daliuge.FieldUsage[]> = ko.pureComputed(() => {
-        // fields on construct nodes cannot be ports
-        if (this.categoryType() === Category.Type.Construct){
-            return [Daliuge.FieldUsage.NoPort];
+        const result: Daliuge.FieldUsage[] = [Daliuge.FieldUsage.NoPort];
+        const categoryData = CategoryData.getCategoryData(this.category());
+        const canHaveInputs = categoryData.maxInputs > 0;
+        const canHaveOutputs = categoryData.maxOutputs > 0;
+
+        // if category can have input ports, add those to the options
+        if (canHaveInputs){
+            result.push(Daliuge.FieldUsage.InputPort);
         }
-        return Object.values(Daliuge.FieldUsage)
+        // if category can have output ports, add those to the options
+        if (canHaveOutputs){
+            result.push(Daliuge.FieldUsage.OutputPort);
+        }
+        // if category can have both input and output ports, add the InputOutput option
+        if (canHaveInputs && canHaveOutputs){
+            result.push(Daliuge.FieldUsage.InputOutput);
+        }
+
+        return result;
     }, this);
 
     getInputPorts = () : Field[] => {
         const result: Field[] = []
 
-        for (const field of this.fields()){
+        for (const field of this.fields().values()){
             if (field.isInputPort()){
                 result.push(field);
             }
@@ -316,7 +375,7 @@ export class Node {
     getInputEventPorts = () : Field[] => {
         const result: Field[] = []
 
-        for (const field of this.fields()){
+        for (const field of this.fields().values()){
             if (field.isInputPort() && field.getIsEvent()){
                 result.push(field);
             }
@@ -328,7 +387,7 @@ export class Node {
     getOutputPorts = () : Field[] => {
         const result: Field[] = []
 
-        for (const field of this.fields()){
+        for (const field of this.fields().values()){
             if (field.isOutputPort()){
                 result.push(field);
             }
@@ -340,7 +399,7 @@ export class Node {
     getOutputEventPorts = () : Field[] => {
         const result: Field[] = []
 
-        for (const field of this.fields()){
+        for (const field of this.fields().values()){
             if (field.isOutputPort() && field.getIsEvent()){
                 result.push(field);
             }
@@ -350,74 +409,64 @@ export class Node {
     }
 
     getPorts = () : Field[] => {
-        const results: Field[] = this.getInputPorts()
-        this.getOutputPorts().forEach(function(outputPort){
-            for (const result of results){
-                if(result.getId() === outputPort.getId()){
-                    continue
-                }else{
-                    results.push(outputPort)
-                }
+        const results: Field[] = [];
+
+        for (const field of this.fields().values()){
+            if (field.getUsage() !== Daliuge.FieldUsage.NoPort){
+                results.push(field);
             }
-        })
+        }
 
         return results;
     }
 
     getInputApplicationInputPorts = () : Field[] => {
-        if (this.inputApplication() === null){
+        const inputApplication = this.inputApplication();
+        if (inputApplication === null){
             return [];
         }
 
-        return this.inputApplication().getInputPorts();
+        return inputApplication.getInputPorts();
     }
 
     getInputApplicationOutputPorts = () : Field[] => {
-        if (this.inputApplication() === null){
+        const inputApplication = this.inputApplication();
+        if (inputApplication === null){
             return [];
         }
 
-        return this.inputApplication().getOutputPorts();
+        return inputApplication.getOutputPorts();
     }
 
     getOutputApplicationInputPorts = () : Field[] => {
-        if (this.outputApplication() === null){
+        const outputApplication = this.outputApplication();
+        if (outputApplication === null){
             return [];
         }
 
-        return this.outputApplication().getInputPorts();
+        return outputApplication.getInputPorts();
     }
 
     getOutputApplicationOutputPorts = () : Field[] => {
-        if (this.outputApplication() === null){
+        const outputApplication = this.outputApplication();
+        if (outputApplication === null){
             return [];
         }
 
-        return this.outputApplication().getOutputPorts();
+        return outputApplication.getOutputPorts();
     }
 
-    getFieldByDisplayText = (displayText : string) : Field | null => {
-        for (const field of this.fields()){
-            if (field.getDisplayText() === displayText){
-                return field;
-            }
-        }
-
-        return null;
+    hasField = (id: FieldId) : boolean => {
+        return this.fields().has(id);
     }
 
-    getFieldById = (id : string) : Field | null => {
-        for (const field of this.fields()){
-            if (field.getId() === id){
-                return field;
-            }
-        }
-
-        return null;
+    getFieldById = (id: FieldId) : Field | undefined => {
+        return this.fields().get(id);
     }
 
+    // TODO: this looks similar to the function above (I think I prefer the name above)
     hasFieldWithDisplayText = (displayText : string) : boolean => {
-        for (const field of this.fields()){
+        for (const field of this.fields().values()){
             if (field.getDisplayText() === displayText){
                 return true;
             }
@@ -425,18 +474,18 @@ export class Node {
         return false;
     }
 
-    getFields = () : Field[] => {
-        return this.fields();
+    getFields = () : MapIterator<Field> => {
+        return this.fields().values();
     }
 
     getNumFields = () : number => {
-        return this.fields().length;
+        return this.fields().size;
     }
 
     getComponentParameters = () : Field[] => {
         const result: Field[] = [];
 
-        for (const field of this.fields()){
+        for (const field of this.fields().values()){
             if (field.getParameterType() === Daliuge.FieldType.Component){
                 result.push(field);
             }
@@ -448,7 +497,7 @@ export class Node {
     getComponentParametersWithNoPorts = () : Field[] => {
         const result: Field[] = [];
 
-        for (const field of this.fields()){
+        for (const field of this.fields().values()){
             if (field.getParameterType() === Daliuge.FieldType.Component && field.getUsage() === Daliuge.FieldUsage.NoPort){
                 result.push(field);
             }
@@ -460,7 +509,7 @@ export class Node {
     getApplicationArguments = () : Field[] => {
         const result: Field[] = [];
 
-        for (const field of this.fields()){
+        for (const field of this.fields().values()){
             if (field.getParameterType() === Daliuge.FieldType.Application){
                 result.push(field);
             }
@@ -472,7 +521,7 @@ export class Node {
     getApplicationArgumentsWithNoPorts = () : Field[] => {
         const result: Field[] = [];
 
-        for (const field of this.fields()){
+        for (const field of this.fields().values()){
             if (field.getParameterType() === Daliuge.FieldType.Application && field.getUsage() === Daliuge.FieldUsage.NoPort){
                 result.push(field);
             }
@@ -484,7 +533,7 @@ export class Node {
     getConstructParameters = () : Field[] => {
         const result: Field[] = [];
 
-        for (const field of this.fields()){
+        for (const field of this.fields().values()){
             if (field.getParameterType() === Daliuge.FieldType.Construct){
                 result.push(field);
             }
@@ -496,7 +545,7 @@ export class Node {
     getConstructParametersWithNoPorts = () : Field[] => {
         const result: Field[] = [];
 
-        for (const field of this.fields()){
+        for (const field of this.fields().values()){
             if (field.getParameterType() === Daliuge.FieldType.Construct && field.getUsage() === Daliuge.FieldUsage.NoPort){
                 result.push(field);
             }
@@ -506,7 +555,7 @@ export class Node {
     }
 
     getDescriptionReadonly = () : boolean => {
-        const allowParam : boolean =Setting.findValue(Setting.ALLOW_COMPONENT_EDITING);
+        const allowParam : boolean = Setting.findValue<boolean>(Setting.ALLOW_COMPONENT_EDITING, false);
 
         return !allowParam;
     }
@@ -515,21 +564,23 @@ export class Node {
         return this.category();
     }
 
-    setCategory = (category: Category): void => {
+    setCategory = (category: Category) : Node => {
         this.category(category);
-        this.color(Utils.getColorForNode(category));
+        return this;
     }
 
     getCategoryType = () : Category.Type => {
         return this.categoryType();
     }
 
-    setCategoryType = (categoryType: Category.Type) : void => {
+    setCategoryType = (categoryType: Category.Type) : Node => {
         this.categoryType(categoryType);
+        return this;
     }
 
-    setRepositoryUrl = (url: string) : void => {
+    setRepositoryUrl = (url: string) : Node => {
         this.repositoryUrl(url);
+        return this;
     }
 
     getRepositoryUrl = () : string => {
@@ -538,6 +589,11 @@ export class Node {
 
     getCommitHash = () : string => {
         return this.commitHash();
+    }
+
+    setCommitHash = (commitHash: string) : Node => {
+        this.commitHash(commitHash);
+        return this;
     }
 
     getPaletteDownloadUrl = () : string => {
@@ -550,6 +606,10 @@ export class Node {
 
     isData = () : boolean => {
         return this.categoryType() === Category.Type.Data;
+    }
+
+    isGlobal = () : boolean => {
+        return this.categoryType() === Category.Type.Global;
     }
 
     isConstruct = () : boolean => {
@@ -568,10 +628,6 @@ export class Node {
         return this.category() === Category.SubGraph;
     }
 
-    isExclusiveForceNode = () : boolean => {
-        return this.category() === Category.ExclusiveForceNode;
-    }
-
     isDocker = () : boolean => {
         return this.category() === Category.Docker;
     }
@@ -586,10 +642,6 @@ export class Node {
 
     isGather = () : boolean => {
         return this.category() === Category.Gather;
-    }
-
-    isMKN = () : boolean => {
-        return this.category() === Category.MKN;
     }
 
     isLoop = () : boolean => {
@@ -652,7 +704,7 @@ export class Node {
     }
 
     hasFunc_code = () : boolean => {
-        for(const field of this.getFields()){
+        for(const field of this.fields().values()){
             if(field.getDisplayText() === Daliuge.FieldName.FUNC_CODE){
                 return true
             }
@@ -673,6 +725,11 @@ export class Node {
         }
     },this)
 
+    getNameHTML : ko.PureComputed<string> = ko.pureComputed(() => {
+        // return Utils.markdown2html(this.name());
+        return this.name();
+    }, this);
+
     getHelpHTML : ko.PureComputed<string> = ko.pureComputed(() => {
         // handle error if name is undefined
         if (typeof this.name() === 'undefined'){
@@ -681,10 +738,10 @@ export class Node {
 
         // check if name and category are the same (or similar except for capitalisation and whitespace)
         // if so, only use the name, the category is redundant
-        if (this.getName().split(" ").join("").toLowerCase() === this.getCategory().toLowerCase()){
-            return "||| <h3>"+ this.getName() + "</h3> ||| " + this.getDescription();
+        if (typeof this.getCategory() === "undefined" || this.getName().split(" ").join("").toLowerCase() === this.getCategory().toLowerCase()){
+            return "||| <h3>"+ this.getNameHTML() + "</h3> ||| " + this.getDescriptionHTML();
         } else {
-            return "||| <h3>" + this.getCategory() + " : " + this.getName() + "</h3> ||| " +this.getDescription();
+            return "||| <h3>" + this.getCategory() + " : " + this.getNameHTML() + "</h3> ||| " + this.getDescriptionHTML();
         }
     }, this);
 
@@ -696,25 +753,23 @@ export class Node {
         return 'Edit Node Description: </br>' + Utils.markdown2html(this.description());
     }, this);
 
-    getSubjectId = () : NodeId => {
-        return this.subject();
-    }
+    getInspectorCommentHTML : ko.PureComputed<string> = ko.pureComputed(() => {
+        return 'Edit Node Comment: </br>' + Utils.markdown2html(this.comment());
+    }, this);
 
-    setSubjectId = (id: NodeId) : void => {
-        this.subject(id);
-    }
-
-    setInputApplication = (inputApplication : Node) : void => {
-        console.assert(this.isConstruct(), "Can't set input application on node that is not a construct");
+    setInputApplication = (inputApplication : Node | null) : Node => {
+        console.assert(this.isConstruct() || inputApplication === null, "Can't set non-null input application on node that is not a construct");
 
         this.inputApplication(inputApplication);
 
         if (inputApplication !== null){
-            inputApplication.setEmbedId(this.getId());
+            inputApplication.setEmbed(this);
         }
+
+        return this;
     }
 
-    getInputApplication = () : Node => {
+    getInputApplication = () : Node | null => {
         return this.inputApplication();
     }
 
@@ -722,54 +777,24 @@ export class Node {
         return this.inputApplication() !== null;
     }
 
-    setOutputApplication = (outputApplication : Node) : void => {
-        console.assert(this.isConstruct(), "Can't set output application on node that is not a construct");
+    setOutputApplication = (outputApplication : Node | null) : Node => {
+        console.assert(this.isConstruct() || outputApplication === null, "Can't set non-null output application on node that is not a construct");
 
         this.outputApplication(outputApplication);
 
         if (outputApplication !== null){
-            outputApplication.setEmbedId(this.getId());
+            outputApplication.setEmbed(this);
         }
+
+        return this;
     }
 
-    getOutputApplication = () : Node => {
+    getOutputApplication = () : Node | null => {
         return this.outputApplication();
     }
 
     hasOutputApplication = () : boolean => {
         return this.outputApplication() !== null;
-    }
-
-    clear = () : void => {
-        this.id(null);
-        this.name("");
-        this.description("");
-        this.x(0);
-        this.y(0);
-        this.radius(EagleConfig.MINIMUM_CONSTRUCT_RADIUS);
-        this.color(EagleConfig.getColor('nodeDefault'));
-        this.drawOrderHint(0);
-
-        this.parentId(null);
-        this.embedId(null);
-
-        this.inputApplication(null);
-        this.outputApplication(null);
-
-        this.fields([]);
-
-        this.category(Category.Unknown);
-        this.categoryType(Category.Type.Unknown);
-
-        this.subject(null);
-
-        this.expanded(false);
-        this.keepExpanded(false)
-
-        this.repositoryUrl("");
-        this.commitHash("");
-        this.paletteDownloadUrl("");
-        this.dataHash("");
     }
 
     getGitHTML : ko.PureComputed<string> = ko.pureComputed(() => {
@@ -786,46 +811,39 @@ export class Node {
         return '- Git -</br>Url:&nbsp;' + url + '</br>Hash:&nbsp;' + hash;
     }, this);
 
-    findFieldById = (id: string) : Field => {
-        for (const field of this.fields()){
-            if (field.getId() === id){
-                return field;
-            }
-        }
+    findPortInApplicationsById = (portId: FieldId) : {node: Node | undefined, port: Field | undefined} => {
+        const inputApplication = this.inputApplication();
+        const outputApplication = this.outputApplication();
 
-        return null;
-    }
-
-    findPortInApplicationsById = (portId : string) : {id: NodeId, port: Field} => {
         // if node has an inputApplication, check those ports too
-        if (this.hasInputApplication()){
-            for (const inputPort of this.inputApplication().getInputPorts()){
+        if (inputApplication !== null){
+            for (const inputPort of inputApplication.getInputPorts()){
                 if (inputPort.getId() === portId){
-                    return {id: this.inputApplication().id(), port: inputPort};
+                    return {node: inputApplication, port: inputPort};
                 }
             }
-            for (const outputPort of this.inputApplication().getOutputPorts()){
+            for (const outputPort of inputApplication.getOutputPorts()){
                 if (outputPort.getId() === portId){
-                    return {id: this.inputApplication().id(), port: outputPort};
+                    return {node: inputApplication, port: outputPort};
                 }
             }
         }
 
         // if node has an outputApplication, check those ports too
-        if (this.hasOutputApplication()){
-            for (const inputPort of this.outputApplication().getInputPorts()){
+        if (outputApplication !== null){
+            for (const inputPort of outputApplication.getInputPorts()){
                 if (inputPort.getId() === portId){
-                    return {id: this.outputApplication().id(), port: inputPort};
+                    return {node: outputApplication, port: inputPort};
                 }
             }
-            for (const outputPort of this.outputApplication().getOutputPorts()){
+            for (const outputPort of outputApplication.getOutputPorts()){
                 if (outputPort.getId() === portId){
-                    return {id: this.outputApplication().id(), port: outputPort};
+                    return {node: outputApplication, port: outputPort};
                 }
             }
         }
 
-        return {id: null, port: null};
+        return {node: undefined, port: undefined};
     }
 
     findPortIndexById = (portId: FieldId) : number => {
@@ -848,10 +866,22 @@ export class Node {
         return -1;
     }
 
-    findPortByDisplayText = (displayText : string, input : boolean, local : boolean) : Field => {
+    getCommentNodeHtml = () : string => {
+        if (this.isComment()){
+            let commentHtml = this.comment()
+            if (commentHtml === undefined || commentHtml === null || commentHtml === ""){
+                commentHtml = "Click on edit icon to add comment";
+            }
+
+            return Utils.markdown2html(commentHtml);
+        }
+        return ''
+    }
+
+    findPortByDisplayText = (displayText : string, input : boolean, local : boolean) : Field | undefined => {
         console.assert(!local);
 
-        for (const field of this.fields()){
+        for (const field of this.fields().values()){
             if (field.getDisplayText() === displayText){
                 if (input && field.isInputPort()){
                     return field;
@@ -862,40 +892,29 @@ export class Node {
             }
         }
 
-        return null;
+        return undefined;
     }
 
-    findFieldByDisplayText = (displayText: string, fieldType: Daliuge.FieldType) : Field => {
-        for (const field of this.fields()){
-            if (field.getParameterType() === fieldType && field.getDisplayText() === displayText){
+    findFieldByDisplayText = (displayText: string) : Field | undefined => {
+        for (const field of this.fields().values()){
+            if (field.getDisplayText() === displayText){
                 return field;
             }
         }
 
-        return null;
+        return undefined;
     }
 
-
-    findPortByMatchingType = (type: string, input: boolean) : Field => {
-        if (input){
-            // check input ports
-            for (const inputPort of this.getInputPorts()){
-                if (Utils.typesMatch(inputPort.getType(), type)){
-                    return inputPort;
-                }
-            }
-        } else {
-            // check output ports
-            for (const outputPort of this.getOutputPorts()){
-                if (Utils.typesMatch(outputPort.getType(), type)){
-                    return outputPort;
-                }
+    findPortByMatchingType = (type: string, usages: Daliuge.FieldUsage[]) : Field | null => {
+        for (const port of this.getFields()){
+            if (usages.includes(port.getUsage()) && Utils.typesMatch(port.getType(), type)){
+                return port;
             }
         }
         return null;
     }
 
-    findPortOfAnyType = (input: boolean) : Field => {
+    findPortOfAnyType = (input: boolean) : Field | null => {
         if (input){
             const inputPorts = this.getInputPorts();
             if (inputPorts.length > 0){
@@ -911,7 +930,8 @@ export class Node {
     }
 
     // TODO: this seems similar to findPortTypeById(), maybe we can just use this one!
-    findPortIsInputById = (portId: string) : boolean => {
+    // TODO: can we avoid returning nulls here?
+    findPortIsInputById = (portId: string) : boolean | null => {
         // find the port within the node
         for (const inputPort of this.getInputPorts()){
             if (inputPort.getId() === portId){
@@ -925,15 +945,18 @@ export class Node {
             }
         }
 
+        const inputApplication = this.inputApplication();
+        const outputApplication = this.outputApplication();
+
         // check input application ports
-        if (this.hasInputApplication()){
-            for (const inputPort of this.inputApplication().getInputPorts()){
+        if (inputApplication !== null){
+            for (const inputPort of inputApplication.getInputPorts()){
                 if (inputPort.getId() === portId){
                     return true;
                 }
             }
 
-            for (const outputPort of this.inputApplication().getOutputPorts()){
+            for (const outputPort of inputApplication.getOutputPorts()){
                 if (outputPort.getId() === portId){
                     return false;
                 }
@@ -941,14 +964,14 @@ export class Node {
         }
 
         // check output application ports
-        if (this.hasOutputApplication()){
-            for (const inputPort of this.outputApplication().getInputPorts()){
+        if (outputApplication !== null){
+            for (const inputPort of outputApplication.getInputPorts()){
                 if (inputPort.getId() === portId){
                     return true;
                 }
             }
 
-            for (const outputPort of this.outputApplication().getOutputPorts()){
+            for (const outputPort of outputApplication.getOutputPorts()){
                 if (outputPort.getId() === portId){
                     return false;
                 }
@@ -962,105 +985,120 @@ export class Node {
         return this.findPortByDisplayText(displayText, input, local) !== null;
     }
 
-    addField = (field : Field) : void => {
-        this.fields.push(field);
-        field.setNodeId(this.id());
+    addField = (field : Field) : Node => {
+        if (this.fields().has(field.getId())){
+            console.warn("Node already has field with id: " + field.getId() + ", not adding it again");
+            return this;
+        }
+
+        this.fields().set(field.getId(), field);
+        this.fields.valueHasMutated();
+        field.setNode(this);
+        return this;
     }
 
-    addFieldByIndex = (field : Field, i : number) : void => {
-        this.fields.splice(i, 0, field);
-        field.setNodeId(this.id());
+    updateFieldId(oldId: FieldId, newId: FieldId): void {
+        const field = this.fields().get(oldId);
+
+        if (typeof field === 'undefined'){
+            console.warn("updateFieldId(): Could not find field with id", oldId);
+            return;
+        }
+
+        this.fields().delete(oldId);
+        field.setId(newId);
+        this.fields().set(newId, field);
     }
 
-    setGroupStart = (value: boolean) => {
-        if (!this.hasFieldWithDisplayText(Daliuge.FieldName.GROUP_START)){
+    setGroupStart = (value: boolean) : Node => {
+        let groupStartField = this.findFieldByDisplayText(Daliuge.FieldName.GROUP_START);
+
+        if (typeof groupStartField === 'undefined'){
             // create a new groupStart field (clone from Daliuge)
-            const groupStartField: Field = Daliuge.groupStartField.clone().setId(Utils.generateFieldId()).setValue(value.toString());
+            groupStartField = Daliuge.groupStartField.clone().setId(Id.generateFieldId()).setValue(value.toString());
 
             // add field to node
             this.addField(groupStartField);
         } else {
-            this.getFieldByDisplayText(Daliuge.FieldName.GROUP_START).setValue(value.toString());
+            groupStartField.setValue(value.toString());
         }
+
+        return this;
     }
 
-    setGroupEnd = (value: boolean) => {
-        if (!this.hasFieldWithDisplayText(Daliuge.FieldName.GROUP_END)){
+    setGroupEnd = (value: boolean) : Node => {
+        let groupEndField = this.findFieldByDisplayText(Daliuge.FieldName.GROUP_END);
+
+        if (typeof groupEndField === 'undefined'){
             // create a new groupEnd field (clone from Daliuge)
-            const groupEndField: Field = Daliuge.groupEndField.clone().setId(Utils.generateFieldId()).setValue(value.toString());
+            groupEndField = Daliuge.groupEndField.clone().setId(Id.generateFieldId()).setValue(value.toString());
 
             // add field to node
             this.addField(groupEndField);
         } else {
-            this.getFieldByDisplayText(Daliuge.FieldName.GROUP_END).setValue(value.toString());
+            groupEndField.setValue(value.toString());
         }
+
+        return this;
     }
 
-    removeFieldByIndex = (index : number) : void => {
-        this.fields.splice(index, 1);
+    removeFieldById = (id: FieldId) : Node => {
+        this.fields().delete(id);
+        this.fields.valueHasMutated();
+        return this;
     }
 
-    removeFieldById = (id: string) : void => {
-        for (let i = 0; i < this.fields().length ; i++){
-            if (this.fields()[i].getId() === id){
-                this.fields.splice(i, 1);
-                return;
+    removeAllFields = () : Node => {
+        this.fields().clear();
+        this.fields.valueHasMutated();
+        return this;
+    }
+
+    private removeFieldsWhere = (predicate: (field: Field) => boolean) : Node => {
+        const fields = this.fields();
+        const toDelete: FieldId[] = [];
+        for (const [id, field] of fields){
+            if (predicate(field)){
+                toDelete.push(id);
             }
         }
-
-        console.warn("Could not remove field from node, id not found:", id);
-    }
-
-    removeAllFields = () : void => {
-        this.fields([]);
-    }
-
-    removeAllComponentParameters = () : void => {
-        for (let i = this.fields().length - 1 ; i >= 0 ; i--){
-            if (this.fields()[i].getParameterType() === Daliuge.FieldType.Component){
-                this.fields.splice(i, 1);
-            }
+        for (const id of toDelete){
+            fields.delete(id);
         }
+        this.fields.valueHasMutated();
+        return this;
     }
 
-    removeAllApplicationArguments = () : void => {
-        for (let i = this.fields().length - 1 ; i >= 0 ; i--){
-            if (this.fields()[i].getParameterType() === Daliuge.FieldType.Application){
-                this.fields.splice(i, 1);
-            }
-        }
+    removeAllComponentParameters = () : Node => {
+        return this.removeFieldsWhere((field) => field.getParameterType() === Daliuge.FieldType.Component);
+    }
+
+    removeAllApplicationArguments = () : Node => {
+        return this.removeFieldsWhere((field) => field.getParameterType() === Daliuge.FieldType.Application);
     }
 
     // removes all InputPort ports, and changes all InputOutput ports to be OutputPort
-    removeAllInputPorts = () : void => {
-        for (let i = this.fields().length - 1 ; i >= 0 ; i--){
-            const field: Field = this.fields()[i];
-
-            if (field.getUsage() === Daliuge.FieldUsage.InputPort){
-                this.fields.splice(i, 1);
-            }
+    removeAllInputPorts = () : Node => {
+        for (const field of this.fields().values()){
             if (field.getUsage() === Daliuge.FieldUsage.InputOutput){
                 field.setUsage(Daliuge.FieldUsage.OutputPort);
             }
         }
+        return this.removeFieldsWhere((field) => field.getUsage() === Daliuge.FieldUsage.InputPort);
     }
 
     // removes all OutputPort ports, and changes all InputOutput ports to be InputPort
-    removeAllOutputPorts = () : void => {
-        for (let i = this.fields().length - 1 ; i >= 0 ; i--){
-            const field: Field = this.fields()[i];
-
-            if (field.getUsage() === Daliuge.FieldUsage.OutputPort){
-                this.fields.splice(i, 1);
-            }
+    removeAllOutputPorts = () : Node => {
+        for (const field of this.fields().values()){
             if (field.getUsage() === Daliuge.FieldUsage.InputOutput){
                 field.setUsage(Daliuge.FieldUsage.InputPort);
             }
         }
+        return this.removeFieldsWhere((field) => field.getUsage() === Daliuge.FieldUsage.OutputPort);
     }
 
     clone = () : Node => {
-        const result : Node = new Node(this.name(), this.description(), this.category());
+        const result : Node = new Node(this.name(), this.description(), this.comment(), this.category());
 
         result.id(this.id());
         result.x(this.x());
@@ -1069,19 +1107,18 @@ export class Node {
         result.color(this.color());
         result.drawOrderHint(this.drawOrderHint());
 
-        result.parentId(this.parentId());
-        result.embedId(this.embedId());
-
-        // result.expanded(this.expanded());
-        // result.keepExpanded(this.expanded());
+        result.parent(this.parent());
+        result.embed(this.embed());
 
         result.peek(this.peek());
 
-        result.subject(this.subject());
-
         // clone fields
-        for (const field of this.fields()){
-            result.fields.push(field.clone());
+        for (const field of this.fields().values()){
+            result.fields().set(field.getId(), field.clone());
+        }
+        // if any fields were added, we need to trigger the valueHasMutated to update any observers
+        if (this.fields().size > 0){
+            result.fields.valueHasMutated();
         }
 
         result.repositoryUrl(this.repositoryUrl());
@@ -1089,11 +1126,57 @@ export class Node {
         result.paletteDownloadUrl(this.paletteDownloadUrl());
         result.dataHash(this.dataHash());
         
-        if (this.hasInputApplication()){
-            result.inputApplication(this.inputApplication().clone());
+        const inputApplication = this.inputApplication();
+        const outputApplication = this.outputApplication();
+
+        if (inputApplication !== null){
+            result.inputApplication(inputApplication.clone());
         }
-        if (this.hasOutputApplication()){
-            result.outputApplication(this.outputApplication().clone());
+        if (outputApplication !== null){
+            result.outputApplication(outputApplication.clone());
+        }
+
+        return result;
+    }
+
+    copy = () : Node => {
+        const result : Node = new Node(this.name(), this.description(), this.comment(), this.category());
+
+        result.id(Id.generateNodeId());
+        result.x(this.x());
+        result.y(this.y());
+        result.categoryType(this.categoryType());
+        result.color(this.color());
+        result.drawOrderHint(this.drawOrderHint());
+
+        result.parent(this.parent());
+        result.embed(this.embed());
+
+        result.peek(this.peek());
+
+        // copy fields
+        for (const field of this.fields().values()){
+            const newField = field.clone().setId(Id.generateFieldId());
+            result.fields().set(newField.getId(), newField);
+        }
+        // if any fields were added, we need to trigger the valueHasMutated to update any observers
+        if (this.fields().size > 0){
+            result.fields.valueHasMutated();
+        }
+
+        result.repositoryUrl(this.repositoryUrl());
+        result.commitHash(this.commitHash());
+        result.paletteDownloadUrl(this.paletteDownloadUrl());
+        result.dataHash(this.dataHash());
+
+        const inputApplication = this.inputApplication();
+        const outputApplication = this.outputApplication();
+
+        if (inputApplication !== null){
+            result.inputApplication(inputApplication.copy());
+        }
+        if (outputApplication !== null){
+            result.outputApplication(outputApplication.copy());
         }
 
         return result;
@@ -1107,9 +1190,9 @@ export class Node {
         const allNodeErrors : {issue:Errors.Issue, validity:Errors.Validity}[] = []
 
         allNodeErrors.push(...this.getIssues())
-        this.getFields().forEach(function(field){
+        for (const field of this.fields().values()){
             allNodeErrors.push(...field.getIssues())
-        })
+        }
 
         return allNodeErrors
     }
@@ -1135,23 +1218,24 @@ export class Node {
         errorsWarnings.errors.push(...nodeErrors.errors)
         errorsWarnings.warnings.push(...nodeErrors.warnings)
 
-        this.getFields().forEach((field) =>{
+        for (const field of this.fields().values()){
             const fieldErrors = field.getErrorsWarnings()
             errorsWarnings.errors.push(...fieldErrors.errors)
             errorsWarnings.warnings.push(...fieldErrors.warnings)
-        })
+        }
 
         return errorsWarnings
     }, this);
 
     getBorderColor : ko.PureComputed<string> = ko.pureComputed(() => {
         const errorsWarnings = this.getAllErrorsWarnings()
+        const showGraphWarnings = Setting.findValue<Setting.ShowErrorsMode>(Setting.SHOW_GRAPH_WARNINGS, Setting.ShowErrorsMode.None);
 
         if(this.isEmbedded()){
             return '' //returning nothing lets the means we are not over writing the default css behaviour
-        }else if(errorsWarnings.errors.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) != Setting.ShowErrorsMode.None){
+        }else if(errorsWarnings.errors.length>0 && showGraphWarnings !== Setting.ShowErrorsMode.None){
             return EagleConfig.getColor('graphError')
-        }else if(errorsWarnings.warnings.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) === Setting.ShowErrorsMode.Warnings){
+        }else if(errorsWarnings.warnings.length>0 && showGraphWarnings === Setting.ShowErrorsMode.Warnings){
             return EagleConfig.getColor('graphWarning')
         }else{
             return EagleConfig.getColor('bodyBorder')
@@ -1172,10 +1256,11 @@ export class Node {
 
     getBackgroundColor : ko.PureComputed<string> = ko.pureComputed(() => {
         const errorsWarnings = this.getAllErrorsWarnings()
+        const showGraphWarnings = Setting.findValue<Setting.ShowErrorsMode>(Setting.SHOW_GRAPH_WARNINGS, Setting.ShowErrorsMode.None);
 
-        if(errorsWarnings.errors.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) != Setting.ShowErrorsMode.None){
+        if(errorsWarnings.errors.length>0 && showGraphWarnings !== Setting.ShowErrorsMode.None){
             return EagleConfig.getColor('errorBackground');
-        }else if(errorsWarnings.warnings.length>0 && Setting.findValue(Setting.SHOW_GRAPH_WARNINGS) === Setting.ShowErrorsMode.Warnings){
+        }else if(errorsWarnings.warnings.length>0 && showGraphWarnings === Setting.ShowErrorsMode.Warnings){
             return EagleConfig.getColor('warningBackground');
         }else{
             return '' //returning nothing lets the means we are not over writing the default css behaviour
@@ -1194,33 +1279,33 @@ export class Node {
         const configFields : Field[] = [] 
         const selectedNode = this
 
-        selectedNode.getFields().forEach(function(field:Field){
+        for (const field of selectedNode.fields().values()){
             // get important fields 
             if(selectedNode.isGather()){
                 if(field.getDisplayText() === Daliuge.FieldName.NUM_OF_INPUTS || field.getDisplayText() === Daliuge.FieldName.GATHER_AXIS){
                     importantFields.push(field)
-                    return
+                    continue;
                 }
             }else if (selectedNode.isScatter()){
                 if(field.getDisplayText() === Daliuge.FieldName.NUM_OF_COPIES){
                     importantFields.push(field)
-                    return
+                    continue;
                 }
             }else if (selectedNode.isLoop()){
                 if(field.getDisplayText() === Daliuge.FieldName.NUM_OF_ITERATIONS){
                     importantFields.push(field)
-                    return
+                    continue;
                 }
             }else if(field.getDisplayText() === Daliuge.FieldName.FUNC_CODE){
                 importantFields.push(field)
-                return
+                continue;
             }
             
             //check if field is a graph config field
             if(activeConfig?.hasField(field)){
                 configFields.push(field)
             }
-        })
+        }
 
         return importantFields.concat(configFields)
     }, this);
@@ -1230,6 +1315,10 @@ export class Node {
         return CategoryData.getCategoryData(this.category()).icon;
     }
 
+    graphNodeTitleIsHidden = () : boolean => {
+        return (this.isData() || this.isGlobal()) && Setting.findValue<boolean>(Setting.HIDE_DATA_NODE_TITLES, false);
+    }
+
     //get icon color
     getGraphIconAttr = () : string => {
         const attr = "font-size: 44px; color:" + CategoryData.getCategoryData(this.category()).color
@@ -1237,24 +1326,20 @@ export class Node {
     }
 
     getLocalMultiplicity = () : number => {
-        if (this.isMKN()){
-            const k : Field = this.getFieldByDisplayText(Daliuge.FieldName.K);
-
-            if (k === null){
-                return 1;
-            }
-
-            return parseInt(k.getValue(), 10);
-        }
-
         if (this.isScatter()){
-            const numCopies = this.getFieldByDisplayText(Daliuge.FieldName.NUM_OF_COPIES);
+            const numCopies = this.findFieldByDisplayText(Daliuge.FieldName.NUM_OF_COPIES);
 
-            if (numCopies === null){
+            if (typeof numCopies === 'undefined'){
                 return 1;
             }
 
-            return parseInt(numCopies.getValue(), 10);
+            const numCopiesValue = numCopies.getValue();
+
+            if (numCopiesValue === null){
+                return 1;
+            }
+
+            return parseInt(numCopiesValue, 10);
         }
 
         // TODO: check this is correct!
@@ -1263,52 +1348,62 @@ export class Node {
         }
 
         if (this.isLoop()){
-            const numIter = this.getFieldByDisplayText(Daliuge.FieldName.NUM_OF_ITERATIONS);
+            const numIter = this.findFieldByDisplayText(Daliuge.FieldName.NUM_OF_ITERATIONS);
 
-            if (numIter === null){
+            if (typeof numIter === 'undefined'){
                 return 1;
             }
 
-            return parseInt(numIter.getValue(), 10);
+            const numIterValue = numIter.getValue();
+
+            if (numIterValue === null){
+                return 1;
+            }
+
+            return parseInt(numIterValue, 10);
         }
 
         return 1;
     }
 
-    addEmptyField = (index:number) :void => {
-        const newField = new Field(Utils.generateFieldId(), "New Parameter", "", "", "", false, Daliuge.DataType.String, false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.NoPort);
-
-        if(index === -1){
-            this.addField(newField);
-        }else{
-            this.addFieldByIndex(newField, index);
-        }
+    addEmptyField = () : Node => {
+        const newField = new Field(this, Id.generateFieldId(), "New Parameter", "", "", "", false, Daliuge.DataType.String, false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.NoPort);
+        this.addField(newField);
+        return this;
     }
 
-    toggleExpanded = () : void => {
+    toggleExpanded = (): Node => {
         if(!this.keepExpanded()){
             this.expanded(!this.expanded());
         }
+        return this;
     }
 
     getExpanded = () : boolean => {
         return this.expanded();
     }
 
-    setExpanded = (value : boolean) : void => {
+    setExpanded = (value : boolean): Node => {
         if(!this.keepExpanded()){
             this.expanded(value);
         }else{
             this.expanded(true)
         }
+        return this;
     }
 
     getKeepExpanded = () : boolean => {
         return this.keepExpanded();
     }
 
-    setKeepExpanded = (value : boolean) : void => {
+    setKeepExpanded = (value : boolean): Node => {
         this.keepExpanded(value);
+        return this;
+    }
+
+    redraw = () : Node => {
+        this.radius.valueHasMutated();
+        return this;
     }
 
     static match(node0: Node, node1: Node) : boolean {
@@ -1333,11 +1428,11 @@ export class Node {
     }
 
     static fromOJSJson(nodeData : any, errorsWarnings: Errors.ErrorsWarnings, isPaletteNode: boolean) : Node {
-        let id: NodeId = Node.determineNodeId(nodeData);
+        let id = Node.determineNodeId(nodeData);
 
         if (id === null){
             errorsWarnings.warnings.push(Errors.Message("Node has undefined id, generating new id"));
-            id = Utils.generateNodeId();
+            id = Id.generateNodeId();
         }
 
         let name = "";
@@ -1369,10 +1464,12 @@ export class Node {
 
         // if category is not known, then add error
         if (!Utils.isKnownCategory(category)){
-            errorsWarnings.errors.push(Errors.Message("Node with name " + name + " has unknown category: " + category));
+            if (errorsWarnings !== null){
+                errorsWarnings.errors.push(Errors.Message("Node with name " + name + " has unknown category: " + category));
+            }
         }
 
-        const node : Node = new Node(name, "", category);
+        const node : Node = new Node(name, "", "", category);
         const categoryData: Category.CategoryData = CategoryData.getCategoryData(category);
 
         node.setId(id);
@@ -1388,8 +1485,9 @@ export class Node {
             node.description(nodeData.description);
         }
 
-        if(!isPaletteNode && nodeData.radius === undefined){
-            GraphRenderer.legacyGraph = true
+        // get comment (if exists)
+        if (typeof nodeData.comment !== 'undefined'){
+            node.comment(nodeData.comment);
         }
 
         // drawOrderHint
@@ -1401,9 +1499,11 @@ export class Node {
         let inputApplicationName: string = "";
         let inputApplicationType: Category = Category.None;
         let inputApplicationDescription: string = "";
+        let inputApplicationComment: string = "";
         let outputApplicationName: string = "";
         let outputApplicationType: Category = Category.None;
         let outputApplicationDescription: string = "";
+        let outputApplicationComment: string = "";
 
         if (typeof nodeData.inputAppName !== 'undefined'){
             inputApplicationName = nodeData.inputAppName;
@@ -1417,6 +1517,9 @@ export class Node {
         if (typeof nodeData.inputApplicationDescription !== 'undefined'){
             inputApplicationDescription = nodeData.inputApplicationDescription;
         }
+        if (typeof nodeData.inputApplicationComment !== 'undefined'){
+            inputApplicationComment = nodeData.inputApplicationComment;
+        }
         if (typeof nodeData.outputAppName !== 'undefined'){
             outputApplicationName = nodeData.outputAppName;
         }
@@ -1429,45 +1532,22 @@ export class Node {
         if (typeof nodeData.outputApplicationDescription !== 'undefined'){
             outputApplicationDescription = nodeData.outputApplicationDescription;
         }
+        if (typeof nodeData.outputApplicationComment !== 'undefined'){
+            outputApplicationComment = nodeData.outputApplicationComment;
+        }
 
         // these next six if statements are covering old versions of nodes, that
         // specified input and output applications using name strings rather than nested nodes.
         // NOTE: the key for the new nodes are not set correctly, they will have to be overwritten later
-        if (inputApplicationName !== ""){
-            if (categoryData.categoryType !== Category.Type.Construct){
-                errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
-            } else {
-                // check applicationType is an application
-                if (CategoryData.getCategoryData(inputApplicationType).categoryType === Category.Type.Application){
-                    node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationName, inputApplicationType, inputApplicationDescription, node.getId()));
-                } else {
-                    errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication of unsuitable type: " + inputApplicationType + ", to node."));
-                }
-            }
-        }
-
         if (inputApplicationName !== "" && inputApplicationType !== Category.None){
             if (categoryData.categoryType !== Category.Type.Construct){
                 errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
             } else {
                 // check applicationType is an application
-                if (CategoryData.getCategoryData(inputApplicationType).categoryType === Category.Type.Application){
-                    node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationName, inputApplicationType, inputApplicationDescription, node.getId()));
+                if ([Category.Type.Application, Category.Type.Unknown].includes(CategoryData.getCategoryData(inputApplicationType).categoryType)){
+                    node.inputApplication(Node.createEmbeddedApplicationNode(inputApplicationName, inputApplicationType, inputApplicationDescription, inputApplicationComment, node));
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication of unsuitable type: " + inputApplicationType + ", to node."));
-                }
-            }
-        }
-
-        if (outputApplicationName !== ""){
-            if (categoryData.categoryType !== Category.Type.Construct){
-                errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication to unsuitable node: " + category));
-            } else {
-                // check applicationType is an application
-                if (CategoryData.getCategoryData(outputApplicationType).categoryType === Category.Type.Application){
-                    node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationName, outputApplicationType, outputApplicationDescription, node.getId()));
-                } else {
-                    errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication of unsuitable type: " + outputApplicationType + ", to node."));
                 }
             }
         }
@@ -1476,23 +1556,13 @@ export class Node {
             if (categoryData.categoryType !== Category.Type.Construct){
                 errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication to unsuitable node: " + category));
             } else {
-                if (CategoryData.getCategoryData(outputApplicationType).categoryType === Category.Type.Application){
-                    node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationName, outputApplicationType, outputApplicationDescription, node.getId()));
+                // check applicationType is an application
+                if ([Category.Type.Application, Category.Type.Unknown].includes(CategoryData.getCategoryData(outputApplicationType).categoryType)){
+                    node.outputApplication(Node.createEmbeddedApplicationNode(outputApplicationName, outputApplicationType, outputApplicationDescription, outputApplicationComment, node));
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication of unsuitable type: " + outputApplicationType + ", to node."));
                 }
             }
-        }
-
-        // set parentId if a parentId is defined
-        const parentId = Node.determineNodeParentId(nodeData);
-        if (parentId !== null){
-            node.parentId(parentId);
-        }
-
-        // set embedId if defined
-        if (typeof nodeData.embedId !== 'undefined'){
-            node.embedId(nodeData.embedId);
         }
 
         // debug hack for *really* old nodes that just use 'application' to specify the inputApplication
@@ -1502,7 +1572,8 @@ export class Node {
             if (categoryData.categoryType !== Category.Type.Construct){
                 errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
             } else {
-                node.inputApplication(Node.createEmbeddedApplicationNode(nodeData.application, category, "", node.getId()));
+                // TODO: should this use node.setInputApplication() instead?
+                node.inputApplication(Node.createEmbeddedApplicationNode(nodeData.application, category, "", "", node));
             }
         }
 
@@ -1511,48 +1582,40 @@ export class Node {
             if (categoryData.categoryType !== Category.Type.Construct){
                 errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
             } else {
-                node.inputApplication(Node.fromOJSJson(nodeData.inputApplication, errorsWarnings, isPaletteNode));
-                node.inputApplication().setEmbedId(node.getId());
+                node.setInputApplication(Node.fromOJSJson(nodeData.inputApplication, errorsWarnings, isPaletteNode));
             }
         }
         if (typeof nodeData.outputApplication !== 'undefined' && nodeData.outputApplication !== null){
             if (categoryData.categoryType !== Category.Type.Construct){
                 errorsWarnings.errors.push(Errors.Message("Attempt to add outputApplication to unsuitable node: " + category));
             } else {
-                node.outputApplication(Node.fromOJSJson(nodeData.outputApplication, errorsWarnings, isPaletteNode));
-                node.outputApplication().setEmbedId(node.getId());
+                node.setOutputApplication(Node.fromOJSJson(nodeData.outputApplication, errorsWarnings, isPaletteNode));
             }
         }
 
         // handle obsolete 'precious' attribute, add it as a 'persist' field
         if (typeof nodeData.precious !== 'undefined'){
-            const persistField = Daliuge.persistField.clone().setId(Utils.generateFieldId()).setValue(nodeData.precious.toString());
+            const persistField = Daliuge.persistField.clone().setId(Id.generateFieldId()).setValue(nodeData.precious.toString());
             node.addField(persistField);
         }
 
         // handle obsolete 'streaming' attribute, add it as a 'streaming' field
         if (typeof nodeData.streaming !== 'undefined'){
-            const streamingField = Daliuge.streamingField.clone().setId(Utils.generateFieldId()).setValue(nodeData.streaming.toString());
+            const streamingField = Daliuge.streamingField.clone().setId(Id.generateFieldId()).setValue(nodeData.streaming.toString());
             node.addField(streamingField);
-        }
-
-        // subject (for comment nodes)
-        if (typeof nodeData.subject !== 'undefined'){
-            node.subject(nodeData.subject);
-        } else {
-            node.subject(null);
         }
 
         // add fields
         if (typeof nodeData.fields !== 'undefined'){
             for (const fieldData of nodeData.fields){
-                const field = Field.fromOJSJson(fieldData);
+                const field = Field.fromOJSJson(fieldData, node, !isPaletteNode);
 
                 // if the parameter type is not specified, assume it is a ComponentParameter
                 if (field.getParameterType() === Daliuge.FieldType.Unknown){
                     field.setParameterType(Daliuge.FieldType.Component);
                 }
 
+                // TODO: required? probably better to set this in Field.fromOJSJson()
                 node.addField(field);
             }
         }
@@ -1560,7 +1623,7 @@ export class Node {
         // add application params
         if (typeof nodeData.applicationArgs !== 'undefined'){
             for (const paramData of nodeData.applicationArgs){
-                const field = Field.fromOJSJson(paramData);
+                const field = Field.fromOJSJson(paramData, node, !isPaletteNode);
                 field.setParameterType(Daliuge.FieldType.Application);
                 node.addField(field);
             }
@@ -1569,9 +1632,11 @@ export class Node {
         // add inputAppFields
         if (typeof nodeData.inputAppFields !== 'undefined'){
             for (const fieldData of nodeData.inputAppFields){
-                if (node.hasInputApplication()){
-                    const field = Field.fromOJSJson(fieldData);
-                    node.inputApplication().addField(field);
+                const inputApplication = node.inputApplication();
+
+                if (inputApplication !== null){
+                    const field = Field.fromOJSJson(fieldData, inputApplication, !isPaletteNode);
+                    inputApplication.addField(field);
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Can't add input app field " + fieldData.text + " to node " + node.getName() + ". No input application."));
                 }
@@ -1581,9 +1646,11 @@ export class Node {
         // add outputAppFields
         if (typeof nodeData.outputAppFields !== 'undefined'){
             for (const fieldData of nodeData.outputAppFields){
-                if (node.hasOutputApplication()){
-                    const field = Field.fromOJSJson(fieldData);
-                    node.outputApplication().addField(field);
+                const outputApplication = node.outputApplication();
+
+                if (outputApplication !== null){
+                    const field = Field.fromOJSJson(fieldData, outputApplication, !isPaletteNode);
+                    outputApplication.addField(field);
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Can't add output app field " + fieldData.text + " to node " + node.getName() + ". No output application."));
                 }
@@ -1593,7 +1660,7 @@ export class Node {
         // add input ports
         if (typeof nodeData.inputPorts !== 'undefined'){
             for (const inputPort of nodeData.inputPorts){
-                const port = Field.fromOJSJsonPort(inputPort);
+                const port = Field.fromOJSJsonPort(inputPort, node, !isPaletteNode);
                 port.setParameterType(Daliuge.FieldType.Application);
                 port.setUsage(Daliuge.FieldUsage.InputPort);
 
@@ -1612,7 +1679,7 @@ export class Node {
         // add output ports
         if (typeof nodeData.outputPorts !== 'undefined'){
             for (const outputPort of nodeData.outputPorts){
-                const port = Field.fromOJSJsonPort(outputPort);
+                const port = Field.fromOJSJsonPort(outputPort, node, !isPaletteNode);
                 port.setParameterType(Daliuge.FieldType.Application);
                 port.setUsage(Daliuge.FieldUsage.OutputPort);
 
@@ -1631,12 +1698,14 @@ export class Node {
         // add input local ports
         if (typeof nodeData.inputLocalPorts !== 'undefined'){
             for (const inputLocalPort of nodeData.inputLocalPorts){
-                if (node.hasInputApplication()){
-                    const port = Field.fromOJSJsonPort(inputLocalPort);
+                const inputApplication = node.inputApplication();
+
+                if (inputApplication !== null){
+                    const port = Field.fromOJSJsonPort(inputLocalPort, inputApplication, !isPaletteNode);
                     port.setParameterType(Daliuge.FieldType.Application);
                     port.setUsage(Daliuge.FieldUsage.OutputPort);
 
-                    node.inputApplication().addField(port);
+                    inputApplication.addField(port);
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Can't add inputLocal port " + inputLocalPort.IdText + " to node " + node.getName() + ". No input application."));
                 }
@@ -1646,16 +1715,64 @@ export class Node {
         // add output local ports
         if (typeof nodeData.outputLocalPorts !== 'undefined'){
             for (const outputLocalPort of nodeData.outputLocalPorts){
-                const port = Field.fromOJSJsonPort(outputLocalPort);
-                port.setParameterType(Daliuge.FieldType.Application);
-                port.setUsage(Daliuge.FieldUsage.InputPort);
+                const outputApplication = node.outputApplication();
 
-                if (node.hasOutputApplication()){
-                    node.outputApplication().addField(port);
+                if (outputApplication !== null){
+                    const port = Field.fromOJSJsonPort(outputLocalPort, outputApplication, !isPaletteNode);
+                    port.setParameterType(Daliuge.FieldType.Application);
+                    port.setUsage(Daliuge.FieldUsage.InputPort);
+
+                    outputApplication.addField(port);
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Can't add outputLocal port " + outputLocalPort.IdText + " to node " + node.getName() + ". No output application."));
                 }
             }
+        }
+
+        // add git url and hash
+        if (typeof nodeData.repositoryUrl !== 'undefined'){
+            node.repositoryUrl(nodeData.repositoryUrl);
+        }
+        if (typeof nodeData.commitHash !== 'undefined'){
+            node.commitHash(nodeData.commitHash);
+        }
+        if (typeof nodeData.paletteDownloadUrl != 'undefined'){
+            node.paletteDownloadUrl(nodeData.paletteDownloadUrl);
+        }
+        if (typeof nodeData.dataHash !== 'undefined'){
+            node.dataHash(nodeData.dataHash);
+        }
+
+        return node;
+    }
+
+    static fromV4Json(nodeData : any, errorsWarnings: Errors.ErrorsWarnings, isPaletteNode: boolean) : Node {
+        // translate categories if required
+        const category: Category = nodeData.category;
+
+        // if category is not known, then add error
+        if (!Utils.isKnownCategory(category)){
+            errorsWarnings.errors.push(Errors.Message("Node with name " + name + " has unknown category: " + category));
+        }
+
+        const node : Node = new Node(nodeData.name, "", "", category);
+        const categoryData: Category.CategoryData = CategoryData.getCategoryData(category);
+
+        node.setId(nodeData.id);
+
+        // set position
+        node.setPosition(nodeData.x, nodeData.y);
+
+        // set categoryType based on the category
+        node.categoryType(categoryData.categoryType);
+
+        // get description
+        node.description(nodeData.description);
+
+        // add fields
+        for (const [_id, fieldData] of Object.entries(nodeData.fields)){
+            const field = Field.fromV4Json(fieldData, node, !isPaletteNode);
+            node.addField(field);
         }
 
         // add git url and hash
@@ -1680,29 +1797,35 @@ export class Node {
 
         // check that the node already has an appropriate embedded application, otherwise create it
         if (input){
-            if (!node.hasInputApplication()){
-                if (Setting.findValue(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
-                    node.inputApplication(Node.createEmbeddedApplicationNode(port.getDisplayText(), Category.UnknownApplication, "", node.getId()));
-                    errorsWarnings.errors.push(Errors.Message("Created new embedded input application (" + node.inputApplication().getName() + ") for node (" + node.getName() + "). Application category is " + node.inputApplication().getCategory() + " and may require user intervention."));
+            let inputApplication = node.inputApplication();
+
+            if (inputApplication === null){
+                if (Setting.findValue<boolean>(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, false)){
+                    inputApplication = Node.createEmbeddedApplicationNode("Unknown", Category.UnknownApplication, "", "", node);
+                    node.setInputApplication(inputApplication);
+                    errorsWarnings.errors.push(Errors.Message("Created new embedded input application (" + inputApplication.getName() + ") for node (" + node.getName() + "). Application category is " + inputApplication.getCategory() + " and may require user intervention."));
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Cannot add input port to construct that doesn't support input ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name" + port.getDisplayText() ));
                     return;
                 }
             }
-            node.inputApplication().addField(port);
-            errorsWarnings.warnings.push(Errors.Message("Moved input port (" + port.getDisplayText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ") to an embedded input application (" + node.inputApplication().getName() + ", " + node.inputApplication().getId() + ")"));
+            inputApplication.addField(port);
+            errorsWarnings.warnings.push(Errors.Message("Moved input port (" + port.getDisplayText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ") to an embedded input application (" + inputApplication.getName() + ", " + inputApplication.getId() + ")"));
         } else {
-            if (!node.hasOutputApplication()){
-                if (Setting.findValue(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS)){
-                    node.outputApplication(Node.createEmbeddedApplicationNode(port.getDisplayText(), Category.UnknownApplication, "", node.getId()));
-                    errorsWarnings.errors.push(Errors.Message("Created new embedded output application (" + node.outputApplication().getName() + ") for node (" + node.getName() + "). Application category is " + node.outputApplication().getCategory() + " and may require user intervention."));
+            let outputApplication = node.outputApplication();
+
+            if (outputApplication === null){
+                if (Setting.findValue<boolean>(Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, false)){
+                    outputApplication = Node.createEmbeddedApplicationNode("Unknown", Category.UnknownApplication, "", "", node);
+                    node.setOutputApplication(outputApplication);
+                    errorsWarnings.errors.push(Errors.Message("Created new embedded output application (" + outputApplication.getName() + ") for node (" + node.getName() + "). Application category is " + outputApplication.getCategory() + " and may require user intervention."));
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Cannot add output port to construct that doesn't support output ports (name:" + node.getName() + " category:" + node.getCategory() + ") port name" + port.getDisplayText() ));
                     return;
                 }
             }
-            node.outputApplication().addField(port);
-            errorsWarnings.warnings.push(Errors.Message("Moved output port (" + port.getDisplayText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ") to an embedded output application (" + node.outputApplication().getName() + ", " + node.outputApplication().getId() + ")"));
+            outputApplication.addField(port);
+            errorsWarnings.warnings.push(Errors.Message("Moved output port (" + port.getDisplayText() + "," + port.getId().substring(0,4) + ") on construct node (" + node.getName() + ") to an embedded output application (" + outputApplication.getName() + ", " + outputApplication.getId() + ")"));
         }
     }
 
@@ -1715,64 +1838,74 @@ export class Node {
         result.id = node.id();
         result.name = node.name();
         result.description = node.description();
+        result.comment = node.comment();
 
         result.repositoryUrl = node.repositoryUrl();
         result.commitHash = node.commitHash();
         result.paletteDownloadUrl = node.paletteDownloadUrl();
         result.dataHash = node.dataHash();
 
-        if (node.parentId() !== null){
-            result.parentId = node.parentId();
+        const parent = node.parent();
+        if (parent !== null){
+            result.parentId = parent.getId();
         }
 
-        if (node.embedId() !== null){
-            result.embedId = node.embedId();
+        const embed = node.embed();
+        if (embed !== null){
+            result.embedId = embed.getId();
         }
 
         // add fields
         result.fields = [];
-        for (const field of node.fields()){
+        for (const field of node.fields().values()){
             result.fields.push(Field.toOJSJson(field));
         }
 
+        const inputApplication = node.inputApplication();
+        const outputApplication = node.outputApplication();
+
         // add fields from inputApplication
         result.inputAppFields = [];
-        if (node.hasInputApplication()){
-            for (const field of node.inputApplication().fields()){
+        if (inputApplication !== null){
+            for (const field of inputApplication.fields().values()){
                 result.inputAppFields.push(Field.toOJSJson(field));
             }
         }
 
         // add fields from outputApplication
         result.outputAppFields = [];
-        if (node.hasOutputApplication()){
-            for (const field of node.outputApplication().fields()){
+        if (outputApplication !== null){
+            for (const field of outputApplication.fields().values()){
                 result.outputAppFields.push(Field.toOJSJson(field));
             }
         }
 
         // write application names and types
-        if (node.hasInputApplication()){
-            result.inputApplicationName = node.inputApplication().name();
-            result.inputApplicationType = node.inputApplication().category();
-            result.inputApplicationId  = node.inputApplication().id();
-            result.inputApplicationDescription = node.inputApplication().description();
+        if (inputApplication !== null){
+            result.inputApplicationName = inputApplication.name();
+            result.inputApplicationType = inputApplication.category();
+            result.inputApplicationId  = inputApplication.id();
+            result.inputApplicationDescription = inputApplication.description();
+            result.inputApplicationComment = inputApplication.comment();
         } else {
             result.inputApplicationName = "";
             result.inputApplicationType = Category.None;
             result.inputApplicationId = null;
             result.inputApplicationDescription = "";
+            result.inputApplicationComment = "";
         }
-        if (node.hasOutputApplication()){
-            result.outputApplicationName = node.outputApplication().name();
-            result.outputApplicationType = node.outputApplication().category();
-            result.outputApplicationId  = node.outputApplication().id();
-            result.outputApplicationDescription = node.outputApplication().description();
+        if (outputApplication !== null){
+            result.outputApplicationName = outputApplication.name();
+            result.outputApplicationType = outputApplication.category();
+            result.outputApplicationId  = outputApplication.id();
+            result.outputApplicationDescription = outputApplication.description();
+            result.outputApplicationComment = outputApplication.comment();
         } else {
             result.outputApplicationName = "";
             result.outputApplicationType = Category.None;
             result.outputApplicationId = null;
             result.outputApplicationDescription = "";
+            result.outputApplicationComment = "";
         }
 
         return result;
@@ -1791,164 +1924,301 @@ export class Node {
         result.id = node.id();
         result.name = node.name();
         result.description = node.description();
+        result.comment = node.comment();
         result.x = node.x();
         result.y = node.y();
-        result.subject = node.subject();
         result.repositoryUrl = node.repositoryUrl();
         result.commitHash = node.commitHash();
         result.paletteDownloadUrl = node.paletteDownloadUrl();
         result.dataHash = node.dataHash();
 
-        if (node.parentId() !== null){
-            result.parentId = node.parentId();
+        const parent = node.parent();
+        if (parent !== null){
+            result.parentId = parent.getId();
         }
 
-        if (node.embedId() !== null){
-            result.embedId = node.embedId();
+        const embed = node.embed();
+        if (embed !== null){
+            result.embedId = embed.getId();
         }
 
         // add fields
         result.fields = [];
-        for (const field of node.fields()){
+        for (const field of node.fields().values()){
             result.fields.push(Field.toOJSJson(field));
         }
 
+        const inputApplication = node.inputApplication();
+        const outputApplication = node.outputApplication();
+
         // add fields from inputApplication
         result.inputAppFields = [];
-        if (node.hasInputApplication()){
-            for (const field of node.inputApplication().fields()){
+        if (inputApplication !== null){
+            for (const field of inputApplication.fields().values()){
                 result.inputAppFields.push(Field.toOJSJson(field));
             }
         }
 
         // add fields from outputApplication
         result.outputAppFields = [];
-        if (node.hasOutputApplication()){
-            for (const field of node.outputApplication().fields()){
+        if (outputApplication !== null){
+            for (const field of outputApplication.fields().values()){
                 result.outputAppFields.push(Field.toOJSJson(field));
             }
         }
 
         // write application names and types
-        if (node.hasInputApplication()){
-            result.inputApplicationName = node.inputApplication().name();
-            result.inputApplicationType = node.inputApplication().category();
-            result.inputApplicationId  = node.inputApplication().id();
-            result.inputApplicationDescription = node.inputApplication().description();
+        if (inputApplication !== null){
+            result.inputApplicationName = inputApplication.name();
+            result.inputApplicationType = inputApplication.category();
+            result.inputApplicationId  = inputApplication.id();
+            result.inputApplicationDescription = inputApplication.description();
+            result.inputApplicationComment = inputApplication.comment();
         } else {
             result.inputApplicationName = "";
             result.inputApplicationType = Category.None;
             result.inputApplicationId  = null;
             result.inputApplicationDescription = "";
+            result.inputApplicationComment = "";
         }
-        if (node.hasOutputApplication()){
-            result.outputApplicationName = node.outputApplication().name();
-            result.outputApplicationType = node.outputApplication().category();
-            result.outputApplicationId  = node.outputApplication().id();
-            result.outputApplicationDescription = node.outputApplication().description();
+        if (outputApplication !== null){
+            result.outputApplicationName = outputApplication.name();
+            result.outputApplicationType = outputApplication.category();
+            result.outputApplicationId  = outputApplication.id();
+            result.outputApplicationDescription = outputApplication.description();
+            result.outputApplicationComment = outputApplication.comment();
         } else {
             result.outputApplicationName = "";
             result.outputApplicationType = Category.None;
             result.outputApplicationId  = null;
             result.outputApplicationDescription = "";
+            result.outputApplicationComment = "";
         }
 
         return result;
     }
 
-    static createEmbeddedApplicationNode(name : string, category: Category, description: string, embedId: NodeId) : Node {
-        console.assert(CategoryData.getCategoryData(category).categoryType === Category.Type.Application);
+    static toV4GraphJson(node: Node) : object {
+        const result: any = {};
 
-        const node = new Node(name, description, category);
-        node.setEmbedId(embedId);
+        result.category = node.category();
+        result.categoryType = node.categoryType();
+
+        result.id = node.id();
+        result.name = node.name();
+        result.description = node.description();
+        result.x = node.x();
+        result.y = node.y();
+        result.repositoryUrl = node.repositoryUrl();
+        result.commitHash = node.commitHash();
+        result.paletteDownloadUrl = node.paletteDownloadUrl();
+        result.dataHash = node.dataHash();
+
+        const parent = node.parent();
+        const embed = node.embed();
+
+        result.parentId = parent === null ? null : parent.getId();
+        result.embedId = embed === null ? null : embed.getId();
+
+        // add fields
+        result.fields = {};
+        for (const field of node.fields().values()){
+            result.fields[field.getId()] = Field.toV4Json(field);
+        }
+
+        const inputApplication = node.inputApplication();
+        const outputApplication = node.outputApplication();
+
+        // write application names and types
+        if (inputApplication !== null){
+            result.inputApplicationId  = inputApplication.id();
+        } else {
+            result.inputApplicationId  = null;
+        }
+        if (outputApplication !== null){
+            result.outputApplicationId  = outputApplication.id();
+        } else {
+            result.outputApplicationId  = null;
+        }
+
+        return result;
+    }
+
+    static createEmbeddedApplicationNode(name : string, category: Category, description: string, comment: string, embed: Node) : Node {
+        const node = new Node(name, description, comment, category);
+        node.setEmbed(embed);
         node.setRadius(EagleConfig.NORMAL_NODE_RADIUS);
         return node;
     }
 
-    getFieldIndex = (targetField:Field) : number => {
-        let x:number = null
-
-        for(let i = 0;  this.getFields().length; i++){
-            const field = this.getFields()[i]
-            if (field === targetField){
-                x = i
-            }
-        }
-
-        if( x = null){
-            console.warn('could not find field on node', targetField, this)
-        }
-
-        return x
-    }
-
-    static isValid(node: Node, selectedLocation: Eagle.FileType) : void {
+    static isValid(graph: LogicalGraph, node: Node, location: Eagle.FileType) : void {
         const eagle = Eagle.getInstance()
         node.issues([])//clear old issues
 
+        const parent = node.parent();
+        const embed = node.embed();
+        const inputApplication = node.inputApplication();
+        const outputApplication = node.outputApplication();
+
         // looping through and checking all the fields on the node
-        for (let i = 0 ; i < node.getFields().length ; i++){
-            const field:Field = node.getFields()[i]
-            Field.isValid(node,field,selectedLocation,i)
+        for (const field of node.fields().values()){
+            Field.isValid(graph, node, field, location)
+        }
+
+        // check that all fields present in the original (palette) component have the changeable property set correctly (to false)
+        const originalComponent = Utils.getPaletteComponentByName(node.getName()) || Utils.getPaletteComponentByName(node.getCategory());
+        if (typeof originalComponent !== 'undefined'){
+            for (const originalField of originalComponent.getFields()){
+                const nodeField = node.findFieldByDisplayText(originalField.getDisplayText());
+                if (typeof nodeField !== 'undefined'){
+                    if (nodeField.isChangeable() !== originalField.isChangeable()){
+                        const message: string = "Node (" + node.getName() + ") field (" + nodeField.getDisplayText() + ") has incorrect changeable property. Expected: " + originalField.isChangeable() + ", Actual: " + nodeField.isChangeable();
+                        const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showField(eagle, location, node, nodeField)}, function(){nodeField.setChangeable(originalField.isChangeable())}, "Set changeable to " + originalField.isChangeable());
+                        node.issues().push({issue:issue, validity:Errors.Validity.Warning});
+                    }
+                }
+            }
         }
 
         if(!Utils.isKnownCategory(node.getCategory())){
             const message: string = "Node (" + node.getName() + ") has unrecognised category " + node.getCategory();
-            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, node.getId())});
+            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
             node.issues().push({issue:issue,validity:Errors.Validity.Warning});
         }
 
         if(node.isConstruct()){
             //checking the input application if one is present
-            if(node.hasInputApplication()){
-                Node.isValid(node.getInputApplication(),selectedLocation)
+            if(inputApplication !== null){
+                Node.isValid(graph, inputApplication, location)
             }
 
             //checking the output application if one is present
-            if(node.hasOutputApplication()){
-                Node.isValid(node.getOutputApplication(),selectedLocation)
+            if(outputApplication !== null){
+                Node.isValid(graph, outputApplication, location)
             }
         }
         
-        // check that node has correct number of inputs and outputs
+        // check that parent has this as a child
+        if (parent !== null){
+            const parentsChild = parent.getChildById(node.getId());
+            if (typeof parentsChild === 'undefined'){
+                const message: string = "Node (" + node.getName() + ") has parent (" + parent.getName() + "), but does not appear in that node's list of children.";
+                const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
+                node.issues().push({issue:issue, validity:Errors.Validity.Error});
+            }
+        }
+
+        // check that children have this as the parent
+        for (const child of node.children().values()){
+            const childParent = child.parent();
+            if (childParent === null || childParent.getId() !== node.getId()){
+                const message: string = "Node (" + node.getName() + ") has child (" + child.getName() + "), but is not that node's parent.";
+                const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
+                node.issues().push({issue:issue, validity:Errors.Validity.Error});
+            }
+        }
+
+        // check that embed has this as either inputApplication or outputApplication
+        if (embed !== null){
+            const embedInputApplication = embed.inputApplication();
+            const embedOutputApplication = embed.outputApplication();
+
+            if ((embedInputApplication !== null && embedInputApplication.getId() !== node.getId()) && (embedOutputApplication !== null && embedOutputApplication.getId() !== node.getId())){
+                const message: string = "Node (" + node.getName() + ") has embed (" + embed.getName() + "), but is not that node's inputApplication or outputApplication.";
+                const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
+                node.issues().push({issue:issue, validity:Errors.Validity.Error});
+            }
+        }
+
+        // check that inputApplication has this as embed
+        if (inputApplication !== null){
+            const inputApplicationEmbed = inputApplication.embed();
+            if (inputApplicationEmbed !== null && inputApplicationEmbed.getId() !== node.getId()){
+                const message: string = "Node (" + node.getName() + ") has inputApplication (" + inputApplication.getName() + "), but is not that node's embed.";
+                const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
+                node.issues().push({issue:issue, validity:Errors.Validity.Error});
+            }
+        }
+
+        // check that outputApplication has this as embed
+        if (outputApplication !== null){
+            const outputApplicationEmbed = outputApplication.embed();
+            if (outputApplicationEmbed !== null && outputApplicationEmbed.getId() !== node.getId()){
+                const message: string = "Node (" + node.getName() + ") has outputApplication (" + outputApplication.getName() + "), but is not that node's embed.";
+                const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
+                node.issues().push({issue:issue, validity:Errors.Validity.Error});
+            }
+        }
+
+        // get the category data for this node
         const cData: Category.CategoryData = CategoryData.getCategoryData(node.getCategory());
 
+        // check if the categoryType is set correctly for this category
+        if (node.getCategoryType() !== cData.categoryType){
+            const message: string = "Node (" + node.getName() + ") has incorrect category type. Expected: " + cData.categoryType + ", Actual: " + node.getCategoryType();
+            const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, location, node)}, function(){node.setCategoryType(cData.categoryType)}, "Set category type to " + cData.categoryType);
+            node.issues().push({issue:issue, validity:Errors.Validity.Error});
+        }
+
+        // check that node has correct number of inputs and outputs
         if (node.getInputPorts().length < cData.minInputs){
             const message: string = "Node (" + node.getName() + ") may have too few input ports. A " + node.getCategory() + " component would typically have at least " + cData.minInputs;
-            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, node.getId())});
+            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
             node.issues().push({issue:issue,validity:Errors.Validity.Warning})
         }
         if ((node.getInputPorts().length - node.getInputEventPorts().length) > cData.maxInputs){
             const message: string = "Node (" + node.getName() + ") has too many input ports. Should have at most " + cData.maxInputs;
-            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, node.getId())});
+            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
             node.issues().push({issue:issue,validity:Errors.Validity.Warning})
         }
         if (node.getOutputPorts().length < cData.minOutputs){
             const message: string = "Node (" + node.getName() + ") may have too few output ports.  A " + node.getCategory() + " component would typically have at least " + cData.minOutputs;
-            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, node.getId())});
+            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
             node.issues().push({issue:issue,validity:Errors.Validity.Warning})
         }
         if ((node.getOutputPorts().length - node.getOutputEventPorts().length) > cData.maxOutputs){
             const message: string = "Node (" + node.getName() + ") may have too many output ports. Should have at most " + cData.maxOutputs;
-            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, node.getId())});
+            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
             node.issues().push({issue:issue,validity:Errors.Validity.Warning})
         }
 
         // check if this category of node is a legacy node
-        if (cData.sortOrder === Category.SortOrder.Legacy){
-            const message: string = "Node (" + node.getName() + ") has a legacy category (" + node.getCategory() + ").  Consider updating to a more modern node category.";
-            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, node.getId())});
+        const updatedCategory = Utils.getLegacyCategoryUpdate(node);
+        if (typeof updatedCategory !== 'undefined'){
+            let updateMessage: string;
+            let updatedCategoryType: Category.Type = Category.Type.Unknown;
+            let issue: Errors.Issue;
+
+            if (updatedCategory === null){
+                updateMessage = "Consider updating to a more modern node category.";
+            } else {
+                updateMessage = "Please update the component to use the new category (" + updatedCategory + ").";
+                updatedCategoryType = CategoryData.getCategoryData(updatedCategory).categoryType;
+            }
+
+            const message: string = "Node (" + node.getName() + ") has a legacy category (" + node.getCategory() + "). " + updateMessage;
+
+            if (updatedCategory === null){
+                issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
+            } else {
+                issue = Errors.ShowFix(
+                    message,
+                    function(){Utils.showNode(eagle, location, node)},
+                    function(){Utils.fixNodeCategory(eagle, node, updatedCategory, updatedCategoryType)},
+                    "Change node category from " + node.getCategory() + " to " + updatedCategory
+                );
+            }
             node.issues().push({issue:issue,validity:Errors.Validity.Warning})
         }
 
         // check that node has at least one connected edge, otherwise what purpose does it serve?
         let hasInputEdge: boolean = false;
         let hasOutputEdge: boolean = false;
-        for (const edge of eagle.logicalGraph().getEdges()){
-            if (!hasOutputEdge && edge.getSrcNodeId() === node.getId()){
+        for (const edge of graph.getEdges()){
+            if (!hasOutputEdge && edge.getSrcNode().getId() === node.getId()){
                 hasOutputEdge = true;
             }
-            if (!hasInputEdge && edge.getDestNodeId() === node.getId()){
+            if (!hasInputEdge && edge.getDestNode().getId() === node.getId()){
                 hasInputEdge = true;
             }
             // abort loop if we've found both input and output already
@@ -1960,69 +2230,50 @@ export class Node {
 
         // check if a node is completely disconnected from the graph, which is sometimes an indicator of something wrong
         // only check this if the component has been selected in the graph. If it was selected from the palette, it doesn't make sense to complain that it is not connected.
-        if (!isConnected && !(cData.maxInputs === 0 && cData.maxOutputs === 0) && selectedLocation === Eagle.FileType.Graph){
-            const issue: Errors.Issue = Errors.Show("Node (" + node.getName() + ") has no connected edges. It should be connected to the graph in some way", function(){Utils.showNode(eagle, node.getId())});
+        if (!isConnected && !(cData.maxInputs === 0 && cData.maxOutputs === 0) && location === Eagle.FileType.Graph && node.getCategory() !== Category.GlobalVariables){
+            const issue: Errors.Issue = Errors.Show("Node (" + node.getName() + ") has no connected edges. It should be connected to the graph in some way", function(){Utils.showNode(eagle, location, node)});
             node.issues().push({issue:issue,validity:Errors.Validity.Warning})
         }
 
         // check that Memory and SharedMemory nodes have at least one input OR have a pydata field with a non-"None" value
         if (node.category() === Category.Memory || node.category() === Category.SharedMemory){
-            const pydataField: Field = node.getFieldByDisplayText(Daliuge.FieldName.PYDATA);
-            const hasPydataValue: boolean = pydataField !== null && pydataField.getValue() !== Daliuge.DEFAULT_PYDATA_VALUE;
+            const pydataField = node.findFieldByDisplayText(Daliuge.FieldName.PYDATA);
+            const hasPydataValue: boolean = typeof pydataField !== 'undefined' && pydataField.getValue() !== Daliuge.DEFAULT_PYDATA_VALUE;
 
             if (!hasInputEdge && !hasPydataValue){
                 const message: string = node.category() + " node (" + node.getName() + ") has no connected input edges, and no data in its '" + Daliuge.FieldName.PYDATA + "' field. The node will not contain data.";
-                const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, node.getId())});
+                const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
                 node.issues().push({issue:issue,validity:Errors.Validity.Warning})
             }
 
-            if (hasInputEdge && hasPydataValue){
+            if (hasInputEdge && pydataField && hasPydataValue){
                 const message: string = node.category() + " node (" + node.getName() + ") has a connected input edge, and also contains data in its '" + Daliuge.FieldName.PYDATA + "' field. The two sources of data could cause a conflict. Note that a " + Daliuge.FieldName.PYDATA + " field is considered a source of data if its value is NOT '" + Daliuge.DEFAULT_PYDATA_VALUE + "'.";
-                const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, node.getId())}, function(){if (pydataField.getValue() === ""){pydataField.setValue(Daliuge.DEFAULT_PYDATA_VALUE);}}, "Replace empty pydata with default value (" + Daliuge.DEFAULT_PYDATA_VALUE + ")");
+                const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, location, node)}, function(){if (pydataField.getValue() === ""){pydataField.setValue(Daliuge.DEFAULT_PYDATA_VALUE);}}, "Replace empty pydata with default value (" + Daliuge.DEFAULT_PYDATA_VALUE + ")");
                 node.issues().push({issue:issue,validity:Errors.Validity.Warning})
             }
         }
 
         // check embedded application categories are not 'None'
-        if (node.hasInputApplication() && node.getInputApplication().getCategory() === Category.None){
+        if (inputApplication !== null && inputApplication.getCategory() === Category.None){
             const issue: Errors.Issue = Errors.Message("Node (" + node.getName() + ") has input application with category 'None'.")
             node.issues().push({issue:issue,validity:Errors.Validity.Error});
         }
-        if (node.hasOutputApplication() && node.getOutputApplication().getCategory() === Category.None){
+        if (outputApplication !== null && outputApplication.getCategory() === Category.None){
             const issue : Errors.Issue = Errors.Message("Node (" + node.getName() + ") has output application with category 'None'.")
             node.issues().push({issue:issue,validity:Errors.Validity.Error});
         }
 
         // check that Service nodes have inputApplications with no output ports!
-        if (node.getCategory() === Category.Service && node.hasInputApplication() && node.getInputApplication().getOutputPorts().length > 0){
+        if (node.getCategory() === Category.Service && inputApplication !== null && inputApplication.getOutputPorts().length > 0){
             const issue : Errors.Issue = Errors.Message("Node (" + node.getName() + ") is a Service node, but has an input application with at least one output.")
             node.issues().push({issue:issue,validity:Errors.Validity.Error});
-        }
-
-        // check if this category of node is an old PythonApp node
-        if (node.getCategory() === Category.PythonApp){
-            let newCategory: Category = Category.DALiuGEApp;
-            const dropClassField = node.getFieldByDisplayText(Daliuge.FieldName.DROP_CLASS);
-
-            // by default, update PythonApp to a DALiuGEApp, unless dropclass field value indicates it is a PyFuncApp
-            if (dropClassField && dropClassField.getValue() === Daliuge.DEFAULT_PYFUNCAPP_DROPCLASS_VALUE){
-                newCategory = Category.PyFuncApp;
-            }
-
-            const issue : Errors.Issue = Errors.ShowFix(
-                "Node (" + node.getName() + ") is a " + node.getCategory() + " node, which is a legacy category. The node should be updated to a " + newCategory + " node.",
-                function(){Utils.showNode(eagle, node.getId())},
-                function(){Utils.fixNodeCategory(eagle, node, newCategory, node.getCategoryType())},
-                "Change node category from " + node.getCategory() + " to " + newCategory
-            );
-            node.issues().push({issue:issue,validity:Errors.Validity.Warning});
         }
 
         // check that this category of node contains all the fields it requires
         for (const requirement of Daliuge.categoryFieldsRequired){
             if (requirement.categories.includes(node.getCategory())){
                 for (const requiredField of requirement.fields){
-                    Node._checkForField(eagle, node, requiredField);
+                    Node._checkForField(eagle, location, node, requiredField);
                 }
             }
         }
@@ -2031,7 +2282,7 @@ export class Node {
         for (const requirement of Daliuge.categoryTypeFieldsRequired){
             if (requirement.categoryTypes.includes(node.getCategoryType())){
                 for (const requiredField of requirement.fields){
-                    Node._checkForField(eagle, node, requiredField);
+                    Node._checkForField(eagle, location, node, requiredField);
                 }
             }
         }
@@ -2039,16 +2290,27 @@ export class Node {
         // check PyFuncApp nodes to make sure contents of func_name field is actually found within the func_code field
         // check whether the value of func_name is also present in func_code should only be applied if func_code is not empty
         if (node.category() === Category.PyFuncApp){
-            const funcCodeField = node.getFieldByDisplayText(Daliuge.FieldName.FUNC_CODE);
-            const funcNameField = node.getFieldByDisplayText(Daliuge.FieldName.FUNC_NAME);
+            const funcCodeField = node.findFieldByDisplayText(Daliuge.FieldName.FUNC_CODE);
+            const funcNameField = node.findFieldByDisplayText(Daliuge.FieldName.FUNC_NAME);
 
             if (funcCodeField && funcNameField){
-                if (funcCodeField.getValue().trim() !== ""){
-                    if (!funcCodeField.getValue().includes(funcNameField.getValue())){
-                        const issue : Errors.Issue = Errors.Show("Node (" + node.getName() + ") has a value of func_name (" + funcNameField.getValue() + ") which does not appear in its func_code field.", function(){Utils.showNode(eagle, node.getId())});
+                const funcCodeValue = funcCodeField.getValue();
+                const funcNameValue = funcNameField.getValue();
+
+                if (funcCodeValue !== null && funcNameValue !== null && funcCodeValue.trim() !== ""){
+                    if (!funcCodeValue.includes(funcNameValue)){
+                        const issue : Errors.Issue = Errors.Show("Node (" + node.getName() + ") has a value of func_name (" + funcNameValue + ") which does not appear in its func_code field.", function(){Utils.showNode(eagle, location, node)});
                         node.issues().push({issue:issue,validity:Errors.Validity.Error});
                     }
                 }
+            }
+        }
+
+        // check that the id in each field on this node, exists as a field on the fields dict
+        for (const [id, field] of node.fields()){
+            if (id !== field.getId()){
+                const issue : Errors.Issue = Errors.Show("Node (" + node.getName() + ") has mismatch between key in fields dict, and id of fields dict value.", function(){Utils.showNode(eagle, location, node)});
+                node.issues().push({issue: issue, validity: Errors.Validity.Error});
             }
         }
     }
@@ -2065,28 +2327,38 @@ export class Node {
     }
 
     static determineNodeParentId(nodeData: any): NodeId | null {
-        if (typeof nodeData.group !== 'undefined'){
-            return nodeData.group;
-        }
         if (typeof nodeData.parentId !== 'undefined'){
             return nodeData.parentId;
+        }
+        if (typeof nodeData.group !== 'undefined'){
+            return nodeData.group;
         }
         return null;
     }
 
-    private static _checkForField(eagle: Eagle, node: Node, field: Field) : void {
+    static determineNodeSubjectId(nodeData: any): NodeId | null {
+        if (typeof nodeData.subjectId !== 'undefined'){
+            return nodeData.subjectId;
+        }
+        if (typeof nodeData.subject !== 'undefined'){
+            return nodeData.subject;
+        }
+        return null;
+    }
+
+    private static _checkForField(eagle: Eagle, location: Eagle.FileType, node: Node, field: Field) : void {
         // check if the node already has this field
-        const existingField = node.getFieldByDisplayText(field.getDisplayText());
+        const existingField = node.findFieldByDisplayText(field.getDisplayText());
 
         // if not, create one by cloning the required field
         // if so, check the attributes of the field match
-        if (existingField === null){
+        if (typeof existingField === 'undefined'){
             const message = "Node (" + node.getName() + ":" + node.category() + ":" + node.categoryType() + ") does not have the required '" + field.getDisplayText() + "' field";
-            const issue : Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, node.getId());}, function(){Utils.addMissingRequiredField(eagle, node, field);}, "Add missing " + field.getDisplayText() + " field.")
+            const issue : Errors.Issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, location, node);}, function(){Utils.addMissingRequiredField(eagle, node, field);}, "Add missing " + field.getDisplayText() + " field.")
             node.issues().push({issue:issue,validity:Errors.Validity.Error});
         } else if (existingField.getParameterType() !== field.getParameterType()){
             const message = "Node (" + node.getName() + ") has a '" + field.getDisplayText() + "' field with the wrong parameter type (" + existingField.getParameterType() + "), should be a " + field.getParameterType();
-            const issue : Errors.Issue = Errors.ShowFix(message, function(){Utils.showField(eagle, node.getId(),existingField);}, function(){Utils.fixFieldParameterType(eagle, node, existingField, field.getParameterType())}, "Switch type of field to '" + field.getParameterType())
+            const issue : Errors.Issue = Errors.ShowFix(message, function(){Utils.showField(eagle, location, node, existingField);}, function(){Utils.fixFieldParameterType(eagle, node, existingField, field.getParameterType())}, "Switch type of field to '" + field.getParameterType())
             existingField.addError(issue,Errors.Validity.Error)
         }
     }

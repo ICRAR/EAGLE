@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { TestHelpers } from './TestHelpers';
 
 test('Parameter Tables and keyboard Shortcuts', async ({ page }) => {
   
@@ -7,20 +8,11 @@ test('Parameter Tables and keyboard Shortcuts', async ({ page }) => {
   // Expect a title "to contain" a substring.
   await expect(page).toHaveTitle(/EAGLE/);
 
-  //--------ENABLE EXPERT MODE----------
-  //open settings modal via keyboard shortcut
-  await page.press('body','o');
-
-  //enable expert mode
-  const uiModeSelect = await page.getByPlaceholder('uiMode')
-  uiModeSelect.selectOption({value:'Expert'})
-  //close settings modal (wait is needed, bootstrap is not ready to close the modal again that quickly)
-  await page.waitForTimeout(500);
-  await page.getByRole('button', { name: 'OK' }).click()
+  // set 'Expert' UI mode
+  await TestHelpers.setUIMode(page, "Expert");
 
   //expand the 'Builtin Components' palette
-  await page.locator('#palette0').click();
-  await page.waitForTimeout(250);
+  await TestHelpers.expandPalette(page, 0);
 
   //add a helloworld app to the graph by clicking it's icon
   await page.locator('#addPaletteNodeHelloWorldApp').click();
@@ -81,10 +73,6 @@ test('Parameter Tables and keyboard Shortcuts', async ({ page }) => {
   await page.getByRole('row').last().locator('.column_DisplayText').hover();
   //make the field a key parameter
   await page.getByRole('row').last().locator('.column_DisplayText button').click();
-  
-  //confirm the default name for the new graph config
-  await page.waitForTimeout(500);
-  await page.getByRole('button', { name: 'OK' }).click();
   
   //close the parameter table modal
   await page.waitForTimeout(800);

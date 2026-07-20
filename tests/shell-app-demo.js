@@ -383,7 +383,7 @@ test('Create palette', async t =>{
 
         // set the url of the translator
         .click('#navbarDropdownGitHub')
-        .click('#setTranslatorUrl')
+        .click('#setTranslatorUrlBtn')
         .typeText(Selector('#inputModalInput'), TRANSLATOR_URL, { replace: true })
         .click('#inputModal .modal-footer button')
 

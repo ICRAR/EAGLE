@@ -5,7 +5,6 @@ import { CategoryData } from "./CategoryData";
 import { Eagle } from './Eagle';
 import { Errors } from './Errors';
 import { Palette } from "./Palette";
-import { Repository } from "./Repository";
 import { UiModeSystem } from './UiModes';
 import { Utils } from './Utils';
 
@@ -25,7 +24,7 @@ export class SettingsGroup {
     }
 
     isVisible = (eagle: Eagle) : boolean => {
-        return this.displayFunc(eagle) || Setting.findValue(Setting.SHOW_DEVELOPER_TAB);
+        return this.displayFunc(eagle) || Setting.findValue<boolean>(Setting.SHOW_DEVELOPER_TAB, false) === true;
     }
 
     getSettings = () : Setting[] => {
@@ -38,24 +37,27 @@ export class SettingsGroup {
     }
 }
 
+type validValueTypes = string | number | boolean;
+
 export class Setting {
-    value : ko.Observable<any>;
+
+    value : ko.Observable<validValueTypes>;
     private display : boolean; // if true, display setting in settings modal, otherwise do not display
     private name : string;
     private key : string;
     private description : string;
     private perpetual : boolean; // if true, then this setting will stay the same across all ui modes(always storing and using the data from the default ui mode)
     private type : Setting.Type;
-    private studentDefaultValue : any;
-    private minimalDefaultValue : any;
-    private graphDefaultValue : any;
-    private componentDefaultValue : any;
-    private expertDefaultValue : any;
-    private oldValue : any;
-    private options : string[]; // an optional list of possible values for this setting
-    private eventFunc : () => void; // optional function to be called when a settings button is clicked, or checkbox is toggled, or a input is changed
+    private studentDefaultValue : validValueTypes;
+    private minimalDefaultValue : validValueTypes;
+    private graphDefaultValue : validValueTypes;
+    private componentDefaultValue : validValueTypes;
+    private expertDefaultValue : validValueTypes;
+    private oldValue : validValueTypes;
+    options : string[] | undefined; // an optional list of possible values for this setting (accessed via Knockout templates)
+    private eventFunc : (() => void) | undefined; // optional function to be called when a settings button is clicked, or checkbox is toggled, or a input is changed
 
-    constructor(display: boolean, name : string, key:string, description : string,perpetual:boolean, type : Setting.Type, studentDefaultValue : any, minimalDefaultValue : any,graphDefaultValue : any,componentDefaultValue : any,expertDefaultValue : any, options?: string[], eventFunc?: () => void){
+    constructor(display: boolean, name: string, key: string, description: string, perpetual: boolean, type: Setting.Type, studentDefaultValue: validValueTypes, minimalDefaultValue: validValueTypes, graphDefaultValue: validValueTypes, componentDefaultValue: validValueTypes, expertDefaultValue: validValueTypes, options?: string[], eventFunc?: () => void){
         this.display = display;
         this.name = name;
         this.key = key;
@@ -94,31 +96,31 @@ export class Setting {
         return this.key;
     }
 
-    getOldValue = () : any => {
+    getOldValue = () : validValueTypes => {
         return this.oldValue;
     }
 
-    getStudentDefaultVal = () :any => {
+    getStudentDefaultVal = () : validValueTypes => {
         return this.studentDefaultValue
     }
 
-    getMinimalDefaultVal = () :any => {
+    getMinimalDefaultVal = () : validValueTypes => {
         return this.minimalDefaultValue
     }
 
-    getGraphDefaultVal = () :any => {
+    getGraphDefaultVal = () : validValueTypes => {
         return this.graphDefaultValue
     }
 
-    getComponentDefaultVal = () :any => {
+    getComponentDefaultVal = () : validValueTypes => {
         return this.componentDefaultValue
     }
 
-    getExpertDefaultVal = () :any => {
+    getExpertDefaultVal = () : validValueTypes => {
         return this.expertDefaultValue
     }
 
-    getPerpetualDefaultVal = () :any => {
+    getPerpetualDefaultVal = () : validValueTypes => {
         if(!this.perpetual){
             console.warn(this.name + " is not a perpetual setting: ",this)
         }
@@ -129,7 +131,7 @@ export class Setting {
         return this.perpetual;
     }
 
-    setValue = (value: any) : void => {
+    setValue = (value: validValueTypes) : void => {
         this.value(value);
     }
 
@@ -168,10 +170,10 @@ export class Setting {
         this.eventFunc?.();
     }
 
-    static find(key : string) : Setting {
+    static find(key : string) : Setting | undefined {
         // check if Eagle constructor has not been run (usually the case when this module is being used from a tools script)
         if (typeof Eagle.settings === 'undefined'){
-            return null;
+            return undefined;
         }
 
         for (const group of Eagle.settings){
@@ -182,28 +184,60 @@ export class Setting {
             }
         }
 
-        return null;
+        return undefined;
     }
 
-    static findValue(key : string) : any {
+    static findValue<T>(key : string, defaultValue: T) : T{
         const setting = Setting.find(key);
 
-        if (setting === null){
-            console.warn("No setting", key);
-            return null;
+        if (typeof setting === "undefined"){
+            console.warn("No setting", key, ", returning default value:", defaultValue);
+            return defaultValue;
         }
 
-        return setting.value();
+        // return the value cast to the expected type
+        return setting.value() as T;
     }
 
-    static setValue(key : string, value : any) : void {
+    static findPerpetualDefaultValue<T>(key : string, defaultValue: T) : T{
         const setting = Setting.find(key);
-        if (setting === null){
+
+        if (typeof setting === "undefined"){
+            console.warn("No setting", key, ", returning default value:", defaultValue);
+            return defaultValue;
+        }
+
+        if (!setting.getPerpetual()){
+            console.warn("Setting with key", key, "is not perpetual, but findPerpetualDefaultValue was called on it. Returning the regular default value for this setting.");
+        }
+
+        // return the perpetual default value cast to the expected type
+        return setting.getPerpetualDefaultVal() as T;
+    }
+
+    static setValue(key : string, value : validValueTypes) : void {
+        const setting = Setting.find(key);
+        if (typeof setting === "undefined"){
             console.warn("No setting", key);
             return;
         }
 
         return setting.value(value);
+    }
+
+    static toggle(key : string) : void {
+        const setting = Setting.find(key);
+        if (typeof setting === "undefined"){
+            console.warn("No setting", key);
+            return;
+        }
+
+        if (setting.getType() !== Setting.Type.Boolean){
+            console.warn("toggle() called on Setting that is not a boolean!" + setting.getName() + " " + setting.getType() + " " + setting.value());
+            return;
+        }
+
+        setting.toggle();
     }
 
     resetDefault() : void {
@@ -251,12 +285,18 @@ export class Setting {
 
     static showInspectorErrorsWarnings() : boolean {
         const eagle = Eagle.getInstance();
-            
-        switch (Setting.findValue(Setting.SHOW_GRAPH_WARNINGS)){
+        
+        const selectedNode = eagle.selectedNode();
+
+        if (selectedNode === null){
+            return false;
+        }
+
+        switch (Setting.findValue<Setting.ShowErrorsMode>(Setting.SHOW_GRAPH_WARNINGS, Setting.ShowErrorsMode.None)){
             case Setting.ShowErrorsMode.Warnings:
-                return eagle.selectedNode().getErrorsWarnings().errors.length + eagle.selectedNode().getErrorsWarnings().warnings.length > 0;
+                return selectedNode.getErrorsWarnings().errors.length + selectedNode.getErrorsWarnings().warnings.length > 0;
             case Setting.ShowErrorsMode.Errors:
-                return eagle.selectedNode().getErrorsWarnings().errors.length > 0;
+                return selectedNode.getErrorsWarnings().errors.length > 0;
             case Setting.ShowErrorsMode.None:
             default:
                 return false;
@@ -310,9 +350,9 @@ export class Setting {
     static readonly CONFIRM_DISCARD_CHANGES : string = "ConfirmDiscardChanges";
     static readonly CONFIRM_NODE_CATEGORY_CHANGES : string = "ConfirmNodeCategoryChanges";
     static readonly CONFIRM_REMOVE_REPOSITORIES : string = "ConfirmRemoveRepositories";
-    static readonly CONFIRM_RELOAD_PALETTES : string = "ConfirmReloadPalettes";
     static readonly CONFIRM_DELETE_FILES : string = "ConfirmDeleteFiles";
     static readonly CONFIRM_DELETE_OBJECTS : string = "ConfirmDeleteObjects";
+    static readonly CONFIRM_OJS_FORMAT : string = "ConfirmOjsFormat";
     static readonly TEST_TRANSLATE_MODE : string = "TestTranslateMode";
 
     static readonly SHOW_DEVELOPER_NOTIFICATIONS: string = "ShowDeveloperNotifications";
@@ -321,7 +361,6 @@ export class Setting {
     static readonly ALLOW_INVALID_EDGES : string = "AllowInvalidEdges";
     static readonly ALLOW_COMPONENT_EDITING : string = "AllowComponentEditing";
     static readonly ALLOW_READONLY_PALETTE_EDITING : string = "AllowReadonlyPaletteEditing";
-    static readonly ALLOW_EDGE_EDITING : string = "AllowEdgeEditing";
     static readonly SHOW_NON_CONFIG_PARAMETERS : string = "ShowNonConfigParameters";
     static readonly FILTER_NODE_SUGGESTIONS : string = "AutoSuggestDestinationNodes";
 
@@ -332,13 +371,10 @@ export class Setting {
     static readonly VALUE_EDITING_PERMS : string = "ValueEditingPerms"
     static readonly AUTO_COMPLETE_EDGES_LEVEL : string = "AutoCompleteEdgesLevel"
     static readonly DEFAULT_DATA_NODE : string = "DefaultDataNode";
+    static readonly DISABLE_RENAME_ON_EDGE_CONNECT : string = "DisableRenameOnEdgeConnect";
 
     static readonly TRANSLATOR_URL : string = "TranslatorURL";
     static readonly TRANSLATOR_ALGORITHM_DEFAULT : string = "TranslatorAlgorithmDefault";
-
-    static readonly EXPLORE_PALETTES_SERVICE : string = "ExplorePalettesService";
-    static readonly EXPLORE_PALETTES_REPOSITORY : string = "ExplorePalettesRepository";
-    static readonly EXPLORE_PALETTES_BRANCH : string = "ExplorePalettesBranch";
 
     static readonly CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS: string = "CreateApplicationsForConstructPorts";
     static readonly DISABLE_JSON_VALIDATION: string = "DisableJsonValidation";
@@ -358,12 +394,15 @@ export class Setting {
     static readonly SNAP_TO_GRID_SIZE: string = "SnapToGridSize";
     static readonly SHOW_GRAPH_WARNINGS: string = "ShowInspectorWarnings";
     static readonly SHOW_ALL_CATEGORY_OPTIONS: string = "ShowAllCategoryOptions";
+    static readonly HIDE_DATA_NODE_TITLES: string = "HideDataNodeTitles";
+    static readonly HIDE_VISUALS: string = "hideVisuals";
 
     static readonly ALLOW_MODIFIED_GRAPH_TRANSLATION: string = "AllowModifiedGraphTranslation";
-    static readonly APPLY_ACTIVE_GRAPH_CONFIG_BEFORE_TRANSLATION: string = "ApplyActiveGraphConfigBeforeTranslation";
     static readonly FETCH_REPOSITORY_FOR_URLS: string = "FetchRepositoryForUrls";
     static readonly KEEP_OLD_FIELDS_DURING_CATEGORY_CHANGE: string = "KeepOldFieldsDuringCategoryChange";
     static readonly MARKDOWN_EDITING_ENABLED: string = "MarkdownEditingEnabled";
+
+    static readonly DALIUGE_SCHEMA_VERSION: string = "DaliugeSchemaVersion";
 }
 
 export namespace Setting {
@@ -393,6 +432,12 @@ export namespace Setting {
         Normal = "normal",
         Expert = "expert"
     }
+
+    export enum SchemaVersion {
+        Unknown = "Unknown",
+        OJS = "OJS",
+        V4 = "V4" //dict-of-dicts
+    }
 }
 
 //setting order (display, name, key, description, perpetual, type, studentDefaultValue, minimalDefaultValue, GraphDefaultValue, ComponentDefaultValue, ExpertDefaultValue, options(only add for type select))
@@ -401,13 +446,13 @@ const settings : SettingsGroup[] = [
         "User Options",
         () => {return true;},
         [
-            new Setting(true, "Reset Action Confirmations", Setting.ACTION_CONFIRMATIONS, "Enable all action confirmation prompts",false, Setting.Type.Button, '', '', '', '', '', [], function(){Eagle.getInstance().resetActionConfirmations();}),
-            new Setting(false, "Confirm Discard Changes", Setting.CONFIRM_DISCARD_CHANGES, "Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.",false, Setting.Type.Boolean, true, true,true,true,true),
-            new Setting(false, "Confirm Node Category Changes", Setting.CONFIRM_NODE_CATEGORY_CHANGES, "Prompt user to confirm that changing the node category may break the node.",false, Setting.Type.Boolean, true, true,true,true,true),
-            new Setting(false, "Confirm Remove Repositories", Setting.CONFIRM_REMOVE_REPOSITORIES, "Prompt user to confirm removing a repository from the list of known repositories.",false , Setting.Type.Boolean, true,true,true,true,true),
-            new Setting(false, "Confirm Reload Palettes", Setting.CONFIRM_RELOAD_PALETTES, "Prompt user to confirm when loading a palette that is already loaded.",false , Setting.Type.Boolean,true,true,true,true,true),
-            new Setting(false, "Confirm Delete Files", Setting.CONFIRM_DELETE_FILES, "Prompt user to confirm when deleting files from a repository.", false, Setting.Type.Boolean, true,true,true,true,true),
-            new Setting(false, "Confirm Delete Objects", Setting.CONFIRM_DELETE_OBJECTS, "Prompt user to confirm when deleting node(s) or edge(s) from a graph.",false , Setting.Type.Boolean, true,true,true,true,true),
+            new Setting(true, "Reset Action Confirmations", Setting.ACTION_CONFIRMATIONS, "Enable all action confirmation prompts", false, Setting.Type.Button, '', '', '', '', '', [], function(){Eagle.getInstance().resetActionConfirmations();}),
+            new Setting(false, "Confirm Discard Changes", Setting.CONFIRM_DISCARD_CHANGES, "Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.", true, Setting.Type.Boolean, true, true,true,true,true),
+            new Setting(false, "Confirm Node Category Changes", Setting.CONFIRM_NODE_CATEGORY_CHANGES, "Prompt user to confirm that changing the node category may break the node.", true, Setting.Type.Boolean, true, true,true,true,true),
+            new Setting(false, "Confirm Remove Repositories", Setting.CONFIRM_REMOVE_REPOSITORIES, "Prompt user to confirm removing a repository from the list of known repositories.", true, Setting.Type.Boolean, true,true,true,true,true),
+            new Setting(false, "Confirm Delete Files", Setting.CONFIRM_DELETE_FILES, "Prompt user to confirm when deleting files from a repository.", true, Setting.Type.Boolean, true,true,true,true,true),
+            new Setting(false, "Confirm Delete Objects", Setting.CONFIRM_DELETE_OBJECTS, "Prompt user to confirm when deleting node(s) or edge(s) from a graph.", true, Setting.Type.Boolean, true,true,true,true,true),
+            new Setting(false, "Confirm OJS Format Save", Setting.CONFIRM_OJS_FORMAT, "Prompt the user to confirm saving in the older OJS format and warn that the newer V4 format is recommended.", true, Setting.Type.Boolean, true,true,true,true,true),
             new Setting(false, "Open " + Palette.BUILTIN_PALETTE_NAME + " Palette on Startup", Setting.OPEN_BUILTIN_PALETTE, "Open the '" + Palette.BUILTIN_PALETTE_NAME + "' palette on startup.", true, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(false, "Open " + Palette.TEMPLATE_PALETTE_NAME + " Palette on Startup", Setting.OPEN_TEMPLATE_PALETTE, "Open the '" + Palette.TEMPLATE_PALETTE_NAME + "' palette on startup.", true, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(true, "Disable JSON Validation", Setting.DISABLE_JSON_VALIDATION, "Allow EAGLE to load/save/send-to-translator graphs and palettes that would normally fail validation against schema.", false, Setting.Type.Boolean, false,false,false,false,false),
@@ -436,6 +481,8 @@ const settings : SettingsGroup[] = [
             new Setting(false, "Bottom Window Visibility", Setting.BOTTOM_WINDOW_VISIBLE, "saving the visibility state of the bottom window", true, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(false, "Bottom Window Mode/Tab", Setting.BOTTOM_WINDOW_MODE, "saving the mode/tab of the bottom window", true, Setting.Type.Number, 'ParameterTable', 'ParameterTable', 'ParameterTable', 'ParameterTable', 'ParameterTable'),
             new Setting(false, "Graph and Object Inspector", Setting.INSPECTOR_COLLAPSED_STATE, "saving the collapsed state of the graph object inspector", true, Setting.Type.Boolean, false, false, false, false, false),
+            new Setting(false, "Visibility of data node titles", Setting.HIDE_DATA_NODE_TITLES, "saving the visibility of the data node titles", true, Setting.Type.Boolean, false, false, false, false, false),
+            new Setting(false, "Visibility of visuals in graph", Setting.HIDE_VISUALS, "saving the visibility of visuals in graph", true, Setting.Type.Boolean, false, false, false, false, false),
         ]
     ),
     new SettingsGroup(
@@ -448,12 +495,12 @@ const settings : SettingsGroup[] = [
             new Setting(true, "Allow Graph Editing", Setting.ALLOW_GRAPH_EDITING, "Allow the user to edit and create graphs.", false, Setting.Type.Boolean, false, false, true, true, true),
             new Setting(true, "Allow Palette Editing", Setting.ALLOW_PALETTE_EDITING, "Allow the user to edit palettes.", false, Setting.Type.Boolean, false, false, false, true, true),
             new Setting(true, "Allow Readonly Palette Editing", Setting.ALLOW_READONLY_PALETTE_EDITING, "Allow the user to modify palettes that would otherwise be readonly.", false, Setting.Type.Boolean,false,false,false,false,true),
-            new Setting(true, "Allow Edge Editing", Setting.ALLOW_EDGE_EDITING, "Allow the user to edit edge attributes.", false, Setting.Type.Boolean, false, false,false, false, true),
             new Setting(true, "Filter Node Suggestions", Setting.FILTER_NODE_SUGGESTIONS, "Filter Node Options When Drawing Edges Into Empty Space", false, Setting.Type.Boolean,true,true,true,true,false),
             new Setting(false, "STUDENT_SETTINGS_MODE", Setting.STUDENT_SETTINGS_MODE, "Mode disabling setting editing for students.", false, Setting.Type.Boolean, true, false,false, false, false),
+            new Setting(true, "Disable Rename on Edge Connect", Setting.DISABLE_RENAME_ON_EDGE_CONNECT, "Disable renaming of nodes when connecting edges to existing nodes.", false, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(true, "Value Editing", Setting.VALUE_EDITING_PERMS, "Set which values are allowed to be edited.", false, Setting.Type.Select, Setting.ValueEditingPermission.ConfigOnly,Setting.ValueEditingPermission.Normal,Setting.ValueEditingPermission.Normal,Setting.ValueEditingPermission.ReadOnly,Setting.ValueEditingPermission.ReadOnly, Object.values(Setting.ValueEditingPermission)),
             new Setting(true, "Auto-complete edges level", Setting.AUTO_COMPLETE_EDGES_LEVEL, "Specifies the minimum validity level of auto-complete edges displayed when dragging a new edge", false, Setting.Type.Select, Errors.Validity.Valid, Errors.Validity.Valid, Errors.Validity.Warning, Errors.Validity.Warning, Errors.Validity.Error, [Errors.Validity.Error, Errors.Validity.Warning, Errors.Validity.Valid]),
-            new Setting(true, "Default Data Node", Setting.DEFAULT_DATA_NODE, "Default category of Data node that is automatically created when the user creates a edge between two Application nodes", false, Setting.Type.Select, Category.Memory, Category.Memory, Category.Memory, Category.Memory, Category.Memory, CategoryData.INTERMEDIATE_DATA_NODES)
+            new Setting(true, "Default Data Node", Setting.DEFAULT_DATA_NODE, "Default category of Data node that is automatically created when the user creates a edge between two Application nodes", false, Setting.Type.Select, Category.Memory, Category.Memory, Category.Memory, Category.Memory, Category.Memory, CategoryData.INTERMEDIATE_DATA_NODES),
         ]
     ),
     new SettingsGroup(
@@ -465,9 +512,6 @@ const settings : SettingsGroup[] = [
             new Setting(true, "GitLab Access Token", Setting.GITLAB_ACCESS_TOKEN_KEY, "A users access token for GitLab repositories.", true, Setting.Type.Password, "","","", "", ""),
             new Setting(true, "Docker Hub Username", Setting.DOCKER_HUB_USERNAME, "The username to use when retrieving data on images stored on Docker Hub", true, Setting.Type.String, "icrar","icrar","icrar", "icrar", "icrar"),
             new Setting(false, "Default Translation Algorithm", Setting.TRANSLATOR_ALGORITHM_DEFAULT, "Which of the algorithms will be used by default", true, Setting.Type.String, "agl-1", "agl-1", "agl-1", "agl-1", "agl-1"),
-            new Setting(true, "Explore Palettes Service", Setting.EXPLORE_PALETTES_SERVICE, "The service hosting the repository from which palettes will be fetched by the 'Explore Palettes' feature", true, Setting.Type.Select, Repository.Service.GitHub, Repository.Service.GitHub, Repository.Service.GitHub, Repository.Service.GitHub, Repository.Service.GitHub, [Repository.Service.GitHub /*, Repository.Service.GitLab*/]),
-            new Setting(true, "Explore Palettes Repository", Setting.EXPLORE_PALETTES_REPOSITORY, "The repository from which palettes will be fetched by the 'Explore Palettes' feature", true, Setting.Type.String, "ICRAR/EAGLE-graph-repo", "ICRAR/EAGLE-graph-repo", "ICRAR/EAGLE-graph-repo", "ICRAR/EAGLE-graph-repo", "ICRAR/EAGLE-graph-repo"),
-            new Setting(true, "Explore Palettes Branch", Setting.EXPLORE_PALETTES_BRANCH, "The branch of the repository from which palettes will be fetched by the 'Explore Palettes' feature", true, Setting.Type.String, "master", "master", "master", "master", "master"),
         ]
     ),
     new SettingsGroup(
@@ -483,9 +527,9 @@ const settings : SettingsGroup[] = [
             new Setting(true, "Print Translator JSON to JS Console", Setting.PRINT_TRANSLATOR_JSON_TO_JS_CONSOLE, "When translating a graph, print the JSON data sent to the translator to the browser's javascript console", false, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(true, "Display all Category options", Setting.SHOW_ALL_CATEGORY_OPTIONS, "Displays all category options when changing the category of a node", false, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(true, "Allow modified graph translation", Setting.ALLOW_MODIFIED_GRAPH_TRANSLATION, "Allow users to submit graphs for translation even when not saved or committed", true, Setting.Type.Boolean, false, false, false, false, false),
-            new Setting(true, "Apply active graph config before translation", Setting.APPLY_ACTIVE_GRAPH_CONFIG_BEFORE_TRANSLATION, "Apply the active graph config to the graph before sending the graph for translation", false, Setting.Type.Boolean, false, false, false, false, false),
             new Setting(true, "Fetch repository for URLs", Setting.FETCH_REPOSITORY_FOR_URLS, "Automatically fetch the contents of the object's repository when a graph/palette is specified in the URL", true, Setting.Type.Boolean, false, false ,false, false, false),
-            new Setting(true, "Keep Old Fields during Category Change", Setting.KEEP_OLD_FIELDS_DURING_CATEGORY_CHANGE, "When changing the category of an existing node, several fields may become useless and would normally be deleted. Enabling this setting will keep those fields.", false, Setting.Type.Boolean, false, false, false, false, false)
+            new Setting(true, "Keep Old Fields during Category Change", Setting.KEEP_OLD_FIELDS_DURING_CATEGORY_CHANGE, "When changing the category of an existing node, several fields may become useless and would normally be deleted. Enabling this setting will keep those fields.", false, Setting.Type.Boolean, false, false, false, false, false),
+            new Setting(true, "DALiuGE Schema Version", Setting.DALIUGE_SCHEMA_VERSION, "JSON file format for output graphs (used for saving and translation)", true, Setting.Type.Select, Setting.SchemaVersion.OJS, Setting.SchemaVersion.OJS, Setting.SchemaVersion.OJS, Setting.SchemaVersion.OJS, Setting.SchemaVersion.OJS, [Setting.SchemaVersion.OJS, Setting.SchemaVersion.V4])
         ]
     )
 ];

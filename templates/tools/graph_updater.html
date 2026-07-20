@@ -1,0 +1,240 @@
+<!-- Graph Updater Modal -->
+<div class="modal fade" id="graphUpdaterModal" tabindex="-1" role="dialog" aria-labelledby="graphUpdaterModalTitle">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="graphUpdaterModalTitle">Graph Updater</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div class="row">
+                        <div class="col">
+                            <p>A tool to update Logical Graphs to the latest version of the EAGLE Logical Graph file format. <a id="graphUpdaterStepsToggle" href="#graphUpdaterSteps" data-bs-toggle="collapse" aria-expanded="false" aria-controls="graphUpdaterSteps">More info...</a></p>
+                            <div class="collapse" id="graphUpdaterSteps">
+                                <p>Steps:
+                                    <ul>
+                                        <li>Select a source repository.</li>
+                                        <li>Click "Fetch Logical Graphs" to load all Logical Graphs from the source repository into memory.</li>
+                                        <li>Review the list of Logical Graphs, deselect any files that don't require updating.</li>
+                                        <li>Click "Update Logical Graphs" to update them in memory.</li>
+                                        <li>Review the updated Logical Graphs, deselect any files that didn't update correctly.</li>
+                                        <li>Select a destination repository, or let EAGLE automatically generate a new branch on the source repository.</li>
+                                        <li>Click "Push" to write selected Logical Graphs to the destination repository.</li>
+                                    </ul>
+                                </p>
+                                <p>Typically, the destination repository is a branch of the source repository.</p>
+                                <p>Once the updated Logical Graphs have been verified by the user, we leave it to the user to merge the new branch outside of EAGLE.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-3">
+                            <p>Source Repository:</p>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <select class="form-control" id="graphUpdaterModalSourceRepositorySelect" data-bind="event: { change: function(){GraphUpdater.onSourceRepositoryChange()} }">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-3" data-bind="visible: GraphUpdater.isFetching() || GraphUpdater.hasFetched()">
+                        <div class="col" id="graphUpdaterModalGraphTableCol">
+                            <!-- ko if: GraphUpdater.updatedLogicalGraphs().length === 0 && GraphUpdater.hasFetched() -->
+                                <span class="d-block text-center">No logical graphs found in repository branch</span>
+                            <!-- /ko -->
+                            <!-- ko if: GraphUpdater.updatedLogicalGraphs().length > 0 -->
+                                <table id="graphUpdaterModalGraphTable" class="table table-striped table-bordered table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col" rowspan="2">Original Graph</th>
+                                            <!-- ko if: GraphUpdater.hasFetched() -->
+                                            <th scope="col" rowspan="2">Update?</th>
+                                            <!-- /ko -->
+                                            <!-- ko if: GraphUpdater.hasFetched() && (GraphUpdater.isUpdating() || GraphUpdater.hasUpdated()) -->
+                                            <th scope="col" rowspan="2">Status</th>
+                                            <th scope="col" rowspan="2">Nodes</th>
+                                            <th scope="col" rowspan="2">Edges</th>
+                                            <!-- ko if: GraphUpdater.autoFix() -->
+                                            <th scope="col" colspan="2">Pre-fix</th>
+                                            <th scope="col" colspan="2">Post-fix</th>
+                                            <!-- /ko -->
+                                            <!-- ko ifnot: GraphUpdater.autoFix() -->
+                                            <th scope="col" rowspan="2">Errors</th>
+                                            <th scope="col" rowspan="2">Warnings</th>
+                                            <!-- /ko -->
+                                            <!-- /ko -->
+                                            <!-- ko if: GraphUpdater.hasFetched() && GraphUpdater.hasUpdated() -->
+                                            <th scope="col" rowspan="2">Push?</th>
+                                            <!-- /ko -->
+                                            <!-- ko if: GraphUpdater.hasPushed() -->
+                                            <th scope="col" rowspan="2">Updated Graph</th>
+                                            <!-- /ko -->
+                                        </tr>
+                                        <tr>
+                                            <!-- ko if: GraphUpdater.hasFetched() && (GraphUpdater.isUpdating() || GraphUpdater.hasUpdated()) && GraphUpdater.autoFix() -->
+                                            <th scope="col">Errors</th>
+                                            <th scope="col">Warnings</th>
+                                            <th scope="col">Errors</th>
+                                            <th scope="col">Warnings</th>
+                                            <!-- /ko -->
+                                        </tr>
+                                    </thead>
+                                    <tbody id="graphUpdaterModalGraphTableBody" data-bind="foreach: GraphUpdater.updatedLogicalGraphs">
+                                        <tr>
+                                            <td><a data-bind="attr: { href: file().getUrl() }, text: file().pathAndName()" target="_blank"></a></td>
+                                            <!-- ko if: GraphUpdater.hasFetched() -->
+                                            <td><input type="checkbox" data-bind="checked: update, enable: GraphUpdater.hasFetched() && !GraphUpdater.isUpdating() && !GraphUpdater.hasUpdated()"></td>
+                                            <!-- /ko -->
+                                            <!-- ko if: GraphUpdater.hasFetched() && (GraphUpdater.isUpdating() || GraphUpdater.hasUpdated()) -->
+                                                <!-- ko if: state() === GraphUpdater.FileStatus.No -->
+                                                <td></td>
+                                                <!-- /ko -->
+                                                <!-- ko if: state() === GraphUpdater.FileStatus.Skipped -->
+                                                <td>Skipped</td>
+                                                <!-- /ko -->
+                                                <!-- ko if: state() === GraphUpdater.FileStatus.Success -->
+                                                <td>Success</td>
+                                                <!-- /ko -->
+                                                <!-- ko if: state() === GraphUpdater.FileStatus.Error -->
+                                                <td data-bind="eagleTooltip: error">Error</td>
+                                                <!-- /ko -->
+                                                <!-- ko if: state() === GraphUpdater.FileStatus.Updating -->
+                                                <td>
+                                                    <div class="spinner-border spinner-border-sm" role="status"></div>
+                                                </td>
+                                                <!-- /ko -->
+                                                <!-- ko if: state() === GraphUpdater.FileStatus.Success -->
+                                                    <td data-bind="text: numNodes()"></td>
+                                                    <td data-bind="text: numEdges()"></td>
+                                                    <td data-bind="text: preFixNumErrors()"></td>
+                                                    <td data-bind="text: preFixNumWarnings()"></td>
+                                                    <!-- ko if: GraphUpdater.autoFix() -->
+                                                        <td data-bind="text: postFixNumErrors()"></td>
+                                                        <td data-bind="text: postFixNumWarnings()"></td>
+                                                    <!-- /ko -->
+                                                <!-- /ko -->
+                                                <!-- ko if: state() !== GraphUpdater.FileStatus.Success -->
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <!-- ko if: GraphUpdater.autoFix() -->
+                                                        <td></td>
+                                                        <td></td>
+                                                    <!-- /ko -->
+                                                <!-- /ko -->
+                                            <!-- /ko -->
+                                            <!-- ko if: GraphUpdater.hasFetched() && GraphUpdater.hasUpdated() -->
+                                            <td><input type="checkbox" data-bind="checked: push, enable: state() === GraphUpdater.FileStatus.Success && !GraphUpdater.hasPushed()"></td>
+                                            <!-- /ko -->
+                                            <!-- ko if: GraphUpdater.hasPushed() -->
+                                                <!-- ko if: state() === GraphUpdater.FileStatus.Success -->
+                                                    <td><a data-bind="attr: { href: updatedFileUrl() }" target="_blank">Load</a></td>
+                                                <!-- /ko -->
+                                                <!-- ko if: state() !== GraphUpdater.FileStatus.Success -->
+                                                    <td></td>
+                                                <!-- /ko -->
+                                            <!-- /ko -->
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            <!-- /ko -->
+                        </div>
+                    </div>
+
+                    <div class="row" data-bind="visible: GraphUpdater.hasFetched() && !GraphUpdater.isUpdating() && !GraphUpdater.hasUpdated() && GraphUpdater.updatedLogicalGraphs().length > 0">
+                        <div class="col">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="checkAutoFix" data-bind="checked: GraphUpdater.autoFix, enable: GraphUpdater.numberOfFilesToUpdate() > 0">
+                                <label class="form-check-label" for="checkAutoFix">
+                                    Fix Graph(s) after updating
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row" data-bind="visible: GraphUpdater.hasUpdated()">
+                        <div class="col-3">
+                            <p>Destination Repository:</p>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <select class="form-control" id="graphUpdaterModalDestinationRepositorySelect" data-bind="event: { change: function(){GraphUpdater.onDestinationRepositoryChange()} }">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+                <div class="modal-footer" style="justify-content:space-between;">
+
+                    <div data-bind="visible: !GraphUpdater.hasFetched()">
+                        <div class="col">
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-primary" id="graphUpdaterModalFetchButton" data-bind="click: function(){GraphUpdater.fetchLogicalGraphs()}, enable: !GraphUpdater.isFetching()">
+                                    <!-- ko if: !GraphUpdater.hasFetched() -->
+                                    <!-- ko if: !GraphUpdater.isFetching() -->
+                                    Fetch Logical Graphs
+                                    <!-- /ko -->
+                                    <!-- ko if: GraphUpdater.isFetching() -->
+                                    <div class="spinner-border spinner-border-sm" role="status"></div>
+                                    Fetching Logical Graphs...
+                                    <!-- /ko -->
+                                    <!-- /ko -->
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div data-bind="visible: GraphUpdater.hasFetched() && !GraphUpdater.hasUpdated() && GraphUpdater.updatedLogicalGraphs().length > 0">
+                        <div class="col">
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-primary" id="graphUpdaterModalUpdateButton" data-bind="click: function(){GraphUpdater.update()}, enable: GraphUpdater.numberOfFilesToUpdate() > 0 && !GraphUpdater.isUpdating()">
+                                    <!--  ko if: GraphUpdater.isUpdating() -->
+                                    <div class="spinner-border spinner-border-sm" role="status"></div>
+                                    <span data-bind="text: 'Updating ' + GraphUpdater.numberOfFilesToUpdate() + ' Logical Graph(s)'"></span>
+                                    <!-- /ko -->
+                                    <!--  ko ifnot: GraphUpdater.isUpdating() -->
+                                    <span data-bind="text: 'Update ' + GraphUpdater.numberOfFilesToUpdate() + ' Logical Graph(s)'"></span>
+                                    <!-- /ko -->
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div data-bind="visible: GraphUpdater.hasUpdated()">
+                        <div class="col">
+                            <div class="d-grid gap-2">
+                                <!-- ko if: GraphUpdater.hasPushed() -->
+                                <button type="button" class="btn btn-success" id="graphUpdaterModalPushedButton" disabled>
+                                    <span data-bind="text: 'Successfully pushed ' + GraphUpdater.numberOfFilesToPush() + ' Logical Graph(s) to destination repository'"></span>
+                                </button>
+                                <!-- /ko -->
+                                <!-- ko ifnot: GraphUpdater.hasPushed() -->
+                                    <button type="button" class="btn btn-primary" id="graphUpdaterModalPushButton" data-bind="click: function(){GraphUpdater.push()}, enable: GraphUpdater.isUpdated()">
+                                        <!-- ko if: GraphUpdater.isUpdated() -->
+                                            <span data-bind="text: 'Push ' + GraphUpdater.numberOfFilesToPush() + ' Logical Graph(s)'"></span>
+                                        <!-- /ko -->
+                                        <!-- ko if: GraphUpdater.isAutoGeneratingBranch() -->
+                                            <div class="spinner-border spinner-border-sm" role="status"></div>
+                                            <span>Auto-generating branch...</span>
+                                        <!-- /ko -->
+                                        <!-- ko if: GraphUpdater.isPushing() -->
+                                            <div class="spinner-border spinner-border-sm" role="status"></div>
+                                            <span>Pushing...</span>
+                                        <!-- /ko -->
+                                    </button>
+                                <!-- /ko -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </div>
+</div>
+

@@ -1,11 +1,9 @@
 import { Daliuge } from './Daliuge';
 import { Eagle } from './Eagle';
-import { Edge } from './Edge';
 import { Field } from './Field';
-import { LogicalGraph } from './LogicalGraph';
+import { FileLocation } from "./FileLocation";
 import { Repositories } from './Repositories';
 import { Repository } from './Repository';
-import { RepositoryFile } from './RepositoryFile';
 import { Setting } from './Setting';
 import { TutorialSystem } from './Tutorial';
 import { UiModeSystem } from './UiModes';
@@ -14,20 +12,34 @@ import { Utils } from './Utils';
 declare const CodeMirror: any;
 
 export class Modals {
-
     static init(eagle : Eagle) : void {
         // #inputModal - requestUserInput()
-        $('#inputModal .modal-footer button.affirmativeBtn').on('click', function(){
+        $('#inputModal .modal-footer button.affirmativeBtn').on('click', function(event){
+            if ($('#inputModal').data('returnType') === "string"){
+                const validateInput = $('#inputModal').data('validateInput');
+                if (typeof validateInput === 'function'){
+                    validateInput();
+                }
+
+                const isValid = $('#inputModal').data('isValid');
+                if (isValid === false){
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return;
+                }
+            }
+
             $('#inputModal').data('completed', true);
+            $('#inputModal').modal('hide');
         });
         $('#inputModal').on('hidden.bs.modal', function(){
             const returnType = $('#inputModal').data('returnType');
             const completed: boolean = $('#inputModal').data('completed');
-            const input: string = $('#inputModalInput').val().toString();
+            const input: string = Utils.getUIValue('#inputModalInput', 'val', "");
 
             switch (returnType){
                 case "string": {
-                    const stringCallback : (completed : boolean, userString : string) => void = $('#inputModal').data('callback');
+                    const stringCallback: Modals.UserStringCallback = $('#inputModal').data('callback');
                     if (stringCallback){
                         stringCallback(completed, input);
                     } else {
@@ -36,7 +48,7 @@ export class Modals {
                     break;
                 }
                 case "number": {
-                    const numberCallback : (completed : boolean, userNumber : number) => void = $('#inputModal').data('callback');
+                    const numberCallback : Modals.UserNumberCallback = $('#inputModal').data('callback');
                     if (numberCallback){
                         numberCallback(completed, parseInt(input, 10));
                     } else {
@@ -49,7 +61,10 @@ export class Modals {
             }
 
             // remove data stored on modal
-            $('#inputModal').removeData(['callback', 'completed', 'returnType']);
+            $('#inputModal').removeData(['callback', 'completed', 'returnType', 'isValid', 'validateInput']);
+            $('#inputModalInput').removeClass('is-valid is-invalid');
+            $('#inputModalInvalidFeedback').hide().text('');
+            $('#inputModalInput').off('input.requestUserStringValidation');
         });
         $('#inputModal').on('shown.bs.modal', function(){
             $('#inputModalInput').trigger("focus");
@@ -57,6 +72,18 @@ export class Modals {
         $('#inputModalInput').on('keypress', function(e){
             if(TutorialSystem.activeTut === null){
                 if (e.key === "Enter"){
+                    if ($('#inputModal').data('returnType') === "string"){
+                        const validateInput = $('#inputModal').data('validateInput');
+                        if (typeof validateInput === 'function'){
+                            validateInput();
+                        }
+
+                        const isValid = $('#inputModal').data('isValid');
+                        if (isValid === false){
+                            return;
+                        }
+                    }
+
                     $('#inputModal').data('completed', true);
                     $('#inputModal').modal('hide');
                 }
@@ -68,13 +95,13 @@ export class Modals {
             $('#inputTextModal').data('completed', true);
         });
         $('#inputTextModal').on('hidden.bs.modal', function(){
-            const callback : (completed : boolean, userString : string) => void = $('#inputTextModal').data('callback');
+            const callback: Modals.UserTextCallback = $('#inputTextModal').data('callback');
 
             if (!callback){
                 console.log("No callback called when #inputTextModal hidden");
             } else {
                 const completed: boolean = $('#inputTextModal').data('completed');
-                const input: string = $('#inputTextModalInput').val().toString();
+                const input: string = Utils.getUIValue('#inputTextModalInput', 'val', "");
                 callback(completed, input);
             }
 
@@ -106,7 +133,7 @@ export class Modals {
             $('#inputCodeModal').data('completed', true);
         });
         $('#inputCodeModal').on('hidden.bs.modal', function(){
-            const callback : (completed : boolean, userString : string) => void = $('#inputCodeModal').data('callback');
+            const callback: Modals.UserStringCallback = $('#inputCodeModal').data('callback');
 
             if (!callback){
                 console.log("No callback called when #inputCodeModal hidden");
@@ -145,7 +172,7 @@ export class Modals {
             $('#inputMarkdownModal').data('editor', myCodeMirror);
 
             // watch for changes in the editor and reflect them in the display
-            myCodeMirror.on('change', (editorInstance: any, changeObj: any) => {
+            myCodeMirror.on('change', (editorInstance: any, _changeObj: any) => {
                 const value = editorInstance.getValue();
                 Modals.setMarkdownContent(value);
             });
@@ -155,7 +182,7 @@ export class Modals {
             $('#inputMarkdownModal').data('completed', true);
         });
         $('#inputMarkdownModal').on('hidden.bs.modal', function(){
-            const callback : (completed : boolean, userString : string) => void = $('#inputMarkdownModal').data('callback');
+            const callback: Modals.UserMarkdownCallback = $('#inputMarkdownModal').data('callback');
 
             if (!callback){
                 console.log("No callback called when #inputMarkdownModal hidden");
@@ -175,6 +202,9 @@ export class Modals {
             const editor = $('#inputMarkdownModal').data('editor');
             if (editor){
                 editor.refresh();
+                setTimeout(() => {
+                    editor.focus();
+                }, 0);
             } else {
                 console.error("No 'editor' data attribute found on modal");
             }
@@ -188,7 +218,7 @@ export class Modals {
             $('#choiceModalAffirmativeButton').trigger("focus");
         });
         $('#choiceModal').on('hidden.bs.modal', function(){
-            const callback : (completed : boolean, choice : string) => void = $('#choiceModal').data('callback');
+            const callback: Modals.UserChoiceCallback = $('#choiceModal').data('callback');
             if (!callback){
                 console.error("No 'callback' data attribute found on modal");
             } else {
@@ -200,9 +230,9 @@ export class Modals {
                 } else {
                     // check selected option in select tag
                     const choices : string[] = $('#choiceModal').data('choices');
-                    const choiceIndex : number = parseInt($('#choiceModalSelect').val().toString(), 10);
+                    const choiceIndex : number = parseInt(Utils.getUIValue('#choiceModalSelect', 'val', "0"), 10);
                     const choice = $('#choiceModalSelect option:selected').text();
-                    const customChoice = $('#choiceModalString').val().toString();
+                    const customChoice = Utils.getUIValue('#choiceModalString', 'val', "");
 
                     // if the last item in the select was selected, then return the custom value,
                     // otherwise return the selected choice
@@ -227,13 +257,7 @@ export class Modals {
         });
 
         $('#choiceModalSelect').on('change', function(){
-            const choice : number = parseInt($('#choiceModalSelect').val().toString(), 10);
-
-            //checking if the value of the select element is valid
-            if(!$('#choiceModalSelect').val() || choice > $('#choiceModalSelect option').length){
-                $('#choiceModalSelect').val(0)
-                console.warn('Invalid selection value (', choice, '), resetting to 0');
-            }
+            const choice : number = parseInt(Utils.getUIValue('#choiceModalSelect', 'val', "0"), 10);
 
             // check selected option in select tag
             const choices : string[] = $('#choiceModal').data('choices');
@@ -244,43 +268,86 @@ export class Modals {
 
         // #confirmModal - requestUserConfirm()
         $('#confirmModalAffirmativeButton').on('click', function(){
-            const callback : (confirmed : boolean) => void = $('#confirmModal').data('callback');
-            if (callback){
-                callback(true);
-            } else {
-                console.error("No 'callback' data attribute found on modal");
-            }
-
-            // remove data stored on the modal
-            $('#confirmModal').removeData('callback');
+            $('#confirmModal').data('completed', true);
+            $('#confirmModal').data('confirmed', true);
         });
         $('#confirmModalNegativeButton').on('click', function(){
-            const callback : (confirmed : boolean) => void = $('#confirmModal').data('callback');
-            if (callback){
-                callback(false);
-            } else {
-                console.error("No 'callback' data attribute found on modal");
-            }
-
-            // remove data stored on the modal
-            $('#confirmModal').removeData('callback');
+            $('#confirmModal').data('completed', true);
+            $('#confirmModal').data('confirmed', false);
         });
         $('#confirmModal').on('shown.bs.modal', function(){
             $('#confirmModalAffirmativeButton').trigger("focus");
+        });
+        $('#confirmModal').on('hidden.bs.modal', function(){
+            const callback: Modals.UserConfirmCallback = $('#confirmModal').data('callback');
+            if (!callback){
+                console.error("No 'callback' data attribute found on modal");
+            } else {
+                const completed: boolean = $('#confirmModal').data('completed');
+                const confirmed: boolean = $('#confirmModal').data('confirmed');
+
+                callback(completed, confirmed);
+            }
+
+            // remove data stored on the modal
+            $('#confirmModal').removeData(['callback', 'completed', 'confirmed']);
+        });
+
+        // #optionsModal - requestUserOptions()
+        $('#optionsModalOption0').on('click', function(){
+            const callback: Modals.UserOptionsCallback = $('#optionsModal').data('callback');
+            if (callback){
+                callback(0);
+            } else {
+                console.error("No 'callback' data attribute found on modal");
+            }
+
+            // remove data stored on the modal
+            $('#optionsModal').removeData('callback');
+        });
+        $('#optionsModalOption1').on('click', function(){
+            const callback: Modals.UserOptionsCallback = $('#optionsModal').data('callback');
+            if (callback){
+                callback(1);
+            } else {
+                console.error("No 'callback' data attribute found on modal");
+            }
+
+            // remove data stored on the modal
+            $('#optionsModal').removeData('callback');
+        });
+        $('#optionsModalOption2').on('click', function(){
+            const callback: Modals.UserOptionsCallback = $('#optionsModal').data('callback');
+            if (callback){
+                callback(2);
+            } else {
+                console.error("No 'callback' data attribute found on modal");
+            }
+
+            // remove data stored on the modal
+            $('#optionsModal').removeData('callback');
+        });
+        $('#optionsModal').on('shown.bs.modal', function(){
+            $('#optionsModalOption0').trigger("focus");
         });
 
         // #gitCommitModal - requestUserGitCommit()
         $('#gitCommitModalAffirmativeButton').on('click', function(){
             $('#gitCommitModal').data('completed', true);
+            $('#gitCommitModal').modal('hide');
         });
         $('#gitCommitModalNegativeButton').on('click', function(){
             $('#gitCommitModal').data('completed', false);
+            $('#gitCommitModal').modal('hide');
+        });
+        $('#gitCommitModalFileNameInput').on('input', function(){
+            Modals.validateCommitModalFileNameInputText();
         });
         $('#gitCommitModal').on('shown.bs.modal', function(){
             $('#gitCommitModalAffirmativeButton').trigger("focus");
         });
         $('#gitCommitModal').on('hidden.bs.modal', function(){
-            const callback : (completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void = $('#gitCommitModal').data('callback');
+            const callback : Modals.GitCommitCallback = $('#gitCommitModal').data('callback');
 
             if (!callback){
                 console.error("No 'callback' data attribute found on modal");
@@ -288,20 +355,20 @@ export class Modals {
                 // check if the modal was completed (user clicked OK), if not, return false
                 const completed : boolean = $('#gitCommitModal').data('completed');
                 if (!completed){
-                    callback(false, Repository.Service.Unknown, "", "", "", "", "");
+                    callback(false, FileLocation.Unknown, "");
                 } else {
                     // check selected option in select tag
-                    const repositoryService : Repository.Service = <Repository.Service>$('#gitCommitModalRepositoryServiceSelect').val();
+                    const repositoryService : Repository.Service = Utils.getUIValue('#gitCommitModalRepositoryServiceSelect', 'val', Repository.Service.Unknown);
                     const repositories : Repository[] = $('#gitCommitModal').data('repositories');
-                    const repositoryNameChoice : number = parseInt($('#gitCommitModalRepositoryNameSelect').val().toString(), 10);
+                    const repositoryNameChoice : number = parseInt(Utils.getUIValue('#gitCommitModalRepositoryNameSelect', 'val', "0"), 10);
 
                     // split repository text (with form: "name (branch)") into name and branch strings
                     const repositoryName : string = repositories[repositoryNameChoice].name;
                     const repositoryBranch : string = repositories[repositoryNameChoice].branch;
 
-                    const filePath : string = $('#gitCommitModalFilePathInput').val().toString();
-                    let fileName : string = $('#gitCommitModalFileNameInput').val().toString();
-                    const commitMessage : string = $('#gitCommitModalCommitMessageInput').val().toString();
+                    const filePath : string = Utils.getUIValue('#gitCommitModalFilePathInput', 'val', "");
+                    let fileName : string = Utils.getUIValue('#gitCommitModalFileNameInput', 'val', "");
+                    const commitMessage : string = Utils.getUIValue('#gitCommitModalCommitMessageInput', 'val', "");
 
                     // ensure that the graph filename ends with ".graph" or ".palette" as appropriate
                     const fileType : Eagle.FileType = $('#gitCommitModal').data('fileType');
@@ -310,21 +377,29 @@ export class Modals {
                         fileName += fileType === Eagle.FileType.Graph ? '.graph' : '.palette';
                     }
 
-                    callback(true, repositoryService, repositoryName, repositoryBranch, filePath, fileName, commitMessage);
+                    // build a FileLocation object to return
+                    const location = new FileLocation();
+                    location.repositoryService(repositoryService);
+                    location.repositoryName(repositoryName);
+                    location.repositoryBranch(repositoryBranch);
+                    location.repositoryPath(filePath);
+                    location.repositoryFileName(fileName);
+
+                    callback(true, location, commitMessage);
                 }
             }
 
             $('#gitCommitModal').removeData(['callback', 'completed', 'fileType', 'repositories']);
         });
         $('#gitCommitModalRepositoryServiceSelect').on('change', function(){
-            const repositoryService : Repository.Service = <Repository.Service>$('#gitCommitModalRepositoryServiceSelect').val();
+            const repositoryService : Repository.Service = Utils.getUIValue('#gitCommitModalRepositoryServiceSelect', 'val', Repository.Service.Unknown);
             const repositories: Repository[] = Repositories.getList(repositoryService);
             $('#gitCommitModal').data('repositories', repositories);
             Utils.updateGitCommitRepositoriesList(repositories, null);
         });
 
         // #gitCustomRepositoryModal - requestUserAddCustomRepository()
-        $('#gitCustomRepositoryModalRepositoryNameInput, #gitCustomRepositoryModalRepositoryBranchInput').on('keyup', function(){
+        $('#gitCustomRepositoryModalRepositorySlugInput, #gitCustomRepositoryModalRepositoryBranchInput').on('keyup', function(){
             // show/hide OK button
             $('#gitCustomRepositoryModalAffirmativeButton').prop('disabled', !Utils.validateCustomRepository());
         });
@@ -336,14 +411,14 @@ export class Modals {
             $('#gitCustomRepositoryModal').data('completed', false);
         });
         $('#gitCustomRepositoryModal').on('shown.bs.modal', function(){
-            $('#gitCustomRepositoryModalRepositoryNameInput').removeClass('is-invalid');
-            $('#gitCustomRepositoryModalRepositoryBranchInput').removeClass('is-invalid');
+            Modals.applyValidationState($('#gitCustomRepositoryModalRepositorySlugInput'), null);
+            Modals.applyValidationState($('#gitCustomRepositoryModalRepositoryBranchInput'), null);
 
             $('#gitCustomRepositoryModalAffirmativeButton').prop('disabled', true);
             $('#gitCustomRepositoryModalAffirmativeButton').trigger("focus");
         });
         $('#gitCustomRepositoryModal').on('hidden.bs.modal', function(){
-            const callback : (completed : boolean, repositoryService : string, repositoryName : string, repositoryBranch : string) => void = $('#gitCustomRepositoryModal').data('callback');
+            const callback : Modals.GitCustomRepositoryCallback = $('#gitCustomRepositoryModal').data('callback');
 
             if (!callback){
                 console.error("No 'callback' data attribute found on modal");
@@ -351,13 +426,13 @@ export class Modals {
                 // check if the modal was completed (user clicked OK), if not, return false
                 const completed : boolean = $('#gitCustomRepositoryModal').data('completed');
                 if (!completed){
-                    callback(false, "", "", "");
+                    callback(false, Repository.Service.Unknown, "", "");
                 } else {
 
                     // check selected option in select tag
-                    const repositoryService : string = $('#gitCustomRepositoryModalRepositoryServiceSelect').val().toString();
-                    const repositoryName : string = $('#gitCustomRepositoryModalRepositoryNameInput').val().toString();
-                    const repositoryBranch : string = $('#gitCustomRepositoryModalRepositoryBranchInput').val().toString();
+                    const repositoryService : Repository.Service = <Repository.Service>Utils.getUIValue('#gitCustomRepositoryModalRepositoryServiceSelect', 'val', Repository.Service.Unknown);
+                    const repositoryName : string = Utils.getUIValue('#gitCustomRepositoryModalRepositorySlugInput', 'val', "");
+                    const repositoryBranch : string = Utils.getUIValue('#gitCustomRepositoryModalRepositoryBranchInput', 'val', "");
 
                     callback(true, repositoryService, repositoryName, repositoryBranch);
                 }
@@ -408,7 +483,7 @@ export class Modals {
         });
 
         $('#editFieldModal').on('hidden.bs.modal', function(){
-            const callback : (completed : boolean, field: Field) => void = $('#editFieldModal').data('callback');
+            const callback: Modals.UserFieldCallback = $('#editFieldModal').data('callback');
             
             if (!callback){
                 console.error("No 'callback' data attribute found on modal");
@@ -416,70 +491,13 @@ export class Modals {
                 // check if the modal was completed (user clicked OK), if not, return false
                 const completed : boolean = $('#editFieldModal').data('completed');
                 if (!completed){
-                    callback(false, null);
+                    callback(null);
                 } else {
-                    callback(true, eagle.currentField());
+                    callback(eagle.currentField());
                 }
             }
 
             $('#editFieldModal').removeData(['callback', 'completed']);
-        });
-
-        // #editEdgeModal - requestUserEditEdge()
-        $('#editEdgeModalAffirmativeButton').on('click', function(){
-            $('#editEdgeModal').data('completed', true);
-        });
-        $('#editEdgeModalNegativeButton').on('click', function(){
-            $('#editEdgeModal').data('completed', false);
-        });
-        $('#editEdgeModal').on('shown.bs.modal', function(){
-            $('#editEdgeModalAffirmativeButton').trigger("focus");
-        });
-        $('#editEdgeModal').on('hidden.bs.modal', function(){
-            const callback : (completed : boolean, edge: Edge) => void = $('#editEdgeModal').data('callback');
-
-            if (!callback){
-                console.error("No 'callback' data attribute found on modal");
-            } else {
-                // check if the modal was completed (user clicked OK), if not, return false
-                const completed : boolean = $('#editEdgeModal').data('completed');
-                if (!completed){
-                    callback(false, null);
-                } else {
-                    // extract field data from HTML elements
-                    // TODO: validate ids
-                    const srcNodeId: NodeId = $('#editEdgeModalSrcNodeIdSelect').val().toString() as NodeId;
-                    const srcPortId: FieldId = $('#editEdgeModalSrcPortIdSelect').val().toString() as FieldId;
-                    const destNodeId: NodeId = $('#editEdgeModalDestNodeIdSelect').val().toString() as NodeId;
-                    const destPortId: FieldId = $('#editEdgeModalDestPortIdSelect').val().toString() as FieldId;
-                    const loopAware: boolean = $('#editEdgeModalLoopAwareCheckbox').prop('checked');
-                    const closesLoop: boolean = $('#editEdgeModalClosesLoopCheckbox').prop('checked');
-
-                    const newEdge = new Edge(srcNodeId, srcPortId, destNodeId, destPortId, loopAware, closesLoop, false);
-
-                    callback(true, newEdge);
-                }
-            }
-
-            $('#editEdgeModal').removeData(['callback', 'completed']);
-        });
-        $('#editEdgeModalSrcNodeIdSelect').on('change', function(){
-            const edge: Edge = $('#editEdgeModal').data('edge');
-            const logicalGraph: LogicalGraph = $('#editEdgeModal').data('logicalGraph');
-
-            const srcNodeId: NodeId = $('#editEdgeModalSrcNodeIdSelect').val().toString() as NodeId;
-            edge.setSrcNodeId(srcNodeId);
-
-            Utils.updateEditEdgeModal(edge, logicalGraph);
-        });
-        $('#editEdgeModalDestNodeIdSelect').on('change', function(){
-            const edge: Edge = $('#editEdgeModal').data('edge');
-            const logicalGraph: LogicalGraph = $('#editEdgeModal').data('logicalGraph');
-
-            const destNodeId: NodeId = $('#editEdgeModalDestNodeIdSelect').val().toString() as NodeId;
-            edge.setDestNodeId(destNodeId);
-
-            Utils.updateEditEdgeModal(edge, logicalGraph);
         });
 
         // #messageModal - showUserMessage()
@@ -487,36 +505,8 @@ export class Modals {
             $('#messageModal .modal-footer button').trigger("focus");
         });
 
-        $('#explorePalettesModal').on('shown.bs.modal', function(){
-            $('#explorePalettesModal .modal-footer button').trigger("focus");
-        });
-        $('#explorePalettesModalAffirmativeButton').on('click', function(){
-            $('#explorePalettesModal').data('completed', true);
-        });
-        $('#explorePalettesModal').on('hidden.bs.modal', function(){
-            const completed : boolean = $('#explorePalettesModal').data('completed');
-            $('#explorePalettesModal').removeData(['completed']);
-
-            // check if the modal was completed (user clicked OK), if not, return false
-            if (!completed){
-                return;
-            }
-
-            // check if currentProjectIndex is -1, if so, no individual files were selected, so we can do nothing
-            if (eagle.explorePalettes().currentProjectIndex() === -1){
-                return;
-            }
-
-            // otherwise, check the current project, and load all selected palettes
-            for (const ep of eagle.explorePalettes().getProject().palettes()){
-                if (ep.isSelected()){
-                    eagle.openRemoteFile(new RepositoryFile(new Repository(ep.repositoryService, ep.repositoryName, ep.repositoryBranch, false), ep.path, ep.name));
-                }
-            }
-        });
-
         $('.parameterTable').on('hidden.bs.modal', function(){
-            eagle.checkGraph();
+            eagle.checkEagle();
         });
 
         $('.eagleTableDisplay').on('shown.bs.modal', function(){
@@ -536,7 +526,7 @@ export class Modals {
             $('#browseDockerHubModalAffirmativeButton').trigger("focus");
         });
         $('#browseDockerHubModal').on('hidden.bs.modal', function(){
-            const callback : (completed : boolean) => void = $('#browseDockerHubModal').data('callback');
+            const callback: Modals.UserDockerHubCallback = $('#browseDockerHubModal').data('callback');
 
             if (!callback){
                 console.error("No 'callback' data attribute found on modal");
@@ -558,36 +548,52 @@ export class Modals {
         });
     }
 
+    static validateField(type: string, value: string) : Utils.ValidationResult {
+        // make sure JSON fields are parse-able
+        if (type === Daliuge.DataType.Json){
+            return Utils.jsonStringValidator("JSON")(value);
+        }
+
+        return { isValid: true };
+    }
+
     static validateFieldModalValueInputText(data: Field, event: Event): void {
         const type: string = data.getType()
-        const value: any = $(event.target).val();
+        const eventTarget = event.target;
+
+        if (eventTarget === null){
+            console.error("Event target is null in validateFieldModalValueInputText");
+            return;
+        }
+
+        const value: any = $(eventTarget).val();
         const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
 
         // only validate Json fields
         if (realType !== Daliuge.DataType.Json){
-            $(event.target).removeClass('is-valid');
-            $(event.target).removeClass('is-invalid');
+            Modals.applyValidationState($(eventTarget), null);
             return;
         }
 
-        const isValid = Utils.validateField(realType, value);
-
-        Modals._setValidClasses($(event.target), isValid);
+        const validationResult: Utils.ValidationResult = Modals.validateField(realType, value);
+        Modals.applyValidationState($(eventTarget), validationResult);
     }
 
     static validateCommitModalFileNameInputText(): void {
         const inputElement = $("#gitCommitModalFileNameInput");
+        const inputElementValue = Utils.getUIValue('#gitCommitModalFileNameInput', 'val', "");
+
         const fileTypeData = $('#gitCommitModal').data('fileType');
         const fileType: Eagle.FileType = fileTypeData ? fileTypeData : Eagle.FileType.Unknown;
-        
-        const isValid = (fileType === Eagle.FileType.Unknown) ||
-            (fileType === Eagle.FileType.Graph && inputElement.val().toString().endsWith(".graph")) ||
-            (fileType === Eagle.FileType.Palette && inputElement.val().toString().endsWith(".palette"));
 
-        Modals._setValidClasses(inputElement, isValid);
+        const validator = Utils.gitCommitFileNameStringValidator(fileType);
+        const validationResult = validator(inputElementValue);
+
+        Modals.applyValidationState(inputElement, validationResult);
+        $('#gitCommitModalAffirmativeButton').prop('disabled', !validationResult.isValid);
     }
 
-    static showBrowseDockerHub(image: string, tag: string, callback : (completed : boolean) => void ) : void {
+    static showBrowseDockerHub(image: string, tag: string, callback: Modals.UserDockerHubCallback ) : void {
         const dockerHubBrowser = Eagle.getInstance().dockerHubBrowser();
 
         // check if supplied values are usable, populate the UI,
@@ -611,13 +617,31 @@ export class Modals {
         $('#browseDockerHubModal').modal("toggle");
     }
 
-    static _setValidClasses(target: JQuery<EventTarget>, isValid: boolean){
-        if (isValid){
+    static applyValidationState(target: JQuery<EventTarget>, validationResult: Utils.ValidationResult | null): void {
+        const feedback = target.siblings('.invalid-feedback').first();
+
+        // Neutral state: remove validation classes and clear inline feedback text.
+        if (validationResult === null){
+            target.removeClass('is-valid');
+            target.removeClass('is-invalid');
+            if (feedback.length > 0){
+                feedback.text('');
+            }
+            return;
+        }
+
+        if (validationResult.isValid){
             target.addClass('is-valid');
             target.removeClass('is-invalid');
         } else {
             target.removeClass('is-valid');
             target.addClass('is-invalid');
+        }
+
+        if (typeof validationResult.message !== 'undefined'){
+            if (feedback.length > 0){
+                feedback.text(validationResult.message);
+            }
         }
     }
 
@@ -681,4 +705,20 @@ export class Modals {
         const html = Utils.markdown2html(value);
         $('#inputMarkdownModalDisplay').html(html);
     }
+}
+
+export namespace Modals {
+    export type UserStringCallback = (completed: boolean, userString: string) => void;
+    export type UserStringValidator = (userString: string) => Utils.ValidationResult;
+    export type UserTextCallback = (completed: boolean, userText: string) => void;
+    export type UserFieldCallback = (field: Field | null) => void; // NOTE: completed is not required, since all changes happen to the field directly (immediately)
+    export type UserConfirmCallback = (completed: boolean, confirmed: boolean) => void;
+    export type UserDockerHubCallback = (completed: boolean) => void;
+    export type UserOptionsCallback = (selectedOptionIndex: number) => void;
+    export type UserMarkdownCallback = (completed : boolean, userMarkdown : string) => void;
+    export type UserNumberCallback = (completed: boolean, userNumber: number) => void;
+    export type UserChoiceCallback = (completed: boolean, choice: string) => void;
+
+    export type GitCommitCallback = (completed: boolean, location: FileLocation, commitMessage: string) => void;
+    export type GitCustomRepositoryCallback = (completed: boolean, repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string) => void;
 }

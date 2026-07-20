@@ -138,11 +138,17 @@ Install EAGLE
 Start Server
 """"""""""""
 
+<<<<<<< HEAD
 Run the local server:
 
 .. code-block:: shell
 
     eagleServer -t /tmp
+=======
+Simply start it (in debug mode) using
+
+    $ eagleServer -t /tmp --debug
+>>>>>>> master
 
 Tools
 

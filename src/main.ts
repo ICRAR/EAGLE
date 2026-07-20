@@ -23,8 +23,8 @@
 */
 
 import * as ko from "knockout";
-import * as $ from "jquery";
-import "jqueryMigrate";
+import $ from "jquery";
+import "jquery-migrate";
 import "jqueryui";
 import * as bootstrap from 'bootstrap';
 
@@ -41,6 +41,7 @@ import { GitLab } from './GitLab';
 import { GraphConfig } from "./GraphConfig";
 import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 import { GraphRenderer } from "./GraphRenderer";
+import { GraphUpdater } from "./GraphUpdater";
 import { Hierarchy } from './Hierarchy';
 import { KeyboardShortcut } from './KeyboardShortcut';
 import { StatusEntry } from './StatusEntry';
@@ -71,6 +72,8 @@ let eagle : Eagle;
 $(function(){
     //Check if the user is a first time visitor to the site
     const firstTimeVisit = localStorage.getItem('activeUiMode') === null;
+    const lastSeenVersion = localStorage.getItem('lastSeenVersion') || "0.0.0";
+    const showWhatsNew = Utils.compareVersions((<any>window).version, lastSeenVersion) > 0;
 
     // Global variables.
     eagle = new Eagle();
@@ -88,6 +91,7 @@ $(function(){
     (<any>window).FileInfo = FileInfo;
     (<any>window).GraphConfig = GraphConfig;
     (<any>window).GraphConfigurationsTable = GraphConfigurationsTable;
+    (<any>window).GraphUpdater = GraphUpdater;
     (<any>window).Hierarchy = Hierarchy;
     (<any>window).ParameterTable = ParameterTable;
     (<any>window).Repositories = Repositories;
@@ -131,16 +135,14 @@ $(function(){
         }
 
         // hide the ?mode=x part of the url
-        window.history.replaceState(null, null, window.location.origin + window.location.pathname);
+        window.history.replaceState(null, "", window.location.origin + window.location.pathname);
     }
 
     // load the default palette
     eagle.loadDefaultPalettes();
 
     // set other state based on settings values
-    if (Setting.findValue(Setting.SNAP_TO_GRID)){
-        eagle.snapToGrid(Setting.findValue(Setting.SNAP_TO_GRID));
-    }
+    eagle.snapToGrid(Setting.findValue<boolean>(Setting.SNAP_TO_GRID, false));
 
     // load schemas
     Utils.loadSchemas();
@@ -152,7 +154,7 @@ $(function(){
     Modals.init(eagle);
 
     // add a listener for the beforeunload event, helps warn users before leaving webpage with unsaved changes
-    window.onbeforeunload = () => (eagle.areAnyFilesModified() && Setting.findValue(Setting.CONFIRM_DISCARD_CHANGES)) ? "Check graph" : null;
+    window.onbeforeunload = () => (eagle.areAnyFilesModified() && Setting.findValue<boolean>(Setting.CONFIRM_DISCARD_CHANGES, true)) ? "Check graph" : null;
 
     // keyboard shortcut event listener
     document.onkeydown = KeyboardShortcut.processKey;
@@ -160,12 +162,28 @@ $(function(){
 
     loadRepos();
 
-    // auto load a tutorial, if specified on the url
-    autoTutorial();
+    // we use tutorial=none in the url for unit tests, because pop ups can cause test failures
+    const urlParams = new URLSearchParams(window.location.search);
+    const tutorialParam = urlParams.get('tutorial');
+    const skipTutorial = tutorialParam === 'none';
+    const tutorialRequested = tutorialParam !== null && tutorialParam !== 'none';
 
-    //request a first time visitor welcome to eagle if applicable
-    initiateWelcome(firstTimeVisit);
+    if (!skipTutorial) {
+        // auto load a tutorial, if specified on the url
+        autoTutorial();
+
+        //request a first time visitor welcome to eagle if applicable
+        initiateWelcome(firstTimeVisit);
+    }
   
+    // if not first time visit, but version is newer than last seen version, show the versions modal
+    // skip if a tutorial was explicitly requested via the url, so it doesn't appear over the tutorial
+    if (!firstTimeVisit && showWhatsNew && !skipTutorial && !tutorialRequested){
+        eagle.showWhatsNew();
+        // set the last seen version
+        localStorage.setItem('lastSeenVersion', (<any>window).version);
+    }
+
     $('.modal').on('hidden.bs.modal', function () {
         $('.modal-dialog').css({"left":"0px", "top":"0px"})
         $("#editFieldModal textarea").attr('style','')
@@ -174,14 +192,6 @@ $(function(){
         //reset parameter table selection
         ParameterTable.resetSelection()
     });
-
-    $('.modal').on('shown.bs.modal',function(){
-        // modal draggables
-        //the any type is required so we don't have an error when building. at runtime on eagle this actually functions without it.
-        (<any>$('.modal-dialog')).draggable({
-            handle: ".modal-header"
-        });
-    })
 
     //increased click bubble for edit modal flag booleans
     $(".componentCheckbox").on("click",function(event: JQuery.TriggeredEvent){
@@ -219,12 +229,14 @@ $(function(){
         }
     })
 
+    // TODO: move to Hierarchy.ts?
     $(document).on('click', '.hierarchyEdgeExtra', function(event: JQuery.TriggeredEvent){
         const eagle: Eagle = Eagle.getInstance();
-        const selectEdge = eagle.logicalGraph().findEdgeById(($(event.target).attr("id") as EdgeId))
+        const edgeId: EdgeId = $(event.target).attr("id") as EdgeId;
+        const selectEdge = eagle.logicalGraph().getEdgeById(edgeId);
 
-        if(!selectEdge){
-            console.log("no edge found")
+        if(typeof selectEdge === 'undefined'){
+            console.log("no edge found with id:", edgeId);
             return
         }
         if(!event.shiftKey){
@@ -303,8 +315,8 @@ async function autoLoad() {
     const serviceIsGit: boolean = [Repository.Service.GitHub, Repository.Service.GitLab].includes(realService);
 
     // skip empty strings
-    if (serviceIsGit && (repository === "" || branch === "" || filename === "")){
-        console.log("No auto load. Repository, branch or filename not specified");
+    if (serviceIsGit && (repository === "" || branch === "")){
+        console.log("No auto load. Repository or branch not specified");
         return;
     }
 
@@ -314,21 +326,36 @@ async function autoLoad() {
         return;
     }
 
-    // load
+    // decide what to do based on the url
     if (realService === Repository.Service.Url){
         Repositories.selectFile(new RepositoryFile(new Repository(realService, "", "", false), "", url));
     } else {
-        Repositories.selectFile(new RepositoryFile(new Repository(realService, repository, branch, false), path, filename));
+        if (filename === ""){
+            // check if repository already exists
+            const existingRepo = Repositories.get(realService, repository, branch);
+            if (existingRepo !== null) {
+                Utils.showNotification("Add Repository", "Repository already exists!", "info");
+                return;
+            }
+
+            // add repository to repository list
+            await Repositories._addCustomRepository(realService, repository, branch);
+            Utils.showNotification("Add Repository", "Repository added successfully!", "success");
+        } else {
+            // load file
+            console.log("Auto load file:", service, repository, branch, path, filename);
+            Repositories.selectFile(new RepositoryFile(new Repository(realService, repository, branch, false), path, filename));
+        }
     }
 
     // if developer setting enabled, fetch the repository that this graph belongs to (if the repository is in the list of known repositories)
-    if (serviceIsGit && Setting.findValue(Setting.FETCH_REPOSITORY_FOR_URLS)){
-        let repo: Repository = Repositories.get(service, repository, branch);
+    if (serviceIsGit && Setting.findValue<boolean>(Setting.FETCH_REPOSITORY_FOR_URLS, false)){
+        let repo: Repository | null = Repositories.get(service, repository, branch);
 
         // check whether the source repository is already known to EAGLE
         if (repo === null){
             // if not found, add the repository
-            await eagle.repositories()._addCustomRepository(service, repository, branch);
+            await Repositories._addCustomRepository(service, repository, branch);
 
             // then look for it again
             repo = Repositories.get(service, repository, branch);
@@ -360,12 +387,7 @@ function autoTutorial(): void {
 
 function initiateWelcome(firstTimeVisit:boolean): void {
     if(firstTimeVisit){
-        const urlParams = new URLSearchParams(window.location.search);
-        const tutorialName = urlParams.get('tutorial');
-
-        if(tutorialName != 'none'){
-            TutorialSystem.initiateTutorial('Quick Start');
-        }
+        TutorialSystem.initiateTutorial('Quick Start');
     }
 }
 
@@ -384,6 +406,8 @@ declare global {
     type NodeId = Branded<string, "NodeId">
     type FieldId = Branded<string, "FieldId">
     type EdgeId = Branded<string, "EdgeId">
+    type VisualId = Branded<string, "VisualId">
     type RepositoryId = Branded<string, "RepositoryId">
     type RepositoryFileId = Branded<string, "RepositoryFileId">
+    type GraphConfigId = Branded<string, "GraphConfigId">
 }

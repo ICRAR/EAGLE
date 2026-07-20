@@ -1,3 +1,4 @@
+import { EagleConfig } from './EagleConfig';
 import { ParameterTable } from './ParameterTable';
 import { Setting } from './Setting';
 import * as ko from "knockout";
@@ -29,21 +30,17 @@ export class UiModeSystem {
     }
 
     static getFullUiModeNamesList() : string[] {
-        const uiModeNamesList : string[]= []
-        UiModeSystem.getUiModes().forEach(function(uiMode){
-            uiModeNamesList.push(uiMode.getName())
-        })
-        return uiModeNamesList
+        return UiModeSystem.getUiModes().map(x => x.getName());
     }
 
-    static getUiModeByName(name:string) : UiMode {
-        let result = null
-        UiModeSystem.getUiModes().forEach(function(uiMode){
+    static getUiModeByName(name:string) : UiMode | undefined {
+        for (const uiMode of UiModeSystem.getUiModes()){
             if(name === uiMode.getName()){
-                result = uiMode
+                return uiMode
             }
-        })
-        return result
+        }
+
+        return undefined;
     }
 
     static setActiveUiMode(newActiveUiMode:UiMode) : void {
@@ -125,22 +122,27 @@ export class UiModeSystem {
                 localStorage.setItem('UiModes', JSON.stringify(uiModesObj));
                 localStorage.setItem('activeUiMode', UiModeSystem.getActiveUiMode().getName());
                 UiModeSystem.localStorageUpdateCoolDown = false;
-            }, 1000)
+            }, EagleConfig.STANDARD_UI_LONG_TIMEOUT);
         }else{
             return
         }
     }
 
     static loadFromLocalStorage() : void {
-        const uiModesObj : any[] = JSON.parse(localStorage.getItem('UiModes'))
+        const uiModesString = localStorage.getItem('UiModes')
+        if(uiModesString === null){
+            return
+        }
+
+        const uiModesObj : any[] = JSON.parse(uiModesString);
 
         if(uiModesObj === null){
             return
         }
 
         uiModesObj.forEach(function(uiModeObj){
-            let destUiMode : UiMode = UiModeSystem.getUiModeByName(uiModeObj.name)
-            if(destUiMode===null){
+            let destUiMode = UiModeSystem.getUiModeByName(uiModeObj.name)
+            if(typeof destUiMode === "undefined"){
                 const settings : SettingData[] = []
                 
                 Setting.getSettings().forEach(function(settingsGroup){
@@ -154,19 +156,18 @@ export class UiModeSystem {
             uiModeObj.settingValues.forEach(function(settingObj:any){
                 destUiMode.setSettingByKey(settingObj.key,settingObj.value)
             } )
-
         })
     }
 
-    static setActiveSetting(settingName:string,newValue:any) : void {
-        let activeSetting: SettingData = null
+    static setActiveSetting(settingName:string, newValue:any) : void {
+        let activeSetting: SettingData | null = null
 
         //if a setting is marked perpetual we will write the value to all ui modes, this means it stays the same regardless of which ui mode is active
-        UiModeSystem.getActiveUiMode().getSettings().forEach(function(setting){
-            if(setting.getKey() === settingName){
+        for (const setting of UiModeSystem.getActiveUiMode().getSettings()){
+            if (setting.getKey() === settingName){
                 activeSetting = setting
             }
-        })
+        }
         
         if(activeSetting === null){
             console.warn('Requested setting key to change: "'+ settingName+'" can not be found')

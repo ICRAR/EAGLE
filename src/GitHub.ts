@@ -27,7 +27,6 @@ import { Repositories } from './Repositories';
 import { Repository } from './Repository';
 import { RepositoryFile } from './RepositoryFile';
 import { RepositoryFolder } from './RepositoryFolder';
-import { Setting } from './Setting';
 import { Utils } from './Utils';
 
 export class GitHub {
@@ -41,7 +40,7 @@ export class GitHub {
 
             let data;
             try {
-                data = await Utils.httpGetJSON("/getGitHubRepositoryList", null) as {repository: string, branch: string}[];
+                data = await Utils.httpGetJSON("/getGitHubRepositoryList", {}) as {repository: string, branch: string}[];
             } catch (error){
                 console.error(error);
                 reject(error);
@@ -63,7 +62,7 @@ export class GitHub {
     static async loadStudentRepoList(){
         let data;
         try {
-            data = await Utils.httpGetJSON("/getStudentRepositoryList", null) as {repository: string, branch: string}[];
+            data = await Utils.httpGetJSON("/getStudentRepositoryList", {}) as {repository: string, branch: string}[];
         } catch (error){
             console.error(error);
             return;
@@ -90,16 +89,15 @@ export class GitHub {
      */
     static async loadRepoContent(repository : Repository, path: string): Promise<void> {
         return new Promise(async(resolve, reject) => {
-            const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
-
-            if (token === null || token === "") {
-                Utils.showUserMessage("Access Token", "The GitHub access token is not set! To access GitHub repository, set the token via settings.");
-                reject("The GitHub access token is not set! To access GitHub repository, set the token via settings.");
-                return;
-            }
+            const token = Utils.getServiceToken(Repository.Service.GitHub);
 
             // get location
-            const location: Repository | RepositoryFolder = repository.findPath(path);
+            const location: Repository | RepositoryFolder | null = repository.findPath(path);
+
+            if (location === null) {
+                reject(new Error("Location not found for path: " + path));
+                return;
+            }
 
             // flag the location as being fetched
             location.isFetching(true);
@@ -143,7 +141,7 @@ export class GitHub {
             location.files.removeAll();
             location.folders.removeAll();
 
-            const fileNames : string[] = data[""];
+            const fileNames : string[] = data.files[""];
 
             // sort the fileNames
             fileNames.sort(Repository.fileSortFunc);
@@ -157,7 +155,7 @@ export class GitHub {
             }
 
             // add folders to repo
-            for (const path in data){
+            for (const path in data.files){
                 // skip the root directory
                 if (path === ""){
                     continue;
@@ -206,13 +204,7 @@ export class GitHub {
      */
     static async openRemoteFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string): Promise<string> {
         return new Promise(async(resolve, reject) => {
-            const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
-
-            if (token === null || token === "") {
-                reject("The GitHub access token is not set! To open GitHub repositories, set the token via settings.");
-                return;
-            }
-
+            const token = Utils.getServiceToken(Repository.Service.GitHub);
             const fullFileName : string = Utils.joinPath(filePath, fileName);
 
             // Add parameters in json data.
@@ -231,13 +223,23 @@ export class GitHub {
                 reject(error);
                 return;
             }
-            resolve(data);
+
+            // warn if credentials were ignored (bad token, fell back to anonymous access)
+            if (data.credentialsIgnored){
+                Utils.showNotification(
+                    "GitHub Access Token",
+                    "The GitHub access token is invalid and was ignored while loading " + repositoryName + " / " + repositoryBranch + " / " + fullFileName + ". The file was loaded from a public repository.",
+                    "warning"
+                );
+            }
+
+            resolve(data.data);
         });
     }
 
     static async deleteRemoteFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string){
         return new Promise(async(resolve, reject) => {
-            const token = Setting.findValue(Setting.GITHUB_ACCESS_TOKEN_KEY);
+            const token = Utils.getServiceToken(Repository.Service.GitHub);
 
             if (token === null || token === "") {
                 Utils.showUserMessage("Access Token", "The GitHub access token is not set! To open GitHub repositories, set the token via settings.");

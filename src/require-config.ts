@@ -1,3 +1,4 @@
+//@ts-nocheck
 declare const require: any;
 require.config({
     /* waitSeconds: 30, */
@@ -5,12 +6,14 @@ require.config({
         "text": "./static/externals/text",
         "knockout": "./static/externals/knockout-min",
         "jquery": "./static/externals/jquery-3.6.0.min",
-        "jqueryMigrate": "/static/externals/jquery-migrate-3.0.0.min",
+        "jquery-migrate": "/static/externals/jquery-migrate-3.0.0.min",
         "jqueryui": "./static/externals/jquery-ui.min",
         "bootstrap": "./static/externals/bootstrap.bundle.min",
         "bootstrap-notify": "./static/externals/bootstrap-notify.min",
         "ajv": "./static/externals/ajv.min",
-        "showdown": "./static/externals/showdown.min",
+        "marked": "./static/externals/marked.min",
+        "marked-highlight": "./static/externals/marked-highlight.min",
+        "highlightjs": "./static/externals/highlight.min",
         "bindingHandlers/readonly":"./static/built/bindingHandlers/readonly",
         "bindingHandlers/disabled":"./static/built/bindingHandlers/disabled",
         "bindingHandlers/eagleTooltip":"./static/built/bindingHandlers/eagleTooltip",
@@ -23,6 +26,7 @@ require.config({
         "Eagle": "./static/built/Eagle",
         "EagleConfig": "./static/built/EagleConfig",
         "EagleStorage": "./static/built/EagleStorage",
+        "Id": "./static/built/Id",
         "Utils": "./static/built/Utils",
         "Modals": "./static/built/Modals",
         "GraphUpdater": "./static/built/GraphUpdater",
@@ -36,6 +40,7 @@ require.config({
         "Node": "./static/built/Node",
         "Field": "./static/built/Field",
         "Edge": "./static/built/Edge",
+        "Visual": "./static/built/Visual",
         "FileInfo": "./static/built/FileInfo",
         "Setting": "./static/built/Setting",
         "UiModes": "./static/built/UiModes",
@@ -47,8 +52,6 @@ require.config({
         "KeyboardShortcut": "./static/built/KeyboardShortcut",
         "StatusEntry": "./static/built/StatusEntry",
         "QuickActions": "./static/built/QuickActions",
-        "PaletteInfo": "./static/built/PaletteInfo",
-        "ExplorePalettes": "./static/built/ExplorePalettes",
         "DockerHubBrowser": "./static/built/DockerHubBrowser",
         "Undo": "./static/built/Undo",
         "Errors": "./static/built/Errors",
@@ -57,15 +60,25 @@ require.config({
         "Category": "./static/built/Category",
         "CategoryData": "./static/built/CategoryData",
         "Hierarchy": "./static/built/Hierarchy",
+        "Versions": "./static/built/Versions",
         "RightClick": "./static/built/RightClick",
         "Repositories": "./static/built/Repositories",
         "ParameterTable": "./static/built/ParameterTable",
-        "GraphConfigurationsTable": "./static/built/GraphConfigurationsTable"
+        "GraphConfigurationsTable": "./static/built/GraphConfigurationsTable",
+        "FileLocation": "./static/built/FileLocation"
     },
     shim: {
         "bootstrap": {
             deps: ["jquery"],
             exports: "bootstrap"
+        },
+        "highlightjs": {
+            exports: "hljs"
+        }
+    },
+    map: {
+        "*": {
+            "highlight.js": "highlightjs"
         }
     },
     packages: [{

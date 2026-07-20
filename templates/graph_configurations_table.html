@@ -5,32 +5,32 @@
             Graph Configurations Table
         </h5>
         <div class="searchBarContainer" data-bind="clickBubble:false, click:function(){}">
-            <i class="material-icons md-18 searchBarIcon">search</i>
+            <i class="material-symbols-outlined md-18 searchBarIcon">search</i>
             <a href="#" data-bind="click:function(data, event){$root.emptySearchBar(Eagle.tableSearchString,data,event)}">
-                <i class="material-icons md-18 searchBarIconClose">close</i>
+                <i class="material-symbols-outlined md-18 searchBarIconClose">close</i>
             </a>
             <input class="componentSearchBar" type="text" placeholder="Search: eg. app, string" data-bind="valueUpdate: ['afterkeydown', 'input'], value:Eagle.tableSearchString, event:{keyup: function(data,event){$root.setSearchBarClearBtnState(data,event)}},eagleTooltip:`Search for names, types, anything really! You may enter several terms that should match separated by a ','`">
         </div>
 
         <div class="header-center">
-            <button type="button" class="btn btn-primary iconHoverEffect" id="graphConfigurationsTableAddConfigButton" data-bind="click: newConfig, clickBubble:false" ><span id="graphConfigurationsTableAddConfig">Add Config</span></button>
+            <button type="button" class="btn btn-primary iconHoverEffect" id="graphConfigurationsTableAddConfigButton" data-bind="click: newConfig, clickBubble:false"><span id="graphConfigurationsTableAddConfig" data-bind="text: KeyboardShortcut.idToText('new_config')"></span></button>
         </div> 
 
     </div>
     <div class="tableBody">
-        <!-- ko if: logicalGraph().graphConfigs().length === 0 -->
+        <!-- ko if: logicalGraph().getNumGraphConfigs() === 0 -->
             <div class="container h-100">
                 <div class="row align-items-center h-100">
                     <div class="col-md-12 text-center">
                         <span class="fs-3">No graph configurations</span>
                         <br/>
                         <br/>
-                        <button class="btn btn-primary btn-block tableAddNewConfigBtn" data-bind="click: newConfig">Add New Config</button>
+                        <button class="btn btn-primary tableAddNewConfigBtn" data-bind="click: newConfig">Add New Config</button>
                     </div>
                 </div>
             </div>
         <!-- /ko -->
-        <!-- ko if: logicalGraph().graphConfigs().length !== 0 -->
+        <!-- ko if: logicalGraph().getNumGraphConfigs() !== 0 -->
             <table class="eagleTableWrapper" id="graphConfigurationsTableWrapper">
                 <thead>
                     <tr>
@@ -43,35 +43,50 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- ko foreach: logicalGraph().graphConfigs() -->
-                        <tr data-bind="attr: {'id' : 'tableRow_'+$data.getName()}, css: {activeConfig: $data.id() === $root.logicalGraph().activeGraphConfigId()}">
+                    <!-- ko foreach: Array.from(logicalGraph().graphConfigs().values()) -->
+                        <tr data-bind="attr: {'id' : 'tableRow_'+$data.fileInfo().name}, css: {activeConfig: $data.id() === $root.logicalGraph().activeGraphConfigId()}">
+<!-- drag handle -->
                             <td class='columnCell column-sort'>
                                 <!-- kept for now as we will need the space for the row drag handle -->
                             </td>
+<!-- config name -->
                             <td class='columnCell column-name'>
-                                <input class="tableParameter" type="string" data-bind="value: $data.name, eagleTooltip: $data.getName()">
+                                <input class="tableParameter" type="string" data-bind="value: $data.fileInfo().name, eagleTooltip: $data.fileInfo().name">
                             </td>
+<!-- config description -->
                             <td class='columnCell column-description'>
-                                <textarea  style="resize: none;" class="tableParameter" type="string" data-bind="value: $data.description, eagleTooltip: $data.getDescription()"></textarea>
+                                <textarea style="resize: none;" class="tableParameter" type="string" data-bind="value: $data.fileInfo().shortDescription, eagleTooltip: $data.fileInfo().detailedDescription"></textarea>
                             </td>
+<!-- number of fields -->
                             <td class='columnCell column-fields'>
-                                <input class="tableParameter" type="string" data-bind="value: $data.numFields(), eagleTooltip: 'number of fields added to the graph configuration'">
+                                <input class="tableParameter" readonly type="string" data-bind="value: $data.numFields(), eagleTooltip: 'number of fields added to the graph configuration'">
                             </td>
+<!-- active config -->
                             <td class='columnCell column-active'>
-                                <button class="iconHoverEffect" type="button" data-bind="click: function(){$root.logicalGraph().setActiveGraphConfig($data.getId());}">
-                                    <i class="material-icons md-18" data-bind="visible: $data.id() === $root.logicalGraph().activeGraphConfigId()">radio_button_checked</i>
-                                    <i class="material-icons md-18" data-bind="hidden:  $data.id() === $root.logicalGraph().activeGraphConfigId()">radio_button_unchecked</i>
+                                <button class="iconHoverEffect" type="button" data-bind="click: function(){$root.logicalGraph().toggleActiveGraphConfig($data.getId());}">
+                                    <i class="material-symbols-outlined md-18" data-bind="visible: $data.id() === $root.logicalGraph().activeGraphConfigId()">radio_button_checked</i>
+                                    <i class="material-symbols-outlined md-18" data-bind="hidden:  $data.id() === $root.logicalGraph().activeGraphConfigId()">radio_button_unchecked</i>
                                 </button>
                             </td>
+<!-- actions -->
                             <td class='columnCell column-actions'>
-                                <button class="btmWindowDuplicateBtn iconHoverEffect" data-bind="click: $root.logicalGraph().duplicateGraphConfig, eagleTooltip:'Duplicate'">
-                                    <i class="material-icons">content_copy</i>
-                                </button>
                                 <button class="iconHoverEffect" data-bind="click: ParameterTable.requestEditConfig, eagleTooltip:'Edit', clickBubble:false">
-                                    <i class="material-icons">edit</i>
+                                    <i class="material-symbols-outlined">edit</i>
+                                </button>
+                                <button class="iconHoverEffect" data-bind="click: function(){Utils.showModelDataModal('Graph Configuration Info', $data.fileInfo())}, eagleTooltip:'Show Graph Configuration Info', clickBubble:false">
+                                    <i class="material-symbols-outlined">info</i>
+                                </button>
+                                <button class="iconHoverEffect" data-bind="click: function(){$root.displayObjectAsJson(Eagle.FileType.GraphConfig, $data)}, eagleTooltip:'Display Config as JSON', clickBubble:false">
+                                    <i class="material-symbols-outlined">data_object</i>
+                                </button>
+                                <button class="btmWindowDuplicateBtn iconHoverEffect" data-bind="click: $root.duplicateGraphConfig, eagleTooltip:'Duplicate'">
+                                    <i class="material-symbols-outlined">content_copy</i>
+                                </button>
+                                <button class="iconHoverEffect" data-bind="click: $root.saveGraphConfigAs, eagleTooltip:'Save Config As', clickBubble:false">
+                                    <i class="material-symbols-outlined">save</i>
                                 </button>
                                 <button class="iconHoverEffect" data-bind="click: $root.logicalGraph().removeGraphConfig, eagleTooltip:'Remove Config from Graph', clickBubble:false">
-                                    <i class="material-icons">delete</i>
+                                    <i class="material-symbols-outlined">delete</i>
                                 </button>
                             </td>
                         </tr>

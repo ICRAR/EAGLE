@@ -14,6 +14,10 @@ body {
     font-weight:400;
 }
 
+p {
+    display: inline-block;
+}
+
 #graphArea {
     position: fixed;
     top: 82px;
@@ -81,7 +85,7 @@ body {
     top: 10px;
 }
 
-#checkGraphWarnings span{
+#checkEagleWarnings span{
     top: -3px;
 }
 
@@ -96,6 +100,12 @@ body {
     left: 50%;
     top: 25rem;
     transform: translateX(-50%);
+}
+
+@media only screen and (max-width: 1920px) {
+    #quickActionContainer{
+        top: 8rem;
+    }
 }
 
 #quickActionInput{
@@ -172,11 +182,37 @@ body {
     color: white;
 }
 
+#navBarToolBar .navbarGroup button:last-child{
+    margin-right: 2px;
+}
+
+#navBarToolBar .navbarGroup button:first-child{
+    margin-left: 2px;
+}
+
+#navBarToolBar .navbarGroup .iconDropdown .dropdown-toggle{
+    padding: 0px 10px;
+}
+
+#navBarToolBar .navbarGroup .iconDropdown .dropdown-toggle::after{
+    content:none;
+}
+
+#navBarToolBar .navbarGroup .iconDropdown .dropdown-menu{
+    min-width: auto;
+}
+
+#navBarToolBar .navbarGroup .iconDropdown .dropdown-menu button{
+    width:fit-content;
+    display: inline-block;
+    margin-top: unset;
+}
+
 #navBarToolBar .navbarGroup i{
     font-size: 20px;
 }
 
-#checkGraphDone i{
+#checkEagleDone i{
 color: #00bb00;}
 
 #navBarToolBar .navbarGroup button:first-of-type{
@@ -293,17 +329,7 @@ color: #00bb00;}
     width: calc(100% - 40px);
     height: 100%;
     margin-left: 40px;
-}
-
-#explorePalettesModal #explorePalettesPathContainer{
-    display: block;
-    width: 100%;
-    height: 25px;
-    padding: 0px 15px;
-    margin-top: 50px;
-    background-color: #002349;
-    z-index: 10;
-    color: white;
+    background-color: #f0f8ff;
 }
 
 #inspector{
@@ -344,6 +370,10 @@ color: #00bb00;}
 #objectInspectorHeaderIconRow{
     padding-top: 3px;
     background: rgba(255, 255, 255, 0.171);
+}
+
+#objectInspectorCategorySelect{
+    width: 100%;
 }
 
 #inspector .container{
@@ -506,35 +536,6 @@ color: #00bb00;}
     border:none;
 }
 
-#explorePalettesModal #explorePalettesPathContainer{
-    display: block;
-    width: 100%;
-    height: 25px;
-    padding: 0px 15px;
-    margin-top: 50px;
-    background-color: #002349;
-    z-index: 10;
-    color: white;
-}
-
-#explorePalettesModal .clickableFilePath{
-    cursor: pointer;
-    text-decoration: underline;
-}
-
-#explorePalettesModal .list-group{
-    border: 2px solid #e4ebf2;
-}
-
-#explorePalettesModal .list-group-item:hover{
-    color: black;
-    background-color: #f1f1f1;
-}
-
-#explorePalettesModal input{
-    pointer-events: none;
-}
-
 .openParamsTableBtn{
     width: fit-content;
     height: fit-content;
@@ -543,10 +544,6 @@ color: #00bb00;}
     padding: 3px 4px;
     right: 1rem;
     top: 2px;
-}
-
-#explorePalettesModal li.list-group-item:hover{
-    background-color: #b6c3cf;
 }
 
 #editFieldModalTypeSelect{
@@ -563,10 +560,6 @@ color: #00bb00;}
 #editFieldModalTypeSelect .dropdown-item:hover{
     background: #002e5f;
     color: white;
-}
-
-#explorePalettesModal li.list-group-item span{
-    pointer-events: none;
 }
 
 #editFieldModal .defaultSelectCustom{
@@ -628,6 +621,7 @@ color: #00bb00;}
     top:0px;
     left:0px;
     pointer-events: none;
+    visibility: visible;
 }
 
 #eagleIconAnimation svg{
@@ -820,12 +814,12 @@ color: #00bb00;}
     overflow:unset;
 }
 
-.rightWindow ::-webkit-scrollbar-thumb, .parameterTable ::-webkit-scrollbar-thumb, #issuesDisplay ::-webkit-scrollbar-thumb{
+.rightWindow ::-webkit-scrollbar-thumb, .parameterTable ::-webkit-scrollbar-thumb, #issuesDisplay ::-webkit-scrollbar-thumb, .modal ::-webkit-scrollbar-thumb{
     background: #002349;
     border-radius: 5px;
 }
 
-.rightWindow ::-webkit-scrollbar-track, .parameterTable ::-webkit-scrollbar-track{
+.rightWindow ::-webkit-scrollbar-track, .parameterTable ::-webkit-scrollbar-track, #issuesDisplay ::-webkit-scrollbar-track, .modal ::-webkit-scrollbar-track{
     background: rgb(216 221 240);
     border-radius: 5px;
 }
@@ -1017,14 +1011,6 @@ select.form-control{
     appearance: revert;
 }
 
-#editEdgeModalLoopAwareCheckbox, #editEdgeModalClosesLoopCheckbox{
-    flex: none;
-    padding: 19px;
-    margin-left: 50%;
-    transform: translateX(-50%);
-    margin-top:0px;
-}
-
 .modal-body{
     background-color: aliceblue;
     overflow-y: auto;
@@ -1046,6 +1032,10 @@ select.form-control{
 
 #settingsModal .settingSm{
     display: inline-block;
+}
+
+.modal .modal-body pre{
+    overflow:unset;
 }
 
 #settingsCategoriesAccordion .accordion-button {
@@ -1153,11 +1143,6 @@ select.form-control{
     padding:0px;
 }
 
-#explorePalettesModal .modal-body{
-    height: calc(100% - 126px) !important ;
-    top: 75px;
-}
-
 .modal-footer{
     position: absolute;
     bottom: 0px;
@@ -1193,8 +1178,39 @@ select.form-control{
 }
 
 #aboutModal .modal-content{
-    width: 60vw;
+    width: 30vw;
+    height: 45vh;
+}
+
+#whatsNewModal .modal-content{
+    width: 40vw;
     height: 60vh;
+}
+
+#whatsNewModal .modal-content h4{
+    color: #ffb709;
+}
+
+#whatsNewModal .modal-content .versionHistory{
+    display: none;
+    border-top: black 1px solid;
+    padding-top: 18px;
+}
+
+#whatsNewModal .modal-content #whatsNewShowMore{
+    position: fixed;
+    left: 50%;
+    bottom: 14px;
+    transform: translateX(-50%);
+    font-weight: bold;
+    color: #004084;
+    cursor: pointer;
+    user-select: none;
+}
+
+#whatsNewModal .modal-content #whatsNewShowMore:hover{
+    text-decoration: underline;
+    color: var(--hoverHighlight);
 }
 
 #settingsModal .modal-content{
@@ -1260,8 +1276,7 @@ select.form-control{
 }
 
 #paletteList{
-    height:90%;
-    height: calc(100% - 118px);
+    height: calc(100% - 45px);
     overflow-y: scroll;
 }
 
@@ -1299,6 +1314,14 @@ select.form-control{
     display: none;
 }
 
+.paletteFetching{
+    position: absolute;
+    right: 70px;
+    margin-top: 15px;
+    z-index: 3;
+    padding:1px;
+}
+
 .paletteHeaderIcon i{
     font-size: 18px;
 }
@@ -1321,14 +1344,16 @@ select.form-control{
     width:min-content;
 }
 
-.leftWindow .dropdown-menu a{
+.leftWindow .dropdown-menu a,
+#repositoryList .dropdown-menu a{
     color: white;
     text-decoration: none;
     white-space: nowrap;
     display: block;
 }
 
-.leftWindow .dropdown-menu span{
+.leftWindow .dropdown-menu span,
+#repositoryList .dropdown-menu span{
     display: block;
     width: 100%;
     padding:0px 10px;
@@ -1351,12 +1376,14 @@ select.form-control{
     color: white;
 }
 
-.leftWindow .dropdown-menu span:hover{
+.leftWindow .dropdown-menu span:hover,
+#repositoryList .dropdown-menu span:hover{
     background-color: #001d3b;
     color: white;
 }
 
-.leftWindow .dropdown-menu a:hover{
+.leftWindow .dropdown-menu a:hover,
+#repositoryList .dropdown-menu a:hover{
     background-color: #001d3b;
     color: white;
 }
@@ -1372,7 +1399,7 @@ select.form-control{
 }
 
 #paletteList .accordion-body{
-    padding: 0.6rem 1rem;
+    padding: 0.5rem;
 }
 
 #paletteList .accordion-item h5{
@@ -1381,7 +1408,7 @@ select.form-control{
     font-size: 18px;
     font-weight: 400;
     overflow: hidden;
-    width: 70%;
+    width: 60%;
 }
 
 #paletteList .palette-component .input-group-prepend{
@@ -1417,36 +1444,6 @@ select.form-control{
 
 #paletteList .accordion{
     padding-right:4px;
-}
-
-#explorePalettesWrapper{
-    width: 90%;
-    display: inline-block;
-}
-
-#paletteWindowdropdownWrapper{
-    position: absolute;
-    right: 5px;
-}
-
-#paletteWindowdropdownWrapper a:after{
-    display: none;
-}
-
-#paletteWindowdropdownWrapper a{
-    text-decoration: none;
-    color: black;
-    padding:7px;
-}
-
-#paletteWindowdropdownWrapper .dropdown-item{
-    color:white;
-    padding: 4px 16px;
-}
-
-#paletteWindowdropdownWrapper .dropDropDown{
-    left:100%;
-    right: unset;
 }
 
 #root span:after{
@@ -1696,14 +1693,14 @@ select.form-control{
     background-color: white;
 }
 
-.navbar-btn i.material-icons.md-18 {
+.navbar-btn i.material-symbols-outlined.md-18 {
     position: relative;
     top: 3px;
     font-size: 20px;
 }
 
-.navbar-center .navbar-btn.navbar-btn-active{
-    color: #002349 !important;
+#navBarToolBar .navbar-btn.navbar-btn-active{
+    color: #002349;
     background: rgb(211, 211, 211);
 }
 
@@ -1777,15 +1774,6 @@ select.form-control{
     padding: 0px 4px;
 }
 
-#repositoryList .col-9{
-    max-width: 79%;
-}
-
-#repositoryList .col-10{
-    max-width: 83.33333333%;
-    width: auto;
-}
-
 .repoContainer{
     padding:0px 10px;
 }
@@ -1800,25 +1788,67 @@ select.form-control{
     list-style-type: none;
     text-overflow: ellipsis;
     white-space: nowrap;
-    overflow:  hidden;
+    overflow: visible;
+}
+
+#repositoryList ul.files > li {
+    overflow: visible;
 }
 
 #repositoryList ul.folders {
     list-style-type: none;
 }
 
-#repositoryList ul.repositories i.material-icons.md-18 {
+#repositoryList ul.repositories i.material-symbols-outlined.md-18 {
     position: relative;
     top: 4px;
     font-size: 22px;
 }
 
-#repositoryList ul.repositories .repo-actions i.material-icons.md-18 {
+#repositoryList .col.repo-file-actions, #repositoryList .col.repo-actions{
+    overflow: visible;
+}
+
+#repositoryList > .row > .col{
+    overflow: visible;
+}
+
+.repoTripleDot{
+    background: none;
+    border: none;
+    padding: 1px;
+}
+
+.repoTripleDot:after{
+    display: none;
+}
+
+#repositoryList ul.repositories .repo-actions button.repoTripleDot {
     visibility: hidden;
 }
 
-#repositoryList ul.repositories .repoFile:hover .repo-actions i.material-icons.md-18 {
+#repositoryList ul.repositories .repoContainer:hover .repo-actions button.repoTripleDot {
     visibility: visible;
+}
+
+#repositoryList ul.repositories .repoFile .repo-file-actions button.repoTripleDot {
+    visibility: hidden;
+}
+
+#repositoryList ul.repositories .repoFile:hover .repo-file-actions button.repoTripleDot {
+    visibility: visible;
+}
+
+#repositoryList .dropdown-menu{
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    z-index: 4;
+    background-color: #0059a5;
+    border: black solid 1px;
+    border-radius: 6px;
+    pointer-events: auto;
+    width: min-content;
 }
 
 #nodeList ul.nodes {
@@ -1853,16 +1883,16 @@ select.form-control{
     cursor:grabbing !important;
 }
 
-.leftWindow .card-header i.material-icons {
+.leftWindow .card-header i.material-symbols-outlined {
     position: relative;
     top: 5px;
 }
 
-.leftWindow .card-header i.material-icons.interactive {
+.leftWindow .card-header i.material-symbols-outlined.interactive {
     cursor: pointer;
 }
 
-.rightWindow h5 i.material-icons {
+.rightWindow h5 i.material-symbols-outlined {
     position: relative;
     top: 5px;
 }
@@ -1872,11 +1902,11 @@ div.rightWindow h5.card-header {
     padding: 0rem 1.0rem 0.4rem 1.00rem;
 }
 
-.rightWindow i.material-icons.interactive {
+.rightWindow i.material-symbols-outlined.interactive {
     cursor: pointer;
 }
 
-.rightWindow button i.material-icons.md-18 {
+.rightWindow button i.material-symbols-outlined.md-18 {
     position: relative;
     top: 2px;
     font-size: 18px;
@@ -1956,24 +1986,25 @@ ul.nav.navbat-nav .btn-outline-secondary:hover{
  }
 
  #eagleAndVersion{
-     margin-left:5px;
-     position: absolute;
-     left:5.2em
+    margin-left:5px;
+    position: absolute;
+    left:5.2em
  }
 
  #eagleAndVersion a{
-     display: block;
-     padding: 0px;
-     position: absolute;
-     margin-top: -23px;
+    display: block;
+    padding: 0px;
+    position: absolute;
+    margin-top: -23px;
  }
 
  #eagleAndVersion span{
-     display: block;
-     padding: 0px;
-     position: absolute;
-     color: rgb(170, 170, 170);
-     white-space: pre;
+    display: block;
+    padding: 0px;
+    position: absolute;
+    color: rgb(170, 170, 170);
+    white-space: pre;
+    cursor: pointer;
  }
 
  #eagleAndVersion sup{
@@ -2334,9 +2365,13 @@ ul.nav.navbar-nav .dropdown-item:hover,ul.nav.navbar-nav .dropdown-item:focus{
 }
 
 .tooltip-inner p {
-    font-size: 1rem;
+    font-size: 14px;
     font-weight: 300;
     margin-bottom: 10px;
+}
+
+.tooltip-inner .tooltipBtn{
+    cursor:pointer;
 }
 
 .tooltip-inner{
@@ -2700,7 +2735,36 @@ ul.nav.navbar-nav .dropdown-item:hover,ul.nav.navbar-nav .dropdown-item:focus{
 }
 
 .leftWindow .searchBarContainer{
-    margin-top: 10px;
+    width: 100%;
+}
+
+.leftWindow .paletteHeader{
+    padding-right: 10px;
+    margin-bottom: 5px;
+    margin-top: 5px;
+}
+
+.leftWindow .paletteHeader .col-10{
+    padding-right: 3px;
+}
+
+.leftWindow .paletteHeader .col-2{
+    padding-left: 3px;
+    text-align: right;
+}
+
+.leftWindow .paletteHeader .paletteMenuIcons button{
+    border: none;
+    border-radius: 5px;
+    height: 100%;
+    width: 100%;
+    color: #002349;
+    background-color: #cbd2e8;
+}
+
+.leftWindow .paletteHeader .paletteMenuIcons i{
+    vertical-align: middle;
+    font-size: 21px;
 }
 
 .searchBarContainer a,#customContextMenu .searchBarContainer a{
@@ -2903,4 +2967,33 @@ ul.nav.navbar-nav .dropdown-item:hover,ul.nav.navbar-nav .dropdown-item:focus{
 
 .CodeMirror {
     height: 100%;
+}
+
+#graphUpdaterModalGraphTableCol {
+    max-height: 500px;
+}
+
+#graphUpdaterModal .container, #graphUpdaterModal .header{
+    height:100%;
+}
+
+.material-symbols-outlined.filled{
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+}
+
+.modal-content .row:has(> #graphUpdaterModalGraphTableCol) {
+    overflow-y: auto;
+    height:calc(100% - 191px);/* ugly but it works to make the graph table take up all space available to it while keeping the header and footer visible */
+}
+
+#graphUpdaterModalGraphTable thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: lightslategrey;
+    color: white;
+}
+
+#graphUpdaterModalGraphTable thead tr{
+    border-top: solid 0px black; /* workaround to fix a text clipping issue with static header row */
 }

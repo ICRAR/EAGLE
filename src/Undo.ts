@@ -24,34 +24,46 @@
 
 import * as ko from "knockout";
 
-import {Eagle} from './Eagle';
-import {LogicalGraph} from './LogicalGraph';
-import {Setting} from './Setting';
-import {Utils} from './Utils';
+import { Eagle } from './Eagle';
+import { Errors } from "./Errors";
 import { Hierarchy } from "./Hierarchy";
+import { LogicalGraph } from './LogicalGraph';
 import { ParameterTable } from "./ParameterTable";
-
+import { Setting } from './Setting';
+import { Utils } from './Utils';
 
 class Snapshot {
     description: ko.Observable<string>;
-    data : ko.Observable<LogicalGraph>;
+    data: ko.Observable<object>;
+    hash: number;
 
-    constructor(description: string, data: LogicalGraph){
+    constructor(description: string, data: object){
         this.description = ko.observable(description);
         this.data = ko.observable(data);
+        this.hash = Snapshot.hashObject(data);
+    }
+
+    // djb2-style hash function, adapted for objects by hashing their JSON string representation
+    static hashObject(obj: object): number {
+        const str = JSON.stringify(obj);
+        let hash = 5381;
+        for (let i = 0; i < str.length; i++) {
+            hash = (((hash << 5) + hash) ^ str.charCodeAt(i)) | 0;
+        }
+        return hash;
     }
 }
 
 export class Undo {
     static readonly MEMORY_SIZE : number = 10;
 
-    memory: ko.ObservableArray<Snapshot>;
+    memory: ko.ObservableArray<Snapshot | null>;
     front: ko.Observable<number>; // place where next snapshot will go
     rear: ko.Observable<number>;
     current: ko.Observable<number>; // snapshot currently in use, normally equal to front
 
     constructor(){
-        this.memory = ko.observableArray([]);
+        this.memory = ko.observableArray<Snapshot | null>([]);
         for (let i = 0 ; i < Undo.MEMORY_SIZE ; i++){
             this.memory.push(null);
         }
@@ -73,17 +85,17 @@ export class Undo {
 
     pushSnapshot = (eagle: Eagle, description: string) : void => {
         const previousIndex = (this.current() + Undo.MEMORY_SIZE - 1) % Undo.MEMORY_SIZE;
-        const previousSnapshot : Snapshot = this.memory()[previousIndex];
-        const newContent : LogicalGraph = eagle.logicalGraph().clone();
+        const previousSnapshot : Snapshot | null = this.memory()[previousIndex];
+        const newContent: object = LogicalGraph.toOJSJson(eagle.logicalGraph(), false)
+        const newSnapshot: Snapshot = new Snapshot(description, newContent);
 
         // check if newContent matches old content, if so, no need to push
-        // TODO: maybe speed this up with checksums? or maybe not required
-        if (previousSnapshot !== null && previousSnapshot.data() === newContent){
+        if (previousSnapshot !== null && previousSnapshot.hash === newSnapshot.hash){
             console.log("Undo.pushSnapshot() : content hasn't changed, abort!");
             return;
         }
 
-        this.memory()[this.current()] = new Snapshot(description, newContent);
+        this.memory()[this.current()] = newSnapshot;
         this.memory.valueHasMutated();
         this.front((this.current() + 1) % Undo.MEMORY_SIZE);
         this.current(this.front());
@@ -104,7 +116,7 @@ export class Undo {
             this.memory()[index] = null;
         }
 
-        if (Setting.findValue(Setting.PRINT_UNDO_STATE_TO_JS_CONSOLE)){
+        if (Setting.findValue<boolean>(Setting.PRINT_UNDO_STATE_TO_JS_CONSOLE, false)){
             Undo.printTable();
         }
     }
@@ -115,16 +127,26 @@ export class Undo {
             return;
         }
 
+        const prevIndex = (this.current() + Undo.MEMORY_SIZE - 1) % Undo.MEMORY_SIZE;
         const prevprevIndex = (this.current() + Undo.MEMORY_SIZE - 2) % Undo.MEMORY_SIZE;
+
+        // user notification
+        const prevSnapshot = this.memory()[prevIndex];
+        if (prevSnapshot === null){
+            console.warn("Undo.prevSnapshot(): snapshot at index", prevIndex, "is null");
+            return;
+        }
+        const description = prevSnapshot.description();
+        Utils.showNotification("Undo", description, "info", false);
 
         this._loadFromIndex(prevprevIndex, eagle);
         this.current((this.current() + Undo.MEMORY_SIZE - 1) % Undo.MEMORY_SIZE);
 
-        if (Setting.findValue(Setting.PRINT_UNDO_STATE_TO_JS_CONSOLE)){
+        if (Setting.findValue<boolean>(Setting.PRINT_UNDO_STATE_TO_JS_CONSOLE, false)){
             Undo.printTable();
         }
 
-        eagle.checkGraph();
+        eagle.checkEagle();
 
         this._updateSelection();
 
@@ -143,14 +165,23 @@ export class Undo {
             return;
         }
 
+        // user notification
+        const currentSnapshot = this.memory()[this.current()];
+        if (currentSnapshot === null){
+            console.warn("Undo.nextSnapshot(): snapshot at index", this.current(), "is null");
+            return;
+        }
+        const description = currentSnapshot.description();
+        Utils.showNotification("Redo", description, "info", false);
+
         this._loadFromIndex(this.current(), eagle);
         this.current((this.current() + 1) % Undo.MEMORY_SIZE);
 
-        if (Setting.findValue(Setting.PRINT_UNDO_STATE_TO_JS_CONSOLE)){
+        if (Setting.findValue<boolean>(Setting.PRINT_UNDO_STATE_TO_JS_CONSOLE, false)){
             Undo.printTable();
         }
 
-        eagle.checkGraph();
+        eagle.checkEagle();
 
         this._updateSelection();
 
@@ -186,15 +217,16 @@ export class Undo {
     }
 
     _loadFromIndex = (index: number, eagle: Eagle) : void => {
-        const snapshot : Snapshot = this.memory()[index];
+        const snapshot : Snapshot | null = this.memory()[index];
 
         if (snapshot === null){
             console.warn("Undo memory at index", index, "is null");
             return;
         }
 
-        const dataObject: LogicalGraph = snapshot.data();
-        eagle.logicalGraph(dataObject.clone());
+        const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+        const dataObject: LogicalGraph = LogicalGraph.fromOJSJson(snapshot.data(), null, errorsWarnings);
+        eagle.logicalGraph(dataObject);
     }
 
     // if we undo, or redo, then the objects in selectedObject are from the graph prior to the new snapshot
@@ -202,7 +234,7 @@ export class Undo {
     // in this function, we use the ids of the old selectedObjects, and attempt to add the matching objects in the new snapshot to the selectedObjects list
     _updateSelection = () : void => {
         const eagle: Eagle = Eagle.getInstance();
-        const objectIds: (NodeId | EdgeId)[] = [];
+        const objectIds: (NodeId | EdgeId | VisualId)[] = [];
 
         // build a list of the ids of the selected objects
         for (const object of eagle.selectedObjects()){
@@ -214,12 +246,12 @@ export class Undo {
 
         // find the objects in the ids list, and add them to the selection
         for (const id of objectIds){
-            const node = eagle.logicalGraph().findNodeById(id as NodeId);
-            const edge = eagle.logicalGraph().findEdgeById(id as EdgeId);
+            const node = eagle.logicalGraph().getNodeById(id as NodeId);
+            const edge = eagle.logicalGraph().getEdgeById(id as EdgeId);
             const object = node || edge;
 
             // abort if no edge or node exists fot that id
-            if (node === null && edge === null){
+            if (typeof object === 'undefined'){
                 continue;
             }
 
@@ -239,12 +271,27 @@ export class Undo {
                 continue;
             }
 
+            if (snapshot.data() === null){
+                tableData.push({
+                    "current": realCurrent === i ? "->" : "",
+                    "description": snapshot.description(),
+                    "buffer position": i,
+                    "nodes": "N/A",
+                    "edges": "N/A"
+                });
+                continue;
+            }
+
+            // parse the snapshot data into a LogicalGraph object
+            const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+            const dataObject: LogicalGraph = LogicalGraph.fromOJSJson(snapshot.data(), null, errorsWarnings);
+
             tableData.push({
                 "current": realCurrent === i ? "->" : "",
                 "description": snapshot.description(),
                 "buffer position": i,
-                "nodes": snapshot.data().getNodes().length,
-                "edges": snapshot.data().getEdges().length
+                "nodes": dataObject.getNumNodes(),
+                "edges": dataObject.getNumEdges()
             });
         }
 

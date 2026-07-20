@@ -20,7 +20,7 @@ case "$1" in
    "slim")
         VCS_TAG=`git describe --tags --abbrev=0|sed s/v//`
         echo "Running EAGLE deployment version in background..."
-        docker run -d --name eagle-slim --rm -p 8888:80/tcp icrar/eagle.slim
+        docker run -d --name eagle-slim --rm -p 8888:80/tcp icrar/eagle.slim:${VCS_TAG}
         sleep 5
         python -m webbrowser http://localhost:8888
         exit 1;;

@@ -14,9 +14,11 @@
         <link rel="stylesheet" href="static/svg.css">
         <link rel="stylesheet" href="static/graph.css">
         <link rel="stylesheet" href="static/fonts.css">
+        <link rel="stylesheet" href="static/fonts/material-symbols/index.css">
         <link rel="stylesheet" href="static/tables.css">
+        <link rel="stylesheet" href="static/externals/highlight-github.min.css">
 
-        <link rel="shortcut icon" href="static/assets/svg/liuFavIcon.svg" type="image/x-icon">
+        <link rel="shortcut icon" href="static/assets/img/favicon.png" type="image/x-icon">
 
         <script src="static/externals/require.js"></script>
         <script src="static/built/require-config.js"></script>
@@ -24,7 +26,9 @@
             require(["bootstrap"]);
             require(["bootstrap-notify"]);
             require(["ajv"]);
-            require(["showdown"]);
+            require(["marked"]);
+            require(["marked-highlight"]);
+            require(["highlight.js"]);
             require(["codemirror", "codemirror/mode/python/python", "codemirror/mode/javascript/javascript","codemirror/mode/markdown/markdown"], function(CodeMirror){window.CodeMirror = CodeMirror;}); // adds CodeMirror object to the global namespace
             require(["bindingHandlers/readonly"]);
             require(["bindingHandlers/disabled"]);
@@ -50,7 +54,7 @@
             <input id="graphFileToLoad" class="fileSelector" type="file" name="file" data-bind="event: { change: loadLocalGraphFile }">
             <input id="graphFileToInsert" class="fileSelector" type="file" name="file" data-bind="event: { change: insertLocalGraphFile }">
             <input id="paletteFileToLoad" class="fileSelector" type="file" name="file" data-bind="event: { change: loadLocalPaletteFile }">
-            <input id="daliugeFileToLoad" class="fileSelector" type="file" name="file" data-bind="event: { change: loadLocalDaliugeFile }">
+            <input id="graphConfigFileToLoad" class="fileSelector" type="file" name="file" data-bind="event: { change: loadLocalGraphConfigFile }">
         </div>
 
         {% include 'navbar.html' %}
@@ -60,10 +64,10 @@
                 <div class="leftWindow" data-bind="style: { width: leftWindow().size(), left: Setting.findValue(Setting.LEFT_WINDOW_VISIBLE) ? 0 : -leftWindow().size(),'visibility':eagle.getEagleIsReady(), bottom: Utils.getBottomWindowHeight()+'vh'}">
                     <div class="leftWindowHandle iconHoverEffect" data-bind="click: function(){SideWindow.toggleShown('left')}, eagleTooltip: KeyboardShortcut.idToFullText('toggle_left_window')">
                         <span style="display: none" data-bind="visible: Setting.findValue(Setting.LEFT_WINDOW_VISIBLE)">
-                            <i class="material-icons">arrow_back</i>
+                            <i class="material-symbols-outlined">arrow_back</i>
                         </span>
                         <span data-bind="visible: !Setting.findValue(Setting.LEFT_WINDOW_VISIBLE)">
-                            <i class="material-icons">arrow_forward</i>
+                            <i class="material-symbols-outlined">arrow_forward</i>
                         </span>
                     </div>
 
@@ -79,17 +83,22 @@
 
             <div id="logicalGraphParent" class="rightClick_logicalGraph" data-bind="event: { dragover:SideWindow.nodeDragOver, drop: nodeDropLogicalGraph, mousemove: GraphRenderer.mouseMove, mousedown: function(object, event){GraphRenderer.startDrag(null, event);}, mouseup: function(){GraphRenderer.endDrag(null);}, wheel: GraphRenderer.scrollZoom }, eagleRightClick: {data:$data,type:'rightClick_logicalGraph'},style:{'visibility':eagle.getEagleIsReady()}">
                 <div id="logicalGraph" data-bind="style: {transform: 'scale('+eagle.globalScale()+')translate('+eagle.globalOffsetX()+'px,'+eagle.globalOffsetY()+'px)'}">
-                    <!-- ko if: $root.logicalGraph() !== null && logicalGraph().getNodes().length != 0-->
+                    <!-- ko if: $root.logicalGraph() !== null && (logicalGraph().getNumNodes() !== 0 || logicalGraph().getNumVisuals() !== 0)-->
                         <!-- ko foreach: $root.logicalGraph().getNodesDrawOrdered() -->
                             {% include 'node.html' %}
+                        <!-- /ko -->
+                        <!-- ko ifnot: Setting.findValue(Setting.HIDE_VISUALS) -->
+                            <!-- ko foreach: Array.from($root.logicalGraph().getVisuals()) -->
+                                {% include 'visual.html' %}
+                            <!-- /ko -->
                         <!-- /ko -->
                         <div id="portContainer">
                             <!-- ko foreach: $root.logicalGraph().getAllNodes() -->
                                 <div data-bind="class:$data.getId(), attr:{id:$data.getName()}">
                                     <!-- ko foreach: $data.getInputPorts() -->
-                                        <div class="inputPort port" data-bind="css: {selected: function(){return GraphRenderer.showPort($parent, $data)}(), match:$data.isInputPeek()},eagleTooltip:$data.getHelpHtml(), style:{'background-color':$data.getBackgroundColor(),'left':GraphRenderer.calculatePortPositionX('input',$data,$parent),'top':GraphRenderer.calculatePortPositionY('input',$data,$parent)},graphRendererPortPosition:{n:$parent,f:$data,type:'inputPort'},event:{mousedown:function(){GraphRenderer.portDragStart($data,'input')}, mouseenter:function(){GraphRenderer.mouseEnterPort('input', $data)}, mouseleave:function(){GraphRenderer.mouseLeavePort($data)}}">
+                                        <div class="inputPort port" data-bind="css: {selected: function(){return GraphRenderer.showPort($parent, $data)}(), match:$data.isInputPeek()},eagleTooltip:$data.getHelpHtml(), style:{'background-color':$data.getBackgroundColor(),'left':GraphRenderer.calculateInputPortPositionX($data),'top':GraphRenderer.calculateInputPortPositionY($data)},graphRendererPortPosition:{n:$parent,f:$data,type:'inputPort'},event:{mousedown:function(){GraphRenderer.portDragStart('input', null, $data)}, mouseenter:function(){GraphRenderer.mouseEnterPort('input', $data)}, mouseleave:function(){GraphRenderer.mouseLeavePort($data)}}">
                                             <!-- ko if: $data.getIsEvent() -->
-                                                <i class="material-icons">alarm_on</i> 
+                                                <i class="material-symbols-outlined">alarm_on</i> 
                                             <!-- /ko -->
                                             <div>
                                                 <div class="portTitle" data-bind="text:$data.displayText()"></div>
@@ -97,9 +106,9 @@
                                         </div>
                                         <!-- /ko -->
                                     <!-- ko foreach: $data.getOutputPorts() -->
-                                        <div class="outputPort port" data-bind="css: {selected: function(){return GraphRenderer.showPort($parent, $data)}(), match:$data.isOutputPeek()},eagleTooltip:$data.getHelpHtml(), style:{'border-color':$data.getBackgroundColor(),'left':GraphRenderer.calculatePortPositionX('output',$data,$parent),'top':GraphRenderer.calculatePortPositionY('output',$data,$parent)},graphRendererPortPosition:{n:$parent,f:$data,type:'outputPort'},event:{mousedown:function(){GraphRenderer.portDragStart($data,'output')}, mouseenter:function(){GraphRenderer.mouseEnterPort('output',$data)}, mouseleave:function(){GraphRenderer.mouseLeavePort($data)}}">
+                                        <div class="outputPort port" data-bind="css: {selected: function(){return GraphRenderer.showPort($parent, $data)}(), match:$data.isOutputPeek()},eagleTooltip:$data.getHelpHtml(), style:{'border-color':$data.getBackgroundColor(),'left':GraphRenderer.calculateOutputPortPositionX($data),'top':GraphRenderer.calculateOutputPortPositionY($data)},graphRendererPortPosition:{n:$parent,f:$data,type:'outputPort'},event:{mousedown:function(){GraphRenderer.portDragStart('output', null, $data)}, mouseenter:function(){GraphRenderer.mouseEnterPort('output',$data)}, mouseleave:function(){GraphRenderer.mouseLeavePort($data)}}">
                                             <!-- ko if: $data.getIsEvent() -->
-                                                <i class="material-icons">alarm_on</i> 
+                                                <i class="material-symbols-outlined">alarm_on</i> 
                                             <!-- /ko -->
                                             <div>
                                                 <div class="portTitle" data-bind="text:$data.displayText()"></div>
@@ -108,19 +117,42 @@
                                     <!-- /ko -->
                                 </div>
                             <!-- /ko -->
+                            <!-- ko foreach: Array.from($root.logicalGraph().getVisuals()) -->
+                                <!-- ko if: $data.isText() -->
+                                    <div data-bind="class:$data.getId(), attr:{id:$data.getId()}">
+                                        <div class="textVisualPort port" data-bind="css: {selected: function(){return GraphRenderer.showPort($data)}()}, style:{'left':GraphRenderer.getGraphTextVisualPortPositionX($data), 'top':GraphRenderer.getGraphTextVisualPortPositionY($data)}, event:{mousedown:function(){GraphRenderer.portDragStart('textVisual', $data)}}">
+                                            <div>
+                                                <div class="portTitle" data-bind="css: {selected: function(){return eagle.objectIsSelected($data) && !$data.hasTarget()}()}">Connect to Node</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <!-- /ko -->
+                            <!-- /ko -->
+                        </div>
+                        <div class="edgeComments">
+                            <!-- ko foreach:  Array.from($root.logicalGraph().getEdges()) -->
+                                <!-- ko if: $data.getComment() != '' -->
+                                    <i class="material-symbols-outlined filled interactive clickable iconHoverEffect graphComment" data-bs-placement="right" data-bind="eagleTooltip: $data.getComment(), click: $root.graphEditComment, style:{'left': GraphRenderer.calculateEdgeCommentPosX($data), 'top':GraphRenderer.calculateEdgeCommentPosY($data),transform: 'scale('+$root.getGraphTextScale()+')'}">chat</i>
+                                <!-- /ko -->
+                            <!-- /ko -->
                         </div>
                         <svg  xmlns="https://www.w3.org/2000/svg">
-                            <!-- ko foreach: $root.logicalGraph().getEdges() -->
+                            <!-- ko foreach: Array.from($root.logicalGraph().getEdges()) -->
                                 <g data-bind="attr:{id:$data.getId()}">
                                     <path data-bind="attr:{d: GraphRenderer.getPath($data)},style:{'stroke':GraphRenderer.edgeGetStrokeColor($data), 'stroke-dasharray': GraphRenderer.edgeGetStrokeType($data)}"></path>
                                     <path class="edgeClickTarget" data-bind="attr:{d: GraphRenderer.getPath($data)},click:function(viewModel, event){GraphRenderer.selectEdge(viewModel, event)},eagleRightClick: {data:$data,type:'rightClick_graphEdge'}"></path>
-                                    <polygon data-bind="style:{'visibility': $data.getArrowVisibility(), 'fill':GraphRenderer.edgeGetStrokeColor($data)}"></polygon>
+                                    <polygon data-bind="style:{'fill':GraphRenderer.edgeGetStrokeColor($data)}"></polygon>
                                 </g>
                             <!-- /ko -->
-                            <!-- ko foreach: $root.logicalGraph().getCommentNodes() -->
-                                <path class="commentEdge" data-bind="attr:{d: GraphRenderer.getPathComment($data)}"></path>
+                            <!-- ko ifnot: Setting.findValue(Setting.HIDE_VISUALS) -->
+                                <!-- ko foreach: GraphRenderer.getVisualsWithEdges() -->
+                                    <g class="textVisualEdges">
+                                        <path class="commentEdge" data-bind="attr:{d: GraphRenderer.getVisualEdgePath($data)}"></path>
+                                        <path class="edgeClickTarget" data-bind="attr:{d: GraphRenderer.getVisualEdgePath($data)}, eagleRightClick: {data:$data,type:'rightClick_graphVisualEdge'}, click:GraphRenderer.visualEdgeClick"></path>
+                                    </g>
+                                <!-- /ko -->
                             <!-- /ko -->
-                            <!-- ko if: GraphRenderer.renderDraggingPortEdge -->
+                            <!-- ko if: GraphRenderer.renderDraggingPortEdge() -->
                                 <g data-bind="attr:{id:'draggingEdge'}">
                                     <path data-bind="attr:{d: GraphRenderer.getPathDraggingEdge()},style:{'stroke':GraphRenderer.draggingEdgeGetStrokeColor(), 'stroke-dasharray': GraphRenderer.draggingEdgeGetStrokeType}"></path>
                                     <polygon data-bind="style:{ 'fill':GraphRenderer.draggingEdgeGetStrokeColor()}"></polygon>
@@ -136,7 +168,7 @@
                     <div id="selectionRectangle"></div>
                 </div>
                 
-                <!-- ko if: logicalGraph === null || logicalGraph() === null || logicalGraph().getNodes().length === 0 -->
+                <!-- ko if: !logicalGraph || !logicalGraph() || (logicalGraph().getNumNodes() === 0 && logicalGraph().getNumVisuals() === 0) -->
                     <div id="eagleIconAnimation">
                         <svg>
                             <path id="path1" class="path"
@@ -164,10 +196,10 @@
                     </div>
                 <div class="rightWindowHandle iconHoverEffect" data-bind="click: function(){SideWindow.toggleShown('right')}, eagleTooltip: KeyboardShortcut.idToFullText('toggle_right_window')">
                     <span data-bind="visible: Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE)">
-                        <i class="material-icons">arrow_forward</i>
+                        <i class="material-symbols-outlined">arrow_forward</i>
                     </span>
                     <span style="display: none" data-bind="visible: !Setting.findValue(Setting.RIGHT_WINDOW_VISIBLE)">
-                        <i class="material-icons">arrow_back</i>
+                        <i class="material-symbols-outlined">arrow_back</i>
                     </span>
                 </div>
                 <div id="rightWindowContainer">
@@ -193,15 +225,15 @@
                     <div class="tabs">
                         <div class="wrapper">
                             <button id="bottomTabParamsTableSwitcher" type="button" class="btn btn-secondary btn-sm iconHoverEffect" data-bind="css:{activeTab:Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.NodeParameterTable},click: function(){ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal);}, clickBubble: false, eagleTooltip: KeyboardShortcut.idToFullText('open_parameter_table')" data-bs-placement="left">
-                                <i class="material-icons md-20 clickable">table_chart</i>
+                                <i class="material-symbols-outlined filled md-20 clickable">table_chart</i>
                             </button>
                             <button id="bottomTabKeyParamsSwitcher" class="btn btn-secondary btn-sm iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="css:{activeTab:Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.ConfigParameterTable}, click: function(){ParameterTable.openTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.Normal)}, eagleTooltip: KeyboardShortcut.idToFullText('open_graph_attributes_configuration_table')">
                                 <i class="md-20 icon-key_attribute_table clickable"></i>
                             </button>
-                            <button id="bottomTabGraphConfigurationsSwitcher" class="btn btn-secondary btn-sm iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="css:{activeTab:Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphConfigsTable}, click: function(){GraphConfigurationsTable.openTable()}, eagleTooltip: KeyboardShortcut.idToFullText('open_graph_attributes_configuration_table')">
+                            <button id="bottomTabGraphConfigurationsSwitcher" class="btn btn-secondary btn-sm iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="css:{activeTab:Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphConfigsTable}, click: function(){GraphConfigurationsTable.openTable(Eagle.BottomWindowMode.GraphConfigsTable, ParameterTable.SelectType.Normal)}, eagleTooltip: KeyboardShortcut.idToFullText('open_graph_configurations_table')">
                                 <i class="md-20 icon-config_table clickable"></i>
                             </button>
-                            <button id="bottomTabGraphIssuesSwitcher" class="btn btn-secondary btn-sm iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="css:{activeTab:Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphErrors}, click: function(){Setting.find(Setting.BOTTOM_WINDOW_MODE).setValue(Eagle.BottomWindowMode.GraphErrors)}, eagleTooltip: `Display Graph Issues`">
+                            <button id="bottomTabGraphIssuesSwitcher" class="btn btn-secondary btn-sm iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="css:{activeTab:Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.EagleErrors}, click: function(){eagle.showEagleErrors()}, eagleTooltip: `Display Graph Issues`">
                                 <i class="md-20 icon-question_mark clickable"></i>
                             </button>
                         </div>
@@ -220,7 +252,7 @@
                             <!-- ko if: Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphConfigsTable -->
                                 {% include 'graph_configurations_table.html' %}
                             <!-- /ko -->
-                            <!-- ko if: Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.GraphErrors -->
+                            <!-- ko if: Setting.findValue(Setting.BOTTOM_WINDOW_MODE) === Eagle.BottomWindowMode.EagleErrors -->
                                 {% include 'Errors.html' %}
                             <!-- /ko -->
                         <!-- /ko -->
