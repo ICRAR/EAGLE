@@ -8,6 +8,7 @@ export class TestHelpers {
     //How many times we will attempt to run a tutorial step before failing the test.
     private static readonly MAX_ATTEMPTS_PER_STEP = 5;
     public static readonly UI_SETTLE_TIMEOUT = 500;
+    public static readonly UI_SETTLE_TIMEOUT_LONG = 1000;
     public static readonly SHORT_TIMEOUT = 5000;
     public static readonly LONG_TIMEOUT = 10000;
     // Counts how many times we have opened the canvas context menu.
@@ -599,7 +600,7 @@ export class TestHelpers {
 
         // wait for the #inputMarkdownModal to be hidden
         //await page.locator('#inputMarkdownModal').waitFor({ state: 'hidden' });
-        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT_LONG);
 
         // click the close button on the #modelDataModal
         await page.locator('#modelDataModalOKButton').click();
@@ -641,7 +642,7 @@ export class TestHelpers {
 
         // wait for the #inputMarkdownModal to be hidden
         //await page.locator('#inputMarkdownModal').waitFor({ state: 'hidden' });
-        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT_LONG);
 
         // click the close button on the #modelDataModal
         await page.locator('#modelDataModalOKButton').click();
