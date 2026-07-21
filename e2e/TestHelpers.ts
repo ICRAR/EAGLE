@@ -576,14 +576,14 @@ export class TestHelpers {
 
         // check the button.modelDataTableEditParam is visible
         //await page.locator('#modelDataShortDescription .modelDataTableEditParam').waitFor({ state: 'visible' });
-        await page.waitForTimeout(2000);
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
 
         // click the button.modelDataTableEditParam
         await page.locator('#modelDataShortDescription .modelDataTableEditParam').click();
 
         // wait for the #inputMarkdownModal to be visible
         //await page.locator('#inputMarkdownModal').waitFor({ state: 'visible' });
-        await page.waitForTimeout(2000);
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
 
         // check the state of the #editInputMarkdownModalInput form-switch, if enabled, do nothing, if disabled, click it to enable it
         const formSwitch = await page.locator('#editMarkdownSwitchCheck');
@@ -599,14 +599,14 @@ export class TestHelpers {
 
         // wait for the #inputMarkdownModal to be hidden
         //await page.locator('#inputMarkdownModal').waitFor({ state: 'hidden' });
-        await page.waitForTimeout(2000);
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
 
         // click the close button on the #modelDataModal
         await page.locator('#modelDataModalOKButton').click();
 
         // wait until the #modelDataModal is hidden
         //await page.locator('#modelDataModal').waitFor({ state: 'hidden' });
-        await page.waitForTimeout(2000);
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
     }
 
     static async setDetailedDescription(page: Page, description: string): Promise<void> {
@@ -619,14 +619,14 @@ export class TestHelpers {
 
         // check the button.modelDataTableEditParam is visible
         //await page.locator('#modelDataDetailedDescription .modelDataTableEditParam').waitFor({ state: 'visible' });
-        await page.waitForTimeout(2000);
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
 
         // click the button.modelDataTableEditParam
         await page.locator('#modelDataDetailedDescription .modelDataTableEditParam').click();
 
         // wait for the #inputMarkdownModal to be visible
         //await page.locator('#inputMarkdownModal').waitFor({ state: 'visible' });
-        await page.waitForTimeout(2000);
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
 
         // check the state of the #editInputMarkdownModalInput form-switch, if enabled, do nothing, if disabled, click it to enable it
         const formSwitch = await page.locator('#editMarkdownSwitchCheck');
@@ -641,14 +641,14 @@ export class TestHelpers {
 
         // wait for the #inputMarkdownModal to be hidden
         //await page.locator('#inputMarkdownModal').waitFor({ state: 'hidden' });
-        await page.waitForTimeout(2000);
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
 
         // click the close button on the #modelDataModal
         await page.locator('#modelDataModalOKButton').click();
 
         // wait until the #modelDataModal is hidden
         //await page.locator('#modelDataModal').waitFor({ state: 'hidden' });
-        await page.waitForTimeout(2000);
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
     }
 
     static setMarkdownModalContent(content: string): void {
