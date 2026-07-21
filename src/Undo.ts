@@ -142,6 +142,7 @@ export class Undo {
 
         const targetSnapshot = this.memory()[prevprevIndex];
         if (targetSnapshot === null){
+            console.warn("Undo.prevSnapshot(): snapshot at index", prevprevIndex, "is null");
             Utils.showNotification("Unable to Undo", "No further history available", "warning");
             return;
         }
