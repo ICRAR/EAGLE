@@ -836,15 +836,21 @@ export class TestHelpers {
     }
 
     static async getNumWarningsErrors(page: Page): Promise<number> {
-        // if button#checkEagleWarnings is visible, then there are some warnings or errors, so return the sum of the counts in each span.badge
         const checkButton = page.locator('#checkEagleWarnings');
-        if (await checkButton.isVisible()) {
-            const warningCount = await page.locator('#checkEagleWarnings span.badge').nth(0).innerText();
-            const errorCount = await page.locator('#checkEagleWarnings span.badge').nth(1).innerText();
-            return parseInt(warningCount) + parseInt(errorCount);
-        } else {
+        if (!(await checkButton.isVisible())) {
             return 0;
         }
+
+        const warningBadge = page.locator('#checkEagleWarnings span.badge.bg-warning:visible').first();
+        const errorBadge = page.locator('#checkEagleWarnings span.badge.bg-danger:visible').first();
+
+        const warningText = (await warningBadge.count()) > 0 ? (await warningBadge.textContent()) : null;
+        const errorText = (await errorBadge.count()) > 0 ? (await errorBadge.textContent()) : null;
+
+        const warningCount = parseInt((warningText ?? '0').trim(), 10) || 0;
+        const errorCount = parseInt((errorText ?? '0').trim(), 10) || 0;
+
+        return warningCount + errorCount;
     }
 
     // Expand a palette accordion by index
