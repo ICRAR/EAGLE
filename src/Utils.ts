@@ -1669,14 +1669,19 @@ export class Utils {
         return Eagle.FileType.Unknown;
     }
 
-    static determineEagleVersion(data: any): string {
-        if (typeof data.modelData !== 'undefined'){
-            const eagleVersion = data.modelData.eagleVersion;
+    static determineEagleVersion(data: { modelData?: { eagleVersion?: unknown, generatorVersion?: unknown } } | null | undefined): string {
+        if (typeof data !== 'object' || data === null){
+            return "Unknown";
+        }
+
+        const modelData = data.modelData;
+        if (typeof modelData === 'object' && modelData !== null){
+            const eagleVersion = modelData.eagleVersion;
             if (typeof eagleVersion === 'string' && eagleVersion.trim() !== ""){
                 return eagleVersion.trim();
             }
 
-            const generatorVersion = data.modelData.generatorVersion;
+            const generatorVersion = modelData.generatorVersion;
             if (typeof generatorVersion === 'string' && generatorVersion.trim() !== ""){
                 return generatorVersion.trim();
             }
@@ -1685,7 +1690,7 @@ export class Utils {
         return "Unknown";
     }
 
-    private static _parseEagleVersion(version: string): number[] | null {
+    private static _parseEagleVersion(version: string | undefined | null): number[] | null {
         if (typeof version !== 'string'){
             return null;
         }
@@ -1704,7 +1709,7 @@ export class Utils {
     }
 
     // return true iff version0 is newer than version1
-    static newerEagleVersion(version0: string, version1: string){
+    static newerEagleVersion(version0: string | undefined | null, version1: string | undefined | null){
         const v0 = Utils._parseEagleVersion(version0);
         const v1 = Utils._parseEagleVersion(version1);
         if (v0 === null || v1 === null){
