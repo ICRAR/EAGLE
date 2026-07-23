@@ -295,7 +295,9 @@ export class GraphUpdater {
         await this.sourceRepository.expandAllAndFindGraphs(async (graphFile) => {
             this.updatedLogicalGraphs.push(new GraphUpdaterFile(graphFile));
             ko.tasks.runEarly();
-            await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+            await new Promise<void>(resolve => {
+                requestAnimationFrame(() => resolve());
+            });
         });
 
         this.state(GraphUpdater.Status.Fetched);
