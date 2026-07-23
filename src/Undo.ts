@@ -122,12 +122,15 @@ export class Undo {
     }
 
     prevSnapshot = (eagle: Eagle) : void => {
-        if (this.rear() === this.current()){
+        const prevIndex = (this.current() + Undo.MEMORY_SIZE - 1) % Undo.MEMORY_SIZE;
+
+        // No undo is possible when the cursor is at the rear, or when prevIndex is
+        // the rear (which would require loading a non-existent snapshot before rear).
+        if (this.rear() === this.current() || prevIndex === this.rear()){
             Utils.showNotification("Unable to Undo", "No further history available", "warning");
             return;
         }
 
-        const prevIndex = (this.current() + Undo.MEMORY_SIZE - 1) % Undo.MEMORY_SIZE;
         const prevprevIndex = (this.current() + Undo.MEMORY_SIZE - 2) % Undo.MEMORY_SIZE;
 
         // user notification
@@ -136,6 +139,14 @@ export class Undo {
             console.warn("Undo.prevSnapshot(): snapshot at index", prevIndex, "is null");
             return;
         }
+
+        const targetSnapshot = this.memory()[prevprevIndex];
+        if (targetSnapshot === null){
+            console.warn("Undo.prevSnapshot(): snapshot at index", prevprevIndex, "is null");
+            Utils.showNotification("Unable to Undo", "No further history available", "warning");
+            return;
+        }
+
         const description = prevSnapshot.description();
         Utils.showNotification("Undo", description, "info", false);
 
