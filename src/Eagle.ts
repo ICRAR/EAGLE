@@ -1689,7 +1689,6 @@ export class Eagle {
             Repositories.selectFile(new RepositoryFile(new Repository(Repository.Service.Url, "", "", false), "", url));
         } catch(error){
             console.error(error);
-            return;
         }
     }
 
@@ -1962,7 +1961,6 @@ export class Eagle {
                     } catch (error) {
                         Utils.showNotification("Save Failed", "Failed to save graph config locally: " + Errors.UnknownToError(error), "danger");
                         reject(error);
-                        return;
                     }
                 } else {
                     try {
@@ -1971,7 +1969,6 @@ export class Eagle {
                     } catch(error) {
                         Utils.showNotification("Save Failed", "Failed to save graph config to remote repository: " + Errors.UnknownToError(error), "danger");
                         reject(error);
-                        return;
                     }
                 }
             } catch (error) {
@@ -3544,8 +3541,6 @@ export class Eagle {
         if($('.modal.show').length>0){
             if($('.modal.show').attr('id')===modal){
                 $('#'+modal).modal('hide')
-            }else{
-                return
             }
         }else{
             if(modal === 'settingsModal'){

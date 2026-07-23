@@ -86,8 +86,6 @@ export class TutorialSystem {
                         }
                     }
                     break;
-
-                default: return; // exit this handler for other keys
             }
         })
     }
@@ -293,8 +291,6 @@ export class Tutorial {
             this.initiateStep(tutStep, autoAlternateHighlightTarget)
             clearTimeout(TutorialSystem.waitForElementTimer);
             TutorialSystem.waitForElementTimer = undefined;
-        } else {
-            return
         }
     }
 
