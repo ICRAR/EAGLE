@@ -3,7 +3,7 @@ import { Daliuge } from './Daliuge';
 import { Eagle } from './Eagle';
 import { EagleConfig } from './EagleConfig';
 import { Edge } from './Edge';
-import { Field } from './Field';
+import type { Field } from './Field';
 import { GraphRenderer } from './GraphRenderer';
 import { Node } from './Node';
 import { ParameterTable } from './ParameterTable';

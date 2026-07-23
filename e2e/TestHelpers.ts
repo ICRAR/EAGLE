@@ -1,6 +1,6 @@
 import fs from 'fs';
 import https from 'https';
-import http from 'http';
+import type http from 'http';
 import path from 'path';
 import { test, expect, type Page } from '@playwright/test';
 
@@ -839,7 +839,7 @@ export class TestHelpers {
                 modal.data('completed', false);
                 modal.modal('hide');
             });
-            await inputModal.waitFor({state: 'hidden', timeout: 1500}).catch(() => {});
+            await inputModal.waitFor({state: 'hidden', timeout: 1500}).catch(() => undefined);
 
             if (page.isClosed()) {
                 return;
@@ -852,7 +852,7 @@ export class TestHelpers {
                     modal.data('completed', false);
                     modal.modal('hide');
                 });
-                await inputModal.waitFor({state: 'hidden', timeout: 2000}).catch(() => {});
+                await inputModal.waitFor({state: 'hidden', timeout: 2000}).catch(() => undefined);
             }
 
             if (!page.isClosed()) {

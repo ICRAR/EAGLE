@@ -2,9 +2,9 @@ import * as ko from "knockout";
 
 import { Eagle } from './Eagle';
 import { EagleStorage } from "./EagleStorage";
-import { FileLocation } from "./FileLocation";
+import type { FileLocation } from "./FileLocation";
 import { Repository } from './Repository';
-import { RepositoryFile } from './RepositoryFile';
+import type { RepositoryFile } from './RepositoryFile';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
 

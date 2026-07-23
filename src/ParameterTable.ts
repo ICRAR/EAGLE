@@ -5,13 +5,14 @@ import { Eagle } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { Field } from './Field';
 import { Id } from "./Id";
-import { LogicalGraph } from "./LogicalGraph";
+import type { LogicalGraph } from "./LogicalGraph";
 import { Node } from "./Node";
 import { RightClick } from "./RightClick";
 import { Setting } from "./Setting";
 import { UiModeSystem } from "./UiModes";
 import { Utils } from './Utils';
-import { GraphConfig, GraphConfigField } from "./GraphConfig";
+import type { GraphConfigField } from "./GraphConfig";
+import { GraphConfig } from "./GraphConfig";
 import { SideWindow } from "./SideWindow";
 
 export class ParameterTable {

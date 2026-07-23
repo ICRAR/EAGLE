@@ -32,7 +32,7 @@ import { EagleConfig } from "./EagleConfig";
 import { Errors } from './Errors';
 import { Field } from './Field';
 import { Id } from './Id';
-import { LogicalGraph } from './LogicalGraph';
+import type { LogicalGraph } from './LogicalGraph';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
 

@@ -29,11 +29,11 @@ import { Daliuge } from './Daliuge';
 import { Eagle } from './Eagle';
 import { EagleConfig } from './EagleConfig';
 import { Errors } from './Errors';
-import { Field } from './Field';
+import type { Field } from './Field';
 import { Id } from './Id';
-import { Node } from './Node';
+import type { Node } from './Node';
 import { Utils } from './Utils';
-import { LogicalGraph } from "./LogicalGraph";
+import type { LogicalGraph } from "./LogicalGraph";
 
 export class Edge {
     private id: EdgeId;

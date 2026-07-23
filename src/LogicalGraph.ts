@@ -30,7 +30,7 @@ import { EagleConfig } from "./EagleConfig";
 import { Edge } from './Edge';
 import { Visual } from './Visual';
 import { Errors } from './Errors';
-import { Field } from './Field';
+import type { Field } from './Field';
 import { FileInfo } from './FileInfo';
 import { FileLocation } from "./FileLocation";
 import { GraphConfig } from './GraphConfig';
@@ -1388,7 +1388,7 @@ export class LogicalGraph {
     }
 
     private static withEagle(eagle: Eagle | null, fn: (e: Eagle) => void): () => void {
-        return eagle !== null ? () => fn(eagle) : () => {};
+        return eagle !== null ? () => fn(eagle) : () => undefined;
     }
 
     static isValid (graph: LogicalGraph, eagle: Eagle | null) : void {

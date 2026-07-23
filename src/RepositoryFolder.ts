@@ -1,7 +1,7 @@
 import * as ko from "knockout";
 
 import { Repository } from "./Repository";
-import { RepositoryFile } from './RepositoryFile';
+import type { RepositoryFile } from './RepositoryFile';
 
 export class RepositoryFolder {
     name : string

@@ -24,7 +24,7 @@
 
 import * as ko from "knockout";
 
-import { Category } from './Category';
+import type { Category } from './Category';
 import { Eagle } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { Errors } from './Errors';
@@ -32,7 +32,7 @@ import { FileInfo } from './FileInfo';
 import { FileLocation } from "./FileLocation";
 import { Node } from './Node';
 import { Repository } from "./Repository";
-import { RepositoryFile } from './RepositoryFile';
+import type { RepositoryFile } from './RepositoryFile';
 import { Setting } from "./Setting";
 import { Utils } from './Utils';
 import { UiModeSystem } from "./UiModes";

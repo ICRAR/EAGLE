@@ -2,7 +2,7 @@ import * as ko from "knockout";
 
 import { Eagle } from './Eagle';
 import { Id } from './Id';
-import { Repository } from './Repository';
+import type { Repository } from './Repository';
 import { Utils } from './Utils';
 
 export class RepositoryFile {
