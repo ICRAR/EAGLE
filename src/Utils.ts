@@ -1669,24 +1669,52 @@ export class Utils {
         return Eagle.FileType.Unknown;
     }
 
-    static determineEagleVersion(data: any): string {
-        if (typeof data.modelData !== 'undefined'){
-            if (typeof data.modelData.eagleVersion !== 'undefined'){
-                return data.modelData.eagleVersion;
+    static determineEagleVersion(data: { modelData?: { eagleVersion?: unknown, generatorVersion?: unknown } } | null | undefined): string {
+        if (typeof data !== 'object' || data === null){
+            return "Unknown";
+        }
+
+        const modelData = data.modelData;
+        if (typeof modelData === 'object' && modelData !== null){
+            const eagleVersion = modelData.eagleVersion;
+            if (typeof eagleVersion === 'string' && eagleVersion.trim() !== ""){
+                return eagleVersion.trim();
+            }
+
+            const generatorVersion = modelData.generatorVersion;
+            if (typeof generatorVersion === 'string' && generatorVersion.trim() !== ""){
+                return generatorVersion.trim();
             }
         }
 
-        return "v-1.-1.-1";
+        return "Unknown";
+    }
+
+    private static _parseEagleVersion(version: string | undefined | null): number[] | null {
+        if (typeof version !== 'string'){
+            return null;
+        }
+
+        const normalizedVersion = version.trim();
+        if (normalizedVersion === "" || normalizedVersion.toLowerCase() === "unknown"){
+            return null;
+        }
+
+        const versionMatch = normalizedVersion.match(/^v?(\d+)\.(\d+)\.(\d+)$/);
+        if (versionMatch === null){
+            return null;
+        }
+
+        return [Number(versionMatch[1]), Number(versionMatch[2]), Number(versionMatch[3])];
     }
 
     // return true iff version0 is newer than version1
-    static newerEagleVersion(version0: string, version1: string){
-        if (version0 === "Unknown" || version1 === "Unknown"){
+    static newerEagleVersion(version0: string | undefined | null, version1: string | undefined | null){
+        const v0 = Utils._parseEagleVersion(version0);
+        const v1 = Utils._parseEagleVersion(version1);
+        if (v0 === null || v1 === null){
             return false;
         }
-
-        const v0 = version0.split('v')[1].split('.').map(Number);
-        const v1 = version1.split('v')[1].split('.').map(Number);
 
         return (
             v0[0] > v1[0] ||
