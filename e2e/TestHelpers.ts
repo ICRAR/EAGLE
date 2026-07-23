@@ -398,7 +398,7 @@ export class TestHelpers {
     }
 
     private static async submitTutorialInputToTarget(page: Page, value: string): Promise<boolean> {
-        return await page.evaluate((inputValue: string) => {
+        return page.evaluate((inputValue: string) => {
             const w = window as any;
             const tutStep = w.TutorialSystem?.activeTutCurrentStep;
             const targetFunc = tutStep?.getTargetFunc?.();
@@ -443,7 +443,7 @@ export class TestHelpers {
 
     private static async selectNodeByName(page: Page, nodeName: string): Promise<void> {
         const isRequestedNodeSelected = async (): Promise<boolean> => {
-            return await page.evaluate((name: string) => {
+            return page.evaluate((name: string) => {
                 const selectedNode = (window as any).eagle?.selectedNode?.();
                 return selectedNode !== null && selectedNode?.getName?.() === name;
             }, nodeName);
@@ -707,23 +707,23 @@ export class TestHelpers {
     }
 
     static async getNodeCount(page: Page): Promise<number> {
-        return await page.evaluate( () => {
+        return page.evaluate( () => {
             return (window as any).eagle.logicalGraph().nodes().size;
         });
     }
 
     static async getEdgeCount(page: Page): Promise<number> {
-        return await page.evaluate( () => {
+        return page.evaluate( () => {
             return (window as any).eagle.logicalGraph().getNumEdges();
         });
     }
 
     static async undo(page: Page): Promise<void> {
-        return await page.press('body','z');
+        return page.press('body','z');
     }
 
     static async redo(page: Page): Promise<void> {
-        return await page.press('body','Shift+z');
+        return page.press('body','Shift+z');
     }
 
     // Check if an object is empty
@@ -755,7 +755,7 @@ export class TestHelpers {
     }
 
     static async getNumWarningsErrors(page: Page): Promise<number> {
-        return await page.evaluate(() => {
+        return page.evaluate(() => {
             return (window as any).eagle.graphWarnings().length + (window as any).eagle.graphErrors().length;
         });
     }
