@@ -1995,7 +1995,7 @@ export class Utils {
         const jsonObject = JSON.parse(jsonString);
         const validatorResult : {valid: boolean, errors: string} = Utils._validateJSON(jsonObject, version, fileType);
         if (!validatorResult.valid){
-            Utils.showNotification("Error",  "JSON Output failed validation against internal JSON schema, saving anyway" + "<br/>" + validatorResult.errors, "danger", true);
+            Utils.showNotification("Error",  "JSON Output failed validation against internal JSON schema, saving anyway<br/>" + validatorResult.errors, "danger", true);
         }
     }
 

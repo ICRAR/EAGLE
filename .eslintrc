@@ -76,6 +76,7 @@
         "valid-typeof": "error",
         "no-useless-call": "error",
         "no-useless-catch": "error",
+        "no-useless-concat": "error",
         "no-useless-computed-key": "error",
         "no-constant-binary-expression": "error",
         "no-script-url": "error",
