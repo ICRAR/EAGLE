@@ -62,7 +62,7 @@ export class RepositoryFile {
         if (win) {
             win.focus();
         } else {
-            alert("Please allow popups for this website");
+            Utils.showUserMessage("Error", "Please allow popups for this website");
         }
     }
 

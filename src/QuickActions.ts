@@ -2,6 +2,7 @@ import * as ko from "knockout";
 
 import { Eagle } from './Eagle';
 import { KeyboardShortcut } from './KeyboardShortcut';
+import { Utils } from './Utils';
 
 export class QuickActions {
 
@@ -230,7 +231,7 @@ export class QuickActions {
             win.focus();
         } else {
             //Browser has blocked it
-            alert('Please allow popups for this website');
+            Utils.showUserMessage('Error', 'Please allow popups for this website');
         }
     }
 

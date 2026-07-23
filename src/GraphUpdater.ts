@@ -277,7 +277,7 @@ export class GraphUpdater {
         this.state(GraphUpdater.Status.Fetching);
 
         // get source repository
-        const srcRepoIndex = parseInt($('#graphUpdaterModalSourceRepositorySelect').val() as string);
+        const srcRepoIndex = parseInt($('#graphUpdaterModalSourceRepositorySelect').val() as string, 10);
         const srcRepo = Repositories.repositories()[srcRepoIndex];
         if (srcRepo === null){
             Utils.showNotification("Error", "Source repository not found", "danger");
@@ -444,7 +444,7 @@ export class GraphUpdater {
                 return;
             }
         } else {
-            const destRepoIndex = parseInt(destRepoValue);
+            const destRepoIndex = parseInt(destRepoValue, 10);
             this.destinationRepository = Repositories.repositories()[destRepoIndex];
         }
 
