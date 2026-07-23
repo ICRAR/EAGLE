@@ -8,6 +8,7 @@ export class TestHelpers {
     //How many times we will attempt to run a tutorial step before failing the test.
     private static readonly MAX_ATTEMPTS_PER_STEP = 5;
     public static readonly UI_SETTLE_TIMEOUT = 500;
+    public static readonly UI_SETTLE_TIMEOUT_LONG = 1000;
     public static readonly SHORT_TIMEOUT = 5000;
     public static readonly LONG_TIMEOUT = 10000;
     // Counts how many times we have opened the canvas context menu.
@@ -567,27 +568,108 @@ export class TestHelpers {
     }
 
     static async setShortDescription(page: Page, description: string): Promise<void> {
-        await page.evaluate( (description: string) => {
-            (window as any).eagle.logicalGraph().fileInfo().shortDescription = description;
-            (window as any).eagle.checkEagle();
-        }, description);
+        // open the graph model data modal, and check it is visible
+        await page.locator('#openGraphModelDataModal').click();
+        await page.locator('#modelDataModal').waitFor({ state: 'visible' });
+
+        // hover over the #modelDataShortDescription
+        await page.locator('#modelDataShortDescription').hover();
+
+        // check the button.modelDataTableEditParam is visible
+        //await page.locator('#modelDataShortDescription .modelDataTableEditParam').waitFor({ state: 'visible' });
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
+
+        // click the button.modelDataTableEditParam
+        await page.locator('#modelDataShortDescription .modelDataTableEditParam').click();
+
+        // wait for the #inputMarkdownModal to be visible
+        //await page.locator('#inputMarkdownModal').waitFor({ state: 'visible' });
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
+
+        // check the state of the #editInputMarkdownModalInput form-switch, if enabled, do nothing, if disabled, click it to enable it
+        const formSwitch = await page.locator('#editMarkdownSwitchCheck');
+        if (!(await formSwitch.isChecked())) {
+            await formSwitch.click();
+        }
+
+        // fill the code mirror editor with the description
+        await page.evaluate(TestHelpers.setMarkdownModalContent, description);
+
+        // click the save button
+        await page.locator('#inputMarkdownModal button.affirmativeBtn').click();
+
+        // wait for the #inputMarkdownModal to be hidden
+        //await page.locator('#inputMarkdownModal').waitFor({ state: 'hidden' });
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT_LONG);
+
+        // click the close button on the #modelDataModal
+        await page.locator('#modelDataModalOKButton').click();
+
+        // wait until the #modelDataModal is hidden
+        //await page.locator('#modelDataModal').waitFor({ state: 'hidden' });
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
     }
 
     static async setDetailedDescription(page: Page, description: string): Promise<void> {
-        await page.evaluate( (description: string) => {
-            (window as any).eagle.logicalGraph().fileInfo().detailedDescription = description;
-            (window as any).eagle.checkEagle();
-        }, description);
+        // open the graph model data modal, and check it is visible
+        await page.locator('#openGraphModelDataModal').click();
+        await page.locator('#modelDataModal').waitFor({ state: 'visible' });
+
+        // hover over the #modelDataDetailedDescription
+        await page.locator('#modelDataDetailedDescription').hover();
+
+        // check the button.modelDataTableEditParam is visible
+        //await page.locator('#modelDataDetailedDescription .modelDataTableEditParam').waitFor({ state: 'visible' });
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
+
+        // click the button.modelDataTableEditParam
+        await page.locator('#modelDataDetailedDescription .modelDataTableEditParam').click();
+
+        // wait for the #inputMarkdownModal to be visible
+        //await page.locator('#inputMarkdownModal').waitFor({ state: 'visible' });
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
+
+        // check the state of the #editInputMarkdownModalInput form-switch, if enabled, do nothing, if disabled, click it to enable it
+        const formSwitch = await page.locator('#editMarkdownSwitchCheck');
+        if (!(await formSwitch.isChecked())) {
+            await formSwitch.click();
+        }
+
+        await page.evaluate(TestHelpers.setMarkdownModalContent, description);
+
+        // click the save button
+        await page.locator('#inputMarkdownModal button.affirmativeBtn').click();
+
+        // wait for the #inputMarkdownModal to be hidden
+        //await page.locator('#inputMarkdownModal').waitFor({ state: 'hidden' });
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT_LONG);
+
+        // click the close button on the #modelDataModal
+        await page.locator('#modelDataModalOKButton').click();
+
+        // wait until the #modelDataModal is hidden
+        //await page.locator('#modelDataModal').waitFor({ state: 'hidden' });
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
+    }
+
+    static setMarkdownModalContent(content: string): void {
+        const editor = ($('#inputMarkdownModal') as JQuery<HTMLElement>).data('editor');
+        editor.setValue(content);
+    }
+
+    static getMarkdownModalContent(): string {
+        const editor = ($('#inputMarkdownModal') as JQuery<HTMLElement>).data('editor');
+        return editor.getValue();
     }
 
     // Set the content of the editor in the modal
-    static setEditorContent(content: string): void {
+    static setCodeModalContent(content: string): void {
         const editor = ($('#inputCodeModal') as JQuery<HTMLElement>).data('editor');
         editor.setValue(content);
     }
 
     // Get the content of the editor in the modal
-    static getEditorContent(): string {
+    static getCodeModalContent(): string {
         const editor = ($('#inputCodeModal') as JQuery<HTMLElement>).data('editor');
         return editor.getValue();
     }
@@ -639,7 +721,7 @@ export class TestHelpers {
         await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
 
         // set the content of the editor in the modal
-        await page.evaluate(TestHelpers.setEditorContent, s);
+        await page.evaluate(TestHelpers.setCodeModalContent, s);
         await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
 
         // click 'OK' to save the graph
@@ -663,7 +745,7 @@ export class TestHelpers {
         await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
 
         // set the content of the editor in the modal
-        await page.evaluate(TestHelpers.setEditorContent, s);
+        await page.evaluate(TestHelpers.setCodeModalContent, s);
         await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
 
         // click 'OK' to save the graph
@@ -686,7 +768,7 @@ export class TestHelpers {
             await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
 
             // get JSON from modal
-            const outputOJS: string = await page.evaluate(TestHelpers.getEditorContent);
+            const outputOJS: string = await page.evaluate(TestHelpers.getCodeModalContent);
 
             await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
             await page.locator('#inputCodeModal button.affirmativeBtn').click()
@@ -755,9 +837,21 @@ export class TestHelpers {
     }
 
     static async getNumWarningsErrors(page: Page): Promise<number> {
-        return await page.evaluate(() => {
-            return (window as any).eagle.graphWarnings().length + (window as any).eagle.graphErrors().length;
-        });
+        const checkButton = page.locator('#checkEagleWarnings');
+        if (!(await checkButton.isVisible())) {
+            return 0;
+        }
+
+        const warningBadge = page.locator('#checkEagleWarnings span.badge.bg-warning:visible').first();
+        const errorBadge = page.locator('#checkEagleWarnings span.badge.bg-danger:visible').first();
+
+        const warningText = (await warningBadge.count()) > 0 ? (await warningBadge.textContent()) : null;
+        const errorText = (await errorBadge.count()) > 0 ? (await errorBadge.textContent()) : null;
+
+        const warningCount = parseInt((warningText ?? '0').trim(), 10) || 0;
+        const errorCount = parseInt((errorText ?? '0').trim(), 10) || 0;
+
+        return warningCount + errorCount;
     }
 
     // Expand a palette accordion by index

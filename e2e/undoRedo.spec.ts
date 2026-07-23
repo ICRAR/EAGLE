@@ -73,3 +73,30 @@ test('Undo', async ({ page }) => {
     // close the browser
     await page.close();
 });
+
+test('Undo recomputes navbar graph issues state', async ({ page }) => {
+    await page.goto('http://localhost:8888/?tutorial=none');
+
+    await TestHelpers.setUIMode(page, 'Expert');
+
+    await TestHelpers.createNewGraph(page);
+    await TestHelpers.setShortDescription(page, 'Undo regression graph');
+    await TestHelpers.setDetailedDescription(page, 'Graph used to verify navbar issue recomputation after undo.');
+
+    await expect.poll(async () => await TestHelpers.getNumWarningsErrors(page)).toBe(0);
+    await expect(page.locator('#checkEagleDone')).toBeVisible();
+
+    await TestHelpers.setShortDescription(page, '');
+    const warningCountAfterMutation = await TestHelpers.getNumWarningsErrors(page);
+
+    expect(warningCountAfterMutation).toBeGreaterThan(0);
+    await expect(page.locator('#checkEagleWarnings')).toBeVisible();
+
+    await TestHelpers.undo(page);
+
+    await expect.poll(async () => await TestHelpers.getNumWarningsErrors(page)).toBe(0);
+    await expect(page.locator('#checkEagleDone')).toBeVisible();
+    await expect(page.locator('#checkEagleWarnings')).toBeHidden();
+
+    await page.close();
+});

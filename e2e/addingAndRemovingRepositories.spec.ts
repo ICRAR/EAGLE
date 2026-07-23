@@ -330,19 +330,17 @@ test('gitCommit filename validator UX', async ({ page }) => {
   await page.goto('http://localhost:8888/?tutorial=none');
   await expect(page).toHaveTitle(/EAGLE/);
 
-  // Open modal in a controlled state so only filename validation is under test.
-  await page.evaluate(() => {
-    const w = window as any;
-    const $ = w.$;
-    const graphFileType = w.Eagle?.FileType?.Graph ?? 'Graph';
-
-    $('#gitCommitModal').data('fileType', graphFileType);
-    $('#gitCommitModalFileNameInput').val('invalid-name.txt');
-    $('#gitCommitModal').modal('show');
-    $('#gitCommitModalFileNameInput').trigger('input');
-  });
+  // Open git commit modal via UI interactions.
+  await TestHelpers.setUIMode(page, 'Expert');
+  await TestHelpers.createNewGraph(page);
+  await page.locator('#navbarDropdownGraph').click();
+  await page.getByText('Git Storage').first().hover();
+  await page.locator('#commitToGitAsGraph').click();
 
   await expect(page.locator('#gitCommitModal')).toBeVisible();
+
+  // Invalid extension should show inline feedback and disable commit.
+  await page.locator('#gitCommitModalFileNameInput').fill('invalid-name.txt');
   await expect(page.locator('#gitCommitModalFileNameInput')).toHaveClass(/is-invalid/);
   await expect(page.locator('#validationFeedback')).toContainText("File name must end with '.graph'.");
   await expect(page.locator('#gitCommitModalAffirmativeButton')).toBeDisabled();
@@ -352,8 +350,18 @@ test('gitCommit filename validator UX', async ({ page }) => {
   await expect(page.locator('#gitCommitModalFileNameInput')).toHaveClass(/is-valid/);
   await expect(page.locator('#gitCommitModalAffirmativeButton')).toBeEnabled();
 
-  await page.locator('#gitCommitModalNegativeButton').click();
-  await expect(page.locator('#gitCommitModal')).toBeHidden();
+  const gitCommitModal = page.locator('#gitCommitModal');
+  const gitCommitCancelButton = page.locator('#gitCommitModalNegativeButton');
+
+  // Modal close is animated and can be flaky across browsers; assert transition states before final hidden check.
+  await expect(gitCommitCancelButton).toBeVisible();
+  await expect(gitCommitCancelButton).toBeEnabled();
+  await gitCommitCancelButton.click();
+
+  // First ensure bootstrap removed the "show" state, then confirm backdrop is gone and modal is hidden.
+  await expect(gitCommitModal).not.toHaveClass(/show/);
+  await expect(page.locator('.modal-backdrop.show')).toHaveCount(0);
+  await expect(gitCommitModal).toBeHidden({ timeout: TestHelpers.LONG_TIMEOUT });
 
   await page.close();
 });
