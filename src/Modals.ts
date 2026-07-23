@@ -1,6 +1,6 @@
 import { Daliuge } from './Daliuge';
 import { Eagle } from './Eagle';
-import { Field } from './Field';
+import type { Field } from './Field';
 import { FileLocation } from "./FileLocation";
 import { Repositories } from './Repositories';
 import { Repository } from './Repository';

@@ -5,11 +5,11 @@ import { Errors } from "./Errors";
 import { Field } from "./Field";
 import { FileInfo } from "./FileInfo";
 import { Id } from "./Id";
-import { LogicalGraph } from "./LogicalGraph";
-import { Node } from "./Node";
+import type { LogicalGraph } from "./LogicalGraph";
+import type { Node } from "./Node";
 import { Utils } from "./Utils";
 import { EagleConfig } from "./EagleConfig";
-import { Daliuge } from "./Daliuge";
+import type { Daliuge } from "./Daliuge";
 
 export class GraphConfig {
     fileInfo : ko.Observable<FileInfo>;

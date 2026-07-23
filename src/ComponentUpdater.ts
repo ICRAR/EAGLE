@@ -1,8 +1,8 @@
 import { Errors } from './Errors';
-import { Field } from './Field';
-import { LogicalGraph } from './LogicalGraph';
+import type { Field } from './Field';
+import type { LogicalGraph } from './LogicalGraph';
 import { Node } from './Node';
-import { Palette } from './Palette';
+import type { Palette } from './Palette';
 
 export class ComponentUpdater {
 

@@ -5,12 +5,12 @@ import { Category } from './Category';
 import { Daliuge } from './Daliuge';
 import { Eagle } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
-import { Edge } from "./Edge";
+import type { Edge } from "./Edge";
 import { Errors } from './Errors';
-import { GraphConfigField } from "./GraphConfig";
+import type { GraphConfigField } from "./GraphConfig";
 import { Id } from './Id';
-import { LogicalGraph } from './LogicalGraph';
-import { Node } from './Node';
+import type { LogicalGraph } from './LogicalGraph';
+import type { Node } from './Node';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
 

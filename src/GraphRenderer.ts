@@ -28,8 +28,8 @@ import { Eagle } from './Eagle';
 import { Errors } from './Errors';
 import { EagleConfig } from "./EagleConfig";
 import { Edge } from "./Edge";
-import { Field } from './Field';
-import { LogicalGraph } from './LogicalGraph';
+import type { Field } from './Field';
+import type { LogicalGraph } from './LogicalGraph';
 import { Node } from './Node';
 import { Utils } from './Utils';
 import { Setting } from './Setting';
@@ -370,7 +370,7 @@ export class GraphRenderer {
         const visualPos = visual.getPosition()
 
         const halfWidth = visual.getWidth()/2
-        let result : {x:number, y:number} = {x:0,y:0}
+        const result : {x:number, y:number} = {x:0,y:0}
 
         if(angle > 45 && angle < 135){
             result.x = visualPos.x

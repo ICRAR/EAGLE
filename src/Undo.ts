@@ -25,7 +25,7 @@
 import * as ko from "knockout";
 
 import { Eagle } from './Eagle';
-import { Errors } from "./Errors";
+import type { Errors } from "./Errors";
 import { Hierarchy } from "./Hierarchy";
 import { LogicalGraph } from './LogicalGraph';
 import { ParameterTable } from "./ParameterTable";

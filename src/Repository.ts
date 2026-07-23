@@ -3,10 +3,10 @@ import * as ko from "knockout";
 import { Eagle } from './Eagle';
 import { GitHub } from './GitHub';
 import { GitLab } from "./GitLab";
-import { FileLocation } from "./FileLocation";
+import type { FileLocation } from "./FileLocation";
 import { Id } from './Id';
-import { RepositoryFolder } from './RepositoryFolder';
-import { RepositoryFile } from './RepositoryFile';
+import type { RepositoryFolder } from './RepositoryFolder';
+import type { RepositoryFile } from './RepositoryFile';
 import { Utils } from './Utils';
 
 
