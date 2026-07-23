@@ -85,6 +85,7 @@
         "no-script-url": "error",
         "no-self-assign": "error",
         "no-return-await": "error",
+        "no-promise-executor-return": "error",
         "no-caller": "error",
         "no-alert": "error",
         "no-div-regex": "error",

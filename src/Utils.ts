@@ -3505,7 +3505,9 @@ export class Utils {
     }
 
     // a wait/delay for a given number of milliseconds (used for debugging)
-    static delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+    static delay = (ms: number) => new Promise(res => {
+        setTimeout(res, ms);
+    });
 
     // sanitize a string to be used as a filename
     static sanitizeFileName = (name: string): string => {
