@@ -5568,7 +5568,7 @@ export class Eagle {
         for (let i = 0 ; i < this.palettes().length; i++){
             const element = document.querySelector('#collapse'+i);
             if (element === null){
-                console.error("Palette accordion element not found: " + '#collapse'+i);
+                console.error("Palette accordion element not found: #collapse" + i);
                 continue;
             }
 
@@ -5581,7 +5581,7 @@ export class Eagle {
         for (let i = 0 ; i < this.palettes().length; i++){
             const element = document.querySelector('#collapse'+i);
             if (element === null){
-                console.error("Palette accordion element not found: " + '#collapse'+i);
+                console.error("Palette accordion element not found: #collapse" + i);
                 continue;
             }
 
