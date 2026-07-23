@@ -109,9 +109,7 @@ export class RightClick {
         }else {
             setTimeout(function() {
                 if($("#customContextMenu:hover").length === 0){
-                    if($('#customContextMenu').hasClass('forceShow')){
-                        return
-                    }else {
+                    if(!$('#customContextMenu').hasClass('forceShow')){
                         $("#customContextMenu").remove()
                         $('.fullOpacity').removeClass('fullOpacity')//this exists twice so it happens at the correct time with this timeout func
                     }

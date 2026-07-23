@@ -222,7 +222,7 @@ export class Edge {
 
     getNodeIssuesHtml : ko.PureComputed<string> = ko.pureComputed(() => {
         const errorsWarnings = this.getErrorsWarnings()
-        return 'This Edge has **' + errorsWarnings.errors.length + '** errors and **' + errorsWarnings.warnings.length + '** warnings. \ Click to view the graph issues table.'
+        return 'This Edge has **' + errorsWarnings.errors.length + '** errors and **' + errorsWarnings.warnings.length + '** warnings. Click to view the graph issues table.'
     }, this);
 
     static toOJSJson(edge : Edge) : object {

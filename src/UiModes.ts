@@ -17,12 +17,11 @@ export class UiModeSystem {
 
     static getUiModeNamesList() : string[] {
         const uiModeNamesList : string[] = []
+
+        //this generates the list of ui mode options the user can select in the settings modal, student mode is not added to this list of options as it is not meant for the normal user. 
+        //It is only used when loading eagle with a specific url
         UiModeSystem.getUiModes().forEach(function(uiMode){
-            if(uiMode.getName() === 'Student'){
-                //this generates the list of ui mode options the user can select in the settings modal, student mode is not added to this list of options as it is not meant for the normal user. 
-                //It is only used when loading eagle with a specific url
-                return
-            }else{
+            if(uiMode.getName() !== 'Student'){
                 uiModeNamesList.push(uiMode.getName())
             }
         })
@@ -99,7 +98,7 @@ export class UiModeSystem {
         //essentially we wait for one second with the cooldown, then upload the accumulated changes and reset the cooldown.
         //the unwanted calls to save are due to the need to have the Settings class array and UiModes Class Array linked
         //this is because settings is essentially a copy of the active ui mode interacting with the ui and it has a subscribe function to keep the uimodes array in sync when it is changed by the user.
-        if(UiModeSystem.localStorageUpdateCoolDown===false){
+        if(!UiModeSystem.localStorageUpdateCoolDown){
             UiModeSystem.localStorageUpdateCoolDown = true;
             setTimeout(function () {
                 const uiModesObj : any[] = []
@@ -123,8 +122,6 @@ export class UiModeSystem {
                 localStorage.setItem('activeUiMode', UiModeSystem.getActiveUiMode().getName());
                 UiModeSystem.localStorageUpdateCoolDown = false;
             }, EagleConfig.STANDARD_UI_LONG_TIMEOUT);
-        }else{
-            return
         }
     }
 

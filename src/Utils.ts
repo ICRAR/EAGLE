@@ -158,7 +158,7 @@ export class Utils {
     // extracts a file name from the full path.
     static getFileNameFromFullPath(fullPath : string) : string {
         if (typeof fullPath === 'undefined'){return "";}
-        return fullPath.replace(/^.*[\\\/]/, '');
+        return fullPath.replace(/^.*[\\/]/, '');
     }
 
     // extracts a file path (not including the file name) from the full path.
@@ -676,7 +676,7 @@ export class Utils {
                 return { isValid: false, message: label + " cannot have path segments starting with '.'." };
             }
 
-            if (/[\x00-\x1F\x7F~^:?*\[\\]/.test(userString)){
+            if (/[\x00-\x1F\x7F~^:?*[\\]/.test(userString)){
                 return { isValid: false, message: label + " contains invalid characters." };
             }
 
@@ -3511,7 +3511,7 @@ export class Utils {
     static sanitizeFileName = (name: string): string => {
         // Replace invalid filename characters with underscores
         // This regex covers most OS restrictions (Windows, macOS, Linux)
-        return name.replace(/[^a-zA-Z0-9_\-\.]/g, "_");
+        return name.replace(/[^a-zA-Z0-9_.-]/g, "_");
     }
 
     // Reads a value from a DOM element using a zero-argument jQuery method (e.g. 'val').

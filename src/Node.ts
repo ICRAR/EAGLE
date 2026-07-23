@@ -1269,7 +1269,7 @@ export class Node {
 
     getNodeIssuesHtml : ko.PureComputed<string> = ko.pureComputed(() => {
         const errorsWarnings = this.getAllErrorsWarnings()
-        return 'This Node has **' + errorsWarnings.errors.length + '** errors and **' + errorsWarnings.warnings.length + '** warnings. \ Click to view the graph issues table.'
+        return 'This Node has **' + errorsWarnings.errors.length + '** errors and **' + errorsWarnings.warnings.length + '** warnings. Click to view the graph issues table.'
     }, this);
 
     getInspectorFields : ko.PureComputed<Field[]> = ko.pureComputed(() => {

@@ -594,7 +594,6 @@ export class ParameterTable {
             configField.setComment(fieldComment);
         } catch (error){
             console.error(error);
-            return;
         }
     }
 
@@ -1136,9 +1135,7 @@ export class ColumnVisibilities {
 
         const columnVisibilitiesObjArray : any[] = JSON.parse(columnVisibilities)
         const that = ParameterTable.getActiveColumnVisibility()
-        if(columnVisibilitiesObjArray === null){
-            return
-        }else{
+        if(columnVisibilitiesObjArray !== null){
             columnVisibilitiesObjArray.forEach(function(columnVisibility){
 
                 const columnVisActual = that.getModeByName(columnVisibility.name)
