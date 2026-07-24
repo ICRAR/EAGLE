@@ -388,7 +388,7 @@ export class ParameterTable {
     }
 
     static isSelected(selectionName: string, selectionParent: Field): boolean {
-        return ParameterTable.selection() != null && selectionParent == ParameterTable.selectionParent() && ParameterTable.selectionName() == selectionName;
+        return ParameterTable.selection() != null && selectionParent === ParameterTable.selectionParent() && ParameterTable.selectionName() === selectionName;
     }
 
     static resetSelection() : void {
@@ -843,7 +843,7 @@ export class ParameterTable {
             return false;
         }
         
-        if (Eagle.selectedLocation() != Eagle.FileType.Palette && Setting.findValue<boolean>(Setting.ALLOW_COMPONENT_EDITING, false)){
+        if (Eagle.selectedLocation() !== Eagle.FileType.Palette && Setting.findValue<boolean>(Setting.ALLOW_COMPONENT_EDITING, false)){
             return false;
         }
         

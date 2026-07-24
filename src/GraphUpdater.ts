@@ -206,7 +206,7 @@ export class GraphUpdater {
     private static collapseToggleInitialised = false;
 
     static initCollapseToggle(): void {
-        if (GraphUpdater.collapseToggleInitialised) return;
+        if (GraphUpdater.collapseToggleInitialised) { return; }
         const stepsEl = document.getElementById('graphUpdaterSteps');
         const toggleEl = document.getElementById('graphUpdaterStepsToggle');
         if (stepsEl && toggleEl) {
@@ -372,8 +372,7 @@ export class GraphUpdater {
             let lg: LogicalGraph;
             try {
                 lg = fromJsonFunc(graphObject, graphFile.file().name, {"errors":[], "warnings":[]});
-            }
-            catch (error) {
+            } catch (error) {
                 let errorMessage: string;
 
                 if (schemaVersion === Setting.SchemaVersion.Unknown){

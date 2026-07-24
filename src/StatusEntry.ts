@@ -54,7 +54,7 @@ export class StatusEntry {
             new StatusEntry(KeyboardShortcut.idToKeysText('quick_action', true),' search and run functions.', Eagle.getInstance().selectedObjects().length === 0),
             new StatusEntry(KeyboardShortcut.idToKeysText('open_graph_configurations_table', true), ' display all graph configs.',  Eagle.getInstance().selectedObjects().length === 0),
             //a graph is created or loaded
-            new StatusEntry(KeyboardShortcut.idToKeysText('open_graph_attributes_configuration_table', true),' display active graph config.', Eagle.getInstance().logicalGraph().fileInfo().name != "" && Eagle.getInstance().selectedObjects().length === 0),
+            new StatusEntry(KeyboardShortcut.idToKeysText('open_graph_attributes_configuration_table', true),' display active graph config.', Eagle.getInstance().logicalGraph().fileInfo().name !== "" && Eagle.getInstance().selectedObjects().length === 0),
             //No Graph loaded or created
             new StatusEntry(KeyboardShortcut.idToKeysText('new_graph', true),' new graph.', Eagle.getInstance().logicalGraph().fileInfo().name === ""),
             //something is selected

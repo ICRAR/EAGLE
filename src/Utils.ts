@@ -220,9 +220,9 @@ export class Utils {
 
         const pos = basename.lastIndexOf(".");           // get last position of `.`
 
-        if (basename === "" || pos < 1)            // if file name is empty or ...
+        if (basename === "" || pos < 1){           // if file name is empty or ...
             return "";                             //  `.` not found (-1) or comes first (0)
-
+        }
         return basename.slice(pos + 1);            // extract extension ignoring `.`
     }
 
@@ -234,7 +234,7 @@ export class Utils {
         const fileExtension = Utils.getFileExtension(filename);
 
         // Check if the extension is in the list of allowed extensions
-        if ($.inArray(fileExtension, Utils.FILE_EXTENSIONS) != -1) {
+        if ($.inArray(fileExtension, Utils.FILE_EXTENSIONS) !== -1) {
             return true;
         } else {
             return false;
@@ -245,11 +245,11 @@ export class Utils {
      * Returns an appropriate diagram file extension.
      */
     static getDiagramExtension(fileType : Eagle.FileType) : string {
-        if (fileType == Eagle.FileType.Graph) {
+        if (fileType === Eagle.FileType.Graph) {
             return "graph";
-        } else if (fileType == Eagle.FileType.Palette) {
+        } else if (fileType === Eagle.FileType.Palette) {
             return "palette";
-        } else if (fileType == Eagle.FileType.GraphConfig) {
+        } else if (fileType === Eagle.FileType.GraphConfig) {
             return "graphConfig";
         } else {
             console.error("Utils.getDiagramExtension() : Unknown file type! (" + fileType + ")");
@@ -2196,7 +2196,7 @@ export class Utils {
 
         function walk(parent: Element | DocumentFragment): void {
             for (const child of Array.from(parent.childNodes)) {
-                if (!(child instanceof Element)) continue;
+                if (!(child instanceof Element)) { continue; }
                 const tag = child.tagName.toLowerCase();
                 if (!ALLOWED_TAGS.has(tag)) {
                     if (DANGEROUS_TAGS.has(tag)) {

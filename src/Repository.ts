@@ -329,26 +329,19 @@ export class Repository {
     // 2. alphabetically by name
     // 3. alphabetically by branch (master always first)
     public static repositoriesSortFunc(a : Repository, b : Repository) : number {
-        if (a.service < b.service)
-            return -1;
+        if (a.service < b.service) { return -1; }
+        
+        if (a.service > b.service) { return 1; }
 
-        if (a.service > b.service)
-            return 1;
+        if (a.name < b.name) { return -1; }
 
-        if (a.name < b.name)
-            return -1;
+        if (a.name > b.name) { return 1; }
 
-        if (a.name > b.name)
-            return 1;
+        if (a.branch === "master") { return -1; }
 
-        if (a.branch === "master")
-            return -1;
+        if (a.branch < b.branch) { return -1; }
 
-        if (a.branch < b.branch)
-            return -1;
-
-        if (a.branch > b.branch)
-            return 1;
+        if (a.branch > b.branch) { return 1; }
 
         return 0;
     }

@@ -596,13 +596,11 @@ export class Modals {
     static showBrowseDockerHub(image: string, tag: string, callback: Modals.UserDockerHubCallback ) : void {
         const dockerHubBrowser = Eagle.getInstance().dockerHubBrowser();
 
-        // check if supplied values are usable, populate the UI,
+        // check if supplied values are usable, populate the UI, otherwise, a fetch is required
         if (image !== ""){
             const username: string = image.split('/')[0];
             dockerHubBrowser.populate(username, image, tag);
-        }
-        else // otherwise, a fetch is required
-        {
+        } else {
             Eagle.getInstance().dockerHubBrowser().fetchImages(null, null);
         }
 

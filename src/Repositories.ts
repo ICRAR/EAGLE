@@ -88,12 +88,12 @@ export class Repositories {
             return;
         }
 
-        if (customRepository.name.trim() == ""){
+        if (customRepository.name.trim() === ""){
             console.log("Error", "Repository name is empty!");
             return;
         }
 
-        if (customRepository.branch.trim() == ""){
+        if (customRepository.branch.trim() === ""){
             Utils.showUserMessage("Error", "Repository branch is empty! If you wish to use the master branch, please enter 'master'.");
             return;
         }

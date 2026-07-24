@@ -81,11 +81,11 @@ export class RightClick {
                 }
             })
 
-            if(paletteNodesHtml != ''){
+            if(paletteNodesHtml !== ''){
                 $('#paletteNodesSearchResult').append('<h5 class="rightClickDropdownDividerTitle" tabindex="-1">Palette Nodes</h5>')
                 $('#paletteNodesSearchResult').append(paletteNodesHtml)
             }
-            if(graphNodesHtml != ''){
+            if(graphNodesHtml !== ''){
                 $('#paletteNodesSearchResult').append('<h5 class="rightClickDropdownDividerTitle" tabindex="-1">Graph Nodes</h5>')
                 $('#paletteNodesSearchResult').append(graphNodesHtml)
             }
@@ -341,7 +341,7 @@ export class RightClick {
                     }else{
                         if($(".rightClickFocus").length === 0){
                             //if there is nothing currently highlighted
-                            if($('.rightClickFocusParent').length != 0){
+                            if($('.rightClickFocusParent').length !== 0){
                                 //if there is a rightClickFocusParent, we are moving through the sub menu of a palette
                                 $('#rightClickPaletteList .rightClickFocusParent a:last').addClass('rightClickFocus')
                             }else{
@@ -385,7 +385,7 @@ export class RightClick {
                     }else{
                         if($(".rightClickFocus").length === 0){
                             //if there is nothing currently highlighted
-                            if($('.rightClickFocusParent').length != 0){
+                            if($('.rightClickFocusParent').length !== 0){
                                 //if there is a rightClickFocusParent, we are moving through the sub menu of a palette
                                 $('#rightClickPaletteList .rightClickFocusParent a:first').addClass('rightClickFocus')
                             }else{
@@ -541,7 +541,7 @@ export class RightClick {
         $('#customContextMenu').css('top',mouseY+'px')
         $('#customContextMenu').css('left',mouseX+'px')
 
-        if(passedObjectClass != 'edgeDropCreate'){
+        if(passedObjectClass !== 'edgeDropCreate'){
             // here we are grabbing the on graph location of the mouse cursor, this is where we will place the node when right clicking on the empty graph
             const x = GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null)
             const y = GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)

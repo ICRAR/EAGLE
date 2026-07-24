@@ -138,7 +138,7 @@ export class Field {
     }
 
     getDescriptionText : ko.PureComputed<string> = ko.pureComputed(() => {
-        return this.description() == "" ? "No description available (" + this.type() + ", default value:'" + this.defaultValue() + "')" : this.description() + " (" + this.type() + ", default value:'" + this.defaultValue() + "')";
+        return this.description() === "" ? "No description available (" + this.type() + ", default value:'" + this.defaultValue() + "')" : this.description() + " (" + this.type() + ", default value:'" + this.defaultValue() + "')";
     }, this);
 
     getInputPosition = () : {x:number, y:number} => {
@@ -456,7 +456,7 @@ export class Field {
         const errorsWarnings = this.getErrorsWarnings()
         const showGraphWarnings = Setting.findValue<Setting.ShowErrorsMode>(Setting.SHOW_GRAPH_WARNINGS, Setting.ShowErrorsMode.None);
 
-        if(errorsWarnings.errors.length>0 && showGraphWarnings != Setting.ShowErrorsMode.None){
+        if(errorsWarnings.errors.length>0 && showGraphWarnings !== Setting.ShowErrorsMode.None){
             return EagleConfig.getColor('graphError')
         }else if(errorsWarnings.warnings.length>0 && showGraphWarnings === Setting.ShowErrorsMode.Warnings){
             return EagleConfig.getColor('graphWarning')
@@ -845,15 +845,10 @@ export class Field {
         let encoding: Daliuge.Encoding = Daliuge.Encoding.Pickle;
         let fieldChangeable: boolean = changeable;
 
-        if (typeof data.id !== 'undefined')
-            id = data.id;
-            
-        if (typeof data.name !== 'undefined')
-            name = data.name;
-        if (typeof data.description !== 'undefined')
-            description = data.description;
-        if (typeof data.readonly !== 'undefined')
-            readonly = data.readonly;
+        if (typeof data.id !== 'undefined') { id = data.id; }   
+        if (typeof data.name !== 'undefined') { name = data.name; }
+        if (typeof data.description !== 'undefined') { description = data.description; }
+        if (typeof data.readonly !== 'undefined') { readonly = data.readonly; }
         if (typeof data.type !== 'undefined'){
             if (data.type === "Event"){
                 isEvent = true;
@@ -863,18 +858,16 @@ export class Field {
                 type = data.type;
             }
         }
-        if (typeof data.value !== 'undefined' && data.value !== null)
+        if (typeof data.value !== 'undefined' && data.value !== null) {
             value = data.value.toString();
-        if (typeof data.defaultValue !== 'undefined' && data.defaultValue !== null)
+        }
+        if (typeof data.defaultValue !== 'undefined' && data.defaultValue !== null) {
             defaultValue = data.defaultValue.toString();
-        if (typeof data.precious !== 'undefined')
-            precious = data.precious;
-        if (typeof data.options !== 'undefined')
-            options = data.options;
-        if (typeof data.positional !== 'undefined')
-            positional = data.positional;
-        if (typeof data.changeable !== 'undefined')
-            fieldChangeable = data.changeable;
+        }
+        if (typeof data.precious !== 'undefined') { precious = data.precious; }
+        if (typeof data.options !== 'undefined') { options = data.options; }
+        if (typeof data.positional !== 'undefined') { positional = data.positional; }
+        if (typeof data.changeable !== 'undefined') { fieldChangeable = data.changeable; }
 
         // handle legacy fieldType
         if (typeof data.fieldType !== 'undefined'){
@@ -908,14 +901,12 @@ export class Field {
             }
         }
 
-        if (typeof data.parameterType !== 'undefined')
+        if (typeof data.parameterType !== 'undefined') {
             parameterType = Daliuge.dlgToFieldTypeMap[<Daliuge.DLGFieldType>data.parameterType] || Daliuge.FieldType.Unknown;
-        if (typeof data.usage !== 'undefined')
-            usage = data.usage;
-        if (typeof data.event !== 'undefined')
-            isEvent = data.event;
-        if (typeof data.encoding !== 'undefined')
-            encoding = data.encoding;
+        }
+        if (typeof data.usage !== 'undefined') { usage = data.usage; }
+        if (typeof data.event !== 'undefined') { isEvent = data.event; }
+        if (typeof data.encoding !== 'undefined') { encoding = data.encoding; }
         const result = new Field(node, id, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage);
         result.isEvent(isEvent);
         result.encoding(encoding);
@@ -930,16 +921,11 @@ export class Field {
         let description: string = "";
         let encoding: Daliuge.Encoding = Daliuge.Encoding.Pickle;
 
-        if (typeof data.name !== 'undefined')
-            name = data.name;
-        if (typeof data.event !== 'undefined')
-            event = data.event;
-        if (typeof data.type !== 'undefined')
-            type = data.type;
-        if (typeof data.description !== 'undefined')
-            description = data.description;
-        if (typeof data.encoding !== 'undefined')
-            encoding = data.encoding;
+        if (typeof data.name !== 'undefined') { name = data.name; }
+        if (typeof data.event !== 'undefined') { event = data.event; }
+        if (typeof data.type !== 'undefined') { type = data.type; }
+        if (typeof data.description !== 'undefined') { description = data.description; }
+        if (typeof data.encoding !== 'undefined') { encoding = data.encoding; }
 
         // avoid empty text fields if we can
         if (name === ""){
@@ -971,41 +957,28 @@ export class Field {
         let encoding: Daliuge.Encoding = Daliuge.Encoding.Pickle;
         let fieldChangeable: boolean = changeable;
 
-        if (typeof data.id !== 'undefined')
-            id = data.id;
-        if (typeof data.name !== 'undefined')
-            name = data.name;
-        if (typeof data.value !== 'undefined')
+        if (typeof data.id !== 'undefined') { id = data.id; }
+        if (typeof data.name !== 'undefined') { name = data.name; }
+        if (typeof data.value !== 'undefined') {
             if (data.value !== null){
                 value = data.value.toString();
             } else {
                 value = null;
             }
-        if (typeof data.defaultValue !== 'undefined')
-            defaultValue = data.defaultValue.toString();
-        if (typeof data.description !== 'undefined')
-            description = data.description;
-        if (typeof data.readonly !== 'undefined')
-            readonly = data.readonly;
-        if (typeof data.type !== 'undefined')
-            type = data.type;
-        if (typeof data.precious !== 'undefined')
-            precious = data.precious;
-        if (typeof data.options !== 'undefined')
-            options = data.options;
-        if (typeof data.positional !== 'undefined')
-            positional = data.positional;
-        if (typeof data.changeable !== 'undefined')
-            fieldChangeable = data.changeable;
-        if (typeof data.parameterType !== 'undefined')
-            parameterType = data.parameterType;
-        if (typeof data.usage !== 'undefined')
-            usage = data.usage;
+        }
+        if (typeof data.defaultValue !== 'undefined') { defaultValue = data.defaultValue.toString(); }
+        if (typeof data.description !== 'undefined') { description = data.description; }
+        if (typeof data.readonly !== 'undefined') { readonly = data.readonly; }
+        if (typeof data.type !== 'undefined') { type = data.type; }
+        if (typeof data.precious !== 'undefined') { precious = data.precious; }
+        if (typeof data.options !== 'undefined') { options = data.options; }
+        if (typeof data.positional !== 'undefined') { positional = data.positional; }
+        if (typeof data.changeable !== 'undefined') { fieldChangeable = data.changeable; }
+        if (typeof data.parameterType !== 'undefined') { parameterType = data.parameterType; }
+        if (typeof data.usage !== 'undefined') { usage = data.usage; }
 
-        if (typeof data.event !== 'undefined')
-            event = data.event;
-        if (typeof data.encoding !== 'undefined')
-            encoding = data.encoding;
+        if (typeof data.event !== 'undefined') { event = data.event; }
+        if (typeof data.encoding !== 'undefined') { encoding = data.encoding; }
 
         const f = new Field(node, id, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage);
         f.isEvent(event);
@@ -1134,7 +1107,7 @@ export class Field {
 
         // check that fields have parameter types that are suitable for this node
         // skip the 'drop class' component parameter, those are always suitable for every node
-        if (field.getDisplayText() != Daliuge.FieldName.DROP_CLASS && field.getParameterType() != Daliuge.FieldType.Component){
+        if (field.getDisplayText() !== Daliuge.FieldName.DROP_CLASS && field.getParameterType() !== Daliuge.FieldType.Component){
             if (
                 (field.getParameterType() === Daliuge.FieldType.Component) && !CategoryData.getCategoryData(node.getCategory()).canHaveComponentParameters ||
                 (field.getParameterType() === Daliuge.FieldType.Application) && !CategoryData.getCategoryData(node.getCategory()).canHaveApplicationArguments ||
@@ -1185,17 +1158,13 @@ export class Field {
     }
 
     public static sortFunc(a: Field, b: Field) : number {
-        if (a.displayText() < b.displayText())
-            return -1;
+        if (a.displayText() < b.displayText()) { return -1; }
 
-        if (a.displayText() > b.displayText())
-            return 1;
+        if (a.displayText() > b.displayText()) { return 1; }
 
-        if (a.type() < b.type())
-            return -1;
+        if (a.type() < b.type()) { return -1; }
 
-        if (a.type() > b.type())
-            return 1;
+        if (a.type() > b.type()) { return 1; }
 
         return 0;
     }
