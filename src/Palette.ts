@@ -455,7 +455,7 @@ export class Palette {
         const palette_url = FileLocation.generateUrl(fileInfo.location);
 
         // copy to clipboard
-        navigator.clipboard.writeText(palette_url);
+        void navigator.clipboard.writeText(palette_url);
 
         // notification
         Utils.showNotification("Palette URL", "Copied to clipboard", "success");

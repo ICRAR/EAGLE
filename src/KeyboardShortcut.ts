@@ -211,36 +211,36 @@ export class KeyboardShortcut {
             text: "New Graph",
             keys: [new Key("n")],
             tags: ['create','canvas'],
-            run: (eagle): void => {eagle.newLogicalGraph();}
+            run: (eagle): void => {void eagle.newLogicalGraph();}
         }),
         new KeyboardShortcut({
             id: "new_palette",
             text: "New palette",
             keys: [new Key("n", Modifier.Shift)],
             tags: ['create'],
-            run: (eagle): void => {eagle.newPalette();}
+            run: (eagle): void => {void eagle.newPalette();}
         }),
         new KeyboardShortcut({
             id: "new_config",
             text: "New config",
             keys: [new Key("n", Modifier.Alt), new Key("n", Modifier.Ctrl)],
             tags: ['create'],
-            run: (eagle): void => {eagle.newConfig();}
+            run: (eagle): void => {void eagle.newConfig();}
         }),
         new KeyboardShortcut({
             id: "create_new_graph_from_json",
             text: "Create New Graph From Json",
-            run: (eagle): void => {eagle.newLogicalGraphFromJson();}
+            run: (eagle): void => {void eagle.newLogicalGraphFromJson();}
         }),
         new KeyboardShortcut({
             id: "create_new_palette_from_json",
             text: "Create New Palette From Json",
-            run: (eagle): void => {eagle.newPaletteFromJson();}
+            run: (eagle): void => {void eagle.newPaletteFromJson();}
         }),
         new KeyboardShortcut({
             id: "display_graph_as_json",
             text: "Display Graph As Json",
-            run: (eagle): void => {eagle.displayObjectAsJson(Eagle.FileType.Graph, eagle.logicalGraph());}
+            run: (eagle): void => {void eagle.displayObjectAsJson(Eagle.FileType.Graph, eagle.logicalGraph());}
         }),
         // load/save
         // TODO: this one (open_graph_from_repo) does almost nothing! we should have a real modal
@@ -249,73 +249,73 @@ export class KeyboardShortcut {
             text: "Open Graph From Repo",
             keys: [new Key("g")],
             tags: ['git','repository','github','gitlab','load','canvas'],
-            run: (eagle): void => {eagle.changeRightWindowMode(Eagle.RightWindowMode.Repository); SideWindow.setShown('right',true);}
+            run: (eagle): void => {void eagle.changeRightWindowMode(Eagle.RightWindowMode.Repository); SideWindow.setShown('right',true);}
         }),
         new KeyboardShortcut({
             id: "open_graph_from_local_disk",
             text: "Open Graph From Local Disk",
             keys: [new Key("g", Modifier.Shift)],
             tags: ['upload','load','canvas'],
-            run: (eagle): void => {eagle.getGraphFileToLoad();}
+            run: (eagle): void => {void eagle.getGraphFileToLoad();}
         }),
         new KeyboardShortcut({
             id: "open_palette_from_repo",
             text: "Open Palette From Repo",
             keys: [new Key("p")],
             tags: ['git','repository','github','gitlab','load','template'],
-            run: (eagle): void => {eagle.changeRightWindowMode(Eagle.RightWindowMode.Repository);SideWindow.setShown('right',true);}
+            run: (eagle): void => {void eagle.changeRightWindowMode(Eagle.RightWindowMode.Repository);SideWindow.setShown('right',true);}
         }),
         new KeyboardShortcut({
             id: "open_palette_from_local_disk",
             text: "Open Palette From Local Disk",
             keys: [new Key("p", Modifier.Shift)],
             tags: ['template', 'upload'],
-            run: (eagle): void => {eagle.getPaletteFileToLoad();}
+            run: (eagle): void => {void eagle.getPaletteFileToLoad();}
         }),
 
         new KeyboardShortcut({
             id: "save_graph_to_repo",
             text: "Save Graph To Repo",
             tags: ['git'],
-            run: (eagle): void => {eagle.commitToGit(Eagle.FileType.Graph);}
+            run: (eagle): void => {void eagle.commitToGit(Eagle.FileType.Graph);}
         }),
         new KeyboardShortcut({
             id: "save_graph_to_repo_as",
             text: "Save Graph To Repo As",
             tags: ['git'],
-            run: (eagle): void => {eagle.commitToGitAs(Eagle.FileType.Graph);}
+            run: (eagle): void => {void eagle.commitToGitAs(Eagle.FileType.Graph);}
         }),
         new KeyboardShortcut({
             id: "save_palette_to_repo",
             text: "Save Palette To Repo",
             tags: ['git'],
-            run: (eagle): void => {eagle.commitToGit(Eagle.FileType.Palette);}
+            run: (eagle): void => {void eagle.commitToGit(Eagle.FileType.Palette);}
         }),
         new KeyboardShortcut({
             id: "save_palette_to_repo_as",
             text: "Save Palette To Repo As",
             tags: ['git'],
-            run: (eagle): void => {eagle.commitToGitAs(Eagle.FileType.Palette);}
+            run: (eagle): void => {void eagle.commitToGitAs(Eagle.FileType.Palette);}
         }),
         new KeyboardShortcut({
             id: "save_graph_to_local_disk",
             text: "Save Graph To Local Disk",
-            run: (eagle): void => {eagle.saveFileToLocal(Eagle.FileType.Graph);}
+            run: (eagle): void => {void eagle.saveFileToLocal(Eagle.FileType.Graph);}
         }),
         new KeyboardShortcut({
             id: "save_graph_to_local_disk_as",
             text: "Save Graph To Local Disk As",
-            run: (eagle): void => {eagle.saveAsFileToLocal(Eagle.FileType.Graph);}
+            run: (eagle): void => {void eagle.saveAsFileToLocal(Eagle.FileType.Graph);}
         }),
         new KeyboardShortcut({
             id: "save_palette_to_local_disk",
             text: "Save Palette To Local Disk",
-            run: (eagle): void => {eagle.saveFileToLocal(Eagle.FileType.Palette);}
+            run: (eagle): void => {void eagle.saveFileToLocal(Eagle.FileType.Palette);}
         }),
         new KeyboardShortcut({
             id: "save_palette_to_local_disk_as",
             text: "Save Palette To Local Disk As",
-            run: (eagle): void => {eagle.saveAsFileToLocal(Eagle.FileType.Palette);}
+            run: (eagle): void => {void eagle.saveAsFileToLocal(Eagle.FileType.Palette);}
         }),
 
         // these are "smart saves", that use the current graph location (local or git), to save again in the same place
@@ -324,27 +324,27 @@ export class KeyboardShortcut {
             text: "Save Graph",
             keys: [new Key("s")],
             tags: ['canvas','commit','github','repository','gitlab'],
-            run: (eagle): void => {eagle.saveGraph();}
+            run: (eagle): void => {void eagle.saveGraph();}
         }),
         new KeyboardShortcut({
             id: "save_as_graph",
             text: "Save Graph As",
             keys: [new Key("s", Modifier.Shift)],
             tags: ['download','canvas'],
-            run: (eagle): void => {eagle.saveGraphAs()}
+            run: (eagle): void => {void eagle.saveGraphAs()}
         }),
         // TODO: two for palettes
         new KeyboardShortcut({
             id: "load_config",
             text: "Load Graph Configuration",
             tags: ['load','configuration'],
-            run: (eagle): void => {eagle.getGraphConfigFileToLoad();}
+            run: (eagle): void => {void eagle.getGraphConfigFileToLoad();}
         }),
         new KeyboardShortcut({
             id: "save_config",
             text: "Save Graph Configuration",
             tags: ['save','configuration'],
-            run: (eagle): void => {eagle.saveActiveGraphConfig();}
+            run: (eagle): void => {void eagle.saveActiveGraphConfig();}
         }),
         // misc
         new KeyboardShortcut({
@@ -352,74 +352,74 @@ export class KeyboardShortcut {
             text: "Add Graph Nodes To Palette",
             keys: [new Key("a")],
             tags: ['template','canvas'],
-            run: (eagle): void => {eagle.addGraphNodesToPalette();}
+            run: (eagle): void => {void eagle.addGraphNodesToPalette();}
         }),
         new KeyboardShortcut({
             id: "add_selected_nodes_to_palette",
             text: "Add Selected Nodes To Palette",
-            run: (eagle): void => {eagle.addSelectedNodesToPalette('normal');}
+            run: (eagle): void => {void eagle.addSelectedNodesToPalette('normal');}
         }),
         new KeyboardShortcut({
             id: "toggle_inspector",
             text: "Toggle Inspector",
             keys: [new Key("i")],
             tags: ['information'],
-            run: (eagle): void => {eagle.toggleInspectorCollapsedState();}
+            run: (eagle): void => {void eagle.toggleInspectorCollapsedState();}
         }),
         new KeyboardShortcut({
             id: "insert_graph_from_local_disk",
             text: "Insert graph from local disk",
             keys: [new Key("i", Modifier.Shift)],
             tags: ['canvas','subGraph','upload'],
-            run: (eagle): void => {eagle.getGraphFileToInsert();}
+            run: (eagle): void => {void eagle.getGraphFileToInsert();}
         }),
         new KeyboardShortcut({
             id: "deploy_translator",
             text: "Generate PGT Using Default Algorithm",
             keys: [new Key("d", Modifier.Shift)],
             tags: ['deploy','translate','translator'],
-            run: (eagle): void => {eagle.deployDefaultTranslationAlgorithm();}
+            run: (eagle): void => {void eagle.deployDefaultTranslationAlgorithm();}
         }),
         new KeyboardShortcut({
             id: "delete_selection",
             text: "Delete Selection",
             keys: [new Key("Delete"), new Key("Backspace")],
             tags: ['remove'],
-            run: (eagle): void => {eagle.deleteSelection(false, false, true);}
+            run: (eagle): void => {void eagle.deleteSelection(false, false, true);}
         }),
         new KeyboardShortcut({
             id: "delete_selection_except_children",
             text: "Delete Without Children",
             keys: [new Key("Backspace", Modifier.Shift), new Key("Delete", Modifier.Shift)],
             tags: ['remove'],
-            run: (eagle): void => {eagle.deleteSelection(false, false, false);}
+            run: (eagle): void => {void eagle.deleteSelection(false, false, false);}
         }),
         new KeyboardShortcut({
             id: "duplicate_selection",
             text: "Duplicate Selection",
             keys: [new Key("d")],
             tags: ['copy'],
-            run: (eagle): void => {eagle.duplicateSelection('normal');}
+            run: (eagle): void => {void eagle.duplicateSelection('normal');}
         }),
         new KeyboardShortcut({
             id: "create_subgraph_from_selection",
             text: "Create subgraph from selection",
             keys: [new Key("[")],
             tags: ['group'],
-            run: (eagle): void => {eagle.createSubgraphFromSelection();}
+            run: (eagle): void => {void eagle.createSubgraphFromSelection();}
         }),
         new KeyboardShortcut({
             id: "create_construct_from_selection",
             text: "Create construct from selection",
             keys: [new Key("]")],
             tags: ['group'],
-            run: (eagle): void => {eagle.createConstructFromSelection();}
+            run: (eagle): void => {void eagle.createConstructFromSelection();}
         }),
         new KeyboardShortcut({
             id: "change_selected_node_parent",
             text: "Change Selected Node Parent",
             keys: [new Key("u")],
-            run: (eagle): void => {eagle.changeNodeParent();}
+            run: (eagle): void => {void eagle.changeNodeParent();}
         }),
         new KeyboardShortcut({
             id: "center_graph",
@@ -427,7 +427,7 @@ export class KeyboardShortcut {
             keys: [new Key("c")],
             tags: ['canvas','reset','controls'],
             icon: "filter_center_focus",
-            run: (eagle): void => {eagle.centerGraph();}
+            run: (eagle): void => {void eagle.centerGraph();}
         }),
         new KeyboardShortcut({
             id: "center_construct_around_children",
@@ -441,14 +441,14 @@ export class KeyboardShortcut {
             text: "Check for Component Updates",
             keys: [new Key("q")],
             tags: ['nodes'],
-            run: (eagle): void => { eagle.checkForComponentUpdates();}
+            run: (eagle): void => {void eagle.checkForComponentUpdates();}
         }),
         new KeyboardShortcut({
             id: "screenshot_graph",
             text: "Save Graph as PNG (Screenshot)",
             tags: ['print','printScreen','screen'],
             icon: "photo_camera",
-            run: (eagle): void => {eagle.saveGraphScreenshot();}
+            run: (eagle): void => {void eagle.saveGraphScreenshot();}
         }),
         new KeyboardShortcut({
             id: "show_graph_info",
@@ -460,13 +460,13 @@ export class KeyboardShortcut {
             id: "copy_graph_url",
             text: "Copy Graph Url",
             icon: "content_copy",
-            run: (eagle): void => {eagle.copyGraphUrl();}
+            run: (eagle): void => {void eagle.copyGraphUrl();}
         }),
         new KeyboardShortcut({
             id: "toggle_all_palettes",
             text: "Toggle All Palettes",
             tags: ['open','close','collapse','expand'],
-            run: (eagle):void => {eagle.toggleAllPalettes();}
+            run: (eagle):void => {void eagle.toggleAllPalettes();}
         }),
 
         // window management
@@ -496,14 +496,14 @@ export class KeyboardShortcut {
             text: "Toggle all windows",
             keys: [new Key("ArrowUp")],
             tags: ['close','open'],
-            run: (eagle): void => {eagle.toggleWindows();}
+            run: (eagle): void => {void eagle.toggleWindows();}
         }),
         new KeyboardShortcut({
             id: "open_keyboard_shortcut_modal",
             text: "Open Keyboard Shortcut Modal",
             keys: [new Key("k")],
             tags: ['shortcuts'],
-            run: (eagle): void => {eagle.smartToggleModal('shortcutsModal')}
+            run: (eagle): void => {void eagle.smartToggleModal('shortcutsModal')}
         }),
         new KeyboardShortcut({
             id: "open_parameter_table",
@@ -530,21 +530,21 @@ export class KeyboardShortcut {
             text: "Open Repository",
             keys: [new Key("1")],
             tags: ['tab','tabs','window','menu','right'],
-            run: (eagle): void => {eagle.changeRightWindowMode(Eagle.RightWindowMode.Repository)}
+            run: (eagle): void => {void eagle.changeRightWindowMode(Eagle.RightWindowMode.Repository)}
         }),
         new KeyboardShortcut({
             id: "open_translation_tab",
             text: "Open Translation",
             keys: [new Key("3")],
             tags: ['tab','tabs','window','menu','right'],
-            run: (eagle): void => {eagle.changeRightWindowMode(Eagle.RightWindowMode.TranslationMenu)}
+            run: (eagle): void => {void eagle.changeRightWindowMode(Eagle.RightWindowMode.TranslationMenu)}
         }),
         new KeyboardShortcut({
             id: "open_hierarchy_tab",
             text: "Open Hierarchy",
             keys: [new Key("2")],
             tags: ['tab','tabs','window','menu','right'],
-            run: (eagle): void => {eagle.changeRightWindowMode(Eagle.RightWindowMode.Hierarchy)}
+            run: (eagle): void => {void eagle.changeRightWindowMode(Eagle.RightWindowMode.Hierarchy)}
         }),
 
         // undo/redo
@@ -553,14 +553,14 @@ export class KeyboardShortcut {
             text: "Undo",
             keys: [new Key("z")],
             tags: ['back','history'],
-            run: (eagle): void => {eagle.undo().prevSnapshot(eagle)}
+            run: (eagle): void => {void eagle.undo().prevSnapshot(eagle)}
         }),
         new KeyboardShortcut({
             id: "redo",
             text: "Redo",
             keys: [new Key("z", Modifier.Shift)],
             tags: ['forward','history'],
-            run: (eagle): void => {eagle.undo().nextSnapshot(eagle)}
+            run: (eagle): void => {void eagle.undo().nextSnapshot(eagle)}
         }),
 
         // copy/paste
@@ -568,19 +568,19 @@ export class KeyboardShortcut {
             id: "copy_from_graph_without_children",
             text: "Copy from graph without children",
             keys: [new Key("c", Modifier.Shift)],
-            run: (eagle): void => {eagle.copySelectionToClipboard(false);}
+            run: (eagle): void => {void eagle.copySelectionToClipboard(false);}
         }),
         new KeyboardShortcut({
             id: "copy_from_graph",
             text: "Copy from graph",
             keys: [new Key("c", Modifier.Ctrl), new Key("c", Modifier.Alt)],
-            run: (eagle): void => {eagle.copySelectionToClipboard(true);}
+            run: (eagle): void => {void eagle.copySelectionToClipboard(true);}
         }),
         new KeyboardShortcut({
             id: "paste_to_graph",
             text: "Paste to graph",
             keys: [new Key("v", Modifier.Ctrl), new Key("v", Modifier.Alt)],
-            run: (eagle): void => {eagle.pasteFromClipboard();}
+            run: (eagle): void => {void eagle.pasteFromClipboard();}
         }),
 
         // selection
@@ -588,14 +588,14 @@ export class KeyboardShortcut {
             id: "select_all_in_graph",
             text: "Select all in graph",
             keys: [new Key("a", Modifier.Ctrl),new Key("a", Modifier.Alt)],
-            run: (eagle): void => { eagle.selectAllInGraph();}
+            run: (eagle): void => {void eagle.selectAllInGraph();}
         }),
         new KeyboardShortcut({
             id: "select_none_in_graph",
             text: "Select none in graph",
             keys: [new Key("Escape")],
             tags: ['deselect'],
-            run: (eagle): void => { eagle.selectNoneInGraph();}
+            run: (eagle): void => {void eagle.selectNoneInGraph();}
         }),
 
         // checking and fixing
@@ -604,7 +604,7 @@ export class KeyboardShortcut {
             text: "Check Eagle",
             keys: [new Key("!", Modifier.Shift)],
             tags: ['error','errors','fix'],
-            run: (eagle): void => {eagle.showEagleErrors();}
+            run: (eagle): void => {void eagle.showEagleErrors();}
         }),
         new KeyboardShortcut({
             id: "fix_all",
@@ -625,23 +625,23 @@ export class KeyboardShortcut {
             text: "Open Online Documentation",
             keys: [new Key("h")],
             tags: ['read','me','guide','help'],
-            run: (eagle): void => {eagle.onlineDocs();}
+            run: (eagle): void => {void eagle.onlineDocs();}
         }),
         new KeyboardShortcut({
             id: "show_about_eagle",
             text: "About Eagle",
-            run: (eagle): void => {eagle.showAbout();}
+            run: (eagle): void => {void eagle.showAbout();}
         }),
         new KeyboardShortcut({
             id: "show_github_readme",
             text: "Show GitHub ReadMe",
-            run: (eagle): void => {eagle.readme();}
+            run: (eagle): void => {void eagle.readme();}
         }),
         new KeyboardShortcut({
             id: "submit_issue",
             text: "Submit GitHub Issue",
             tags: ['bug','report'],
-            run: (eagle): void => {eagle.submitIssue();}
+            run: (eagle): void => {void eagle.submitIssue();}
         }),
         new KeyboardShortcut({
             id: "open_keyboard_shortcuts",
@@ -653,7 +653,7 @@ export class KeyboardShortcut {
             text: "Show Online Documentation",
             tags: ['docs'],
             icon: "book",
-            run: (eagle): void => {eagle.onlineDocs();}
+            run: (eagle): void => {void eagle.onlineDocs();}
         }),
         new KeyboardShortcut({
             id: "show_settings",
@@ -661,13 +661,13 @@ export class KeyboardShortcut {
             keys: [new Key("o")],
             tags: ['menu','options'],
             icon: "settings",
-            run: (eagle): void => {eagle.smartToggleModal('settingsModal');}
+            run: (eagle): void => {void eagle.smartToggleModal('settingsModal');}
         }),
         new KeyboardShortcut({
             id: "whats_new",
             text: "What's new",
             tags: ['whats new','updates','versions'],
-            run: (eagle): void => {eagle.showWhatsNew();}
+            run: (eagle): void => {void eagle.showWhatsNew();}
         }),
 
         // tutorials
@@ -697,7 +697,7 @@ export class KeyboardShortcut {
             text: "Graph Updater",
             keys: [new Key("9")],
             tags: ['tool','graph','updater'],
-            run: (_eagle): void => {GraphUpdater.showModal();}
+            run: (_eagle): void => {void GraphUpdater.showModal();}
         }),
     ];
 

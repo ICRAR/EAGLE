@@ -436,11 +436,11 @@ export class ParameterTable {
     }
 
     static requestAddField(currentField: Field): void {
-        this._addRemoveField(currentField, true);
+        void this._addRemoveField(currentField, true);
     }
 
     static requestRemoveField(currentField: Field): void {
-        this._addRemoveField(currentField, false);
+        void this._addRemoveField(currentField, false);
     }
 
     static async _addRemoveField(currentField: Field, add: boolean): Promise<void> {

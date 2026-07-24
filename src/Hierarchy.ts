@@ -71,7 +71,7 @@ export class Hierarchy {
         }
 
         //using a called async function here to wait for changes to the hierarchy to finish before drawing the edges
-        hierarchyDraw()
+        void hierarchyDraw()
 
         //an array of edges is used as we have to ensure there are no duplicate edges drawn.
         async function hierarchyDraw() {

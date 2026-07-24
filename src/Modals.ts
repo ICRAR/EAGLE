@@ -601,7 +601,7 @@ export class Modals {
             const username: string = image.split('/')[0];
             dockerHubBrowser.populate(username, image, tag);
         } else {
-            Eagle.getInstance().dockerHubBrowser().fetchImages(null, null);
+            void Eagle.getInstance().dockerHubBrowser().fetchImages(null, null);
         }
 
         // store data about the callback, result on the modal HTML element

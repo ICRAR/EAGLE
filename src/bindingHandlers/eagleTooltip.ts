@@ -117,7 +117,7 @@ ko.bindingHandlers.eagleTooltip = {
                 jQueryElement.on('shown.bs.tooltip', function () {
                     $('.tooltip .tooltipBtn').on('click', function(){
                         if(html.buttonAction === 'descriptionEdit'){
-                            eagle.editNodeDescription(html.node)
+                            void eagle.editNodeDescription(html.node)
                         }
                     })
                 });
