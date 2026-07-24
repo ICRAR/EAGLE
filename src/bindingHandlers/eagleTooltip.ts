@@ -58,8 +58,8 @@ ko.bindingHandlers.eagleTooltip = {
                 return;
             }else if (typeof html === 'object'){
                 //html can be either a string or an Object with a content string and size (in pixels)
-                if(typeof html.size != 'undefined') size = html.size
-                if(typeof html.content != 'undefined') content = html.content
+                if(typeof html.size != 'undefined') { size = html.size; }
+                if(typeof html.content != 'undefined') { content = html.content; }
             }else{
                 content = html
             }
@@ -75,7 +75,7 @@ ko.bindingHandlers.eagleTooltip = {
                     }
 
                     let y = ''
-                    if((i % 2) == 1){
+                    if((i % 2) === 1){
                         y = x[i]
                     }else{
                         y = Utils.markdown2html(x[i])

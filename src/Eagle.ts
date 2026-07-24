@@ -1052,8 +1052,7 @@ export class Eagle {
         // attempt to parse the JSON
         try {
             dataObject = JSON.parse(data);
-        }
-        catch(err){
+        } catch(err){
             Utils.showUserMessage("Error parsing file JSON", Errors.UnknownToError(err));
             return;
         }
@@ -1447,8 +1446,7 @@ export class Eagle {
         // attempt to parse the JSON
         try {
             dataObject = JSON.parse(data);
-        }
-        catch(err){
+        } catch(err){
             Utils.showUserMessage("Error parsing file JSON", Errors.UnknownToError(err));
             return;
         }
@@ -1513,8 +1511,7 @@ export class Eagle {
 
                 try {
                     dataObject = JSON.parse(data);
-                }
-                catch(err){
+                } catch(err){
                     Utils.showUserMessage("Error parsing file JSON", Errors.UnknownToError(err));
                     return;
                 }
@@ -2393,9 +2390,9 @@ export class Eagle {
 
             // check that filetype is appropriate for a file with this extension
             if (fileInfo().name === "") {
-                if (fileType == Eagle.FileType.Graph) {
+                if (fileType === Eagle.FileType.Graph) {
                     Utils.showUserMessage('Error', 'Graph is not chosen! Open existing or create a new graph.');
-                } else if (fileType == Eagle.FileType.Palette) {
+                } else if (fileType === Eagle.FileType.Palette) {
                     Utils.showUserMessage('Error', 'Palette is not chosen! Open existing or create a new palette.');
                 }
                 return;
@@ -2713,8 +2710,7 @@ export class Eagle {
             // attempt to parse the JSON
             try {
                 dataObject = JSON.parse(data);
-            }
-            catch(err){
+            } catch(err){
                 Utils.showUserMessage("Error parsing file JSON", Errors.UnknownToError(err));
                 return;
             }
@@ -2894,8 +2890,7 @@ export class Eagle {
         let dataObject;
         try {
             dataObject = JSON.parse(data);
-        }
-        catch(err){
+        } catch(err){
             Utils.showUserMessage("Error parsing file JSON", Errors.UnknownToError(err));
             return;
         }
@@ -3303,7 +3298,7 @@ export class Eagle {
         const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
 
         // warn if saving in older OJS format
-        if (!await Eagle.confirmOjsSave(version)) return;
+        if (!await Eagle.confirmOjsSave(version)) { return; }
 
         const defaultRepository: Repository = new Repository(palette.fileInfo().location.repositoryService(), palette.fileInfo().location.repositoryName(), palette.fileInfo().location.repositoryBranch(), false);
 
@@ -5304,7 +5299,7 @@ export class Eagle {
 
         // if selectedNode categoryType is Unknown, return list of all categories
         if (category === Category.Unknown || !Utils.isKnownCategory(category) || categoryType === Category.Type.Unknown || !Utils.isKnownCategoryType(categoryType)){
-            return Utils.buildComponentList((_cData: CategoryData) => {return true});
+            return Utils.buildComponentList((_cData: CategoryData) => { return true; });
         }
 
         // if selectedNode is set, return a list of categories within the same category type

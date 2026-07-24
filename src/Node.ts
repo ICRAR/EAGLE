@@ -149,7 +149,7 @@ export class Node {
     }
 
     getDisplayName : ko.PureComputed<string> = ko.pureComputed(() => {
-        if (this.name() === 'Enter label' || this.name() == ''){
+        if (this.name() === 'Enter label' || this.name() === ''){
             return this.category();
         } else {
             return this.name();
@@ -157,7 +157,7 @@ export class Node {
     }, this);
 
     getPaletteComponentId = () : string => {
-        if (this.name() === 'Enter label' || this.name() == ''){
+        if (this.name() === 'Enter label' || this.name() === ''){
             const processedCategory = this.category().replace(/\s/g, '_')
             return processedCategory;
         } else {

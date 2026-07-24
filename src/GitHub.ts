@@ -189,8 +189,7 @@ export class GitHub {
         // add folders to repo
         for (const subdir in data){
             // skip the root directory
-            if (subdir === "")
-                continue;
+            if (subdir === "") { continue; }
 
             folder.folders.push(GitHub.parseFolder(repository, subdir, data[subdir]));
         }

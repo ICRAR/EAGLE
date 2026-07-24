@@ -327,7 +327,7 @@ export class FileInfo {
         if (this._location().repositoryService() === Repository.Service.Unknown){
             text = "- Location -</br>Url:&nbsp;" + this._repositoryUrl() + "</br>Hash:&nbsp;" + this._location().commitHash();
         } else {
-            text = "<p>" + this._location().repositoryService() + " : " + this._location().repositoryName() + ((this._location().repositoryBranch() == "") ? "" : ("(" + this._location().repositoryBranch() + ")")) + " : " + this._location().repositoryPath() + "/" + this._name() + "</p>";
+            text = "<p>" + this._location().repositoryService() + " : " + this._location().repositoryName() + ((this._location().repositoryBranch() === "") ? "" : ("(" + this._location().repositoryBranch() + ")")) + " : " + this._location().repositoryPath() + "/" + this._name() + "</p>";
         }
 
         return "<p><h5>" + title + "<h5><p><p>" + text + "</p><p>"+this.renderedShortDescription() + "</p><p>" + this.renderedDetailedDescription() + "</p></p>";
@@ -367,7 +367,7 @@ export class FileInfo {
     }
 
     isInitiated = () : boolean => {
-        return this._name() != ""
+        return this._name() !== ""
     }
 
     renderedShortDescription: ko.PureComputed<string> = ko.pureComputed(() => {

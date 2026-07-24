@@ -518,7 +518,7 @@ export class GraphRenderer {
         //spacing out the connected ports
         let i = 0
         for(const connectedField of connectedFields){
-            if(i != 0){
+            if(i !== 0){
                 if(connectedField.angle - minimumPortDistance< connectedFields[i-1].angle || connectedField.angle<connectedFields[i-1].angle){
                     connectedField.angle = connectedFields[i-1].angle+minimumPortDistance
                 }
@@ -1159,19 +1159,15 @@ export class GraphRenderer {
         }
 
         // select handlers
-        if(object !== null && event.button != 1 && !event.shiftKey){
+        if(object !== null && event.button !== 1 && !event.shiftKey){
             //double click and alt + clicking has highest priority
             if(GraphRenderer.dragSelectionDoubleClick || event.altKey) {
                 eagle.setSelection(object, Eagle.FileType.Graph);
-            }   
-
-            //check that we are not alt + clicking, add the target node and its children to the selection
-            else if(object instanceof Node && event.button != 2 && !event.altKey && object.isGroup() && !eagle.objectIsSelected(object)){
+            } else if(object instanceof Node && event.button !== 2 && !event.altKey && object.isGroup() && !eagle.objectIsSelected(object)){
+                //check that we are not alt + clicking, add the target node and its children to the selection
                 GraphRenderer.selectNodeAndChildren(object,GraphRenderer.shiftSelect)
-            }
-
-            //normal node selection
-            else if(!eagle.objectIsSelected(object)) {
+            } else if(!eagle.objectIsSelected(object)) {
+                //normal node selection
                 eagle.setSelection(object, Eagle.FileType.Graph);
             }
 
@@ -1491,7 +1487,7 @@ export class GraphRenderer {
             // check if new candidate parent is already a descendent of the node, this would cause a circular hierarchy which would be bad
             const ancestorOfParent = GraphRenderer.isAncestor(parent, outermostNode);
 
-            if(!ancestorOfParent && parent != oldParent && parent != null){
+            if(!ancestorOfParent && parent !== oldParent && parent != null){
                 // setting the new parent for all outermost selected nodes
                 GraphRenderer.parentSelection(outermostNodes, parent)
                 parentingSuccessful = true;
@@ -1518,7 +1514,7 @@ export class GraphRenderer {
             if(object instanceof Node){
                 if(!object.isEmbedded() && parent === null){
                     GraphRenderer.updateNodeParent(object, null,  allowGraphEditing);
-                }else if(object.getId() != parent?.getId() && !object.isEmbedded()){
+                }else if(object.getId() !== parent?.getId() && !object.isEmbedded()){
                     GraphRenderer.updateNodeParent(object, parent, allowGraphEditing);
                 }
             }

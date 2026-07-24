@@ -34,7 +34,7 @@ export class QuickActions {
 
         const results: {keyboardShortcut:KeyboardShortcut, score:number}[] = [];
 
-        if(searchTerm != ''){
+        if(searchTerm !== ''){
             // processing the keyboard shortcuts array
             KeyboardShortcut.shortcuts.forEach(function(shortcut:KeyboardShortcut){
                 const score: number = QuickActions.scoreShortcut(shortcut, searchTerm);
@@ -196,10 +196,10 @@ export class QuickActions {
                 break;
 
                 case "Enter":
-                if(current.length != 0){
+                if(current.length !== 0){
                     e.preventDefault()
                     current.trigger("click")
-                }else if( $('#quickActionResults a').length != 0){
+                }else if( $('#quickActionResults a').length !== 0){
                     e.preventDefault()
                     $('#quickActionResults a:first').trigger("click")
                 }
