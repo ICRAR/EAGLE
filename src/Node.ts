@@ -1277,21 +1277,19 @@ export class Node {
 
         const importantFields : Field[] = [] //fields for a node we deem important eg. num copies for scatter nodes
         const configFields : Field[] = [] 
-        const selectedNode = this
-
-        for (const field of selectedNode.fields().values()){
+        for (const field of this.fields().values()){
             // get important fields 
-            if(selectedNode.isGather()){
+            if(this.isGather()){
                 if(field.getDisplayText() === Daliuge.FieldName.NUM_OF_INPUTS || field.getDisplayText() === Daliuge.FieldName.GATHER_AXIS){
                     importantFields.push(field)
                     continue;
                 }
-            }else if (selectedNode.isScatter()){
+            }else if (this.isScatter()){
                 if(field.getDisplayText() === Daliuge.FieldName.NUM_OF_COPIES){
                     importantFields.push(field)
                     continue;
                 }
-            }else if (selectedNode.isLoop()){
+            }else if (this.isLoop()){
                 if(field.getDisplayText() === Daliuge.FieldName.NUM_OF_ITERATIONS){
                     importantFields.push(field)
                     continue;

@@ -993,13 +993,12 @@ export class LogicalGraph {
         //  - there are edge(s) connected to a port on the embedded node
         //  - but the edge(s) have source or destination node id of the construct
         // This situation should not occur in a well-formed graph, but does occur in many existing graphs
-        const that = this
         if(node.isEmbedded()){
             for (const field of node.getFields()){
                 if(field.isInputPort() || field.isOutputPort()){
-                    that.edges().forEach(function(edge:Edge){
+                    this.edges().forEach((edge: Edge) => {
                         if(edge.getDestPort().getId() === field.getId() || edge.getSrcPort().getId() === field.getId()){
-                            that.removeEdgeById(edge.getId())
+                            this.removeEdgeById(edge.getId())
                         }
                     })
                 }

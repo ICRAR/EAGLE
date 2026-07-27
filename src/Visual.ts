@@ -242,6 +242,7 @@ export class Visual {
     }
 }
 
+/* eslint-disable @typescript-eslint/no-namespace */
 export namespace Visual {
     export enum Type {
         Text = "Text",

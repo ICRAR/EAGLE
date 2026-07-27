@@ -194,7 +194,7 @@ export class Repositories {
         let response;
         try {
             response = typeof responseStr === "string" ? JSON.parse(responseStr) : responseStr;
-        } catch (e) {
+        } catch (_e) {
             response = responseStr;
         }
         if (response.error) {

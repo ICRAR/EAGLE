@@ -761,7 +761,7 @@ export class TestHelpers {
     }
 
     static async saveGraphToString(page: Page): Promise<string> {
-        return new Promise<string>(async (resolve, reject) => {
+        return new Promise<string>(async (resolve, _reject) => {
             // click 'display as JSON' from the 'Graph' menu
             await page.locator('#navbarDropdownGraph').click();
             await page.locator('#displayGraphAsJson').click();

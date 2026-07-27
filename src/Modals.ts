@@ -705,6 +705,7 @@ export class Modals {
     }
 }
 
+/* eslint-disable @typescript-eslint/no-namespace */
 export namespace Modals {
     export type UserStringCallback = (completed: boolean, userString: string) => void;
     export type UserStringValidator = (userString: string) => Utils.ValidationResult;

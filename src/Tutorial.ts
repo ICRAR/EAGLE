@@ -10,9 +10,9 @@ export class TutorialSystem {
     static activeTutCurrentStep: TutorialStep //current active tutorial step
     static activeTutNumSteps: number = 0;  //total number of steps in the active tutorial
     static activeTutCurrentStepIndex: number = 0;  //index of the current step in the active tutorial
-    static waitForElementTimer: NodeJS.Timeout | null = null    //this houses the time out timer when waiting for a target element to appear
+    static waitForElementTimer: number | undefined = undefined    //this houses the time out timer when waiting for a target element to appear
     static onCoolDown: boolean = false //boolean if the tutorial system is currently on cool down
-    static conditionCheck: NodeJS.Timeout | null = null //this stores the condition interval function
+    static conditionCheck: number | undefined = undefined //this stores the condition interval function
 
     static readonly COOL_DOWN_TIMEOUT: number = 700;
 
@@ -219,8 +219,6 @@ export class Tutorial {
         if (preFunction != null) {
             preFunction(eagle)
         }
-
-        const that = this
         //we always pass through the wait function, it is decided there if we actually wait or not
         if (tutStep.getWaitType() === TutorialStep.Wait.None) {
             this.initiateStep(TutorialSystem.activeTutCurrentStep, null)
@@ -228,19 +226,19 @@ export class Tutorial {
             //if a delay amount is not specified we will default to 4ms
             const delay: number = TutorialSystem.activeTutCurrentStep.getDelayAmount() || 400;
 
-            setTimeout(function () {
-                that.initiateStep(TutorialSystem.activeTutCurrentStep, null)
+            setTimeout(() => {
+                this.initiateStep(TutorialSystem.activeTutCurrentStep, null)
             }, delay)
         }else {
             //we set a two second timer, the wait will check every .1 seconds for two seconds at which point it is timed out and we abort the tut
             TutorialSystem.waitForElementTimer = setInterval(function () { activeTutorial.waitForElementThenRun(tutStep.getWaitType()) }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT);
-            setTimeout(function () {
+            setTimeout(() => {
                 if (TutorialSystem.waitForElementTimer !== undefined) {
                     clearTimeout(TutorialSystem.waitForElementTimer);
                     TutorialSystem.waitForElementTimer = undefined;
                     console.warn('waiting for next tutorial step element timed out')
                     TutorialSystem.onCoolDown = false
-                    that.tutButtonPrev()
+                    this.tutButtonPrev()
                 }
             }, 2000)
         }
@@ -915,6 +913,7 @@ export class TutorialStep {
     }
 }
 
+/* eslint-disable @typescript-eslint/no-namespace */
 export namespace TutorialStep {
     export enum Type {
         Info = "Info",
