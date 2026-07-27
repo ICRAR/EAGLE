@@ -48,10 +48,10 @@ export class CategoryData {
         None                 : {categoryType: Category.Type.Unknown, isGroup: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveComponentParameters: false, canHaveApplicationArguments: false, canHaveConstructParameters: false, icon: "icon-none", color: Category.Color.Error, radius: EagleConfig.NORMAL_NODE_RADIUS},
 
         // legacy - make sure to add here AND to the LEGACY_CATEGORIES_UP array below
-        Component            : {categoryType: Category.Type.Unknown, isGroup: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: true, icon: "icon-none", color: Category.Color.Legacy, radius: EagleConfig.NORMAL_NODE_RADIUS},
-        Description          : {categoryType: Category.Type.Other, isGroup: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveComponentParameters: false, canHaveApplicationArguments: false, canHaveConstructParameters: false, icon: "icon-none", color: Category.Color.Legacy, radius: EagleConfig.NORMAL_NODE_RADIUS},
-        PythonApp            : {categoryType: Category.Type.Application, isGroup: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-python", color: Category.Color.Legacy, radius: EagleConfig.NORMAL_NODE_RADIUS},
-        EnvironmentVariables : {categoryType: Category.Type.Data, isGroup: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-tune", color: Category.Color.Legacy, radius: EagleConfig.DATA_NODE_RADIUS},
+        Component            : {categoryType: Category.Type.Unknown, isGroup: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: true, icon: "icon-none", color: Category.Color.Error, radius: EagleConfig.NORMAL_NODE_RADIUS},
+        Description          : {categoryType: Category.Type.Other, isGroup: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: 0, canHaveComponentParameters: false, canHaveApplicationArguments: false, canHaveConstructParameters: false, icon: "icon-none", color: Category.Color.Error, radius: EagleConfig.NORMAL_NODE_RADIUS},
+        PythonApp            : {categoryType: Category.Type.Application, isGroup: false, minInputs: 0, maxInputs: Number.MAX_SAFE_INTEGER, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-python", color: Category.Color.Error, radius: EagleConfig.NORMAL_NODE_RADIUS},
+        EnvironmentVariables : {categoryType: Category.Type.Data, isGroup: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-tune", color: Category.Color.Error, radius: EagleConfig.DATA_NODE_RADIUS},
     };
 
     static readonly LEGACY_CATEGORIES_UPGRADES: Map<Category, Category> = new Map([
@@ -84,6 +84,7 @@ export class CategoryData {
     }
 }
 
+/* eslint-disable @typescript-eslint/no-namespace */
 export namespace CategoryData {
     export const INTERMEDIATE_DATA_NODES: Category[] = (Object.keys(Category) as Category[]).filter((category: Category) => {
         const cData = CategoryData.getCategoryData(category);

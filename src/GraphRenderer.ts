@@ -398,9 +398,9 @@ export class GraphRenderer {
 
     static calculateTextVisualPortPositionY(visual:Visual, angle:number) : number {
         // @ts-expect-error: reference needed to trigger re-calculation when position or size changes
-        const width = visual.getWidth();
+        const _width = visual.getWidth();
         // @ts-expect-error: reference needed to trigger re-calculation when position or size changes
-        const content = visual.getContent();
+        const _content = visual.getContent();
        
         return this.calculateTextVisualPortPosition(visual, angle).y;
     }
@@ -426,9 +426,9 @@ export class GraphRenderer {
 
     static getGraphTextVisualPortPositionY(visual:Visual) : number {
         // @ts-expect-error: reference needed to trigger re-calculation when position or size changes
-        const width = visual.getWidth();
+        const _width = visual.getWidth();
         // @ts-expect-error: reference needed to trigger re-calculation when position or size changes
-        const content = visual.getContent();
+        const _content = visual.getContent();
         
         if(visual.getTarget() === null){
             //default position when not connected, we will place the port at the bottom of the visual in this case

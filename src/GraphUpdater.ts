@@ -561,6 +561,7 @@ export class GraphUpdater {
 
 }
 
+/* eslint-disable @typescript-eslint/no-namespace */
 export namespace GraphUpdater {
     export enum FileStatus {
         No = "No",

@@ -789,6 +789,7 @@ export class KeyboardShortcut {
     }
 }
 
+/* eslint-disable @typescript-eslint/no-namespace */
 export namespace KeyboardShortcut{
     export enum Platform {
         All = "All",

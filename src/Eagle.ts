@@ -110,7 +110,7 @@ export class Eagle {
     currentFileInfoTitle : ko.Observable<string>;
 
     snapToGrid : ko.Observable<boolean>;
-    dropdownMenuHoverTimeout : NodeJS.Timeout | null = null;
+    dropdownMenuHoverTimeout : number | undefined = undefined;
 
     static paletteComponentSearchString : ko.Observable<string>;
     static componentParamsSearchString : ko.Observable<string>;
@@ -507,10 +507,8 @@ export class Eagle {
     }
 
     centerGraph = () : void => {
-        const that = this
-
         // if there are no nodes in the logical graph, abort
-        if (that.logicalGraph().getNumNodes() === 0){
+        if (this.logicalGraph().getNumNodes() === 0){
             return;
         }
 
@@ -519,7 +517,7 @@ export class Eagle {
         let minY : number = Number.MAX_VALUE;
         let maxX : number = -Number.MAX_VALUE;
         let maxY : number = -Number.MAX_VALUE;
-        for (const node of that.logicalGraph().getNodes()){
+        for (const node of this.logicalGraph().getNodes()){
             if (node.getPosition().x - node.getRadius() < minX){
                 minX = node.getPosition().x - node.getRadius();
             }
@@ -536,7 +534,7 @@ export class Eagle {
 
         //if the visuals in the graph are not hidden we will take them into account
         if(!Setting.findValue<boolean>(Setting.HIDE_VISUALS, false)){
-            for (const visual of that.logicalGraph().getVisuals()){
+            for (const visual of this.logicalGraph().getVisuals()){
                 if (visual.getPosition().x - visual.getWidth() < minX){
                     minX = visual.getPosition().x - visual.getWidth();
                 }
@@ -582,42 +580,42 @@ export class Eagle {
         const graphXScale = containerWidth/graphWidth
 
         // reset scale to center the graph correctly
-        that.globalScale(1)
+        this.globalScale(1)
 
         //determine center of the display area
-        const displayCenterX : number = (containerWidth / that.globalScale() / 2);
-        const displayCenterY : number = (containerHeight / that.globalScale() / 2);
+        const displayCenterX : number = (containerWidth / this.globalScale() / 2);
+        const displayCenterY : number = (containerHeight / this.globalScale() / 2);
 
         // translate display to center the graph centroid
-        that.globalOffsetX(Math.round(displayCenterX - centroidX + leftWindow));
-        that.globalOffsetY(Math.round(displayCenterY - centroidY));
+        this.globalOffsetX(Math.round(displayCenterX - centroidX + leftWindow));
+        this.globalOffsetY(Math.round(displayCenterY - centroidY));
 
         //taking note of the screen center in graph space before zooming
         const midPointX = GraphRenderer.GRAPH_TO_SCREEN_POSITION_X(centroidX)
 
         const xpb = centroidX
-        const ypb = displayCenterY/that.globalScale() - that.globalOffsetY(); 
+        const ypb = displayCenterY/this.globalScale() - this.globalOffsetY(); 
 
         //applying the correct zoom
         if(graphYScale>graphXScale){
-            that.globalScale(graphXScale);
+            this.globalScale(graphXScale);
         }else if(graphYScale<graphXScale){
-            that.globalScale(graphYScale)
+            this.globalScale(graphYScale)
         }else{
-            that.globalScale(1)
+            this.globalScale(1)
         }
         
         //checking the screen center in graph space after zoom
         const xpa = GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(midPointX)
-        const ypa = displayCenterY/that.globalScale() - that.globalOffsetY();
+        const ypa = displayCenterY/this.globalScale() - this.globalOffsetY();
 
         //checking how far the center has moved
         const moveX = xpa-xpb
         const moveY = ypa-ypb
 
         //correcting for the movement
-        that.globalOffsetX(that.globalOffsetX()+moveX)
-        that.globalOffsetY(that.globalOffsetY()+moveY)
+        this.globalOffsetX(this.globalOffsetX()+moveX)
+        this.globalOffsetY(this.globalOffsetY()+moveY)
     }
 
     getSelectedText = () : string => {
@@ -880,9 +878,8 @@ export class Eagle {
     getOutermostSelectedNodes = () : Node[] => {
         const outermostNodes : Node[] = []
         const selectedNodes = this.selectedObjects()
-        const eagle = this
 
-        selectedNodes.forEach(function(object){
+        selectedNodes.forEach((object) => {
             if (!(object instanceof Node)){
                 return
             }
@@ -893,7 +890,7 @@ export class Eagle {
                 while (thisParentIsSelected){
                     const thisParent = thisObject.getParent();
                     if(thisParent != null){
-                        thisParentIsSelected = eagle.objectIsSelectedById(thisParent.getId())
+                        thisParentIsSelected = this.objectIsSelectedById(thisParent.getId())
                         if(thisParentIsSelected){
                             thisObject = thisParent
                         }else{
@@ -926,7 +923,6 @@ export class Eagle {
     loadLocalGraphFile = () : void => {
         const graphFileToLoadInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("graphFileToLoad");
         const fileFullPath : string = graphFileToLoadInputElement.value;
-        const eagle: Eagle = this;
 
         // abort if value is empty string
         if (fileFullPath === ""){
@@ -946,7 +942,7 @@ export class Eagle {
         if (file) {
             const reader = new FileReader();
             reader.readAsText(file, "UTF-8");
-            reader.onload = function (evt) {
+            reader.onload = (evt) => {
                 let data: string = evt.target?.result?.toString();
 
                 if (!data) {
@@ -955,13 +951,13 @@ export class Eagle {
                     data = "";
                 }
 
-                eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
-                    eagle.logicalGraph(lg);
+                this._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
+                    this.logicalGraph(lg);
 
-                    eagle._postLoadGraph(new RepositoryFile(new Repository(Repository.Service.File, "", "", false), Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath)));
+                    this._postLoadGraph(new RepositoryFile(new Repository(Repository.Service.File, "", "", false), Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath)));
                 });
             }
-            reader.onerror = function (evt) {
+            reader.onerror = (evt) => {
                 console.error("error reading file", evt);
             }
         }
@@ -977,7 +973,6 @@ export class Eagle {
         const graphFileToInsertInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("graphFileToInsert");
         const fileFullPath : string = graphFileToInsertInputElement.value;
         const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
-        const eagle: Eagle = this;
 
         // abort if value is empty string
         if (fileFullPath === ""){
@@ -997,7 +992,7 @@ export class Eagle {
         if (file) {
             const reader = new FileReader();
             reader.readAsText(file, "UTF-8");
-            reader.onload = function (evt) {
+            reader.onload = (evt) => {
                 let data: string = evt.target?.result?.toString();
 
                 if (!data) {
@@ -1006,19 +1001,19 @@ export class Eagle {
                     data = "";
                 }
 
-                eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
+                this._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
                     const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().location.getText(), "", Category.SubGraph);
     
-                    void eagle.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges()), parentNode, errorsWarnings);
+                    void this.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges()), parentNode, errorsWarnings);
     
                     // TODO: handle errors and warnings
     
-                    eagle.checkEagle();
-                    eagle.undo().pushSnapshot(eagle, "Insert Logical Graph");
-                    eagle.logicalGraph.valueHasMutated();
+                    this.checkEagle();
+                    this.undo().pushSnapshot(this, "Insert Logical Graph");
+                    this.logicalGraph.valueHasMutated();
                 });
             }
-            reader.onerror = function (evt) {
+            reader.onerror = (evt) => {
                 console.error("error reading file", evt);
             }
         }
@@ -1400,7 +1395,6 @@ export class Eagle {
     loadLocalPaletteFile = () : void => {
         const paletteFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("paletteFileToLoad");
         const fileFullPath : string = paletteFileInputElement.value;
-        const eagle: Eagle = this;
 
         // abort if value is empty string
         if (fileFullPath === ""){
@@ -1420,7 +1414,7 @@ export class Eagle {
         if (file) {
             const reader = new FileReader();
             reader.readAsText(file, "UTF-8");
-            reader.onload = function (evt) {
+            reader.onload = (evt) => {
                 let data: string = evt.target?.result?.toString();
 
                 if (!data) {
@@ -1429,12 +1423,12 @@ export class Eagle {
                     data = "";
                 }
 
-                eagle._loadPaletteJSON(data, fileFullPath);
+                this._loadPaletteJSON(data, fileFullPath);
 
-                eagle.palettes()[0].fileInfo().location.repositoryService(Repository.Service.File);
-                eagle.palettes()[0].fileInfo.valueHasMutated();
+                this.palettes()[0].fileInfo().location.repositoryService(Repository.Service.File);
+                this.palettes()[0].fileInfo.valueHasMutated();
             }
-            reader.onerror = function (evt) {
+            reader.onerror = (evt) => {
                 console.error("error reading file", evt);
             }
         }
@@ -1481,7 +1475,6 @@ export class Eagle {
     loadLocalGraphConfigFile = () : void => {
         const graphConfigFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("graphConfigFileToLoad");
         const fileFullPath : string = graphConfigFileInputElement.value;
-        const eagle: Eagle = this;
 
         // abort if value is empty string
         if (fileFullPath === ""){
@@ -1501,7 +1494,7 @@ export class Eagle {
         if (file) {
             const reader = new FileReader();
             reader.readAsText(file, "UTF-8");
-            reader.onload = function (evt) {
+            reader.onload = (evt) => {
                 let data: string = evt.target?.result?.toString();
 
                 if (!data) {
@@ -1519,9 +1512,9 @@ export class Eagle {
                     return;
                 }
 
-                void eagle._loadGraphConfig(dataObject, new RepositoryFile(Repository.placeholder(), "", Utils.getFileNameFromFullPath(fileFullPath)));
+                void this._loadGraphConfig(dataObject, new RepositoryFile(Repository.placeholder(), "", Utils.getFileNameFromFullPath(fileFullPath)));
             }
-            reader.onerror = function (evt) {
+            reader.onerror = (evt) => {
                 console.error("error reading file", evt);
             }
         }
@@ -5636,6 +5629,7 @@ export class Eagle {
 
 }
 
+/* eslint-disable @typescript-eslint/no-namespace */
 export namespace Eagle
 {
     export enum LeftWindowMode {
@@ -5684,8 +5678,8 @@ export namespace Eagle
 $( document ).ready(function() {
     // jquery event listeners start here
 
-    $('body').on('mouseout','.dropdown-area',function(){
-        const targetElement = this
+    $('body').on('mouseout','.dropdown-area',function(event){
+        const targetElement = event.currentTarget
         //we are using a timeout stored in a global variable so we have only one timeout that resets when another mouseout is called.
         //if we don't do this we end up with several timeouts conflicting.
         clearTimeout(Eagle.getInstance().dropdownMenuHoverTimeout)

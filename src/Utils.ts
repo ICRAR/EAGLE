@@ -396,7 +396,7 @@ export class Utils {
             // first make sure the jsonString is parsable as JSON
             try {
                 JSON.parse(jsonString);
-            } catch (e) {
+            } catch (_e) {
                 reject("Attempting to send an invalid JSON string");
                 return;
             }
@@ -3597,6 +3597,7 @@ export class Utils {
     }
 }
 
+/* eslint-disable @typescript-eslint/no-namespace */
 export namespace Utils {
     export type ValidationResult = {
         isValid: boolean;

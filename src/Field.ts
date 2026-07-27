@@ -628,38 +628,37 @@ export class Field {
 
         let searchTermNo : number = 0
         let searchTermTrueNo : number = 0
-        const that = this
         const bottomWindowMode = Setting.findValue<Eagle.BottomWindowMode>(Setting.BOTTOM_WINDOW_MODE, Eagle.BottomWindowMode.None);
 
-        Eagle.tableSearchString().toLocaleLowerCase().split(',').forEach(function(term){
+        Eagle.tableSearchString().toLocaleLowerCase().split(',').forEach((term) => {
             term = term.trim()
             searchTermNo ++
             let result : boolean = false
 
             //check if the display text matches
-            if(that.displayText().toLowerCase().indexOf(term) >= 0){
+            if(this.displayText().toLowerCase().indexOf(term) >= 0){
                 result = true
             }
 
             //check if the node name matches, but only if using the key parameter table modal
             if(bottomWindowMode === Eagle.BottomWindowMode.ConfigParameterTable){
-                if(that.node().getName().toLowerCase().indexOf(term) >= 0){
+                if(this.node().getName().toLowerCase().indexOf(term) >= 0){
                     result = true
                 }
             }
 
             //check if the usage matches
-            if(that.usage().toLowerCase().indexOf(term) >= 0){
+            if(this.usage().toLowerCase().indexOf(term) >= 0){
                 result = true
             }
 
             //check if the parameter type matches
-            if(that.parameterType().toLowerCase().indexOf(term) >= 0){   
+            if(this.parameterType().toLowerCase().indexOf(term) >= 0){   
                 result = true
             }
 
             //check if the type matches
-            if(that.type().toLowerCase().indexOf(term) >= 0){
+            if(this.type().toLowerCase().indexOf(term) >= 0){
                 result = true
             }
 

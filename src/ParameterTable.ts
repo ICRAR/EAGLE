@@ -915,6 +915,7 @@ export class ParameterTable {
     }
 }
 
+/* eslint-disable @typescript-eslint/no-namespace */
 export namespace ParameterTable {
     export enum SelectType {
         Normal = "Normal",
