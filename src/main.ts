@@ -73,41 +73,42 @@ $(function(){
     //Check if the user is a first time visitor to the site
     const firstTimeVisit = localStorage.getItem('activeUiMode') === null;
     const lastSeenVersion = localStorage.getItem('lastSeenVersion') || "0.0.0";
-    const showWhatsNew = Utils.compareVersions((<any>window).version, lastSeenVersion) > 0;
+    const appVersion = window.version ?? "0.0.0";
+    const showWhatsNew = Utils.compareVersions(appVersion, lastSeenVersion) > 0;
 
     // Global variables.
     eagle = new Eagle();
 
     // add eagle to the window object, slightly hacky, but useful for debugging
     // TODO: remove this when possible, use Eagle.getInstance() if we can
-    (<any>window).eagle = eagle;
+    window.eagle = eagle;
 
-    (<any>window).Category = Category;
-    (<any>window).Daliuge = Daliuge;
-    (<any>window).Eagle = Eagle;
-    (<any>window).EagleConfig = EagleConfig;
-    (<any>window).EagleStorage = EagleStorage;
-    (<any>window).Errors = Errors;
-    (<any>window).FileInfo = FileInfo;
-    (<any>window).GraphConfig = GraphConfig;
-    (<any>window).GraphConfigurationsTable = GraphConfigurationsTable;
-    (<any>window).GraphUpdater = GraphUpdater;
-    (<any>window).Hierarchy = Hierarchy;
-    (<any>window).ParameterTable = ParameterTable;
-    (<any>window).Repositories = Repositories;
-    (<any>window).Repository = Repository;
-    (<any>window).RightClick = RightClick;
-    (<any>window).Setting = Setting;
-    (<any>window).SideWindow = SideWindow;
-    (<any>window).TutorialSystem = TutorialSystem;
-    (<any>window).GraphRenderer = GraphRenderer;
-    (<any>window).UiModeSystem = UiModeSystem;
-    (<any>window).Utils = Utils;
-    (<any>window).KeyboardShortcut = KeyboardShortcut;
+    window.Category = Category;
+    window.Daliuge = Daliuge;
+    window.Eagle = Eagle;
+    window.EagleConfig = EagleConfig;
+    window.EagleStorage = EagleStorage;
+    window.Errors = Errors;
+    window.FileInfo = FileInfo;
+    window.GraphConfig = GraphConfig;
+    window.GraphConfigurationsTable = GraphConfigurationsTable;
+    window.GraphUpdater = GraphUpdater;
+    window.Hierarchy = Hierarchy;
+    window.ParameterTable = ParameterTable;
+    window.Repositories = Repositories;
+    window.Repository = Repository;
+    window.RightClick = RightClick;
+    window.Setting = Setting;
+    window.SideWindow = SideWindow;
+    window.TutorialSystem = TutorialSystem;
+    window.GraphRenderer = GraphRenderer;
+    window.UiModeSystem = UiModeSystem;
+    window.Utils = Utils;
+    window.KeyboardShortcut = KeyboardShortcut;
 
-    (<any>window).StatusEntry = StatusEntry;
-    (<any>window).QuickActions = QuickActions;
-    (<any>window).Modals = Modals;
+    window.StatusEntry = StatusEntry;
+    window.QuickActions = QuickActions;
+    window.Modals = Modals;
 
     ko.options.deferUpdates = true;
 
@@ -125,7 +126,7 @@ $(function(){
     eagle.undo().pushSnapshot(eagle, "EAGLE Startup");
 
     // set UI Mode
-    const user_interface_mode = (<any>window).mode;
+    const user_interface_mode = window.mode;
     if (typeof user_interface_mode !== 'undefined' && user_interface_mode !== ""){
         // make sure that the specified user interface mode is a known mode
         if (UiModeSystem.getFullUiModeNamesList().includes(user_interface_mode)){
@@ -181,7 +182,7 @@ $(function(){
     if (!firstTimeVisit && showWhatsNew && !skipTutorial && !tutorialRequested){
         eagle.showWhatsNew();
         // set the last seen version
-        localStorage.setItem('lastSeenVersion', (<any>window).version);
+        localStorage.setItem('lastSeenVersion', appVersion);
     }
 
     $('.modal').on('hidden.bs.modal', function () {
@@ -295,12 +296,12 @@ async function loadRepos() {
 // NOTE: specify a URL like this:
 //     http://localhost:8888/?service=Url&url=https://raw.githubusercontent.com/ICRAR/EAGLE-graph-repo/refs/heads/master/EAGLE-1302/simple-arrays.graph
 async function autoLoad() {
-    const service    = (<any>window).auto_load_service;
-    const repository = (<any>window).auto_load_repository;
-    const branch     = (<any>window).auto_load_branch;
-    const path       = (<any>window).auto_load_path;
-    const filename   = (<any>window).auto_load_filename;
-    const url        = (<any>window).auto_load_url;
+    const service = window.auto_load_service ?? "";
+    const repository = window.auto_load_repository ?? "";
+    const branch = window.auto_load_branch ?? "";
+    const path = window.auto_load_path ?? "";
+    const filename = window.auto_load_filename ?? "";
+    const url = window.auto_load_url ?? "";
 
     // cast the service string to an enum
     const realService: Repository.Service = Repositories.translateStringToService(service);
@@ -350,15 +351,15 @@ async function autoLoad() {
 
     // if developer setting enabled, fetch the repository that this graph belongs to (if the repository is in the list of known repositories)
     if (serviceIsGit && Setting.findValue<boolean>(Setting.FETCH_REPOSITORY_FOR_URLS, false)){
-        let repo: Repository | null = Repositories.get(service, repository, branch);
+        let repo: Repository | null = Repositories.get(realService, repository, branch);
 
         // check whether the source repository is already known to EAGLE
         if (repo === null){
             // if not found, add the repository
-            await Repositories._addCustomRepository(service, repository, branch);
+            await Repositories._addCustomRepository(realService, repository, branch);
 
             // then look for it again
-            repo = Repositories.get(service, repository, branch);
+            repo = Repositories.get(realService, repository, branch);
 
             // if repo is still null, then it could not be added
             if (repo === null){
@@ -403,6 +404,43 @@ type Brand<B> = { [__brand]: B }
 export type Branded<T, B> = T & Brand<B>
 
 declare global {
+    interface Window {
+        version?: string;
+        mode?: string;
+        auto_load_service?: string;
+        auto_load_repository?: string;
+        auto_load_branch?: string;
+        auto_load_path?: string;
+        auto_load_filename?: string;
+        auto_load_url?: string;
+        eagle?: Eagle;
+        Category?: typeof Category;
+        Daliuge?: typeof Daliuge;
+        Eagle?: typeof Eagle;
+        EagleConfig?: typeof EagleConfig;
+        EagleStorage?: typeof EagleStorage;
+        Errors?: typeof Errors;
+        FileInfo?: typeof FileInfo;
+        GraphConfig?: typeof GraphConfig;
+        GraphConfigurationsTable?: typeof GraphConfigurationsTable;
+        GraphUpdater?: typeof GraphUpdater;
+        Hierarchy?: typeof Hierarchy;
+        ParameterTable?: typeof ParameterTable;
+        Repositories?: typeof Repositories;
+        Repository?: typeof Repository;
+        RightClick?: typeof RightClick;
+        Setting?: typeof Setting;
+        SideWindow?: typeof SideWindow;
+        TutorialSystem?: typeof TutorialSystem;
+        GraphRenderer?: typeof GraphRenderer;
+        UiModeSystem?: typeof UiModeSystem;
+        Utils?: typeof Utils;
+        KeyboardShortcut?: typeof KeyboardShortcut;
+        StatusEntry?: typeof StatusEntry;
+        QuickActions?: typeof QuickActions;
+        Modals?: typeof Modals;
+    }
+
     type NodeId = Branded<string, "NodeId">
     type FieldId = Branded<string, "FieldId">
     type EdgeId = Branded<string, "EdgeId">

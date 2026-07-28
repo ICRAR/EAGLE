@@ -819,8 +819,6 @@ export class LogicalGraph {
             // if we can't find the source or destination node for this edge in the cloned graph, then something went wrong with cloning, skip this edge and log a warning
             if (clonedSrcNode === undefined || clonedDestNode === undefined){
                 console.warn("clone(): Could not find source or destination node for edge", edge.getId(), "skipping edge");
-                clonedEdge.setSrcNode(null);
-                clonedEdge.setDestNode(null);
                 continue;
             }
 

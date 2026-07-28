@@ -49,8 +49,8 @@ export class GraphUpdaterFile {
     preFixNumWarnings: ko.Observable<number>;
     postFixNumErrors: ko.Observable<number>;
     postFixNumWarnings: ko.Observable<number>;
-    updatedFileUrl: ko.Observable<string>;
-    updatedPathAndName: ko.Observable<string>;
+    updatedFileUrl: ko.Observable<string | null>;
+    updatedPathAndName: ko.Observable<string | null>;
 
     constructor(file: RepositoryFile){
         this.data = "";
@@ -75,9 +75,9 @@ export class GraphUpdater {
 
     static autoFix: ko.Observable<boolean> = ko.observable(true);
 
-    static sourceRepository: Repository = null;
-    static destinationRepository: Repository = null;
-    static updatedLogicalGraphs: ko.ObservableArray<GraphUpdaterFile> = ko.observableArray([]);
+    static sourceRepository: Repository | null = null;
+    static destinationRepository: Repository | null = null;
+    static updatedLogicalGraphs: ko.ObservableArray<GraphUpdaterFile> = ko.observableArray<GraphUpdaterFile>([]);
 
     // NOTE: for use in translation of OJS object to internal graph representation
     static findIndexOfNodeDataArrayWithId(nodeDataArray: any[], id: NodeId) : number {
@@ -306,6 +306,13 @@ export class GraphUpdater {
     static async update(): Promise<void> {
         this.state(GraphUpdater.Status.Updating);
 
+        // abort if no source repository is set
+        if (this.sourceRepository === null){
+            Utils.showNotification("Error", "Source repository not set", "danger");
+            this.state(GraphUpdater.Status.Start);
+            return;
+        }
+
         // determine the correct function to load the file(s), based on the source repository service
         let openRemoteFileFunc: (repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string, filePath: string, fileName: string) => Promise<string>;
         switch (this.sourceRepository.service){
@@ -419,6 +426,13 @@ export class GraphUpdater {
     }
 
     static async push(): Promise<void> {
+        // abort if no source repository is set
+        if (this.sourceRepository === null){
+            Utils.showNotification("Error", "Source repository not set", "danger");
+            this.state(GraphUpdater.Status.Start);
+            return;
+        }
+
         // get destination repository or handle custom option
         const destRepoValue = $('#graphUpdaterModalDestinationRepositorySelect').val() as string;
 

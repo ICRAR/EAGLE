@@ -213,6 +213,7 @@ export class Visual {
     }
 
     static toJson(visual: Visual) : object {
+        const target = visual.target();
         return {
             id: visual.getId(),
             x: visual.x(),
@@ -222,7 +223,7 @@ export class Visual {
             type: visual.type(),
             content: visual.content(),
             color: visual.color(),
-            targetId: visual.target() ? visual.target().getId() : null,
+            targetId: target === null ? null : target.getId(),
         }
     }
     

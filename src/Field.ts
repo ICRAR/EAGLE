@@ -941,7 +941,7 @@ export class Field {
     static fromV4Json(data: any, node: Node, changeable: boolean): Field {
         let id: FieldId = Id.generateFieldId();
         let name: string = "";
-        let value: string = "";
+        let value: string | null = "";
         let defaultValue: string = "";
         let description: string = "";
         let readonly: boolean = false;

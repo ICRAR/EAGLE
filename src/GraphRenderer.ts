@@ -38,15 +38,14 @@ import { ParameterTable } from "./ParameterTable";
 import { Visual } from "./Visual";
 
 ko.bindingHandlers.nodeRenderHandler = {
-    // TODO: element any (more around)
-    init: function(element:any, valueAccessor) {
-        const node: Node = ko.unwrap(valueAccessor())
+    init: function(element: HTMLElement, valueAccessor: () => Node) {
+        const node: Node = ko.unwrap(valueAccessor());
         
         if(node.isData() || node.isGlobal()){
-            $(element).find('.body').css('background-color:#575757','color:white')
+            $(element).find('.body').css({'background-color':'#575757','color':'white'});
         }
     },
-    update: function (element:any, valueAccessor) {
+    update: function (element: HTMLElement, valueAccessor: () => Node) {
         const node: Node = ko.unwrap(valueAccessor());
 
         // set size
@@ -77,7 +76,7 @@ ko.bindingHandlers.nodeRenderHandler = {
 };
 
 ko.bindingHandlers.embeddedAppPosition = {
-    update: function (element:any, valueAccessor) {
+    update: function (element: HTMLElement, valueAccessor: () => { applicationNode: Node, input: boolean }) {
         const applicationNode: Node = ko.utils.unwrapObservable(valueAccessor()).applicationNode;
         const input: boolean = ko.utils.unwrapObservable(valueAccessor()).input;
 
@@ -142,7 +141,7 @@ ko.bindingHandlers.embeddedAppPosition = {
 };
 
 ko.bindingHandlers.graphRendererPortPosition = {
-    update: function (element:any, valueAccessor) {
+    update: function (element: HTMLElement, valueAccessor: () => { f: Field, type: "inputPort" | "outputPort" }) {
         //this handler is for a PORT position, meaning it will run twice for a field that has both input and output ports
         //the update function is called initially and then whenever a change to a utilised observable occurs
         const eagle : Eagle = Eagle.getInstance();
@@ -264,7 +263,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
     }
 };
 
-type position2d = {x:number, y:number} | null;
+type position2d = {x:number, y:number};
 
 export class GraphRenderer {
     static nodeData : Node[] | null = null
@@ -291,15 +290,15 @@ export class GraphRenderer {
     static portMatchCloseEnough :ko.Observable<boolean> = ko.observable(false);
 
     static draggingTextVisualPort : ko.Observable<boolean> = ko.observable(false);
-    static textVisualPortDragSource : ko.Observable<Visual> = ko.observable(null);
-    static textVisualPortDragTarget : ko.Observable<Node | Edge | Visual> = ko.observable(null);
+    static textVisualPortDragSource : ko.Observable<Visual | null> = ko.observable(null);
+    static textVisualPortDragTarget : ko.Observable<Node | Edge | Visual | null> = ko.observable(null);
 
     //node drag handler globals
     static nodeParentRadiusPreDrag : number | null = null;
-    static nodeDragElement : any = null
-    static dragStartPosition: position2d = null;
-    static dragCurrentPosition : position2d = null;
-    static dragSelectionHandled : any = ko.observable(true)
+    static nodeDragElement: HTMLElement | null = null;
+    static dragStartPosition: position2d | null = null;
+    static dragCurrentPosition : position2d | null = null;
+    static dragSelectionHandled : ko.Observable<boolean> = ko.observable(true);
     static dragSelectionDoubleClick :boolean = false;
 
     static findParent : boolean = false;
@@ -309,11 +308,11 @@ export class GraphRenderer {
     static altSelect : boolean = false;
     static shiftSelect : boolean = false;
     static isDraggingSelectionRegion :boolean = false;
-    static selectionRegionStart: position2d = null;
-    static selectionRegionEnd: position2d = null;
-    static ctrlDrag:boolean | null = null;
+    static selectionRegionStart: position2d = {x:0,y:0};
+    static selectionRegionEnd: position2d = {x:0,y:0};
+    static ctrlDrag: boolean = false;
     static editNodeName:boolean = false;
-    static portDragStartPos: position2d = null;
+    static portDragStartPos: position2d = {x:0,y:0};
     static simpleSelect : boolean = true; // used for node dragging/selecting. if the cursor position hasn't moved far when click/dragging a node. we wont update the node's position and handle it as a simple select action
 
     static mousePosX : ko.Observable<number> = ko.observable(-1);
@@ -325,7 +324,7 @@ export class GraphRenderer {
     //visual resize handler globals
     static isResizingVisual : ko.Observable<boolean> = ko.observable(false);
     static visualResizeCurrentPos : {x:number,y:number} = {x:0,y:0};
-    static visualBeingResized : Visual = null;
+    static visualBeingResized : Visual | null = null;
 
     static readonly Y_AXIS_PIXEL_OFFSET = 83.77;
 
@@ -365,7 +364,7 @@ export class GraphRenderer {
         const isGroup : boolean = visual.isGroup()
         const portRadius = isGroup ? 0:6  // we need to add or subtract half of the width of the port sometimes to center it on the edge
         //the height of text visuals is automatic based on content using css, so we need to get the height of the element here
-        const halfHeight = $('#' + visual.getId()+ ' .body').height() / 2 + portRadius;
+        const halfHeight = (Number($('#' + visual.getId() + ' .body').height()) / 2) + portRadius;
 
         const visualPos = visual.getPosition()
 
@@ -580,7 +579,7 @@ export class GraphRenderer {
 
         //checking max angle
         while(noMatch && circles<MAX_CIRCLES){
-            const collidingPortAngle:number = GraphRenderer.checkForPortUsingAngle(node,currentAngle,minPortDistance, field,mode)
+            const collidingPortAngle = GraphRenderer.checkForPortUsingAngle(node,currentAngle,minPortDistance, field,mode)
             if(collidingPortAngle === null){
                 maxAngle = currentAngle // we've found our closest gap when adding to our angle
                 noMatch = false
@@ -604,7 +603,7 @@ export class GraphRenderer {
 
         //checking min angle
         while(noMatch && circles<MAX_CIRCLES){
-            const collidingPortAngle:number = GraphRenderer.checkForPortUsingAngle(node,currentAngle,minPortDistance, field,mode)
+            const collidingPortAngle = GraphRenderer.checkForPortUsingAngle(node,currentAngle,minPortDistance, field,mode)
             if(collidingPortAngle === null){
                 minAngle = currentAngle // we've found our closest gap when adding to our angle
                 noMatch = false
@@ -988,8 +987,8 @@ export class GraphRenderer {
             const destX: number = GraphRenderer.mousePosX();
             const destY: number = GraphRenderer.mousePosY();
 
-            const srcField: Field = GraphRenderer.portDragSourcePort();
-            const destField: Field = null;
+            const srcField = GraphRenderer.portDragSourcePort();
+            const destField: Field | null = null;
 
             //if we are dragging from an input port well pass the dragSrcPort(the input port) as the destination of edge. this is so the flow arrow on the edge is point in the correct direction in terms of graph flow
             if(GraphRenderer.portDragSourcePortIsInput){
@@ -998,11 +997,12 @@ export class GraphRenderer {
                 return GraphRenderer.createBezier(false,true, null, srcNodeRadius, destNodeRadius, {x:srcX, y:srcY}, {x:destX, y:destY}, srcField, destField, GraphRenderer.portDragSourcePortIsInput);
             }
         }else if(GraphRenderer.draggingTextVisualPort()){
-            if (GraphRenderer.textVisualPortDragSource() === null){
+            const visual = GraphRenderer.textVisualPortDragSource();
+
+            if (visual === null){
                 return '';
             }
-
-            const visual = GraphRenderer.textVisualPortDragSource();
+            
             const destX: number = GraphRenderer.mousePosX();
             const destY: number = GraphRenderer.mousePosY();
 
@@ -1088,7 +1088,7 @@ export class GraphRenderer {
 
     static editNodeTitleInGraph (_data:Node,event: JQuery.TriggeredEvent) : void {
         GraphRenderer.editNodeName = true //used to prevent other drag functions if this feature is active
-        const target = event.target
+        const target = event.target as HTMLElement;
         $(target).hide()
         const input = $(target).parent().find('.header-input')
         input.show().trigger('focus').addClass('changingHeader').trigger('select')
@@ -1114,13 +1114,15 @@ export class GraphRenderer {
     }
 
     static startDrag(object: Node | Visual, event: MouseEvent) : void {
+        const target = event.target as HTMLElement;
+
         //if we click on the title of a node, cancel the drag handler
-        if($(event.target).parent().parent().hasClass('header') || $(event.target).parent().hasClass('edgeComments') || $(event.target).parent().hasClass('commentIcons')){
+        if($(target).parent().parent().hasClass('header') || $(target).parent().hasClass('edgeComments') || $(target).parent().hasClass('commentIcons')){
             event.preventDefault()
             event.stopPropagation()
             return
         }else if(GraphRenderer.editNodeName){
-            if(!$(event.target).hasClass('changingHeader')){
+            if(!$(target).hasClass('changingHeader')){
                 GraphRenderer.closeEditTitleInGraph()
             }
         }
@@ -1144,7 +1146,7 @@ export class GraphRenderer {
             //initiating node dragging
             GraphRenderer.isDragging(true);
             GraphRenderer.draggingObject(object);
-            GraphRenderer.nodeDragElement = event.target
+            GraphRenderer.nodeDragElement = event.target instanceof HTMLElement ? event.target : null
             GraphRenderer.dragStartPosition = {x:event.pageX,y:event.pageY}
             GraphRenderer.dragCurrentPosition = {x:event.pageX,y:event.pageY}
             
@@ -1192,7 +1194,7 @@ export class GraphRenderer {
         GraphRenderer.dragSelectionDoubleClick = true
         setTimeout(function () {
             GraphRenderer.dragSelectionDoubleClick = false
-        }, 200)
+        }, EagleConfig.STANDARD_UI_DOUBLE_CLICK_TIMEOUT)
     }
 
     static mouseMove(eagle: Eagle, event: JQuery.TriggeredEvent) : void {
@@ -1203,14 +1205,14 @@ export class GraphRenderer {
         //this is done by comparing the current position, with the position recorded by the previous tick of this function
         let moveDistance: position2d = {x:0,y:0}
         if(GraphRenderer.dragCurrentPosition){
-            moveDistance = {x:e.pageX - GraphRenderer.dragCurrentPosition?.x, y: e.pageY - GraphRenderer.dragCurrentPosition?.y}
+            moveDistance = {x:e.pageX - GraphRenderer.dragCurrentPosition.x, y: e.pageY - GraphRenderer.dragCurrentPosition.y}
         }
         
         GraphRenderer.dragCurrentPosition = {x:e.pageX,y:e.pageY}
 
         if (GraphRenderer.isDragging() && !GraphRenderer.isResizingVisual()){
             if (GraphRenderer.draggingObject() !== null && !GraphRenderer.isDraggingSelectionRegion ){
-                const dragStartPos = GraphRenderer.dragStartPosition ? GraphRenderer.dragStartPosition : {x:0,y:0}
+                const dragStartPos = GraphRenderer.dragStartPosition ?? {x:0,y:0}
 
                 //check and note if the mouse has moved
                 GraphRenderer.simpleSelect = dragStartPos.x - moveDistance.x < 5 && dragStartPos.y - moveDistance.y < 5
@@ -1245,9 +1247,15 @@ export class GraphRenderer {
         }else if(GraphRenderer.draggingTextVisualPort()){
             GraphRenderer.textVisualPortDragging()
         }else if(GraphRenderer.isResizingVisual()){
-            moveDistance = {x:e.pageX - GraphRenderer.visualResizeCurrentPos?.x, y: e.pageY - GraphRenderer.visualResizeCurrentPos?.y}
+            moveDistance = {x:e.pageX - GraphRenderer.visualResizeCurrentPos.x, y: e.pageY - GraphRenderer.visualResizeCurrentPos.y}
             GraphRenderer.visualResizeCurrentPos = {x:e.pageX,y:e.pageY}
             
+            // abort if GraphRenderer.visualBeingResized is null
+            if (GraphRenderer.visualBeingResized === null){
+                console.warn("GraphRenderer.visualBeingResized is null in mouseMove");
+                return;
+            }
+
             GraphRenderer.visualBeingResized.changeSize((moveDistance.x/eagle.globalScale()), (moveDistance.y/eagle.globalScale()))
 
             //we change the position of the visual because of the way the renderer centers nodes. if we did not do this, the scaling would happen in both directions around the center of the node.
@@ -1265,11 +1273,6 @@ export class GraphRenderer {
 
         // if we dragged a selection region
         if (GraphRenderer.isDraggingSelectionRegion){
-
-            if (GraphRenderer.selectionRegionStart === null || GraphRenderer.selectionRegionEnd === null){
-                console.warn("endDrag called with null selection region points");
-                return;
-            }
 
             const nodes: (Node|Visual)[] = GraphRenderer.findNodesInRegion(GraphRenderer.selectionRegionStart.x, GraphRenderer.selectionRegionEnd.x, GraphRenderer.selectionRegionStart.y, GraphRenderer.selectionRegionEnd.y);
             
@@ -1347,11 +1350,6 @@ export class GraphRenderer {
         const containerWidth = $('#logicalGraph').width()
         const containerHeight = $('#logicalGraph').height()
 
-        if (GraphRenderer.selectionRegionStart === null || GraphRenderer.selectionRegionEnd === null){
-            console.warn("drawSelectionRectangle called with null selection region points");
-            return;
-        }
-
         if (typeof containerWidth === "undefined" || typeof containerHeight === "undefined"){
             console.warn("drawSelectionRectangle called with undefined container dimensions");
             return;
@@ -1421,7 +1419,7 @@ export class GraphRenderer {
 
     static getVisualEdgePath(textVisual: Visual) : string {
         const srcVisual: Visual = textVisual;
-        const destObject: Node | Edge | Visual = textVisual.getTarget();
+        const destObject: Node | Edge | Visual | null = textVisual.getTarget();
 
         //if the visual is not connected to anything we don't need to render an edge
         if(destObject === null){
@@ -1568,7 +1566,7 @@ export class GraphRenderer {
 
             //text visuals scale in height automatically using css, we have to grab the real height from the html element
             if(visual.isText()){
-                height = $('#'+visual.getId()).height()/2
+                height = Number($('#'+visual.getId()).height() ?? 0) / 2
             }
 
             //checking if the node is fully inside the selection box
@@ -1890,10 +1888,8 @@ export class GraphRenderer {
     }
 
     // TODO: can we use the Daliuge.FieldUsage type here for the 'usage' parameter?
-    static portDragStart(usage: "input" | "output" | "textVisual", visual?:Visual, port?:Field) : void {
-        const e:any = event; //somehow the event here will always log in the console as a mouseevent. this allows the following line to access the button attribute.
-        //further down we are calling stopPropagation on the same event object and it works, even though stopPropagation shouldn't exist on a mouseEvent. this is why i created a constant of type any. its working as it should but i don't know how.
-        if(e.button === 1){
+    static portDragStart(usage: "input" | "output" | "textVisual", event: MouseEvent, visual?:Visual, port?:Field) : void {
+        if(event.button === 1){
             //we return if the button pressed is a middle mouse button, and allow the other drag events to handle this event. middle mouse is used for panning the canvas.
             return
         }
@@ -1901,7 +1897,7 @@ export class GraphRenderer {
         GraphRenderer.updateMousePos();
 
         //prevents moving the node when dragging the port
-        e.stopPropagation();
+        event.stopPropagation();
         
         //setting up the port event listeners
         $('#logicalGraphParent').on('mouseup.portDrag',function(){GraphRenderer.portDragEnd()})
@@ -1913,10 +1909,16 @@ export class GraphRenderer {
             GraphRenderer.renderDraggingPortEdge(true);
             
         }else{
+            // abort if port is undefined
+            if (typeof port === 'undefined'){
+                console.error("port is undefined in portDragStart()");
+                return;
+            }
 
             //preparing necessary port info
+            const sourceNode: Node = port.getNode();
             GraphRenderer.draggingPort = true
-            GraphRenderer.portDragSourceNode(port.getNode());
+            GraphRenderer.portDragSourceNode(sourceNode);
             GraphRenderer.portDragSourcePort(port);
             GraphRenderer.portDragSourcePortIsInput = usage === 'input';      
             GraphRenderer.createEdgeSuggestedPorts = []
@@ -1932,7 +1934,7 @@ export class GraphRenderer {
             }
 
             // build the list of all ports in the graph that are a valid end-point for an edge starting at this port
-            GraphRenderer.createEdgeSuggestedPorts = GraphRenderer.findMatchingPorts(GraphRenderer.portDragSourceNode(), GraphRenderer.portDragSourcePort());
+            GraphRenderer.createEdgeSuggestedPorts = GraphRenderer.findMatchingPorts(sourceNode, port);
         }
     }
 
@@ -1972,7 +1974,7 @@ export class GraphRenderer {
         const elements = document.elementsFromPoint(posX, posY);
         let target: Node | Edge | Visual | null = null;
         for (const element of elements) {
-            const data = ko.dataFor(element);
+            const data: Node | Edge | Visual | null = ko.dataFor(element);
             if (data instanceof Node || data instanceof Edge || data instanceof Visual) {
                 target = data;
                 break;
@@ -1992,20 +1994,32 @@ export class GraphRenderer {
 
         //here
         if(GraphRenderer.draggingPort){
+            const portDragSourceNode = GraphRenderer.portDragSourceNode();
+            const portDragSourcePort = GraphRenderer.portDragSourcePort();
+
+            // abort if source node is null
+            if (portDragSourceNode === null){
+                console.error("source node is null in portDragEnd()");
+                return;
+            }
+
+            // abort if source port is null
+            if (portDragSourcePort === null){
+                console.error("source port is null in portDragEnd()");
+                return;
+            }
+
             //for node port drag events
             if(Math.abs(GraphRenderer.portDragStartPos.x - GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null))+Math.abs(GraphRenderer.portDragStartPos.y - GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null))<3){
                 //identify a click, if we click a port, we will open the parameter table and highlight the port
-                ParameterTable.openTableAndSelectField(GraphRenderer.portDragSourceNode(), GraphRenderer.portDragSourcePort())
+                ParameterTable.openTableAndSelectField(portDragSourceNode, portDragSourcePort)
                 GraphRenderer.clearEdgeVars();
             }else{
-                if ((GraphRenderer.destinationPort !== null || GraphRenderer.portDragSuggestedField() !== null) && GraphRenderer.portMatchCloseEnough()){
-                    const srcNode: Node = GraphRenderer.portDragSourceNode();
-                    const srcPort: Field = GraphRenderer.portDragSourcePort();
+                if ((GraphRenderer.destinationPort !== null || GraphRenderer.portDragSuggestedField() !== null) && GraphRenderer.portMatchCloseEnough()){        
+                    let destNode: Node | null = null;
+                    let destPort: Field | null = null;
         
-                    let destNode: Node = null;
-                    let destPort: Field = null;
-        
-                    if (GraphRenderer.destinationPort !== null){
+                    if (GraphRenderer.destinationNode !== null && GraphRenderer.destinationPort !== null){
                         destNode = GraphRenderer.destinationNode;
                         destPort = GraphRenderer.destinationPort;
                     } else {
@@ -2013,19 +2027,32 @@ export class GraphRenderer {
                         destPort = GraphRenderer.portDragSuggestedField();
                     }
         
-                    GraphRenderer.createEdge(srcNode, srcPort, destNode, destPort);
+                    // abort if destination node is null
+                    if (destNode === null){
+                        console.error("destination node is null in portDragEnd()");
+                        return;
+                    }
+        
+                    // abort if destination port is null
+                    if (destPort === null){
+                        console.error("destination port is null in portDragEnd()");
+                        return;
+                    }
+
+                    GraphRenderer.createEdge(portDragSourceNode, portDragSourcePort, destNode, destPort);
         
                 } else {
                     if (GraphRenderer.destinationPort === null){
                         GraphRenderer.showUserNodeSelectionContextMenu();
                     } else {
+                        // abort if destination node is null
+                        if (GraphRenderer.destinationNode === null){
+                            console.error("destination node is null in portDragEnd()");
+                            return;
+                        }
+
                         // connect to destination port
-                        const srcNode: Node = GraphRenderer.portDragSourceNode();
-                        const srcPort: Field = GraphRenderer.portDragSourcePort();
-                        const destNode: Node = GraphRenderer.destinationNode;
-                        const destPort: Field = GraphRenderer.destinationPort;
-        
-                        GraphRenderer.createEdge(srcNode, srcPort, destNode, destPort);
+                        GraphRenderer.createEdge(portDragSourceNode, portDragSourcePort, GraphRenderer.destinationNode, GraphRenderer.destinationPort);
                     }
                 }
                 GraphRenderer.portDragSourcePort()?.setInputPeek(false)
@@ -2034,8 +2061,15 @@ export class GraphRenderer {
         }else{
             //for text visual port drag events
             if(GraphRenderer.textVisualPortDragTarget() !== null && (GraphRenderer.textVisualPortDragTarget() instanceof Node || GraphRenderer.textVisualPortDragTarget() instanceof Edge || GraphRenderer.textVisualPortDragTarget() instanceof Visual)){
-                const visual: Visual = GraphRenderer.textVisualPortDragSource();
+                const visual = GraphRenderer.textVisualPortDragSource();
                 const target = GraphRenderer.textVisualPortDragTarget();
+
+                // abort if the visual is null
+                if(visual === null){
+                    console.error("textVisualPortDragSource is null in portDragEnd()");
+                    return;
+                }
+
                 const oldTarget = visual.getTarget()
 
                 //if the old target was a group visual, we need to update the target on that side as well. 
@@ -2053,7 +2087,6 @@ export class GraphRenderer {
             }
         }
         
-
         //reset defaults
         GraphRenderer.textVisualPortDragSource(null);
         GraphRenderer.textVisualPortDragTarget(null);
@@ -2178,7 +2211,7 @@ export class GraphRenderer {
                 return true
             }else if(eagle.objectIsSelected(object)){
                 return true
-            }else if(field.isInputPeek() || field.isOutputPeek()){
+            }else if(typeof field !== 'undefined' && (field.isInputPeek() || field.isOutputPeek())){
                 return true
             }else{
                 return false
@@ -2218,7 +2251,7 @@ export class GraphRenderer {
         $('#logicalGraphParent').off('mouseup.visualResize')
     }
 
-    static SCREEN_TO_GRAPH_POSITION_X(x:number) : number {
+    static SCREEN_TO_GRAPH_POSITION_X(x:number | null) : number {
         const eagle = Eagle.getInstance();
         if(x===null){
             if (GraphRenderer.dragCurrentPosition !== null){

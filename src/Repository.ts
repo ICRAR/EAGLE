@@ -125,10 +125,10 @@ export class Repository {
         const pathParts: string[] = path.split('/').filter((pathPart) => pathPart !== "");
 
         for (const pathPart of pathParts){
-            const folders = pointer === null ? this.folders() : pointer.folders();
-            const nextPointer = folders.find((folder) => folder.name === pathPart) ?? null;
+            const folders: RepositoryFolder[] = pointer === null ? this.folders() : pointer.folders();
+            const nextPointer = folders.find((folder) => folder.name === pathPart);
 
-            if (nextPointer === null){
+            if (typeof nextPointer === "undefined"){
                 return null;
             }
 
@@ -149,10 +149,10 @@ export class Repository {
             const pathParts: string[] = path.split('/').filter((pathPart) => pathPart !== "");
 
             for (const pathPart of pathParts){
-                const folders = pointer === null ? this.folders() : pointer.folders();
-                const nextPointer = folders.find((folder) => folder.name === pathPart) ?? null;
+                const folders: RepositoryFolder[] = pointer === null ? this.folders() : pointer.folders();
+                const nextPointer = folders.find((folder) => folder.name === pathPart);
 
-                if (nextPointer === null){
+                if (typeof nextPointer === "undefined"){
                     const pointerName = pointer === null ? this.name : pointer.name;
                     reject(new Error("Could not find path part (" + pathPart + "), pointer is at " + pointerName));
                     return;
@@ -241,10 +241,10 @@ export class Repository {
             const pathParts: string[] = path.split('/').filter((pathPart) => pathPart !== "");
 
             for (const pathPart of pathParts){
-                const folders = pointer === null ? this.folders() : pointer.folders();
-                const nextPointer = folders.find((folder) => folder.name === pathPart) ?? null;
+                const folders: RepositoryFolder[] = pointer === null ? this.folders() : pointer.folders();
+                const nextPointer = folders.find((folder) => folder.name === pathPart);
 
-                if (nextPointer === null){
+                if (typeof nextPointer === "undefined"){
                     const pointerName = pointer === null ? this.name : pointer.name;
                     reject(new Error("Could not find path part (" + pathPart + "), pointer is at " + pointerName));
                     return;
@@ -347,7 +347,7 @@ export class Repository {
     }
 
     public static toJson(repository: Repository) : object {
-        const result : any = {};
+        const result: {[key: string]: string} = {};
 
         result.id = repository._id;
         result.service = repository.service;

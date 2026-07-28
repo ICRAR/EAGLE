@@ -33,13 +33,14 @@ export class RightClick {
     }
 
     // TODO: global event
-    static checkSearchField() : void {
-        const searchField = $((event as InputEvent).target)
-
-        if (typeof searchField === 'undefined') {
-            console.warn('Search field not found in checkSearchField()');
+    static checkSearchField(event?: Event) : void {
+        const target = event?.target ?? document.getElementById('rightClickSearchBar');
+        if (!(target instanceof HTMLElement)) {
+            console.warn('Search field target not found in checkSearchField()');
             return;
         }
+
+        const searchField = $(target)
 
         const searchFieldValue = searchField.val();
 
@@ -738,6 +739,12 @@ export class RightClick {
         }
         // adding a listener to function options that closes the menu if an option is clicked
         // TODO: get event from somewhere instead of global
-        $('#customContextMenu a').on('click',function(){if($((thisEvent).target).parents('.searchBarContainer').length){return}RightClick.closeCustomContextMenu(true)})
+        $('#customContextMenu a').on('click', function(event){
+            const target = event.target;
+            if (target instanceof HTMLElement && $(target).parents('.searchBarContainer').length){
+                return;
+            }
+            RightClick.closeCustomContextMenu(true)
+        })
     }
 }

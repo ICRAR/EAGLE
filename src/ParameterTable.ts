@@ -694,7 +694,7 @@ export class ParameterTable {
         //open the bottom window
         SideWindow.setShown('bottom',true)
 
-        if(mode = Eagle.BottomWindowMode.NodeParameterTable){
+        if(mode === Eagle.BottomWindowMode.NodeParameterTable){
             setTimeout(() => {
                 //update the contents of the parameter table and its sorting arrow display
                 ParameterTable.updateContent(eagle.selectedNode())
