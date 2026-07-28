@@ -1,5 +1,5 @@
-Quick Start Guide
-=================
+Getting Started
+===============
 
 This page gives you the fastest path to building your first workflow.
 You can test everything on the `public installation <https://eagle.icrar.org/?service=GitHub&repository=ICRAR/EAGLE-graph-repo&branch=master&path=examples&filename=HelloWorld-simple.graph>`_.
@@ -48,47 +48,18 @@ Based on this setup, enable:
 Set your token in EAGLE under :doc:`Settings <settings>` in ``External Services`` -> ``GitHub Access Token``.
 
 The in-app Quick Start tutorial also walks through adding the token.
-You can launch it directly on live EAGLE here:
-`Start Quick Start Tutorial <https://eagle.icrar.org/?tutorial=Quick%20Start>`_.
+To access the tutorial, follow the steps in the next section.
 
 For token creation steps, see the official GitHub guide:
 `Managing your personal access tokens <https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens>`_.
 
-Loading a Palette
------------------
+Getting started with the UI
+---------------------------
 
-Workflows are built from :doc:`components <components>`.
-Components are grouped in :doc:`palettes <palettes>` so you can find the right nodes quickly.
+We offer several in-app tutorials to help you familiarize yourself with EAGLE. You can launch them directly on the live EAGLE instance:
 
-To load a palette from GitHub, add your GitHub token in settings first.
+* `Quick Start <https://eagle.icrar.org/?tutorial=Quick%20Start>`_ for a guided tour of the user interface.
+* `Graph Building <https://eagle.icrar.org/?tutorial=Graph%20Building>`_ for creating and editing a graph from scratch.
+* `Graph Configurations <https://eagle.icrar.org/?tutorial=Graph%20Configurations>`_ for setting up reusable graph configuration values.
 
-.. raw:: html
-    :file: _static/video1.html
-
-Creating a new graph
---------------------
-
-Create a graph from the ``New`` menu, then drag components from the loaded palette.
-
-Tips for first-time users:
-
-* Connect components with clear data flow from left to right.
-* Use data components (for example Memory or File) to make data movement explicit.
-* Start small, then add branches or loops.
-
-The video below walks through graph creation in the editor.
-
-.. raw:: html
-    :file: _static/video2.html
-
-Saving a graph to gitHub
-------------------------
-
-To save your graph, add a repository you can write to.
-If needed, create a new repo first.
-
-Saving also requires a GitHub Personal Access Token.
-The video shows token setup and repository save steps.
-
-.. raw:: html
-    :file: _static/video3.html
+For a longer walkthrough of the full workflow, see :doc:`Hello World Example <helloWorld>`.

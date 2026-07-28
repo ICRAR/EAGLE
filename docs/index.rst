@@ -44,7 +44,7 @@ Components are defined in JSON descriptions so EAGLE can display, validate, and 
    :hidden:
 
    Installation <installation>
-   Quick Start <quickStart2>
+   Getting Started <gettingStarted>
    Hello World Example <helloWorld>
    Settings <settings>
 
