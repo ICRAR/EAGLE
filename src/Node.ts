@@ -87,7 +87,7 @@ export class Node {
 
         this.parent = ko.observable(null);
         this.embed = ko.observable(null);
-        this.children = ko.observable(new Map());
+        this.children = ko.observable(<Map<NodeId, Node>>new Map());
 
         this.inputApplication = ko.observable(null);
         this.outputApplication = ko.observable(null);
@@ -869,7 +869,7 @@ export class Node {
     getCommentNodeHtml = () : string => {
         if (this.isComment()){
             let commentHtml = this.comment()
-            if (commentHtml === undefined || commentHtml === null || commentHtml === ""){
+            if (commentHtml === ""){
                 commentHtml = "Click on edit icon to add comment";
             }
 
@@ -982,7 +982,7 @@ export class Node {
     }
 
     hasPortWithDisplayText = (displayText : string, input : boolean, local : boolean) : boolean => {
-        return this.findPortByDisplayText(displayText, input, local) !== null;
+        return this.findPortByDisplayText(displayText, input, local) !== undefined;
     }
 
     addField = (field : Field) : Node => {
@@ -1300,7 +1300,7 @@ export class Node {
             }
             
             //check if field is a graph config field
-            if(activeConfig?.hasField(field)){
+            if (activeConfig?.hasField(field) === true){
                 configFields.push(field)
             }
         }
@@ -1425,7 +1425,7 @@ export class Node {
                node0.getCommitHash() !== node1.getCommitHash();
     }
 
-    static fromOJSJson(nodeData : any, errorsWarnings: Errors.ErrorsWarnings, isPaletteNode: boolean) : Node {
+    static fromOJSJson(nodeData: any, errorsWarnings: Errors.ErrorsWarnings, isPaletteNode: boolean) : Node {
         let id = Node.determineNodeId(nodeData);
 
         if (id === null){
