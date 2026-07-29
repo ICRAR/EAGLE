@@ -344,24 +344,14 @@ export class Eagle {
 
     // TODO: remove?
     flagActiveFileModified = () : void => {
-        if (this.logicalGraph()){
-            this.logicalGraph().fileInfo().modified = true;
-        }
+        this.logicalGraph().fileInfo().modified = true;
     }
 
     getTabTitle : ko.PureComputed<string> = ko.pureComputed(() => {
         // Adding a star symbol in front of the title if file is modified.
         let mod = '';
 
-        if (this.logicalGraph() === null){
-            return "";
-        }
-
         const fileInfo : FileInfo = this.logicalGraph().fileInfo();
-
-        if (fileInfo === null){
-            return "";
-        }
 
         if (fileInfo.modified){
             mod = '*';
@@ -397,16 +387,7 @@ export class Eagle {
     }
 
     repositoryFileName : ko.PureComputed<string> = ko.pureComputed(() => {
-        if (this.logicalGraph() === null){
-            return "";
-        }
-
         const fileInfo : FileInfo = this.logicalGraph().fileInfo();
-
-        // if no FileInfo is available, return empty string
-        if (fileInfo === null){
-            return "";
-        }
 
         return fileInfo.location.getHtml();
     }, this);
@@ -916,9 +897,8 @@ export class Eagle {
     /**
      * Uploads a file from a local file location.
      */
-    loadLocalGraphFile = () : void => {
-        const graphFileToLoadInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("graphFileToLoad");
-        const fileFullPath : string = graphFileToLoadInputElement.value;
+    private _readLocalFileInput = (inputElement: HTMLInputElement, context: string, onLoad: (data: string, fileFullPath: string) => void): void => {
+        const fileFullPath: string = inputElement.value;
 
         // abort if value is empty string
         if (fileFullPath === ""){
@@ -926,40 +906,51 @@ export class Eagle {
         }
 
         // abort if input element has no files
-        if (!graphFileToLoadInputElement.files){
-            console.error("loadLocalGraphFile: no files found in input element");
+        if (inputElement.files === null){
+            console.error(context + ": no files found in input element");
+            inputElement.value = "";
             return;
         }
 
         // get reference to file from the html element
-        const file = graphFileToLoadInputElement.files[0];
-
-        // read the file
-        if (file) {
-            const reader = new FileReader();
-            reader.readAsText(file, "UTF-8");
-            reader.onload = (evt) => {
-                let data = evt.target?.result?.toString();
-
-                if (!data) {
-                    console.error("loadLocalGraphFile: file is empty or could not be read");
-                    Utils.showUserMessage("Error", "File is empty or could not be read.");
-                    data = "";
-                }
-
-                this._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
-                    this.logicalGraph(lg);
-
-                    this._postLoadGraph(new RepositoryFile(new Repository(Repository.Service.File, "", "", false), Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath)));
-                });
-            }
-            reader.onerror = (evt) => {
-                console.error("error reading file", evt);
-            }
+        const file = inputElement.files[0];
+        if (typeof file === "undefined") {
+            console.error(context + ": no file selected");
+            inputElement.value = "";
+            return;
         }
 
+        // read the file
+        const reader = new FileReader();
+        reader.readAsText(file, "UTF-8");
+        reader.onload = (evt) => {
+            let data = evt.target?.result?.toString();
+
+            if (typeof data === "undefined" || data === "") {
+                console.error(context + ": file is empty or could not be read");
+                Utils.showUserMessage("Error", "File is empty or could not be read.");
+                data = "";
+            }
+
+            onLoad(data, fileFullPath);
+        };
+        reader.onerror = (evt) => {
+            console.error("error reading file", evt);
+        };
+
         // reset file selection element
-        graphFileToLoadInputElement.value = "";
+        inputElement.value = "";
+    }
+
+    loadLocalGraphFile = () : void => {
+        const graphFileToLoadInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("graphFileToLoad");
+        this._readLocalFileInput(graphFileToLoadInputElement, "loadLocalGraphFile", (data, fileFullPath) => {
+            this._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
+                this.logicalGraph(lg);
+
+                this._postLoadGraph(new RepositoryFile(new Repository(Repository.Service.File, "", "", false), Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath)));
+            });
+        });
     }
 
     /**
@@ -967,36 +958,9 @@ export class Eagle {
      */
     insertLocalGraphFile = () : void => {
         const graphFileToInsertInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("graphFileToInsert");
-        const fileFullPath : string = graphFileToInsertInputElement.value;
         const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
-        // abort if value is empty string
-        if (fileFullPath === ""){
-            return;
-        }
-
-        // abort if input element has no files
-        if (!graphFileToInsertInputElement.files){
-            console.error("insertLocalGraphFile: no files found in input element");
-            return;
-        }
-
-        // get reference to file from the html element
-        const file = graphFileToInsertInputElement.files[0];
-
-        // read the file
-        if (file) {
-            const reader = new FileReader();
-            reader.readAsText(file, "UTF-8");
-            reader.onload = (evt) => {
-                let data = evt.target?.result?.toString();
-
-                if (!data) {
-                    console.error("insertLocalGraphFile: file is empty or could not be read");
-                    Utils.showUserMessage("Error", "File is empty or could not be read.");
-                    data = "";
-                }
-
+        this._readLocalFileInput(graphFileToInsertInputElement, "insertLocalGraphFile", (data, fileFullPath) => {
                 this._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
                     const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().location.getText(), "", Category.SubGraph);
     
@@ -1008,14 +972,7 @@ export class Eagle {
                     this.undo().pushSnapshot(this, "Insert Logical Graph");
                     this.logicalGraph.valueHasMutated();
                 });
-            }
-            reader.onerror = (evt) => {
-                console.error("error reading file", evt);
-            }
-        }
-
-        // reset file selection element
-        graphFileToInsertInputElement.value = "";
+        });
     }
 
     private _handleLoadingErrors = (errorsWarnings: Errors.ErrorsWarnings, fileName: string, service: Repository.Service) : void => {
@@ -1390,47 +1347,12 @@ export class Eagle {
      */
     loadLocalPaletteFile = () : void => {
         const paletteFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("paletteFileToLoad");
-        const fileFullPath : string = paletteFileInputElement.value;
-
-        // abort if value is empty string
-        if (fileFullPath === ""){
-            return;
-        }
-
-        // abort if input element has no files
-        if (!paletteFileInputElement.files){
-            console.error("loadLocalPaletteFile: no files found in input element");
-            return;
-        }
-
-        // get a reference to the file in the html element
-        const file = paletteFileInputElement.files[0];
-        
-        // read the file
-        if (file) {
-            const reader = new FileReader();
-            reader.readAsText(file, "UTF-8");
-            reader.onload = (evt) => {
-                let data = evt.target?.result?.toString();
-
-                if (!data) {
-                    console.error("loadLocalPaletteFile: file is empty or could not be read");
-                    Utils.showUserMessage("Error", "File is empty or could not be read.");
-                    data = "";
-                }
-
+        this._readLocalFileInput(paletteFileInputElement, "loadLocalPaletteFile", (data, fileFullPath) => {
                 this._loadPaletteJSON(data, fileFullPath);
 
                 this.palettes()[0].fileInfo().location.repositoryService(Repository.Service.File);
                 this.palettes()[0].fileInfo.valueHasMutated();
-            }
-            reader.onerror = (evt) => {
-                console.error("error reading file", evt);
-            }
-        }
-        
-        // reset file selection element
-        paletteFileInputElement.value = "";
+        });
     }
 
     private _loadPaletteJSON = (data: string, fileFullPath: string) => {
@@ -1470,35 +1392,7 @@ export class Eagle {
      */
     loadLocalGraphConfigFile = () : void => {
         const graphConfigFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("graphConfigFileToLoad");
-        const fileFullPath : string = graphConfigFileInputElement.value;
-
-        // abort if value is empty string
-        if (fileFullPath === ""){
-            return;
-        }
-
-        // abort if input element has no files
-        if (!graphConfigFileInputElement.files){
-            console.error("loadLocalGraphConfigFile: no files found in input element");
-            return;
-        }
-
-        // get a reference to the file in the html element
-        const file = graphConfigFileInputElement.files[0];
-        
-        // read the file
-        if (file) {
-            const reader = new FileReader();
-            reader.readAsText(file, "UTF-8");
-            reader.onload = (evt) => {
-                let data = evt.target?.result?.toString();
-
-                if (!data) {
-                    console.error("loadLocalGraphConfigFile: file is empty or could not be read");
-                    Utils.showUserMessage("Error", "File is empty or could not be read.");
-                    data = "";
-                }
-
+        this._readLocalFileInput(graphConfigFileInputElement, "loadLocalGraphConfigFile", (data, fileFullPath) => {
                 let dataObject;
 
                 try {
@@ -1509,14 +1403,7 @@ export class Eagle {
                 }
 
                 void this._loadGraphConfig(dataObject, new RepositoryFile(Repository.placeholder(), "", Utils.getFileNameFromFullPath(fileFullPath)));
-            }
-            reader.onerror = (evt) => {
-                console.error("error reading file", evt);
-            }
-        }
-        
-        // reset file selection element
-        graphConfigFileInputElement.value = "";
+        });
     }
 
     /**
