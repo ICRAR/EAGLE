@@ -442,6 +442,13 @@ declare global {
         Modals?: typeof Modals;
     }
 
+    // Extend the browser screenshot options so EAGLE can request the tab-focused capture hints we use in saveGraphScreenshot.
+    // these additional options are not yet part of the official TypeScript definitions for the browser API, so we define them here
+    interface DisplayMediaStreamOptions {
+        preferCurrentTab?: boolean;
+        selfBrowserSurface?: "include" | "exclude";
+    }
+
     type NodeId = Branded<string, "NodeId">
     type FieldId = Branded<string, "FieldId">
     type EdgeId = Branded<string, "EdgeId">

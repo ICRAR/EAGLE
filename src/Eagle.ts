@@ -69,7 +69,6 @@ import { GraphUpdater } from "./GraphUpdater";
 import { versions } from "./Versions";
 import { Visual } from "./Visual";
 
-
 export class Eagle {
     static _instance : Eagle;
 
@@ -1156,7 +1155,7 @@ export class Eagle {
         // create map of inserted graph keys to final graph nodes, and of inserted port ids to final graph ports
         const nodeMap: Map<NodeId, Node> = new Map();
         const portMap: Map<FieldId, Field> = new Map();
-        let parentNodePosition;
+        let parentNodePosition: {x: number, y: number, extended: boolean};
 
         // add the parent node to the logical graph
         if (parentNode !== null){
@@ -1171,7 +1170,7 @@ export class Eagle {
             // set attributes of parentNode
             parentNode.setPosition(parentNodePosition.x+(bbSize/2), parentNodePosition.y+(bbSize/2));
         } else {
-            parentNodePosition = {x: EagleConfig.DUPLICATE_OFFSET, y: EagleConfig.DUPLICATE_OFFSET};
+            parentNodePosition = {x: EagleConfig.DUPLICATE_OFFSET, y: EagleConfig.DUPLICATE_OFFSET, extended: false};
         }
 
         // insert nodes from lg into the existing logicalGraph
@@ -1393,16 +1392,16 @@ export class Eagle {
     loadLocalGraphConfigFile = () : void => {
         const graphConfigFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("graphConfigFileToLoad");
         this._readLocalFileInput(graphConfigFileInputElement, "loadLocalGraphConfigFile", (data, fileFullPath) => {
-                let dataObject;
+            let dataObject;
 
-                try {
-                    dataObject = JSON.parse(data);
-                } catch(err){
-                    Utils.showUserMessage("Error parsing file JSON", Errors.UnknownToError(err));
-                    return;
-                }
+            try {
+                dataObject = JSON.parse(data);
+            } catch(err){
+                Utils.showUserMessage("Error parsing file JSON", Errors.UnknownToError(err));
+                return;
+            }
 
-                void this._loadGraphConfig(dataObject, new RepositoryFile(Repository.placeholder(), "", Utils.getFileNameFromFullPath(fileFullPath)));
+            void this._loadGraphConfig(dataObject, new RepositoryFile(Repository.placeholder(), "", Utils.getFileNameFromFullPath(fileFullPath)));
         });
     }
 
@@ -2400,8 +2399,9 @@ export class Eagle {
                 }
 
                 // warn user if file newer than EAGLE
-                if (Utils.newerEagleVersion(eagleVersion, (<any>window).version)){
-                    const confirmed = await Utils.requestUserConfirm("Newer EAGLE Version", "File " + file.name + " was written with EAGLE version " + eagleVersion + ", whereas the current EAGLE version is " + (<any>window).version + ". Do you wish to load the file anyway?", "Yes", "No", undefined);
+                const currentEagleVersion = typeof window.version === "string" ? window.version : "unknown";
+                if (Utils.newerEagleVersion(eagleVersion, currentEagleVersion)){
+                    const confirmed = await Utils.requestUserConfirm("Newer EAGLE Version", "File " + file.name + " was written with EAGLE version " + eagleVersion + ", whereas the current EAGLE version is " + currentEagleVersion + ". Do you wish to load the file anyway?", "Yes", "No", undefined);
                     if (confirmed){
                         this._loadGraph(data, file);
                     }
@@ -2495,7 +2495,7 @@ export class Eagle {
         // check if graphConfig already exists in this graph
         const configAlreadyExists: boolean = this.logicalGraph().getGraphConfigById(graphConfig.getId()) !== undefined;
 
-        if (someGraphAlreadyLoaded && configMatch && configAlreadyExists){
+        if (configAlreadyExists){
 
             // if we auto-loaded the graph, and it already contains the graphConfig we were trying to load, then just skip loading it again
             if (graphAutoLoaded){
@@ -2514,9 +2514,7 @@ export class Eagle {
             } else {
                 // do nothing
             }
-        }
-
-        if (someGraphAlreadyLoaded && configMatch && !configAlreadyExists){
+        } else {
             this.logicalGraph().addGraphConfig(graphConfig);
         }
 
@@ -3036,8 +3034,7 @@ export class Eagle {
             return;
         }
 
-        const mediaDevices = navigator.mediaDevices as any; //workaround to prevent a Typescript issue with giving getDisplayMedia function an option
-        const stream:MediaStream = await mediaDevices.getDisplayMedia({preferCurrentTab: true,selfBrowserSurface: 'include'});
+        const stream: MediaStream = await navigator.mediaDevices.getDisplayMedia({preferCurrentTab: true, selfBrowserSurface: "include"});
 
         //prepare the graph for a screenshot
         eagle.centerGraph()
@@ -3446,10 +3443,16 @@ export class Eagle {
             return;
         }
 
-        let clipboard = null;
+        let clipboard: Eagle.ClipboardPayload;
 
         try {
-            clipboard = JSON.parse(await navigator.clipboard.readText());
+            const parsedClipboard: unknown = JSON.parse(await navigator.clipboard.readText());
+            if (!Eagle.isClipboardPayload(parsedClipboard)){
+                Utils.showNotification("Unable to paste data", "Clipboard JSON must contain 'nodes' and 'edges' arrays.", "danger");
+                return;
+            }
+
+            clipboard = parsedClipboard;
         } catch(e) {
             const errorName = e instanceof Error ? e.name : "Unknown";
             const errorMessage = e instanceof Error ? e.message : String(e);
@@ -5233,6 +5236,15 @@ export class Eagle {
 
         $(target).scrollTop(scrollTop + (event.originalEvent as WheelEvent).deltaY * 0.5);
     }
+
+    static isClipboardPayload = (value: unknown): value is Eagle.ClipboardPayload => {
+        if (typeof value !== "object" || value === null){
+            return false;
+        }
+
+        const record = value as Record<string, unknown>;
+        return Array.isArray(record.nodes) && Array.isArray(record.edges);
+    };
 }
 
 /* eslint-disable @typescript-eslint/no-namespace */
@@ -5278,6 +5290,11 @@ export namespace Eagle
         Left = "Left",
         Right = "Right"
     }
+
+    export type ClipboardPayload = {
+        nodes: unknown[];
+        edges: unknown[];
+    };
 }
 
 // TODO: ready is deprecated here, use something else
