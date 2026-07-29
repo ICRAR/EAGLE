@@ -90,8 +90,8 @@ export class Visual {
     }
 
     getContentHtml = () : string => {
-        let contentHtml = this.content()
-        if (contentHtml === undefined || contentHtml === null || contentHtml === ""){
+        let contentHtml = this.content();
+        if (contentHtml === ""){
             contentHtml = "Click on edit icon to add comment";
         }
 
@@ -190,18 +190,19 @@ export class Visual {
         return result;
     }
 
-    static fromJson(visualData: any, lg: LogicalGraph, _errorsWarnings: Errors.ErrorsWarnings) : Visual {
-        const id: VisualId = visualData.id as VisualId;
-        const x: number = visualData.x;
-        const y: number = visualData.y;
-        const width: number = visualData.width;
-        const height: number = visualData.height;
-        const type: Visual.Type = visualData.type;
-        const content: string = visualData.content || '';
-        const color: string = visualData.color;
-        const targetId: string = visualData.targetId || null;
+    static fromJson(visualData: unknown, lg: LogicalGraph, _errorsWarnings: Errors.ErrorsWarnings) : Visual {
+        const data = visualData as Record<string, unknown>;
+        const id: VisualId = data.id as VisualId;
+        const x: number = data.x as number;
+        const y: number = data.y as number;
+        const width: number = data.width as number;
+        const height: number = data.height as number;
+        const type: Visual.Type = data.type as Visual.Type;
+        const content: string = (data.content as string | null | undefined) ?? "";
+        const color: string = data.color as string;
+        const targetId = data.targetId as string | null | undefined;
 
-        const target : Node | Edge | Visual | null = lg.getNodeById(targetId as NodeId) || lg.getEdgeById(targetId as EdgeId) || lg.getVisualById(targetId as VisualId) || null;
+        const target : Node | Edge | Visual | null = targetId === null || targetId === undefined ? null : lg.getNodeById(targetId as NodeId) ?? lg.getEdgeById(targetId as EdgeId) ?? lg.getVisualById(targetId as VisualId) ?? null;
 
         return new Visual(type, content)
         .setId(id)

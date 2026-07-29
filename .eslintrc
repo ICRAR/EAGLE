@@ -22,12 +22,31 @@
         "static/built/",
         "node_modules/"
     ],
+    /*
+        these overrides are intended to be temporary
+        they are used to disable some of the stricter rules for specific files that are known to have issues
+        we'll tackle the parsed JSON typing issues in another branch (EAGLE-1679)
+        then we'll re-enable these rules and fix the issues in the code
+    */
     "overrides": [
         {
             "files": [
                 "src/Node.ts",
                 "src/LogicalGraph.ts",
                 "src/Utils.ts"
+            ],
+            "rules": {
+                "@typescript-eslint/no-explicit-any": "off",
+                "@typescript-eslint/no-unsafe-assignment": "off",
+                "@typescript-eslint/no-unsafe-member-access": "off",
+                "@typescript-eslint/no-unsafe-call": "off",
+                "@typescript-eslint/no-unsafe-argument": "off",
+                "@typescript-eslint/no-unsafe-return": "off"
+            }
+        },
+        {
+            "files": [
+                "src/Eagle.ts"
             ],
             "rules": {
                 "@typescript-eslint/no-explicit-any": "off",
