@@ -205,28 +205,28 @@ export class RightClick {
 
         if(mode === 'addAndConnect'){
             //this mode is for when dropping an edge onto the graph, this means we are filtering out some options based on if they are fitting to the node or not
-            collectionOfNodes.forEach(function(node){
-                for(const filteredNode of compatibleNodesList){
-                    if(node === filteredNode){
-                        if(node.isData()){
-                            dataHtml += `<a id='rightclickNode_`+node.getId()+`' onclick='eagle.addNodeToLogicalGraphAndConnect("`+node.getId()+`")' class='contextMenuDropdownOption rightClickPaletteNode `+originClass+`'>`+node.getName()+'</a>'
-                            dataFound = true
-                        }else if (node.isApplication()){
-                            appHtml += `<a id='rightclickNode_`+node.getId()+`' onclick='eagle.addNodeToLogicalGraphAndConnect("`+node.getId()+`")' class='contextMenuDropdownOption rightClickPaletteNode `+originClass+`'>`+node.getName()+'</a>'
-                            appFound = true
-                        }else{
-                            otherHtml += `<a id='rightclickNode_`+node.getId()+`' onclick='eagle.addNodeToLogicalGraphAndConnect("`+node.getId()+`")' class='contextMenuDropdownOption rightClickPaletteNode `+originClass+`'>`+node.getName()+'</a>'
-                            otherFound = true
-                        }
-                        nodeFound = true
-                        break
-                    }else{
-                        continue
+            for (const node of collectionOfNodes){
+                for (const filteredNode of compatibleNodesList){
+                    if (node !== filteredNode){
+                        continue;
                     }
+
+                    if (node.isData()){
+                        dataHtml += `<a id='rightclickNode_`+node.getId()+`' onclick='eagle.addNodeToLogicalGraphAndConnect("`+node.getId()+`")' class='contextMenuDropdownOption rightClickPaletteNode `+originClass+`'>`+node.getName()+'</a>'
+                        dataFound = true
+                    }else if (node.isApplication()){
+                        appHtml += `<a id='rightclickNode_`+node.getId()+`' onclick='eagle.addNodeToLogicalGraphAndConnect("`+node.getId()+`")' class='contextMenuDropdownOption rightClickPaletteNode `+originClass+`'>`+node.getName()+'</a>'
+                        appFound = true
+                    }else{
+                        otherHtml += `<a id='rightclickNode_`+node.getId()+`' onclick='eagle.addNodeToLogicalGraphAndConnect("`+node.getId()+`")' class='contextMenuDropdownOption rightClickPaletteNode `+originClass+`'>`+node.getName()+'</a>'
+                        otherFound = true
+                    }
+                    nodeFound = true
+                    break
                 }
-            })
+            }
         }else if(mode === 'addNode'){
-            collectionOfNodes.forEach(function(node){
+            for (const node of collectionOfNodes){
                 //this mode is the simplest version for right click adding a node on the graph canvas
                 if(node.isData()){
                     dataHtml = dataHtml+`<a id='rightclickNode_`+node.getId()+`' onclick='eagle.addNodeToLogicalGraph(null,"`+node.getId()+`",Eagle.AddNodeMode.ContextMenu, null)' class='contextMenuDropdownOption rightClickPaletteNode `+originClass+`'>`+node.getName()+'</a>'
@@ -239,9 +239,10 @@ export class RightClick {
                     otherFound = true
                 }
                 nodeFound = true
-            })
-        }else if(mode === 'embedNode'){
-            collectionOfNodes.forEach(function(node){
+            }
+        }else{
+            // mode === 'embedNode'
+            for (const node of collectionOfNodes){
                 //this mode is used when right clicking a socket of a construct node to add an embedded app to it.
                 if(node.isData()){
                     dataHtml = dataHtml+`<a id='rightclickNode_`+node.getId()+`' onclick='GraphRenderer.setNewEmbeddedApp("`+node.getId()+`","`+embedMode+`")' class='contextMenuDropdownOption rightClickPaletteNode `+originClass+`'>`+node.getName()+'</a>'
@@ -254,9 +255,7 @@ export class RightClick {
                     otherFound = true
                 }
                 nodeFound = true
-            })
-        }else{
-            console.warn('cannot find this mode: ',mode)
+            }
         }
 
         if(dataFound){
@@ -499,7 +498,7 @@ export class RightClick {
     // TODO: perhaps break this function up into a top-level handler, that uses 'passedObjectClass' to call one of several sub-functions
     // TODO: make the passedObjectClass an enumerated type
     // data can be a Edge, Node, Palette?, Eagle, Node[], and the passedObjectClass variable tells the function what to do with it
-    static requestCustomContextMenu = (data: any, passedObjectClass: "edgeDropCreate" | "rightClick_graphNode" | "rightClick_graphEdge" | "rightClick_hierarchyNode" | "rightClick_paletteComponent" | "rightClick_logicalGraph" | "addEmbeddedInputApp" | "addEmbeddedOutputApp" | "rightClick_textVisual" | "rightClick_groupVisual" | "rightClick_graphVisualEdge") : void => {
+    static requestCustomContextMenu = (data: unknown, passedObjectClass: "edgeDropCreate" | "rightClick_graphNode" | "rightClick_graphEdge" | "rightClick_hierarchyNode" | "rightClick_paletteComponent" | "rightClick_logicalGraph" | "addEmbeddedInputApp" | "addEmbeddedOutputApp" | "rightClick_textVisual" | "rightClick_groupVisual" | "rightClick_graphVisualEdge") : void => {
         // getting the mouse event for positioning the right click menu at the cursor location
         const eagle: Eagle = Eagle.getInstance();
 
@@ -525,8 +524,8 @@ export class RightClick {
         const minXMargin = 390 // this is the minimum amount of room we need on the right side of the click location to draw the context menu
         const minYMargin = 430 // this is the minimum amount of room we need on the bottom side of the click location to draw the context menu
 
-        const innerWidth = $(document).innerWidth() || 0
-        const innerHeight = $(document).innerHeight() || 0
+        const innerWidth = $(document).innerWidth() ?? 0
+        const innerHeight = $(document).innerHeight() ?? 0
 
         //checking for screen real estate to the right and bottom, if we are too close to the edges of the window, we expand left, up or both
         if(innerWidth-mouseX<minXMargin){
@@ -550,15 +549,7 @@ export class RightClick {
         }
         
         const selectedObjectAmount = eagle.selectedObjects().length
-        let rightClickObjectInSelection = false
-        if (selectedObjectAmount > 1){
-            //if more than one node is selected
-            eagle.selectedObjects().forEach(function(selectedObject){
-                if (selectedObject === data){
-                    rightClickObjectInSelection = true
-                }
-            })
-        }
+        const rightClickObjectInSelection = selectedObjectAmount > 1 && (data instanceof Node || data instanceof Edge || data instanceof Visual) && eagle.selectedObjects().some((selectedObject) => selectedObject === data)
 
         if(rightClickObjectInSelection){
 
@@ -624,7 +615,7 @@ export class RightClick {
                     $('#customContextMenu').append(searchbar)
     
                     $('#customContextMenu').append('<div id="rightClickPaletteList"></div>')
-                    const paletteList = RightClick.createHtmlEdgeDragList(data)
+                    const paletteList = Array.isArray(data) ? RightClick.createHtmlEdgeDragList(data) : ""
                     $('#rightClickPaletteList').append(paletteList)
     
                     Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
@@ -691,18 +682,18 @@ export class RightClick {
 // graph node right click options
             }else if(passedObjectClass === 'rightClick_graphNode'){
                 $('#customContextMenu').append(RightClick.getNodeDescriptionDropdown())
-                if(data.hasFunc_code()){
+                if(data instanceof Node && data.hasFunc_code()){
                     //check if the node has a field for func code. if so we can add an option to quickly access its contents via the code editor
                     $('#customContextMenu').append('<a onclick=RightClick.editNodeFuncCode()>Edit Function Code</a>')
                 }
                 $('#customContextMenu').append('<a onclick="ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.RightClick)">Open Fields Table</a>')
                 $('#customContextMenu').append('<a onclick="eagle.editNodeDescription()">Open Description</a>')
                 $('#customContextMenu').append('<a onclick="eagle.editNodeComment()">Open Comment</a>')
-                if (data.isConstruct()){
+                if (data instanceof Node && data.isConstruct()){
                     $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,true)>Delete with children</a>')
                     $('#customContextMenu').append('<a onclick=GraphRenderer.centerConstruct(eagle.selectedNode(),eagle.logicalGraph().getNodes())>Center Around Children</a>')
                 }
-                if(data.getCategory() === Category.Docker){
+                if(data instanceof Node && data.getCategory() === Category.Docker){
                     $('#customContextMenu').append('<a onclick=eagle.fetchDockerHTML()>Browse DockerHub</a>')
                 }
                 if(Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false)){
@@ -733,7 +724,7 @@ export class RightClick {
                 $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,false)>Delete</a>')
 
 //graph visual edge right click options
-            }else if(passedObjectClass === 'rightClick_graphVisualEdge'){
+            }else{
                 $('#customContextMenu').append('<a onclick=RightClick.rightClickDeleteTextVisualConnection()>Delete</a>')
             }
         }

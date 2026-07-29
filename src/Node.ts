@@ -1462,9 +1462,7 @@ export class Node {
 
         // if category is not known, then add error
         if (!Utils.isKnownCategory(category)){
-            if (errorsWarnings !== null){
-                errorsWarnings.errors.push(Errors.Message("Node with name " + name + " has unknown category: " + category));
-            }
+            errorsWarnings.errors.push(Errors.Message("Node with name " + name + " has unknown category: " + category));
         }
 
         const node : Node = new Node(name, "", "", category);
@@ -2064,7 +2062,7 @@ export class Node {
         }
 
         // check that all fields present in the original (palette) component have the changeable property set correctly (to false)
-        const originalComponent = Utils.getPaletteComponentByName(node.getName()) || Utils.getPaletteComponentByName(node.getCategory());
+        const originalComponent = Utils.getPaletteComponentByName(node.getName()) ?? Utils.getPaletteComponentByName(node.getCategory());
         if (typeof originalComponent !== 'undefined'){
             for (const originalField of originalComponent.getFields()){
                 const nodeField = node.findFieldByDisplayText(originalField.getDisplayText());
@@ -2109,7 +2107,7 @@ export class Node {
         // check that children have this as the parent
         for (const child of node.children().values()){
             const childParent = child.parent();
-            if (childParent === null || childParent.getId() !== node.getId()){
+            if (childParent?.getId() !== node.getId()){
                 const message: string = "Node (" + node.getName() + ") has child (" + child.getName() + "), but is not that node's parent.";
                 const issue: Errors.Issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
                 node.issues().push({issue:issue, validity:Errors.Validity.Error});
@@ -2183,29 +2181,17 @@ export class Node {
         // check if this category of node is a legacy node
         const updatedCategory = Utils.getLegacyCategoryUpdate(node);
         if (typeof updatedCategory !== 'undefined'){
-            let updateMessage: string;
-            let updatedCategoryType: Category.Type = Category.Type.Unknown;
-            let issue: Errors.Issue;
-
-            if (updatedCategory === null){
-                updateMessage = "Consider updating to a more modern node category.";
-            } else {
-                updateMessage = "Please update the component to use the new category (" + updatedCategory + ").";
-                updatedCategoryType = CategoryData.getCategoryData(updatedCategory).categoryType;
-            }
+            const updateMessage = "Please update the component to use the new category (" + updatedCategory + ").";
+            const updatedCategoryType: Category.Type = CategoryData.getCategoryData(updatedCategory).categoryType;
 
             const message: string = "Node (" + node.getName() + ") has a legacy category (" + node.getCategory() + "). " + updateMessage;
 
-            if (updatedCategory === null){
-                issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
-            } else {
-                issue = Errors.ShowFix(
-                    message,
-                    function(){Utils.showNode(eagle, location, node)},
-                    function(){Utils.fixNodeCategory(eagle, node, updatedCategory, updatedCategoryType)},
-                    "Change node category from " + node.getCategory() + " to " + updatedCategory
-                );
-            }
+            const issue: Errors.Issue = Errors.ShowFix(
+                message,
+                function(){Utils.showNode(eagle, location, node)},
+                function(){Utils.fixNodeCategory(eagle, node, updatedCategory, updatedCategoryType)},
+                "Change node category from " + node.getCategory() + " to " + updatedCategory
+            );
             node.issues().push({issue:issue,validity:Errors.Validity.Warning})
         }
 

@@ -63,16 +63,16 @@ import * as quickStart from './tutorials/quickStart'
 import * as graphBuilding from './tutorials/graphBuilding'
 import * as graphConfigs from './tutorials/graphConfigs'
 
-console.assert(quickStart != null) //this is needed to run the tutorial file
-console.assert(graphBuilding != null) //this is needed to run the tutorial file
-console.assert(graphConfigs != null) //this is needed to run the tutorial file
+void quickStart; // keep tutorial modules loaded for side effects
+void graphBuilding;
+void graphConfigs;
 
 let eagle : Eagle;
 
 $(function(){
     //Check if the user is a first time visitor to the site
     const firstTimeVisit = localStorage.getItem('activeUiMode') === null;
-    const lastSeenVersion = localStorage.getItem('lastSeenVersion') || "0.0.0";
+    const lastSeenVersion = localStorage.getItem('lastSeenVersion') ?? "0.0.0";
     const appVersion = window.version ?? "0.0.0";
     const showWhatsNew = Utils.compareVersions(appVersion, lastSeenVersion) > 0;
 
@@ -240,7 +240,7 @@ $(function(){
             console.log("no edge found with id:", edgeId);
             return
         }
-        if(!event.shiftKey){
+        if(event.shiftKey !== true){
             eagle.setSelection(selectEdge, Eagle.FileType.Graph);
         }else{
             eagle.editSelection(selectEdge, Eagle.FileType.Graph);
