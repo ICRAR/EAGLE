@@ -70,21 +70,17 @@ export class Repository {
     }
 
     refresh = async () : Promise<void> => {
-        return new Promise(async(resolve, reject) => {
-            switch(this.service){
-                case Repository.Service.GitHub:
-                    await GitHub.loadRepoContent(this, "");
-                    resolve();
-                    break;
-                case Repository.Service.GitLab:
-                    void GitLab.loadRepoContent(this, "");
-                    resolve();
-                    break;
-                default:
-                    Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
-                    reject("Unknown repository service. Not GitHub or GitLab!");
-            }
-        });
+        switch(this.service){
+            case Repository.Service.GitHub:
+                await GitHub.loadRepoContent(this, "");
+                return;
+            case Repository.Service.GitLab:
+                await GitLab.loadRepoContent(this, "");
+                return;
+            default:
+                Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
+                throw new Error("Unknown repository service. Not GitHub or GitLab!");
+        }
     }
 
     // TODO: a bit of repeated code here, could we make traverseFolder accept a folder OR a repository?
@@ -140,30 +136,24 @@ export class Repository {
 
     // expand all the directories along a given path
     expandPath = async (path: string) : Promise<void> => {
-        return new Promise(async(resolve, reject) => {
-            if (path === ""){
-                resolve();
-                return;
-            }
-            let pointer: RepositoryFolder | null = null;
-            const pathParts: string[] = path.split('/').filter((pathPart) => pathPart !== "");
+        if (path === ""){
+            return;
+        }
+        let pointer: RepositoryFolder | null = null;
+        const pathParts: string[] = path.split('/').filter((pathPart) => pathPart !== "");
 
-            for (const pathPart of pathParts){
-                const folders: RepositoryFolder[] = pointer === null ? this.folders() : pointer.folders();
-                const nextPointer = folders.find((folder) => folder.name === pathPart);
+        for (const pathPart of pathParts){
+            const folders: RepositoryFolder[] = pointer === null ? this.folders() : pointer.folders();
+            const nextPointer = folders.find((folder) => folder.name === pathPart);
 
-                if (typeof nextPointer === "undefined"){
-                    const pointerName = pointer === null ? this.name : pointer.name;
-                    reject(new Error("Could not find path part (" + pathPart + "), pointer is at " + pointerName));
-                    return;
-                }
-
-                pointer = nextPointer;
-                await pointer.select();
+            if (typeof nextPointer === "undefined"){
+                const pointerName = pointer === null ? this.name : pointer.name;
+                throw new Error("Could not find path part (" + pathPart + "), pointer is at " + pointerName);
             }
 
-            resolve();
-        });
+            pointer = nextPointer;
+            await pointer.select();
+        }
     }
 
     // expand all the directories
@@ -235,27 +225,22 @@ export class Repository {
 
     // refresh all the directories along a given path
     refreshPath = async (path: string) : Promise<void> => {
-        return new Promise(async(resolve, reject) => {
-            await this.refresh();
-            let pointer: RepositoryFolder | null = null;
-            const pathParts: string[] = path.split('/').filter((pathPart) => pathPart !== "");
+        await this.refresh();
+        let pointer: RepositoryFolder | null = null;
+        const pathParts: string[] = path.split('/').filter((pathPart) => pathPart !== "");
 
-            for (const pathPart of pathParts){
-                const folders: RepositoryFolder[] = pointer === null ? this.folders() : pointer.folders();
-                const nextPointer = folders.find((folder) => folder.name === pathPart);
+        for (const pathPart of pathParts){
+            const folders: RepositoryFolder[] = pointer === null ? this.folders() : pointer.folders();
+            const nextPointer = folders.find((folder) => folder.name === pathPart);
 
-                if (typeof nextPointer === "undefined"){
-                    const pointerName = pointer === null ? this.name : pointer.name;
-                    reject(new Error("Could not find path part (" + pathPart + "), pointer is at " + pointerName));
-                    return;
-                }
-
-                pointer = nextPointer;
-                await pointer.refresh();
+            if (typeof nextPointer === "undefined"){
+                const pointerName = pointer === null ? this.name : pointer.name;
+                throw new Error("Could not find path part (" + pathPart + "), pointer is at " + pointerName);
             }
 
-            resolve();
-        });
+            pointer = nextPointer;
+            await pointer.refresh();
+        }
     }
 
     deleteFile = (file: RepositoryFile) : void => {
@@ -277,11 +262,9 @@ export class Repository {
 
         let lastPointer: Repository | RepositoryFolder | null = null;
 
-        if (!fileIsInTopLevelOfRepo){
-            const pathParts: string[] = file.path.split('/').filter((pathPart) => pathPart !== "");
-            const parentPath = pathParts.slice(0, -1).join('/');
-            lastPointer = this.findPath(parentPath);
-        }
+        const pathParts: string[] = file.path.split('/').filter((pathPart) => pathPart !== "");
+        const parentPath = pathParts.slice(0, -1).join('/');
+        lastPointer = this.findPath(parentPath);
 
         // remove the file here
         for (let i = 0 ; i < pointer.files().length; i++){
@@ -293,7 +276,7 @@ export class Repository {
 
         // check if we removed the last file in the folder
         // if so, the remove the folder too
-        if (!fileIsInTopLevelOfRepo && lastPointer !== null){
+        if (lastPointer !== null){
             if (pointer.files().length === 0){
                 for (let i = 0; i < lastPointer.folders().length ; i++){
                     if (lastPointer.folders()[i].name === pointer.name){
@@ -358,21 +341,17 @@ export class Repository {
     }
 
     public static async fetch(repository: Repository, path: string) : Promise<void> {
-        return new Promise(async(resolve, reject) => {
-            switch(repository.service){
-                case Repository.Service.GitHub:
-                    await GitHub.loadRepoContent(repository, path);
-                    resolve();
-                    break;
-                case Repository.Service.GitLab:
-                    void GitLab.loadRepoContent(repository, path);
-                    resolve();
-                    break;
-                default:
-                    Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
-                    reject("Unknown repository service. Not GitHub or GitLab!");
-            }
-        });
+        switch(repository.service){
+            case Repository.Service.GitHub:
+                await GitHub.loadRepoContent(repository, path);
+                return;
+            case Repository.Service.GitLab:
+                await GitLab.loadRepoContent(repository, path);
+                return;
+            default:
+                Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
+                throw new Error("Unknown repository service. Not GitHub or GitLab!");
+        }
     }
 }
 

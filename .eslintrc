@@ -33,20 +33,11 @@
             "files": [
                 "src/Node.ts",
                 "src/LogicalGraph.ts",
-                "src/Utils.ts"
-            ],
-            "rules": {
-                "@typescript-eslint/no-explicit-any": "off",
-                "@typescript-eslint/no-unsafe-assignment": "off",
-                "@typescript-eslint/no-unsafe-member-access": "off",
-                "@typescript-eslint/no-unsafe-call": "off",
-                "@typescript-eslint/no-unsafe-argument": "off",
-                "@typescript-eslint/no-unsafe-return": "off"
-            }
-        },
-        {
-            "files": [
-                "src/Eagle.ts"
+                "src/Utils.ts",
+                "src/Eagle.ts",
+                "src/Field.ts",
+                "src/FileInfo.ts",
+                "src/Edge.ts"
             ],
             "rules": {
                 "@typescript-eslint/no-explicit-any": "off",

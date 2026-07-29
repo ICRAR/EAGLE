@@ -9,19 +9,74 @@ import { TutorialSystem } from './Tutorial';
 import { UiModeSystem } from './UiModes';
 import { Utils } from './Utils';
 
-declare const CodeMirror: any;
+type CodeMirrorEditor = {
+    getValue: () => string;
+    refresh: () => void;
+    focus: () => void;
+    on: (event: "change", handler: (editorInstance: CodeMirrorEditor, changeObj: unknown) => void) => void;
+};
+
+declare const CodeMirror: (element: Element | null, options: {
+    value: string;
+    mode: string;
+    lineNumbers: boolean;
+    tabSize: number;
+    lineWrapping?: boolean;
+}) => CodeMirrorEditor;
 
 export class Modals {
+    private static getModalData(modalSelector: string, key: string): unknown {
+        return $(modalSelector).data(key) as unknown;
+    }
+
+    private static getModalBool(modalSelector: string, key: string): boolean {
+        return Modals.getModalData(modalSelector, key) === true;
+    }
+
+    private static getModalString(modalSelector: string, key: string, fallback: string = ""): string {
+        const value = Modals.getModalData(modalSelector, key);
+        return typeof value === 'string' ? value : fallback;
+    }
+
+    private static getModalArray<T>(modalSelector: string, key: string): T[] {
+        const value = Modals.getModalData(modalSelector, key);
+        return Array.isArray(value) ? value as T[] : [];
+    }
+
+    private static getModalCallback<T extends (...args: unknown[]) => unknown>(modalSelector: string, key: string): T | null {
+        const value = Modals.getModalData(modalSelector, key);
+        return typeof value === 'function' ? value as T : null;
+    }
+
+    private static getModalEditor(modalSelector: string): CodeMirrorEditor | null {
+        const value = Modals.getModalData(modalSelector, 'editor');
+        if (typeof value !== 'object' || value === null){
+            return null;
+        }
+
+        const candidate = value as Partial<CodeMirrorEditor>;
+        if (typeof candidate.getValue !== 'function' || typeof candidate.refresh !== 'function' || typeof candidate.focus !== 'function' || typeof candidate.on !== 'function'){
+            return null;
+        }
+
+        return value as CodeMirrorEditor;
+    }
+
+    private static runModalValidator(modalSelector: string, key: string): void {
+        const value = Modals.getModalData(modalSelector, key);
+        if (typeof value === 'function'){
+            const validator = value as () => void;
+            validator();
+        }
+    }
+
     static init(eagle : Eagle) : void {
         // #inputModal - requestUserInput()
         $('#inputModal .modal-footer button.affirmativeBtn').on('click', function(event){
-            if ($('#inputModal').data('returnType') === "string"){
-                const validateInput = $('#inputModal').data('validateInput');
-                if (typeof validateInput === 'function'){
-                    validateInput();
-                }
+            if (Modals.getModalString('#inputModal', 'returnType') === "string"){
+                Modals.runModalValidator('#inputModal', 'validateInput');
 
-                const isValid = $('#inputModal').data('isValid');
+                const isValid = Modals.getModalData('#inputModal', 'isValid');
                 if (isValid === false){
                     event.preventDefault();
                     event.stopPropagation();
@@ -33,14 +88,14 @@ export class Modals {
             $('#inputModal').modal('hide');
         });
         $('#inputModal').on('hidden.bs.modal', function(){
-            const returnType = $('#inputModal').data('returnType');
-            const completed: boolean = $('#inputModal').data('completed');
+            const returnType = Modals.getModalString('#inputModal', 'returnType');
+            const completed: boolean = Modals.getModalBool('#inputModal', 'completed');
             const input: string = Utils.getUIValue('#inputModalInput', 'val', "");
 
             switch (returnType){
                 case "string": {
-                    const stringCallback: Modals.UserStringCallback = $('#inputModal').data('callback');
-                    if (stringCallback){
+                    const stringCallback = Modals.getModalCallback<Modals.UserStringCallback>('#inputModal', 'callback');
+                    if (stringCallback !== null){
                         stringCallback(completed, input);
                     } else {
                         console.error("No 'stringCallback' data attribute found on modal");
@@ -48,8 +103,8 @@ export class Modals {
                     break;
                 }
                 case "number": {
-                    const numberCallback : Modals.UserNumberCallback = $('#inputModal').data('callback');
-                    if (numberCallback){
+                    const numberCallback = Modals.getModalCallback<Modals.UserNumberCallback>('#inputModal', 'callback');
+                    if (numberCallback !== null){
                         numberCallback(completed, parseInt(input, 10));
                     } else {
                         console.error("No 'numberCallback' data attribute found on modal");
@@ -72,13 +127,10 @@ export class Modals {
         $('#inputModalInput').on('keypress', function(e){
             if(TutorialSystem.activeTut === null){
                 if (e.key === "Enter"){
-                    if ($('#inputModal').data('returnType') === "string"){
-                        const validateInput = $('#inputModal').data('validateInput');
-                        if (typeof validateInput === 'function'){
-                            validateInput();
-                        }
+                    if (Modals.getModalString('#inputModal', 'returnType') === "string"){
+                        Modals.runModalValidator('#inputModal', 'validateInput');
 
-                        const isValid = $('#inputModal').data('isValid');
+                        const isValid = Modals.getModalData('#inputModal', 'isValid');
                         if (isValid === false){
                             return;
                         }
@@ -95,12 +147,12 @@ export class Modals {
             $('#inputTextModal').data('completed', true);
         });
         $('#inputTextModal').on('hidden.bs.modal', function(){
-            const callback: Modals.UserTextCallback = $('#inputTextModal').data('callback');
+            const callback = Modals.getModalCallback<Modals.UserTextCallback>('#inputTextModal', 'callback');
 
-            if (!callback){
+            if (callback === null){
                 console.log("No callback called when #inputTextModal hidden");
             } else {
-                const completed: boolean = $('#inputTextModal').data('completed');
+                const completed = Modals.getModalBool('#inputTextModal', 'completed');
                 const input: string = Utils.getUIValue('#inputTextModalInput', 'val', "");
                 callback(completed, input);
             }
@@ -133,15 +185,19 @@ export class Modals {
             $('#inputCodeModal').data('completed', true);
         });
         $('#inputCodeModal').on('hidden.bs.modal', function(){
-            const callback: Modals.UserStringCallback = $('#inputCodeModal').data('callback');
+            const callback = Modals.getModalCallback<Modals.UserStringCallback>('#inputCodeModal', 'callback');
 
-            if (!callback){
+            if (callback === null){
                 console.log("No callback called when #inputCodeModal hidden");
             } else {
                 // get content of code editor - and return via callback
-                const editor = $('#inputCodeModal').data('editor');
-                const completed: boolean = $('#inputCodeModal').data('completed');
-                const content: string = editor.getValue();
+                const editor = Modals.getModalEditor('#inputCodeModal');
+                if (editor === null){
+                    console.error("No 'editor' data attribute found on modal");
+                    return;
+                }
+                const completed = Modals.getModalBool('#inputCodeModal', 'completed');
+                const content = editor.getValue();
                 callback(completed, content);
             }
 
@@ -150,8 +206,10 @@ export class Modals {
         });
 
         $('#inputCodeModal').on('shown.bs.modal', function(){
-            const editor = $('#inputCodeModal').data('editor');
-            editor.refresh();
+            const editor = Modals.getModalEditor('#inputCodeModal');
+            if (editor !== null){
+                editor.refresh();
+            }
         });
 
         // #inputMarkdownModal - requestUserMarkdown()
@@ -172,7 +230,7 @@ export class Modals {
             $('#inputMarkdownModal').data('editor', myCodeMirror);
 
             // watch for changes in the editor and reflect them in the display
-            myCodeMirror.on('change', (editorInstance: any, _changeObj: any) => {
+            myCodeMirror.on('change', (editorInstance: CodeMirrorEditor, _changeObj: unknown) => {
                 const value = editorInstance.getValue();
                 Modals.setMarkdownContent(value);
             });
@@ -182,15 +240,19 @@ export class Modals {
             $('#inputMarkdownModal').data('completed', true);
         });
         $('#inputMarkdownModal').on('hidden.bs.modal', function(){
-            const callback: Modals.UserMarkdownCallback = $('#inputMarkdownModal').data('callback');
+            const callback = Modals.getModalCallback<Modals.UserMarkdownCallback>('#inputMarkdownModal', 'callback');
 
-            if (!callback){
+            if (callback === null){
                 console.log("No callback called when #inputMarkdownModal hidden");
             } else {
                 // get content of code editor - and return via callback
-                const editor = $('#inputMarkdownModal').data('editor');
-                const completed: boolean = $('#inputMarkdownModal').data('completed');
-                const content: string = editor.getValue();
+                const editor = Modals.getModalEditor('#inputMarkdownModal');
+                if (editor === null){
+                    console.error("No 'editor' data attribute found on modal");
+                    return;
+                }
+                const completed = Modals.getModalBool('#inputMarkdownModal', 'completed');
+                const content = editor.getValue();
                 callback(completed, content);
             }
 
@@ -199,8 +261,8 @@ export class Modals {
         });
 
         $('#inputMarkdownModal').on('shown.bs.modal', function(){
-            const editor = $('#inputMarkdownModal').data('editor');
-            if (editor){
+            const editor = Modals.getModalEditor('#inputMarkdownModal');
+            if (editor !== null){
                 editor.refresh();
                 setTimeout(() => {
                     editor.focus();
@@ -218,18 +280,18 @@ export class Modals {
             $('#choiceModalAffirmativeButton').trigger("focus");
         });
         $('#choiceModal').on('hidden.bs.modal', function(){
-            const callback: Modals.UserChoiceCallback = $('#choiceModal').data('callback');
-            if (!callback){
+            const callback = Modals.getModalCallback<Modals.UserChoiceCallback>('#choiceModal', 'callback');
+            if (callback === null){
                 console.error("No 'callback' data attribute found on modal");
             } else {
-                const completed: boolean = $('#choiceModal').data('completed');
+                const completed = Modals.getModalBool('#choiceModal', 'completed');
                 
                 // check if the modal was completed (user clicked OK), if not, return false
                 if (!completed){
                     callback(false, "");
                 } else {
                     // check selected option in select tag
-                    const choices : string[] = $('#choiceModal').data('choices');
+                    const choices = Modals.getModalArray<string>('#choiceModal', 'choices');
                     const choiceIndex : number = parseInt(Utils.getUIValue('#choiceModalSelect', 'val', "0"), 10);
                     const choice = $('#choiceModalSelect option:selected').text();
                     const customChoice = Utils.getUIValue('#choiceModalString', 'val', "");
@@ -260,7 +322,7 @@ export class Modals {
             const choice : number = parseInt(Utils.getUIValue('#choiceModalSelect', 'val', "0"), 10);
 
             // check selected option in select tag
-            const choices : string[] = $('#choiceModal').data('choices');
+            const choices = Modals.getModalArray<string>('#choiceModal', 'choices');
 
             // hide the custom text input unless the last option in the select is chosen
             $('#choiceModalStringRow').toggle(choice === choices.length);
@@ -279,12 +341,12 @@ export class Modals {
             $('#confirmModalAffirmativeButton').trigger("focus");
         });
         $('#confirmModal').on('hidden.bs.modal', function(){
-            const callback: Modals.UserConfirmCallback = $('#confirmModal').data('callback');
-            if (!callback){
+            const callback = Modals.getModalCallback<Modals.UserConfirmCallback>('#confirmModal', 'callback');
+            if (callback === null){
                 console.error("No 'callback' data attribute found on modal");
             } else {
-                const completed: boolean = $('#confirmModal').data('completed');
-                const confirmed: boolean = $('#confirmModal').data('confirmed');
+                const completed = Modals.getModalBool('#confirmModal', 'completed');
+                const confirmed = Modals.getModalBool('#confirmModal', 'confirmed');
 
                 callback(completed, confirmed);
             }
@@ -295,8 +357,8 @@ export class Modals {
 
         // #optionsModal - requestUserOptions()
         $('#optionsModalOption0').on('click', function(){
-            const callback: Modals.UserOptionsCallback = $('#optionsModal').data('callback');
-            if (callback){
+            const callback = Modals.getModalCallback<Modals.UserOptionsCallback>('#optionsModal', 'callback');
+            if (callback !== null){
                 callback(0);
             } else {
                 console.error("No 'callback' data attribute found on modal");
@@ -306,8 +368,8 @@ export class Modals {
             $('#optionsModal').removeData('callback');
         });
         $('#optionsModalOption1').on('click', function(){
-            const callback: Modals.UserOptionsCallback = $('#optionsModal').data('callback');
-            if (callback){
+            const callback = Modals.getModalCallback<Modals.UserOptionsCallback>('#optionsModal', 'callback');
+            if (callback !== null){
                 callback(1);
             } else {
                 console.error("No 'callback' data attribute found on modal");
@@ -317,8 +379,8 @@ export class Modals {
             $('#optionsModal').removeData('callback');
         });
         $('#optionsModalOption2').on('click', function(){
-            const callback: Modals.UserOptionsCallback = $('#optionsModal').data('callback');
-            if (callback){
+            const callback = Modals.getModalCallback<Modals.UserOptionsCallback>('#optionsModal', 'callback');
+            if (callback !== null){
                 callback(2);
             } else {
                 console.error("No 'callback' data attribute found on modal");
@@ -347,19 +409,19 @@ export class Modals {
             $('#gitCommitModalAffirmativeButton').trigger("focus");
         });
         $('#gitCommitModal').on('hidden.bs.modal', function(){
-            const callback : Modals.GitCommitCallback = $('#gitCommitModal').data('callback');
+            const callback = Modals.getModalCallback<Modals.GitCommitCallback>('#gitCommitModal', 'callback');
 
-            if (!callback){
+            if (callback === null){
                 console.error("No 'callback' data attribute found on modal");
             } else {
                 // check if the modal was completed (user clicked OK), if not, return false
-                const completed : boolean = $('#gitCommitModal').data('completed');
+                const completed = Modals.getModalBool('#gitCommitModal', 'completed');
                 if (!completed){
                     callback(false, FileLocation.Unknown, "");
                 } else {
                     // check selected option in select tag
                     const repositoryService : Repository.Service = Utils.getUIValue('#gitCommitModalRepositoryServiceSelect', 'val', Repository.Service.Unknown);
-                    const repositories : Repository[] = $('#gitCommitModal').data('repositories');
+                    const repositories = Modals.getModalArray<Repository>('#gitCommitModal', 'repositories');
                     const repositoryNameChoice : number = parseInt(Utils.getUIValue('#gitCommitModalRepositoryNameSelect', 'val', "0"), 10);
 
                     // split repository text (with form: "name (branch)") into name and branch strings
@@ -371,7 +433,8 @@ export class Modals {
                     const commitMessage : string = Utils.getUIValue('#gitCommitModalCommitMessageInput', 'val', "");
 
                     // ensure that the graph filename ends with ".graph" or ".palette" as appropriate
-                    const fileType : Eagle.FileType = $('#gitCommitModal').data('fileType');
+                    const fileTypeData = Modals.getModalData('#gitCommitModal', 'fileType');
+                    const fileType: Eagle.FileType = Object.values(Eagle.FileType).includes(fileTypeData as Eagle.FileType) ? fileTypeData as Eagle.FileType : Eagle.FileType.Unknown;
                     if ((fileType === Eagle.FileType.Graph && !fileName.endsWith('.graph')) ||
                         (fileType === Eagle.FileType.Palette && !fileName.endsWith('.palette'))) {
                         fileName += fileType === Eagle.FileType.Graph ? '.graph' : '.palette';
@@ -418,13 +481,13 @@ export class Modals {
             $('#gitCustomRepositoryModalAffirmativeButton').trigger("focus");
         });
         $('#gitCustomRepositoryModal').on('hidden.bs.modal', function(){
-            const callback : Modals.GitCustomRepositoryCallback = $('#gitCustomRepositoryModal').data('callback');
+            const callback = Modals.getModalCallback<Modals.GitCustomRepositoryCallback>('#gitCustomRepositoryModal', 'callback');
 
-            if (!callback){
+            if (callback === null){
                 console.error("No 'callback' data attribute found on modal");
             } else {
                 // check if the modal was completed (user clicked OK), if not, return false
-                const completed : boolean = $('#gitCustomRepositoryModal').data('completed');
+                const completed = Modals.getModalBool('#gitCustomRepositoryModal', 'completed');
                 if (!completed){
                     callback(false, Repository.Service.Unknown, "", "");
                 } else {
@@ -456,7 +519,7 @@ export class Modals {
         })
 
         $('#settingsModal').on('hidden.bs.modal', function () {
-            const completed : boolean = $('#settingsModal').data('completed');
+            const completed = Modals.getModalBool('#settingsModal', 'completed');
             if(!completed){
                 Setting.cancelChanges();
             }
@@ -483,13 +546,13 @@ export class Modals {
         });
 
         $('#editFieldModal').on('hidden.bs.modal', function(){
-            const callback: Modals.UserFieldCallback = $('#editFieldModal').data('callback');
+            const callback = Modals.getModalCallback<Modals.UserFieldCallback>('#editFieldModal', 'callback');
             
-            if (!callback){
+            if (callback === null){
                 console.error("No 'callback' data attribute found on modal");
             } else {
                 // check if the modal was completed (user clicked OK), if not, return false
-                const completed : boolean = $('#editFieldModal').data('completed');
+                const completed = Modals.getModalBool('#editFieldModal', 'completed');
                 if (!completed){
                     callback(null);
                 } else {
@@ -526,12 +589,12 @@ export class Modals {
             $('#browseDockerHubModalAffirmativeButton').trigger("focus");
         });
         $('#browseDockerHubModal').on('hidden.bs.modal', function(){
-            const callback: Modals.UserDockerHubCallback = $('#browseDockerHubModal').data('callback');
+            const callback = Modals.getModalCallback<Modals.UserDockerHubCallback>('#browseDockerHubModal', 'callback');
 
-            if (!callback){
+            if (callback === null){
                 console.error("No 'callback' data attribute found on modal");
             } else {
-                const completed : boolean = $('#browseDockerHubModal').data('completed');
+                const completed = Modals.getModalBool('#browseDockerHubModal', 'completed');
                 callback(completed);
             }
 
@@ -566,7 +629,12 @@ export class Modals {
             return;
         }
 
-        const value: any = $(eventTarget).val();
+        if (!(eventTarget instanceof HTMLInputElement) && !(eventTarget instanceof HTMLTextAreaElement)){
+            console.error("Event target is not a text input in validateFieldModalValueInputText");
+            return;
+        }
+
+        const value = eventTarget.value;
         const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
 
         // only validate Json fields
@@ -583,8 +651,8 @@ export class Modals {
         const inputElement = $("#gitCommitModalFileNameInput");
         const inputElementValue = Utils.getUIValue('#gitCommitModalFileNameInput', 'val', "");
 
-        const fileTypeData = $('#gitCommitModal').data('fileType');
-        const fileType: Eagle.FileType = fileTypeData ? fileTypeData : Eagle.FileType.Unknown;
+        const fileTypeData = Modals.getModalData('#gitCommitModal', 'fileType');
+        const fileType: Eagle.FileType = Object.values(Eagle.FileType).includes(fileTypeData as Eagle.FileType) ? fileTypeData as Eagle.FileType : Eagle.FileType.Unknown;
 
         const validator = Utils.gitCommitFileNameStringValidator(fileType);
         const validationResult = validator(inputElementValue);
@@ -692,8 +760,10 @@ export class Modals {
         }
 
         // make sure the editor is refreshed
-        const editor = $('#inputMarkdownModal').data('editor');
-        editor.refresh();
+        const editor = Modals.getModalEditor('#inputMarkdownModal');
+        if (editor !== null){
+            editor.refresh();
+        }
 
         // update setting
         Setting.setValue(Setting.MARKDOWN_EDITING_ENABLED, enabled);
