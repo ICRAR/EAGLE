@@ -1095,7 +1095,7 @@ export class Eagle {
         this.logicalGraph.valueHasMutated();
     }
 
-    checkErrorModalShowError = (data:any) :void =>{
+    checkErrorModalShowError = (data: { show: () => void }) :void =>{
         data.show()
     }
 
@@ -1696,9 +1696,7 @@ export class Eagle {
                 ]);
 
                 for (const palette of palettes){
-                    if (palette !== null){
-                        this.palettes.splice(index, 0, palette);
-                    }
+                    this.palettes.splice(index, 0, palette);
                 }
                 break;
             default:
@@ -1763,10 +1761,6 @@ export class Eagle {
 
         const userChoice: string = await Utils.requestUserChoice("Save Graph As", "Please choose where to save the graph", ["Local File", "Remote Git Repository"], isLocalFile?0:1, false, "");
 
-        if (userChoice === null){
-            return;
-        }
-
         const fileType = this.logicalGraph().fileInfo().type;
 
         if (userChoice === "Local File"){
@@ -1778,12 +1772,6 @@ export class Eagle {
 
     saveGraphConfigAs = async (graphConfig: GraphConfig) : Promise<void> => {
         try {
-            // Robust null/invalid check
-            if (!graphConfig || typeof graphConfig !== "object" || Object.keys(graphConfig).length === 0) {
-                Utils.showNotification("Invalid Graph Config", "The graph configuration is missing or invalid. Please check your input and try again.", "danger");
-                throw new Error("GraphConfig is null or invalid");
-            }
-
             // check whether the GraphConfig has the same modelData location as the LogicalGraph
             const configMatch = FileLocation.match(graphConfig.fileInfo().graphLocation, this.logicalGraph().fileInfo().location);
             if (!configMatch) {
@@ -1794,11 +1782,6 @@ export class Eagle {
             const isLocalFile = this.logicalGraph().fileInfo().location.repositoryService() === Repository.Service.File;
 
             const userChoice: string = await Utils.requestUserChoice("Save Graph Configuration As", "Please choose where to save the graph configuration", ["Local File", "Remote Git Repository"], isLocalFile?0:1, false, "");
-
-            if (userChoice === null){
-                Utils.showNotification("Save Cancelled", "No save location was selected.", "danger");
-                throw new Error("User cancelled save");
-            }
 
             if (userChoice === "Local File"){
                 try {
@@ -2148,7 +2131,7 @@ export class Eagle {
 
             // if there is no git repository or filename defined for this file. Please use 'save as' instead!
             if (
-                [Repository.Service.Unknown, Repository.Service.File, Repository.Service.Url].includes(fileInfo().location.repositoryService()) || fileInfo().location.repositoryName() === null
+                [Repository.Service.Unknown, Repository.Service.File, Repository.Service.Url].includes(fileInfo().location.repositoryService())
             ) {
                 await this.commitToGitAs(fileType);
                 return;
@@ -2166,9 +2149,6 @@ export class Eagle {
 
             // request commit message from the user, abort if none entered
             const commitMessage = await Utils.userEnterCommitMessage("Enter a commit message for this " + fileType);
-            if (commitMessage === null){
-                return;
-            }
 
             // set the EAGLE version etc according to this running version
             fileInfo().updateEagleInfo();
@@ -2245,10 +2225,8 @@ export class Eagle {
 
     loadDefaultPalettes = async (): Promise<void> => {
         // get collapsed/expanded state of palettes from html local storage
-        let templatePaletteExpanded: boolean = Setting.findValue<boolean>(Setting.OPEN_TEMPLATE_PALETTE, false);
-        let builtinPaletteExpanded: boolean = Setting.findValue<boolean>(Setting.OPEN_BUILTIN_PALETTE, false);
-        templatePaletteExpanded = templatePaletteExpanded === null ? false : templatePaletteExpanded;
-        builtinPaletteExpanded = builtinPaletteExpanded === null ? false : builtinPaletteExpanded;
+        const templatePaletteExpanded: boolean = Setting.findValue<boolean>(Setting.OPEN_TEMPLATE_PALETTE, false);
+        const builtinPaletteExpanded: boolean = Setting.findValue<boolean>(Setting.OPEN_BUILTIN_PALETTE, false);
 
         const {errorsWarnings} = await this.loadPalettes([
             {name:Palette.TEMPLATE_PALETTE_NAME, filename:Daliuge.TEMPLATE_URL, readonly:true, expanded: templatePaletteExpanded},
@@ -2684,7 +2662,7 @@ export class Eagle {
 
     private _reloadPalette = (file : RepositoryFile, data : string, palette : Palette) : void => {
         // close the existing version of the open palette
-        if (palette !== null && !palette.isFetching()){
+        if (!palette.isFetching()){
             void this.closePalette(palette);
         }
 
@@ -2769,10 +2747,6 @@ export class Eagle {
     }
 
     getParentNameAndId = (parentId: NodeId) : string => {
-        if(parentId === null){
-            return ""
-        }
-
         // TODO: temporary fix while we get lots of warnings about missing nodes
         const parentNode = this.logicalGraph().getNodeById(parentId);
 
@@ -2798,7 +2772,7 @@ export class Eagle {
     // TODO: shares some code with saveFileToLocal(), we should try to factor out the common stuff at some stage
     savePaletteToDisk = async (palette : Palette, fileName: string) : Promise<void> => {
         // generate a fileName, if the supplied filename is null or empty
-        if (fileName === null || fileName === ""){
+        if (fileName === ""){
             const rawName = palette.fileInfo().name;
             const sanitizedName = Utils.sanitizeFileName(rawName);
             fileName = sanitizedName.length > 0 ? sanitizedName : "palette";
@@ -3001,7 +2975,7 @@ export class Eagle {
         }
 
         // check that access token is defined
-        if (token === null || token === "") {
+        if (token === "") {
             Utils.showUserMessage("Error", "The GitHub access token is not set! To save files on GitHub, set the access token.");
             return;
         }
@@ -3201,7 +3175,9 @@ export class Eagle {
 
     submitIssue = () : void => {
         // automatically add the EAGLE version and commit hash to the body of the new issue
-        let bodyText: string = "\n\nVersion: "+(<any>window).version+"\nCommit Hash: "+(<any>window).commit_hash;
+        const version = typeof window.version === "string" ? window.version : "unknown";
+        const commitHash = typeof window.commit_hash === "string" ? window.commit_hash : "unknown";
+        let bodyText: string = "\n\nVersion: " + version + "\nCommit Hash: " + commitHash;
 
         // url encode the body text
         bodyText = encodeURI(bodyText);
@@ -3210,10 +3186,11 @@ export class Eagle {
         window.open("https://github.com/ICRAR/EAGLE/issues/new?body="+bodyText, "_blank");
     }
 
-    statusBarScroll = (_data:any, e:any) : void => {
+    statusBarScroll = (_data: unknown, e: JQuery.TriggeredEvent) : void => {
         e.preventDefault();
+        const wheelEvent = e.originalEvent as WheelEvent;
         const leftPos = Utils.getUIValue('#statusBar', 'scrollLeft', 0);
-        $('#statusBar').scrollLeft(leftPos + e.originalEvent.deltaY)
+        $('#statusBar').scrollLeft(leftPos + wheelEvent.deltaY)
     }
 
     smartToggleModal = (modal:string) : void => {
@@ -3570,10 +3547,6 @@ export class Eagle {
         // ask user to select the destination node
         const userChoice = await Utils.requestUserChoice("Destination Palette", "Please select the palette to which you'd like to add the node(s)", paletteNames, 0, true, "New Palette Name");
 
-        if (userChoice === null){
-            return;
-        }
-
         // if user made custom choice
         let userString: string = userChoice;
 
@@ -3894,12 +3867,11 @@ export class Eagle {
         let realDestPort: Field | null = realDestNode.findPortByMatchingType(realSourcePort.getType(), usages);
 
         // if no dest port was found, just use first input port on dest node
-        if (realDestPort === null){
-            realDestPort = realDestNode.findPortOfAnyType(true);
-        }
+        // ??= assigns only when the left side is null or undefined.
+        realDestPort ??= realDestNode.findPortOfAnyType(true);
 
-        // abort if we don't have destNode or destPort
-        if (realDestNode === null || realDestPort === null){
+        // abort if we don't have destPort
+        if (realDestPort === null){
             Utils.showNotification("Error", "Unable to create edge: missing destination node or port", "danger");
             return;
         }
@@ -3928,12 +3900,12 @@ export class Eagle {
 
             // check that graph editing is allowed
         if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
-            throw "Unable to Add Component. Graph Editing is disabled";
+            throw new Error("Unable to Add Component. Graph Editing is disabled");
         }
 
             if(mode === Eagle.AddNodeMode.ContextMenu){
                 // when addNodeToLogicalGraph is called from the ContextMenu, we expect node to be null. The node is specified by the nodeId instead
-                console.assert(node === null);
+                console.assert(typeof node === "undefined");
 
                 // check that nodeId is not null
                 if (nodeId === null){
@@ -4105,10 +4077,6 @@ export class Eagle {
 
         // ask user to select the destination node
         const userChoice = await Utils.requestUserChoice("Destination Palette", "Please select the palette to which you'd like to add the nodes", paletteNames, 0, true, "New Palette Name");
-        // abort if the user aborted
-        if (userChoice === null){
-            return;
-        }
 
         let userString: string = userChoice;
 
@@ -4141,7 +4109,7 @@ export class Eagle {
             if (inputApplication !== null){
                 destinationPalette.addNode(inputApplication, false);
             }
-            if (outputApplication){
+            if (outputApplication !== null){
                 destinationPalette.addNode(outputApplication, false);
             }
 
@@ -4214,7 +4182,7 @@ export class Eagle {
 
         // check that graph editing is allowed
         if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
-            throw "Unable to Add Component. Graph Editing is disabled";
+            throw new Error("Unable to Add Component. Graph Editing is disabled");
         }
 
         // create a new visual of the requested type
@@ -4269,10 +4237,10 @@ export class Eagle {
 
         // set values for the fields
         if (typeof imageField !== 'undefined'){
-            image = imageField.getValue() || "";
+            image = imageField.getValue() ?? "";
         }
         if (typeof tagField !== 'undefined'){
-            tag = tagField.getValue() || "";
+            tag = tagField.getValue() ?? "";
         }
 
         Modals.showBrowseDockerHub(image, tag, (completed: boolean) => {
@@ -4390,10 +4358,6 @@ export class Eagle {
 
         // ask user to choose a parent
         const userChoice: string = await Utils.requestUserChoice("Node Parent Id", "Select a parent node", nodeList, selectedChoiceIndex, false, "");
-        
-        if (userChoice === null){
-            return;
-        }
 
         const choice: string = userChoice;
 
@@ -4514,7 +4478,7 @@ export class Eagle {
         // copy all nodes that we are moving
         for (const sourceComponent of sourceComponents){
             // check that the destination palette does not already contain this exact node
-            if (destinationPalette.findNodeById(sourceComponent.getId()) !== null){
+            if (typeof destinationPalette.findNodeById(sourceComponent.getId()) !== 'undefined'){
                 Utils.showUserMessage("Error", "Palette already contains an identical component.");
                 return;
             }
@@ -4528,7 +4492,7 @@ export class Eagle {
     paletteComponentClick = (node: Node, event: JQuery.TriggeredEvent) : void => {
         const e: PointerEvent = event.originalEvent as PointerEvent;
         
-        if (e && e.shiftKey){
+        if (e.shiftKey){
             this.editSelection(node, Eagle.FileType.Palette);
         }else{
             this.setSelection(node, Eagle.FileType.Palette);
@@ -4555,7 +4519,7 @@ export class Eagle {
 
     editField = async (field: Field): Promise<void> => {
         // check that field exists
-        if (field === null || typeof field === 'undefined'){
+        if (typeof field === 'undefined'){
             console.error("No field to edit");
             return;
         }
@@ -4719,23 +4683,9 @@ export class Eagle {
     }
 
     addEdge = async (srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean, forceAutoRename: boolean = false): Promise<Edge> => {
-        // check that none of the supplied nodes and ports are null
-        if (srcNode === null){
-            throw "addEdge(): srcNode is null";
-        }
-        if (srcPort === null){
-            throw "addEdge(): srcPort is null";
-        }
-        if (destNode === null){
-            throw "addEdge(): destNode is null";
-        }
-        if (destPort === null){
-            throw "addEdge(): destPort is null";
-        }
-
         // check that graph editing is allowed
         if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
-            throw "Unable to Add Edge: Graph Editing is disabled";
+            throw new Error("Unable to Add Edge: Graph Editing is disabled");
         }
 
             const edgeConnectsTwoApplications : boolean =
@@ -4783,7 +4733,7 @@ export class Eagle {
             const firstEdge = Utils.addIntermediateDataNodeForAppToAppEdge(this.logicalGraph(), srcNode, srcPort, destNode, destPort, loopAware, closesLoop);
         if (firstEdge === null){
             Utils.showNotification("Add Edge Error", "Unable to find suitable port on intermediary component", "danger");
-            throw "Unable to find suitable port on intermediary component";
+            throw new Error("Unable to find suitable port on intermediary component");
         }
 
         // reply with one of the edges
@@ -4793,7 +4743,7 @@ export class Eagle {
     addVisual = async (visual: Visual): Promise<Visual> => {
         // check that graph editing is allowed
         if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
-            throw "Unable to Add Visual: Graph Editing is disabled";
+            throw new Error("Unable to Add Visual: Graph Editing is disabled");
         }
 
         // check if visual will be added to an empty graph, if so prompt user to specify graph name
@@ -4850,7 +4800,7 @@ export class Eagle {
 
     editNodeDescription = async (node?: Node): Promise<void> => {
         const markdownEditingEnabled: boolean = Setting.findValue<boolean>(Setting.MARKDOWN_EDITING_ENABLED, false);
-        const targetNode = node || this.selectedNode();
+        const targetNode = node ?? this.selectedNode();
 
         // abort if no node is selected AND no node was passed in
         if (targetNode === null) {
@@ -4871,7 +4821,7 @@ export class Eagle {
 
     editNodeComment = async (node? : Node): Promise<void> => {
         const markdownEditingEnabled: boolean = Setting.findValue<boolean>(Setting.MARKDOWN_EDITING_ENABLED, false);
-        const targetNode = node || this.selectedNode();
+        const targetNode = node ?? this.selectedNode();
 
         // abort if no node is selected
         if (targetNode === null || !(targetNode instanceof Node)) {
@@ -4881,7 +4831,7 @@ export class Eagle {
 
         let nodeComment: string;
         try {
-            nodeComment = await Utils.requestUserMarkdown(targetNode.getDisplayName() + " - Comment", targetNode?.getComment(), markdownEditingEnabled);
+            nodeComment = await Utils.requestUserMarkdown(targetNode.getDisplayName() + " - Comment", targetNode.getComment(), markdownEditingEnabled);
         } catch (error) {
             console.error(error);
             return;
@@ -4902,7 +4852,7 @@ export class Eagle {
 
         let edgeComment: string;
         try {
-            edgeComment = await Utils.requestUserMarkdown("Edge Comment", edge?.getComment(), markdownEditingEnabled);
+            edgeComment = await Utils.requestUserMarkdown("Edge Comment", edge.getComment(), markdownEditingEnabled);
         } catch (error) {
             console.error(error);
             return;
@@ -4913,7 +4863,7 @@ export class Eagle {
 
     editTextVisualContent = async (visual ?: Visual): Promise<void> => {
         const markdownEditingEnabled: boolean = Setting.findValue<boolean>(Setting.MARKDOWN_EDITING_ENABLED, false);
-        const thisVisual = visual || this.selectedVisual();
+        const thisVisual = visual ?? this.selectedVisual();
 
         // abort if no node is selected
         if (thisVisual === null) {
@@ -4923,7 +4873,7 @@ export class Eagle {
 
         let visualContent: string;
         try {
-            visualContent = await Utils.requestUserMarkdown("Text Visual - Content", thisVisual?.getContent(), markdownEditingEnabled);
+            visualContent = await Utils.requestUserMarkdown("Text Visual - Content", thisVisual.getContent(), markdownEditingEnabled);
         } catch (error) {
             console.error(error);
             return;
@@ -5248,11 +5198,11 @@ export class Eagle {
         }
     }
 
-    getLatestVersion = () : any => {
+    getLatestVersion = (): { version: string; date: Date; changes: string[] } => {
         return versions[0]
     }
 
-    getVersionHistory = () : any => {
+    getVersionHistory = (): { version: string; date: Date; changes: string[] }[] => {
         return versions.slice(1);
     }
 
@@ -5272,8 +5222,8 @@ export class Eagle {
         }
     }
 
-    slowScroll = (_data:any, event: JQuery.TriggeredEvent) : void => {
-        const target = event.currentTarget;//gets the element that has the event binding
+    slowScroll = (_data: unknown, event: JQuery.TriggeredEvent) : void => {
+        const target = event.currentTarget as HTMLElement;//gets the element that has the event binding
         const scrollTop = $(target).scrollTop();
 
         if (scrollTop === undefined) {
@@ -5283,7 +5233,6 @@ export class Eagle {
 
         $(target).scrollTop(scrollTop + (event.originalEvent as WheelEvent).deltaY * 0.5);
     }
-
 }
 
 /* eslint-disable @typescript-eslint/no-namespace */
@@ -5335,8 +5284,8 @@ export namespace Eagle
 $( document ).ready(function() {
     // jquery event listeners start here
 
-    $('body').on('mouseout','.dropdown-area',function(event){
-        const targetElement = event.currentTarget
+    $('body').on('mouseout','.dropdown-area',function(event: JQuery.TriggeredEvent){
+        const targetElement = event.currentTarget as HTMLElement
         //we are using a timeout stored in a global variable so we have only one timeout that resets when another mouseout is called.
         //if we don't do this we end up with several timeouts conflicting.
         clearTimeout(Eagle.getInstance().dropdownMenuHoverTimeout)
@@ -5446,10 +5395,6 @@ $( document ).ready(function() {
     $(document).on('click', '.hierarchyEdgeExtra', function(event: JQuery.TriggeredEvent){
         const e: MouseEvent = event.originalEvent as MouseEvent;
         const target = e.target as HTMLElement;
-        if (target === null){
-            console.error("No event target for hierarchyEdgeExtra click");
-            return;
-        }
         const selectedEdgeId: EdgeId = $(target).attr("id") as EdgeId;
 
         const eagle: Eagle = Eagle.getInstance();

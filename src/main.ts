@@ -406,6 +406,7 @@ export type Branded<T, B> = T & Brand<B>
 declare global {
     interface Window {
         version?: string;
+        commit_hash?: string;
         mode?: string;
         auto_load_service?: string;
         auto_load_repository?: string;
