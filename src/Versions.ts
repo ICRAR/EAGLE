@@ -1,4 +1,4 @@
-export const versions = [
+export const versions: { version: string; date: Date; changes: string[] }[] = [
   {
     version: 'v7.0.1',
     date: new Date("2026-06-25"),
