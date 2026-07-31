@@ -80,7 +80,7 @@ export class GraphUpdater {
     static updatedLogicalGraphs: ko.ObservableArray<GraphUpdaterFile> = ko.observableArray<GraphUpdaterFile>([]);
 
     // NOTE: for use in translation of OJS object to internal graph representation
-    static findIndexOfNodeDataArrayWithId(nodeDataArray: any[], id: NodeId) : number {
+    static findIndexOfNodeDataArrayWithId(nodeDataArray: Array<{id?: NodeId}>, id: NodeId) : number {
         for (let i = 0 ; i < nodeDataArray.length ; i++){
             if (nodeDataArray[i].id === id){
                 return i;
@@ -128,14 +128,14 @@ export class GraphUpdater {
         return true;
     }
 
-    static usesNodeKeys(graphObject: any): boolean {
+    static usesNodeKeys(graphObject: { nodeDataArray?: Array<Record<string, unknown>>; [key: string]: unknown }): boolean {
         // abort if no nodeDataArray
-        if (typeof graphObject["nodeDataArray"] === 'undefined'){
+        if (typeof graphObject.nodeDataArray === 'undefined'){
             return false;
         }
 
-        for (const node of graphObject["nodeDataArray"]){
-            if (typeof node.key !== 'undefined'){
+        for (const node of graphObject.nodeDataArray){
+            if (typeof node.key === 'number'){
                 return true;
             }
         }
@@ -145,34 +145,48 @@ export class GraphUpdater {
 
     // Takes a graph that is using keys and updates it to use ids only
     // - edges .from and .to attributes refer to keys, so we change to ids
-    static updateKeysToIds(graphObject: any): void {
-        const keyToId: Map<number, string> = new Map<number, string>();
+    static updateKeysToIds(graphObject: {
+        nodeDataArray?: Array<Record<string, unknown>>;
+        linkDataArray?: Array<{ from: number | NodeId; to: number | NodeId; [key: string]: unknown }>;
+        [key: string]: unknown;
+    }): void {
+        if (typeof graphObject.nodeDataArray === 'undefined'){
+            return;
+        }
+        if (typeof graphObject.linkDataArray === 'undefined'){
+            return;
+        }
+
+        const keyToId: Map<number, NodeId> = new Map<number, NodeId>();
 
         // build keyToId map from nodes
-        for (const node of graphObject["nodeDataArray"]){
-            const newId = Id.generateNodeId();
+        for (const node of graphObject.nodeDataArray){
+            if (typeof node.key !== 'number'){
+                continue;
+            }
+                const newId: NodeId = Id.generateNodeId();
 
             keyToId.set(node.key, newId);
             node.id = newId;
             delete node.key; // remove key attribute
 
             // input app
-            if (node.inputApplicationKey !== null){
-                const inputAppId = Id.generateNodeId();
+            if (typeof node.inputApplicationKey === 'number'){
+                const inputAppId: NodeId = Id.generateNodeId();
                 keyToId.set(node.inputApplicationKey, inputAppId);
                 node.inputApplicationId = inputAppId;
             }
             // output app
-            if (node.outputApplicationKey !== null){
-                const outputAppId = Id.generateNodeId();
+            if (typeof node.outputApplicationKey === 'number'){
+                const outputAppId: NodeId = Id.generateNodeId();
                 keyToId.set(node.outputApplicationKey, outputAppId);
                 node.outputApplicationId = outputAppId;
             }
         }
 
         // use map to update parentKeys
-        for (const node of graphObject["nodeDataArray"]){
-            if (typeof node.group !== "undefined"){
+        for (const node of graphObject.nodeDataArray){
+            if (typeof node.group === "number"){
                 node.parentId = keyToId.get(node.group);
             } else {
                 node.parentId = null;
@@ -181,25 +195,30 @@ export class GraphUpdater {
         }
 
         // use map to update subject
-        for (const node of graphObject["nodeDataArray"]){
-            if (typeof node.subject !== "undefined" && node.subject !== null){
-                node.subject = keyToId.get(node.subject);
+        for (const node of graphObject.nodeDataArray){
+            if (typeof node.subject === "number"){
+                node.subjectId = keyToId.get(node.subject) ?? null;
             } else {
                 node.subjectId = null;
             }
+            delete node.subject;
         }
 
         // use map to update edges
-        for (const edge of graphObject["linkDataArray"]){
-            if (!keyToId.has(edge.from)){
+        for (const edge of graphObject.linkDataArray){
+            if (typeof edge.from !== 'number' || !keyToId.has(edge.from)){
                 console.warn("GraphUpdater.updateKeysToIds() : Can't find Id for from key", edge.from, edge);
             }
-            if (!keyToId.has(edge.to)){
+            if (typeof edge.to !== 'number' || !keyToId.has(edge.to)){
                 console.warn("GraphUpdater.updateKeysToIds() : Can't find Id for to key", edge.to, edge);
             }
 
-            edge.from = keyToId.get(edge.from);
-            edge.to = keyToId.get(edge.to);
+            if (typeof edge.from === 'number'){
+                edge.from = keyToId.get(edge.from) ?? edge.from;
+            }
+            if (typeof edge.to === 'number'){
+                edge.to = keyToId.get(edge.to) ?? edge.to;
+            }
         }
     }
     
@@ -279,7 +298,7 @@ export class GraphUpdater {
         // get source repository
         const srcRepoIndex = parseInt($('#graphUpdaterModalSourceRepositorySelect').val() as string, 10);
         const srcRepo = Repositories.repositories()[srcRepoIndex];
-        if (srcRepo === null){
+        if (typeof srcRepo === 'undefined'){
             Utils.showNotification("Error", "Source repository not found", "danger");
             this.state(GraphUpdater.Status.Start);
             return;
@@ -352,7 +371,18 @@ export class GraphUpdater {
             }
 
             // determine if graph is OJS or V4
-            const graphObject = JSON.parse(fileData);
+            const parsedGraphObject: unknown = JSON.parse(fileData);
+            const graphObject: {
+                nodeDataArray?: Array<Record<string, unknown>>;
+                linkDataArray?: Array<{ from: number | NodeId; to: number | NodeId; [key: string]: unknown }>;
+                [key: string]: unknown;
+            } = typeof parsedGraphObject === 'object' && parsedGraphObject !== null
+                ? parsedGraphObject as {
+                    nodeDataArray?: Array<Record<string, unknown>>;
+                    linkDataArray?: Array<{ from: number | NodeId; to: number | NodeId; [key: string]: unknown }>;
+                    [key: string]: unknown;
+                }
+                : {};
             const schemaVersion: Setting.SchemaVersion = Utils.determineSchemaVersion(graphObject);
 
             // check if we need to update the graph from keys to ids
@@ -361,7 +391,7 @@ export class GraphUpdater {
             }
 
             // determine correct fromJson function
-            let fromJsonFunc: (graphObject: any, fileName: string, errorsWarnings: Errors.ErrorsWarnings) => LogicalGraph;
+            let fromJsonFunc: (graphObject: object, fileName: string, errorsWarnings: Errors.ErrorsWarnings) => LogicalGraph;
 
             switch (schemaVersion){
                 case Setting.SchemaVersion.OJS:
@@ -460,13 +490,7 @@ export class GraphUpdater {
             }
         } else {
             const destRepoIndex = parseInt(destRepoValue, 10);
-            this.destinationRepository = Repositories.repositories()[destRepoIndex];
-        }
-
-        // check that we have a valid destination repository at this point
-        if (this.destinationRepository === null){
-            Utils.showNotification("Error", "Destination repository not found", "danger");
-            return;
+            this.destinationRepository = Repositories.repositories()[destRepoIndex] ?? null;
         }
 
         // get the users github/gitlab token from the settings
@@ -524,11 +548,15 @@ export class GraphUpdater {
            await eagle.saveFilesToRemote(this.destinationRepository, JSON.stringify(commitJson));
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
-            const errorJSON = JSON.parse(errorMessage);
+            const parsedError: unknown = JSON.parse(errorMessage);
+            const errorJSON = typeof parsedError === 'object' && parsedError !== null
+                ? parsedError as { error?: string }
+                : {};
+            const remoteError = errorJSON.error ?? errorMessage;
 
-            Utils.showUserMessage("Error", errorJSON.error + "<br/><br/>NOTE: These error messages provided by " + this.destinationRepository.service + " are not very helpful. Please contact EAGLE admin to help with further investigation.");
-            console.error("Error: " + errorJSON.error);
-            return errorJSON.error;
+            Utils.showUserMessage("Error", remoteError + "<br/><br/>NOTE: These error messages provided by " + this.destinationRepository.service + " are not very helpful. Please contact EAGLE admin to help with further investigation.");
+            console.error("Error: " + remoteError);
+            return;
         }
 
         GraphUpdater.state(GraphUpdater.Status.Pushed);

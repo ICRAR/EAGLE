@@ -141,14 +141,14 @@ export class Utils {
 
             // if this node has inputApp, set the inputApp id
             if (inputApplication !== null){
-                if (inputApplication.getId() === null){
+                if (inputApplication.getId().trim() === ""){
                     inputApplication.setId(Id.generateNodeId());
                 }
             }
 
             // if this node has outputApp, set the outputApp id
             if (outputApplication !== null){
-                if (outputApplication.getId() === null){
+                if (outputApplication.getId().trim() === ""){
                     outputApplication.setId(Id.generateNodeId());
                 }
             }
@@ -180,30 +180,22 @@ export class Utils {
      * Create a new diagram (graph, palette, config).
      */
     static async requestDiagramFilename(fileType : Eagle.FileType): Promise<string> {
-        return new Promise(async(resolve, reject) => {
-            const defaultName: string = Utils.generateName(fileType);
+        const defaultName: string = Utils.generateName(fileType);
 
-            let userString;
-            try {
-                userString = await Utils.requestUserString(
-                    "New " + fileType,
-                    "Enter " + fileType + " name",
-                    defaultName,
-                    false,
-                    Utils.nonEmptyStringValidator(fileType + " name")
-                );
-            } catch(error) {
-                reject(error);
-                return;
-            }
+        let userString = await Utils.requestUserString(
+            "New " + fileType,
+            "Enter " + fileType + " name",
+            defaultName,
+            false,
+            Utils.nonEmptyStringValidator(fileType + " name")
+        );
 
-            // Adding file extension to the title if it does not have it.
-            if (!Utils.verifyFileExtension(userString)) {
-                userString = userString + "." + Utils.getDiagramExtension(fileType);
-            }
+        // Adding file extension to the title if it does not have it.
+        if (!Utils.verifyFileExtension(userString)) {
+            userString = userString + "." + Utils.getDiagramExtension(fileType);
+        }
 
-            resolve(userString);
-        });
+        return userString;
     }
 
     /**
@@ -452,7 +444,7 @@ export class Utils {
         } else {
             // check if response is JSON
             const header = xhr.getResponseHeader('content-type');
-            if (header && header.indexOf('application/json') !== -1){
+            if (header !== null && header.indexOf('application/json') !== -1){
                 return xhr.responseText;
             } else {
                 return "Uncaught Error. " + xhr.responseText;
@@ -725,7 +717,7 @@ export class Utils {
     }
 
     static requestUserString(title : string, message : string, defaultString: string, isPassword: boolean, validator?: Modals.UserStringValidator): Promise<string> {
-        return new Promise(async(resolve, reject) => {
+        return new Promise((resolve, reject) => {
             $('#inputModalTitle').text(title);
             $('#inputModalMessage').html(Utils.markdown2html(message));
             $('#inputModalInput').attr('type', isPassword ? 'password' : 'text');
@@ -785,11 +777,11 @@ export class Utils {
     }
 
     static requestUserText(title : string, message : string, defaultText: string | null, readonly: boolean = false) : Promise<string> {
-        return new Promise(async(resolve, reject) => {
+        return new Promise((resolve, reject) => {
             $('#inputTextModalTitle').text(title);
             $('#inputTextModalMessage').html(Utils.markdown2html(message));
 
-            $('#inputTextModalInput').val(defaultText ? defaultText : '');
+            $('#inputTextModalInput').val(defaultText ?? '');
             $('#inputTextModalInput').prop('readonly', readonly);
 
             // store the callback, result on the modal HTML element
@@ -809,7 +801,7 @@ export class Utils {
     }
 
     static requestUserCode(language: "json"|"python"|"text", title: string, defaultText: string | null, readonly: boolean = false): Promise<string> {
-        return new Promise(async(resolve, reject) => {
+        return new Promise((resolve, reject) => {
             // set title
             $('#inputCodeModalTitle').text(title);
 
@@ -834,7 +826,7 @@ export class Utils {
             const editor = $('#inputCodeModal').data('editor');
             editor.setOption('readOnly', readonly);
             editor.setOption('mode', mode);
-            editor.setValue(defaultText ? defaultText : '');
+            editor.setValue(defaultText ?? '');
 
             // store the callback, result on the modal HTML element
             // so that the info is available to event handlers
@@ -854,7 +846,7 @@ export class Utils {
     }
 
     static requestUserMarkdown(title: string, defaultText: string, editMode: boolean = false): Promise<string> {
-        return new Promise(async(resolve, reject) => {
+        return new Promise((resolve, reject) => {
             $('#inputMarkdownModalTitle').text(title);
 
             // show or hide sections based on editMode
@@ -885,7 +877,7 @@ export class Utils {
     }
 
     static requestUserNumber(title : string, message : string, defaultNumber: number) : Promise<number> {
-        return new Promise(async(resolve, reject) => {
+        return new Promise((resolve, reject) => {
             $('#inputModalTitle').text(title);
             $('#inputModalMessage').html(Utils.markdown2html(message));
             $('#inputModalInput').val(defaultNumber);
@@ -910,7 +902,7 @@ export class Utils {
 
     // , callback : (completed : boolean, userChoiceIndex : number, userCustomString : string) => void
     static async requestUserChoice(title : string, message : string, choices : string[], selectedChoiceIndex : number, allowCustomChoice : boolean, customChoiceText : string): Promise<string> {
-        return new Promise(async(resolve, reject) => {
+        return new Promise((resolve, reject) => {
             $('#choiceModalTitle').text(title);
             $('#choiceModalMessage').html(Utils.markdown2html(message));
             $('#choiceModalCustomChoiceText').text(customChoiceText);
@@ -963,7 +955,7 @@ export class Utils {
     }
 
     static async requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string, confirmSetting: Setting | undefined): Promise<boolean> {
-        return new Promise(async(resolve, _reject) => {
+        return new Promise((resolve, _reject) => {
             $('#confirmModalTitle').text(title);
             $('#confirmModalMessage').html(Utils.markdown2html(message));
             $('#confirmModalAffirmativeAnswer').text(affirmativeAnswer);
@@ -995,7 +987,7 @@ export class Utils {
     }
 
     static async requestUserOptions(title: string, message: string, option0: string, option1: string, option2: string, defaultOptionIndex: number): Promise<string> {
-        return new Promise(async(resolve, _reject) => {
+        return new Promise((resolve, _reject) => {
             $('#optionsModalTitle').text(title);
             $('#optionsModalMessage').html(Utils.markdown2html(message));
             $('#optionsModalOption0').text(option0);
@@ -1021,7 +1013,7 @@ export class Utils {
 
     // , callback : (completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void ) : void {
     static async requestUserGitCommit(defaultRepository : Repository, repositories: Repository[], filePath: string, fileName: string, fileType: Eagle.FileType): Promise<RepositoryCommit> {
-        return new Promise(async(resolve, _reject) => {
+        return new Promise((resolve, _reject) => {
             $('#gitCommitModal').data('completed', false);
             $('#gitCommitModal').data('fileType', fileType);
 
@@ -1038,10 +1030,7 @@ export class Utils {
             $('#gitCommitModal').modal("show");
 
             //
-            let defaultRepositoryService: Repository.Service = Repository.Service.Unknown;
-            if (defaultRepository !== null){
-                defaultRepositoryService = defaultRepository.service;
-            }
+            const defaultRepositoryService: Repository.Service = defaultRepository.service;
 
             // remove existing options from the repository service select tag
             $('#gitCommitModalRepositoryServiceSelect').empty();
@@ -1069,7 +1058,7 @@ export class Utils {
     }
 
     static requestUserEditField(eagle: Eagle, field: Field, title: string, choices: string[]): Promise<Field | null> {
-        return new Promise(async(resolve, _reject) => {
+        return new Promise((resolve, _reject) => {
             // set the currently edited field
             eagle.currentField(field);
 
@@ -1086,7 +1075,7 @@ export class Utils {
     }
 
     static requestUserAddCustomRepository(): Promise<Repository> {
-        return new Promise(async(resolve, reject) => {
+        return new Promise((resolve, reject) => {
             $('#gitCustomRepositoryModalRepositorySlugInput').val("");
             $('#gitCustomRepositoryModalRepositoryBranchInput').val("");
 
@@ -1390,7 +1379,7 @@ export class Utils {
     static getPaletteComponentByName(name: string, useCaseInsensitiveMatch: boolean = false) : Node | undefined {
         const eagle: Eagle = Eagle.getInstance();
 
-        if (name === null || typeof name === 'undefined' || name.trim() === ""){
+        if (name.trim() === ""){
             return undefined;
         }
 
@@ -1523,7 +1512,7 @@ export class Utils {
             const dropClassField = node.findFieldByDisplayText(Daliuge.FieldName.DROP_CLASS);
 
             // by default, update PythonApp to a DALiuGEApp, unless dropclass field value indicates it is a PyFuncApp
-            if (dropClassField && dropClassField.getValue() === Daliuge.DEFAULT_PYFUNCAPP_DROPCLASS_VALUE){
+            if (dropClassField?.getValue() === Daliuge.DEFAULT_PYFUNCAPP_DROPCLASS_VALUE){
                 return Category.PyFuncApp;
             } else {
                 return Category.DALiuGEApp;
@@ -2048,7 +2037,7 @@ export class Utils {
     }
 
     static async downloadFile(data : string, fileName : string) : Promise<void> {
-        return new Promise(async(resolve) => {
+        return new Promise((resolve) => {
             // NOTE: this stuff is a hacky way of saving a file locally
             const blob = new Blob([data]);
             const link = document.createElement('a');
@@ -2119,20 +2108,7 @@ export class Utils {
     }
 
     static async userChoosePalette(paletteNames : string[]) : Promise<string> {
-        return new Promise<string>(async (resolve, reject) => {
-
-            // ask user to select a palette
-            let userChoice: string;
-            try {
-                userChoice = await Utils.requestUserChoice("Choose Palette", "Please select the palette you'd like to save", paletteNames, 0, false, "");
-            } catch (error) {
-                reject(error);
-                return;
-            }
-
-            // resolve with chosen palette name
-            resolve(userChoice);
-        });
+        return Utils.requestUserChoice("Choose Palette", "Please select the palette you'd like to save", paletteNames, 0, false, "");
     }
 
     static async userEnterCommitMessage(modalMessage: string) : Promise<string> {
@@ -2161,12 +2137,6 @@ export class Utils {
     }
 
     static markdown2html(markdown: string) : string {
-        // check that input is not undefined
-        if (typeof markdown === "undefined" || markdown === null){
-            console.warn("Could not convert markdown to html! Input:", markdown);
-            return "";
-        }
-
         const html = marked(markdown, { async: false }).replaceAll("<table>", "<table class='table'>");
 
         return Utils.sanitizeHtml(html);
@@ -2446,11 +2416,6 @@ export class Utils {
     }
 
     static fixFieldType(_eagle: Eagle, field: Field){
-        // fix for undefined value
-        if (field.getType() === undefined){
-            field.setType(Daliuge.DataType.Object);
-        }
-        
         // fix for 'Unknown' type
         if (field.getType() === Daliuge.DataType.Unknown){
             field.setType(Daliuge.DataType.Object);
@@ -2519,7 +2484,7 @@ export class Utils {
         }
 
         // determine a sensible type for the new source port
-        const srcPortType = destPort.getType() === undefined ? Daliuge.DataType.Object : destPort.getType();
+        const srcPortType = destPort.getType();
 
         // create new source port
         const srcPort = new Field(srcNode, edge.getSrcPort().getId(), destPort.getDisplayText(), "", "", "", false, srcPortType, false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.OutputPort);
@@ -2542,7 +2507,7 @@ export class Utils {
         }
 
         // determine a sensible type for the new destination port
-        const destPortType = srcPort.getType() === undefined ? Daliuge.DataType.Object : srcPort.getType();
+        const destPortType = srcPort.getType();
 
         // create new destination port
         const destPort = new Field(destNode, edge.getDestPort().getId(), srcPort.getDisplayText(), "", "", "", false, destPortType, false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.OutputPort);
@@ -2820,12 +2785,6 @@ export class Utils {
         // close errors modal if visible
         $('#issuesDisplay').modal("hide");
 
-        // check that we found the node
-        if (node === null){
-            console.warn("Could not show null node");
-            return;
-        }
-        
         eagle.setSelection(node, location);
     }
 
@@ -2869,11 +2828,6 @@ export class Utils {
 
     // only update result if it is worse that current result
     static worstEdgeError(errorsWarnings: Errors.ErrorsWarnings) : Errors.Validity {
-        if (errorsWarnings === null){
-            console.warn("errorsWarnings is null");
-            return Errors.Validity.Valid;
-        }
-
         if (errorsWarnings.warnings.length === 0 && errorsWarnings.errors.length === 0){
             return Errors.Validity.Valid;
         }
@@ -3145,11 +3099,6 @@ export class Utils {
     static copyInputTextModalInput(): void {
         const input = $('#inputTextModalInput');
 
-        if (typeof input === 'undefined'){
-            console.error("No input element found in modal");
-            return;
-        }
-
         const inputValue = input.val();
         if (typeof inputValue === 'undefined'){
             console.error("No value found in modal input element");
@@ -3161,7 +3110,7 @@ export class Utils {
 
     static copyInputCodeModalInput(): void {
         const editor = $('#inputCodeModal').data('editor');
-        if (editor){
+        if (typeof editor !== 'undefined'){
             const content: string = editor.getValue();
             void navigator.clipboard.writeText(content);
         } else {
@@ -3171,7 +3120,7 @@ export class Utils {
 
     static copyInputMarkdownModalInput(): void {
         const editor = $('#inputMarkdownModal').data('editor');
-        if (editor){
+        if (typeof editor !== 'undefined'){
             const content: string = editor.getValue();
             void navigator.clipboard.writeText(content);
         } else {
@@ -3272,17 +3221,7 @@ export class Utils {
     }
 
     static async openRemoteFileFromUrl(_repositoryService : Repository.Service, _repositoryName : string, _repositoryBranch : string, _filePath : string, fileName : string): Promise<string> {
-        return new Promise(async(resolve, reject) => {
-            let data;
-            try {
-                data = await Utils.httpGet(fileName);
-            } catch (error) {
-                reject(error);
-                return;
-            }
-
-            resolve(data);
-        });
+        return Utils.httpGet(fileName);
     }
 
     static copyFieldsFromPrototype(node: Node, paletteName: string, category: Category) : void {
@@ -3473,35 +3412,32 @@ export class Utils {
     // check if graph is named, if not, prompt user to specify graph name
     // creates a default graph config and shows notification if graph was unnamed
     static async ensureGraphIsInitialized(logicalGraph: LogicalGraph){
-        return new Promise<string>(async (resolve, reject) => {
-            if (logicalGraph.fileInfo().name === ""){
-                let filename: string;
-                try {
-                    filename = await Utils.requestDiagramFilename(Eagle.FileType.Graph);
-                } catch (error){
-                    console.warn(error);
-                    reject("User cancelled filename input");
-                    return;
-                }
-
-                const eagle: Eagle = Eagle.getInstance();
-                logicalGraph.fileInfo().name = filename;
-                logicalGraph.fileInfo().location.repositoryFileName(filename);
-
-                // create default graph config for the new graph
-                const graphConfig = new GraphConfig();
-                graphConfig.fileInfo().name = Daliuge.DEFAULT_GRAPH_CONFIGURATION_NAME;
-                logicalGraph.addGraphConfig(graphConfig, false);
-
-                eagle.checkEagle();
-                eagle.undo().pushSnapshot(eagle, "Specify Logical Graph name");
-                eagle.logicalGraph.valueHasMutated();
-                Utils.showNotification("Graph named", filename, "success");
-                resolve(filename);
-                return;
+        if (logicalGraph.fileInfo().name === ""){
+            let filename: string;
+            try {
+                filename = await Utils.requestDiagramFilename(Eagle.FileType.Graph);
+            } catch (error){
+                console.warn(error);
+                throw new Error("User cancelled filename input");
             }
-            resolve(logicalGraph.fileInfo().name);
-        });
+
+            const eagle: Eagle = Eagle.getInstance();
+            logicalGraph.fileInfo().name = filename;
+            logicalGraph.fileInfo().location.repositoryFileName(filename);
+
+            // create default graph config for the new graph
+            const graphConfig = new GraphConfig();
+            graphConfig.fileInfo().name = Daliuge.DEFAULT_GRAPH_CONFIGURATION_NAME;
+            logicalGraph.addGraphConfig(graphConfig, false);
+
+            eagle.checkEagle();
+            eagle.undo().pushSnapshot(eagle, "Specify Logical Graph name");
+            eagle.logicalGraph.valueHasMutated();
+            Utils.showNotification("Graph named", filename, "success");
+            return filename;
+        }
+
+        return logicalGraph.fileInfo().name;
     }
 
     // a wait/delay for a given number of milliseconds (used for debugging)

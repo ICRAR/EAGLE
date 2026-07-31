@@ -37,7 +37,11 @@
                 "src/Eagle.ts",
                 "src/Field.ts",
                 "src/FileInfo.ts",
-                "src/Edge.ts"
+                "src/Edge.ts",
+                "src/Palette.ts",
+                "src/ParameterTable.ts",
+                "src/GraphConfig.ts",
+                "src/GraphUpdater.ts"
             ],
             "rules": {
                 "@typescript-eslint/no-explicit-any": "off",

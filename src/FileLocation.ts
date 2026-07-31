@@ -109,16 +109,19 @@ export class FileLocation {
         };
     }
 
-    static fromJson(data: any, _errorsWarnings: Errors.ErrorsWarnings): FileLocation {
+    static fromJson(data: unknown, _errorsWarnings: Errors.ErrorsWarnings): FileLocation {
         const result: FileLocation = new FileLocation();
+        const dataObject: Record<string, unknown> = typeof data === "object" && data !== null
+            ? data as Record<string, unknown>
+            : {};
 
-        result.repositoryService(data.repositoryService ?? Repository.Service.Unknown);
-        result.repositoryBranch(data.repositoryBranch ?? "");
-        result.repositoryName(data.repositoryName ?? "");
-        result.repositoryPath(data.repositoryPath ?? "");
-        result.repositoryFileName(data.repositoryFileName ?? "");
-        result.commitHash(data.commitHash ?? "");
-        result.downloadUrl(data.downloadUrl ?? "");
+        result.repositoryService((dataObject.repositoryService as Repository.Service | undefined) ?? Repository.Service.Unknown);
+        result.repositoryBranch((dataObject.repositoryBranch as string | undefined) ?? "");
+        result.repositoryName((dataObject.repositoryName as string | undefined) ?? "");
+        result.repositoryPath((dataObject.repositoryPath as string | undefined) ?? "");
+        result.repositoryFileName((dataObject.repositoryFileName as string | undefined) ?? "");
+        result.commitHash((dataObject.commitHash as string | undefined) ?? "");
+        result.downloadUrl((dataObject.downloadUrl as string | undefined) ?? "");
 
         return result;
     }

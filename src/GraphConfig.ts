@@ -376,9 +376,7 @@ export class GraphConfigField {
 
     toggle = () : GraphConfigField => {
         let oldValue = this.value();
-        if (oldValue === null){
-            oldValue = "false";
-        }
+        oldValue ??= "false";
         
         this.value((!Utils.asBool(oldValue)).toString());
         return this;

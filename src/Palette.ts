@@ -405,12 +405,12 @@ export class Palette {
             const inputApplication = node.getInputApplication();
             const outputApplication = node.getOutputApplication();
 
-            if (typeof inputApplication === 'undefined' && typeof outputApplication === 'undefined'){
+            if (inputApplication === null && outputApplication === null){
                 continue;
             }
 
             // delete the input application
-            if (inputApplication && inputApplication.getId() === id){
+            if (inputApplication?.getId() === id){
                 this.nodes().delete(inputApplication.getId());
                 this.nodes.valueHasMutated();
                 node.setInputApplication(null);
@@ -418,7 +418,7 @@ export class Palette {
             }
 
             // delete the output application
-            if (outputApplication && outputApplication.getId() === id){
+            if (outputApplication?.getId() === id){
                 this.nodes().delete(outputApplication.getId());
                 this.nodes.valueHasMutated();
                 node.setOutputApplication(null);

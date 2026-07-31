@@ -3,6 +3,21 @@ import { ParameterTable } from './ParameterTable';
 import { Setting } from './Setting';
 import * as ko from "knockout";
 
+type SettingStoredValue = string | number | boolean;
+type StoredUiModeSetting = {key: string; value: SettingStoredValue};
+type StoredUiMode = {name: string; description: string; settingValues: StoredUiModeSetting[]};
+
+const isSettingStoredValue = (value: unknown): value is SettingStoredValue => typeof value === "string" || typeof value === "number" || typeof value === "boolean";
+
+const parseUiModesFromStorage = (uiModesString: string): Array<Record<string, unknown>> => {
+    const parsed: unknown = JSON.parse(uiModesString);
+    if (!Array.isArray(parsed)){
+        return [];
+    }
+
+    return parsed.filter((entry): entry is Record<string, unknown> => typeof entry === "object" && entry !== null);
+};
+
 export class UiModeSystem {
     static activeUiMode : UiMode;
     static localStorageUpdateCoolDown : boolean = false;
@@ -55,14 +70,10 @@ export class UiModeSystem {
     }
 
     static setActiveUiModeByName = (newUiModeName:string) : void => {
-        let uiModeSet = false
-        UiModeSystem.getUiModes().forEach(function(uiModeElem:UiMode){
-            if(uiModeElem.getName() === newUiModeName){
-                UiModeSystem.setActiveUiMode(uiModeElem)
-                uiModeSet = true
-            }
-        })
-        if(!uiModeSet){
+        const uiMode = UiModeSystem.getUiModeByName(newUiModeName);
+        if (typeof uiMode !== "undefined"){
+            UiModeSystem.setActiveUiMode(uiMode);
+        } else {
             console.warn('active ui mode: "'+newUiModeName+'" not found, setting ui mode to default.')
             UiModeSystem.setActiveUiMode(UiModes[2])
         }
@@ -101,12 +112,12 @@ export class UiModeSystem {
         if(!UiModeSystem.localStorageUpdateCoolDown){
             UiModeSystem.localStorageUpdateCoolDown = true;
             setTimeout(function () {
-                const uiModesObj : any[] = []
+                const uiModesObj : StoredUiMode[] = []
                 UiModeSystem.getUiModes().forEach(function(uiMode:UiMode){
-                    const uiModeObj = {
+                    const uiModeObj: StoredUiMode = {
                         name : uiMode.getName(),
                         description : uiMode.getDescription(),
-                        settingValues : <any[]>[]
+                        settingValues : []
                     }
                     uiMode.getSettings().forEach(function(setting:SettingData){
                         const settingObj = {
@@ -131,13 +142,13 @@ export class UiModeSystem {
             return
         }
 
-        const uiModesObj : any[] = JSON.parse(uiModesString);
-
-        if(uiModesObj === null){
-            return
-        }
+        const uiModesObj = parseUiModesFromStorage(uiModesString);
 
         uiModesObj.forEach(function(uiModeObj){
+            if (typeof uiModeObj.name !== "string" || typeof uiModeObj.description !== "string"){
+                return;
+            }
+
             let destUiMode = UiModeSystem.getUiModeByName(uiModeObj.name)
             if(typeof destUiMode === "undefined"){
                 const settings : SettingData[] = []
@@ -150,13 +161,28 @@ export class UiModeSystem {
 
                 destUiMode = new UiMode(uiModeObj.name, uiModeObj.description, settings, false)
             }
-            uiModeObj.settingValues.forEach(function(settingObj:any){
-                destUiMode.setSettingByKey(settingObj.key,settingObj.value)
-            } )
+
+            const settingValues = uiModeObj.settingValues;
+            if (!Array.isArray(settingValues)){
+                return;
+            }
+
+            settingValues.forEach(function(settingObj){
+                if (typeof settingObj !== "object" || settingObj === null){
+                    return;
+                }
+
+                const settingObjRecord = settingObj as Record<string, unknown>;
+                const key = settingObjRecord.key;
+                const value = settingObjRecord.value;
+                if (typeof key === "string" && isSettingStoredValue(value)){
+                    destUiMode.setSettingByKey(key, value)
+                }
+            })
         })
     }
 
-    static setActiveSetting(settingName:string, newValue:any) : void {
+    static setActiveSetting(settingName:string, newValue:SettingStoredValue) : void {
         let activeSetting: SettingData | null = null
 
         //if a setting is marked perpetual we will write the value to all ui modes, this means it stays the same regardless of which ui mode is active
@@ -216,15 +242,17 @@ export class UiMode {
         return this.isDefault;
     }
 
-    getSettingByKey = (key:string) : void => {
+    getSettingByKey = (key:string) : SettingStoredValue | undefined => {
         for(const setting of this.getSettings()){
             if(setting.getKey() === key){
                 return setting.getValue()
             }
         }
+
+        return undefined;
     }
 
-    setSettingByKey = (key:string, value:any) : void => {
+    setSettingByKey = (key:string, value:SettingStoredValue) : void => {
         for(const setting of this.getSettings()){
             if(setting.getKey() === key){
                 setting.setValue(value)
@@ -236,10 +264,10 @@ export class UiMode {
 
 export class SettingData {
     private key : string;
-    private value : ko.Observable<any>;
+    private value : ko.Observable<SettingStoredValue>;
     private perpetual : boolean;
 
-    constructor(key : string, value : any, perpetual : boolean){
+    constructor(key : string, value : SettingStoredValue, perpetual : boolean){
         this.key = key;
         this.value= ko.observable(value);
         this.perpetual = perpetual;
@@ -249,7 +277,7 @@ export class SettingData {
         return this.key;
     }
 
-    getValue = () : any => {
+    getValue = () : SettingStoredValue => {
         return this.value()
     }
 
@@ -257,7 +285,7 @@ export class SettingData {
         return this.perpetual;
     }
 
-    setValue = (newValue:any) : any => {
+    setValue = (newValue:SettingStoredValue) : void => {
         this.value(newValue);
     }
 
