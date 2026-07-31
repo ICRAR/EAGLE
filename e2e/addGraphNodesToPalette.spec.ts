@@ -1,6 +1,15 @@
 import { test, expect } from '@playwright/test';
 import { TestHelpers } from './TestHelpers';
 
+type AddGraphNodesToPaletteWindow = Window & {
+    eagle?: {
+        palettes?: () => Array<{
+            fileInfo?: () => { name?: string };
+            getNumNodes?: () => number;
+        }>;
+    };
+};
+
 test('Add graph nodes to a new custom palette', async ({ page }) => {
 
     await page.goto('http://localhost:8888/?tutorial=none');
@@ -30,10 +39,10 @@ test('Add graph nodes to a new custom palette', async ({ page }) => {
 
     // verify the new palette was created and contains nodes
     const newPaletteNodeCount = await page.evaluate(() => {
-        const eagle = (window as any).eagle;
-        for (const palette of eagle.palettes()) {
-            if (palette.fileInfo().name === 'myTestPalette.palette') {
-                return palette.getNumNodes();
+        const eagle = (window as AddGraphNodesToPaletteWindow).eagle;
+        for (const palette of eagle?.palettes?.() ?? []) {
+            if (palette.fileInfo?.().name === 'myTestPalette.palette') {
+                return palette.getNumNodes?.() ?? 0;
             }
         }
         return -1; // palette not found

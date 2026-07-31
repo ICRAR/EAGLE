@@ -77,39 +77,31 @@ export class Hierarchy {
         
         //handle expanding groups that nodes get drawn to, and handle adding nodeRelative
         function setNodeRelatives(){
-            nodeRelative.forEach(function(element:Node | null){
+            nodeRelative.forEach(function(element:Node){
                 let iterations = 0;
                 const MAX_ITERATIONS = 32;
+                let currentElement: Node | null = element;
     
-                if (element === null){
-                    return
-                }
-    
-                while (true){
+                while (currentElement !== null){
                     if (iterations > MAX_ITERATIONS){
                         console.error("too many iterations in nodeRelativeForEach");
                         return
                     }
     
-                    const embedNode = element.getEmbed();
+                    const embedNode = currentElement.getEmbed();
 
-                    if(embedNode !== null){
+                    if (embedNode === null){
+                        currentElement.setExpanded(true)
+                        currentElement.setKeepExpanded(true)
+                    }else{
                         embedNode.setExpanded(true)
                         embedNode.setKeepExpanded(true)
-                    }else{  
-                        element.setExpanded(true)
-                        element.setKeepExpanded(true)
                     }
     
                     iterations += 1;
 
                     // recurse to parent
-                    element = element.getParent();
-    
-                    // if we reach a null node, we are done looking
-                    if (element === null){
-                        return 
-                    }
+                    currentElement = currentElement.getParent();
                 }
             })
         }

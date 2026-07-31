@@ -1,16 +1,25 @@
 import { test, expect } from '@playwright/test';
 import { TestHelpers } from './TestHelpers';
 
+type TutorialsSpecWindow = Window & {
+    eagle?: {
+        eagleIsReady?: () => boolean;
+    };
+    TutorialSystem?: {
+        getTutorialNames?: () => string[];
+    };
+};
+
 test('Tutorials', async ({ page }) => {
     test.setTimeout(300000);
 
     // Bootstrap the app once so we can query which tutorials are currently registered.
     await page.goto('http://localhost:8888/?tutorial=none');
     await expect(page).toHaveTitle(/EAGLE/);
-    await page.waitForFunction(() => (window as any).eagle?.eagleIsReady?.() === true, { timeout: TestHelpers.LONG_TIMEOUT });
+    await page.waitForFunction(() => (window as TutorialsSpecWindow).eagle?.eagleIsReady?.() === true, { timeout: TestHelpers.LONG_TIMEOUT });
 
     const tutorialNames = await page.evaluate(() => {
-        return (window as any).TutorialSystem?.getTutorialNames?.() || [];
+        return (window as TutorialsSpecWindow).TutorialSystem?.getTutorialNames?.() ?? [];
     });
 
     expect(tutorialNames.length).toBeGreaterThan(0);
@@ -21,7 +30,7 @@ test('Tutorials', async ({ page }) => {
             // Start each tutorial from a fresh app state so steps are isolated.
             await page.goto('http://localhost:8888/?tutorial=none');
             await expect(page).toHaveTitle(/EAGLE/);
-            await page.waitForFunction(() => (window as any).eagle?.eagleIsReady?.() === true, { timeout: TestHelpers.LONG_TIMEOUT });
+            await page.waitForFunction(() => (window as TutorialsSpecWindow).eagle?.eagleIsReady?.() === true, { timeout: TestHelpers.LONG_TIMEOUT });
             await TestHelpers.runTutorialByName(page, tutorialName);
         });
     }

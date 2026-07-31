@@ -7,6 +7,7 @@ const INPUT_GRAPH_LOCATION: string = "data/LoopWithBranch.graph";
 
 test('V4 Format JSON Match', async ({ page }) => {
   await page.goto('http://localhost:8888/?tutorial=none');
+  const parseJson = (json: string): unknown => JSON.parse(json) as unknown;
 
   // set 'Expert' UI mode
   await TestHelpers.setUIMode(page, 'Expert');
@@ -27,15 +28,15 @@ test('V4 Format JSON Match', async ({ page }) => {
   const outputOJS = await TestHelpers.saveGraphToString(page);
 
   // 5 - compare steps 1 and 4
-  const obj1 = JSON.parse(inputOJS);
-  const obj2 = JSON.parse(outputOJS);
+  const obj1 = parseJson(inputOJS);
+  const obj2 = parseJson(outputOJS);
 
   const result0 = TestHelpers.compareObj(obj1, obj2);
   const result1 = TestHelpers.compareObj(obj2, obj1);
 
   // !!!!!!!!!!!!! CHECK FOR MATCH
-  await expect(JSON.stringify(result0)).toBe("{}");
-  await expect(JSON.stringify(result1)).toBe("{}");
+  expect(JSON.stringify(result0)).toBe("{}");
+  expect(JSON.stringify(result1)).toBe("{}");
 
   // close the browser
   await page.close();

@@ -65,7 +65,7 @@ test('Parameter Tables and keyboard Shortcuts', async ({ page }) => {
   //count the number of fields on the node again
   const countAfter = await page.getByRole('row').count()
   //make sure the number of fields has decreased by 1
-  await expect(countBefore - countAfter === 1).toBeTruthy()
+  expect(countBefore - countAfter).toBe(1)
   //making sure the correct field has been removed
   await expect(page.getByRole('row').last().locator('.column_DisplayText input')).not.toHaveValue('test parameter copy')
   
@@ -84,7 +84,7 @@ test('Parameter Tables and keyboard Shortcuts', async ({ page }) => {
   await page.waitForTimeout(500);
 
   //make sure the field has been added to the key graph parameter table
-  await expect(await page.locator('.parameterTable tbody').getByRole('row').count()===0).toBeFalsy();
+  expect(await page.locator('.parameterTable tbody').getByRole('row').count()).not.toBe(0);
 
   await page.close();
 });

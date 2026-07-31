@@ -30,13 +30,11 @@ test('Creating a Simple Graph', async ({ page }) => {
   
   //doing a little mouse zoom with the cursor at the center location of the graph
   const box = await page.locator('#logicalGraphParent').boundingBox();
-  let centerX :number;
-  let centerY : number;
-  if(box){
-    centerX = box.x + box.width / 2;
-    centerY = box.y + box.height / 2;
+  if (box) {
+    const centerX = box.x + box.width / 2;
+    const centerY = box.y + box.height / 2;
 
-    await page.mouse.move(centerX,centerY)
+    await page.mouse.move(centerX, centerY)
     await page.mouse.wheel(0,400)
     await page.waitForTimeout(500);
   }
@@ -64,7 +62,7 @@ test('Creating a Simple Graph', async ({ page }) => {
   // check that the graph has the expected number of nodes
   const numNodesPreDelete = await TestHelpers.getNodeCount(page);
 
-  await expect(numNodesPreDelete).toBe(2);
+  expect(numNodesPreDelete).toBe(2);
 
   // add a second file node
   await page.locator('#palette_0_File').scrollIntoViewIfNeeded();
@@ -82,7 +80,7 @@ test('Creating a Simple Graph', async ({ page }) => {
   // check that the graph has the expected number of nodes
   const numNodesPostDelete = await TestHelpers.getNodeCount(page);
 
-  await expect(numNodesPostDelete).toBe(2);
+  expect(numNodesPostDelete).toBe(2);
 
   await page.close();
 });

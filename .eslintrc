@@ -51,6 +51,20 @@
         },
         {
             "files": [
+                "e2e/cloneLogicalGraph.spec.ts",
+                "e2e/undoAfterFixAll.spec.ts"
+            ],
+            "rules": {
+                "@typescript-eslint/no-explicit-any": "off",
+                "@typescript-eslint/no-unsafe-assignment": "off",
+                "@typescript-eslint/no-unsafe-member-access": "off",
+                "@typescript-eslint/no-unsafe-call": "off",
+                "@typescript-eslint/no-unsafe-argument": "off",
+                "@typescript-eslint/no-unsafe-return": "off"
+            }
+        },
+        {
+            "files": [
                 "src/Node.ts",
                 "src/LogicalGraph.ts",
                 "src/Utils.ts",
@@ -148,7 +162,7 @@
         "no-useless-computed-key": "error",
         "no-useless-escape": "error",
         "no-useless-return": "error",
-        "no-constant-condition": ["error", { "checkLoops": false }],
+        "no-constant-condition": "error",
         "no-constant-binary-expression": "error",
         "no-script-url": "error",
         "no-self-assign": "error",
