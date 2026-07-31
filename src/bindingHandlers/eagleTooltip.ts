@@ -6,8 +6,24 @@ import {Eagle} from '../Eagle';
 import { EagleConfig } from "../EagleConfig";
 import { Node } from "../Node";
 
+type TooltipContentPayload = {
+    content: string;
+    size?: string;
+    buttonAction?: "descriptionEdit";
+    node?: unknown;
+};
+
+const isTooltipContentPayload = (value: unknown): value is TooltipContentPayload => {
+    if (typeof value !== 'object' || value === null){
+        return false;
+    }
+
+    const payload = value as Record<string, unknown>;
+    return typeof payload.content === 'string';
+};
+
 ko.bindingHandlers.eagleTooltip = {
-    init: function(element) {
+    init: function(element: HTMLElement) {
         
         ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
             // This will be called when the element is removed by Knockout or
@@ -15,10 +31,10 @@ ko.bindingHandlers.eagleTooltip = {
 
             // read the aria-describedby parameter of the current element, the
             // value of this element is the id of the tooltip
-            const tooltipElementId : string = element.getAttribute('aria-describedby');
+            const tooltipElementId = element.getAttribute('aria-describedby');
 
             // if tooltip id is not null, remove the tooltip from the DOM
-            if (tooltipElementId !== null && tooltipElementId.startsWith('tooltip')){
+            if (tooltipElementId?.startsWith('tooltip') === true){
                 const tooltipElement = document.getElementById(tooltipElementId);
 
                 if (tooltipElement){
@@ -27,14 +43,13 @@ ko.bindingHandlers.eagleTooltip = {
             }
         });
     },
-    update: function (element, valueAccessor) {
+    update: function (element: HTMLElement, valueAccessor: () => unknown) {
         const eagle: Eagle = Eagle.getInstance();
         const jQueryElement = $(element);
         
         // manual tooltip open system to allow for hovering on the tooltips
         let stillHovering = false
-        jQueryElement.on('mouseenter', function () {
-            const event = window.event as MouseEvent;
+        jQueryElement.on('mouseenter', function (event) {
             event.stopImmediatePropagation()
             event.stopPropagation()
             event.preventDefault()
@@ -47,21 +62,34 @@ ko.bindingHandlers.eagleTooltip = {
                 jQueryElement.attr("data-bs-placement", "right");
             }
 
-            const html = ko.unwrap(valueAccessor())
+            const tooltipInput: unknown = ko.unwrap(valueAccessor())
             let result = ''
             let size = EagleConfig.EAGLE_TOOLTIP_DEFAULT_MAX_WIDTH + 'px' //default size
             let content = ''
+            let buttonAction: string | undefined;
+            let buttonNode: Node | undefined;
 
             // abort if the input html is undefined
-            if (typeof html === 'undefined' || typeof html === 'object' && html.content === undefined){
+            if (typeof tooltipInput === 'undefined'){
                 console.log('eagleTooltip: no content provided or faulty')
                 return;
-            }else if (typeof html === 'object'){
-                //html can be either a string or an Object with a content string and size (in pixels)
-                if(typeof html.size != 'undefined') { size = html.size; }
-                if(typeof html.content != 'undefined') { content = html.content; }
+            }else if (typeof tooltipInput === 'string'){
+                content = tooltipInput
+            }else if (isTooltipContentPayload(tooltipInput)){
+                // html can be either a string or an object with content and optional display settings
+                content = tooltipInput.content;
+                if (typeof tooltipInput.size === 'string'){
+                    size = tooltipInput.size;
+                }
+                if (typeof tooltipInput.buttonAction === 'string'){
+                    buttonAction = tooltipInput.buttonAction;
+                }
+                if (tooltipInput.node instanceof Node){
+                    buttonNode = tooltipInput.node;
+                }
             }else{
-                content = html
+                console.log('eagleTooltip: no content provided or faulty')
+                return;
             }
 
             // when surrounding text in a tooltip with |||, that section will be excluded from the markdown conversion. 
@@ -89,12 +117,12 @@ ko.bindingHandlers.eagleTooltip = {
             let buttonRequirements : boolean = false
 
             //if a button is requested and all necessary info is supplied we will insert it here.
-            if(typeof html.buttonAction != 'undefined'){
+            if(typeof buttonAction !== 'undefined'){
 
-                if(html.buttonAction === 'descriptionEdit' && html.node instanceof Node ){
+                if(buttonAction === 'descriptionEdit' && typeof buttonNode !== 'undefined'){
                     buttonRequirements = true
                 }else{
-                    console.warn('requested description button function: '+ html.buttonAction +' isnt supported or description button wasnt provided with its required arguments')
+                    console.warn("requested description button function: " + buttonAction + " isn't supported or description button wasn't provided with its required arguments");
                 }
 
                 if(buttonRequirements){
@@ -116,8 +144,8 @@ ko.bindingHandlers.eagleTooltip = {
                 //bootstrap will not let us place databinds or click events on our custom button itself, so we need to add an event listener to the button after the tooltip is shown
                 jQueryElement.on('shown.bs.tooltip', function () {
                     $('.tooltip .tooltipBtn').on('click', function(){
-                        if(html.buttonAction === 'descriptionEdit'){
-                            void eagle.editNodeDescription(html.node)
+                        if(buttonAction === 'descriptionEdit' && typeof buttonNode !== 'undefined'){
+                            void eagle.editNodeDescription(buttonNode)
                         }
                     })
                 });

@@ -15,12 +15,6 @@ export class Hierarchy {
             node.setKeepExpanded(false);
         }
 
-        // TODO: should we move this up?
-        //return if the graph is not loaded yet
-        if(eagle.logicalGraph()=== null){
-            return
-        }
-
         //reset all selection relatives to false
         $(".positionPointer").remove()
         for (const edge of eagle.logicalGraph().getEdges()){
@@ -128,9 +122,9 @@ export class Hierarchy {
             const innerItem = $('.hierarchy .hierarchyNodeIsSelected')
             const parentDiv = $('.hierarchy')
             if(innerItem.length > 0 && parentDiv.length > 0){
-                const parentDivScrollTop = parentDiv.scrollTop() || 0;
-                const parentDivHeight = parentDiv.height() || 0;
-                const innerItemHeight = innerItem.height() || 0;
+                const parentDivScrollTop = parentDiv.scrollTop() ?? 0;
+                const parentDivHeight = parentDiv.height() ?? 0;
+                const innerItemHeight = innerItem.height() ?? 0;
 
                 parentDiv.scrollTop(parentDivScrollTop + innerItem.position().top - parentDivHeight/2 + innerItemHeight/2)
             }
@@ -141,24 +135,13 @@ export class Hierarchy {
     static addUniqueHierarchyEdge(edge:Edge, use:string, hierarchyEdgeList:{edge:Edge , use:string, edgeSelected:boolean}[],edgeSelected:boolean) : void {
         const eagle: Eagle = Eagle.getInstance();
 
-        let unique = true
-        hierarchyEdgeList.forEach(function(e:{edge:Edge , use:string, edgeSelected:boolean}){
-            if(e.edge.getId()===edge.getId()){
-                unique = false
-            }
-        })
+        const existingHierarchyEdge = hierarchyEdgeList.find((e:{edge:Edge , use:string, edgeSelected:boolean}) => e.edge.getId()===edge.getId());
 
-        if(eagle.objectIsSelected(edge)){
-            if(!unique){
-                hierarchyEdgeList.forEach(function(e:{edge:Edge , use:string, edgeSelected:boolean}){
-                    if(e.edge.getId()===edge.getId()){
-                        e.edgeSelected=true
-                    }
-                })
-            }
+        if(eagle.objectIsSelected(edge) && typeof existingHierarchyEdge !== 'undefined'){
+            existingHierarchyEdge.edgeSelected = true;
         }
 
-        if(unique){
+        if(typeof existingHierarchyEdge === 'undefined'){
             hierarchyEdgeList.push({edge:edge,use:use,edgeSelected:edgeSelected})
         }
     }
@@ -287,23 +270,21 @@ export class Hierarchy {
         return className
     }
     
-    static selectNode(node: Node, e : any) : void {
+    static selectNode(node: Node, e : { shiftKey?: boolean; altKey?: boolean }) : void {
         const eagle: Eagle = Eagle.getInstance();
 
-        if (node === null){
-            console.warn("Hierarchy.selectNode(): No node provided!");
-            return;
-        }
+        const shiftPressed = e.shiftKey === true;
+        const altPressed = e.altKey === true;
 
-        if(!e.shiftKey && !e.altKey){
+        if(!shiftPressed && !altPressed){
             eagle.setSelection(node, Eagle.FileType.Graph);
 
-        }else if (e.altKey && !e.shiftKey){
-            GraphRenderer.selectNodeAndChildren(node, e.shiftKey)
-        }else if(e.altKey && e.shiftKey){
-            GraphRenderer.selectNodeAndChildren(node, e.shiftKey)
+        }else if (altPressed && !shiftPressed){
+            GraphRenderer.selectNodeAndChildren(node, shiftPressed)
+        }else if(altPressed && shiftPressed){
+            GraphRenderer.selectNodeAndChildren(node, shiftPressed)
             eagle.editSelection(node, Eagle.FileType.Graph)
-        }else if(e.shiftKey){
+        }else if(shiftPressed){
             eagle.editSelection(node, Eagle.FileType.Graph)
         }
         

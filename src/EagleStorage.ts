@@ -1,6 +1,27 @@
 import { Repository } from "./Repository";
 import { Utils } from "./Utils";
 
+type StoredRepositoryRecord = {
+    id: RepositoryId;
+    service: Repository.Service;
+    name: string;
+    branch: string;
+};
+
+const isStoredRepositoryRecord = (value: unknown): value is StoredRepositoryRecord => {
+    if (typeof value !== "object" || value === null){
+        return false;
+    }
+
+    const record = value as Record<string, unknown>;
+    return (
+        typeof record.id === "string"
+        && typeof record.service === "string"
+        && typeof record.name === "string"
+        && typeof record.branch === "string"
+    );
+};
+
 export class EagleStorage {
 
     public static readonly DATABASE_NAME = "EAGLE";
@@ -10,25 +31,31 @@ export class EagleStorage {
     public static db: IDBDatabase;
 
     static async init(): Promise<void>{
-        return new Promise(async(resolve, reject) => {
+        return new Promise((resolve, reject) => {
 
             const request = indexedDB.open(EagleStorage.DATABASE_NAME);
             request.onerror = (_event) => {
                 reject("IndexedDB not available, or access refused");
             };
-            request.onsuccess = (event) => {
-                EagleStorage.db = (<any>event.target).result;
+            request.onsuccess = () => {
+                EagleStorage.db = request.result;
 
                 EagleStorage.db.onerror = (event) => {
                     // generic error handler for all errors targeted at this database's requests!
-                    reject(`Database error: ${(<any>event.target).error?.message}`);
+                    const target = event.target;
+                    if (target instanceof IDBRequest){
+                        reject(`Database error: ${target.error?.message ?? "Unknown database error"}`);
+                        return;
+                    }
+
+                    reject("Database error");
                 };
 
                 resolve();
             };
 
-            request.onupgradeneeded = (event) => {
-                const db = (<any>event.target).result;
+            request.onupgradeneeded = () => {
+                const db = request.result;
     
                 // create an objectStore for this database
                 const objectStore = db.createObjectStore(EagleStorage.OBJECT_STORE_NAME, {keyPath: "id"});
@@ -52,7 +79,7 @@ export class EagleStorage {
     }
 
     static async listCustomRepositories(service: Repository.Service): Promise<Repository[]> {
-        return new Promise(async(resolve, reject) => {
+        return new Promise((resolve, reject) => {
             const customRepositories: Repository[] = [];
 
             if (typeof EagleStorage.db === "undefined"){
@@ -65,14 +92,22 @@ export class EagleStorage {
 
             const request = repositoriesObjectStore.getAll();
             
-            request.onerror = (event) => {
-                reject(`ObjectStore request error: ${(<any>event.target).error?.message}`);
+            request.onerror = () => {
+                reject(`ObjectStore request error: ${request.error?.message ?? "Unknown object store request error"}`);
             };
 
-            request.onsuccess = (event) => {
-                const repos: {id: RepositoryId, service: Repository.Service, name: string, branch: string}[] = (<any>event.target).result;
+            request.onsuccess = () => {
+                const reposResult: unknown = request.result;
+                if (!Array.isArray(reposResult)){
+                    resolve(customRepositories);
+                    return;
+                }
 
-                repos.forEach((repo) => {
+                reposResult.forEach((repo) => {
+                    if (!isStoredRepositoryRecord(repo)){
+                        return;
+                    }
+
                     if (repo.service !== service){
                         return;
                     }

@@ -27,6 +27,73 @@ import * as ko from "knockout";
 import { Setting } from "./Setting";
 import { Utils } from "./Utils";
 
+type DockerHubImageResult = {
+    namespace: string;
+    name: string;
+};
+
+type DockerHubTagImage = {
+    digest: string;
+};
+
+type DockerHubTagResult = {
+    name: string;
+    images: DockerHubTagImage[];
+};
+
+const getDockerImageResults = (value: unknown): DockerHubImageResult[] => {
+    if (typeof value !== "object" || value === null){
+        return [];
+    }
+
+    const record = value as Record<string, unknown>;
+    const results = record.results;
+    if (!Array.isArray(results)){
+        return [];
+    }
+
+    return results.filter((result): result is DockerHubImageResult => {
+        if (typeof result !== "object" || result === null){
+            return false;
+        }
+
+        const resultRecord = result as Record<string, unknown>;
+        return typeof resultRecord.namespace === "string" && typeof resultRecord.name === "string";
+    });
+};
+
+const getDockerTagResults = (value: unknown): DockerHubTagResult[] => {
+    if (typeof value !== "object" || value === null){
+        return [];
+    }
+
+    const record = value as Record<string, unknown>;
+    const results = record.results;
+    if (!Array.isArray(results)){
+        return [];
+    }
+
+    return results.filter((result): result is DockerHubTagResult => {
+        if (typeof result !== "object" || result === null){
+            return false;
+        }
+
+        const resultRecord = result as Record<string, unknown>;
+        if (typeof resultRecord.name !== "string" || !Array.isArray(resultRecord.images)){
+            return false;
+        }
+
+        return resultRecord.images.every((image) => {
+            if (typeof image !== "object" || image === null){
+                return false;
+            }
+
+            const imageRecord = image as Record<string, unknown>;
+            return typeof imageRecord.digest === "string";
+        });
+    });
+};
+
 export class DockerHubBrowser {
     username: ko.Observable<string>;
     images: ko.ObservableArray<string>;
@@ -99,7 +166,7 @@ export class DockerHubBrowser {
         this.isValid(false);
 
         // request eagle server to fetch a list of docker hub images
-        let data: any;
+        let data: unknown;
         try {
             data = await Utils.httpPostJSON("/getDockerImages", {username:this.username()});
         } catch (error) {
@@ -112,10 +179,12 @@ export class DockerHubBrowser {
         let selectedImageIndex = 0;
         this.hasFetchedImages(true);
 
+        const imageResults = getDockerImageResults(data);
+
         // build list of image strings
         this.images([]);
-        for (let i = 0; i < data.results.length ; i++){
-            const result = data.results[i];
+        for (let i = 0; i < imageResults.length ; i++){
+            const result = imageResults[i];
             const imageName = result.namespace + "/" + result.name;
             this.images.push(imageName);
 
@@ -143,7 +212,7 @@ export class DockerHubBrowser {
         }
 
         // if not image selected, abort
-        if (this.selectedImage() === "" || this.selectedImage() === undefined){
+        if (this.selectedImage() === ""){
             console.warn("Abort fetch of tags for empty image");
             return;
         }
@@ -153,7 +222,7 @@ export class DockerHubBrowser {
         this.isValid(false);
 
         // request eagle server to fetch a list of tags for the given docker image
-        let data: any;
+        let data: unknown;
         try {
             data = await Utils.httpPostJSON("/getDockerImageTags", {imagename:this.selectedImage()});
         } catch (error) {
@@ -166,13 +235,20 @@ export class DockerHubBrowser {
         let selectedTagIndex = 0;
         this.hasFetchedTags(true);
 
+        const tagResults = getDockerTagResults(data);
+
         // build list of tag strings
         this.tags([]);
         this.digests([]);
-        for (let i = 0 ; i < data.results.length ; i++){
-            const result = data.results[i];
+        for (let i = 0 ; i < tagResults.length ; i++){
+            const result = tagResults[i];
+            const firstImage = result.images[0];
+            if (typeof firstImage === "undefined"){
+                continue;
+            }
+
             this.tags.push(result.name);
-            this.digests.push(result.images[0].digest);
+            this.digests.push(firstImage.digest);
 
             if (result.name === selectedTag){
                 selectedTagIndex = i;
