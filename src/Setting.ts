@@ -146,7 +146,12 @@ export class Setting {
         }
 
         // update the value
-        this.value(!this.value());
+        const currentValue = this.value();
+        if (typeof currentValue !== "boolean"){
+            console.warn("toggle() expected a boolean value, got", typeof currentValue);
+            return;
+        }
+        this.value(!currentValue);
         this.callEventFunc();
     }
 
@@ -222,7 +227,7 @@ export class Setting {
             return;
         }
 
-        return setting.value(value);
+        setting.value(value);
     }
 
     static toggle(key : string) : void {
@@ -242,7 +247,7 @@ export class Setting {
 
     resetDefault() : void {
         const activeUIModeName: string = UiModeSystem.getActiveUiMode().getName();
-        let value: any = this.graphDefaultValue;
+        let value: validValueTypes = this.graphDefaultValue;
 
         switch (activeUIModeName){
             case "Student":

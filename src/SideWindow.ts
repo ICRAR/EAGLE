@@ -37,11 +37,8 @@ export class SideWindow {
             Setting.toggle(Setting.LEFT_WINDOW_VISIBLE);
         }else if (window === 'right'){
             Setting.toggle(Setting.RIGHT_WINDOW_VISIBLE);
-        }else if (window === 'bottom'){
+        }else {
             Setting.toggle(Setting.BOTTOM_WINDOW_VISIBLE);
-        }else{
-            console.warn("toggleShown(): Unknown window:", window);
-            return;
         }
         UiModeSystem.saveToLocalStorage()
     }
@@ -53,11 +50,8 @@ export class SideWindow {
             Setting.setValue(Setting.LEFT_WINDOW_VISIBLE, value);
         }else if(window === 'right'){
             Setting.setValue(Setting.RIGHT_WINDOW_VISIBLE, value);
-        }else if (window === 'bottom'){
+        }else {
             Setting.setValue(Setting.BOTTOM_WINDOW_VISIBLE, value);
-        }else{
-            console.warn("setShown(): Unknown window:", window);
-            return;
         }
         UiModeSystem.saveToLocalStorage()
     }
@@ -83,16 +77,23 @@ export class SideWindow {
     // drag drop
     static nodeDragStart = (_node: Node, e: JQuery.TriggeredEvent) : boolean => {
         const eagle: Eagle = Eagle.getInstance();
+        const eventTargetUnknown: unknown = e.target;
+
+        if (!(eventTargetUnknown instanceof HTMLElement)){
+            console.warn("SideWindow.nodeDragStart(): target is not an HTMLElement!");
+            return false;
+        }
+        const eventTarget = eventTargetUnknown;
 
         //for hiding any tooltips while dragging and preventing them from showing
         GraphRenderer.draggingPaletteNode = true;
-        $(e.target).find('.input-group').tooltip('hide');
+        $(eventTarget).find('.input-group').tooltip('hide');
 
         // retrieve data about the node being dragged
         // NOTE: I found that using $(e.target).data('palette-index'), using JQuery, sometimes retrieved a cached copy of the attribute value, which broke this functionality
         //       Using the native javascript works better, it always fetches the current value of the attribute
-        const componentId = e.target.getAttribute('data-component-id');
-        const paletteIndex = e.target.getAttribute('data-palette-index');
+        const componentId = eventTarget.getAttribute('data-component-id');
+        const paletteIndex = eventTarget.getAttribute('data-palette-index');
 
         if (componentId === null || paletteIndex === null){
             console.warn("SideWindow.nodeDragStart(): data-component-id or data-palette-index is null!");
@@ -100,11 +101,11 @@ export class SideWindow {
         }
 
         Eagle.nodeDragPaletteIndex = parseInt(paletteIndex, 10);
-        Eagle.nodeDragComponentId = componentId;
+        Eagle.nodeDragComponentId = componentId as NodeId;
 
         //this is for dealing with drag and drop actions while there is already one or more palette components selected
         if (Eagle.selectedLocation() === Eagle.FileType.Palette){
-            const draggedNode = eagle.palettes()[Eagle.nodeDragPaletteIndex].getNodeById(componentId);
+            const draggedNode = eagle.palettes()[Eagle.nodeDragPaletteIndex].getNodeById(componentId as NodeId);
 
             if (typeof draggedNode === 'undefined'){
                 console.warn("Dragged node is undefined! Palette Index:", paletteIndex, "Component ID:", componentId);
@@ -112,7 +113,7 @@ export class SideWindow {
             }
 
             if(!eagle.objectIsSelected(draggedNode)){
-                $(e.target).find("div").trigger("click")
+                $(eventTarget).find("div").trigger("click")
             }
         }
 
@@ -121,7 +122,11 @@ export class SideWindow {
         $(".navbar").addClass("noDropTarget");
 
         // grab and set the node's icon and sets it as drag image.
-        const drag = e.target.getElementsByClassName('input-group-prepend')[0] as HTMLElement;
+        const drag = eventTarget.getElementsByClassName('input-group-prepend')[0];
+        if (!(drag instanceof HTMLElement)){
+            console.warn("SideWindow.nodeDragStart(): could not find drag icon element!");
+            return false;
+        }
         const dataTransfer = (e.originalEvent as DragEvent).dataTransfer;
 
         if (dataTransfer === null){

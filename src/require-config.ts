@@ -1,4 +1,7 @@
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- RequireJS global is injected at runtime for AMD bootstrap.
 declare const require: any;
+
+// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access -- Runtime RequireJS API is intentionally untyped in this bootstrap file.
 require.config({
     /* waitSeconds: 30, */
     paths: {

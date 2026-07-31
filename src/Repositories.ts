@@ -32,7 +32,7 @@ export class Repositories {
                 break;
             case Eagle.FileType.Palette: {
                 const palette = eagle.findPalette(file.name, false);
-                isModified = typeof palette !== "undefined" && palette.fileInfo().modified;
+                isModified = palette?.fileInfo().modified ?? false;
                 break;
             }
             case Eagle.FileType.JSON:
@@ -191,14 +191,20 @@ export class Repositories {
             newBranch: branchName,
             token: token
         });
-        let response;
+        let response: unknown;
         try {
             response = typeof responseStr === "string" ? JSON.parse(responseStr) : responseStr;
         } catch (_e) {
             response = responseStr;
         }
-        if (response.error) {
-            throw new Error(response.error);
+        const responseError = typeof response === "object"
+            && response !== null
+            && "error" in response
+            && typeof (response as { error?: unknown }).error === "string"
+            ? (response as { error: string }).error
+            : undefined;
+        if (responseError !== undefined) {
+            throw new Error(responseError);
         }
 
         // add new repo to the repository list and return the created instance
@@ -216,14 +222,20 @@ export class Repositories {
             branchToDelete: repository.branch,
             token: token
         });
-        let response;
+        let response: unknown;
         try {
             response = typeof responseStr === "string" ? JSON.parse(responseStr) : responseStr;
         } catch (_e) {
             response = responseStr;
         }
-        if (response.error) {
-            throw new Error(response.error);
+        const responseError = typeof response === "object"
+            && response !== null
+            && "error" in response
+            && typeof (response as { error?: unknown }).error === "string"
+            ? (response as { error: string }).error
+            : undefined;
+        if (responseError !== undefined) {
+            throw new Error(responseError);
         }
 
         // Remove deleted branch from local repository list and storage.

@@ -248,7 +248,7 @@ export class Undo {
         for (const id of objectIds){
             const node = eagle.logicalGraph().getNodeById(id as NodeId);
             const edge = eagle.logicalGraph().getEdgeById(id as EdgeId);
-            const object = node || edge;
+            const object = node ?? edge;
 
             // abort if no edge or node exists fot that id
             if (typeof object === 'undefined'){
@@ -261,24 +261,20 @@ export class Undo {
 
     static printTable() : void {
         const eagle: Eagle = Eagle.getInstance();
-        const tableData : any[] = [];
+        type UndoTableRow = {
+            current: string;
+            description: string;
+            "buffer position": number;
+            nodes: number | string;
+            edges: number | string;
+        };
+        const tableData : UndoTableRow[] = [];
         const realCurrent: number = (eagle.undo().current() - 1 + Undo.MEMORY_SIZE) % Undo.MEMORY_SIZE;
 
         for (let i = Undo.MEMORY_SIZE - 1 ; i >= 0 ; i--){
             const snapshot = eagle.undo().memory()[i];
 
             if (snapshot === null){
-                continue;
-            }
-
-            if (snapshot.data() === null){
-                tableData.push({
-                    "current": realCurrent === i ? "->" : "",
-                    "description": snapshot.description(),
-                    "buffer position": i,
-                    "nodes": "N/A",
-                    "edges": "N/A"
-                });
                 continue;
             }
 
@@ -298,7 +294,10 @@ export class Undo {
         // cycle the table rows (move top row to bottom) X times so that we have "front" at the top of the table
         const numCycles = tableData.length - eagle.undo().front();
         for (let i = 0 ; i < numCycles ; i++){
-            tableData.push(tableData.shift());
+            const firstRow = tableData.shift();
+            if (typeof firstRow !== "undefined"){
+                tableData.push(firstRow);
+            }
         }
 
         console.table(tableData);
