@@ -57,6 +57,7 @@ Components are defined in JSON descriptions so EAGLE can display, validate, and 
    Palettes <palettes>
    Templates and Graphs <graphs>
    Annotating Graphs <annotating>
+   Tools <tools>
 
 
 .. Indices and tables

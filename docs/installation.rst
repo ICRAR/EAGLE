@@ -141,13 +141,3 @@ Optional debug mode:
 .. code-block:: shell
 
     eagleServer -t /tmp --debug
-
-Tools
------
-
-To upgrade older graph formats, run ``updateGraph`` from the ``tools`` directory:
-
-.. code-block:: shell
-
-    cd tools
-    ts-node updateGraph.ts <input_file> <output_file>

@@ -2,7 +2,8 @@
 
 # Defining the exact version will make sure things don't break
 sphinx
-sphinx_rtd_theme
+# sphinx_rtd_theme
+sphinx_rtd_theme==0.5.2   
 readthedocs-sphinx-search
 sphinxcontrib-openapi
 flask
