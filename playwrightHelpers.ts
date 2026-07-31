@@ -1,4 +1,8 @@
-export async function enableMouseCursor(page){
+import type { Locator, Page } from '@playwright/test';
+
+type ExplainDirection = 'left' | 'right' | 'up' | 'down';
+
+export async function enableMouseCursor(page: Page): Promise<void>{
   //adding a mouse cursor svg to the body of the website, so we can move it around later
   await page.evaluate(() => {
     const arrowContainer = document.createElement('div');
@@ -10,76 +14,75 @@ export async function enableMouseCursor(page){
   });
 }
 
-export async function moveMouseCursor(page, targetElement){
+export async function moveMouseCursor(page: Page, targetElement: Locator): Promise<void>{
   //moving the svg cursor to the target element
-  return new Promise<void>(async function(resolve){
-    //readying the new position elements. we cant pass the element itself into the evaluate funtion.
-    const newPos = await targetElement.boundingBox()
-    const newX = await newPos.x + newPos.width / 2
-    const newY = await newPos.y + newPos.height / 2
-  
-    await page.evaluate(({newX, newY}) => {
-      //getting the fake cursor element note* the document is only reachable in the evaluate function
-      const cursor =  document.getElementById('videoArrowContainer');
-  
-      //setting the new position on screen
-      if(cursor){
-        cursor.style.top = newY + 'px';
-        cursor.style.left = newX + 'px';
-      }
-    },{newX, newY})
-    
-    await page.waitForTimeout(700);
-    resolve()
-  })
+  const newPos = await targetElement.boundingBox();
+  if (newPos === null){
+    return;
+  }
+
+  const newX = newPos.x + newPos.width / 2;
+  const newY = newPos.y + newPos.height / 2;
+
+  await page.evaluate(({newX, newY}) => {
+    //getting the fake cursor element note* the document is only reachable in the evaluate function
+    const cursor =  document.getElementById('videoArrowContainer');
+
+    //setting the new position on screen
+    if(cursor){
+      cursor.style.top = newY + 'px';
+      cursor.style.left = newX + 'px';
+    }
+  },{newX, newY});
+
+  await page.waitForTimeout(700);
 }
 
-export async function textNotification(page, title, text, timeoutDuration){
+export async function textNotification(page: Page, title: string, text: string, timeoutDuration: number): Promise<void>{
   //show a text notification
-  return new Promise<void>(async function(resolve){
+  await page.evaluate(({title,text,timeoutDuration}) => {
+    //creating and attaching a text box with the requested text note* the document is only reachable in the evaluate function
+    const bar = document.createElement('div');
+    bar.id = 'playwrightVideoNotification'
+    bar.innerHTML = '<b>' + title + '</br></b>' + text;
+    bar.style.cssText = 'position: fixed; top: 100px; left: 50%; transform: translateX(-50%); background: #d8ddf0; color: black; text-align: left; padding: 8px; font-size: 14px; border: 1px solid #002349; z-index: 9999; pointer-events:none;';
+    document.body.style.paddingTop = '30px';
+    document.documentElement.prepend(bar);
 
-    await page.evaluate(({title,text,timeoutDuration}) => {
-      //creating and attatching a text box with the requested text note* the document is only reachable in the evaluate function
-      const bar = document.createElement('div');
-      bar.id = 'playwrightVideoNotification'
-      bar.innerHTML = '<b>' + title + '</br></b>' + text;
-      bar.style.cssText = 'position: fixed; top: 100px; left: 50%; transform: translateX(-50%); background: #d8ddf0; color: black; text-align: left; padding: 8px; font-size: 14px; border: 1px solid #002349; z-index: 9999; pointer-events:none;';
-      document.body.style.paddingTop = '30px';
-      document.documentElement.prepend(bar);
+    //remove the text box after a certain time has passed
+    setTimeout(() => {
+      document.getElementById('playwrightVideoNotification')?.remove()
+    }, timeoutDuration);
+  },{title,text,timeoutDuration});
 
-      //remove the text box after a certain time has passed
-      setTimeout(() => {
-        document.getElementById('playwrightVideoNotification')?.remove()
-      }, timeoutDuration);
-    },{title,text,timeoutDuration});
-    //we will resolve the function after the same time has passed to continue the test
-    //resolve is not reachable from inside the evaluate and i wasnt able to pass it in.
-    await page.waitForTimeout(timeoutDuration);
-    resolve()
-  })
+  await page.waitForTimeout(timeoutDuration);
 }
 
-export async function explainElement(page, targetElement, direction, message, timeout_time){
+export async function explainElement(page: Page, targetElement: Locator, direction: ExplainDirection, message: string, timeout_time: number): Promise<void>{
   //display a textbox similar to a tooltip next to the target element
   //i need to process this first then pass it into the evaluate function because i can only pass in numbers on strings.
   const target = await targetElement.boundingBox()
+  if (target === null){
+    return;
+  }
+
   const box_top = target.y;
   const box_bottom = target.y + target.height;
   const box_left = target.x;
   const box_right = target.x + target.width;
   
   await page.evaluate(({message, direction, box_top, box_bottom, box_left, box_right, timeout_time}) => {
-    let box_trans;
-    let box_offset;
-    let top;
-    let left;
-    let arrowBorderTop;
-    let arrowBorderBottom;
-    let arrowBorderLeft;
-    let arrowBorderRight;
-    let arrowTop;
-    let arrowLeft;
-    let arrow_trans;
+    let box_trans = '0,0';
+    let box_offset = '0,0';
+    let top = box_top;
+    let left = box_left;
+    let arrowBorderTop = '0';
+    let arrowBorderBottom = '0';
+    let arrowBorderLeft = '0';
+    let arrowBorderRight = '0';
+    let arrowTop = '0%';
+    let arrowLeft = '0%';
+    let arrow_trans = '0%,0%';
     const textBoxColor = '#f8e5b4'
 
     switch (direction) {
@@ -137,42 +140,41 @@ export async function explainElement(page, targetElement, direction, message, ti
         break;
     }
 
-    return new Promise<void>(resolve => {
-        const noteBox = document.createElement('div');
-        noteBox.textContent = message;
-        noteBox.style['transform-box'] = 'border-box';
-        noteBox.style['top'] = top + 'px';
-        noteBox.style['left'] = left + 'px';
-        noteBox.style['max-width'] = '300px';
-        noteBox.style['min-width'] = '300px';
-        noteBox.style['transform'] = 'translate('+ box_trans + ') translate(' + box_offset + ')';
-        noteBox.style['position'] = 'absolute';
-        noteBox.style['font-size'] = 'medium';
-        noteBox.style['box-shadow'] = '10px 10px 30px #555';
-        noteBox.style['padding'] = '16px';
-        //noteBox.style['border'] = '3px solid black';
-        noteBox.style['border-radius'] = '.25rem';
-        noteBox.style['background-color'] = '#f8e5b4';
-        noteBox.style['z-index'] = '999999';
+      const noteBox = document.createElement('div');
+      noteBox.textContent = message;
+      noteBox.style['transform-box'] = 'border-box';
+      noteBox.style['top'] = top + 'px';
+      noteBox.style['left'] = left + 'px';
+      noteBox.style['max-width'] = '300px';
+      noteBox.style['min-width'] = '300px';
+      noteBox.style['transform'] = 'translate('+ box_trans + ') translate(' + box_offset + ')';
+      noteBox.style['position'] = 'absolute';
+      noteBox.style['font-size'] = 'medium';
+      noteBox.style['box-shadow'] = '10px 10px 30px #555';
+      noteBox.style['padding'] = '16px';
+      //noteBox.style['border'] = '3px solid black';
+      noteBox.style['border-radius'] = '.25rem';
+      noteBox.style['background-color'] = '#f8e5b4';
+      noteBox.style['z-index'] = '999999';
 
-        const arrow = document.createElement('div')
-        arrow.style['width'] = '0';
-        arrow.style['height'] = '0';
-        arrow.style['border-top'] = arrowBorderTop;
-        arrow.style['border-bottom'] = arrowBorderBottom;
-        arrow.style['border-left'] = arrowBorderLeft;
-        arrow.style['border-right'] = arrowBorderRight;
-        arrow.style['position'] = 'absolute';
-        arrow.style['top'] = arrowTop;
-        arrow.style['left'] = arrowLeft;
-        arrow.style['transform'] = 'translate('+ arrow_trans + ')';
+      const arrow = document.createElement('div')
+      arrow.style['width'] = '0';
+      arrow.style['height'] = '0';
+      arrow.style['border-top'] = arrowBorderTop;
+      arrow.style['border-bottom'] = arrowBorderBottom;
+      arrow.style['border-left'] = arrowBorderLeft;
+      arrow.style['border-right'] = arrowBorderRight;
+      arrow.style['position'] = 'absolute';
+      arrow.style['top'] = arrowTop;
+      arrow.style['left'] = arrowLeft;
+      arrow.style['transform'] = 'translate('+ arrow_trans + ')';
 
-        noteBox.appendChild(arrow);
-        document.body.appendChild(noteBox);
-        setTimeout(() => {
-            document.body.removeChild(noteBox);
-            resolve();
-        }, timeout_time);
-    });
+      noteBox.appendChild(arrow);
+      document.body.appendChild(noteBox);
+      setTimeout(() => {
+        noteBox.remove();
+      }, timeout_time);
   },{message, direction, box_top, box_bottom, box_left, box_right, timeout_time});
+
+      await page.waitForTimeout(timeout_time);
 }

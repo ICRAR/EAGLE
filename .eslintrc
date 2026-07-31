@@ -31,6 +31,26 @@
     "overrides": [
         {
             "files": [
+                "e2e/TestHelpers.ts"
+            ],
+            "rules": {
+                "@typescript-eslint/no-explicit-any": "off",
+                "@typescript-eslint/no-unsafe-assignment": "off",
+                "@typescript-eslint/no-unsafe-member-access": "off",
+                "@typescript-eslint/no-unsafe-call": "off",
+                "@typescript-eslint/no-unsafe-argument": "off",
+                "@typescript-eslint/no-unsafe-return": "off",
+                "@typescript-eslint/no-misused-promises": "off",
+                "@typescript-eslint/await-thenable": "off",
+                "@typescript-eslint/strict-boolean-expressions": "off",
+                "@typescript-eslint/no-unnecessary-condition": "off",
+                "@typescript-eslint/prefer-nullish-coalescing": "off",
+                "@typescript-eslint/prefer-optional-chain": "off",
+                "no-constant-condition": "off"
+            }
+        },
+        {
+            "files": [
                 "src/Node.ts",
                 "src/LogicalGraph.ts",
                 "src/Utils.ts",

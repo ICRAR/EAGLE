@@ -37,7 +37,7 @@ async function addCustomRepository(page: Page, name: string, branch: string): Pr
   await page.locator('input#gitCustomRepositoryModalRepositoryBranchInput').pressSequentially(branch)
   await page.locator('button#gitCustomRepositoryModalAffirmativeButton').click()
   await page.waitForTimeout(1000);
-  await expect(await page.locator(repoHTMLId).count()).toBeGreaterThan(0)
+  await expect.poll(async () => page.locator(repoHTMLId).count()).toBeGreaterThan(0)
 
   return repoHTMLId;
 }
@@ -45,24 +45,36 @@ async function addCustomRepository(page: Page, name: string, branch: string): Pr
 async function finalizeInputModalAffirmative(page: Page): Promise<void> {
   if (await page.locator('#inputModal').isVisible()) {
     await page.evaluate(() => {
-      const modal = (window as any).$('#inputModal');
+      const select = window.$ as JQueryStatic | undefined;
+      if (typeof select === 'undefined') {
+        return;
+      }
+
+      const modal = select('#inputModal') as JQuery<HTMLElement> & { data: (key: string, value?: unknown) => unknown; modal: (action: string) => void };
+
       modal.data('completed', true);
       modal.modal('hide');
     });
     await page.waitForTimeout(100);
     if (await page.locator('#inputModal').isVisible()) {
       await page.evaluate(() => {
-        const $ = (window as any).$;
-        const modal = $('#inputModal');
-        const callback = modal.data('callback');
-        const input = String($('#inputModalInput').val() ?? '');
-        if (callback) {
-          callback(true, input);
+        const select = window.$ as JQueryStatic | undefined;
+        if (typeof select === 'undefined') {
+          return;
+        }
+
+        const modal = select('#inputModal') as JQuery<HTMLElement> & { data: (key: string, value?: unknown) => unknown; removeData: (keys: string[] | string) => void; removeClass: (className: string) => JQuery<HTMLElement>; attr: (name: string, value: string) => JQuery<HTMLElement>; css: (name: string, value: string) => JQuery<HTMLElement> };
+        const callback = modal.data('callback') as unknown;
+        const inputValue = select('#inputModalInput').val() as unknown;
+        const input = typeof inputValue === 'string' ? inputValue : String(inputValue ?? '');
+        if (typeof callback === 'function') {
+          const callbackFn = callback as (confirmed: boolean, inputText: string) => void;
+          callbackFn(true, input);
         }
         modal.removeData(['callback', 'completed', 'returnType']);
         modal.removeClass('show').attr('aria-hidden', 'true').css('display', 'none');
-        $('.modal-backdrop').remove();
-        $('body').removeClass('modal-open').css('padding-right', '');
+        select('.modal-backdrop').remove();
+        select('body').removeClass('modal-open').css('padding-right', '');
       });
     }
   }
@@ -71,7 +83,13 @@ async function finalizeInputModalAffirmative(page: Page): Promise<void> {
 async function finalizeConfirmModalAffirmative(page: Page): Promise<void> {
   if (await page.locator('#confirmModal').isVisible()) {
     await page.evaluate(() => {
-      const modal = (window as any).$('#confirmModal');
+      const select = window.$ as JQueryStatic | undefined;
+      if (typeof select === 'undefined') {
+        return;
+      }
+
+      const modal = select('#confirmModal') as JQuery<HTMLElement> & { data: (key: string, value?: unknown) => unknown; modal: (action: string) => void };
+
       modal.data('completed', true);
       modal.data('confirmed', true);
       modal.modal('hide');
@@ -79,11 +97,15 @@ async function finalizeConfirmModalAffirmative(page: Page): Promise<void> {
     await page.waitForTimeout(100);
     if (await page.locator('#confirmModal').isVisible()) {
       await page.evaluate(() => {
-        const $ = (window as any).$;
-        const modal = $('#confirmModal');
+        const select = window.$ as JQueryStatic | undefined;
+        if (typeof select === 'undefined') {
+          return;
+        }
+
+        const modal = select('#confirmModal') as JQuery<HTMLElement> & { removeClass: (className: string) => JQuery<HTMLElement>; attr: (name: string, value: string) => JQuery<HTMLElement>; css: (name: string, value: string) => JQuery<HTMLElement> };
         modal.removeClass('show').attr('aria-hidden', 'true').css('display', 'none');
-        $('.modal-backdrop').remove();
-        $('body').removeClass('modal-open').css('padding-right', '');
+        select('.modal-backdrop').remove();
+        select('body').removeClass('modal-open').css('padding-right', '');
       });
     }
   }
@@ -122,7 +144,7 @@ test('Adding and Removing Repositories', async ({ page }) => {
   await page.waitForTimeout(1000);
 
   //making sure the repo now exists in the repositories tab
-  await expect(await page.locator(repoHTMLId).count() === 1).toBeTruthy()
+  await expect(page.locator(repoHTMLId)).toHaveCount(1)
 
   //removing the repo
   await page.locator('.repoContainer').filter({has:page.locator(repoHTMLId)}).hover()
@@ -135,7 +157,7 @@ test('Adding and Removing Repositories', async ({ page }) => {
   await page.waitForTimeout(1000);
 
   //making sure the repo has been removed
-  await expect(await page.locator(repoHTMLId).count() === 1).toBeFalsy()
+  await expect(page.locator(repoHTMLId)).toHaveCount(0)
 
   //closing the browser
   await page.close();
@@ -219,7 +241,7 @@ test('Create Branch and Delete Branch Actions', async ({ page }) => {
   await expect(page.locator('#inputModal')).toBeVisible();
   await expect(page.locator('#inputModalInput')).toHaveClass(/is-invalid/)
   await expect(page.locator('#inputModalInvalidFeedback')).toContainText('Branch name cannot be empty.')
-  await expect(createBranchCallCount).toBe(0);
+  expect(createBranchCallCount).toBe(0);
   await TestHelpers.closeInputModalWithoutCompleting(page);
 
   await openCreateBranchModal();
@@ -228,7 +250,7 @@ test('Create Branch and Delete Branch Actions', async ({ page }) => {
   await expect(page.locator('#inputModal')).toBeVisible();
   await expect(page.locator('#inputModalInput')).toHaveClass(/is-invalid/)
   await expect(page.locator('#inputModalInvalidFeedback')).toContainText('Branch name cannot contain whitespace.')
-  await expect(createBranchCallCount).toBe(0);
+  expect(createBranchCallCount).toBe(0);
   await TestHelpers.closeInputModalWithoutCompleting(page);
 
   await openCreateBranchModal();
@@ -237,7 +259,7 @@ test('Create Branch and Delete Branch Actions', async ({ page }) => {
   await expect(page.locator('#inputModal')).toBeVisible();
   await expect(page.locator('#inputModalInput')).toHaveClass(/is-invalid/)
   await expect(page.locator('#inputModalInvalidFeedback')).toContainText("Branch name cannot contain '..'.")
-  await expect(createBranchCallCount).toBe(0);
+  expect(createBranchCallCount).toBe(0);
   await TestHelpers.closeInputModalWithoutCompleting(page);
 
   // verify successful create branch flow via UI
@@ -259,10 +281,10 @@ test('Create Branch and Delete Branch Actions', async ({ page }) => {
   await expect(inputModal).toBeHidden();
   await expect.poll(() => createBranchCallCount).toBe(1);
   await page.waitForTimeout(500);
-  await expect(createBranchCallCount).toBe(1);
+  expect(createBranchCallCount).toBe(1);
 
   // confirm the newly created branch entry appears in the repository list.
-  await expect(await page.locator(createdRepoHTMLId).count()).toBeGreaterThan(0)
+  await expect.poll(async () => page.locator(createdRepoHTMLId).count()).toBeGreaterThan(0)
 
   // verify delete branch asks for confirmation and deletes
   await page.locator('.repoContainer').filter({has:page.locator(createdRepoHTMLId)}).hover()
@@ -286,7 +308,7 @@ test('Create Branch and Delete Branch Actions', async ({ page }) => {
   await page.locator(protectedRepoHTMLId + '-delete-branch').click()
   await page.waitForTimeout(500);
   await expect(page.locator('#confirmModal')).toBeHidden();
-  await expect(await page.locator(protectedRepoHTMLId).count()).toBeGreaterThan(0)
+  await expect.poll(async () => page.locator(protectedRepoHTMLId).count()).toBeGreaterThan(0)
 
   // reset any repositories created during this test.
   await removeCustomRepositoryIfPresent(page, baseRepoHTMLId, false);
@@ -332,14 +354,20 @@ test('gitCommit filename validator UX', async ({ page }) => {
 
   // Open modal in a controlled state so only filename validation is under test.
   await page.evaluate(() => {
-    const w = window as any;
-    const $ = w.$;
-    const graphFileType = w.Eagle?.FileType?.Graph ?? 'Graph';
+    const select = window.$ as JQueryStatic | undefined;
+    if (typeof select === 'undefined') {
+      return;
+    }
 
-    $('#gitCommitModal').data('fileType', graphFileType);
-    $('#gitCommitModalFileNameInput').val('invalid-name.txt');
-    $('#gitCommitModal').modal('show');
-    $('#gitCommitModalFileNameInput').trigger('input');
+    const graphFileType = (window as Window & { Eagle?: { FileType?: { Graph?: string } } }).Eagle?.FileType?.Graph ?? 'Graph';
+
+    const gitCommitModal = select('#gitCommitModal') as JQuery<HTMLElement> & { data: (key: string, value?: unknown) => unknown; modal: (action: string) => void };
+    const fileNameInput = select('#gitCommitModalFileNameInput') as JQuery<HTMLElement> & { val: (value?: string) => unknown; trigger: (eventName: string) => void };
+
+    gitCommitModal.data('fileType', graphFileType);
+    fileNameInput.val('invalid-name.txt');
+    gitCommitModal.modal('show');
+    fileNameInput.trigger('input');
   });
 
   await expect(page.locator('#gitCommitModal')).toBeVisible();

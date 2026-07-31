@@ -28,8 +28,8 @@ export class TestHelpers {
         await page.locator('#settings').click()
 
         // enable specified mode
-        const uiModeSelect = await page.getByPlaceholder('uiMode')
-        void uiModeSelect.selectOption({value: mode})
+        const uiModeSelect = page.getByPlaceholder('uiMode')
+        await uiModeSelect.selectOption({value: mode})
 
         // close settings modal (wait is needed, bootstrap is not ready to close the modal again that quickly)
         await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
@@ -65,7 +65,9 @@ export class TestHelpers {
     static async runTutorialByName(page: Page, tutorialName: string): Promise<void> {
         //.step is creating a test step. this is so we know exactly where we failed if something goes wrong.
         await test.step(`Start tutorial: ${tutorialName}`, async () => {
-            await page.evaluate((name: string) => (window as any).TutorialSystem.initiateTutorial(name), tutorialName);
+            await page.evaluate((name: string) => {
+                (window as any).TutorialSystem.initiateTutorial(name);
+            }, tutorialName);
             await page.locator('#tutorialInfoPopUp').waitFor({ state: 'attached', timeout: TestHelpers.LONG_TIMEOUT });
         });
 
@@ -80,7 +82,7 @@ export class TestHelpers {
                 const currentStep = tutSystem?.activeTutCurrentStep;
 
                 return {
-                    hasActiveTutorial: tutSystem?.activeTut !== null,
+                    hasActiveTutorial: tutSystem?.activeTut !== null && typeof tutSystem?.activeTut !== 'undefined',
                     title: currentStep?.getTitle?.() ?? '',
                     stepType: currentStep?.getType?.(),
                     expectedInput: currentStep?.getExpectedInput?.() ?? '',
@@ -193,7 +195,9 @@ export class TestHelpers {
                 throw error;
             }
 
-            const isStillActive = await page.evaluate(() => (window as any).TutorialSystem?.activeTut !== null);
+            const isStillActive = await page.evaluate(() => {
+                return (window as any).TutorialSystem?.activeTut !== null;
+            });
             if (!isStillActive) {
                 await expect(page.locator('#tutorialInfoPopUp')).toHaveCount(0);
                 return;
@@ -201,7 +205,7 @@ export class TestHelpers {
         }
     }
 
-    private static async runTutorialCustomStep(page: Page, testStepFunction: { command: string; args?: string[] }): Promise<void> {
+    private static async runTutorialCustomStep(page: Page, testStepFunction: any): Promise<void> {
 
         const command = testStepFunction.command;
         const args = testStepFunction.args ?? [];
@@ -218,7 +222,7 @@ export class TestHelpers {
         }
 
         if (command === 'addNodeFromContextMenu') {
-            if (!arg1) {
+            if (typeof arg1 !== 'string' || arg1.length === 0) {
                 throw new Error(`Missing search term in test step function '${testStepFunction}'`);
             }
 
@@ -228,7 +232,7 @@ export class TestHelpers {
         }
 
         if (command === 'selectNode') {
-            if (!arg1) {
+            if (typeof arg1 !== 'string' || arg1.length === 0) {
                 throw new Error(`Missing node name in test step function '${testStepFunction}'`);
             }
 
@@ -237,7 +241,7 @@ export class TestHelpers {
         }
 
         if (command === 'connectNodes') {
-            if (!arg1 || !arg2) {
+            if (typeof arg1 !== 'string' || arg1.length === 0 || typeof arg2 !== 'string' || arg2.length === 0) {
                 throw new Error(`Missing source/destination node names in test step function '${testStepFunction}'`);
             }
 
@@ -272,7 +276,8 @@ export class TestHelpers {
         let x = Math.max(80, Math.min(size.width - 80, Math.floor(size.width / 2 + Math.cos(angle) * radius)));
         let y = Math.max(80, Math.min(size.height - 120, Math.floor(size.height / 2 + Math.sin(angle) * radius)));
 
-        if (TestHelpers.lastContextMenuPoint && TestHelpers.lastContextMenuPoint.x === x && TestHelpers.lastContextMenuPoint.y === y) {
+        const lastContextMenuPoint = TestHelpers.lastContextMenuPoint;
+        if (lastContextMenuPoint !== null && lastContextMenuPoint.x === x && lastContextMenuPoint.y === y) {
             x = Math.max(80, Math.min(size.width - 80, x + 35));
             y = Math.max(80, Math.min(size.height - 120, y + 20));
         }
@@ -311,7 +316,7 @@ export class TestHelpers {
     }
 
     private static getTutorialInputText(title: string, expectedInput: string): string {
-        if (expectedInput && expectedInput.trim().length > 0) {
+        if (expectedInput.trim().length > 0) {
             return expectedInput;
         }
 
@@ -335,7 +340,7 @@ export class TestHelpers {
         const clickPosition = await page.evaluate(() => {
             // Get the tutorial target element from the active step.
             const tutorialTarget = (window as any).TutorialSystem?.activeTutCurrentStep?.getTargetFunc?.();
-            if (!tutorialTarget || tutorialTarget.length === 0) {
+            if (tutorialTarget === null || typeof tutorialTarget === 'undefined' || tutorialTarget.length === 0) {
                 return null;
             }
 
@@ -399,16 +404,15 @@ export class TestHelpers {
 
     private static async submitTutorialInputToTarget(page: Page, value: string): Promise<boolean> {
         return page.evaluate((inputValue: string) => {
-            const w = window as any;
-            const tutStep = w.TutorialSystem?.activeTutCurrentStep;
+            const tutStep = (window as any).TutorialSystem?.activeTutCurrentStep;
             const targetFunc = tutStep?.getTargetFunc?.();
 
-            if (!targetFunc || targetFunc.length === 0) {
+            if (targetFunc === null || typeof targetFunc === 'undefined' || targetFunc.length === 0) {
                 return false;
             }
 
             const target = targetFunc.first();
-            if (!target || target.length === 0) {
+            if (target.length === 0) {
                 return false;
             }
 
@@ -471,19 +475,23 @@ export class TestHelpers {
             const graph = eagle?.logicalGraph?.();
             const node = graph?.findNodeByName?.(name);
 
-            if (!node) {
+            if (node === null || typeof node === 'undefined') {
                 return null;
             }
 
             const nodeId = node.getId?.();
-            const graphPosition = node?.getPosition?.();
+            const graphPosition = node.getPosition?.();
             const graphToScreen = (window as any).GraphRenderer;
+            const toScreenX = graphToScreen?.GRAPH_TO_SCREEN_POSITION_X;
+            const toScreenY = graphToScreen?.GRAPH_TO_SCREEN_POSITION_Y;
 
             let clickPos: { x: number; y: number } | null = null;
-            if (graphPosition && graphToScreen?.GRAPH_TO_SCREEN_POSITION_X && graphToScreen?.GRAPH_TO_SCREEN_POSITION_Y) {
+            if (typeof graphPosition !== 'undefined'
+                && typeof toScreenX === 'function'
+                && typeof toScreenY === 'function') {
                 clickPos = {
-                    x: graphToScreen.GRAPH_TO_SCREEN_POSITION_X(graphPosition.x),
-                    y: graphToScreen.GRAPH_TO_SCREEN_POSITION_Y(graphPosition.y),
+                    x: toScreenX(graphPosition.x),
+                    y: toScreenY(graphPosition.y),
                 };
             }
 
@@ -524,14 +532,18 @@ export class TestHelpers {
             const debugInfo = await page.evaluate((name: string) => {
                 const eagle = (window as any).eagle;
                 const selected = eagle?.selectedNode?.();
-                const nodeNames = eagle?.logicalGraph?.()?.getNodes?.()
-                    ? Array.from(eagle.logicalGraph().getNodes()).map((node: any) => node.getName())
-                    : [];
+                const graphNodes = eagle?.logicalGraph?.()?.getNodes?.();
+                const nodeNames = typeof graphNodes === 'undefined'
+                    ? []
+                    : Array.from(graphNodes).map((node) => node.getName?.() ?? '');
 
                 const tutorialTarget = (window as any).TutorialSystem?.activeTutCurrentStep?.getTargetFunc?.();
-                const targetId = tutorialTarget && tutorialTarget.length > 0 ? tutorialTarget.get(0).id : null;
+                const targetElement = typeof tutorialTarget === 'undefined' || tutorialTarget === null || tutorialTarget.length === 0
+                    ? undefined
+                    : tutorialTarget.get(0);
+                const targetId = typeof targetElement === 'undefined' ? null : targetElement.id;
 
-                const diagnostics = targetId ? {
+                const diagnostics = targetId !== null ? {
                     nodeBodyMatches: document.querySelectorAll(`#logicalGraph .node[id="${targetId}"] .body`).length,
                     nodeMatches: document.querySelectorAll(`#logicalGraph .node[id="${targetId}"]`).length,
                     containerMatches: document.querySelectorAll(`#logicalGraph [id="${targetId}"].container`).length,
@@ -568,39 +580,57 @@ export class TestHelpers {
 
     static async setShortDescription(page: Page, description: string): Promise<void> {
         await page.evaluate( (description: string) => {
-            (window as any).eagle.logicalGraph().fileInfo().shortDescription = description;
-            (window as any).eagle.checkEagle();
+            const fileInfo = (window as any).eagle?.logicalGraph?.()?.fileInfo?.();
+            if (typeof fileInfo === 'undefined'){
+                return;
+            }
+
+            fileInfo.shortDescription = description;
+            (window as any).eagle?.checkEagle?.();
         }, description);
     }
 
     static async setDetailedDescription(page: Page, description: string): Promise<void> {
         await page.evaluate( (description: string) => {
-            (window as any).eagle.logicalGraph().fileInfo().detailedDescription = description;
-            (window as any).eagle.checkEagle();
+            const fileInfo = (window as any).eagle?.logicalGraph?.()?.fileInfo?.();
+            if (typeof fileInfo === 'undefined'){
+                return;
+            }
+
+            fileInfo.detailedDescription = description;
+            (window as any).eagle?.checkEagle?.();
         }, description);
     }
 
     // Set the content of the editor in the modal
     static setEditorContent(content: string): void {
-        const editor = ($('#inputCodeModal') as JQuery<HTMLElement>).data('editor');
+        const editor = ($('#inputCodeModal') as JQuery<HTMLElement>).data('editor') as CodeEditorLike | undefined;
+        if (typeof editor === 'undefined'){
+            return;
+        }
+
         editor.setValue(content);
     }
 
     // Get the content of the editor in the modal
     static getEditorContent(): string {
-        const editor = ($('#inputCodeModal') as JQuery<HTMLElement>).data('editor');
+        const editor = ($('#inputCodeModal') as JQuery<HTMLElement>).data('editor') as CodeEditorLike | undefined;
+        if (typeof editor === 'undefined'){
+            return '';
+        }
+
         return editor.getValue();
     }
 
     // Read a graph file from disk
     static readGraph(filename: string): Promise<string> {
         return new Promise<string>((resolve, reject) => {
-            fs.readFile(path.join(__dirname, filename), 'utf8', (err: NodeJS.ErrnoException | null, data: any) => {
+            fs.readFile(path.join(__dirname, filename), 'utf8', (err: NodeJS.ErrnoException | null, data: string) => {
                 if (err) {
                     console.error(err);
                     reject(err);
                 } else {
-                    resolve(data as string);
+                    resolve(data);
                 }
             });
         });
@@ -679,21 +709,19 @@ export class TestHelpers {
     }
 
     static async saveGraphToString(page: Page): Promise<string> {
-        return new Promise<string>(async (resolve, _reject) => {
-            // click 'display as JSON' from the 'Graph' menu
-            await page.locator('#navbarDropdownGraph').click();
-            await page.locator('#displayGraphAsJson').click();
-            await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
+        // click 'display as JSON' from the 'Graph' menu
+        await page.locator('#navbarDropdownGraph').click();
+        await page.locator('#displayGraphAsJson').click();
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
 
-            // get JSON from modal
-            const outputOJS: string = await page.evaluate(TestHelpers.getEditorContent);
+        // get JSON from modal
+        const outputOJS: string = await page.evaluate(TestHelpers.getEditorContent);
 
-            await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
-            await page.locator('#inputCodeModal button.affirmativeBtn').click()
-            await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
+        await page.locator('#inputCodeModal button.affirmativeBtn').click()
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
 
-            resolve(outputOJS);
-        });
+        return outputOJS;
     }
 
     // Set the schema version in the app (OJS or V4)
@@ -708,13 +736,13 @@ export class TestHelpers {
 
     static async getNodeCount(page: Page): Promise<number> {
         return page.evaluate( () => {
-            return (window as any).eagle.logicalGraph().nodes().size;
+            return (window as any).eagle?.logicalGraph?.()?.nodes?.()?.size ?? 0;
         });
     }
 
     static async getEdgeCount(page: Page): Promise<number> {
         return page.evaluate( () => {
-            return (window as any).eagle.logicalGraph().getNumEdges();
+            return (window as any).eagle?.logicalGraph?.()?.getNumEdges?.() ?? 0;
         });
     }
 
@@ -726,8 +754,12 @@ export class TestHelpers {
         return page.press('body','Shift+z');
     }
 
+    private static isRecord(value: unknown): value is Record<string, unknown> {
+        return typeof value === 'object' && value !== null;
+    }
+
     // Check if an object is empty
-    static isEmpty(o: Record<string, any>): boolean {
+    static isEmpty(o: Record<string, unknown>): boolean {
         for (const p in o) {
         if (Object.hasOwn(o, p)) { return false; }
         }
@@ -735,19 +767,21 @@ export class TestHelpers {
     }
 
     // Compare two objects and return the differences
-    static compareObj(obj1: Record<string, any>, obj2: Record<string, any>): Record<string, any> {
-        const ret: Record<string, any> = {};
-        let rett: Record<string, any>;
+    static compareObj(obj1: Record<string, unknown> | undefined, obj2: Record<string, unknown>): Record<string, unknown> {
+        const ret: Record<string, unknown> = {};
+        let rett: Record<string, unknown>;
         for (const i in obj2) {
         rett = {};
-        if (typeof obj2[i] === 'object' && typeof obj1 !== 'undefined') {
-            rett = TestHelpers.compareObj(obj1[i], obj2[i]);
+        const obj2Value = obj2[i];
+        const obj1Value = typeof obj1 === 'undefined' ? undefined : obj1[i];
+        if (TestHelpers.isRecord(obj2Value) && TestHelpers.isRecord(obj1Value)) {
+            rett = TestHelpers.compareObj(obj1Value, obj2Value);
             if (!TestHelpers.isEmpty(rett)) {
             ret[i] = rett;
             }
         } else {
-            if (!obj1 || !Object.hasOwn(obj1, i) || obj2[i] !== obj1[i]) {
-            ret[i] = obj2[i];
+            if (typeof obj1 === 'undefined' || !Object.hasOwn(obj1, i) || obj2Value !== obj1Value) {
+            ret[i] = obj2Value;
             }
         }
         }
@@ -756,7 +790,9 @@ export class TestHelpers {
 
     static async getNumWarningsErrors(page: Page): Promise<number> {
         return page.evaluate(() => {
-            return (window as any).eagle.graphWarnings().length + (window as any).eagle.graphErrors().length;
+            const warnings = (window as any).eagle?.graphWarnings?.() ?? [];
+            const errors = (window as any).eagle?.graphErrors?.() ?? [];
+            return warnings.length + errors.length;
         });
     }
 
@@ -834,8 +870,11 @@ export class TestHelpers {
 
         if (await inputModal.isVisible()) {
             await page.evaluate(() => {
-                const $ = (window as any).$;
-                const modal = $('#inputModal');
+                const modal = (window as any).$.call(window, '#inputModal');
+                if (typeof modal === 'undefined'){
+                    return;
+                }
+
                 modal.data('completed', false);
                 modal.modal('hide');
             });
@@ -847,8 +886,11 @@ export class TestHelpers {
 
             if (await inputModal.isVisible().catch(() => false)) {
                 await page.evaluate(() => {
-                    const $ = (window as any).$;
-                    const modal = $('#inputModal');
+                    const modal = (window as any).$.call(window, '#inputModal');
+                    if (typeof modal === 'undefined'){
+                        return;
+                    }
+
                     modal.data('completed', false);
                     modal.modal('hide');
                 });
