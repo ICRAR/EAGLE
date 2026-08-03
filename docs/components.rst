@@ -13,7 +13,7 @@ EAGLE works from component descriptions (JSON metadata).
 These descriptions define ports, parameters, and behavior needed for editing and translation.
 
 .. figure:: _static/images/components.png
-  :width: 400px
+  :width: 90%
   :align: center
   :alt: An example of components in EAGLE
   :figclass: align-center
@@ -39,21 +39,8 @@ This lets upstream components drive downstream behavior.
 Creating Components for Docker Images
 -------------------------------------
 
-You can create Docker-based components from container metadata.
-A common workflow is:
+You can create Docker-based components from existing images on dockerhub using the builtin wizard shown below.
 
-1. Pick an image on Docker Hub.
-2. Add a Docker node from a template palette.
-3. Fill image details (name, tag, digest) and runtime settings.
-4. Save the configured node into your palette.
-
-.. figure:: _static/images/components/new_node.png
-  :width: 210px
-  :align: center
-  :alt: A new graph containing a single Docker node
-  :figclass: align-center
-
-  Start from a Docker node template.
 
 .. figure:: _static/images/components/modify_parameters.png
   :width: 500px
@@ -62,6 +49,8 @@ A common workflow is:
   :figclass: align-center
 
   Fill Docker parameters from your selected image.
+
+Additional options can be configured in the ``Parameter Table`` which you can access via the graph inspector when the node is selected.
 
 Important Notes on Docker Images
 --------------------------------
@@ -75,51 +64,3 @@ For DALiuGE execution compatibility, Docker images should include:
 Recommended:
 
 - ``/usr/bin/ls``
-
-Linking Components with Edges
------------------------------
-
-Edges connect output ports to input ports and define execution and data flow.
-EAGLE validates edge compatibility and warns about risky links.
-
-.. figure:: _static/images/components2.png
-  :width: 500px
-  :align: center
-  :alt: An example of components linked together with edges
-  :figclass: align-center
-
-  Components linked with edges.
-
-.. figure:: _static/images/edgeWarning.png
-  :width: 400px
-  :align: center
-  :alt: An example of a warning provided for an edge
-  :figclass: align-center
-
-.. figure:: _static/images/edgeError.png
-  :width: 400px
-  :align: center
-  :alt: An example of an error provided for an edge
-  :figclass: align-center
-
-  Edge validation warnings and errors.
-
-Environment Variables
----------------------
-
-EAGLE supports global key-value variables through ``EnvironmentVars`` components.
-Use them for values reused across many components.
-
-Rules:
-
-- Each ``EnvironmentVars`` component must have a unique component name.
-- Reference values using ``$store_name.var_name``.
-
-Example:
-
-- Store name: ``environment_vars``
-- Variable: ``scratch_dir``
-- Reference from another component: ``$environment_vars.scratch_dir``
-
-These values are static at graph definition time.
-Dynamic runtime updates are not currently supported.

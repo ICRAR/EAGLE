@@ -5,7 +5,7 @@ A palette is a curated collection of :doc:`components <components>`.
 It helps users find relevant nodes quickly for a domain, project, or workflow.
 
 .. figure:: _static/images/palette.png
-  :width: 250px
+  :width: 90%
   :align: center
   :alt: An example of a palette in EAGLE
   :figclass: align-center
@@ -29,15 +29,16 @@ Creating Palettes within EAGLE
 
 You can build palettes directly in EAGLE.
 
-1. Enable ``Allow Palette Editing`` in settings.
-2. Start from an existing node (often from ``All Nodes``).
-3. Edit name, description, ports, and parameters.
-4. Save one node with ``Add Selected Node to Palette`` or many with ``Add Graph Nodes to Palette``.
+1. Change Ui Mode to ``Component`` in settings.
+2. Right click a component in the ``Component Templates`` Palette or another existing palette.
+3. Select ``Add to another palette`` and enter a name under custom to create a new one.
+4. The Component can be edited under the new palette, or you can add more components to the palette by repeating the process.
+5. You may also add components from the graph using right click menus with ``Add Selected Node to Palette`` or many with the ``Add Graph Nodes to Palette`` in the navbar.
 
-Manual editing is best for refinement and small curated palettes.
+Manual palette generation is best for refinement and small curated palettes.
 
 .. figure:: _static/images/components/navbar_button.png
-  :width: 240px
+  :width: 90%
   :align: center
   :alt: Click the "Add graph nodes to Palette" button in the navbar
   :figclass: align-center
@@ -46,11 +47,5 @@ Manual editing is best for refinement and small curated palettes.
 
 Save palettes locally or to Git repositories.
 For collaboration, store them in a dedicated GitHub or GitLab repository.
-
-.. figure:: _static/images/components/new_palette.png
-  :width: 500px
-  :align: center
-  :alt: The new palette containing a Docker component description
-  :figclass: align-center
 
   The new palette containing a Docker component description

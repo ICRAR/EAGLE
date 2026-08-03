@@ -16,7 +16,7 @@ It can be accessed from the Tools menu within the Graph dropdown in the navbar o
   :figclass: align-center
 
 The tool will scan the selected repository for Logical Graphs and update them to the latest version of the EAGLE Logical Graph file format. You are given the choice to review the changes before applying them.
-The updated Logical Graphs can be saved in a new branch of the source repository, an existing branch of the source repository, or a different repository.
+The updated Logical Graphs can be saved in a new branch of the source repository, an existing branch of the source repository, or a different repository altogether.
 
 
 .. figure:: _static/images/graph_updater.png
