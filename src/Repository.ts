@@ -270,17 +270,24 @@ export class Repository {
             return;
         }
 
-        const pointer = this.findPath(file.path);
-        if (pointer === null){
-            return;
+        const pathParts: string[] = file.path.split('/').filter((pathPart) => pathPart !== "");
+        let pointer: RepositoryFolder | null = null;
+        let parentPointer: RepositoryFolder | null = null;
+
+        for (const pathPart of pathParts){
+            const folders = pointer === null ? this.folders() : pointer.folders();
+            const nextPointer = folders.find((folder) => folder.name === pathPart) ?? null;
+
+            if (nextPointer === null){
+                return;
+            }
+
+            parentPointer = pointer;
+            pointer = nextPointer;
         }
 
-        let lastPointer: Repository | RepositoryFolder | null = null;
-
-        if (!fileIsInTopLevelOfRepo){
-            const pathParts: string[] = file.path.split('/').filter((pathPart) => pathPart !== "");
-            const parentPath = pathParts.slice(0, -1).join('/');
-            lastPointer = this.findPath(parentPath);
+        if (pointer === null){
+            return;
         }
 
         // remove the file here
@@ -293,12 +300,12 @@ export class Repository {
 
         // check if we removed the last file in the folder
         // if so, the remove the folder too
-        if (!fileIsInTopLevelOfRepo && lastPointer !== null){
-            if (pointer.files().length === 0){
-                for (let i = 0; i < lastPointer.folders().length ; i++){
-                    if (lastPointer.folders()[i].name === pointer.name){
-                        lastPointer.folders.splice(i, 1);
-                    }
+        if (pointer.files().length === 0){
+            const parentFolders = parentPointer === null ? this.folders() : parentPointer.folders();
+            for (let i = 0; i < parentFolders.length ; i++){
+                if (parentFolders[i] === pointer){
+                    parentFolders.splice(i, 1);
+                    break;
                 }
             }
         }
