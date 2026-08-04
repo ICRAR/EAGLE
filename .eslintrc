@@ -108,6 +108,8 @@
         "@typescript-eslint/no-empty-function": "error",
         "@typescript-eslint/consistent-type-imports": "error",
         "@typescript-eslint/no-array-constructor": "error",
+        // Commit D (JSON typing hardening): re-enable as "error" after typed JSON loader refactor.
+        "@typescript-eslint/no-explicit-any": "off",
         "@typescript-eslint/explicit-module-boundary-types": "off",
 
         "no-constructor-return": "error",
@@ -212,9 +214,9 @@
         // "@typescript-eslint/no-namespace": ["error", { "allowDeclarations": true }],
         // "@typescript-eslint/ban-ts-comment": ["error", { "ts-ignore": true, "ts-nocheck": true, "ts-check": false, "ts-expect-error": "allow-with-description", "minimumDescriptionLength": 5 }],
 
-        // ==========================================
-        // JSON Typing Plan / EAGLE-1679 (commented)
-        // ==========================================
+        // =============================================================
+        // Commit D: JSON typing hardening / EAGLE-1679 (mostly commented)
+        // =============================================================
         // Re-enable once the parsed JSON/OJS/V4 loader path is strongly typed.
         // "@typescript-eslint/no-explicit-any": "error",
         // "@typescript-eslint/no-unsafe-assignment": "error",
