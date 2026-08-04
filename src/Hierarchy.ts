@@ -91,7 +91,7 @@ export class Hierarchy {
                     return
                 }
     
-                for (;;) {
+                while (true){
                     if (iterations > MAX_ITERATIONS){
                         console.error("too many iterations in nodeRelativeForEach");
                         return

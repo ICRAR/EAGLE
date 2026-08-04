@@ -1,0 +1,236 @@
+const { FlatCompat } = require("@eslint/eslintrc");
+
+const compat = new FlatCompat({
+    baseDirectory: __dirname,
+});
+
+module.exports = [
+    ...compat.config({
+        env: {
+            browser: true,
+            es2021: true,
+            node: true,
+        },
+        extends: [
+            "plugin:@typescript-eslint/eslint-recommended",
+            "plugin:@typescript-eslint/recommended",
+        ],
+        parser: "@typescript-eslint/parser",
+        parserOptions: {
+            ecmaVersion: 2021,
+            sourceType: "module",
+            project: ["./tsconfig.json", "./e2e/tsconfig.json"],
+        },
+        plugins: [
+            "@typescript-eslint",
+        ],
+        ignorePatterns: [
+            "build/",
+            "static/built/",
+            "node_modules/",
+        ],
+
+        /*
+            These overrides are staged to match the lint rollout plan.
+            Keep only Commit A-critical exceptions enabled in this branch.
+            Re-enable the others when you move into Commit B/Commit C/JSON-typing-plan work.
+        */
+        overrides: [
+            {
+                files: [
+                    "e2e/TestHelpers.ts",
+                ],
+                rules: {
+                    // Commit A: keep this off for the intentional "while (true)" wait loop in TestHelpers.
+                    "no-constant-condition": "off",
+
+                    // Commit B: re-enable by commenting this override out once promise/condition strictness work begins.
+                    // "@typescript-eslint/no-misused-promises": "off",
+                    // "@typescript-eslint/await-thenable": "off",
+                    // "@typescript-eslint/strict-boolean-expressions": "off",
+                    // "@typescript-eslint/no-unnecessary-condition": "off",
+                    // "@typescript-eslint/prefer-nullish-coalescing": "off",
+                    // "@typescript-eslint/prefer-optional-chain": "off",
+
+                    // JSON Typing Plan (EAGLE-1679): re-enable by commenting this override out after typed JSON loader refactor.
+                    // "@typescript-eslint/no-explicit-any": "off",
+                    // "@typescript-eslint/no-unsafe-assignment": "off",
+                    // "@typescript-eslint/no-unsafe-member-access": "off",
+                    // "@typescript-eslint/no-unsafe-call": "off",
+                    // "@typescript-eslint/no-unsafe-argument": "off",
+                    // "@typescript-eslint/no-unsafe-return": "off"
+                },
+            },
+
+            // JSON Typing Plan (EAGLE-1679): re-enable this override block before running the strict unsafe/any rules.
+            // {
+            //     files: [
+            //         "e2e/cloneLogicalGraph.spec.ts",
+            //         "e2e/undoAfterFixAll.spec.ts"
+            //     ],
+            //     rules: {
+            //         "@typescript-eslint/no-explicit-any": "off",
+            //         "@typescript-eslint/no-unsafe-assignment": "off",
+            //         "@typescript-eslint/no-unsafe-member-access": "off",
+            //         "@typescript-eslint/no-unsafe-call": "off",
+            //         "@typescript-eslint/no-unsafe-argument": "off",
+            //         "@typescript-eslint/no-unsafe-return": "off"
+            //     }
+            // },
+
+            // JSON Typing Plan (EAGLE-1679): re-enable this override block before running the strict unsafe/any rules.
+            // {
+            //     files: [
+            //         "src/Node.ts",
+            //         "src/LogicalGraph.ts",
+            //         "src/Utils.ts",
+            //         "src/Eagle.ts",
+            //         "src/Field.ts",
+            //         "src/FileInfo.ts",
+            //         "src/Edge.ts",
+            //         "src/Palette.ts",
+            //         "src/ParameterTable.ts",
+            //         "src/GraphConfig.ts",
+            //         "src/GraphUpdater.ts"
+            //     ],
+            //     rules: {
+            //         "@typescript-eslint/no-explicit-any": "off",
+            //         "@typescript-eslint/no-unsafe-assignment": "off",
+            //         "@typescript-eslint/no-unsafe-member-access": "off",
+            //         "@typescript-eslint/no-unsafe-call": "off",
+            //         "@typescript-eslint/no-unsafe-argument": "off",
+            //         "@typescript-eslint/no-unsafe-return": "off"
+            //     }
+            // }
+        ],
+        rules: {
+            // =====================
+            // Commit A (enable now)
+            // =====================
+            // Safer mechanical fixes and broad JS hygiene.
+            "@typescript-eslint/no-inferrable-types": "off",
+            "@typescript-eslint/ban-types": "off",
+            "@typescript-eslint/no-this-alias": "error",
+            "@typescript-eslint/no-duplicate-enum-values": "error",
+            "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_", "caughtErrorsIgnorePattern": "^_" }],
+            "@typescript-eslint/no-empty-function": "error",
+            "@typescript-eslint/consistent-type-imports": "error",
+            "@typescript-eslint/no-array-constructor": "error",
+            // Commit D (JSON typing hardening): re-enable as "error" after typed JSON loader refactor.
+            "@typescript-eslint/no-explicit-any": "off",
+            "@typescript-eslint/explicit-module-boundary-types": "off",
+
+            "no-constructor-return": "error",
+            "no-new-wrappers": "error",
+            "no-new-object": "error",
+            "no-new-native-nonconstructor": "error",
+            "no-new-symbol": "error",
+            "no-proto": "error",
+            "no-self-compare": "error",
+            "no-throw-literal": "error",
+            "no-unmodified-loop-condition": "error",
+            "no-unreachable-loop": "error",
+            "no-unsafe-finally": "error",
+            "accessor-pairs": "error",
+            "default-case-last": "error",
+            "no-compare-neg-zero": "error",
+            "no-delete-var": "error",
+            "no-dupe-else-if": "error",
+            "no-duplicate-case": "error",
+            "no-empty-character-class": "error",
+            "no-ex-assign": "error",
+            "no-extra-boolean-cast": "error",
+            "eqeqeq": ["error", "smart"],
+            "curly": "error",
+            "brace-style": ["error", "1tbs", { "allowSingleLine": true }],
+            "no-fallthrough": "error",
+            "no-func-assign": "error",
+            "no-global-assign": "error",
+            "no-import-assign": "error",
+            "no-loss-of-precision": "error",
+            "no-misleading-character-class": "error",
+            "no-new-func": "error",
+            "no-obj-calls": "error",
+            "no-octal": "error",
+            "no-regex-spaces": "error",
+            "no-sparse-arrays": "error",
+            "no-this-before-super": "error",
+            "no-unsafe-negation": "error",
+            "no-unsafe-optional-chaining": "error",
+            "no-useless-backreference": "error",
+            "use-isnan": "error",
+            "valid-typeof": "error",
+            "no-useless-call": "error",
+            "no-useless-catch": "error",
+            "no-useless-concat": "error",
+            "no-useless-computed-key": "error",
+            "no-useless-escape": "error",
+            "no-useless-return": "error",
+            "no-constant-condition": ["error", { "checkLoops": "allExceptWhileTrue" }],
+            "no-constant-binary-expression": "error",
+            "no-script-url": "error",
+            "no-self-assign": "error",
+            "no-promise-executor-return": "error",
+            "no-caller": "error",
+            "no-alert": "error",
+            "no-div-regex": "error",
+            "no-eval": "error",
+            "no-extend-native": "error",
+            "no-implied-eval": "error",
+            "no-implicit-coercion": "error",
+            "no-iterator": "error",
+            "no-label-var": "error",
+            "no-labels": "error",
+            "no-lone-blocks": "error",
+            "no-multi-str": "error",
+            "no-octal-escape": "error",
+            "no-prototype-builtins": "error",
+            "no-shadow-restricted-names": "error",
+            "no-template-curly-in-string": "error",
+            "no-with": "error",
+            "no-unneeded-ternary": "error",
+            "no-useless-rename": "error",
+            "prefer-object-has-own": "error",
+            "prefer-numeric-literals": "error",
+            "prefer-regex-literals": "error",
+            "radix": "error",
+            "symbol-description": "error",
+            "no-useless-constructor": "error",
+            "no-undef": "off",
+            "prefer-const": "error",
+            "no-var": 2,
+
+            // =====================
+            // Commit B (commented)
+            // =====================
+            // Promise handling and conditional strictness.
+            // "@typescript-eslint/no-floating-promises": "error",
+            // "@typescript-eslint/no-misused-promises": "error",
+            // "@typescript-eslint/await-thenable": "error",
+            // "@typescript-eslint/return-await": ["error", "in-try-catch"],
+            // "@typescript-eslint/no-unnecessary-condition": "error",
+            // "@typescript-eslint/strict-boolean-expressions": "error",
+            // "@typescript-eslint/prefer-nullish-coalescing": "error",
+            // "@typescript-eslint/prefer-optional-chain": "error",
+
+            // =====================
+            // Commit C (commented)
+            // =====================
+            // Broader TS patterns that are likely to require code refactors.
+            // "@typescript-eslint/no-require-imports": "error",
+            // "@typescript-eslint/no-useless-empty-export": "error",
+            // "@typescript-eslint/no-namespace": ["error", { "allowDeclarations": true }],
+            // "@typescript-eslint/ban-ts-comment": ["error", { "ts-ignore": true, "ts-nocheck": true, "ts-check": false, "ts-expect-error": "allow-with-description", "minimumDescriptionLength": 5 }],
+
+            // =============================================================
+            // Commit D: JSON typing hardening / EAGLE-1679 (mostly commented)
+            // =============================================================
+            // Re-enable once the parsed JSON/OJS/V4 loader path is strongly typed.
+            // "@typescript-eslint/no-explicit-any": "error",
+            // "@typescript-eslint/no-unsafe-assignment": "error",
+            // "@typescript-eslint/no-unsafe-member-access": "error",
+            // "@typescript-eslint/no-unsafe-call": "error",
+            // "@typescript-eslint/no-unsafe-return": "error"
+        },
+    }),
+];

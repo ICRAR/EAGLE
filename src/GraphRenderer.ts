@@ -1809,7 +1809,7 @@ export class GraphRenderer {
             return false;
         }
 
-        for (;;) {
+        while (true){
             if (iterations > MAX_ITERATIONS){
                 console.error("too many iterations in isDescendent()");
                 return false;
