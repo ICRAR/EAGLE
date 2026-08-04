@@ -37,7 +37,7 @@ You can build palettes directly in EAGLE.
 
 Manual palette generation is best for refinement and small curated palettes.
 
-.. figure:: _static/images/components/navbar_button.png
+.. figure:: _static/images/navbar_button.png
   :width: 90%
   :align: center
   :alt: Click the "Add graph nodes to Palette" button in the navbar

@@ -36,7 +36,8 @@ Keep them stable and only add important parameters to the graph configuration, w
 Logical Graph
 -------------
 
-A Logical Graph is a Logical Graph Template with an activated ``graph configuration``, when it is being sent to the DALiuGE translator.
+A Logical Graph is a Logical Graph Template with an activated ``graph configuration``.
+At this point the graph configuration has been filled in by the user with run-specific values and has been applied when it was sent to the DALiuGE translator.
 
 .. figure:: _static/images/graph_configuration.png
   :width: 90%
@@ -53,7 +54,7 @@ The `DALiuGE <https://daliuge.readthedocs.io>`_ translator first converts the Lo
 This stage applies partitioning and scheduling decisions for target resources.
 
 .. figure:: _static/images/physical_graph_template.png
-  :width: 500px
+  :width: 90%
   :align: center
   :alt: An example of a Physical Graph Template
   :figclass: align-center
@@ -68,5 +69,20 @@ Physical Graph
 --------------
 
 A Physical Graph is the deployed form where the partitions are mapped to compute nodes in a cluster.
-The DALiuGE Engine UI shows execution progress and failures for debugging and development.
-Execution records are stored with run logs.
+
+.. figure:: _static/images/physical_graph.png
+  :width: 90%
+  :align: center
+  :alt: An example of a Physical Graph
+  :figclass: align-center
+
+  An example of a Physical Graph
+
+
+The Engine UI shows the graph as it is executing (or just a progress bar). 
+Nodes on the graph are changing colors as the execution progresses. 
+They are light-yellow before execution and yellow during execution. 
+After execution application nodes turn green or red, depending on whether they had been successful or not.  
+Memory data nodes are turning first grey and then black, once they had been garbage collected. 
+All nodes following a failed application node are turning red. It is possible to click on the nodes and get information from the DALiuGE logging system. 
+For file data nodes it is also possible to download the data.

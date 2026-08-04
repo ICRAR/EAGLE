@@ -42,7 +42,7 @@ Creating Components for Docker Images
 You can create Docker-based components from existing images on dockerhub using the builtin wizard shown below.
 
 
-.. figure:: _static/images/components/modify_parameters.png
+.. figure:: _static/images/modify_parameters.png
   :width: 500px
   :align: center
   :alt: Modify the Docker node parameters with data from the Docker image
