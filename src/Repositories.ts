@@ -156,7 +156,7 @@ export class Repositories {
         if (win) {
             win.focus();
         } else {
-            alert("Please allow popups for this website");
+            Utils.showNotification("Popup Blocked", "Please allow popups for this website", "warning");
         }
     }
 
