@@ -69,12 +69,12 @@ Used mainly for release packaging and smaller image size.
 It uses `SlimToolkit <https://github.com/slimtoolkit/slim>`_.
 
 Non-Docker Installation for Local Development
------------------------
+---------------------------------------------
 
 Use this path for local debugging without Docker.
 
 Setup and dependencies
-""""""""""""""""""""""""
+""""""""""""""""""""""
 
 Clone the repository:
 
@@ -128,7 +128,7 @@ Install EAGLE:
     pip install .
 
 Run local server
-""""""""""""""""""
+""""""""""""""""
 
 Start EAGLE:
 

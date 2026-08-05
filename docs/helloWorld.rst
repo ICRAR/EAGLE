@@ -1,14 +1,9 @@
 Hello World Example
 ===================
 
-This walkthrough takes you through the complete EAGLE flow:
+This walkthrough is another form of our hello world tutorial, it is also present as a set of `guided UI tours <https://eagle.icrar.org/?tutorial=Quick%20Start>`_ within EAGLE.
 
-1. Build a logical graph.
-2. Save it to GitHub.
-3. Translate it.
-4. Execute it.
-
-Try the sample directly on the `public installation <https://eagle.icrar.org/?service=GitHub&repository=ICRAR/EAGLE-graph-repo&branch=master&path=examples&filename=HelloWorld-simple.graph>`_.
+Try the sample graph directly on the `public installation <https://eagle.icrar.org/?service=GitHub&repository=ICRAR/EAGLE-graph-repo&branch=master&path=examples&filename=HelloWorld-simple.graph>`_.
 
 Graph Creation
 --------------
