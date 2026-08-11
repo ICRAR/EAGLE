@@ -11,7 +11,6 @@ export class TestHelpers {
     public static readonly UI_SETTLE_TIMEOUT_LONG = 1000;
     public static readonly SHORT_TIMEOUT = 5000;
     public static readonly LONG_TIMEOUT = 10000;
-    public static readonly GRAPH_LOAD_TIMEOUT = 20000;
     // Counts how many times we have opened the canvas context menu.
     private static contextMenuAnchorIndex = 0;
     // Stores the last right-click position so we do not use the exact same spot twice in a row.
@@ -729,8 +728,12 @@ export class TestHelpers {
         await page.locator('#inputCodeModal .modal-footer button.btn-primary').click();
         await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
 
-        await TestHelpers.waitForGraphLoad(page, 1);
-        await TestHelpers.dismissNotificationIfPresent(page);
+        // wait for the notification to appear and then dismiss it
+        await page.locator('div[data-notify="container"]').first().waitFor({state: 'attached'});
+        await page.locator('button[data-notify="dismiss"]').first().click();
+
+        // wait for the notification to be dismissed
+        await page.locator('div[data-notify="container"]').first().waitFor({state: 'detached'});
     }
 
     // Load a graph from a string into the app via the modal
@@ -869,38 +872,6 @@ export class TestHelpers {
         await page.locator('div[data-notify="container"]').first().waitFor({state: 'attached'});
         await page.locator('button[data-notify="dismiss"]').first().click();
         await page.locator('div[data-notify="container"]').first().waitFor({state: 'detached'});
-    }
-
-    static async waitForGraphLoad(page: Page, minimumNodes = 1): Promise<void> {
-        await page.waitForLoadState('networkidle');
-        await page.waitForFunction((expectedMinimumNodes: number) => {
-            const eagle = (window as any).eagle;
-            if (!eagle || !eagle.logicalGraph) {
-                return false;
-            }
-
-            const lg = eagle.logicalGraph();
-            if (!lg || !lg.getNumNodes) {
-                return false;
-            }
-
-            return lg.getNumNodes() >= expectedMinimumNodes;
-        }, minimumNodes, { timeout: TestHelpers.GRAPH_LOAD_TIMEOUT });
-    }
-
-    static async dismissNotificationIfPresent(page: Page): Promise<void> {
-        const notification = page.locator('div[data-notify="container"]').first();
-        if (await notification.count() === 0) {
-            return;
-        }
-
-        const dismissButton = notification.locator('button[data-notify="dismiss"]').first();
-        if (await dismissButton.count() === 0) {
-            return;
-        }
-
-        await dismissButton.click();
-        await notification.waitFor({ state: 'detached', timeout: TestHelpers.SHORT_TIMEOUT });
     }
 
     static async openGraphMenuAndSelect(page: Page, menuItemId: string): Promise<void> {

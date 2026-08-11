@@ -1081,7 +1081,7 @@ export class Eagle {
             return;
         }
 
-        // attempt to determine schema version from FileInfo 
+        // attempt to determine schema version from FileInfo
         const schemaVersion: Setting.SchemaVersion = Utils.determineSchemaVersion(dataObject);
 
         const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
