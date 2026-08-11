@@ -9,6 +9,7 @@ import { Edge } from "./Edge";
 import { Errors } from './Errors';
 import { GraphConfigField } from "./GraphConfig";
 import { Id } from './Id';
+import { JsonScalar, V4FieldLoadJson } from './JsonLoadTypes';
 import { LogicalGraph } from './LogicalGraph';
 import { Node } from './Node';
 import { Setting } from './Setting';
@@ -846,7 +847,7 @@ export class Field {
         let fieldChangeable: boolean = changeable;
 
         if (typeof data.id !== 'undefined')
-            id = data.id;
+            id = data.id as FieldId;
             
         if (typeof data.name !== 'undefined')
             name = data.name;
@@ -935,7 +936,7 @@ export class Field {
         if (typeof data.event !== 'undefined')
             event = data.event;
         if (typeof data.type !== 'undefined')
-            type = data.type;
+            type = data.type as Daliuge.DataType;
         if (typeof data.description !== 'undefined')
             description = data.description;
         if (typeof data.encoding !== 'undefined')
@@ -953,11 +954,11 @@ export class Field {
         return f;
     }
 
-    static fromV4Json(data: any, node: Node, changeable: boolean): Field {
+    static fromV4Json(data: V4FieldLoadJson, node: Node, changeable: boolean): Field {
         let id: FieldId = Id.generateFieldId();
         let name: string = "";
-        let value: string = "";
-        let defaultValue: string = "";
+        let value: string | null = "";
+        let defaultValue: string | null = "";
         let description: string = "";
         let readonly: boolean = false;
         let type: Daliuge.DataType = Daliuge.DataType.Unknown;
@@ -972,7 +973,7 @@ export class Field {
         let fieldChangeable: boolean = changeable;
 
         if (typeof data.id !== 'undefined')
-            id = data.id;
+            id = data.id as FieldId;
         if (typeof data.name !== 'undefined')
             name = data.name;
         if (typeof data.value !== 'undefined')
@@ -982,36 +983,48 @@ export class Field {
                 value = null;
             }
         if (typeof data.defaultValue !== 'undefined')
-            defaultValue = data.defaultValue.toString();
+            defaultValue = Field.scalarLoadValueToString(data.defaultValue);
         if (typeof data.description !== 'undefined')
             description = data.description;
         if (typeof data.readonly !== 'undefined')
             readonly = data.readonly;
-        if (typeof data.type !== 'undefined')
-            type = data.type;
+        if (typeof data.type !== 'undefined') {
+            if (data.type === "Event") {
+                event = true;
+                type = Daliuge.DataType.Unknown;
+            } else {
+                type = data.type as Daliuge.DataType;
+            }
+        }
         if (typeof data.precious !== 'undefined')
             precious = data.precious;
         if (typeof data.options !== 'undefined')
-            options = data.options;
+            options = data.options.map(Field.scalarOptionToString);
         if (typeof data.positional !== 'undefined')
             positional = data.positional;
         if (typeof data.changeable !== 'undefined')
             fieldChangeable = data.changeable;
         if (typeof data.parameterType !== 'undefined')
-            parameterType = data.parameterType;
+            parameterType = data.parameterType as Daliuge.FieldType;
         if (typeof data.usage !== 'undefined')
-            usage = data.usage;
+            usage = data.usage as Daliuge.FieldUsage;
 
-        if (typeof data.event !== 'undefined')
-            event = data.event;
         if (typeof data.encoding !== 'undefined')
-            encoding = data.encoding;
+            encoding = data.encoding as Daliuge.Encoding;
 
         const f = new Field(node, id, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage);
         f.isEvent(event);
         f.encoding(encoding);
         f.changeable(fieldChangeable);
         return f;
+    }
+
+    private static scalarLoadValueToString(value: JsonScalar): string | null {
+        return value === null ? null : value.toString();
+    }
+
+    private static scalarOptionToString(value: JsonScalar): string {
+        return value === null ? "" : value.toString();
     }
 
     static isValid(graph: LogicalGraph, node:Node, field:Field, location:Eagle.FileType){

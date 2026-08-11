@@ -10,6 +10,7 @@ import { Node } from "./Node";
 import { Utils } from "./Utils";
 import { EagleConfig } from "./EagleConfig";
 import { Daliuge } from "./Daliuge";
+import { JsonScalar, V4GraphConfigFieldLoadJson, V4GraphConfigLoadJson, V4GraphConfigNodeLoadJson } from "./JsonLoadTypes";
 
 export class GraphConfig {
     fileInfo : ko.Observable<FileInfo>;
@@ -193,6 +194,29 @@ export class GraphConfig {
         return result;
     }
 
+    static fromV4GraphJson(data: V4GraphConfigLoadJson, lg: LogicalGraph, errorsWarnings: Errors.ErrorsWarnings) : GraphConfig {
+        const result: GraphConfig = new GraphConfig();
+
+        result.fileInfo(FileInfo.fromV4Json(data.modelData, errorsWarnings));
+        result.id(data.id as GraphConfigId);
+
+        for (const [nodeId, nodeData] of Object.entries(data.nodes)){
+            const lgNode = lg.getNodeById(nodeId as NodeId);
+            if (typeof lgNode === 'undefined'){
+                console.warn("GraphConfig.fromV4GraphJson(): Could not find node", nodeId);
+                errorsWarnings.errors.push(Errors.Message("GraphConfig.fromV4GraphJson(): Could not find node " + nodeId));
+                continue;
+            }
+
+            const newNode: GraphConfigNode = GraphConfigNode.fromV4GraphJson(nodeData, lgNode, errorsWarnings);
+            newNode.setNode(lgNode);
+            result.nodes().set(nodeId as NodeId, newNode);
+            result.nodes.valueHasMutated();
+        }
+
+        return result;
+    }
+
     static toJson(graphConfig: GraphConfig) : object {
         const result : any = {};
 
@@ -317,6 +341,27 @@ export class GraphConfigNode {
         return result;
     }
 
+    static fromV4GraphJson(data: V4GraphConfigNodeLoadJson, node: Node, errorsWarnings: Errors.ErrorsWarnings): GraphConfigNode {
+        const result = new GraphConfigNode(node);
+
+        for (const [fieldId, fieldData] of Object.entries(data.fields)){
+            const lgField = node.getFieldById(fieldId as FieldId);
+
+            if (typeof lgField === 'undefined'){
+                console.warn("GraphConfigNode.fromV4GraphJson(): Could not find field", fieldId, "in node", node.getName());
+                errorsWarnings.errors.push(Errors.Message("GraphConfigNode.fromV4GraphJson(): Could not find field " + fieldId + " in node " + node.getName()));
+                continue;
+            }
+
+            const newField: GraphConfigField = GraphConfigField.fromV4GraphJson(fieldData, lgField, errorsWarnings);
+            newField.setField(lgField);
+            result.fields().set(lgField.getId(), newField);
+            result.fields.valueHasMutated();
+        }
+
+        return result;
+    }
+
     static toJSON(node: GraphConfigNode, graphNode: Node) : object {
         const result : any = {};
 
@@ -409,6 +454,19 @@ export class GraphConfigField {
         }
 
         return result;
+    }
+
+    static fromV4GraphJson(data: V4GraphConfigFieldLoadJson, field: Field, _errorsWarnings: Errors.ErrorsWarnings): GraphConfigField {
+        const result = new GraphConfigField(field);
+
+        result.value(GraphConfigField.scalarLoadValueToString(data.value));
+        result.comment(data.comment);
+
+        return result;
+    }
+
+    private static scalarLoadValueToString(value: JsonScalar): string | null {
+        return value === null ? null : value.toString();
     }
 
     static toJson(field: GraphConfigField, type: Daliuge.DataType): object {

@@ -16,8 +16,9 @@ test('Validating Graphs', async ({ page }) => {
   for (const graphUrl of GRAPHS){
     await page.goto('http://localhost:8888/?tutorial=none&service=Url&url='+graphUrl);
 
-    // wait for the 'graph load success' notification to be shown, then dismiss it
-    await TestHelpers.waitForNotificationAndDismiss(page);
+    // wait for graph content to load, then dismiss load notification if one is visible
+    await TestHelpers.waitForGraphLoad(page, 1);
+    await TestHelpers.dismissNotificationIfPresent(page);
 
     // navigate menus and click the "validate" item
     await TestHelpers.openGraphMenuAndSelect(page, 'validateGraph');

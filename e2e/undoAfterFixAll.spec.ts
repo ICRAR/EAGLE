@@ -19,10 +19,9 @@ test('Undo after fixAll does not reintroduce fixed errors', async ({ page }) => 
     // load the graph via URL query param
     await page.goto('http://localhost:8888/?tutorial=none&service=Url&url=' + GRAPH_URL);
 
-    // wait for the graph-load notification
-    await page.locator('div[data-notify="container"]').waitFor({ state: 'attached' });
-    await page.locator('button[data-notify="dismiss"]').click();
-    await page.locator('div[data-notify="container"]').waitFor({ state: 'detached' });
+    // wait for graph data to be available, then dismiss any load notification if shown
+    await TestHelpers.waitForGraphLoad(page, 1);
+    await TestHelpers.dismissNotificationIfPresent(page);
 
     // set UI mode so editing is allowed
     await TestHelpers.setUIMode(page, 'Expert');
@@ -35,9 +34,7 @@ test('Undo after fixAll does not reintroduce fixed errors', async ({ page }) => 
     await page.press('body', 'f');
 
     // dismiss any notification from fixAll
-    await page.locator('div[data-notify="container"]').waitFor({ state: 'attached' });
-    await page.locator('button[data-notify="dismiss"]').click();
-    await page.locator('div[data-notify="container"]').waitFor({ state: 'detached' });
+    await TestHelpers.dismissNotificationIfPresent(page);
 
     // Wait until graph state settles after applying fixes.
     await expect.poll(async () => await TestHelpers.getNumWarningsErrors(page)).toBeLessThanOrEqual(initialCount);

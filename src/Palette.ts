@@ -123,7 +123,7 @@ export class Palette {
 
         // add nodes
         for (const [nodeId, nodeData] of Object.entries(dataObject.nodes)){
-            const node = Node.fromV4Json(nodeData, errorsWarnings, true);
+            const node = Node.fromV4Json(nodeData as any, errorsWarnings, true);
 
             result.nodes().set(nodeId as NodeId, node);
             result.nodes.valueHasMutated();

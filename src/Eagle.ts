@@ -61,6 +61,7 @@ import { Translator } from './Translator';
 import { Tutorial, tutorialArray } from './Tutorial';
 import { Undo } from './Undo';
 import { UiModeSystem } from './UiModes';
+import { JsonObject, V4GraphLoadJson } from './JsonLoadTypes';
 import { Utils } from './Utils';
 import { GraphUpdater } from "./GraphUpdater";
 import { versions } from "./Versions";
@@ -1046,6 +1047,20 @@ export class Eagle {
         }
     }
 
+    private _validateV4GraphLoadJSON = (dataObject: JsonObject, errorsWarnings: Errors.ErrorsWarnings): boolean => {
+        if (Setting.findValue<boolean>(Setting.DISABLE_JSON_VALIDATION, false)) {
+            return true;
+        }
+
+        const validatorResult = Utils._validateJSON(dataObject, Setting.SchemaVersion.V4, Eagle.FileType.Graph);
+        if (validatorResult.valid) {
+            return true;
+        }
+
+        errorsWarnings.errors.push(Errors.Message("V4 graph JSON failed schema validation: " + validatorResult.errors));
+        return false;
+    }
+
     private _loadGraphJSON = (data: string, fileFullPath: string, loadFunc: (lg: LogicalGraph) => void) : void => {
         let dataObject;
 
@@ -1066,7 +1081,7 @@ export class Eagle {
             return;
         }
 
-        // attempt to determine schema version from FileInfo
+        // attempt to determine schema version from FileInfo 
         const schemaVersion: Setting.SchemaVersion = Utils.determineSchemaVersion(dataObject);
 
         const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
@@ -1083,7 +1098,10 @@ export class Eagle {
                 loadFunc(LogicalGraph.fromOJSJson(dataObject, "", errorsWarnings));
                 break;
             case Setting.SchemaVersion.V4:
-                loadFunc(LogicalGraph.fromV4Json(dataObject, "", errorsWarnings));
+                if (!this._validateV4GraphLoadJSON(dataObject as JsonObject, errorsWarnings)) {
+                    break;
+                }
+                loadFunc(LogicalGraph.fromV4Json(dataObject as V4GraphLoadJson, "", errorsWarnings));
                 break;
             default:
                 errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
@@ -2927,7 +2945,11 @@ export class Eagle {
                 lg = LogicalGraph.fromOJSJson(dataObject, file.name, errorsWarnings);
                 break;
             case Setting.SchemaVersion.V4:
-                lg = LogicalGraph.fromV4Json(dataObject, file.name, errorsWarnings);
+                if (!this._validateV4GraphLoadJSON(dataObject as JsonObject, errorsWarnings)) {
+                    this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
+                    return;
+                }
+                lg = LogicalGraph.fromV4Json(dataObject as V4GraphLoadJson, file.name, errorsWarnings);
                 break;
             default:
                 errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));

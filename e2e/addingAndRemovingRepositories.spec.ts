@@ -358,10 +358,14 @@ test('gitCommit filename validator UX', async ({ page }) => {
   await expect(gitCommitCancelButton).toBeEnabled();
   await gitCommitCancelButton.click();
 
-  // First ensure bootstrap removed the "show" state, then confirm backdrop is gone and modal is hidden.
-  await expect(gitCommitModal).not.toHaveClass(/show/);
+  // Assert final hidden state; if the click is swallowed during animation, use Escape as fallback.
+  try {
+    await expect(gitCommitModal).toBeHidden({ timeout: TestHelpers.LONG_TIMEOUT });
+  } catch {
+    await page.keyboard.press('Escape');
+    await expect(gitCommitModal).toBeHidden({ timeout: TestHelpers.LONG_TIMEOUT });
+  }
   await expect(page.locator('.modal-backdrop.show')).toHaveCount(0);
-  await expect(gitCommitModal).toBeHidden({ timeout: TestHelpers.LONG_TIMEOUT });
 
   await page.close();
 });

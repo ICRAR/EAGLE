@@ -32,6 +32,7 @@ import { EagleConfig } from "./EagleConfig";
 import { Errors } from './Errors';
 import { Field } from './Field';
 import { Id } from './Id';
+import { V4NodeLoadJson } from './JsonLoadTypes';
 import { LogicalGraph } from './LogicalGraph';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
@@ -1460,7 +1461,7 @@ export class Node {
         }
 
         // translate categories if required
-        const category: Category = nodeData.category;
+        const category: Category = nodeData.category as Category;
 
         // if category is not known, then add error
         if (!Utils.isKnownCategory(category)){
@@ -1746,9 +1747,9 @@ export class Node {
         return node;
     }
 
-    static fromV4Json(nodeData : any, errorsWarnings: Errors.ErrorsWarnings, isPaletteNode: boolean) : Node {
+    static fromV4Json(nodeData : V4NodeLoadJson, errorsWarnings: Errors.ErrorsWarnings, isPaletteNode: boolean) : Node {
         // translate categories if required
-        const category: Category = nodeData.category;
+        const category: Category = nodeData.category as Category;
 
         // if category is not known, then add error
         if (!Utils.isKnownCategory(category)){
@@ -1758,7 +1759,7 @@ export class Node {
         const node : Node = new Node(nodeData.name, "", "", category);
         const categoryData: Category.CategoryData = CategoryData.getCategoryData(category);
 
-        node.setId(nodeData.id);
+        node.setId(nodeData.id as NodeId);
 
         // set position
         node.setPosition(nodeData.x, nodeData.y);
