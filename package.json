@@ -34,6 +34,7 @@
     "easy-pie-chart": "^2.1.7",
     "highlight.js": "^11.11.1",
     "jquery": "^3.5.1",
+    "json-schema-to-ts": "^3.1.1",
     "knockout": "^3.5.1",
     "marked": "^18.0.5",
     "marked-highlight": "^2.2.4",
@@ -41,7 +42,6 @@
     "typescript": "^6.0.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.61.1",
-    "json-schema-to-ts": "^3.1.1"
+    "@playwright/test": "^1.61.1"
   }
 }
