@@ -9,7 +9,7 @@ import { Edge } from "./Edge";
 import { Errors } from './Errors';
 import { GraphConfigField } from "./GraphConfig";
 import { Id } from './Id';
-import { JsonScalar, V4FieldJson } from './JsonLoadTypes';
+import { V4FieldJson } from './JsonLoadTypes';
 import { LogicalGraph } from './LogicalGraph';
 import { Node } from './Node';
 import { Setting } from './Setting';
@@ -983,7 +983,7 @@ export class Field {
                 value = null;
             }
         if (typeof data.defaultValue !== 'undefined')
-            defaultValue = Field.scalarLoadValueToString(data.defaultValue);
+            defaultValue = Utils.scalarLoadValueToString(data.defaultValue);
         if (typeof data.description !== 'undefined')
             description = data.description;
         if (typeof data.readonly !== 'undefined')
@@ -999,7 +999,7 @@ export class Field {
         if (typeof data.precious !== 'undefined')
             precious = data.precious;
         if (typeof data.options !== 'undefined')
-            options = data.options.map(Field.scalarOptionToString);
+            options = data.options.map(Utils.scalarOptionToString);
         if (typeof data.positional !== 'undefined')
             positional = data.positional;
         if (typeof data.changeable !== 'undefined')
@@ -1017,14 +1017,6 @@ export class Field {
         f.encoding(encoding);
         f.changeable(fieldChangeable);
         return f;
-    }
-
-    private static scalarLoadValueToString(value: JsonScalar): string | null {
-        return value === null ? null : value.toString();
-    }
-
-    private static scalarOptionToString(value: JsonScalar): string {
-        return value === null ? "" : value.toString();
     }
 
     static isValid(graph: LogicalGraph, node:Node, field:Field, location:Eagle.FileType){

@@ -10,7 +10,7 @@ import { Node } from "./Node";
 import { Utils } from "./Utils";
 import { EagleConfig } from "./EagleConfig";
 import { Daliuge } from "./Daliuge";
-import { LegacyGraphConfigFieldJson, LegacyGraphConfigJson, LegacyGraphConfigNodeJson, JsonObject, JsonScalar, V4GraphConfigFieldJson, V4GraphConfigJson, V4GraphConfigNodeJson } from "./JsonLoadTypes";
+import { LegacyGraphConfigFieldJson, LegacyGraphConfigJson, LegacyGraphConfigNodeJson, JsonObject, V4GraphConfigFieldJson, V4GraphConfigJson, V4GraphConfigNodeJson } from "./JsonLoadTypes";
 
 export class GraphConfig {
     fileInfo : ko.Observable<FileInfo>;
@@ -454,14 +454,10 @@ export class GraphConfigField {
     static fromV4GraphJson(data: V4GraphConfigFieldJson, field: Field, _errorsWarnings: Errors.ErrorsWarnings): GraphConfigField {
         const result = new GraphConfigField(field);
 
-        result.value(GraphConfigField.scalarLoadValueToString(data.value));
+        result.value(Utils.scalarLoadValueToString(data.value));
         result.comment(data.comment);
 
         return result;
-    }
-
-    private static scalarLoadValueToString(value: JsonScalar): string | null {
-        return value === null ? null : value.toString();
     }
 
     static toJson(field: GraphConfigField, type: Daliuge.DataType): V4GraphConfigFieldJson {
