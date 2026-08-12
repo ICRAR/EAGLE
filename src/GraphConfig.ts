@@ -10,7 +10,7 @@ import { Node } from "./Node";
 import { Utils } from "./Utils";
 import { EagleConfig } from "./EagleConfig";
 import { Daliuge } from "./Daliuge";
-import { JsonScalar, V4GraphConfigFieldLoadJson, V4GraphConfigLoadJson, V4GraphConfigNodeLoadJson } from "./JsonLoadTypes";
+import { LegacyGraphConfigFieldLoadJson, LegacyGraphConfigLoadJson, LegacyGraphConfigNodeLoadJson, JsonObject, JsonScalar, V4GraphConfigFieldLoadJson, V4GraphConfigLoadJson, V4GraphConfigNodeLoadJson } from "./JsonLoadTypes";
 
 export class GraphConfig {
     fileInfo : ko.Observable<FileInfo>;
@@ -140,43 +140,44 @@ export class GraphConfig {
         return Utils.markdown2html(this.fileInfo().name);
     }, this); 
 
-    static fromJson(data: any, lg: LogicalGraph, errorsWarnings: Errors.ErrorsWarnings) : GraphConfig {
+    static fromJson(data: JsonObject, lg: LogicalGraph, errorsWarnings: Errors.ErrorsWarnings) : GraphConfig {
+        const graphConfigData = data as LegacyGraphConfigLoadJson;
         const result: GraphConfig = new GraphConfig();
 
         // copy modelData into fileInfo
-        if (typeof data.modelData === 'undefined'){
+        if (typeof graphConfigData.modelData === 'undefined'){
             const fi = new FileInfo();
 
             // attempt to read old-style attributes and place them in the new FileInfo class
-            if (typeof data.name !== "undefined"){
-                fi.name = data.name;
+            if (typeof graphConfigData.name !== "undefined"){
+                fi.name = graphConfigData.name;
             }
-            if (typeof data.description !== "undefined"){
-                fi.shortDescription = data.description;
+            if (typeof graphConfigData.description !== "undefined"){
+                fi.shortDescription = graphConfigData.description;
             }
-            if (typeof data.lastModifiedName !== "undefined"){
-                fi.lastModifiedName = data.lastModifiedName;
+            if (typeof graphConfigData.lastModifiedName !== "undefined"){
+                fi.lastModifiedName = graphConfigData.lastModifiedName;
             }
-            if (typeof data.lastModifiedEmail !== "undefined"){
-                fi.lastModifiedEmail = data.lastModifiedEmail;
+            if (typeof graphConfigData.lastModifiedEmail !== "undefined"){
+                fi.lastModifiedEmail = graphConfigData.lastModifiedEmail;
             }
-            if (typeof data.lastModifiedDatetime !== "undefined"){
-                fi.lastModifiedDatetime = data.lastModifiedDatetime;
+            if (typeof graphConfigData.lastModifiedDatetime !== "undefined"){
+                fi.lastModifiedDatetime = graphConfigData.lastModifiedDatetime;
             }
 
             fi.type = Eagle.FileType.GraphConfig;
             result.fileInfo(fi);
         } else {
-            result.fileInfo(FileInfo.fromV4Json(data.modelData, errorsWarnings));
+            result.fileInfo(FileInfo.fromV4Json(graphConfigData.modelData, errorsWarnings));
         }
 
-        if (typeof data.id !== 'undefined'){
-            result.id(data.id);
+        if (typeof graphConfigData.id !== 'undefined'){
+            result.id(graphConfigData.id as GraphConfigId);
         }
 
-        if (typeof data.nodes !== 'undefined'){
-            for (const nodeId in data.nodes){
-                const nodeData = data.nodes[nodeId];
+        if (typeof graphConfigData.nodes !== 'undefined'){
+            for (const nodeId in graphConfigData.nodes){
+                const nodeData = graphConfigData.nodes[nodeId];
                 const lgNode = lg.getNodeById(nodeId as NodeId);
                 if (typeof lgNode === 'undefined'){
                     console.warn("GraphConfig.fromJson(): Could not find node", nodeId);
@@ -217,17 +218,8 @@ export class GraphConfig {
         return result;
     }
 
-    static toJson(graphConfig: GraphConfig) : object {
-        const result : any = {};
-
-        // modelData
-        result.modelData = FileInfo.toV4Json(graphConfig.fileInfo());
-
-        // id
-        result.id = graphConfig.id();
-
-        // add nodes
-        result.nodes = {};
+    static toJson(graphConfig: GraphConfig) : V4GraphConfigLoadJson {
+        const nodes: Record<string, V4GraphConfigNodeLoadJson> = {};
         for (const node of graphConfig.nodes().values()){
             const graphNode: Node = node.getNode();
 
@@ -235,16 +227,20 @@ export class GraphConfig {
                 continue;
             }
 
-            result.nodes[graphNode.getId()] = GraphConfigNode.toJSON(node, graphNode);
+            nodes[graphNode.getId()] = GraphConfigNode.toJSON(node, graphNode);
         }
 
-        return result;
+        return {
+            modelData: FileInfo.toV4Json(graphConfig.fileInfo()),
+            id: graphConfig.id(),
+            nodes: nodes,
+        };
     }
 
     static toJsonString(graphConfig: GraphConfig) : string {
         let result: string = "";
 
-        const json: any = GraphConfig.toJson(graphConfig);
+        const json = GraphConfig.toJson(graphConfig);
 
         // NOTE: manually build the JSON so that we can enforce ordering of attributes (modelData first)
         result += JSON.stringify(json, null, EagleConfig.JSON_INDENT);
@@ -316,12 +312,13 @@ export class GraphConfigNode {
         return this.fields().values();
     }
 
-    static fromJson(data: any, node: Node, errorsWarnings: Errors.ErrorsWarnings): GraphConfigNode {
+    static fromJson(data: JsonObject, node: Node, errorsWarnings: Errors.ErrorsWarnings): GraphConfigNode {
+        const nodeData = data as LegacyGraphConfigNodeLoadJson;
         const result = new GraphConfigNode(node);
 
-        if (data.fields !== undefined){
-            for (const fieldId in data.fields){
-                const fieldData = data.fields[fieldId];
+        if (nodeData.fields !== undefined){
+            for (const fieldId in nodeData.fields){
+                const fieldData = nodeData.fields[fieldId];
                 const lgField = node.getFieldById(fieldId as FieldId);
 
                 if (typeof lgField === 'undefined'){
@@ -362,11 +359,8 @@ export class GraphConfigNode {
         return result;
     }
 
-    static toJSON(node: GraphConfigNode, graphNode: Node) : object {
-        const result : any = {};
-
-        // add fields
-        result.fields = {};
+    static toJSON(node: GraphConfigNode, graphNode: Node) : V4GraphConfigNodeLoadJson {
+        const fields: Record<string, V4GraphConfigFieldLoadJson> = {};
         for (const [id, field] of node.fields()){
             const graphField = graphNode.getFieldById(id);
 
@@ -374,10 +368,10 @@ export class GraphConfigNode {
                 continue;
             }
 
-            result.fields[field.getField().getId()] = GraphConfigField.toJson(field, graphField.getType());
+            fields[field.getField().getId()] = GraphConfigField.toJson(field, graphField.getType());
         }
 
-        return result;
+        return {fields: fields};
     }
 }
 
@@ -438,19 +432,20 @@ export class GraphConfigField {
         return this.comment();
     }
 
-    static fromJson(data: any, field: Field, _errorsWarnings: Errors.ErrorsWarnings): GraphConfigField {
+    static fromJson(data: JsonObject, field: Field, _errorsWarnings: Errors.ErrorsWarnings): GraphConfigField {
+        const fieldData = data as LegacyGraphConfigFieldLoadJson;
         const result = new GraphConfigField(field);
 
-        if (typeof data.value !== 'undefined'){
-            if (data.value === null){
+        if (typeof fieldData.value !== 'undefined'){
+            if (fieldData.value === null){
                 result.value(null);
             } else {
-                result.value(data.value.toString());
+                result.value(fieldData.value.toString());
             }
         }
 
-        if (typeof data.comment !== 'undefined'){
-            result.comment(data.comment);
+        if (typeof fieldData.comment !== 'undefined'){
+            result.comment(fieldData.comment);
         }
 
         return result;
@@ -469,13 +464,11 @@ export class GraphConfigField {
         return value === null ? null : value.toString();
     }
 
-    static toJson(field: GraphConfigField, type: Daliuge.DataType): object {
-        const result : any = {};
-
-        // NOTE: do not add 'id' attribute, since fields are stored in a dict keyed by id
-        result.value = Field.stringAsType(field.value(), type);
-        result.comment = field.comment();
-
-        return result;
+    static toJson(field: GraphConfigField, type: Daliuge.DataType): V4GraphConfigFieldLoadJson {
+        return {
+            // NOTE: do not add 'id' attribute, since fields are stored in a dict keyed by id
+            value: Field.stringAsType(field.value(), type),
+            comment: field.comment(),
+        };
     }
 }

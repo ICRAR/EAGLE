@@ -109,7 +109,7 @@
                 },
                 "parameterType": {
                     "type": "string",
-                    "enum": ["Application", "Component", "Constraint", "Construct"],
+                    "enum": ["Application", "Component", "Constraint", "Construct", "Unknown"],
                     "default": "Component"
                 },
                 "usage": {
@@ -333,7 +333,7 @@
                 },
                 "type": {
                     "type": "string",
-                    "enum": ["Graph", "Palette", "GraphConfig"],
+                    "enum": ["Graph", "GraphConfig", "Palette", "JSON", "Markdown", "Unknown"],
                     "default": "Graph"
                 },
                 "generatorVersion": {

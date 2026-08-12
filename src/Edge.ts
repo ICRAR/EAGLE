@@ -238,7 +238,7 @@ export class Edge {
         };
     }
 
-    static toV4Json(edge: Edge) : object {
+    static toV4Json(edge: Edge) : V4EdgeLoadJson {
         return {
             id: edge.getId(),
             comment: edge.comment(),

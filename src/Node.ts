@@ -1999,47 +1999,34 @@ export class Node {
         return result;
     }
 
-    static toV4GraphJson(node: Node) : object {
-        const result: any = {};
-
-        result.category = node.category();
-        result.categoryType = node.categoryType();
-
-        result.id = node.id();
-        result.name = node.name();
-        result.description = node.description();
-        result.x = node.x();
-        result.y = node.y();
-        result.repositoryUrl = node.repositoryUrl();
-        result.commitHash = node.commitHash();
-        result.paletteDownloadUrl = node.paletteDownloadUrl();
-        result.dataHash = node.dataHash();
-
+    static toV4GraphJson(node: Node) : V4NodeLoadJson {
         const parent = node.parent();
         const embed = node.embed();
-
-        result.parentId = parent === null ? null : parent.getId();
-        result.embedId = embed === null ? null : embed.getId();
-
-        // add fields
-        result.fields = {};
-        for (const field of node.fields().values()){
-            result.fields[field.getId()] = Field.toV4Json(field);
-        }
-
         const inputApplication = node.inputApplication();
         const outputApplication = node.outputApplication();
 
-        // write application names and types
-        if (inputApplication !== null){
-            result.inputApplicationId  = inputApplication.id();
-        } else {
-            result.inputApplicationId  = null;
-        }
-        if (outputApplication !== null){
-            result.outputApplicationId  = outputApplication.id();
-        } else {
-            result.outputApplicationId  = null;
+        const result: V4NodeLoadJson = {
+            category: node.category(),
+            categoryType: node.categoryType(),
+            id: node.id(),
+            name: node.name(),
+            description: node.description(),
+            x: node.x(),
+            y: node.y(),
+            repositoryUrl: node.repositoryUrl(),
+            commitHash: node.commitHash(),
+            paletteDownloadUrl: node.paletteDownloadUrl(),
+            dataHash: node.dataHash(),
+            parentId: parent === null ? null : parent.getId(),
+            embedId: embed === null ? null : embed.getId(),
+            fields: {},
+            inputApplicationId: inputApplication === null ? null : inputApplication.id(),
+            outputApplicationId: outputApplication === null ? null : outputApplication.id(),
+        };
+
+        // add fields
+        for (const field of node.fields().values()){
+            result.fields[field.getId()] = Field.toV4Json(field);
         }
 
         return result;

@@ -809,7 +809,7 @@ export class Field {
         };
     }
 
-    static toV4Json(field : Field) : object {
+    static toV4Json(field : Field) : V4FieldLoadJson {
         return {
             name:field.displayText(),
             value:Field.stringAsType(field.value(), field.type()),

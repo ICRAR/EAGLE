@@ -230,7 +230,7 @@ export class Visual {
             .setColor(visualData.color);
     }
 
-    static toJson(visual: Visual) : object {
+    static toJson(visual: Visual) : V4VisualLoadJson {
         return {
             id: visual.getId(),
             x: visual.x(),

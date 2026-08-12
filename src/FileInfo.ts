@@ -4,6 +4,7 @@ import { Eagle } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { Errors } from './Errors';
 import { FileLocation } from "./FileLocation";
+import { JsonObject, LegacyV4FileInfoLoadJson, V4FileInfoLoadJson, V4FileLocationLoadJson } from "./JsonLoadTypes";
 import { Repository } from "./Repository";
 import { Setting } from "./Setting";
 import { Utils } from './Utils';
@@ -302,8 +303,9 @@ export class FileInfo {
     }
 
     updateEagleInfo = () : void => {
-        this.generatorVersion = (<any>window).version;
-        this.generatorCommitHash = (<any>window).commit_hash;
+        const eagleWindow = window as Window & {version?: string; commit_hash?: string};
+        this.generatorVersion = eagleWindow.version ?? "";
+        this.generatorCommitHash = eagleWindow.commit_hash ?? "";
         this.generatorName = "EAGLE";
     }
 
@@ -437,7 +439,7 @@ export class FileInfo {
         };
     }
 
-    static toV4Json(fileInfo : FileInfo) : object {
+    static toV4Json(fileInfo : FileInfo) : V4FileInfoLoadJson {
         return {
             name: fileInfo.name,
             shortDescription: fileInfo.shortDescription,
@@ -531,32 +533,52 @@ export class FileInfo {
         return result;
     }
 
-    static fromV4Json(modelData: any, errorsWarnings: Errors.ErrorsWarnings): FileInfo{
+    static fromV4Json(modelData: V4FileInfoLoadJson | JsonObject, errorsWarnings: Errors.ErrorsWarnings): FileInfo{
+        const typedModelData = modelData as LegacyV4FileInfoLoadJson;
+        const defaultLocation: V4FileLocationLoadJson = {
+            repositoryService: Repository.Service.Unknown,
+            repositoryBranch: "",
+            repositoryName: "",
+            repositoryPath: "",
+            repositoryFileName: "",
+            commitHash: "",
+            downloadUrl: "",
+        };
+
+        const locationData: V4FileLocationLoadJson = {
+            ...defaultLocation,
+            ...(typedModelData.location ?? {}),
+        };
+
+        const graphLocationData: V4FileLocationLoadJson = {
+            ...defaultLocation,
+            ...(typedModelData.graphLocation ?? {}),
+        };
         const result: FileInfo = new FileInfo();
 
-        result.name = modelData.name ?? "";
-        result.shortDescription = modelData.shortDescription ?? "";
-        result.detailedDescription = modelData.detailedDescription ?? "";
-        result.type = Utils.translateStringToFileType(modelData.type);
-        result.schemaVersion = modelData.schemaVersion ?? "";
-        result.readonly = modelData.readonly ?? true;
-        result.location = FileLocation.fromJson(modelData.location ?? {}, errorsWarnings);
+        result.name = typedModelData.name ?? "";
+        result.shortDescription = typedModelData.shortDescription ?? "";
+        result.detailedDescription = typedModelData.detailedDescription ?? "";
+        result.type = Utils.translateStringToFileType(typedModelData.type);
+        result.schemaVersion = (typedModelData.schemaVersion as Setting.SchemaVersion | undefined) ?? Setting.SchemaVersion.Unknown;
+        result.readonly = typedModelData.readonly ?? true;
+        result.location = FileLocation.fromJson(locationData, errorsWarnings);
 
-        result.generatorVersion = modelData.generatorVersion ?? "";
-        result.generatorCommitHash = modelData.generatorCommitHash ?? "";
-        result.generatorName = modelData.generatorName ?? "";
+        result.generatorVersion = typedModelData.generatorVersion ?? "";
+        result.generatorCommitHash = typedModelData.generatorCommitHash ?? "";
+        result.generatorName = typedModelData.generatorName ?? "";
 
-        result.repositoryUrl = modelData.repositoryUrl ?? "";
+        result.repositoryUrl = typedModelData.repositoryUrl ?? "";
 
-        result.graphLocation = FileLocation.fromJson(modelData.graphLocation ?? {}, errorsWarnings);
+        result.graphLocation = FileLocation.fromJson(graphLocationData, errorsWarnings);
 
-        result.signature = modelData.signature ?? "";
+        result.signature = typedModelData.signature ?? "";
 
-        result.lastModifiedName = modelData.lastModifiedName ?? "";
-        result.lastModifiedEmail = modelData.lastModifiedEmail ?? "";
-        result.lastModifiedDatetime = modelData.lastModifiedDatetime ?? 0;
+        result.lastModifiedName = typedModelData.lastModifiedName ?? "";
+        result.lastModifiedEmail = typedModelData.lastModifiedEmail ?? "";
+        result.lastModifiedDatetime = typedModelData.lastModifiedDatetime ?? 0;
 
-        result.numLGNodes = modelData.numLGNodes ?? 0;
+        result.numLGNodes = typedModelData.numLGNodes ?? 0;
 
         return result;
     }

@@ -35,7 +35,7 @@ import { FileInfo } from './FileInfo';
 import { FileLocation } from "./FileLocation";
 import { GraphConfig } from './GraphConfig';
 import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
-import { V4GraphLoadJson } from './JsonLoadTypes';
+import { JsonObject, V4GraphLoadJson, V4FileInfoLoadJson } from './JsonLoadTypes';
 import { Node } from './Node';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
@@ -146,16 +146,21 @@ export class LogicalGraph {
         return result;
     }
 
-    static toV4Json(graph: LogicalGraph, _forTranslation: boolean) : object {
-        const result : any = {};
+    static toV4Json(graph: LogicalGraph, _forTranslation: boolean) : V4GraphLoadJson {
+        const result: V4GraphLoadJson = {
+            modelData: FileInfo.toV4Json(graph.fileInfo()) as V4FileInfoLoadJson,
+            nodes: {},
+            edges: {},
+            visuals: {},
+            graphConfigurations: {},
+            activeGraphConfigId: null,
+        };
 
-        result.modelData = FileInfo.toV4Json(graph.fileInfo());
         result.modelData.schemaVersion = Setting.SchemaVersion.V4;
 
         // add nodes
-        result.nodes = {};
         for (const [id, node] of graph.nodes()){
-            const nodeData : any = Node.toV4GraphJson(node);
+            const nodeData = Node.toV4GraphJson(node);
             result.nodes[id] = nodeData;
 
             const inputApplication = node.getInputApplication();
@@ -173,21 +178,18 @@ export class LogicalGraph {
 
         // edges
         // NOTE: we do not skip close loop edges
-        result.edges = {};
         for (const [id, edge] of graph.edges()){
-            const edgeData : any = Edge.toV4Json(edge);
+            const edgeData = Edge.toV4Json(edge);
             result.edges[id] = edgeData;
         }
 
         // visuals
-        result.visuals = {};
         for (const [id, visual] of graph.visuals()){
-            const visualData : any = Visual.toJson(visual);
+            const visualData = Visual.toJson(visual);
             result.visuals[id] = visualData;
         }
 
         // add graph configurations
-        result.graphConfigurations = {};
         for (const gc of graph.graphConfigs().values()){
             result.graphConfigurations[gc.getId()] = GraphConfig.toJson(gc);
         }
@@ -234,7 +236,7 @@ export class LogicalGraph {
     static toV4JsonString(graph: LogicalGraph, forTranslation: boolean) : string {
         let result: string = "";
 
-        const json: any = LogicalGraph.toV4Json(graph, forTranslation);
+        const json = LogicalGraph.toV4Json(graph, forTranslation);
 
         // NOTE: manually build the JSON so that we can enforce ordering of attributes (modelData first)
         result += "{\n";
@@ -249,7 +251,7 @@ export class LogicalGraph {
             if (typeof activeGraphConfig === "undefined"){
                 result += '"graphConfigurations": {},\n';
             } else {
-                const graphConfigurations: any = {};
+                const graphConfigurations: JsonObject = {};
                 graphConfigurations[activeGraphConfig.getId()] = GraphConfig.toJson(activeGraphConfig);
                 result += '"graphConfigurations": ' + JSON.stringify(graphConfigurations, null, EagleConfig.JSON_INDENT) + ",\n";
             }

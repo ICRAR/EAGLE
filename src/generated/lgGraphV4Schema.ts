@@ -164,7 +164,8 @@ export const lgGraphV4Schema = {
                         "Application",
                         "Component",
                         "Constraint",
-                        "Construct"
+                        "Construct",
+                        "Unknown"
                     ],
                     "default": "Component"
                 },
@@ -410,8 +411,11 @@ export const lgGraphV4Schema = {
                     "type": "string",
                     "enum": [
                         "Graph",
+                        "GraphConfig",
                         "Palette",
-                        "GraphConfig"
+                        "JSON",
+                        "Markdown",
+                        "Unknown"
                     ],
                     "default": "Graph"
                 },

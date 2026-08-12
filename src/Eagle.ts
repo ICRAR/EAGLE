@@ -2725,12 +2725,20 @@ export class Eagle {
         // determine file extension
         const fileExtension = Utils.getFileExtension(file.name);
         let fileTypeLoaded: Eagle.FileType = Eagle.FileType.Unknown;
-        let dataObject: any = null;
+        let dataObject: JsonObject | null = null;
+        const eagleWindow = window as Window & {version?: string};
 
         if (fileExtension !== "md"){
             // attempt to parse the JSON
             try {
-                dataObject = JSON.parse(data);
+                const parsed = JSON.parse(data);
+
+                if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)){
+                    Utils.showUserMessage("Error parsing file JSON", "Top-level JSON must be an object");
+                    return;
+                }
+
+                dataObject = parsed as JsonObject;
             }
             catch(err){
                 Utils.showUserMessage("Error parsing file JSON", Errors.UnknownToError(err));
@@ -2744,6 +2752,11 @@ export class Eagle {
 
         switch (fileTypeLoaded){
             case Eagle.FileType.Graph: {
+                if (dataObject === null){
+                    Utils.showUserMessage("Error", "Graph JSON payload is empty or invalid.");
+                    return;
+                }
+
                 // attempt to determine schema version from FileInfo
                 const eagleVersion: string = Utils.determineEagleVersion(dataObject);
 
@@ -2753,8 +2766,8 @@ export class Eagle {
                 }
 
                 // warn user if file newer than EAGLE
-                if (Utils.newerEagleVersion(eagleVersion, (<any>window).version)){
-                    const confirmed = await Utils.requestUserConfirm("Newer EAGLE Version", "File " + file.name + " was written with EAGLE version " + eagleVersion + ", whereas the current EAGLE version is " + (<any>window).version + ". Do you wish to load the file anyway?", "Yes", "No", undefined);
+                if (Utils.newerEagleVersion(eagleVersion, eagleWindow.version ?? "")){
+                    const confirmed = await Utils.requestUserConfirm("Newer EAGLE Version", "File " + file.name + " was written with EAGLE version " + eagleVersion + ", whereas the current EAGLE version is " + (eagleWindow.version ?? "") + ". Do you wish to load the file anyway?", "Yes", "No", undefined);
                     if (confirmed){
                         this._loadGraph(data, file);
                     }
@@ -2773,6 +2786,10 @@ export class Eagle {
                 break;
 
             case Eagle.FileType.GraphConfig:
+                if (dataObject === null){
+                    Utils.showUserMessage("Error", "GraphConfig JSON payload is empty or invalid.");
+                    return;
+                }
                 this._loadGraphConfig(dataObject, file);
                 break;
 
@@ -2811,7 +2828,7 @@ export class Eagle {
         Utils.updateFileInfo(this.logicalGraph().fileInfo, file);
     }
 
-    _loadGraphConfig = async (dataObject: any, file: RepositoryFile): Promise<void> => {
+    _loadGraphConfig = async (dataObject: JsonObject, file: RepositoryFile): Promise<void> => {
         const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
 
         const graphConfig = GraphConfig.fromJson(dataObject, this.logicalGraph(), errorsWarnings);
