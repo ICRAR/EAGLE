@@ -999,7 +999,7 @@ export class Field {
         if (typeof data.precious !== 'undefined')
             precious = data.precious;
         if (typeof data.options !== 'undefined')
-            options = data.options.map(Utils.scalarOptionToString);
+            options = Array.isArray(data.options) ? data.options.map(Utils.scalarOptionToString) : [];
         if (typeof data.positional !== 'undefined')
             positional = data.positional;
         if (typeof data.changeable !== 'undefined')
