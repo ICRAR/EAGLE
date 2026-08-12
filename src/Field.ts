@@ -9,7 +9,7 @@ import { Edge } from "./Edge";
 import { Errors } from './Errors';
 import { GraphConfigField } from "./GraphConfig";
 import { Id } from './Id';
-import { JsonScalar, V4FieldLoadJson } from './JsonLoadTypes';
+import { JsonScalar, V4FieldJson } from './JsonLoadTypes';
 import { LogicalGraph } from './LogicalGraph';
 import { Node } from './Node';
 import { Setting } from './Setting';
@@ -809,7 +809,7 @@ export class Field {
         };
     }
 
-    static toV4Json(field : Field) : V4FieldLoadJson {
+    static toV4Json(field : Field) : V4FieldJson {
         return {
             name:field.displayText(),
             value:Field.stringAsType(field.value(), field.type()),
@@ -954,7 +954,7 @@ export class Field {
         return f;
     }
 
-    static fromV4Json(data: V4FieldLoadJson, node: Node, changeable: boolean): Field {
+    static fromV4Json(data: V4FieldJson, node: Node, changeable: boolean): Field {
         let id: FieldId = Id.generateFieldId();
         let name: string = "";
         let value: string | null = "";

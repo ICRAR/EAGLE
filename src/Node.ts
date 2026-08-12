@@ -32,7 +32,7 @@ import { EagleConfig } from "./EagleConfig";
 import { Errors } from './Errors';
 import { Field } from './Field';
 import { Id } from './Id';
-import { V4NodeLoadJson } from './JsonLoadTypes';
+import { V4NodeJson } from './JsonLoadTypes';
 import { LogicalGraph } from './LogicalGraph';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
@@ -1747,7 +1747,7 @@ export class Node {
         return node;
     }
 
-    static fromV4Json(nodeData : V4NodeLoadJson, errorsWarnings: Errors.ErrorsWarnings, isPaletteNode: boolean) : Node {
+    static fromV4Json(nodeData : V4NodeJson, errorsWarnings: Errors.ErrorsWarnings, isPaletteNode: boolean) : Node {
         // translate categories if required
         const category: Category = nodeData.category as Category;
 
@@ -1999,13 +1999,13 @@ export class Node {
         return result;
     }
 
-    static toV4GraphJson(node: Node) : V4NodeLoadJson {
+    static toV4GraphJson(node: Node) : V4NodeJson {
         const parent = node.parent();
         const embed = node.embed();
         const inputApplication = node.inputApplication();
         const outputApplication = node.outputApplication();
 
-        const result: V4NodeLoadJson = {
+        const result: V4NodeJson = {
             category: node.category(),
             categoryType: node.categoryType(),
             id: node.id(),

@@ -30,27 +30,23 @@ export type JsonScalar = string | boolean | number | null;
 
 export const v4GraphLoadSchema = lgGraphV4Schema;
 
-type V4GraphLoadJsonFromSchema = FromSchema<typeof v4GraphLoadSchema>;
+export type V4GraphJson = FromSchema<typeof v4GraphLoadSchema>;
 
-export type V4NodeLoadJson = V4GraphLoadJsonFromSchema["nodes"][string];
-export type V4FieldLoadJson = V4NodeLoadJson["fields"][string] & {
-	changeable?: boolean;
-};
-export type V4EdgeLoadJson = V4GraphLoadJsonFromSchema["edges"][string] & {
-	comment?: string;
-};
-export type V4VisualLoadJson = V4GraphLoadJsonFromSchema["visuals"][string];
-export type V4GraphConfigLoadJson = V4GraphLoadJsonFromSchema["graphConfigurations"][string];
-export type V4GraphConfigNodeLoadJson = V4GraphConfigLoadJson["nodes"][string];
-export type V4GraphConfigFieldLoadJson = V4GraphConfigNodeLoadJson["fields"][string];
-export type V4FileInfoLoadJson = V4GraphLoadJsonFromSchema["modelData"];
-export type V4FileLocationLoadJson = V4FileInfoLoadJson["location"];
+export type V4NodeJson = V4GraphJson["nodes"][string];
+export type V4FieldJson = V4NodeJson["fields"][string];
+export type V4EdgeJson = V4GraphJson["edges"][string];
+export type V4VisualLoadJson = V4GraphJson["visuals"][string];
+export type V4GraphConfigJson = V4GraphJson["graphConfigurations"][string];
+export type V4GraphConfigNodeJson = V4GraphConfigJson["nodes"][string];
+export type V4GraphConfigFieldJson = V4GraphConfigNodeJson["fields"][string];
+export type V4FileInfoJson = V4GraphJson["modelData"];
+export type V4FileLocationJson = V4FileInfoJson["location"];
 
 
 // NOTE: these new types extend the schema types with optional properties to allow for
 // backwards compatibility with older graph files that may not have these properties.
 // This is important for loading older graphs without errors.
-export type LegacyGraphConfigLoadJson = Partial<V4GraphConfigLoadJson> & {
+export type LegacyGraphConfigLoadJson = Partial<V4GraphConfigJson> & {
 	name?: string;
 	description?: string;
 	lastModifiedName?: string;
@@ -59,20 +55,18 @@ export type LegacyGraphConfigLoadJson = Partial<V4GraphConfigLoadJson> & {
 	nodes?: Record<string, JsonObject>;
 };
 
-export type LegacyGraphConfigNodeLoadJson = Partial<V4GraphConfigNodeLoadJson> & {
+export type LegacyGraphConfigNodeLoadJson = Partial<V4GraphConfigNodeJson> & {
 	fields?: Record<string, JsonObject>;
 };
 
-export type LegacyGraphConfigFieldLoadJson = Partial<V4GraphConfigFieldLoadJson> & {
+export type LegacyGraphConfigFieldLoadJson = Partial<V4GraphConfigFieldJson> & {
 	value?: JsonScalar;
 	comment?: string;
 };
 
-export type LegacyV4FileInfoLoadJson = Partial<V4FileInfoLoadJson> & {
-	location?: Partial<V4FileLocationLoadJson>;
-	graphLocation?: Partial<V4FileLocationLoadJson>;
+export type LegacyV4FileInfoLoadJson = Partial<V4FileInfoJson> & {
+	location?: Partial<V4FileLocationJson>;
+	graphLocation?: Partial<V4FileLocationJson>;
 	eagleVersion?: string;
 	eagleCommitHash?: string;
 };
-
-export type V4GraphLoadJson = V4GraphLoadJsonFromSchema;

@@ -31,7 +31,7 @@ import { EagleConfig } from './EagleConfig';
 import { Errors } from './Errors';
 import { Field } from './Field';
 import { Id } from './Id';
-import { V4EdgeLoadJson } from './JsonLoadTypes';
+import { V4EdgeJson } from './JsonLoadTypes';
 import { Node } from './Node';
 import { Utils } from './Utils';
 import { LogicalGraph } from "./LogicalGraph";
@@ -238,7 +238,7 @@ export class Edge {
         };
     }
 
-    static toV4Json(edge: Edge) : V4EdgeLoadJson {
+    static toV4Json(edge: Edge) : V4EdgeJson {
         return {
             id: edge.getId(),
             comment: edge.comment(),
@@ -363,7 +363,7 @@ export class Edge {
         return new Edge(comment, srcNode, srcPort, destNode, destPort, loopAware, closesLoop, false);
     }
 
-    static fromV4Json(edgeData: V4EdgeLoadJson, lg: LogicalGraph, errorsWarnings: Errors.ErrorsWarnings) : Edge | null {
+    static fromV4Json(edgeData: V4EdgeJson, lg: LogicalGraph, errorsWarnings: Errors.ErrorsWarnings) : Edge | null {
         const comment: string = edgeData.comment || '';
         const loopAware: boolean = edgeData.loopAware;
         const closesLoop: boolean = edgeData.closesLoop;

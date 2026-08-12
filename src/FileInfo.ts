@@ -4,7 +4,7 @@ import { Eagle } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { Errors } from './Errors';
 import { FileLocation } from "./FileLocation";
-import { JsonObject, LegacyV4FileInfoLoadJson, V4FileInfoLoadJson, V4FileLocationLoadJson } from "./JsonLoadTypes";
+import { JsonObject, LegacyV4FileInfoLoadJson, V4FileInfoJson, V4FileLocationJson } from "./JsonLoadTypes";
 import { Repository } from "./Repository";
 import { Setting } from "./Setting";
 import { Utils } from './Utils';
@@ -439,7 +439,7 @@ export class FileInfo {
         };
     }
 
-    static toV4Json(fileInfo : FileInfo) : V4FileInfoLoadJson {
+    static toV4Json(fileInfo : FileInfo) : V4FileInfoJson {
         return {
             name: fileInfo.name,
             shortDescription: fileInfo.shortDescription,
@@ -533,9 +533,9 @@ export class FileInfo {
         return result;
     }
 
-    static fromV4Json(modelData: V4FileInfoLoadJson | JsonObject, errorsWarnings: Errors.ErrorsWarnings): FileInfo{
+    static fromV4Json(modelData: V4FileInfoJson | JsonObject, errorsWarnings: Errors.ErrorsWarnings): FileInfo{
         const typedModelData = modelData as LegacyV4FileInfoLoadJson;
-        const defaultLocation: V4FileLocationLoadJson = {
+        const defaultLocation: V4FileLocationJson = {
             repositoryService: Repository.Service.Unknown,
             repositoryBranch: "",
             repositoryName: "",
@@ -545,12 +545,12 @@ export class FileInfo {
             downloadUrl: "",
         };
 
-        const locationData: V4FileLocationLoadJson = {
+        const locationData: V4FileLocationJson = {
             ...defaultLocation,
             ...(typedModelData.location ?? {}),
         };
 
-        const graphLocationData: V4FileLocationLoadJson = {
+        const graphLocationData: V4FileLocationJson = {
             ...defaultLocation,
             ...(typedModelData.graphLocation ?? {}),
         };

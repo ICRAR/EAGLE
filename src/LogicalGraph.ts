@@ -35,7 +35,7 @@ import { FileInfo } from './FileInfo';
 import { FileLocation } from "./FileLocation";
 import { GraphConfig } from './GraphConfig';
 import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
-import { JsonObject, V4GraphLoadJson, V4FileInfoLoadJson } from './JsonLoadTypes';
+import { JsonObject, V4GraphJson, V4FileInfoJson } from './JsonLoadTypes';
 import { Node } from './Node';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
@@ -146,9 +146,9 @@ export class LogicalGraph {
         return result;
     }
 
-    static toV4Json(graph: LogicalGraph, _forTranslation: boolean) : V4GraphLoadJson {
-        const result: V4GraphLoadJson = {
-            modelData: FileInfo.toV4Json(graph.fileInfo()) as V4FileInfoLoadJson,
+    static toV4Json(graph: LogicalGraph, _forTranslation: boolean) : V4GraphJson {
+        const result: V4GraphJson = {
+            modelData: FileInfo.toV4Json(graph.fileInfo()) as V4FileInfoJson,
             nodes: {},
             edges: {},
             visuals: {},
@@ -466,7 +466,7 @@ export class LogicalGraph {
         return result;
     }
 
-    static fromV4Json(dataObject : V4GraphLoadJson, filename: string, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph {
+    static fromV4Json(dataObject : V4GraphJson, filename: string, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph {
         // create new logical graph object
         const result : LogicalGraph = new LogicalGraph();
 

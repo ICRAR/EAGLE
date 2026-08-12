@@ -61,7 +61,7 @@ import { Translator } from './Translator';
 import { Tutorial, tutorialArray } from './Tutorial';
 import { Undo } from './Undo';
 import { UiModeSystem } from './UiModes';
-import { JsonObject, V4GraphLoadJson } from './JsonLoadTypes';
+import { JsonObject, V4GraphJson } from './JsonLoadTypes';
 import { Utils } from './Utils';
 import { GraphUpdater } from "./GraphUpdater";
 import { versions } from "./Versions";
@@ -1101,7 +1101,7 @@ export class Eagle {
                 if (!this._validateV4GraphLoadJSON(dataObject as JsonObject, errorsWarnings)) {
                     break;
                 }
-                loadFunc(LogicalGraph.fromV4Json(dataObject as V4GraphLoadJson, "", errorsWarnings));
+                loadFunc(LogicalGraph.fromV4Json(dataObject as V4GraphJson, "", errorsWarnings));
                 break;
             default:
                 errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
@@ -2966,7 +2966,7 @@ export class Eagle {
                     this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
                     return;
                 }
-                lg = LogicalGraph.fromV4Json(dataObject as V4GraphLoadJson, file.name, errorsWarnings);
+                lg = LogicalGraph.fromV4Json(dataObject as V4GraphJson, file.name, errorsWarnings);
                 break;
             default:
                 errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
