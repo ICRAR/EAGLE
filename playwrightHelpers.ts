@@ -1,4 +1,6 @@
-export async function enableMouseCursor(page){
+import type { Page, Locator } from '@playwright/test';
+
+export async function enableMouseCursor(page: Page){
   //adding a mouse cursor svg to the body of the website, so we can move it around later
   await page.evaluate(() => {
     const arrowContainer = document.createElement('div');
@@ -10,13 +12,36 @@ export async function enableMouseCursor(page){
   });
 }
 
-export async function moveMouseCursor(page, targetElement){
+export async function moveMouseCursor(page: Page, targetElement: Locator){
   //moving the svg cursor to the target element
   return new Promise<void>(async function(resolve){
-    //readying the new position elements. we cant pass the element itself into the evaluate funtion.
-    const newPos = await targetElement.boundingBox()
-    const newX = await newPos.x + newPos.width / 2
-    const newY = await newPos.y + newPos.height / 2
+    //readying the new position elements. we cant pass the element itself into the evaluate function.
+    let newPos = null;
+
+    // UI animations and modals can briefly detach or hide elements; retry before giving up.
+    for (let i = 0; i < 12; i++) {
+      try {
+        if (typeof targetElement.scrollIntoViewIfNeeded === 'function') {
+          await targetElement.scrollIntoViewIfNeeded();
+        }
+        newPos = await targetElement.boundingBox({ timeout: 1000 });
+        if (newPos !== null) {
+          break;
+        }
+      } catch {
+        // keep retrying
+      }
+      await page.waitForTimeout(150);
+    }
+
+    if (newPos === null) {
+      console.warn('moveMouseCursor: targetElement had no bounding box; skipping cursor move for this step.');
+      resolve();
+      return;
+    }
+
+    const newX = newPos.x + newPos.width / 2
+    const newY = newPos.y + newPos.height / 2
   
     await page.evaluate(({newX, newY}) => {
       //getting the fake cursor element note* the document is only reachable in the evaluate function
@@ -34,10 +59,26 @@ export async function moveMouseCursor(page, targetElement){
   })
 }
 
-export async function textNotification(page, title, text, timeoutDuration){
-  //show a text notification
-  return new Promise<void>(async function(resolve){
+async function safeWait(page: Page, ms: number): Promise<boolean> {
+  if (page.isClosed()) {
+    return false;
+  }
 
+  try {
+    await page.waitForTimeout(ms);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function textNotification(page: Page, title: string, text: string, timeoutDuration: number){
+  //show a text notification
+  if (page.isClosed()) {
+    return;
+  }
+
+  try {
     await page.evaluate(({title,text,timeoutDuration}) => {
       //creating and attatching a text box with the requested text note* the document is only reachable in the evaluate function
       const bar = document.createElement('div');
@@ -49,37 +90,58 @@ export async function textNotification(page, title, text, timeoutDuration){
 
       //remove the text box after a certain time has passed
       setTimeout(() => {
-        document.getElementById('playwrightVideoNotification')?.remove()
+        document.getElementById('playwrightVideoNotification')?.remove();
       }, timeoutDuration);
     },{title,text,timeoutDuration});
-    //we will resolve the function after the same time has passed to continue the test
-    //resolve is not reachable from inside the evaluate and i wasnt able to pass it in.
-    await page.waitForTimeout(timeoutDuration);
-    resolve()
-  })
+  } catch (error) {
+    console.warn('textNotification: unable to render notification; continuing test flow.', error);
+    return;
+  }
+
+  await safeWait(page, timeoutDuration);
 }
 
-export async function explainElement(page, targetElement, direction, message, timeout_time){
+export async function explainElement(page: Page, targetElement: Locator, direction: string, message: string, timeout_time: number){
   //display a textbox similar to a tooltip next to the target element
   //i need to process this first then pass it into the evaluate function because i can only pass in numbers on strings.
-  const target = await targetElement.boundingBox()
+  let target = null
+  for (let i = 0; i < 12; i++) {
+    try {
+      if (typeof targetElement.scrollIntoViewIfNeeded === 'function') {
+        await targetElement.scrollIntoViewIfNeeded();
+      }
+      target = await targetElement.boundingBox({ timeout: 1000 });
+      if (target !== null) {
+        break;
+      }
+    } catch {
+      // keep retrying
+    }
+    await page.waitForTimeout(150);
+  }
+
+  if (target === null) {
+    console.warn('explainElement: targetElement had no bounding box; skipping annotation for this step.');
+    return;
+  }
+
   const box_top = target.y;
   const box_bottom = target.y + target.height;
   const box_left = target.x;
   const box_right = target.x + target.width;
   
   await page.evaluate(({message, direction, box_top, box_bottom, box_left, box_right, timeout_time}) => {
-    let box_trans;
-    let box_offset;
-    let top;
-    let left;
-    let arrowBorderTop;
-    let arrowBorderBottom;
-    let arrowBorderLeft;
-    let arrowBorderRight;
-    let arrowTop;
-    let arrowLeft;
-    let arrow_trans;
+    let box_trans: string;
+    let box_offset: string;
+    let top: number;
+    let left: number;
+    let arrowBorderTop: string;
+    let arrowBorderBottom: string;
+    let arrowBorderLeft: string;
+    let arrowBorderRight: string;
+    let arrowTop: string;
+    let arrowLeft: string;
+    let arrow_trans: string;
     const textBoxColor = '#f8e5b4'
 
     switch (direction) {
@@ -140,28 +202,28 @@ export async function explainElement(page, targetElement, direction, message, ti
     return new Promise<void>(resolve => {
         const noteBox = document.createElement('div');
         noteBox.textContent = message;
-        noteBox.style['transform-box'] = 'border-box';
+        noteBox.style['transformBox'] = 'border-box';
         noteBox.style['top'] = top + 'px';
         noteBox.style['left'] = left + 'px';
-        noteBox.style['max-width'] = '300px';
-        noteBox.style['min-width'] = '300px';
+        noteBox.style['maxWidth'] = '300px';
+        noteBox.style['minWidth'] = '300px';
         noteBox.style['transform'] = 'translate('+ box_trans + ') translate(' + box_offset + ')';
         noteBox.style['position'] = 'absolute';
-        noteBox.style['font-size'] = 'medium';
-        noteBox.style['box-shadow'] = '10px 10px 30px #555';
+        noteBox.style['fontSize'] = 'medium';
+        noteBox.style['boxShadow'] = '10px 10px 30px #555';
         noteBox.style['padding'] = '16px';
         //noteBox.style['border'] = '3px solid black';
-        noteBox.style['border-radius'] = '.25rem';
-        noteBox.style['background-color'] = '#f8e5b4';
-        noteBox.style['z-index'] = '999999';
+        noteBox.style['borderRadius'] = '.25rem';
+        noteBox.style['backgroundColor'] = '#f8e5b4';
+        noteBox.style['zIndex'] = '999999';
 
         const arrow = document.createElement('div')
         arrow.style['width'] = '0';
         arrow.style['height'] = '0';
-        arrow.style['border-top'] = arrowBorderTop;
-        arrow.style['border-bottom'] = arrowBorderBottom;
-        arrow.style['border-left'] = arrowBorderLeft;
-        arrow.style['border-right'] = arrowBorderRight;
+        arrow.style['borderTop'] = arrowBorderTop;
+        arrow.style['borderBottom'] = arrowBorderBottom;
+        arrow.style['borderLeft'] = arrowBorderLeft;
+        arrow.style['borderRight'] = arrowBorderRight;
         arrow.style['position'] = 'absolute';
         arrow.style['top'] = arrowTop;
         arrow.style['left'] = arrowLeft;

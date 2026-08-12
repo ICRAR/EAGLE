@@ -16,12 +16,14 @@ You start with intent and end with an executable deployment.
 ..
 ..   The progression of a workflow from Logical Graph Template to Physical Graph
 
+.. _logical-graph-template:
+
 Logical Graph Template
 ----------------------
 
 A Logical Graph Template defines workflow structure.
 It includes components, edges, and exposed parameters, but no run-specific values.
-These exposed parameters can be defined as run-specific values as part of a ``graph configuration``, to simplify reuse of the template for different runs.
+These exposed parameters can be defined as run-specific values as part of a :doc:`graph configuration <graphConfigurations>`, to simplify reuse of the template for different runs.
 
 .. figure:: _static/images/components.png
   :width: 90%
@@ -31,12 +33,14 @@ These exposed parameters can be defined as run-specific values as part of a ``gr
 
   An example of a Logical Graph Template
 
-Keep them stable and only add important parameters to the graph configuration, which are likely to change between runs.
+Keep them stable and only add important parameters to the :doc:`graph configuration <graphConfigurations>`, which are likely to change between runs.
+
+.. _logical-graph:
 
 Logical Graph
 -------------
 
-A Logical Graph is a Logical Graph Template with an activated ``graph configuration``.
+A Logical Graph is a Logical Graph Template with an activated :doc:`graph configuration <graphConfigurations>`.
 At this point the graph configuration has been filled in by the user with run-specific values and has been applied when it was sent to the DALiuGE translator.
 
 .. figure:: _static/images/graph_configuration.png
@@ -46,6 +50,8 @@ At this point the graph configuration has been filled in by the user with run-sp
   :figclass: align-center
 
   An example of a graph configuration for the HelloWorld-Universe graph
+
+.. _physical-graph-template:
 
 Physical Graph Template
 -----------------------
@@ -64,6 +70,8 @@ This stage applies partitioning and scheduling decisions for target resources.
 Different translation algorithms are available.
 Choose based on your constraints, such as runtime or resource usage.
 
+
+.. _physical-graph:
 
 Physical Graph
 --------------

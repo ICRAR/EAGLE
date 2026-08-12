@@ -31,7 +31,7 @@ A component usually has two kinds of values:
 Example:
 
 - ``Application Class`` can point to ``dlg.apps.simple.HelloWorldApp``.
-- ``Greet`` can be set to ``World`` and changed by users or graph configuration.
+- ``Greet`` can be set to ``World`` and changed by users or :doc:`graph configuration <graphConfigurations>`.
 
 Parameters and arguments can also be exposed as input or output ports.
 This lets upstream components drive downstream behavior.

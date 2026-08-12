@@ -68,7 +68,7 @@ Advanced Editing
 
 - **Allow Invalid Edges**: create edges even when validation rejects them.
 - **Allow Component Editing**: edit component ports and parameters.
-- **Allow Modify Graph Configurations**: edit graph configuration parameters.
+- **Allow Modify Graph Configurations**: edit :doc:`graph configuration parameters <graphConfigurations>`.
 - **Allow Graph Editing**: create and modify graphs.
 - **Allow Palette Editing**: create and modify palettes.
 - **Allow Readonly Palette Editing**: edit palettes normally marked readonly.

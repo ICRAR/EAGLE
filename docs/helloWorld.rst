@@ -18,24 +18,6 @@ At this stage, you are defining workflow structure and parameters.
 A logical graph is not executed directly.
 It must be translated into a :doc:`Physical Graph Template <graphs>` before execution.
 
-Saving a graph to GitHub
-------------------------
-
-Save to a repository you can write to.
-Use a GitHub Personal Access Token for authentication.
-See `instructions on GitHub <https://docs.github.com/en/enterprise-server@3.4/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token>`_ if you need help creating a token.
-
-.. raw:: html
-    :file: _static/helloWorld_save_graph.html
-
-Translating a graph
--------------------
-
-Translate the logical graph to generate a :doc:`Physical Graph Template <graphs>`.
-This step applies scheduling and partitioning decisions required for execution.
-
-.. raw:: html
-    :file: _static/helloWorld_translate_graph.html
 
 Executing a graph
 -----------------

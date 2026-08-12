@@ -30,10 +30,10 @@ How EAGLE Works
 
 1. Build a workflow from :doc:`Components <components>`.
 2. Organize components through :doc:`Palettes <palettes>`.
-3. Create a :doc:`Logical Graph Template <graphs>` in the editor.
-4. Set values to produce a Logical Graph.
-5. Translate it into a Physical Graph Template.
-6. Deploy and execute as a Physical Graph.
+3. Create a :ref:`Logical Graph Template <logical-graph-template>` in the editor.
+4. Set values to produce a :ref:`Logical Graph <logical-graph>`.
+5. Translate it into a :ref:`Physical Graph Template <physical-graph-template>`.
+6. Deploy and execute as a :ref:`Physical Graph <physical-graph>`.
 
 A component can wrap many payload types, such as shell commands, Python code, C/C++, MPI apps, or data handlers.
 Components are defined in JSON descriptions so EAGLE can display, validate, and connect them.
