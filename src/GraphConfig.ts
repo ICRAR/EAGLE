@@ -10,7 +10,7 @@ import { Node } from "./Node";
 import { Utils } from "./Utils";
 import { EagleConfig } from "./EagleConfig";
 import { Daliuge } from "./Daliuge";
-import { LegacyGraphConfigFieldLoadJson, LegacyGraphConfigLoadJson, LegacyGraphConfigNodeLoadJson, JsonObject, JsonScalar, V4GraphConfigFieldJson, V4GraphConfigJson, V4GraphConfigNodeJson } from "./JsonLoadTypes";
+import { LegacyGraphConfigFieldJson, LegacyGraphConfigJson, LegacyGraphConfigNodeJson, JsonObject, JsonScalar, V4GraphConfigFieldJson, V4GraphConfigJson, V4GraphConfigNodeJson } from "./JsonLoadTypes";
 
 export class GraphConfig {
     fileInfo : ko.Observable<FileInfo>;
@@ -141,7 +141,7 @@ export class GraphConfig {
     }, this); 
 
     static fromJson(data: JsonObject, lg: LogicalGraph, errorsWarnings: Errors.ErrorsWarnings) : GraphConfig {
-        const graphConfigData = data as LegacyGraphConfigLoadJson;
+        const graphConfigData = data as LegacyGraphConfigJson;
         const result: GraphConfig = new GraphConfig();
 
         // copy modelData into fileInfo
@@ -313,7 +313,7 @@ export class GraphConfigNode {
     }
 
     static fromJson(data: JsonObject, node: Node, errorsWarnings: Errors.ErrorsWarnings): GraphConfigNode {
-        const nodeData = data as LegacyGraphConfigNodeLoadJson;
+        const nodeData = data as LegacyGraphConfigNodeJson;
         const result = new GraphConfigNode(node);
 
         if (nodeData.fields !== undefined){
@@ -433,7 +433,7 @@ export class GraphConfigField {
     }
 
     static fromJson(data: JsonObject, field: Field, _errorsWarnings: Errors.ErrorsWarnings): GraphConfigField {
-        const fieldData = data as LegacyGraphConfigFieldLoadJson;
+        const fieldData = data as LegacyGraphConfigFieldJson;
         const result = new GraphConfigField(field);
 
         if (typeof fieldData.value !== 'undefined'){

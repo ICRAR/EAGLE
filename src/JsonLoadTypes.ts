@@ -46,7 +46,7 @@ export type V4FileLocationJson = V4FileInfoJson["location"];
 // NOTE: these new types extend the schema types with optional properties to allow for
 // backwards compatibility with older graph files that may not have these properties.
 // This is important for loading older graphs without errors.
-export type LegacyGraphConfigLoadJson = Partial<V4GraphConfigJson> & {
+export type LegacyGraphConfigJson = Partial<V4GraphConfigJson> & {
 	name?: string;
 	description?: string;
 	lastModifiedName?: string;
@@ -55,16 +55,16 @@ export type LegacyGraphConfigLoadJson = Partial<V4GraphConfigJson> & {
 	nodes?: Record<string, JsonObject>;
 };
 
-export type LegacyGraphConfigNodeLoadJson = Partial<V4GraphConfigNodeJson> & {
+export type LegacyGraphConfigNodeJson = Partial<V4GraphConfigNodeJson> & {
 	fields?: Record<string, JsonObject>;
 };
 
-export type LegacyGraphConfigFieldLoadJson = Partial<V4GraphConfigFieldJson> & {
+export type LegacyGraphConfigFieldJson = Partial<V4GraphConfigFieldJson> & {
 	value?: JsonScalar;
 	comment?: string;
 };
 
-export type LegacyV4FileInfoLoadJson = Partial<V4FileInfoJson> & {
+export type LegacyV4FileInfoJson = Partial<V4FileInfoJson> & {
 	location?: Partial<V4FileLocationJson>;
 	graphLocation?: Partial<V4FileLocationJson>;
 	eagleVersion?: string;

@@ -4,7 +4,7 @@ import { Eagle } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { Errors } from './Errors';
 import { FileLocation } from "./FileLocation";
-import { JsonObject, LegacyV4FileInfoLoadJson, V4FileInfoJson, V4FileLocationJson } from "./JsonLoadTypes";
+import { JsonObject, LegacyV4FileInfoJson, V4FileInfoJson, V4FileLocationJson } from "./JsonLoadTypes";
 import { Repository } from "./Repository";
 import { Setting } from "./Setting";
 import { Utils } from './Utils';
@@ -534,7 +534,7 @@ export class FileInfo {
     }
 
     static fromV4Json(modelData: V4FileInfoJson | JsonObject, errorsWarnings: Errors.ErrorsWarnings): FileInfo{
-        const typedModelData = modelData as LegacyV4FileInfoLoadJson;
+        const typedModelData = modelData as LegacyV4FileInfoJson;
         const defaultLocation: V4FileLocationJson = {
             repositoryService: Repository.Service.Unknown,
             repositoryBranch: "",
