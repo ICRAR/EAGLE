@@ -46,46 +46,26 @@ export enum Category {
     EnvironmentVariables = "EnvironmentVariables",
 }
 
-export namespace Category {
+export enum CategoryType {
+    Application = "Application",
+    Construct = "Construct",
+    Container = "Container",
+    Data = "Data",
+    Global = "Global",
+    Other = "Other",
+    Service = "Service",
+    Socket = "Socket",
+    Unknown = "Unknown",
+}
 
-    export type CategoryData = {
-        categoryType: Type,
-
-        isGroup:boolean,
-        minInputs: number,
-        maxInputs: number,
-        minOutputs: number,
-        maxOutputs: number,
-        canHaveComponentParameters: boolean,
-        canHaveApplicationArguments: boolean,
-        canHaveConstructParameters: boolean, 
-        icon: string,
-        color: string,
-        radius: number,
-    };
-
-    // TODO: add to CategoryData somehow? use in Node.isData() etc?
-    export enum Type {
-        Application = "Application",
-        Construct = "Construct",
-        Container = "Container",
-        Data = "Data",
-        Global = "Global",
-        Other = "Other",
-        Service = "Service",
-        Socket = "Socket",
-        Unknown = "Unknown",
-    }
-
-    export enum Color {
-        Application = "#0059a5",
-        Construct   = "#e3bd64",
-        Data        = "#2c2c2c",
-        Description = "#9d2b60",
-        Error       = "#ff66cc",
-        Global      = "#228b22",
-        Legacy      = "#ff66cc",
-        Object      = "#00bfa6",
-        Service     = "#800080"
-    }
+export enum CategoryColor {
+    Application = "#0059a5",
+    Construct   = "#e3bd64",
+    Data        = "#2c2c2c",
+    Description = "#9d2b60",
+    Error       = "#ff66cc",
+    Global      = "#228b22",
+    Legacy      = "#ff66cc",
+    Object      = "#00bfa6",
+    Service     = "#800080"
 }
