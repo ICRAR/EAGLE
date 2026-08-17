@@ -22,7 +22,7 @@
 #
 */
 
-import { Repository } from './Repository';
+import { Repository, RepositoryService } from './Repository';
 import { RepositoryFolder } from './RepositoryFolder';
 import { RepositoryFile } from './RepositoryFile';
 import { Utils } from './Utils';
@@ -171,7 +171,7 @@ export class GitLab {
      * Gets the specified remote file from the server
      * @param filePath File path.
      */
-    static async openRemoteFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string): Promise<string> {
+    static async openRemoteFile(repositoryService : RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string): Promise<string> {
         return new Promise(async(resolve, reject) => {
             const token = Utils.getServiceToken(Repository.Service.GitLab);
 
@@ -207,7 +207,7 @@ export class GitLab {
         });
     }
 
-    static deleteRemoteFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string){
+    static deleteRemoteFile(repositoryService : RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string){
         return new Promise(async(resolve, reject) => {
             const token = Utils.getServiceToken(Repository.Service.GitLab);
 

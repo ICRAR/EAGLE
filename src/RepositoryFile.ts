@@ -1,6 +1,6 @@
 import * as ko from "knockout";
 
-import { Eagle } from './Eagle';
+import { EagleFileType } from './Eagle';
 import { Id } from './Id';
 import { Repository } from './Repository';
 import { Utils } from './Utils';
@@ -10,7 +10,7 @@ export class RepositoryFile {
     repository: Repository
     name : string
     path : string
-    type : Eagle.FileType;
+    type : EagleFileType;
     isFetching: ko.Observable<boolean>;
 
     constructor(repository : Repository, path : string, name : string){
@@ -25,17 +25,17 @@ export class RepositoryFile {
     getIconUrl : ko.PureComputed<string> = ko.pureComputed(() : string => {
 
         switch (this.type){
-            case Eagle.FileType.Graph:
+            case EagleFileType.Graph:
                 return "device_hub";
-            case Eagle.FileType.Palette:
+            case EagleFileType.Palette:
                 return "palette";
-            case Eagle.FileType.GraphConfig:
+            case EagleFileType.GraphConfig:
                 return "construction";
-            case Eagle.FileType.JSON:
+            case EagleFileType.JSON:
                 return "language";
-            case Eagle.FileType.Markdown:
+            case EagleFileType.Markdown:
                 return "markdown";
-            case Eagle.FileType.Unknown:
+            case EagleFileType.Unknown:
             default:
                 return "unknown_document";
         }

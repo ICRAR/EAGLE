@@ -24,7 +24,7 @@
 
 import { EagleStorage } from './EagleStorage';
 import { Repositories } from './Repositories';
-import { Repository } from './Repository';
+import { Repository, RepositoryService } from './Repository';
 import { RepositoryFile } from './RepositoryFile';
 import { RepositoryFolder } from './RepositoryFolder';
 import { Utils } from './Utils';
@@ -202,7 +202,7 @@ export class GitHub {
      * Gets the specified remote file from the server
      * @param filePath File path.
      */
-    static async openRemoteFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string): Promise<string> {
+    static async openRemoteFile(repositoryService : RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string): Promise<string> {
         return new Promise(async(resolve, reject) => {
             const token = Utils.getServiceToken(Repository.Service.GitHub);
             const fullFileName : string = Utils.joinPath(filePath, fileName);
@@ -237,7 +237,7 @@ export class GitHub {
         });
     }
 
-    static async deleteRemoteFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string){
+    static async deleteRemoteFile(repositoryService : RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string){
         return new Promise(async(resolve, reject) => {
             const token = Utils.getServiceToken(Repository.Service.GitHub);
 

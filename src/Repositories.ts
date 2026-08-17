@@ -3,7 +3,7 @@ import * as ko from "knockout";
 import { Eagle } from './Eagle';
 import { EagleStorage } from "./EagleStorage";
 import { FileLocation } from "./FileLocation";
-import { Repository } from './Repository';
+import { Repository, RepositoryService } from './Repository';
 import { RepositoryFile } from './RepositoryFile';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
@@ -53,10 +53,10 @@ export class Repositories {
         }
     }
     
-    static translateStringToService(service: string): Repository.Service {
+    static translateStringToService(service: string): RepositoryService {
         for (const s in Repository.Service){
             if (s.toLowerCase() === service.toLowerCase()){
-                return s as Repository.Service;
+                return s as RepositoryService;
             }
         }
 
@@ -101,7 +101,7 @@ export class Repositories {
         Repositories._addCustomRepository(customRepository.service, customRepository.name, customRepository.branch);
     };
 
-    static async _addCustomRepository(repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string): Promise<Repository> {
+    static async _addCustomRepository(repositoryService: RepositoryService, repositoryName: string, repositoryBranch: string): Promise<Repository> {
         // create repo
         const newRepo = new Repository(repositoryService, repositoryName, repositoryBranch, false);
 
@@ -277,7 +277,7 @@ export class Repositories {
         Repositories.repositories.sort(Repository.repositoriesSortFunc);
     }
 
-    static getList(service : Repository.Service) : Repository[]{
+    static getList(service : RepositoryService) : Repository[]{
         const list : Repository[] = [];
 
         for (const repository of Repositories.repositories()){
@@ -289,7 +289,7 @@ export class Repositories {
         return list;
     }
 
-    static get(service : Repository.Service, name : string, branch : string) : Repository | null {
+    static get(service : RepositoryService, name : string, branch : string) : Repository | null {
         for (const repository of Repositories.repositories()){
             if (repository.service === service && repository.name === name && repository.branch === branch){
                 return repository;
