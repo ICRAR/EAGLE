@@ -50,7 +50,7 @@ import { Modals } from './Modals';
 import { ParameterTable } from "./ParameterTable";
 import { QuickActions } from './QuickActions';
 import { Repositories } from './Repositories';
-import { Repository } from './Repository';
+import { Repository, RepositoryService } from './Repository';
 import { RepositoryFile } from './RepositoryFile';
 import { RightClick } from './RightClick';
 import { Setting } from './Setting';
@@ -253,7 +253,7 @@ $(function(){
 
     // check that all categories have category data
     for (const category of Utils.enumKeys(Category)){
-        CategoryData.getCategoryData(<Category>category);
+        CategoryData.getCategoryInfo(<Category>category);
 
         // exit after the last category, before we get to the other enums in the Category object
         if (category === Category.UnknownApplication){
@@ -303,7 +303,7 @@ async function autoLoad() {
     const url        = (<any>window).auto_load_url;
 
     // cast the service string to an enum
-    const realService: Repository.Service = Repositories.translateStringToService(service);
+    const realService: RepositoryService = Repositories.translateStringToService(service);
 
     // skip unknown services
     if (typeof realService === "undefined" || realService === Repository.Service.Unknown){

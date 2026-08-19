@@ -39,7 +39,45 @@ export class SettingsGroup {
 
 type validValueTypes = string | number | boolean;
 
+export enum SettingType {
+    String,
+    Number,
+    Boolean,
+    Password,
+    Button,
+    Select
+}
+
+export enum ShowErrorsMode {
+    None = "None",
+    Errors = "Errors",
+    Warnings = "Warnings"
+}
+
+export enum ValueEditingPermission {
+    ConfigOnly = "ConfigOnly",
+    Normal = "Normal",
+    ReadOnly = "Readonly"
+}
+
+export enum TranslatorMode {
+    Minimal = "minimal",
+    Normal = "normal",
+    Expert = "expert"
+}
+
+export enum SchemaVersion {
+    Unknown = "Unknown",
+    OJS = "OJS",
+    V4 = "V4" //dict-of-dicts
+}
+
 export class Setting {
+    static readonly Type = SettingType;
+    static readonly ShowErrorsMode = ShowErrorsMode;
+    static readonly ValueEditingPermission = ValueEditingPermission;
+    static readonly TranslatorMode = TranslatorMode;
+    static readonly SchemaVersion = SchemaVersion;
 
     value : ko.Observable<validValueTypes>;
     private display : boolean; // if true, display setting in settings modal, otherwise do not display
@@ -47,7 +85,7 @@ export class Setting {
     private key : string;
     private description : string;
     private perpetual : boolean; // if true, then this setting will stay the same across all ui modes(always storing and using the data from the default ui mode)
-    private type : Setting.Type;
+    private type : SettingType;
     private studentDefaultValue : validValueTypes;
     private minimalDefaultValue : validValueTypes;
     private graphDefaultValue : validValueTypes;
@@ -57,7 +95,7 @@ export class Setting {
     options : string[] | undefined; // an optional list of possible values for this setting (accessed via Knockout templates)
     private eventFunc : (() => void) | undefined; // optional function to be called when a settings button is clicked, or checkbox is toggled, or a input is changed
 
-    constructor(display: boolean, name: string, key: string, description: string, perpetual: boolean, type: Setting.Type, studentDefaultValue: validValueTypes, minimalDefaultValue: validValueTypes, graphDefaultValue: validValueTypes, componentDefaultValue: validValueTypes, expertDefaultValue: validValueTypes, options?: string[], eventFunc?: () => void){
+    constructor(display: boolean, name: string, key: string, description: string, perpetual: boolean, type: SettingType, studentDefaultValue: validValueTypes, minimalDefaultValue: validValueTypes, graphDefaultValue: validValueTypes, componentDefaultValue: validValueTypes, expertDefaultValue: validValueTypes, options?: string[], eventFunc?: () => void){
         this.display = display;
         this.name = name;
         this.key = key;
@@ -88,7 +126,7 @@ export class Setting {
         return this.description;
     }
 
-    getType = () : Setting.Type => {
+    getType = () : SettingType => {
         return this.type;
     }
 
@@ -292,7 +330,7 @@ export class Setting {
             return false;
         }
 
-        switch (Setting.findValue<Setting.ShowErrorsMode>(Setting.SHOW_GRAPH_WARNINGS, Setting.ShowErrorsMode.None)){
+        switch (Setting.findValue<ShowErrorsMode>(Setting.SHOW_GRAPH_WARNINGS, Setting.ShowErrorsMode.None)){
             case Setting.ShowErrorsMode.Warnings:
                 return selectedNode.getErrorsWarnings().errors.length + selectedNode.getErrorsWarnings().warnings.length > 0;
             case Setting.ShowErrorsMode.Errors:
@@ -403,41 +441,6 @@ export class Setting {
     static readonly MARKDOWN_EDITING_ENABLED: string = "MarkdownEditingEnabled";
 
     static readonly DALIUGE_SCHEMA_VERSION: string = "DaliugeSchemaVersion";
-}
-
-export namespace Setting {
-    export enum Type {
-        String,
-        Number,
-        Boolean,
-        Password,
-        Button,
-        Select
-    }
-
-    export enum ShowErrorsMode {
-        None = "None",
-        Errors = "Errors",
-        Warnings = "Warnings"
-    }
-
-    export enum ValueEditingPermission {
-        ConfigOnly = "ConfigOnly",
-        Normal = "Normal",
-        ReadOnly = "Readonly"
-    }
-
-    export enum TranslatorMode {
-        Minimal = "minimal",
-        Normal = "normal",
-        Expert = "expert"
-    }
-
-    export enum SchemaVersion {
-        Unknown = "Unknown",
-        OJS = "OJS",
-        V4 = "V4" //dict-of-dicts
-    }
 }
 
 //setting order (display, name, key, description, perpetual, type, studentDefaultValue, minimalDefaultValue, GraphDefaultValue, ComponentDefaultValue, ExpertDefaultValue, options(only add for type select))

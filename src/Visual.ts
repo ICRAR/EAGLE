@@ -29,9 +29,14 @@ import { Utils } from './Utils';
 import { LogicalGraph } from "./LogicalGraph";
 import { Edge } from "./Edge";
 import { Node } from "./Node";
-import { Errors } from "./Errors";
+import { Errors, type ErrorsWarnings, type Issue, Validity } from "./Errors";
 import { EagleConfig } from "./EagleConfig";
 import { Eagle } from "./Eagle";
+
+export enum VisualType {
+    Text = "Text",
+    Group = "Group",
+}
 
 export class Visual {
     private id: ko.Observable<VisualId>;
@@ -41,13 +46,15 @@ export class Visual {
     private width : ko.Observable<number>;
     private height : ko.Observable<number>;
 
-    private type : ko.Observable<Visual.Type>;
+    private type : ko.Observable<VisualType>;
     private content : ko.Observable<string>;
     private target : ko.Observable<Node | Edge | Visual | null>; // the id of the node or edge this comment is attached to, or null if it's free-floating
     private color : ko.Observable<string>; //used for the background of group visuals
-    private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}> //keeps track of visual errors
+    private issues : ko.ObservableArray<{issue: Issue, validity: Validity}> //keeps track of visual errors
 
-    constructor(type: Visual.Type, content: string) {
+    static readonly Type = VisualType;
+
+    constructor(type: VisualType, content: string) {
         this.id = ko.observable(Id.generateVisualId());
         this.x = ko.observable(0);
         this.y = ko.observable(0);
@@ -138,11 +145,11 @@ export class Visual {
         return this;
     }
 
-    getType = () : Visual.Type => {
+    getType = () : VisualType => {
         return this.type();
     }
 
-    setType = (type: Visual.Type) : void => {
+    setType = (type: VisualType) : void => {
         this.type(type);
     }
 
@@ -168,7 +175,7 @@ export class Visual {
         return this
     }
 
-    getIssues = () : {issue:Errors.Issue, validity:Errors.Validity}[] => {
+    getIssues = () : {issue: Issue, validity: Validity}[] => {
         return this.issues();
     }
 
@@ -190,13 +197,13 @@ export class Visual {
         return result;
     }
 
-    static fromJson(visualData: any, lg: LogicalGraph, _errorsWarnings: Errors.ErrorsWarnings) : Visual {
+    static fromJson(visualData: any, lg: LogicalGraph, _errorsWarnings: ErrorsWarnings) : Visual {
         const id: VisualId = visualData.id as VisualId;
         const x: number = visualData.x;
         const y: number = visualData.y;
         const width: number = visualData.width;
         const height: number = visualData.height;
-        const type: Visual.Type = visualData.type;
+        const type: VisualType = visualData.type;
         const content: string = visualData.content || '';
         const color: string = visualData.color;
         const targetId: string = visualData.targetId || null;
@@ -226,25 +233,18 @@ export class Visual {
         }
     }
     
-    static isValid = (visual:Visual) : Errors.Validity => {
+    static isValid = (visual:Visual) : Validity => {
 
         const eagle: Eagle = Eagle.getInstance();
 
         //if visual is text but has no content
         if(visual.isText() && visual.content() === ''){
             const message: string = "Text Visual (" + visual.getId() + ") has no content.";
-            const issue: Errors.Issue = Errors.Show(message, function(){Utils.showVisual(eagle, visual)});
+            const issue = Errors.Show(message, function(){Utils.showVisual(eagle, visual)});
             visual.issues.push({issue: issue, validity: Errors.Validity.Warning});
             return Errors.Validity.Warning;
         }
         
         return Errors.Validity.Valid;
-    }
-}
-
-export namespace Visual {
-    export enum Type {
-        Text = "Text",
-        Group = "Group",
     }
 }

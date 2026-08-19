@@ -4,6 +4,25 @@ import { Setting } from './Setting';
 import { SideWindow } from './SideWindow';
 import { Utils } from './Utils';
 
+export enum TutorialStepType {
+    Info = "Info",
+    Press = "Press",
+    Input = "Input",
+    Condition = "Condition"
+}
+
+export enum TutorialStepDirection {
+    Next,
+    Prev
+}
+
+export enum TutorialStepWait {
+    Modal,
+    Element,
+    Delay,
+    None
+}
+
 export class TutorialSystem {
 
     static activeTut: Tutorial | null = null //current active tutorial
@@ -185,7 +204,7 @@ export class Tutorial {
         return x
     }
 
-    initiateTutStep = (direction: TutorialStep.Direction): void => {
+    initiateTutStep = (direction: TutorialStepDirection): void => {
         //the lock function locks down the entire ui, preventing all clicks and key presses while the tutorial system is getting a step ready.
         //this is because there were many bugs, because eagles' actual ui is faster than the tutorial system. thats because the tutorial system reacts to and waits for the eagle ui.
         //the unlock happens after the waits for target elements in the ui, transitions of the tutorial visuals and changes of content and positioning has all been finished, this is when the tut system is ready to proceed.
@@ -246,7 +265,7 @@ export class Tutorial {
         }
     }
 
-    waitForElementThenRun = (waitType: TutorialStep.Wait): void => {
+    waitForElementThenRun = (waitType: TutorialStepWait): void => {
         const tutStep = TutorialSystem.activeTutCurrentStep
         let elementAvailable: boolean = false
         const targetFunc = tutStep.getTargetFunc()
@@ -769,8 +788,8 @@ export class Tutorial {
 export class TutorialStep {
     private title: string;
     private text: string;
-    private type: TutorialStep.Type;
-    private waitType: TutorialStep.Wait;
+    private type: TutorialStepType;
+    private waitType: TutorialStepWait;
     private delayAmount : number | null;
     
     private targetFunc: (() => JQuery<HTMLElement>) | null;
@@ -783,7 +802,11 @@ export class TutorialStep {
     private backSkip : boolean;
     private expectedInput : string;
 
-    constructor(title: string, text: string, type: TutorialStep.Type, waitType: TutorialStep.Wait, delayAmount: number | null, targetFunc: () => JQuery<HTMLElement>, preFunc: ((eagle: Eagle) => void) | null, backPreFunc: ((eagle: Eagle) => void) | null, backSkip:boolean, expectedInput:string, conditionFunc:((eagle: Eagle) => boolean) | null, alternateHighlightTargetFunc: (() => JQuery<HTMLElement>) | null, testStepFunction: TutorialTestHook | null) {
+    static readonly Type = TutorialStepType;
+    static readonly Direction = TutorialStepDirection;
+    static readonly Wait = TutorialStepWait;
+
+    constructor(title: string, text: string, type: TutorialStepType, waitType: TutorialStepWait, delayAmount: number | null, targetFunc: () => JQuery<HTMLElement>, preFunc: ((eagle: Eagle) => void) | null, backPreFunc: ((eagle: Eagle) => void) | null, backSkip:boolean, expectedInput:string, conditionFunc:((eagle: Eagle) => boolean) | null, alternateHighlightTargetFunc: (() => JQuery<HTMLElement>) | null, testStepFunction: TutorialTestHook | null) {
         this.title = title;
         this.text = text;
         this.type = type;
@@ -809,11 +832,11 @@ export class TutorialStep {
         return this.text;
     }
 
-    getType = (): TutorialStep.Type => {
+    getType = (): TutorialStepType => {
         return this.type;
     }
 
-    getWaitType = (): TutorialStep.Wait => {
+    getWaitType = (): TutorialStepWait => {
         return this.waitType;
     }
 
@@ -853,12 +876,12 @@ export class TutorialStep {
         return this.testStepFunction;
     }
 
-    setType = (newType:TutorialStep.Type): this => {
+    setType = (newType:TutorialStepType): this => {
         this.type = newType;
         return this
     }
 
-    setWaitType = (newWaitType:TutorialStep.Wait): this => {
+    setWaitType = (newWaitType:TutorialStepWait): this => {
         this.waitType = newWaitType;
         return this
     }
@@ -912,27 +935,6 @@ export class TutorialStep {
         }
 
         targetFunc().parent().addClass('forceShow');
-    }
-}
-
-export namespace TutorialStep {
-    export enum Type {
-        Info = "Info",
-        Press = "Press",
-        Input = "Input",
-        Condition = "Condition"
-    }
-
-    export enum Direction {
-        Next,
-        Prev
-    }
-
-    export enum Wait {
-        Modal,
-        Element,
-        Delay,
-        None
     }
 }
 

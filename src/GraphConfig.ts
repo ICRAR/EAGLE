@@ -1,7 +1,7 @@
 import * as ko from "knockout";
 
-import { Eagle } from "./Eagle";
-import { Errors } from "./Errors";
+import { Eagle, EagleFileType } from "./Eagle";
+import { Errors, type ErrorsWarnings } from "./Errors";
 import { Field } from "./Field";
 import { FileInfo } from "./FileInfo";
 import { Id } from "./Id";
@@ -9,7 +9,7 @@ import { LogicalGraph } from "./LogicalGraph";
 import { Node } from "./Node";
 import { Utils } from "./Utils";
 import { EagleConfig } from "./EagleConfig";
-import { Daliuge } from "./Daliuge";
+import { DataType } from "./Daliuge";
 
 export class GraphConfig {
     fileInfo : ko.Observable<FileInfo>;
@@ -19,7 +19,7 @@ export class GraphConfig {
     
     constructor(){
         this.fileInfo = ko.observable(new FileInfo());
-        this.fileInfo().type = Eagle.FileType.GraphConfig;
+        this.fileInfo().type = EagleFileType.GraphConfig;
         this.fileInfo().readonly = false;
         this.fileInfo().builtIn = false;
         this.id = ko.observable(Id.generateGraphConfigId());
@@ -139,7 +139,7 @@ export class GraphConfig {
         return Utils.markdown2html(this.fileInfo().name);
     }, this); 
 
-    static fromJson(data: any, lg: LogicalGraph, errorsWarnings: Errors.ErrorsWarnings) : GraphConfig {
+    static fromJson(data: any, lg: LogicalGraph, errorsWarnings: ErrorsWarnings) : GraphConfig {
         const result: GraphConfig = new GraphConfig();
 
         // copy modelData into fileInfo
@@ -163,7 +163,7 @@ export class GraphConfig {
                 fi.lastModifiedDatetime = data.lastModifiedDatetime;
             }
 
-            fi.type = Eagle.FileType.GraphConfig;
+            fi.type = EagleFileType.GraphConfig;
             result.fileInfo(fi);
         } else {
             result.fileInfo(FileInfo.fromV4Json(data.modelData, errorsWarnings));
@@ -292,7 +292,7 @@ export class GraphConfigNode {
         return this.fields().values();
     }
 
-    static fromJson(data: any, node: Node, errorsWarnings: Errors.ErrorsWarnings): GraphConfigNode {
+    static fromJson(data: any, node: Node, errorsWarnings: ErrorsWarnings): GraphConfigNode {
         const result = new GraphConfigNode(node);
 
         if (data.fields !== undefined){
@@ -393,7 +393,7 @@ export class GraphConfigField {
         return this.comment();
     }
 
-    static fromJson(data: any, field: Field, _errorsWarnings: Errors.ErrorsWarnings): GraphConfigField {
+    static fromJson(data: any, field: Field, _errorsWarnings: ErrorsWarnings): GraphConfigField {
         const result = new GraphConfigField(field);
 
         if (typeof data.value !== 'undefined'){
@@ -411,7 +411,7 @@ export class GraphConfigField {
         return result;
     }
 
-    static toJson(field: GraphConfigField, type: Daliuge.DataType): object {
+    static toJson(field: GraphConfigField, type: DataType): object {
         const result : any = {};
 
         // NOTE: do not add 'id' attribute, since fields are stored in a dict keyed by id

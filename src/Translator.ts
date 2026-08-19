@@ -26,7 +26,7 @@ import * as ko from "knockout";
 
 import { Eagle } from './Eagle';
 import { LogicalGraph } from './LogicalGraph';
-import { Setting } from './Setting';
+import { SchemaVersion, Setting, TranslatorMode } from './Setting';
 import { Utils } from './Utils';
 import { Repository } from "./Repository";
 
@@ -165,7 +165,7 @@ export class Translator {
         const lgClone: LogicalGraph = eagle.logicalGraph().clone();
 
         // get the version of JSON we are using
-        const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
+        const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
 
         // convert to JSON
         const jsonString: string = LogicalGraph.toJsonString(lgClone, true, version);
@@ -194,7 +194,7 @@ export class Translator {
     }
 
     algorithmVisible = (algorithm: string) : boolean => {
-        const normalTranslatorMode :boolean = Setting.findValue<Setting.TranslatorMode>(Setting.USER_TRANSLATOR_MODE, Setting.TranslatorMode.Normal) === Setting.TranslatorMode.Normal;
+        const normalTranslatorMode :boolean = Setting.findValue<TranslatorMode>(Setting.USER_TRANSLATOR_MODE, Setting.TranslatorMode.Normal) === Setting.TranslatorMode.Normal;
         if(!normalTranslatorMode){
             return true
         }

@@ -1,11 +1,11 @@
 import * as ko from "knockout";
 
-import { Eagle } from './Eagle';
+import { Eagle, EagleFileType } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
-import { Errors } from './Errors';
+import { Errors, type ErrorsWarnings } from './Errors';
 import { FileLocation } from "./FileLocation";
 import { Repository } from "./Repository";
-import { Setting } from "./Setting";
+import { SchemaVersion, Setting } from "./Setting";
 import { Utils } from './Utils';
 
 
@@ -13,8 +13,8 @@ export class FileInfo {
     private _name : ko.Observable<string>;
     private _shortDescription : ko.Observable<string>;
     private _detailedDescription : ko.Observable<string>;
-    private _type : ko.Observable<Eagle.FileType>;
-    private _schemaVersion : ko.Observable<Setting.SchemaVersion>;
+    private _type : ko.Observable<EagleFileType>;
+    private _schemaVersion : ko.Observable<SchemaVersion>;
     private _readonly : ko.Observable<boolean>;
     private _location : ko.Observable<FileLocation>;
 
@@ -47,8 +47,8 @@ export class FileInfo {
         this._name = ko.observable("");
         this._shortDescription = ko.observable("");
         this._detailedDescription = ko.observable("");
-        this._type = ko.observable<Eagle.FileType>(Eagle.FileType.Unknown);
-        this._schemaVersion = ko.observable<Setting.SchemaVersion>(Setting.SchemaVersion.Unknown);
+        this._type = ko.observable<EagleFileType>(EagleFileType.Unknown);
+        this._schemaVersion = ko.observable<SchemaVersion>(Setting.SchemaVersion.Unknown);
         this._readonly = ko.observable(true);
         this._location = ko.observable(new FileLocation());
 
@@ -96,11 +96,11 @@ export class FileInfo {
         this._detailedDescription(detailedDescription);
     }
 
-    get type() : Eagle.FileType {
+    get type() : EagleFileType {
         return this._type();
     }
 
-    set type(type : Eagle.FileType){
+    set type(type : EagleFileType){
         this._type(type);
     }
 
@@ -136,11 +136,11 @@ export class FileInfo {
         this._generatorName(hash);
     }
 
-    get schemaVersion(): Setting.SchemaVersion{
+    get schemaVersion(): SchemaVersion{
         return this._schemaVersion();
     }
 
-    set schemaVersion(version: Setting.SchemaVersion){
+    set schemaVersion(version: SchemaVersion){
         this._schemaVersion(version);
     }
 
@@ -228,7 +228,7 @@ export class FileInfo {
         this._name("");
         this._shortDescription("");
         this._detailedDescription("");
-        this._type(Eagle.FileType.Unknown);
+        this._type(EagleFileType.Unknown);
         this._schemaVersion(Setting.SchemaVersion.Unknown);
         this._readonly(true);
         this._location().clear();
@@ -466,7 +466,7 @@ export class FileInfo {
     }
 
     // TODO: use errors array if attributes cannot be found
-    static fromOJSJson(modelData : any, errorsWarnings: Errors.ErrorsWarnings) : FileInfo {
+    static fromOJSJson(modelData : any, errorsWarnings: ErrorsWarnings) : FileInfo {
         const result : FileInfo = new FileInfo();
 
         const fileName = Utils.getFileNameFromFullPath(modelData.filePath);
@@ -531,7 +531,7 @@ export class FileInfo {
         return result;
     }
 
-    static fromV4Json(modelData: any, errorsWarnings: Errors.ErrorsWarnings): FileInfo{
+    static fromV4Json(modelData: any, errorsWarnings: ErrorsWarnings): FileInfo{
         const result: FileInfo = new FileInfo();
 
         result.name = modelData.name ?? "";

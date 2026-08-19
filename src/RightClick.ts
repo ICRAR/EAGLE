@@ -1,4 +1,4 @@
-import { Category } from './Category';
+import { Category, CategoryType } from './Category';
 import { Daliuge } from './Daliuge';
 import { Eagle } from './Eagle';
 import { EagleConfig } from './EagleConfig';
@@ -153,7 +153,7 @@ export class RightClick {
         return paletteList
     }
 
-    static createHtmlEligibleEmbeddedNodesList(nodeType:Category.Type, passedObjectClass: "addEmbeddedOutputApp" | "addEmbeddedInputApp") : string {
+    static createHtmlEligibleEmbeddedNodesList(nodeType:CategoryType, passedObjectClass: "addEmbeddedOutputApp" | "addEmbeddedInputApp") : string {
         const eagle: Eagle = Eagle.getInstance();
 
         let paletteList:string = ''
@@ -654,7 +654,7 @@ export class RightClick {
                     $('#customContextMenu').append(searchbar)
     
                     $('#customContextMenu').append('<div id="rightClickPaletteList"></div>')
-                    const paletteList = RightClick.createHtmlEligibleEmbeddedNodesList(Category.Type.Application,passedObjectClass)
+                    const paletteList = RightClick.createHtmlEligibleEmbeddedNodesList(CategoryType.Application,passedObjectClass)
                     $('#rightClickPaletteList').append(paletteList)
     
                     Eagle.selectedRightClickLocation(Eagle.FileType.Graph)

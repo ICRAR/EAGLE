@@ -1,11 +1,11 @@
 import * as ko from "knockout";
 
-import { Errors } from "./Errors";
-import { Repository } from "./Repository";
+import { type ErrorsWarnings } from "./Errors";
+import { Repository, RepositoryService } from "./Repository";
 import { Utils } from "./Utils";
 
 export class FileLocation {
-    repositoryService: ko.Observable<Repository.Service>;
+    repositoryService: ko.Observable<RepositoryService>;
     repositoryBranch: ko.Observable<string>;
     repositoryName: ko.Observable<string>;
     repositoryPath: ko.Observable<string>;
@@ -14,7 +14,7 @@ export class FileLocation {
     downloadUrl: ko.Observable<string>;
 
     constructor(){
-        this.repositoryService = ko.observable<Repository.Service>(Repository.Service.Unknown);
+        this.repositoryService = ko.observable<RepositoryService>(Repository.Service.Unknown);
         this.repositoryBranch = ko.observable("");
         this.repositoryName = ko.observable("");
         this.repositoryPath = ko.observable("");
@@ -109,7 +109,7 @@ export class FileLocation {
         };
     }
 
-    static fromJson(data: any, _errorsWarnings: Errors.ErrorsWarnings): FileLocation {
+    static fromJson(data: any, _errorsWarnings: ErrorsWarnings): FileLocation {
         const result: FileLocation = new FileLocation();
 
         result.repositoryService(data.repositoryService ?? Repository.Service.Unknown);

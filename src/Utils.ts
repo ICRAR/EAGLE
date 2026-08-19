@@ -35,13 +35,13 @@ marked.use(markedHighlight({
     }
 }));
 
-import { Category } from './Category';
+import { Category, CategoryType } from './Category';
 import { CategoryData } from "./CategoryData";
-import { Daliuge } from './Daliuge';
-import { Eagle } from './Eagle';
+import { Daliuge, DataType, FieldType, FieldUsage } from './Daliuge';
+import { Eagle, EagleFileType } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { Edge } from './Edge';
-import { Errors } from './Errors';
+import { Errors, type ErrorsWarnings, type Issue, Validity } from './Errors';
 import { Field } from './Field';
 import { FileInfo } from "./FileInfo";
 import { FileLocation } from "./FileLocation";
@@ -51,15 +51,33 @@ import { GraphRenderer } from "./GraphRenderer";
 import { Id } from "./Id";
 import { KeyboardShortcut } from './KeyboardShortcut';
 import { LogicalGraph } from './LogicalGraph';
-import { Modals } from "./Modals";
+import {
+    GitCommitCallback,
+    GitCustomRepositoryCallback,
+    Modals,
+    UserChoiceCallback,
+    UserConfirmCallback,
+    UserFieldCallback,
+    UserMarkdownCallback,
+    UserNumberCallback,
+    UserOptionsCallback,
+    UserStringCallback,
+    UserStringValidator,
+    UserTextCallback,
+} from "./Modals";
 import { Node } from './Node';
 import { Palette } from './Palette';
 import { ParameterTable } from "./ParameterTable";
-import { Repository, RepositoryCommit } from './Repository';
+import { Repository, RepositoryCommit, RepositoryService } from './Repository';
 import { RepositoryFile } from './RepositoryFile';
-import { Setting } from './Setting';
+import { SchemaVersion, Setting } from './Setting';
 import { UiModeSystem } from "./UiModes";
 import { Visual } from "./Visual";
+
+export type ValidationResult = {
+    isValid: boolean;
+    message?: string;
+};
 
 
 export class Utils {
@@ -98,14 +116,14 @@ export class Utils {
         return now.getFullYear() + "-" + Utils.padStart(now.getMonth() + 1, 2) + "-" + Utils.padStart(now.getDate(), 2) + "-" + Utils.padStart(now.getHours(), 2) + "-" + Utils.padStart(now.getMinutes(), 2) + "-" + Utils.padStart(now.getSeconds(), 2);
     }
 
-    static generateName(fileType: Eagle.FileType): string {
+    static generateName(fileType: EagleFileType): string {
         return fileType.toString() + "-" + Utils.generateDateTimeString() + "." + Utils.getDiagramExtension(fileType);
     }
 
     static generateFilenameForGraphConfig(logicalGraph: LogicalGraph, graphConfig: GraphConfig): string {
         let graphName = logicalGraph.fileInfo().name;
         let configName = graphConfig.fileInfo().name;
-        const extension = Utils.getDiagramExtension(Eagle.FileType.GraphConfig);
+        const extension = Utils.getDiagramExtension(EagleFileType.GraphConfig);
 
         // if graphName ends with ".graph", remove that
         if (graphName.endsWith(".graph")){
@@ -120,7 +138,7 @@ export class Utils {
         return `${graphName}-${configName}.${extension}`;
     }
 
-    static getServiceToken(service: Repository.Service): string {
+    static getServiceToken(service: RepositoryService): string {
         switch (service) {
             case Repository.Service.GitHub:
                 return Setting.findValue<string>(Setting.GITHUB_ACCESS_TOKEN_KEY, "");
@@ -167,19 +185,19 @@ export class Utils {
         return fullPath.substring(0, fullPath.lastIndexOf('/'));
     }
 
-    static getFileTypeFromFileName(fileName : string) : Eagle.FileType {
+    static getFileTypeFromFileName(fileName : string) : EagleFileType {
         return Utils.translateStringToFileType(Utils.getFileExtension(fileName));
     }
 
     // NOTE: used for sorting files by filetype
-    static getFileTypeNum(fileType: Eagle.FileType) : number {
-        return Object.values(Eagle.FileType).indexOf(fileType);
+    static getFileTypeNum(fileType: EagleFileType) : number {
+        return Object.values(EagleFileType).indexOf(fileType);
     }
 
     /**
      * Create a new diagram (graph, palette, config).
      */
-    static async requestDiagramFilename(fileType : Eagle.FileType): Promise<string> {
+    static async requestDiagramFilename(fileType : EagleFileType): Promise<string> {
         return new Promise(async(resolve, reject) => {
             const defaultName: string = Utils.generateName(fileType);
 
@@ -244,12 +262,12 @@ export class Utils {
     /**
      * Returns an appropriate diagram file extension.
      */
-    static getDiagramExtension(fileType : Eagle.FileType) : string {
-        if (fileType == Eagle.FileType.Graph) {
+    static getDiagramExtension(fileType : EagleFileType) : string {
+        if (fileType == EagleFileType.Graph) {
             return "graph";
-        } else if (fileType == Eagle.FileType.Palette) {
+        } else if (fileType == EagleFileType.Palette) {
             return "palette";
-        } else if (fileType == Eagle.FileType.GraphConfig) {
+        } else if (fileType == EagleFileType.GraphConfig) {
             return "graphConfig";
         } else {
             console.error("Utils.getDiagramExtension() : Unknown file type! (" + fileType + ")");
@@ -257,72 +275,72 @@ export class Utils {
         }
     }
 
-    static translateStringToFileType(fileType : string) : Eagle.FileType {
+    static translateStringToFileType(fileType : string) : EagleFileType {
         // check input parameter is a string
         if (typeof fileType !== 'string'){
             console.warn("Can't determine file type, not a string");
-            return Eagle.FileType.Unknown;
+            return EagleFileType.Unknown;
         }
 
         if (fileType.toLowerCase() === "graph"){
-            return Eagle.FileType.Graph;
+            return EagleFileType.Graph;
         }
         if (fileType.toLowerCase() === "graphconfig"){
-            return Eagle.FileType.GraphConfig;
+            return EagleFileType.GraphConfig;
         }
         if (fileType.toLowerCase() === "palette"){
-            return Eagle.FileType.Palette;
+            return EagleFileType.Palette;
         }
         if (fileType.toLowerCase() === "json"){
-            return Eagle.FileType.JSON;
+            return EagleFileType.JSON;
         }
         const markdownExtensions = ["md", "markdown", "mdown"];
         if (markdownExtensions.includes(fileType.toLowerCase())){
-            return Eagle.FileType.Markdown;
+            return EagleFileType.Markdown;
         }
 
-        return Eagle.FileType.Unknown;
+        return EagleFileType.Unknown;
     }
 
     static dataTypePrefix(dataType: string): string {
         if (typeof dataType === 'undefined'){
-            return Daliuge.DataType.Unknown;
+            return DataType.Unknown;
         }
 
         return dataType.split(".")[0];
     }
 
     static translateStringToDataType(dataType: string): string {
-        for (const dt of Utils.enumKeys(Daliuge.DataType)){
+        for (const dt of Utils.enumKeys(DataType)){
             if (dt.toLowerCase() === dataType.toLowerCase()){
                 return dt;
             }
         }
         
         console.warn("Unknown DataType", dataType);
-        return Daliuge.DataType.Unknown;
+        return DataType.Unknown;
     }
 
-    static translateStringToParameterType(parameterType: string): Daliuge.FieldType {
-        for (const pt of Object.values(Daliuge.FieldType)){
+    static translateStringToParameterType(parameterType: string): FieldType {
+        for (const pt of Object.values(FieldType)){
             if (pt.toLowerCase() === parameterType.toLowerCase()){
                 return pt;
             }
         }
 
         console.warn("Unknown ParameterType", parameterType);
-        return Daliuge.FieldType.Unknown;
+        return FieldType.Unknown;
     }
 
-    static translateStringToParameterUsage(parameterUsage: string): Daliuge.FieldUsage {
-        for (const pu of Object.values(Daliuge.FieldUsage)){
+    static translateStringToParameterUsage(parameterUsage: string): FieldUsage {
+        for (const pu of Object.values(FieldUsage)){
             if (pu.toLowerCase() === parameterUsage.toLowerCase()){
                 return pu;
             }
         }
 
         console.warn("Unknown ParameterUsage", parameterUsage);
-        return Daliuge.FieldUsage.NoPort;
+        return FieldUsage.NoPort;
     }
     
     static async httpGet(url: string): Promise<string> {
@@ -482,8 +500,8 @@ export class Utils {
     }
 
     static showErrorsModal(title: string){
-        const errors: Errors.Issue[] = Errors.getErrors();
-        const warnings: Errors.Issue[] = Errors.getWarnings();
+        const errors = Errors.getErrors();
+        const warnings = Errors.getWarnings();
 
         console.log("showErrorsModal() errors:", errors.length, "warnings:", warnings.length);
 
@@ -536,11 +554,11 @@ export class Utils {
         });
     }
 
-    static notifyUserOfEditingIssue(fileType: Eagle.FileType, action: string){
+    static notifyUserOfEditingIssue(fileType: EagleFileType, action: string){
         const uiMode = UiModeSystem.getActiveUiMode().getName();
         let message: string;
 
-        if (fileType === Eagle.FileType.Unknown){
+        if (fileType === EagleFileType.Unknown){
             message = "Action is not permitted in the current UI mode (" + uiMode + ")";
         } else {
             message = fileType + " editing is not permitted in the current UI mode (" + uiMode + ")";
@@ -548,8 +566,8 @@ export class Utils {
         Utils.showNotification(action, message, "warning");
     }
 
-    static nonEmptyStringValidator(label: string): Modals.UserStringValidator {
-        return (userString: string): Utils.ValidationResult => {
+    static nonEmptyStringValidator(label: string): UserStringValidator {
+        return (userString: string): ValidationResult => {
             if (userString.trim() === ""){
                 return { isValid: false, message: label + " cannot be empty." };
             }
@@ -558,8 +576,8 @@ export class Utils {
         };
     }
 
-    static httpUrlStringValidator(label: string = "URL"): Modals.UserStringValidator {
-        return (userString: string): Utils.ValidationResult => {
+    static httpUrlStringValidator(label: string = "URL"): UserStringValidator {
+        return (userString: string): ValidationResult => {
             const trimmed = userString.trim();
             if (trimmed === ""){
                 return { isValid: false, message: label + " cannot be empty." };
@@ -580,8 +598,8 @@ export class Utils {
         };
     }
 
-    static repositorySlugStringValidator(label: string = "Repository name"): Modals.UserStringValidator {
-        return (userString: string): Utils.ValidationResult => {
+    static repositorySlugStringValidator(label: string = "Repository name"): UserStringValidator {
+        return (userString: string): ValidationResult => {
             const nonEmptyResult = Utils.nonEmptyStringValidator(label)(userString);
             if (!nonEmptyResult.isValid){
                 return nonEmptyResult;
@@ -632,8 +650,8 @@ export class Utils {
         };
     }
 
-    static branchNameStringValidator(label: string = "Branch name"): Modals.UserStringValidator {
-        return (userString: string): Utils.ValidationResult => {
+    static branchNameStringValidator(label: string = "Branch name"): UserStringValidator {
+        return (userString: string): ValidationResult => {
             const nonEmptyResult = Utils.nonEmptyStringValidator(label)(userString);
             if (!nonEmptyResult.isValid){
                 return nonEmptyResult;
@@ -684,21 +702,21 @@ export class Utils {
         };
     }
 
-    static gitCommitFileNameStringValidator(fileType: Eagle.FileType, label: string = "File name"): Modals.UserStringValidator {
-        return (userString: string): Utils.ValidationResult => {
-            if (fileType === Eagle.FileType.Unknown){
+    static gitCommitFileNameStringValidator(fileType: EagleFileType, label: string = "File name"): UserStringValidator {
+        return (userString: string): ValidationResult => {
+            if (fileType === EagleFileType.Unknown){
                 return { isValid: true };
             }
 
             let requiredExtension: string | null = null;
             switch (fileType){
-                case Eagle.FileType.Graph:
+                case EagleFileType.Graph:
                     requiredExtension = ".graph";
                     break;
-                case Eagle.FileType.Palette:
+                case EagleFileType.Palette:
                     requiredExtension = ".palette";
                     break;
-                case Eagle.FileType.GraphConfig:
+                case EagleFileType.GraphConfig:
                     requiredExtension = ".graphConfig";
                     break;
                 default:
@@ -713,8 +731,8 @@ export class Utils {
         };
     }
 
-    static jsonStringValidator(label: string = "JSON"): Modals.UserStringValidator {
-        return (userString: string): Utils.ValidationResult => {
+    static jsonStringValidator(label: string = "JSON"): UserStringValidator {
+        return (userString: string): ValidationResult => {
             try {
                 JSON.parse(userString);
                 return { isValid: true };
@@ -724,7 +742,7 @@ export class Utils {
         };
     }
 
-    static requestUserString(title : string, message : string, defaultString: string, isPassword: boolean, validator?: Modals.UserStringValidator): Promise<string> {
+    static requestUserString(title : string, message : string, defaultString: string, isPassword: boolean, validator?: UserStringValidator): Promise<string> {
         return new Promise(async(resolve, reject) => {
             $('#inputModalTitle').text(title);
             $('#inputModalMessage').html(Utils.markdown2html(message));
@@ -762,7 +780,7 @@ export class Utils {
             $('#inputModal').data('completed', false);
             $('#inputModal').data('isValid', true);
 
-            const callback: Modals.UserStringCallback = (completed : boolean, userString : string) => {
+            const callback: UserStringCallback = (completed : boolean, userString : string) => {
                 if (!completed){
                     reject("Utils.requestUserString() aborted by user");
                 } else {
@@ -796,7 +814,7 @@ export class Utils {
             // so that the info is available to event handlers
             $('#inputTextModal').data('completed', false);
 
-            const callback: Modals.UserTextCallback = (completed : boolean, userText : string) => {
+            const callback: UserTextCallback = (completed : boolean, userText : string) => {
                 if (!completed){
                     reject("Utils.requestUserText() aborted by user");
                 } else {
@@ -840,7 +858,7 @@ export class Utils {
             // so that the info is available to event handlers
             $('#inputCodeModal').data('completed', false);
 
-            const callback: Modals.UserTextCallback = (completed : boolean, userText : string) => {
+            const callback: UserTextCallback = (completed : boolean, userText : string) => {
                 if (!completed){
                     reject("Utils.requestUserCode() aborted by user");
                 } else {
@@ -871,7 +889,7 @@ export class Utils {
             // so that the info is available to event handlers
             $('#inputMarkdownModal').data('completed', false);
 
-            const callback: Modals.UserMarkdownCallback = (completed : boolean, userMarkdown : string) => {
+            const callback: UserMarkdownCallback = (completed : boolean, userMarkdown : string) => {
                 if (!completed){
                     reject("Utils.requestUserMarkdown() aborted by user");
                 } else {
@@ -894,7 +912,7 @@ export class Utils {
             // so that the info is available to event handlers
             $('#inputModal').data('completed', false);
 
-            const callback: Modals.UserNumberCallback = (completed : boolean, userNumber : number) => {
+            const callback: UserNumberCallback = (completed : boolean, userNumber : number) => {
                 if (!completed){
                     reject("Utils.requestUserNumber() aborted by user");
                 } else {
@@ -945,7 +963,7 @@ export class Utils {
             // so that the info is available to event handlers
             $('#choiceModal').data('completed', false);
 
-            const callback: Modals.UserChoiceCallback = (completed: boolean, choice: string): void =>{
+            const callback: UserChoiceCallback = (completed: boolean, choice: string): void =>{
                 if (completed){
                     resolve(choice);
                 } else {
@@ -985,7 +1003,7 @@ export class Utils {
                 })
             }
 
-            const callback: Modals.UserConfirmCallback = (completed: boolean, confirmed: boolean) => {
+            const callback: UserConfirmCallback = (completed: boolean, confirmed: boolean) => {
                 resolve(completed && confirmed);
             };
             $('#confirmModal').data('callback', callback);
@@ -1009,7 +1027,7 @@ export class Utils {
             $('#optionsModalOption2').toggleClass('btn-primary', defaultOptionIndex === 2);
             $('#optionsModalOption2').toggleClass('btn-secondary', defaultOptionIndex !== 2);
 
-            const callback: Modals.UserOptionsCallback = (selectedOptionIndex: number) => {
+            const callback: UserOptionsCallback = (selectedOptionIndex: number) => {
                 const selectedOption = [option0, option1, option2][selectedOptionIndex];
                 resolve(selectedOption);
             };
@@ -1020,12 +1038,12 @@ export class Utils {
     }
 
     // , callback : (completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void ) : void {
-    static async requestUserGitCommit(defaultRepository : Repository, repositories: Repository[], filePath: string, fileName: string, fileType: Eagle.FileType): Promise<RepositoryCommit> {
+    static async requestUserGitCommit(defaultRepository : Repository, repositories: Repository[], filePath: string, fileName: string, fileType: EagleFileType): Promise<RepositoryCommit> {
         return new Promise(async(resolve, _reject) => {
             $('#gitCommitModal').data('completed', false);
             $('#gitCommitModal').data('fileType', fileType);
 
-            const callback: Modals.GitCommitCallback = function(completed: boolean, location: FileLocation, commitMessage: string): void {
+            const callback: GitCommitCallback = function(completed: boolean, location: FileLocation, commitMessage: string): void {
                 if (completed){
                     resolve(new RepositoryCommit(location, commitMessage));
                 } else {
@@ -1038,7 +1056,7 @@ export class Utils {
             $('#gitCommitModal').modal("show");
 
             //
-            let defaultRepositoryService: Repository.Service = Repository.Service.Unknown;
+            let defaultRepositoryService: RepositoryService = Repository.Service.Unknown;
             if (defaultRepository !== null){
                 defaultRepositoryService = defaultRepository.service;
             }
@@ -1075,7 +1093,7 @@ export class Utils {
 
             $('#editFieldModal').data('completed', false);
 
-            const callback: Modals.UserFieldCallback = function(field: Field | null): void {
+            const callback: UserFieldCallback = function(field: Field | null): void {
                 resolve(field);
             }
             $('#editFieldModal').data('callback', callback);
@@ -1092,7 +1110,7 @@ export class Utils {
 
             $('#gitCustomRepositoryModal').data('completed', false);
 
-            const callback: Modals.GitCustomRepositoryCallback = function(completed: boolean, repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string): void {
+            const callback: GitCustomRepositoryCallback = function(completed: boolean, repositoryService: RepositoryService, repositoryName: string, repositoryBranch: string): void {
                 if (!completed){
                     reject("Utils.requestUserAddCustomRepository aborted by user");
                 } else {
@@ -1195,7 +1213,7 @@ export class Utils {
         palette.fileInfo().readonly = paletteListItem.readonly;
         palette.fileInfo().builtIn = true;
         palette.fileInfo().location.downloadUrl(paletteListItem.filename);
-        palette.fileInfo().type = Eagle.FileType.Palette;
+        palette.fileInfo().type = EagleFileType.Palette;
 
         palette.expanded(paletteListItem.expanded);
     }
@@ -1324,24 +1342,24 @@ export class Utils {
         return result;
     }
 
-    static getComponentsWithInputsAndOutputs(palettes: Palette[], categoryType: Category.Type, numRequiredInputs: number, numRequiredOutputs: number) : Node[] {
+    static getComponentsWithInputsAndOutputs(palettes: Palette[], categoryType: CategoryType, numRequiredInputs: number, numRequiredOutputs: number) : Node[] {
         const result: Node[] = [];
 
         // add all data components (except ineligible)
         for (const palette of palettes){
             for (const node of palette.getNodes()){
                 // skip nodes that are not data components
-                if (categoryType === Category.Type.Data && !node.isData()){
+                if (categoryType === CategoryType.Data && !node.isData()){
                     continue;
                 }
 
                 // skip nodes that are not application components
-                if (categoryType === Category.Type.Application && !node.isApplication()){
+                if (categoryType === CategoryType.Application && !node.isApplication()){
                     continue;
                 }
 
                 // skip nodes that are not construct components
-                if (categoryType === Category.Type.Construct && !node.isConstruct()){
+                if (categoryType === CategoryType.Construct && !node.isConstruct()){
                     continue;
                 }
 
@@ -1362,7 +1380,7 @@ export class Utils {
         return result;
     }
 
-    static getCategoriesWithInputsAndOutputs(categoryType: Category.Type) : Category[] {
+    static getCategoriesWithInputsAndOutputs(categoryType: CategoryType) : Category[] {
         const eagle = Eagle.getInstance();
 
         // get a reference to the builtin palette
@@ -1370,7 +1388,7 @@ export class Utils {
         if (typeof builtinPalette === "undefined"){
             // if no built-in palette is found, then build a list from the EAGLE categoryData
             console.warn("Could not find builtin palette", Palette.BUILTIN_PALETTE_NAME);
-            return Utils.buildComponentList((cData: Category.CategoryData) => {return cData.categoryType === categoryType});
+            return Utils.buildComponentList((cData: ReturnType<typeof CategoryData.getCategoryInfo>) => {return cData.categoryType === categoryType});
         }
 
         const matchingNodes = builtinPalette.getNodesByCategoryType(categoryType)
@@ -1434,11 +1452,11 @@ export class Utils {
         }
 
         // no destination, ask user to choose a new node
-        const isData: boolean = portDragSourceNode.getCategoryType() === Category.Type.Data;
+        const isData: boolean = portDragSourceNode.getCategoryType() === CategoryType.Data;
 
         for (const node of nodes){
             // skip data nodes if not eligible
-            if (isData && node.getCategoryType() === Category.Type.Data){
+            if (isData && node.getCategoryType() === CategoryType.Data){
                 continue;
             }
 
@@ -1488,7 +1506,7 @@ export class Utils {
     /**
      * Returns a list of all fields in the given palette or logical graph, of a particular type
      */
-    static getUniqueFieldsOfType(diagram : Palette | LogicalGraph, parameterType: Daliuge.FieldType) : Field[] {
+    static getUniqueFieldsOfType(diagram : Palette | LogicalGraph, parameterType: FieldType) : Field[] {
         const uniqueFields : Field[] = [];
 
         // build a list from all nodes, add fields into the list
@@ -1540,14 +1558,14 @@ export class Utils {
     }
 
     static isKnownCategoryType(categoryType : string) : boolean {
-        return Object.values(Category.Type).includes(categoryType as Category.Type);
+        return Object.values(CategoryType).includes(categoryType as CategoryType);
     }
 
     static isValidCategoryAndType(category: string, categoryType: string) : boolean {
         return this.isKnownCategory(category) &&
             this.isKnownCategoryType(categoryType) &&
             ![Category.Unknown, Category.UnknownApplication].map(x => x as string).includes(category) &&
-            ![Category.Type.Unknown].map(x => x as string).includes(categoryType);
+            ![CategoryType.Unknown].map(x => x as string).includes(categoryType);
     }
 
     static getRightWindowWidth() : number {
@@ -1619,7 +1637,7 @@ export class Utils {
         return this.getBottomWindowHeight() + statusBarAndOffsetHeightVH
     }
 
-    static getLocalStorageKey(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string) : string | null{
+    static getLocalStorageKey(repositoryService : RepositoryService, repositoryName : string, repositoryBranch : string) : string | null{
         switch (repositoryService){
             case Repository.Service.GitHub:
                 return repositoryName + "|" + repositoryBranch + ".github_repository_and_branch";
@@ -1631,15 +1649,15 @@ export class Utils {
         }
     }
 
-    static getLocalStorageValue(_repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string) : string {
+    static getLocalStorageValue(_repositoryService : RepositoryService, repositoryName : string, repositoryBranch : string) : string {
         return repositoryName+"|"+repositoryBranch;
     }
 
-    static buildComponentList(filter: (cData: Category.CategoryData) => boolean) : Category[] {
+    static buildComponentList(filter: (cData: ReturnType<typeof CategoryData.getCategoryInfo>) => boolean) : Category[] {
         const result : Category[] = [];
 
         for (const category in CategoryData.cData){
-            const cData = CategoryData.getCategoryData(<Category>category);
+            const cData = CategoryData.getCategoryInfo(<Category>category);
             if (filter(cData)){
                 result.push(<Category>category);
             }
@@ -1648,7 +1666,7 @@ export class Utils {
         return result;
     }
 
-    static determineFileType(data: any): Eagle.FileType {
+    static determineFileType(data: any): EagleFileType {
         if (typeof data.modelData !== 'undefined'){
             // find type of OJS files
             if (typeof data.modelData.fileType !== 'undefined'){
@@ -1662,11 +1680,11 @@ export class Utils {
         }
 
         if (typeof data.DALiuGEGraph !== 'undefined'){
-            return Eagle.FileType.Graph;
+            return EagleFileType.Graph;
         }
 
         console.warn("Can't determine filetype");
-        return Eagle.FileType.Unknown;
+        return EagleFileType.Unknown;
     }
 
     static determineEagleVersion(data: { modelData?: { eagleVersion?: unknown, generatorVersion?: unknown } } | null | undefined): string {
@@ -1723,7 +1741,7 @@ export class Utils {
         )
     }
 
-    static determineSchemaVersion(data: any): Setting.SchemaVersion {
+    static determineSchemaVersion(data: any): SchemaVersion {
         if (typeof data.modelData !== 'undefined'){
             if (typeof data.modelData.schemaVersion !== 'undefined'){
                 // check whether the value of data.modelData.schemaVersion is a valid SchemaVersion enum value
@@ -1763,9 +1781,9 @@ export class Utils {
         return type0 === type1;
     }
 
-    static checkPalette(palette: Palette): Errors.ErrorsWarnings {
-        const errorsWarnings: Errors.ErrorsWarnings = {warnings: [], errors: []};
-        const paletteIssues : {issue:Errors.Issue, validity:Errors.Validity}[]=[]
+    static checkPalette(palette: Palette): ErrorsWarnings {
+        const errorsWarnings: ErrorsWarnings = {warnings: [], errors: []};
+        const paletteIssues : {issue: Issue, validity: Validity}[]=[]
         // check for duplicate keys
         const keys: NodeId[] = [];
 
@@ -1775,7 +1793,7 @@ export class Utils {
                 errorsWarnings.errors.push(
                     Errors.ShowFix(
                         "Node (" + node.getName() + ") within palette (" + palette.fileInfo().name + ") has id already used by at least one other component.",
-                        function(){Utils.showNode(Eagle.getInstance(), Eagle.FileType.Palette, node)},
+                        function(){Utils.showNode(Eagle.getInstance(), EagleFileType.Palette, node)},
                         function(){Utils.generateNewNodeId(palette, node)},
                         "Generate new id for " + node.getName()
                     )
@@ -1787,7 +1805,7 @@ export class Utils {
 
         // check all nodes are valid
         for (const node of palette.getNodes()){
-            Node.isValid(Eagle.getInstance().logicalGraph(), node, Eagle.FileType.Palette);
+            Node.isValid(Eagle.getInstance().logicalGraph(), node, EagleFileType.Palette);
             paletteIssues.push(...node.getIssues())
             // errorsWarnings.errors.push(...nodeErrorsWarnings.errors)
             // errorsWarnings.warnings.push(...nodeErrorsWarnings.warnings)
@@ -1809,7 +1827,7 @@ export class Utils {
 
         // check all nodes are valid
         for (const node of graph.getNodes()){
-            Node.isValid(graph, node, Eagle.FileType.Graph);
+            Node.isValid(graph, node, EagleFileType.Graph);
         }
 
         // check all edges are valid
@@ -1885,9 +1903,9 @@ export class Utils {
         for (const node of graph.getNodes()){
             const id = node.getId();
             if (ids.has(id)){
-                const issue: Errors.Issue = Errors.ShowFix(
+                const issue = Errors.ShowFix(
                     "Node (" + node.getName() + ") does not have a unique id",
-                    function(){Utils.showNode(eagle, Eagle.FileType.Graph, node)},
+                    function(){Utils.showNode(eagle, EagleFileType.Graph, node)},
                     function(){Utils.newNodeId(graph, id)},
                     "Assign node a new id"
                 );
@@ -1899,9 +1917,9 @@ export class Utils {
             for (const field of node.getFields()){
                 const id = field.getId();
                 if (ids.has(id)){
-                    const issue: Errors.Issue = Errors.ShowFix(
+                    const issue = Errors.ShowFix(
                         "Field (" + field.getDisplayText() + ") on node (" + node.getName() + ") does not have a unique id",
-                        function(){Utils.showNode(eagle, Eagle.FileType.Graph, node)},
+                        function(){Utils.showNode(eagle, EagleFileType.Graph, node)},
                         function(){Utils.newFieldId(eagle, node, field)},
                         "Assign field a new id"
                     );
@@ -1915,7 +1933,7 @@ export class Utils {
         for (const edge of graph.getEdges()){
             const id = edge.getId();
             if (ids.has(id)){
-                const issue: Errors.Issue = Errors.ShowFix(
+                const issue = Errors.ShowFix(
                     "Edge (" + id + ") does not have a unique id",
                     function(){Utils.showEdge(eagle, edge)},
                     function(){Utils.newEdgeId(graph, id)},
@@ -1930,7 +1948,7 @@ export class Utils {
         for (const graphConfig of graph.getGraphConfigs()){
             const id = graphConfig.getId();
             if (ids.has(id)){
-                const issue: Errors.Issue = Errors.ShowFix(
+                const issue = Errors.ShowFix(
                     "Graph Config (" + id + ") does not have a unique id",
                     function(){Utils.showGraphConfig(eagle, id)},
                     function(){Utils.newGraphConfigId(graph, id)},
@@ -1943,8 +1961,8 @@ export class Utils {
         }
     }
 
-    static gatherGraphIssues(graph: LogicalGraph): {issue:Errors.Issue, validity:Errors.Validity}[] {
-        const graphIssues : {issue:Errors.Issue, validity:Errors.Validity}[] = []
+    static gatherGraphIssues(graph: LogicalGraph): {issue: Issue, validity: Validity}[] {
+        const graphIssues : {issue: Issue, validity: Validity}[] = []
 
         //gather all the errors
         //from nodes
@@ -1994,9 +2012,9 @@ export class Utils {
         return graphIssues;
     }
 
-    static updateGraphErrorsWarnings(): Errors.ErrorsWarnings {
+    static updateGraphErrorsWarnings(): ErrorsWarnings {
         const eagle = Eagle.getInstance()
-        const errorsWarnings: Errors.ErrorsWarnings = {warnings: [], errors: []};
+        const errorsWarnings: ErrorsWarnings = {warnings: [], errors: []};
         const graph : LogicalGraph = eagle.logicalGraph()
 
         const graphIssues = Utils.gatherGraphIssues(graph);
@@ -2014,7 +2032,7 @@ export class Utils {
     }
 
     // validate json
-    static validateJSON(jsonString: string, fileType: Eagle.FileType, version: Setting.SchemaVersion){
+    static validateJSON(jsonString: string, fileType: EagleFileType, version: SchemaVersion){
         // if validation disabled, just return true
         if (Setting.findValue<boolean>(Setting.DISABLE_JSON_VALIDATION, false)){
             return;
@@ -2027,20 +2045,20 @@ export class Utils {
         }
     }
 
-    static _validateJSON(json: any, version: Setting.SchemaVersion, fileType: Eagle.FileType) : {valid: boolean, errors: string} {
+    static _validateJSON(json: any, version: SchemaVersion, fileType: EagleFileType) : {valid: boolean, errors: string} {
         const ajv = new Ajv();
         let valid : boolean;
 
         switch(version){
             case Setting.SchemaVersion.OJS:
                 switch(fileType){
-                    case Eagle.FileType.Graph:
+                    case EagleFileType.Graph:
                         valid = ajv.validate(Utils.ojsGraphSchema, json) as boolean;
                         break;
-                    case Eagle.FileType.Palette:
+                    case EagleFileType.Palette:
                         valid = ajv.validate(Utils.ojsPaletteSchema, json) as boolean;
                         break;
-                    case Eagle.FileType.GraphConfig:
+                    case EagleFileType.GraphConfig:
                         valid = ajv.validate(Utils.ojsGraphConfigSchema, json) as boolean;
                         break;
                     default:
@@ -2051,13 +2069,13 @@ export class Utils {
                 break;
             case Setting.SchemaVersion.V4:
                 switch(fileType){
-                    case Eagle.FileType.Graph:
+                    case EagleFileType.Graph:
                         valid = ajv.validate(Utils.v4GraphSchema, json) as boolean;
                         break;
-                    case Eagle.FileType.Palette:
+                    case EagleFileType.Palette:
                         valid = ajv.validate(Utils.v4PaletteSchema, json) as boolean;
                         break;
-                    case Eagle.FileType.GraphConfig:
+                    case EagleFileType.GraphConfig:
                         valid = ajv.validate(Utils.v4GraphConfigSchema, json) as boolean;
                         break;
                     default:
@@ -2292,7 +2310,7 @@ export class Utils {
         node.addField(field);
     }
 
-    static fixNodeCategory(_eagle: Eagle, node: Node, category: Category, categoryType: Category.Type){
+    static fixNodeCategory(_eagle: Eagle, node: Node, category: Category, categoryType: CategoryType){
         node.setCategory(category);
         node.setCategoryType(categoryType);
 
@@ -2307,13 +2325,13 @@ export class Utils {
         // Some legacy graphs can retain one or more dropclass fields with an Unknown type
         // after category migration. Normalize all of them to Component explicitly.
         for (const field of node.getFields()){
-            if (field.getDisplayText() === Daliuge.FieldName.DROP_CLASS && field.getParameterType() !== Daliuge.FieldType.Component){
-                field.setParameterType(Daliuge.FieldType.Component);
+            if (field.getDisplayText() === Daliuge.FieldName.DROP_CLASS && field.getParameterType() !== FieldType.Component){
+                field.setParameterType(FieldType.Component);
             }
         }
 
         // lookup category data
-        const categoryData = CategoryData.getCategoryData(category);
+        const categoryData = CategoryData.getCategoryInfo(category);
 
         node.setRadius(categoryData.radius);
         node.setColor(categoryData.color);
@@ -2401,19 +2419,19 @@ export class Utils {
         node.redraw()
     }
 
-    static _mergeUsage(usage0: Daliuge.FieldUsage, usage1: Daliuge.FieldUsage) : Daliuge.FieldUsage {
-        let result: Daliuge.FieldUsage = usage0;
+    static _mergeUsage(usage0: FieldUsage, usage1: FieldUsage) : FieldUsage {
+        let result: FieldUsage = usage0;
 
         // decide if we need to merge an input port and output port
-        if (usage0 !== usage1 && (usage0 === Daliuge.FieldUsage.InputPort || usage0 === Daliuge.FieldUsage.OutputPort) && (usage1 === Daliuge.FieldUsage.InputPort || usage1 === Daliuge.FieldUsage.OutputPort)){
-            result = Daliuge.FieldUsage.InputOutput;
+        if (usage0 !== usage1 && (usage0 === FieldUsage.InputPort || usage0 === FieldUsage.OutputPort) && (usage1 === FieldUsage.InputPort || usage1 === FieldUsage.OutputPort)){
+            result = FieldUsage.InputOutput;
         }
 
         // if one field is a NoPort?
-        if (usage0 === Daliuge.FieldUsage.NoPort){
+        if (usage0 === FieldUsage.NoPort){
             result = usage1;
         }
-        if (usage1 === Daliuge.FieldUsage.NoPort){
+        if (usage1 === FieldUsage.NoPort){
             result = usage0;
         }
 
@@ -2456,15 +2474,15 @@ export class Utils {
     static fixFieldDefaultValue(_eagle: Eagle, field: Field){
         // depends on the type
         switch(field.getType()){
-            case Daliuge.DataType.Boolean:
+            case DataType.Boolean:
             field.setDefaultValue("false");
             break;
-            case Daliuge.DataType.Integer:
-            case Daliuge.DataType.Float:
+            case DataType.Integer:
+            case DataType.Float:
             field.setDefaultValue("0");
             break;
-            case Daliuge.DataType.Json:
-            case Daliuge.DataType.Python:
+            case DataType.Json:
+            case DataType.Python:
             field.setDefaultValue("{}");
             break;
             default:
@@ -2476,46 +2494,46 @@ export class Utils {
     static fixFieldType(_eagle: Eagle, field: Field){
         // fix for undefined value
         if (field.getType() === undefined){
-            field.setType(Daliuge.DataType.Object);
+            field.setType(DataType.Object);
         }
         
         // fix for 'Unknown' type
-        if (field.getType() === Daliuge.DataType.Unknown){
-            field.setType(Daliuge.DataType.Object);
+        if (field.getType() === DataType.Unknown){
+            field.setType(DataType.Object);
             return;
         }
 
         // fix for redundant 'Complex' type
         if (field.getType().toString() === 'Complex'){
-            field.setType(Daliuge.DataType.Object);
+            field.setType(DataType.Object);
             return;
         }
 
         // abort if this fix has already been done by some other method
-        if (field.getType() === Daliuge.DataType.Object){
+        if (field.getType() === DataType.Object){
             return;
         }
 
-        field.setType((Daliuge.DataType.Object + "." + field.getType()) as Daliuge.DataType);
+        field.setType((DataType.Object + "." + field.getType()) as DataType);
     }
 
     static fixFieldNodeId(_eagle: Eagle, node: Node, field: Field){
         field.setNode(node);
     }
 
-    static fixFieldUsage(_eagle: Eagle, field: Field, usage: Daliuge.FieldUsage){
+    static fixFieldUsage(_eagle: Eagle, field: Field, usage: FieldUsage){
         switch(field.getUsage()){
-            case Daliuge.FieldUsage.NoPort:
+            case FieldUsage.NoPort:
                 field.setUsage(usage);
                 break;
-            case Daliuge.FieldUsage.InputPort:
-                if (usage === Daliuge.FieldUsage.OutputPort){
-                    field.setUsage(Daliuge.FieldUsage.InputOutput);
+            case FieldUsage.InputPort:
+                if (usage === FieldUsage.OutputPort){
+                    field.setUsage(FieldUsage.InputOutput);
                 }
                 break;
-            case Daliuge.FieldUsage.OutputPort:
-                if (usage === Daliuge.FieldUsage.InputPort){
-                    field.setUsage(Daliuge.FieldUsage.InputOutput);
+            case FieldUsage.OutputPort:
+                if (usage === FieldUsage.InputPort){
+                    field.setUsage(FieldUsage.InputOutput);
                 }
                 break;
         }
@@ -2547,10 +2565,10 @@ export class Utils {
         }
 
         // determine a sensible type for the new source port
-        const srcPortType = destPort.getType() === undefined ? Daliuge.DataType.Object : destPort.getType();
+        const srcPortType = destPort.getType() === undefined ? DataType.Object : destPort.getType();
 
         // create new source port
-        const srcPort = new Field(srcNode, edge.getSrcPort().getId(), destPort.getDisplayText(), "", "", "", false, srcPortType, false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.OutputPort);
+        const srcPort = new Field(srcNode, edge.getSrcPort().getId(), destPort.getDisplayText(), "", "", "", false, srcPortType, false, [], false, FieldType.Application, FieldUsage.OutputPort);
 
         // add port to source node
         srcNode.addField(srcPort);
@@ -2570,10 +2588,10 @@ export class Utils {
         }
 
         // determine a sensible type for the new destination port
-        const destPortType = srcPort.getType() === undefined ? Daliuge.DataType.Object : srcPort.getType();
+        const destPortType = srcPort.getType() === undefined ? DataType.Object : srcPort.getType();
 
         // create new destination port
-        const destPort = new Field(destNode, edge.getDestPort().getId(), srcPort.getDisplayText(), "", "", "", false, destPortType, false, [], false, Daliuge.FieldType.Application, Daliuge.FieldUsage.OutputPort);
+        const destPort = new Field(destNode, edge.getDestPort().getId(), srcPort.getDisplayText(), "", "", "", false, destPortType, false, [], false, FieldType.Application, FieldUsage.OutputPort);
 
         // add port to destination node
         destNode.addField(destPort);
@@ -2588,7 +2606,7 @@ export class Utils {
         const destNode = edge.getDestNode();
 
         // if the SOURCE node is a construct, find the port within the embedded apps, and modify the edge with a new source node
-        if (srcNode.getCategoryType() === Category.Type.Construct){
+        if (srcNode.getCategoryType() === CategoryType.Construct){
             const embeddedApplicationKeyAndPort = srcNode.findPortInApplicationsById(edge.getSrcPort().getId());
 
             if (typeof embeddedApplicationKeyAndPort.node !== 'undefined'){
@@ -2597,7 +2615,7 @@ export class Utils {
         }
 
         // if the DESTINATION node is a construct, find the port within the embedded apps, and modify the edge with a new destination node
-        if (destNode.getCategoryType() === Category.Type.Construct){
+        if (destNode.getCategoryType() === CategoryType.Construct){
             const embeddedApplicationKeyAndPort = destNode.findPortInApplicationsById(edge.getDestPort().getId());
 
             if (typeof embeddedApplicationKeyAndPort.node !== 'undefined'){
@@ -2606,8 +2624,8 @@ export class Utils {
         }
     }
 
-    static fixFieldParameterType(_eagle: Eagle, node: Node, field: Field, newType: Daliuge.FieldType){
-        if (newType === Daliuge.FieldType.Unknown){
+    static fixFieldParameterType(_eagle: Eagle, node: Node, field: Field, newType: FieldType){
+        if (newType === FieldType.Unknown){
             node.removeFieldById(field.getId());
             return;
         }
@@ -2668,7 +2686,7 @@ export class Utils {
         newNode.setName(srcPort.getDisplayText());
 
         // find InputOutput port on node, which matches the source port dataType
-        const inputOutputPort = newNode.findPortByMatchingType(srcPort.getType(), [Daliuge.FieldUsage.InputOutput]);
+        const inputOutputPort = newNode.findPortByMatchingType(srcPort.getType(), [FieldUsage.InputOutput]);
         if (inputOutputPort === null){
             return null;
         }
@@ -2833,7 +2851,7 @@ export class Utils {
         $('#issuesDisplay').modal("hide");
 
         if (typeof edge !== 'undefined'){
-            eagle.setSelection(edge, Eagle.FileType.Graph);
+            eagle.setSelection(edge, EagleFileType.Graph);
         }
     }
 
@@ -2841,10 +2859,10 @@ export class Utils {
         // close errors modal if visible
         $('#issuesDisplay').modal("hide");
 
-        eagle.setSelection(visual, Eagle.FileType.Graph);
+        eagle.setSelection(visual, EagleFileType.Graph);
     }
 
-    static showNode(eagle: Eagle, location: Eagle.FileType, node: Node): void {
+    static showNode(eagle: Eagle, location: EagleFileType, node: Node): void {
         // close errors modal if visible
         $('#issuesDisplay').modal("hide");
 
@@ -2857,7 +2875,7 @@ export class Utils {
         eagle.setSelection(node, location);
     }
 
-    static showField(eagle: Eagle, location: Eagle.FileType, node: Node, field: Field): void {
+    static showField(eagle: Eagle, location: EagleFileType, node: Node, field: Field): void {
         this.showNode(eagle, location, node)
 
         // TODO: can we remove this timeout now, since the eagle.setSelection() is done immediately (within showNode())
@@ -2896,7 +2914,7 @@ export class Utils {
     }
 
     // only update result if it is worse that current result
-    static worstEdgeError(errorsWarnings: Errors.ErrorsWarnings) : Errors.Validity {
+    static worstEdgeError(errorsWarnings: ErrorsWarnings) : Validity {
         if (errorsWarnings === null){
             console.warn("errorsWarnings is null");
             return Errors.Validity.Valid;
@@ -2930,7 +2948,7 @@ export class Utils {
         const tableData : any[] = [];
 
         for (const category in CategoryData.cData){
-            const cData = CategoryData.getCategoryData(<Category>category);
+            const cData = CategoryData.getCategoryInfo(<Category>category);
 
             tableData.push({
                 category: <Category>category,
@@ -3208,12 +3226,12 @@ export class Utils {
     }
 
     static getReadOnlyText() : string {
-        if (Eagle.selectedLocation() === Eagle.FileType.Graph || Eagle.selectedLocation() === Eagle.FileType.Unknown){
+        if (Eagle.selectedLocation() === EagleFileType.Graph || Eagle.selectedLocation() === EagleFileType.Unknown){
             return "Read Only - Turn on 'Expert Mode' and 'Allow Component Editing' in the settings to unlock"
         }
 
         // if a node or nodes in the palette are selected, then assume those are being moved to the destination
-        if (Eagle.selectedLocation() === Eagle.FileType.Palette){
+        if (Eagle.selectedLocation() === EagleFileType.Palette){
             return "Read Only - Turn on 'Expert Mode' and 'Allow Palette Editing' in the settings to unlock"
         }
 
@@ -3299,7 +3317,7 @@ export class Utils {
             + '}';
     }
 
-    static async openRemoteFileFromUrl(_repositoryService : Repository.Service, _repositoryName : string, _repositoryBranch : string, _filePath : string, fileName : string): Promise<string> {
+    static async openRemoteFileFromUrl(_repositoryService : RepositoryService, _repositoryName : string, _repositoryBranch : string, _filePath : string, fileName : string): Promise<string> {
         return new Promise(async(resolve, reject) => {
             let data;
             try {
@@ -3505,7 +3523,7 @@ export class Utils {
             if (logicalGraph.fileInfo().name === ""){
                 let filename: string;
                 try {
-                    filename = await Utils.requestDiagramFilename(Eagle.FileType.Graph);
+                    filename = await Utils.requestDiagramFilename(EagleFileType.Graph);
                 } catch (error){
                     console.warn(error);
                     reject("User cancelled filename input");
@@ -3576,10 +3594,10 @@ export class Utils {
         return defaultValue;
     }
 
-    static buildUrl(service: Repository.Service, repositoryName: string, repositoryBranch: string, path: string, filename: string): string;
-    static buildUrl(service: Repository.Service, repositoryName: string, repositoryBranch: string): string;
-    static buildUrl(service: Repository.Service, downloadUrl: string): string;
-    static buildUrl(service: Repository.Service, arg1: string, repositoryBranch?: string, path?: string, filename?: string): string {
+    static buildUrl(service: RepositoryService, repositoryName: string, repositoryBranch: string, path: string, filename: string): string;
+    static buildUrl(service: RepositoryService, repositoryName: string, repositoryBranch: string): string;
+    static buildUrl(service: RepositoryService, downloadUrl: string): string;
+    static buildUrl(service: RepositoryService, arg1: string, repositoryBranch?: string, path?: string, filename?: string): string {
         if (repositoryBranch !== undefined && path !== undefined && filename !== undefined) {
             const repositoryName = arg1;
 
@@ -3621,11 +3639,4 @@ export class Utils {
 
         return url;
     }
-}
-
-export namespace Utils {
-    export type ValidationResult = {
-        isValid: boolean;
-        message?: string;
-    };
 }

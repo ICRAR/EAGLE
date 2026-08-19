@@ -24,19 +24,19 @@
 
 import * as ko from "knockout";
 
-import { Category } from './Category';
-import { Eagle } from './Eagle';
+import { CategoryType } from './Category';
+import { Eagle, EagleFileType } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { Edge } from './Edge';
 import { Visual } from './Visual';
-import { Errors } from './Errors';
+import { Errors, type ErrorsWarnings, type Issue, Validity } from './Errors';
 import { Field } from './Field';
 import { FileInfo } from './FileInfo';
 import { FileLocation } from "./FileLocation";
 import { GraphConfig } from './GraphConfig';
 import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 import { Node } from './Node';
-import { Setting } from './Setting';
+import { SchemaVersion, Setting } from './Setting';
 import { Utils } from './Utils';
 
 export class LogicalGraph {
@@ -47,11 +47,11 @@ export class LogicalGraph {
     private graphConfigs : ko.Observable<Map<GraphConfigId, GraphConfig>>;
     private activeGraphConfigId : ko.Observable<GraphConfigId | null>;
 
-    private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}> //keeps track of higher level errors on the graph
+    private issues : ko.ObservableArray<{issue: Issue, validity: Validity}> //keeps track of higher level errors on the graph
 
     constructor(){
         this.fileInfo = ko.observable(new FileInfo());
-        this.fileInfo().type = Eagle.FileType.Graph;
+        this.fileInfo().type = EagleFileType.Graph;
         this.fileInfo().schemaVersion = Setting.SchemaVersion.V4;
         this.fileInfo().readonly = false;
         this.fileInfo().builtIn = false;
@@ -60,7 +60,7 @@ export class LogicalGraph {
         this.visuals = ko.observable(new Map<VisualId, Visual>());
         this.graphConfigs = ko.observable(new Map<GraphConfigId, GraphConfig>());
         this.activeGraphConfigId = ko.observable(null); // can be null, or an id (can't be undefined)
-        this.issues = ko.observableArray<{issue:Errors.Issue, validity:Errors.Validity}>([]);
+        this.issues = ko.observableArray<{issue: Issue, validity: Validity}>([]);
     }
 
     static toOJSJson(graph : LogicalGraph, forTranslation : boolean) : object {
@@ -264,7 +264,7 @@ export class LogicalGraph {
         return result;
     }
 
-    static toJsonString(graph : LogicalGraph, forTranslation : boolean, version: Setting.SchemaVersion) : string {
+    static toJsonString(graph : LogicalGraph, forTranslation : boolean, version: SchemaVersion) : string {
         let result: string = "";
 
         switch(version){
@@ -282,7 +282,7 @@ export class LogicalGraph {
         return result;
     }
 
-    static fromOJSJson(dataObject : any, filename: string | null, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph {
+    static fromOJSJson(dataObject : any, filename: string | null, errorsWarnings : ErrorsWarnings) : LogicalGraph {
         // create new logical graph object
         const result : LogicalGraph = new LogicalGraph();
         const nodeDataIdToNodeId: Map<string, NodeId> = new Map();
@@ -433,7 +433,7 @@ export class LogicalGraph {
             }
 
             // if source node or destination node is a construct, then something is wrong, constructs should not have ports
-            if (sourceNode.getCategoryType() === Category.Type.Construct){
+            if (sourceNode.getCategoryType() === CategoryType.Construct){
                 const srcIdAndPort = sourceNode.findPortInApplicationsById(edge.getSrcPort().getId());
                 if (typeof srcIdAndPort.node === 'undefined'){
                     const error = "Could not find embedded application for source node of edge " + edge.getId();
@@ -444,7 +444,7 @@ export class LogicalGraph {
                     edge.getSrcNode().setId(srcIdAndPort.node.getId());
                 }
             }
-            if (destinationNode.getCategoryType() === Category.Type.Construct){
+            if (destinationNode.getCategoryType() === CategoryType.Construct){
                 const destKeyAndPort = destinationNode.findPortInApplicationsById(edge.getDestPort().getId());
                 if (typeof destKeyAndPort.node === 'undefined'){
                     const error = "Could not find embedded application for destination node of edge " + edge.getId();
@@ -463,7 +463,7 @@ export class LogicalGraph {
         return result;
     }
 
-    static fromV4Json(dataObject : any, filename: string, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph {
+    static fromV4Json(dataObject : any, filename: string, errorsWarnings : ErrorsWarnings) : LogicalGraph {
         // create new logical graph object
         const result : LogicalGraph = new LogicalGraph();
 
@@ -781,7 +781,7 @@ export class LogicalGraph {
 
     clear = () : void => {
         this.fileInfo().clear();
-        this.fileInfo().type = Eagle.FileType.Graph;
+        this.fileInfo().type = EagleFileType.Graph;
 
         this.nodes().clear();
         this.nodes.valueHasMutated();
@@ -868,11 +868,11 @@ export class LogicalGraph {
         return result;
     }
 
-    getIssues = (): {issue:Errors.Issue, validity:Errors.Validity}[] => {
+    getIssues = (): {issue: Issue, validity: Validity}[] => {
         return this.issues();
     }
 
-    addIssue = (issue:Errors.Issue, validity:Errors.Validity): void => {
+    addIssue = (issue: Issue, validity: Validity): void => {
         this.issues().push({issue:issue, validity:validity})
     }
 
@@ -1399,7 +1399,7 @@ export class LogicalGraph {
 
         //if the graph has been user created but does not have a short description, warn the user
         if (graph.fileInfo().isInitiated() && graph.fileInfo().shortDescription === ''){
-            const issue: Errors.Issue = Errors.Show(
+            const issue = Errors.Show(
                 "Graph does not have a short description.",
                 LogicalGraph.withEagle(eagle, e => e.editShortDescription(graph.fileInfo()))
             );
@@ -1408,7 +1408,7 @@ export class LogicalGraph {
 
         //if the graph has been user created but does not have a detailed description, warn the user
         if (graph.fileInfo().isInitiated() && graph.fileInfo().detailedDescription === ''){
-            const issue: Errors.Issue = Errors.Show(
+            const issue = Errors.Show(
                 "Graph does not have a detailed description.",
                 LogicalGraph.withEagle(eagle, e => e.editDetailedDescription(graph.fileInfo()))
             );
@@ -1418,9 +1418,9 @@ export class LogicalGraph {
         // check that all nodes in the nodes dict have a key that matches the id inside the node
         for (const [id, node] of graph.nodes()){
             if (node.getId() !== id){
-                const issue: Errors.Issue = Errors.ShowFix(
+                const issue = Errors.ShowFix(
                     "Node (" + id + ") id does not match the key in the nodes dictionary",
-                    LogicalGraph.withEagle(eagle, e => Utils.showNode(e, Eagle.FileType.Graph, node)),
+                    LogicalGraph.withEagle(eagle, e => Utils.showNode(e, EagleFileType.Graph, node)),
                     function(){node.setId(id)},
                     "Set node id to match key in nodes dictionary"
                 );
@@ -1431,7 +1431,7 @@ export class LogicalGraph {
         // loop over the graph configs to check that the graphLocation in fileInfo matches the location of the graph itself
         for (const graphConfig of graph.getGraphConfigs()){
             if (!FileLocation.match(graphConfig.fileInfo().graphLocation, graph.fileInfo().location)){
-                const issue: Errors.Issue = Errors.ShowFix(
+                const issue = Errors.ShowFix(
                     "Graph Config (" + graphConfig.fileInfo().name + ") graph location does not match the location of the parent graph",
                     LogicalGraph.withEagle(eagle, e => Utils.showGraphConfig(e, graphConfig.getId())),
                     function(){graphConfig.fileInfo().graphLocation = graph.fileInfo().location.clone()},
@@ -1444,20 +1444,20 @@ export class LogicalGraph {
         // check all edges in the edges dict are also present in the srcPort or destPort edges dict
         for (const [id, edge] of graph.edges()){
             if (typeof edge.getSrcPort() === 'undefined' || typeof edge.getDestPort() === 'undefined'){
-                const issue: Errors.Issue = Errors.Show("Edge (" + id + ") has undefined srcPort or undefined destPort", LogicalGraph.withEagle(eagle, e => Utils.showEdge(e, edge)));
+                const issue = Errors.Show("Edge (" + id + ") has undefined srcPort or undefined destPort", LogicalGraph.withEagle(eagle, e => Utils.showEdge(e, edge)));
                 graph.issues.push({issue:issue, validity: Errors.Validity.Error});
                 continue;
             }
 
             // check source port
             if (typeof edge.getSrcPort().getEdgeById(id) === 'undefined'){
-                const issue: Errors.Issue = Errors.Show("Edge (" + id + ") is not present in source port edges list", LogicalGraph.withEagle(eagle, e => Utils.showEdge(e, edge)));
+                const issue = Errors.Show("Edge (" + id + ") is not present in source port edges list", LogicalGraph.withEagle(eagle, e => Utils.showEdge(e, edge)));
                 graph.issues.push({issue:issue, validity: Errors.Validity.Error});
             }
 
             // check destination port
             if (typeof edge.getDestPort().getEdgeById(id) === 'undefined'){
-                const issue: Errors.Issue = Errors.Show("Edge (" + id + ") is not present in destination port edges list", LogicalGraph.withEagle(eagle, e => Utils.showEdge(e, edge)));
+                const issue = Errors.Show("Edge (" + id + ") is not present in destination port edges list", LogicalGraph.withEagle(eagle, e => Utils.showEdge(e, edge)));
                 graph.issues.push({issue:issue, validity: Errors.Validity.Error});
             }
         }
@@ -1465,7 +1465,7 @@ export class LogicalGraph {
         // check that all edges in the edges dict have a key that matches the id inside the edge
         for (const [id, edge] of graph.edges()){
             if (edge.getId() !== id){
-                const issue: Errors.Issue = Errors.ShowFix(
+                const issue = Errors.ShowFix(
                     "Edge (" + id + ") id does not match the key in the edges dictionary",
                     LogicalGraph.withEagle(eagle, e => Utils.showEdge(e, edge)),
                     function(){edge.setId(id)},
@@ -1479,7 +1479,7 @@ export class LogicalGraph {
             
             // check that all visuals in the visuals dict have a key that matches the id inside the visual
             if (visual.getId() !== id){
-                const issue: Errors.Issue = Errors.ShowFix(
+                const issue = Errors.ShowFix(
                     "Visual (" + id + ") id does not match the key in the visuals dictionary",
                     LogicalGraph.withEagle(eagle, e => Utils.showVisual(e, visual)),
                     function(){visual.setId(id)},
@@ -1507,7 +1507,7 @@ export class LogicalGraph {
                 }
 
                 if (!targetExists){
-                    const issue: Errors.Issue = Errors.ShowFix(
+                    const issue = Errors.ShowFix(
                         "Visual (" + id + ") target does not exist in the graph",
                         LogicalGraph.withEagle(eagle, e => Utils.showVisual(e, visual)),
                         function(){visual.setTarget(null)},
@@ -1521,7 +1521,7 @@ export class LogicalGraph {
         // check that active graph config id actually refers to a graph config in the graphConfigs dict
         if (graph.activeGraphConfigId() !== null){
             if (graph.getActiveGraphConfig() === null){
-                const issue: Errors.Issue = Errors.Fix(
+                const issue = Errors.Fix(
                     "Active Graph Config Id (" + graph.activeGraphConfigId() + ") does not match a known graph config",
                     function(){
                         // if there are no graph config, set active id to undefined
@@ -1545,7 +1545,7 @@ export class LogicalGraph {
                 const graphNode = graph.nodes().get(graphConfigNode.getNode().getId());
 
                 if (typeof graphNode === 'undefined'){
-                    const issue: Errors.Issue = Errors.Fix(
+                    const issue = Errors.Fix(
                         "Node in graph config (" + graphConfig.fileInfo().name + ") is not present in Logical Graph",
                         function(){
                             graphConfig.removeNodeById(graphConfigNode.getNode().getId());
@@ -1560,7 +1560,7 @@ export class LogicalGraph {
                     const graphField = graphNode.getFieldById(graphConfigField.getField().getId());
 
                     if (typeof graphField === 'undefined'){
-                        const issue: Errors.Issue = Errors.Fix(
+                        const issue = Errors.Fix(
                             "Field in graph config (" + graphConfig.fileInfo().name + ", " + graphNode.getName() + ") is not present in Logical Graph",
                             function(){
                                 graphConfigNode.removeFieldById(graphConfigField.getField().getId());

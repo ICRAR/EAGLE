@@ -24,16 +24,16 @@
 
 import * as ko from "knockout";
 
-import { Category } from './Category';
+import { Category, CategoryType } from './Category';
 import { Eagle } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
-import { Errors } from './Errors';
+import { Errors, type ErrorsWarnings } from './Errors';
 import { FileInfo } from './FileInfo';
 import { FileLocation } from "./FileLocation";
 import { Node } from './Node';
 import { Repository } from "./Repository";
 import { RepositoryFile } from './RepositoryFile';
-import { Setting } from "./Setting";
+import { SchemaVersion, Setting } from "./Setting";
 import { Utils } from './Utils';
 import { UiModeSystem } from "./UiModes";
 
@@ -58,7 +58,7 @@ export class Palette {
         this.isFetching = ko.observable(false);
     }
 
-    static fromOJSJson(data: string, file: RepositoryFile, errorsWarnings: Errors.ErrorsWarnings) : Palette {
+    static fromOJSJson(data: string, file: RepositoryFile, errorsWarnings: ErrorsWarnings) : Palette {
         // parse the JSON first
         const dataObject : any = JSON.parse(data);
         const result : Palette = new Palette();
@@ -113,7 +113,7 @@ export class Palette {
         return result;
     }
 
-    static fromV4Json(data: string, file: RepositoryFile, errorsWarnings: Errors.ErrorsWarnings): Palette {
+    static fromV4Json(data: string, file: RepositoryFile, errorsWarnings: ErrorsWarnings): Palette {
         // parse the JSON first
         const dataObject : any = JSON.parse(data);
         const result : Palette = new Palette();
@@ -248,7 +248,7 @@ export class Palette {
         return result;
     }
 
-    static toJsonString(palette: Palette, version: Setting.SchemaVersion) : string {
+    static toJsonString(palette: Palette, version: SchemaVersion) : string {
         let result: string = "";
 
         switch(version){
@@ -375,7 +375,7 @@ export class Palette {
         return undefined;
     }
 
-    getNodesByCategoryType = (categoryType: Category.Type) : Node[] => {
+    getNodesByCategoryType = (categoryType: CategoryType) : Node[] => {
         const result : Node[] = []
 
         for (const node of this.nodes().values()){

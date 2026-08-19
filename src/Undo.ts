@@ -25,7 +25,7 @@
 import * as ko from "knockout";
 
 import { Eagle } from './Eagle';
-import { Errors } from "./Errors";
+import { type ErrorsWarnings } from "./Errors";
 import { Hierarchy } from "./Hierarchy";
 import { LogicalGraph } from './LogicalGraph';
 import { ParameterTable } from "./ParameterTable";
@@ -235,7 +235,7 @@ export class Undo {
             return;
         }
 
-        const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+        const errorsWarnings : ErrorsWarnings = {"errors":[], "warnings":[]};
         const dataObject: LogicalGraph = LogicalGraph.fromOJSJson(snapshot.data(), null, errorsWarnings);
         eagle.logicalGraph(dataObject);
     }
@@ -294,7 +294,7 @@ export class Undo {
             }
 
             // parse the snapshot data into a LogicalGraph object
-            const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+            const errorsWarnings : ErrorsWarnings = {"errors":[], "warnings":[]};
             const dataObject: LogicalGraph = LogicalGraph.fromOJSJson(snapshot.data(), null, errorsWarnings);
 
             tableData.push({

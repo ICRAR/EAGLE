@@ -27,14 +27,14 @@
 import * as ko from "knockout";
 import * as bootstrap from 'bootstrap';
 
-import { Category } from './Category';
+import { Category, CategoryType } from './Category';
 import { CategoryData } from "./CategoryData";
 import { ComponentUpdater } from './ComponentUpdater';
-import { Daliuge } from './Daliuge';
+import { Daliuge, DataType, FieldUsage } from './Daliuge';
 import { DockerHubBrowser } from "./DockerHubBrowser";
 import { EagleConfig } from "./EagleConfig";
 import { Edge } from './Edge';
-import { Errors } from './Errors';
+import { Errors, type ErrorsWarnings, type Issue, Mode } from './Errors';
 import { Field } from './Field';
 import { FileInfo } from './FileInfo';
 import { FileLocation } from "./FileLocation";
@@ -52,10 +52,10 @@ import { Node } from './Node';
 import { Palette } from './Palette';
 import { ParameterTable } from './ParameterTable';
 import { Repositories } from './Repositories';
-import { Repository, RepositoryCommit } from './Repository';
+import { Repository, RepositoryCommit, RepositoryService } from './Repository';
 import { RepositoryFile } from './RepositoryFile';
 import { RightClick } from "./RightClick";
-import { Setting, SettingsGroup } from './Setting';
+import { SchemaVersion, Setting, SettingsGroup } from './Setting';
 import { SideWindow } from './SideWindow';
 import { Translator } from './Translator';
 import { Tutorial, tutorialArray } from './Tutorial';
@@ -64,10 +64,58 @@ import { UiModeSystem } from './UiModes';
 import { Utils } from './Utils';
 import { GraphUpdater } from "./GraphUpdater";
 import { versions } from "./Versions";
-import { Visual } from "./Visual";
+import { Visual, VisualType } from "./Visual";
+
+export enum EagleLeftWindowMode {
+    None = "None",
+    Palettes = "Palettes"
+}
+
+export enum EagleRightWindowMode {
+    None = "None",
+    Repository = "Repository",
+    TranslationMenu = "TranslationMenu",
+    Hierarchy = "Hierarchy"
+}
+
+export enum EagleBottomWindowMode {
+    None = "None",
+    NodeParameterTable = "NodeParameterTable",
+    GraphConfigsTable = "GraphConfigsTable",
+    ConfigParameterTable = "ConfigParameterTable",
+    EagleErrors = "EagleErrors"
+}
+
+export enum EagleAddNodeMode {
+    ContextMenu = "ContextMenu",
+    Default = "Default"
+}
+
+export enum EagleFileType {
+    Graph = "Graph",
+    GraphConfig = "GraphConfig",
+    Palette = "Palette",
+    JSON = "JSON",
+    Markdown = "Markdown",
+    Unknown = "Unknown"
+}
+
+export enum EagleDirection {
+    Up = "Up",
+    Down = "Down",
+    Left = "Left",
+    Right = "Right"
+}
 
 
 export class Eagle {
+    static readonly LeftWindowMode = EagleLeftWindowMode;
+    static readonly RightWindowMode = EagleRightWindowMode;
+    static readonly BottomWindowMode = EagleBottomWindowMode;
+    static readonly AddNodeMode = EagleAddNodeMode;
+    static readonly FileType = EagleFileType;
+    static readonly Direction = EagleDirection;
+
     static _instance : Eagle;
 
     palettes : ko.ObservableArray<Palette>;
@@ -81,11 +129,11 @@ export class Eagle {
     bottomWindow : ko.Observable<SideWindow>;
 
     selectedObjects : ko.ObservableArray<Node|Edge|Visual>;
-    static selectedLocation : ko.Observable<Eagle.FileType>;
+    static selectedLocation : ko.Observable<EagleFileType>;
     currentField :ko.Observable<Field | null>;
 
     static selectedRightClickObject : ko.Observable<Node|Edge|Visual|null>;
-    static selectedRightClickLocation : ko.Observable<Eagle.FileType>;
+    static selectedRightClickLocation : ko.Observable<EagleFileType>;
     static selectedRightClickPosition : {x: number, y: number} = {x:0, y:0}
 
     repositories: ko.Observable<Repositories>;
@@ -98,11 +146,11 @@ export class Eagle {
 
     dockerHubBrowser : ko.Observable<DockerHubBrowser>;
 
-    errorsMode : ko.Observable<Errors.Mode>;
-    graphWarnings : ko.ObservableArray<Errors.Issue>;
-    graphErrors : ko.ObservableArray<Errors.Issue>;
-    loadingWarnings : ko.ObservableArray<Errors.Issue>;
-    loadingErrors : ko.ObservableArray<Errors.Issue>;
+    errorsMode : ko.Observable<Mode>;
+    graphWarnings : ko.ObservableArray<Issue>;
+    graphErrors : ko.ObservableArray<Issue>;
+    loadingWarnings : ko.ObservableArray<Issue>;
+    loadingErrors : ko.ObservableArray<Issue>;
     currentFileInfo : ko.Observable<FileInfo | null>;
     currentFileInfoTitle : ko.Observable<string>;
 
@@ -140,11 +188,11 @@ export class Eagle {
         this.bottomWindow = ko.observable(new SideWindow(Utils.getBottomWindowHeight()));
 
         this.selectedObjects = ko.observableArray<Node | Edge>([]).extend({ deferred: true });
-        Eagle.selectedLocation = ko.observable<Eagle.FileType>(Eagle.FileType.Unknown);
+        Eagle.selectedLocation = ko.observable<EagleFileType>(Eagle.FileType.Unknown);
         this.currentField = ko.observable(null);
 
         Eagle.selectedRightClickObject = ko.observable(null);
-        Eagle.selectedRightClickLocation = ko.observable<Eagle.FileType>(Eagle.FileType.Unknown);
+        Eagle.selectedRightClickLocation = ko.observable<EagleFileType>(Eagle.FileType.Unknown);
 
         this.repositories = ko.observable(new Repositories());
         this.translator = ko.observable(new Translator());
@@ -172,11 +220,11 @@ export class Eagle {
 
         this.dockerHubBrowser = ko.observable(new DockerHubBrowser());
 
-        this.errorsMode = ko.observable<Errors.Mode>(Errors.Mode.Loading);
-        this.graphWarnings = ko.observableArray<Errors.Issue>([]);
-        this.graphErrors = ko.observableArray<Errors.Issue>([]);
-        this.loadingWarnings = ko.observableArray<Errors.Issue>([]);
-        this.loadingErrors = ko.observableArray<Errors.Issue>([]);
+        this.errorsMode = ko.observable<Mode>(Errors.Mode.Loading);
+        this.graphWarnings = ko.observableArray<Issue>([]);
+        this.graphErrors = ko.observableArray<Issue>([]);
+        this.loadingWarnings = ko.observableArray<Issue>([]);
+        this.loadingErrors = ko.observableArray<Issue>([]);
 
         this.currentFileInfo = ko.observable(null);
         this.currentFileInfoTitle = ko.observable("");
@@ -206,7 +254,7 @@ export class Eagle {
      * Centralized confirmation for saving in legacy OJS format.
      * Returns true if the save should proceed, false if the user cancels.
      */
-    static async confirmOjsSave(version: Setting.SchemaVersion): Promise<boolean> {
+    static async confirmOjsSave(version: SchemaVersion): Promise<boolean> {
         if (version !== Setting.SchemaVersion.OJS) {
             return true;
         }
@@ -733,7 +781,7 @@ export class Eagle {
         }
     }, this);
 
-    setSelection = (selection : Node | Edge | Visual | null, selectedLocation: Eagle.FileType) : void => {
+    setSelection = (selection : Node | Edge | Visual | null, selectedLocation: EagleFileType) : void => {
         Eagle.selectedLocation(selectedLocation);
         GraphRenderer.clearPortPeek()
 
@@ -754,7 +802,7 @@ export class Eagle {
         }
     }
 
-    editSelection = (selection : Node | Edge | Visual, selectedLocation: Eagle.FileType) : void => {
+    editSelection = (selection : Node | Edge | Visual, selectedLocation: EagleFileType) : void => {
         // check that location is the same, otherwise default back to set
         if (selectedLocation !== Eagle.selectedLocation() && this.selectedObjects().length > 0){
             Utils.showNotification("Selection Error", "Can't add object from " + selectedLocation + " to existing selected objects in " + Eagle.selectedLocation(), "warning");
@@ -808,12 +856,12 @@ export class Eagle {
         return this.logicalGraph().fileInfo().lastModifiedDatetimeText().split(',')[0]
     }
 
-    changeRightWindowMode(requestedMode:Eagle.RightWindowMode) : void {
+    changeRightWindowMode(requestedMode:EagleRightWindowMode) : void {
         Setting.setValue(Setting.RIGHT_WINDOW_MODE, requestedMode)
         
         SideWindow.setShown('right', true)
 
-        const rightWindowMode = Setting.findValue<Eagle.RightWindowMode>(Setting.RIGHT_WINDOW_MODE, Eagle.RightWindowMode.None);
+        const rightWindowMode = Setting.findValue<EagleRightWindowMode>(Setting.RIGHT_WINDOW_MODE, Eagle.RightWindowMode.None);
 
         //trigger a re-render of the hierarchy
         if (rightWindowMode === Eagle.RightWindowMode.Hierarchy){
@@ -973,7 +1021,7 @@ export class Eagle {
     insertLocalGraphFile = () : void => {
         const graphFileToInsertInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("graphFileToInsert");
         const fileFullPath : string = graphFileToInsertInputElement.value;
-        const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+        const errorsWarnings : ErrorsWarnings = {"errors":[], "warnings":[]};
         const eagle: Eagle = this;
 
         // abort if value is empty string
@@ -1024,7 +1072,7 @@ export class Eagle {
         graphFileToInsertInputElement.value = "";
     }
 
-    private _handleLoadingErrors = (errorsWarnings: Errors.ErrorsWarnings, fileName: string, service: Repository.Service) : void => {
+    private _handleLoadingErrors = (errorsWarnings: ErrorsWarnings, fileName: string, service: RepositoryService) : void => {
         const showErrors: boolean = Setting.findValue<boolean>(Setting.SHOW_FILE_LOADING_ERRORS, false);
         this.hideEagleIsLoading()
 
@@ -1058,7 +1106,7 @@ export class Eagle {
             return;
         }
 
-        const fileType : Eagle.FileType = Utils.determineFileType(dataObject);
+        const fileType : EagleFileType = Utils.determineFileType(dataObject);
 
         // Only load graph files.
         if (fileType !== Eagle.FileType.Graph) {
@@ -1067,9 +1115,9 @@ export class Eagle {
         }
 
         // attempt to determine schema version from FileInfo
-        const schemaVersion: Setting.SchemaVersion = Utils.determineSchemaVersion(dataObject);
+        const schemaVersion: SchemaVersion = Utils.determineSchemaVersion(dataObject);
 
-        const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
+        const errorsWarnings: ErrorsWarnings = {errors: [], warnings: []};
 
         // use the correct parsing function based on schema version
         switch (schemaVersion){
@@ -1161,8 +1209,8 @@ export class Eagle {
             return;
         }
 
-        const constructs : string[] = Utils.buildComponentList((cData: Category.CategoryData) => {
-            return cData.categoryType === Category.Type.Construct;
+        const constructs : string[] = Utils.buildComponentList((cData: ReturnType<typeof CategoryData.getCategoryInfo>) => {
+            return cData.categoryType === CategoryType.Construct;
         });
 
         // ask the user what type of construct to use
@@ -1202,7 +1250,7 @@ export class Eagle {
     }
 
     // NOTE: parentNode would be null if we are duplicating a selection of objects
-    insertGraph = async (nodes: Node[], edges: Edge[], parentNode: Node | null, errorsWarnings: Errors.ErrorsWarnings) => {
+    insertGraph = async (nodes: Node[], edges: Edge[], parentNode: Node | null, errorsWarnings: ErrorsWarnings) => {
         // create map of inserted graph keys to final graph nodes, and of inserted port ids to final graph ports
         const nodeMap: Map<NodeId, Node> = new Map();
         const portMap: Map<FieldId, Field> = new Map();
@@ -1454,7 +1502,7 @@ export class Eagle {
         }
 
         // determine file type
-        const loadedFileType : Eagle.FileType = Utils.determineFileType(dataObject);
+        const loadedFileType : EagleFileType = Utils.determineFileType(dataObject);
 
         // abort if not palette
         if (loadedFileType !== Eagle.FileType.Palette){
@@ -1671,7 +1719,7 @@ export class Eagle {
         const dataObject = JSON.parse(userCode);
 
         // read as LogicalGraph
-        const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
+        const errorsWarnings: ErrorsWarnings = {errors: [], warnings: []};
         const lg: LogicalGraph = LogicalGraph.fromOJSJson(dataObject, null, errorsWarnings);
 
         // insert
@@ -1683,7 +1731,7 @@ export class Eagle {
         Utils.showNotification("Inserted Graph from JSON", "Inserted " + nodes.length + " nodes and " + edges.length + " edges.", "info");
     }
 
-    loadFileFromUrl = async(fileType: Eagle.FileType): Promise<void> => {
+    loadFileFromUrl = async(fileType: EagleFileType): Promise<void> => {
         let url: string;
         try {
             url = await Utils.requestUserString("Url", "Enter Url of " + fileType + " to load", "", false, Utils.httpUrlStringValidator("URL"));
@@ -1700,9 +1748,9 @@ export class Eagle {
         }
     }
 
-    displayObjectAsJson = (fileType: Eagle.FileType, object: LogicalGraph | Palette | GraphConfig) : void => {
+    displayObjectAsJson = (fileType: EagleFileType, object: LogicalGraph | Palette | GraphConfig) : void => {
         let jsonString: string;
-        const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
+        const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
         
         switch(fileType){
             case Eagle.FileType.Graph:
@@ -1724,7 +1772,7 @@ export class Eagle {
 
     displayNodeAsJson = (node: Node) : void => {
         let jsonString: string;
-        const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
+        const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
 
         switch(version){
             case Setting.SchemaVersion.OJS:
@@ -2002,7 +2050,7 @@ export class Eagle {
     /**
      * Saves the file to a local download folder.
      */
-    saveFileToLocal = async (fileType : Eagle.FileType, graphConfig: GraphConfig | null = null) : Promise<void> => {
+    saveFileToLocal = async (fileType : EagleFileType, graphConfig: GraphConfig | null = null) : Promise<void> => {
         return new Promise(async(resolve, reject) => {
             switch (fileType){
                 case Eagle.FileType.Graph:
@@ -2058,7 +2106,7 @@ export class Eagle {
         });
     }
 
-    saveAsFileToLocal = async (fileType: Eagle.FileType, graphConfig: GraphConfig | null = null): Promise<void> => {
+    saveAsFileToLocal = async (fileType: EagleFileType, graphConfig: GraphConfig | null = null): Promise<void> => {
         return new Promise(async(resolve, reject) => {
             switch (fileType){
                 case Eagle.FileType.Graph:
@@ -2231,7 +2279,7 @@ export class Eagle {
     /**
      * Performs a Git commit of a graph/palette. Asks user for a file name before saving.
      */
-    commitToGitAs = async (fileType : Eagle.FileType, graphConfig: GraphConfig | null = null) : Promise<void> => {
+    commitToGitAs = async (fileType : EagleFileType, graphConfig: GraphConfig | null = null) : Promise<void> => {
         return new Promise(async(resolve, reject) => {
             let fileInfo : ko.Observable<FileInfo>;
             let obj : LogicalGraph | Palette | GraphConfig;
@@ -2339,7 +2387,7 @@ export class Eagle {
     /**
      * Performs a Git commit of a graph/palette.
      */
-    commitToGit = async (fileType : Eagle.FileType) : Promise<void> => {
+    commitToGit = async (fileType : EagleFileType) : Promise<void> => {
         return new Promise(async(resolve, reject) => {
             let fileInfo : ko.Observable<FileInfo> | undefined;
             let obj : LogicalGraph | Palette | GraphConfig | undefined;
@@ -2463,7 +2511,7 @@ export class Eagle {
             console.log("saveDiagramToGit() repositoryName", file.repository.name, "fileType", file.type, "filePath", file.path, "fileName", file.name, "commitMessage", commitMessage);
 
             // get version (hoisted for OJS format check)
-            const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
+            const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
 
             // warn if saving in older OJS format (not applicable to GraphConfig which has no version-dependent serialization)
             if (file.type !== Eagle.FileType.GraphConfig) {
@@ -2497,7 +2545,7 @@ export class Eagle {
         });
     }
 
-    _saveDiagramToGit = async (file: RepositoryFile, fileInfo: ko.Observable<FileInfo>, commitMessage : string, jsonString: string, version: Setting.SchemaVersion) : Promise<void> => {
+    _saveDiagramToGit = async (file: RepositoryFile, fileInfo: ko.Observable<FileInfo>, commitMessage : string, jsonString: string, version: SchemaVersion) : Promise<void> => {
         return new Promise(async(resolve, reject) => {
             // generate filename
             const fullFileName : string = Utils.joinPath(file.path, file.name);
@@ -2559,10 +2607,10 @@ export class Eagle {
         }
     }
 
-    loadPalettes = async (paletteList: {name:string, filename:string, readonly:boolean, expanded:boolean}[]): Promise<{palettes: Palette[], errorsWarnings: Errors.ErrorsWarnings}> => {
+    loadPalettes = async (paletteList: {name:string, filename:string, readonly:boolean, expanded:boolean}[]): Promise<{palettes: Palette[], errorsWarnings: ErrorsWarnings}> => {
         return new Promise(async(resolve) => {
             const destinationPalettes: Palette[] = [];
-            const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+            const errorsWarnings: ErrorsWarnings = {"errors":[], "warnings":[]};
 
             // define a function to check if all requests are now complete, if so we can return the list of palettes
             function _checkAllPalettesComplete() : void {
@@ -2612,7 +2660,7 @@ export class Eagle {
                         console.warn("Unable to fetch palette '" + paletteList[i].name + "'. Palette loaded from localStorage.");
 
                         // attempt to determine schema version from FileInfo
-                        const schemaVersion: Setting.SchemaVersion = Utils.determineSchemaVersion(paletteData);
+                        const schemaVersion: SchemaVersion = Utils.determineSchemaVersion(paletteData);
                         let palette: Palette;
                         const file = new RepositoryFile(new Repository(Repository.Service.Url, "", "", false), "", paletteList[i].name);
                         file.type = Eagle.FileType.Palette;
@@ -2675,7 +2723,7 @@ export class Eagle {
         }
 
         // check the service required to fetch the file
-        let openRemoteFileFunc: (repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string, filePath: string, fileName: string) => Promise<string>;
+        let openRemoteFileFunc: (repositoryService: RepositoryService, repositoryName: string, repositoryBranch: string, filePath: string, fileName: string) => Promise<string>;
         switch (file.repository.service){
             case Repository.Service.GitHub:
                 openRemoteFileFunc = GitHub.openRemoteFile;
@@ -2706,7 +2754,7 @@ export class Eagle {
         
         // determine file extension
         const fileExtension = Utils.getFileExtension(file.name);
-        let fileTypeLoaded: Eagle.FileType = Eagle.FileType.Unknown;
+        let fileTypeLoaded: EagleFileType = Eagle.FileType.Unknown;
         let dataObject: any = null;
 
         if (fileExtension !== "md"){
@@ -2794,7 +2842,7 @@ export class Eagle {
     }
 
     _loadGraphConfig = async (dataObject: any, file: RepositoryFile): Promise<void> => {
-        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+        const errorsWarnings: ErrorsWarnings = {"errors":[], "warnings":[]};
 
         const graphConfig = GraphConfig.fromJson(dataObject, this.logicalGraph(), errorsWarnings);
 
@@ -2864,7 +2912,7 @@ export class Eagle {
         file.isFetching(true);
 
         // check the service required to fetch the file
-        let insertRemoteFileFunc: (repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string, filePath: string, fileName: string) => Promise<string>;
+        let insertRemoteFileFunc: (repositoryService: RepositoryService, repositoryName: string, repositoryBranch: string, filePath: string, fileName: string) => Promise<string>;
         switch (file.repository.service){
             case Repository.Service.GitHub:
                 insertRemoteFileFunc = GitHub.openRemoteFile;
@@ -2900,7 +2948,7 @@ export class Eagle {
             return;
         }
 
-        const fileTypeLoaded: Eagle.FileType = Utils.determineFileType(dataObject);
+        const fileTypeLoaded: EagleFileType = Utils.determineFileType(dataObject);
 
         // only do this for graphs at the moment
         if (fileTypeLoaded !== Eagle.FileType.Graph){
@@ -2910,14 +2958,14 @@ export class Eagle {
         }
 
         // attempt to determine schema version from FileInfo
-        const schemaVersion: Setting.SchemaVersion = Utils.determineSchemaVersion(dataObject);
+        const schemaVersion: SchemaVersion = Utils.determineSchemaVersion(dataObject);
 
         // check if we need to update the graph from keys to ids
         if (GraphUpdater.usesNodeKeys(dataObject)){
             GraphUpdater.updateKeysToIds(dataObject);
         }
 
-        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+        const errorsWarnings: ErrorsWarnings = {"errors":[], "warnings":[]};
 
         // use the correct parsing function based on schema version
         let lg: LogicalGraph;
@@ -3003,10 +3051,10 @@ export class Eagle {
         }
 
         // determine schema version from FileInfo
-        const schemaVersion: Setting.SchemaVersion = Utils.determineSchemaVersion(JSON.parse(data));
+        const schemaVersion: SchemaVersion = Utils.determineSchemaVersion(JSON.parse(data));
 
         // load the new palette
-        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+        const errorsWarnings: ErrorsWarnings = {"errors":[], "warnings":[]};
         let newPalette: Palette;
         switch (schemaVersion){
             case Setting.SchemaVersion.OJS:
@@ -3120,7 +3168,7 @@ export class Eagle {
             }
 
             // get version (hoisted for OJS format check)
-            const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
+            const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
 
             // warn if saving in older OJS format
             if (!await Eagle.confirmOjsSave(version)) { resolve(); return; }
@@ -3182,7 +3230,7 @@ export class Eagle {
             }
 
             // get version (hoisted for OJS format check)
-            const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
+            const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
 
             // warn if saving in older OJS format
             if (!await Eagle.confirmOjsSave(version)) { resolve(); return; }
@@ -3232,7 +3280,7 @@ export class Eagle {
             console.log("saveGraphConfigToDisk()", fileName);
 
             // get version
-            const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
+            const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
 
             // convert to json
             const jsonString: string = GraphConfig.toJsonString(graphConfig);
@@ -3300,7 +3348,7 @@ export class Eagle {
         console.log("savePaletteToGit()", palette.fileInfo().name, palette.fileInfo().type);
 
         // get version (hoisted for OJS format check)
-        const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
+        const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
 
         // warn if saving in older OJS format
         if (!await Eagle.confirmOjsSave(version)) return;
@@ -3362,7 +3410,7 @@ export class Eagle {
         const lg: LogicalGraph = Eagle.getInstance().logicalGraph();
 
         // get schema version
-        const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
+        const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
 
         // get json for logical graph
         const jsonString: string = LogicalGraph.toJsonString(lg, true, version);
@@ -3610,7 +3658,7 @@ export class Eagle {
                     const nodes : Node[] = [];
                     const edges : Edge[] = [];
                     const visuals : Visual[] = [];
-                    const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+                    const errorsWarnings : ErrorsWarnings = {"errors":[], "warnings":[]};
 
                     // split objects into nodes and edges
                     for (const object of incomingNodes){
@@ -3814,7 +3862,7 @@ export class Eagle {
             return;
         }
 
-        const errorsWarnings: Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+        const errorsWarnings: ErrorsWarnings = {"errors":[], "warnings":[]};
         const nodes : Node[] = [];
         const edges : Edge[] = [];
 
@@ -3989,7 +4037,7 @@ export class Eagle {
 
     deleteSelection = async (rightClick: boolean, suppressUserConfirmationRequest: boolean, deleteChildren: boolean): Promise<void> => {
         let data: (Node | Edge | Visual)[] = [];
-        let location: Eagle.FileType = Eagle.FileType.Unknown;
+        let location: EagleFileType = Eagle.FileType.Unknown;
 
         GraphRenderer.clearPortPeek()
 
@@ -4127,7 +4175,7 @@ export class Eagle {
         }
     }
 
-    private _deleteSelection = (deleteChildren: boolean, data: (Node | Edge | Visual)[], location: Eagle.FileType) : void => {
+    private _deleteSelection = (deleteChildren: boolean, data: (Node | Edge | Visual)[], location: EagleFileType) : void => {
         switch(location){
             case Eagle.FileType.Graph:
                 // if not deleting children, move them to different parents first
@@ -4224,7 +4272,7 @@ export class Eagle {
             return;
         }
 
-        const usages: Daliuge.FieldUsage[] = [RightClick.edgeDropSrcIsInput ? Daliuge.FieldUsage.OutputPort : Daliuge.FieldUsage.InputPort, Daliuge.FieldUsage.InputOutput];
+        const usages: FieldUsage[] = [RightClick.edgeDropSrcIsInput ? Daliuge.FieldUsage.OutputPort : Daliuge.FieldUsage.InputPort, Daliuge.FieldUsage.InputOutput];
         let realDestPort: Field | null = realDestNode.findPortByMatchingType(realSourcePort.getType(), usages);
 
         // if no dest port was found, just use first input port on dest node
@@ -4254,7 +4302,7 @@ export class Eagle {
         this.logicalGraph.valueHasMutated();
     }
 
-    addNodeToLogicalGraph = (node: Node | undefined, nodeId: NodeId | null, mode: Eagle.AddNodeMode): Promise<Node[]> => {
+    addNodeToLogicalGraph = (node: Node | undefined, nodeId: NodeId | null, mode: EagleAddNodeMode): Promise<Node[]> => {
         return new Promise(async(resolve, reject) => {
             const result: Node[] = [];
             let pos : {x:number, y:number};
@@ -4548,7 +4596,7 @@ export class Eagle {
         return p;
     }
 
-    addVisualToLogicalGraph = async (type: Visual.Type, mode: Eagle.AddNodeMode) : Promise<Visual> => {
+    addVisualToLogicalGraph = async (type: VisualType, mode: EagleAddNodeMode) : Promise<Visual> => {
         return new Promise(async(resolve, reject) => {
 
             let pos : {x:number, y:number};
@@ -4643,7 +4691,7 @@ export class Eagle {
         });
     }
 
-    tableDropdownClick = (newType: Daliuge.DataType, field: Field) : void => {
+    tableDropdownClick = (newType: DataType, field: Field) : void => {
         // if the field contains no options, then it's value will be immediately set to undefined
         // therefore, we add at least one option, so the value remains well defined
         if (newType === Daliuge.DataType.Select){
@@ -5293,7 +5341,7 @@ export class Eagle {
 
     getEligibleNodeCategories : ko.PureComputed<Category[]> = ko.pureComputed(() => {
         let category : Category = Category.Unknown;
-        let categoryType: Category.Type = Category.Type.Unknown;
+        let categoryType: CategoryType = CategoryType.Unknown;
 
         const selectedNode = this.selectedNode();
 
@@ -5303,7 +5351,7 @@ export class Eagle {
         }
 
         // if selectedNode categoryType is Unknown, return list of all categories
-        if (category === Category.Unknown || !Utils.isKnownCategory(category) || categoryType === Category.Type.Unknown || !Utils.isKnownCategoryType(categoryType)){
+        if (category === Category.Unknown || !Utils.isKnownCategory(category) || categoryType === CategoryType.Unknown || !Utils.isKnownCategoryType(categoryType)){
             return Utils.buildComponentList((_cData: CategoryData) => {return true});
         }
 
@@ -5342,7 +5390,7 @@ export class Eagle {
         }
 
         const newNodeCategory: Category = $(event.target).val() as Category;
-        const newNodeCategoryType: Category.Type = CategoryData.getCategoryData(newNodeCategory).categoryType;
+        const newNodeCategoryType: CategoryType = CategoryData.getCategoryInfo(newNodeCategory).categoryType;
         const oldNode = this.selectedNode();
 
         // abort if no node selected
@@ -5457,7 +5505,7 @@ export class Eagle {
 
         // update
         const updatedNodes: Node[] = [];
-        const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
+        const errorsWarnings: ErrorsWarnings = {errors: [], warnings: []};
         let numSelectedNodes: number = 0;
 
         // make sure we have a palette available for each selected component
@@ -5643,50 +5691,6 @@ export class Eagle {
         $(target).scrollTop(scrollTop + (event.originalEvent as WheelEvent).deltaY * 0.5);
     }
 
-}
-
-export namespace Eagle
-{
-    export enum LeftWindowMode {
-        None = "None",
-        Palettes = "Palettes"
-    }
-
-    export enum RightWindowMode {
-        None = "None",
-        Repository = "Repository",
-        TranslationMenu = "TranslationMenu",
-        Hierarchy = "Hierarchy"
-    }
-
-    export enum BottomWindowMode {
-        None = "None",
-        NodeParameterTable = "NodeParameterTable",
-        GraphConfigsTable = "GraphConfigsTable",
-        ConfigParameterTable = "ConfigParameterTable",
-        EagleErrors = "EagleErrors"
-    }
-
-    export enum AddNodeMode {
-        ContextMenu = "ContextMenu",
-        Default = "Default"
-    }
-
-    export enum FileType {
-        Graph = "Graph",
-        GraphConfig = "GraphConfig",
-        Palette = "Palette",
-        JSON = "JSON",
-        Markdown = "Markdown",
-        Unknown = "Unknown"
-    }
-
-    export enum Direction {
-        Up = "Up",
-        Down = "Down",
-        Left = "Left",
-        Right = "Right"
-    }
 }
 
 // TODO: ready is deprecated here, use something else

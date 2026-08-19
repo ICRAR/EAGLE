@@ -9,6 +9,14 @@ import { GraphConfigurationsTable } from './GraphConfigurationsTable';
 import { SideWindow } from './SideWindow';
 import { GraphUpdater } from './GraphUpdater';
 
+export enum KeyboardShortcutPlatform {
+    All = "All",
+    Linux = "Linux",
+    Mac = "Mac",
+    Windows = "Windows",
+    Unknown = "Unknown"
+}
+
 enum Modifier {
     Alt = "Alt",
     Ctrl = "Ctrl",
@@ -28,6 +36,15 @@ class Key {
     }
 }
 
+export interface KeyboardShortcutOptions {
+    id: string,
+    text: string,
+    keys?: Key[],
+    tags?: string[],
+    icon?: string,
+    run: (eagle: Eagle, event: KeyboardEvent | null) => void
+}
+
 export class KeyboardShortcut {
     id: string;
     text: string;
@@ -37,7 +54,9 @@ export class KeyboardShortcut {
     icon: string;
     run: (eagle: Eagle, event: KeyboardEvent | null) => void;
 
-    constructor(options: KeyboardShortcut.Options){
+    static readonly Platform = KeyboardShortcutPlatform;
+
+    constructor(options: KeyboardShortcutOptions){
         this.id = options.id;
         this.text = options.text;
         this.run = options.run;
@@ -758,7 +777,7 @@ export class KeyboardShortcut {
         return ks ? ks.run : undefined;
     }
 
-    static detectPlatform(): KeyboardShortcut.Platform {
+    static detectPlatform(): KeyboardShortcutPlatform {
         // if a browser has no support for navigator.userAgentData.platform use platform as fallback
         let userAgent = (<any>navigator)?.userAgentData?.platform?.toLowerCase();
         if (typeof userAgent === "undefined"){
@@ -775,7 +794,7 @@ export class KeyboardShortcut {
         return KeyboardShortcut.Platform.Unknown;
     }
 
-    static modifierOKForPlatform(modifier: Modifier, platform: KeyboardShortcut.Platform): boolean {
+    static modifierOKForPlatform(modifier: Modifier, platform: KeyboardShortcutPlatform): boolean {
         // TODO: anything we should do for Linux?
 
         if (modifier === Modifier.Ctrl && platform === KeyboardShortcut.Platform.Windows){
@@ -786,25 +805,6 @@ export class KeyboardShortcut {
         }
 
         return true;
-    }
-}
-
-export namespace KeyboardShortcut{
-    export enum Platform {
-        All = "All",
-        Linux = "Linux",
-        Mac = "Mac",
-        Windows = "Windows",
-        Unknown = "Unknown"
-    }
-
-    export interface Options {
-        id: string,
-        text: string,
-        keys?: Key[],
-        tags?: string[],
-        icon?: string,
-        run: (eagle: Eagle, event: KeyboardEvent | null) => void
     }
 }
     

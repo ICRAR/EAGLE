@@ -1,18 +1,23 @@
 import * as ko from "knockout";
 
 import { Daliuge } from "./Daliuge";
-import { Eagle } from './Eagle';
+import { Eagle, EagleBottomWindowMode, EagleFileType } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { Field } from './Field';
 import { Id } from "./Id";
 import { LogicalGraph } from "./LogicalGraph";
 import { Node } from "./Node";
 import { RightClick } from "./RightClick";
-import { Setting } from "./Setting";
+import { Setting, ValueEditingPermission } from "./Setting";
 import { UiModeSystem } from "./UiModes";
 import { Utils } from './Utils';
 import { GraphConfig, GraphConfigField } from "./GraphConfig";
 import { SideWindow } from "./SideWindow";
+
+export enum ParameterTableSelectType {
+    Normal = "Normal",
+    RightClick = "RightClick",
+}
 
 export class ParameterTable {
     static selectionParent : ko.Observable<Field | null>; // row in the parameter table that is currently selected
@@ -32,6 +37,8 @@ export class ParameterTable {
     static fields : ko.ObservableArray<Field>;
 
     private static readonly ROW_HEIGHT: number = 30;
+
+    static readonly SelectType = ParameterTableSelectType;
 
     static init(){
         ParameterTable.selectionParent = ko.observable(null);
@@ -73,8 +80,8 @@ export class ParameterTable {
             return "";
         }
 
-        const bottomWindowMode = Setting.findValue<Eagle.BottomWindowMode>(Setting.BOTTOM_WINDOW_MODE, Eagle.BottomWindowMode.None);
-        if ([Eagle.BottomWindowMode.NodeParameterTable, Eagle.BottomWindowMode.ConfigParameterTable].includes(bottomWindowMode)){
+        const bottomWindowMode = Setting.findValue<EagleBottomWindowMode>(Setting.BOTTOM_WINDOW_MODE, EagleBottomWindowMode.None);
+        if ([EagleBottomWindowMode.NodeParameterTable, EagleBottomWindowMode.ConfigParameterTable].includes(bottomWindowMode)){
             return selectionParent.getDisplayText() + " - " + ParameterTable.selectionName();
         } else {
             return "Unknown";
@@ -88,8 +95,8 @@ export class ParameterTable {
             return "";
         }
 
-        const bottomWindowMode = Setting.findValue<Eagle.BottomWindowMode>(Setting.BOTTOM_WINDOW_MODE, Eagle.BottomWindowMode.None);
-        if ([Eagle.BottomWindowMode.NodeParameterTable, Eagle.BottomWindowMode.ConfigParameterTable].includes(bottomWindowMode)){
+        const bottomWindowMode = Setting.findValue<EagleBottomWindowMode>(Setting.BOTTOM_WINDOW_MODE, EagleBottomWindowMode.None);
+        if ([EagleBottomWindowMode.NodeParameterTable, EagleBottomWindowMode.ConfigParameterTable].includes(bottomWindowMode)){
             return selection;
         } else {
             return "Unknown";
@@ -141,13 +148,13 @@ export class ParameterTable {
         //resets the table field selections used for the little editor at the top of the table
         ParameterTable.resetSelection()
 
-        const bottomWindowMode = Setting.findValue<Eagle.BottomWindowMode>(Setting.BOTTOM_WINDOW_MODE, Eagle.BottomWindowMode.None);
+        const bottomWindowMode = Setting.findValue<EagleBottomWindowMode>(Setting.BOTTOM_WINDOW_MODE, EagleBottomWindowMode.None);
 
         switch (bottomWindowMode){
-            case Eagle.BottomWindowMode.NodeParameterTable:
+            case EagleBottomWindowMode.NodeParameterTable:
                 return ParameterTable.fields();
 
-            case Eagle.BottomWindowMode.ConfigParameterTable:
+            case EagleBottomWindowMode.ConfigParameterTable:
                 const lg: LogicalGraph = eagle.logicalGraph();
                 const config = lg.getActiveGraphConfig();
                 const displayedFields: Field[] = [];
@@ -276,15 +283,15 @@ export class ParameterTable {
     static getNodeLockedState = (field:Field) : boolean => {
         const eagle: Eagle = Eagle.getInstance();
 
-        const bottomWindowMode = Setting.findValue<Eagle.BottomWindowMode>(Setting.BOTTOM_WINDOW_MODE, Eagle.BottomWindowMode.None);
+        const bottomWindowMode = Setting.findValue<EagleBottomWindowMode>(Setting.BOTTOM_WINDOW_MODE, EagleBottomWindowMode.None);
 
         // this handles a special case where EAGLE is displaying the "Graph Configuration Attributes Table"
         // all the field names shown in that table should be locked (readonly)
-        if (bottomWindowMode === Eagle.BottomWindowMode.ConfigParameterTable){
+        if (bottomWindowMode === EagleBottomWindowMode.ConfigParameterTable){
             return field.getNode().isLocked()
         }
 
-        if(Eagle.selectedLocation() === Eagle.FileType.Palette){
+        if(Eagle.selectedLocation() === EagleFileType.Palette){
             const selectedNode = eagle.selectedNode();
 
             if(selectedNode === null){
@@ -301,7 +308,7 @@ export class ParameterTable {
 
     // TODO: move to Eagle.ts? only depends on Eagle state and settings
     static getParamsTableEditState = () : boolean => {
-        if(Eagle.selectedLocation() === Eagle.FileType.Palette){
+        if(Eagle.selectedLocation() === EagleFileType.Palette){
             return !Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false)
         }else{
             return !Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false) && !Setting.findValue<boolean>(Setting.ALLOW_COMPONENT_EDITING, false);
@@ -345,7 +352,7 @@ export class ParameterTable {
         const eagle = Eagle.getInstance();
 
         switch (Eagle.selectedLocation()){
-            case Eagle.FileType.Palette: {
+            case EagleFileType.Palette: {
                 const paletteNode = eagle.selectedNode();
                 
                 if (paletteNode === null){
@@ -363,7 +370,7 @@ export class ParameterTable {
                 containingPalette.fileInfo().modified = true;
                 break;
             }
-            case Eagle.FileType.Graph:
+            case EagleFileType.Graph:
                 eagle.logicalGraph().fileInfo().modified = true;
 
                 eagle.checkEagle();
@@ -468,7 +475,7 @@ export class ParameterTable {
                 return;
             }
 
-            ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal);
+            ParameterTable.openTable(EagleBottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal);
 
             // set name
             graphConfig.fileInfo().name = configName;
@@ -489,7 +496,7 @@ export class ParameterTable {
         // TODO: actually, there is a difference between wanting to make a config active, and wanting to edit a config, but we don't have that separation at the moment
         Eagle.getInstance().logicalGraph().setActiveGraphConfig(config.getId());
 
-        ParameterTable.openTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.Normal);
+        ParameterTable.openTable(EagleBottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.Normal);
     }
 
     static async requestEditDescriptionInModal(field:Field): Promise<void> {
@@ -664,23 +671,23 @@ export class ParameterTable {
         upresizer.on('mousedown', mouseDownHandler);
     }
 
-    static toggleTable = (mode: Eagle.BottomWindowMode, selectType: ParameterTable.SelectType) : void => {
+    static toggleTable = (mode: EagleBottomWindowMode, selectType: ParameterTableSelectType) : void => {
         // if user in student mode, abort
         const inStudentMode: boolean = Setting.findValue<boolean>(Setting.STUDENT_SETTINGS_MODE, false);
-        if (inStudentMode && mode === Eagle.BottomWindowMode.NodeParameterTable){
+        if (inStudentMode && mode === EagleBottomWindowMode.NodeParameterTable){
             Utils.showNotification("Student Mode", "Unable to open Parameter Table in student mode", "danger", false);
             return;
         }
 
         //if we are already in the requested mode, we can toggle the bottom window
-        if(Setting.findValue<Eagle.BottomWindowMode>(Setting.BOTTOM_WINDOW_MODE, Eagle.BottomWindowMode.None) === mode){
+        if(Setting.findValue<EagleBottomWindowMode>(Setting.BOTTOM_WINDOW_MODE, EagleBottomWindowMode.None) === mode){
             SideWindow.toggleShown('bottom')
         }else{
             this.openTable(mode,selectType)
         }
     }
 
-    static openTable = (mode: Eagle.BottomWindowMode, selectType: ParameterTable.SelectType) : void => {
+    static openTable = (mode: EagleBottomWindowMode, selectType: ParameterTableSelectType) : void => {
         const eagle: Eagle = Eagle.getInstance();
 
         //if a modal is open, closed it
@@ -694,7 +701,7 @@ export class ParameterTable {
         //open the bottom window
         SideWindow.setShown('bottom',true)
 
-        if(mode = Eagle.BottomWindowMode.NodeParameterTable){
+        if(mode = EagleBottomWindowMode.NodeParameterTable){
             setTimeout(() => {
                 //update the contents of the parameter table and its sorting arrow display
                 ParameterTable.updateContent(eagle.selectedNode())
@@ -713,9 +720,9 @@ export class ParameterTable {
     static openTableAndSelectField = (node:Node, field:Field) : void => {
         const eagle = Eagle.getInstance()
 
-        eagle.setSelection(node, Eagle.FileType.Graph)
+        eagle.setSelection(node, EagleFileType.Graph)
 
-        ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal);
+        ParameterTable.openTable(EagleBottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal);
         
         setTimeout(function(){
             $('#tableRow_'+field.getId()).addClass('highlighted')
@@ -817,7 +824,7 @@ export class ParameterTable {
             return false;
         }
 
-        if(Eagle.selectedLocation() === Eagle.FileType.Palette){
+        if(Eagle.selectedLocation() === EagleFileType.Palette){
             if(Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false)){
                 return false;
             }else{
@@ -839,15 +846,15 @@ export class ParameterTable {
             return true;
         }
 
-        if(Eagle.selectedLocation() === Eagle.FileType.Palette && Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false)){
+        if(Eagle.selectedLocation() === EagleFileType.Palette && Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false)){
             return false;
         }
         
-        if (Eagle.selectedLocation() != Eagle.FileType.Palette && Setting.findValue<boolean>(Setting.ALLOW_COMPONENT_EDITING, false)){
+        if (Eagle.selectedLocation() != EagleFileType.Palette && Setting.findValue<boolean>(Setting.ALLOW_COMPONENT_EDITING, false)){
             return false;
         }
         
-        const valueEditingPermissions = Setting.findValue<Setting.ValueEditingPermission>(Setting.VALUE_EDITING_PERMS, Setting.ValueEditingPermission.Normal);
+        const valueEditingPermissions = Setting.findValue<ValueEditingPermission>(Setting.VALUE_EDITING_PERMS, Setting.ValueEditingPermission.Normal);
         if(valueEditingPermissions === Setting.ValueEditingPermission.ReadOnly){
             return false;
         }
@@ -912,13 +919,6 @@ export class ParameterTable {
 
     static getParameterTypeLockedState = (field:Field) : boolean => {
         return this.getNodeLockedState(field) || this.getParameterTypeOptions(field).length < 2;
-    }
-}
-
-export namespace ParameterTable {
-    export enum SelectType {
-        Normal = "Normal",
-        RightClick = "RightClick",
     }
 }
 
