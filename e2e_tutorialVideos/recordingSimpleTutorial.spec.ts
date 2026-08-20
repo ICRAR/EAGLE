@@ -3,6 +3,9 @@ import { test, expect } from '@playwright/test';
 import { enableMouseCursor, explainElement, moveMouseCursor, textNotification } from '../playwrightHelpers';
 import { TestHelpers } from '../e2e/TestHelpers';
 
+// to run this test, use the following command:
+// npx playwright test --config playwright.tutorial.config.ts e2e_tutorialVideos/recordingSimpleTutorial.spec.ts --headed
+
 test.use({ 
   viewport: { width: 2560, height: 1440 },
   video: {

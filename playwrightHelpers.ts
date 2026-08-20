@@ -13,7 +13,7 @@ export async function enableMouseCursor(page: Page){
 }
 
 export async function moveMouseCursor(page: Page, targetElement: Locator){
-  //moving the svg cursor to the target element
+  //this is a function used to move the fake mouse cursor svg to a target element on the page. this is used for tutorial videos to show where the user should click.
   return new Promise<void>(async function(resolve){
     //readying the new position elements. we cant pass the element itself into the evaluate function.
     let newPos = null;
@@ -28,10 +28,14 @@ export async function moveMouseCursor(page: Page, targetElement: Locator){
         if (newPos !== null) {
           break;
         }
-      } catch {
+            } catch {
         // keep retrying
       }
-      await page.waitForTimeout(150);
+
+      const shouldContinue = await safeWait(page, 150);
+      if (!shouldContinue) {
+        break;
+      }
     }
 
     if (newPos === null) {
