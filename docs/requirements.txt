@@ -1,9 +1,10 @@
 # File: docs/requirements.txt
 
-# Defining the exact version will make sure things don't break
-sphinx
-# sphinx_rtd_theme
-sphinx_rtd_theme==0.5.2   
-readthedocs-sphinx-search
-sphinxcontrib-openapi
-flask
+# Keep the docs toolchain on a compatible modern stack.
+sphinx>=8.2.0,<9
+# Docutils must stay compatible with the OpenAPI extension used by this project.
+docutils>=0.20.1,<0.22
+sphinx_rtd_theme>=2.0.0,<4
+readthedocs-sphinx-search>=0.3.2
+sphinxcontrib-openapi>=0.9.0
+flask>=3.0.0
