@@ -1,5 +1,5 @@
-import { Category, CategoryType } from './Category';
-import { Daliuge } from './Daliuge';
+import { CategoryName, CategoryType } from './Category';
+import { FieldName } from './Daliuge';
 import { Eagle } from './Eagle';
 import { EagleConfig } from './EagleConfig';
 import { Edge } from './Edge';
@@ -478,10 +478,10 @@ export class RightClick {
             return;
         }
 
-        const funcCodeField = rightClickObject.findFieldByDisplayText(Daliuge.FieldName.FUNC_CODE);
+        const funcCodeField = rightClickObject.findFieldByDisplayText(FieldName.FUNC_CODE);
 
         if (typeof funcCodeField === 'undefined'){
-            console.warn("editNodeFuncCode() could not find " + Daliuge.FieldName.FUNC_CODE + " field on node:", rightClickObject);
+            console.warn("editNodeFuncCode() could not find " + FieldName.FUNC_CODE + " field on node:", rightClickObject);
         } else {
             ParameterTable.requestEditValueField(funcCodeField, false)
         }
@@ -703,7 +703,7 @@ export class RightClick {
                     $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,true)>Delete with children</a>')
                     $('#customContextMenu').append('<a onclick=GraphRenderer.centerConstruct(eagle.selectedNode(),eagle.logicalGraph().getNodes())>Center Around Children</a>')
                 }
-                if(data.getCategory() === Category.Docker){
+                if(data.getCategory() === CategoryName.Docker){
                     $('#customContextMenu').append('<a onclick=eagle.fetchDockerHTML()>Browse DockerHub</a>')
                 }
                 if(Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false)){

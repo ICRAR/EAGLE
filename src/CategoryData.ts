@@ -1,8 +1,8 @@
-import { Category, CategoryColor, CategoryType } from './Category';
+import { CategoryName, CategoryColor, CategoryType } from './Category';
 import { EagleConfig } from './EagleConfig';
 
 export class CategoryData {
-    static readonly cData: Record<string, Readonly<{
+    static readonly cData: Record<CategoryName, Readonly<{
         categoryType: CategoryType;
         isGroup: boolean;
         minInputs: number;
@@ -67,18 +67,18 @@ export class CategoryData {
         EnvironmentVariables : {categoryType: CategoryType.Data, isGroup: false, minInputs: 0, maxInputs: 0, minOutputs: 0, maxOutputs: Number.MAX_SAFE_INTEGER, canHaveComponentParameters: true, canHaveApplicationArguments: true, canHaveConstructParameters: false, icon: "icon-tune", color: CategoryColor.Legacy, radius: EagleConfig.DATA_NODE_RADIUS},
     };
 
-    static readonly LEGACY_CATEGORIES_UPGRADES: Map<Category, Category> = new Map([
-        [Category.Component, Category.PyFuncApp],
-        [Category.Description, Category.Comment],
-        [Category.EnvironmentVariables, Category.GlobalVariables],
+    static readonly LEGACY_CATEGORIES_UPGRADES: Map<CategoryName, CategoryName> = new Map([
+        [CategoryName.Component, CategoryName.PyFuncApp],
+        [CategoryName.Description, CategoryName.Comment],
+        [CategoryName.EnvironmentVariables, CategoryName.GlobalVariables],
     ]);
 
-    static readonly INTERMEDIATE_DATA_NODES: Category[] = (Object.keys(Category) as Category[]).filter((category: Category) => {
+    static readonly INTERMEDIATE_DATA_NODES: CategoryName[] = (Object.keys(CategoryName) as CategoryName[]).filter((category: CategoryName) => {
         const cData = CategoryData.getCategoryInfo(category);
         return cData.categoryType === CategoryType.Data && cData.maxInputs >= 1 && cData.maxOutputs >= 1;
     });
 
-    static getCategoryInfo(category : Category) : (typeof CategoryData.cData)[string] {
+    static getCategoryInfo(category : CategoryName) : (typeof CategoryData.cData)[CategoryName] {
         const c = CategoryData.cData[category];
 
         if (typeof c === 'undefined'){
@@ -102,4 +102,4 @@ export class CategoryData {
     }
 }
 
-export const INTERMEDIATE_DATA_NODES: Category[] = CategoryData.INTERMEDIATE_DATA_NODES;
+export const INTERMEDIATE_DATA_NODES: CategoryName[] = CategoryData.INTERMEDIATE_DATA_NODES;

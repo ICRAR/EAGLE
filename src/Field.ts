@@ -1,8 +1,8 @@
 import * as ko from "knockout";
 
 import { CategoryData } from './CategoryData';
-import { Category } from './Category';
-import { DLGFieldType, Daliuge, DataType, Encoding, FieldType, FieldUsage } from './Daliuge';
+import { CategoryName } from './Category';
+import { DLGFieldType, Daliuge, DataType, Encoding, FieldName, FieldType, FieldUsage } from './Daliuge';
 import { Eagle, EagleBottomWindowMode, EagleFileType } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { Edge } from "./Edge";
@@ -675,7 +675,7 @@ export class Field {
 
     // TODO: move to Daliuge.ts?
     isDaliugeField : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        return Object.values<string>(Daliuge.FieldName).includes(this.displayText());
+        return Object.values<string>(FieldName).includes(this.displayText());
     }, this);
 
     isFloatValueType = () : boolean => {
@@ -1108,7 +1108,7 @@ export class Field {
         }
 
         // check that PythonObject's self port is input for only one edge
-        if (node.getCategory() === Category.PythonObject && field.getDisplayText() === Daliuge.FieldName.SELF){
+        if (node.getCategory() === CategoryName.PythonObject && field.getDisplayText() === FieldName.SELF){
             let numSelfPortConnections: number = 0;
             for (const edge of graph.getEdges()){
                 if (edge.getDestPort().getId() === field.getId()){
@@ -1125,7 +1125,7 @@ export class Field {
         // check whether this field's name is a non-standard capitalization of a Daliuge field name
         const fieldDisplayText = field.getDisplayText();
         const fieldDisplayTextLower = fieldDisplayText.toLowerCase();
-        for (const fieldName of Object.values<string>(Daliuge.FieldName)){
+        for (const fieldName of Object.values<string>(FieldName)){
             if (fieldDisplayTextLower === fieldName.toLowerCase() && fieldDisplayText !== fieldName){
                 const issue = Errors.ShowFix("Node (" + node.getName() + ") has field (" + fieldDisplayText + ") whose name is a non-standard capitalization of Daliuge field name (" + fieldName + ").", function(){Utils.showField(eagle, location, node, field);}, function(){field.setDisplayText(fieldName)}, "Change to standard capitalization (" + fieldName + ")");
                 field.issues().push({issue:issue, validity:Errors.Validity.Warning})
@@ -1134,7 +1134,7 @@ export class Field {
 
         // check that fields have parameter types that are suitable for this node
         // skip the 'drop class' component parameter, those are always suitable for every node
-        if (field.getDisplayText() != Daliuge.FieldName.DROP_CLASS && field.getParameterType() != FieldType.Component){
+        if (field.getDisplayText() != FieldName.DROP_CLASS && field.getParameterType() != FieldType.Component){
             if (
                 (field.getParameterType() === FieldType.Component) && !CategoryData.getCategoryInfo(node.getCategory()).canHaveComponentParameters ||
                 (field.getParameterType() === FieldType.Application) && !CategoryData.getCategoryInfo(node.getCategory()).canHaveApplicationArguments ||

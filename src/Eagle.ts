@@ -27,10 +27,10 @@
 import * as ko from "knockout";
 import * as bootstrap from 'bootstrap';
 
-import { Category, CategoryType } from './Category';
+import { CategoryName, CategoryType } from './Category';
 import { CategoryData } from "./CategoryData";
 import { ComponentUpdater } from './ComponentUpdater';
-import { Daliuge, DataType, FieldUsage } from './Daliuge';
+import { Daliuge, DataType, FieldName, FieldUsage } from './Daliuge';
 import { DockerHubBrowser } from "./DockerHubBrowser";
 import { EagleConfig } from "./EagleConfig";
 import { Edge } from './Edge';
@@ -307,14 +307,14 @@ export class Eagle {
     types : ko.PureComputed<string[]> = ko.pureComputed(() => {
         // add all the built-in types
         const result: string[] = [
-            Daliuge.DataType.Boolean,
-            Daliuge.DataType.Float,
-            Daliuge.DataType.Integer,
-            Daliuge.DataType.Json,
-            Daliuge.DataType.Object,
-            Daliuge.DataType.Python,
-            Daliuge.DataType.Select,
-            Daliuge.DataType.String
+            DataType.Boolean,
+            DataType.Float,
+            DataType.Integer,
+            DataType.Json,
+            DataType.Object,
+            DataType.Python,
+            DataType.Select,
+            DataType.String
         ];
 
         // add additional custom types
@@ -1052,7 +1052,7 @@ export class Eagle {
                 }
 
                 eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
-                    const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().location.getText(), "", Category.SubGraph);
+                    const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().location.getText(), "", CategoryName.SubGraph);
     
                     eagle.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges()), parentNode, errorsWarnings);
     
@@ -1157,11 +1157,11 @@ export class Eagle {
         // look for similarly named node in palettes first, clone it
         // if not found in palettes, create a basic node from just the category
         let parentNode: Node;
-        const paletteComponent = Utils.getPaletteComponentByName(Category.SubGraph);
+        const paletteComponent = Utils.getPaletteComponentByName(CategoryName.SubGraph);
         if (typeof paletteComponent !== 'undefined'){
             parentNode = paletteComponent.clone();
         } else {
-            parentNode = new Node(Category.SubGraph, "", "", Category.SubGraph);
+            parentNode = new Node(CategoryName.SubGraph, "", "", CategoryName.SubGraph);
         }
 
         // add the parent node to the logical graph
@@ -1224,7 +1224,7 @@ export class Eagle {
         if (typeof paletteComponent !== 'undefined'){
             parentNode = paletteComponent.clone();
         } else {
-            parentNode = new Node(userChoice, "", "", userChoice as Category);
+            parentNode = new Node(userChoice, "", "", userChoice as CategoryName);
         }
 
         // add the parent node to the logical graph
@@ -2986,7 +2986,7 @@ export class Eagle {
         await Utils.ensureGraphIsInitialized(this.logicalGraph());
 
         // create parent node
-        const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().location.getText(), "", Category.SubGraph);
+        const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().location.getText(), "", CategoryName.SubGraph);
 
         // perform insert
         await this.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges()), parentNode, errorsWarnings);
@@ -3544,11 +3544,11 @@ export class Eagle {
         destNode.setGroupStart(selectedEdge.isClosesLoop());
         this.checkEagle();
 
-        const groupStartValue = destNode.findFieldByDisplayText(Daliuge.FieldName.GROUP_START)?.getValue();
-        const groupEndValue = sourceNode.findFieldByDisplayText(Daliuge.FieldName.GROUP_END)?.getValue();
+        const groupStartValue = destNode.findFieldByDisplayText(FieldName.GROUP_START)?.getValue();
+        const groupEndValue = sourceNode.findFieldByDisplayText(FieldName.GROUP_END)?.getValue();
         Utils.showNotification(
             "Toggle edge closes loop",
-            "Node " + sourceNode.getName() + " component parameter '" + Daliuge.FieldName.GROUP_END + "' set to " + groupEndValue + ". Node " + destNode.getName() + " component parameter '" + Daliuge.FieldName.GROUP_START + "' set to " + groupStartValue + ".", "success"
+            "Node " + sourceNode.getName() + " component parameter '" + FieldName.GROUP_END + "' set to " + groupEndValue + ". Node " + destNode.getName() + " component parameter '" + FieldName.GROUP_START + "' set to " + groupStartValue + ".", "success"
         );
 
         this.selectedObjects.valueHasMutated();
@@ -4272,7 +4272,7 @@ export class Eagle {
             return;
         }
 
-        const usages: FieldUsage[] = [RightClick.edgeDropSrcIsInput ? Daliuge.FieldUsage.OutputPort : Daliuge.FieldUsage.InputPort, Daliuge.FieldUsage.InputOutput];
+        const usages: FieldUsage[] = [RightClick.edgeDropSrcIsInput ? FieldUsage.OutputPort : FieldUsage.InputPort, FieldUsage.InputOutput];
         let realDestPort: Field | null = realDestNode.findPortByMatchingType(realSourcePort.getType(), usages);
 
         // if no dest port was found, just use first input port on dest node
@@ -4406,16 +4406,16 @@ export class Eagle {
             // optionally generate a new PythonObject node
             if (generateObjectDataDrop){
                 // determine a name for the new node
-                let poName: string = Daliuge.FieldName.SELF; // use this as a fall-back default
+                let poName: string = FieldName.SELF; // use this as a fall-back default
 
                 // use the dataType of the self field
-                const selfField = newNode.findFieldByDisplayText(Daliuge.FieldName.SELF);
+                const selfField = newNode.findFieldByDisplayText(FieldName.SELF);
                 if (typeof selfField !== 'undefined'){
                     poName = selfField.getType();
                 }
 
                 // get name of the "base" class from the PythonMemberFunction node,
-                const baseNameField = newNode.findFieldByDisplayText(Daliuge.FieldName.BASE_NAME);
+                const baseNameField = newNode.findFieldByDisplayText(FieldName.BASE_NAME);
                 if (typeof baseNameField !== 'undefined'){
                     const value = baseNameField.getValue();
                     if (value !== null){
@@ -4424,7 +4424,7 @@ export class Eagle {
                 }
 
                 // create node
-                const poNode: Node = new Node(poName, "Instance of " + poName, "", Category.PythonObject);
+                const poNode: Node = new Node(poName, "Instance of " + poName, "", CategoryName.PythonObject);
 
                 // add node to LogicalGraph
                 const OBJECT_OFFSET_X = 100;
@@ -4437,16 +4437,16 @@ export class Eagle {
                 result.push(pythonObjectNode);
 
                 // copy all fields from a "PythonObject" node in the palette
-                Utils.copyFieldsFromPrototype(pythonObjectNode, Palette.BUILTIN_PALETTE_NAME, Category.PythonObject);
+                Utils.copyFieldsFromPrototype(pythonObjectNode, Palette.BUILTIN_PALETTE_NAME, CategoryName.PythonObject);
 
                 // find the "object" port on the PythonMemberFunction
-                let sourcePort = newNode.findPortByDisplayText(Daliuge.FieldName.SELF, false, false);
+                let sourcePort = newNode.findPortByDisplayText(FieldName.SELF, false, false);
 
                 // make sure we can find a port on the PythonMemberFunction
                 if (typeof sourcePort === 'undefined'){
                     sourcePort = Daliuge.selfFieldComponent.clone().setId(Id.generateFieldId());
                     newNode.addField(sourcePort);
-                    Utils.showNotification("Component Warning", "The PythonMemberFunction does not have a '" + Daliuge.FieldName.SELF + "' port. Added this port to enable connection.", "warning");
+                    Utils.showNotification("Component Warning", "The PythonMemberFunction does not have a '" + FieldName.SELF + "' port. Added this port to enable connection.", "warning");
                 }
 
                 // create a new input/output "object" port on the PythonObject
@@ -4653,9 +4653,9 @@ export class Eagle {
         }
 
         // get imageName, tag, digest values in currently selected node
-        const imageField  = selectedNode.findFieldByDisplayText(Daliuge.FieldName.IMAGE);
-        const tagField    = selectedNode.findFieldByDisplayText(Daliuge.FieldName.TAG);
-        const digestField = selectedNode.findFieldByDisplayText(Daliuge.FieldName.DIGEST);
+        const imageField  = selectedNode.findFieldByDisplayText(FieldName.IMAGE);
+        const tagField    = selectedNode.findFieldByDisplayText(FieldName.TAG);
+        const digestField = selectedNode.findFieldByDisplayText(FieldName.DIGEST);
         let image: string = "";
         let tag: string = "";
 
@@ -4694,7 +4694,7 @@ export class Eagle {
     tableDropdownClick = (newType: DataType, field: Field) : void => {
         // if the field contains no options, then it's value will be immediately set to undefined
         // therefore, we add at least one option, so the value remains well defined
-        if (newType === Daliuge.DataType.Select){
+        if (newType === DataType.Select){
             if (field.getOptions().length === 0){
                 const value = field.getValue();
                 const defaultValue = field.getDefaultValue();
@@ -5339,8 +5339,8 @@ export class Eagle {
         thisVisual.setContent(visualContent);
     }
 
-    getEligibleNodeCategories : ko.PureComputed<Category[]> = ko.pureComputed(() => {
-        let category : Category = Category.Unknown;
+    getEligibleNodeCategories : ko.PureComputed<CategoryName[]> = ko.pureComputed(() => {
+        let category : CategoryName = CategoryName.Unknown;
         let categoryType: CategoryType = CategoryType.Unknown;
 
         const selectedNode = this.selectedNode();
@@ -5351,7 +5351,7 @@ export class Eagle {
         }
 
         // if selectedNode categoryType is Unknown, return list of all categories
-        if (category === Category.Unknown || !Utils.isKnownCategory(category) || categoryType === CategoryType.Unknown || !Utils.isKnownCategoryType(categoryType)){
+        if (category === CategoryName.Unknown || !Utils.isKnownCategory(category) || categoryType === CategoryType.Unknown || !Utils.isKnownCategoryType(categoryType)){
             return Utils.buildComponentList((_cData: CategoryData) => {return true});
         }
 
@@ -5389,7 +5389,7 @@ export class Eagle {
             return;
         }
 
-        const newNodeCategory: Category = $(event.target).val() as Category;
+        const newNodeCategory: CategoryName = $(event.target).val() as CategoryName;
         const newNodeCategoryType: CategoryType = CategoryData.getCategoryInfo(newNodeCategory).categoryType;
         const oldNode = this.selectedNode();
 

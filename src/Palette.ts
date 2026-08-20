@@ -24,7 +24,7 @@
 
 import * as ko from "knockout";
 
-import { Category, CategoryType } from './Category';
+import { CategoryName, CategoryType } from './Category';
 import { Eagle } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { Errors, type ErrorsWarnings } from './Errors';
@@ -365,7 +365,7 @@ export class Palette {
         this.nodes.valueHasMutated();
     }
 
-    findNodeByNameAndCategory = (nameAndCategory: Category) : Node | undefined=> {
+    findNodeByNameAndCategory = (nameAndCategory: CategoryName) : Node | undefined=> {
         for (const node of this.nodes().values()){
             // callers provide a category; return a prototype node for that category.
             if (node.getCategory() === nameAndCategory){

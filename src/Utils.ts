@@ -35,9 +35,9 @@ marked.use(markedHighlight({
     }
 }));
 
-import { Category, CategoryType } from './Category';
+import { CategoryName, CategoryType } from './Category';
 import { CategoryData } from "./CategoryData";
-import { Daliuge, DataType, FieldType, FieldUsage } from './Daliuge';
+import { Daliuge, DataType, FieldName, FieldType, FieldUsage } from './Daliuge';
 import { Eagle, EagleFileType } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { Edge } from './Edge';
@@ -1312,7 +1312,7 @@ export class Utils {
         return uniquePorts;
     }
 
-    static getDataComponentsWithPortTypeList(palettes: Palette[], ineligibleCategories: Category[]) : Node[] {
+    static getDataComponentsWithPortTypeList(palettes: Palette[], ineligibleCategories: CategoryName[]) : Node[] {
         const result: Node[] = [];
 
         // add all data components (except ineligible)
@@ -1380,7 +1380,7 @@ export class Utils {
         return result;
     }
 
-    static getCategoriesWithInputsAndOutputs(categoryType: CategoryType) : Category[] {
+    static getCategoriesWithInputsAndOutputs(categoryType: CategoryType) : CategoryName[] {
         const eagle = Eagle.getInstance();
 
         // get a reference to the builtin palette
@@ -1392,7 +1392,7 @@ export class Utils {
         }
 
         const matchingNodes = builtinPalette.getNodesByCategoryType(categoryType)
-        const matchingCategories : Category[] = []
+        const matchingCategories : CategoryName[] = []
 
         for (const node of matchingNodes){
             // skip nodes whose category is already in the list
@@ -1535,26 +1535,26 @@ export class Utils {
     }
 
     // return undefined if no update required, null if no direct update available (but should update), or the new category if a direct update is available
-    static getLegacyCategoryUpdate(node: Node): Category | undefined {
+    static getLegacyCategoryUpdate(node: Node): CategoryName | undefined {
         // first check for the special case of PythonApp, which should be upgraded to either a DALiuGEApp or a PyFuncApp, depending on the dropclass field value
-        if (node.getCategory() === Category.PythonApp){
-            const dropClassField = node.findFieldByDisplayText(Daliuge.FieldName.DROP_CLASS);
+        if (node.getCategory() === CategoryName.PythonApp){
+            const dropClassField = node.findFieldByDisplayText(FieldName.DROP_CLASS);
 
             // by default, update PythonApp to a DALiuGEApp, unless dropclass field value indicates it is a PyFuncApp
             if (dropClassField && dropClassField.getValue() === Daliuge.DEFAULT_PYFUNCAPP_DROPCLASS_VALUE){
-                return Category.PyFuncApp;
+                return CategoryName.PyFuncApp;
             } else {
-                return Category.DALiuGEApp;
+                return CategoryName.DALiuGEApp;
             }
         }
 
         // otherwise, check the standard legacy categories map
-        const newCategory: Category | undefined = CategoryData.LEGACY_CATEGORIES_UPGRADES.get(node.getCategory());
+        const newCategory: CategoryName | undefined = CategoryData.LEGACY_CATEGORIES_UPGRADES.get(node.getCategory());
         return newCategory;
     }
 
-    static isKnownCategory(category : string) : boolean {
-        return typeof CategoryData.cData[category] !== 'undefined';
+    static isKnownCategory(category: string) : boolean {
+        return typeof CategoryData.cData[category as CategoryName] !== 'undefined';
     }
 
     static isKnownCategoryType(categoryType : string) : boolean {
@@ -1564,7 +1564,7 @@ export class Utils {
     static isValidCategoryAndType(category: string, categoryType: string) : boolean {
         return this.isKnownCategory(category) &&
             this.isKnownCategoryType(categoryType) &&
-            ![Category.Unknown, Category.UnknownApplication].map(x => x as string).includes(category) &&
+            ![CategoryName.Unknown, CategoryName.UnknownApplication].map(x => x as string).includes(category) &&
             ![CategoryType.Unknown].map(x => x as string).includes(categoryType);
     }
 
@@ -1653,13 +1653,13 @@ export class Utils {
         return repositoryName+"|"+repositoryBranch;
     }
 
-    static buildComponentList(filter: (cData: ReturnType<typeof CategoryData.getCategoryInfo>) => boolean) : Category[] {
-        const result : Category[] = [];
+    static buildComponentList(filter: (cData: ReturnType<typeof CategoryData.getCategoryInfo>) => boolean) : CategoryName[] {
+        const result : CategoryName[] = [];
 
         for (const category in CategoryData.cData){
-            const cData = CategoryData.getCategoryInfo(<Category>category);
+            const cData = CategoryData.getCategoryInfo(<CategoryName>category);
             if (filter(cData)){
-                result.push(<Category>category);
+                result.push(<CategoryName>category);
             }
         }
 
@@ -2310,7 +2310,7 @@ export class Utils {
         node.addField(field);
     }
 
-    static fixNodeCategory(_eagle: Eagle, node: Node, category: Category, categoryType: CategoryType){
+    static fixNodeCategory(_eagle: Eagle, node: Node, category: CategoryName, categoryType: CategoryType){
         node.setCategory(category);
         node.setCategoryType(categoryType);
 
@@ -2325,7 +2325,7 @@ export class Utils {
         // Some legacy graphs can retain one or more dropclass fields with an Unknown type
         // after category migration. Normalize all of them to Component explicitly.
         for (const field of node.getFields()){
-            if (field.getDisplayText() === Daliuge.FieldName.DROP_CLASS && field.getParameterType() !== FieldType.Component){
+            if (field.getDisplayText() === FieldName.DROP_CLASS && field.getParameterType() !== FieldType.Component){
                 field.setParameterType(FieldType.Component);
             }
         }
@@ -2643,13 +2643,13 @@ export class Utils {
         closesLoop: boolean
     ): Edge | null {
         // consult the DEFAULT_DATA_NODE setting to determine which category of intermediate data node to use
-        const defaultData = Setting.findValue<string>(Setting.DEFAULT_DATA_NODE, Category.Memory);
+        const defaultData = Setting.findValue<string>(Setting.DEFAULT_DATA_NODE, CategoryName.Memory);
         let intermediaryComponent = Utils.getPaletteComponentByName(defaultData || "");
 
         // if intermediaryComponent is undefined (not found), then choose something guaranteed to be available
         // if intermediaryComponent is defined (found), then duplicate the node so that we don't modify the original in the palette
         if (typeof intermediaryComponent === 'undefined'){
-            intermediaryComponent = new Node("Data", "Data Component", "", Category.Data);
+            intermediaryComponent = new Node("Data", "Data Component", "", CategoryName.Data);
         } else {
             intermediaryComponent = intermediaryComponent.clone().setId(Id.generateNodeId());
         }
@@ -2750,11 +2750,11 @@ export class Utils {
 
     static addMissingRequiredField(_eagle: Eagle, node: Node, requiredField: Field){
         // if requiredField is "dropclass", and node already contains an "appclass" field, then just rename it
-        if (requiredField.getDisplayText() === Daliuge.FieldName.DROP_CLASS){
+        if (requiredField.getDisplayText() === FieldName.DROP_CLASS){
             const appClassField = node.findFieldByDisplayText("appclass");
 
             if (typeof appClassField !== 'undefined'){
-                appClassField.setDisplayText(Daliuge.FieldName.DROP_CLASS);
+                appClassField.setDisplayText(FieldName.DROP_CLASS);
                 return;
             }
         }
@@ -2767,13 +2767,13 @@ export class Utils {
 
         // try to set a reasonable default value for some known fields
         switch(field.getDisplayText()){
-            case Daliuge.FieldName.DROP_CLASS:
+            case FieldName.DROP_CLASS:
 
                 // look up component in palette
                 const paletteComponent = Utils.getPaletteComponentByName(node.getCategory());
 
                 if (typeof paletteComponent !== 'undefined'){
-                    const dropClassField = paletteComponent.findFieldByDisplayText(Daliuge.FieldName.DROP_CLASS);
+                    const dropClassField = paletteComponent.findFieldByDisplayText(FieldName.DROP_CLASS);
                     if (typeof dropClassField === 'undefined'){
                         console.warn("Could not find dropclass field in palette component:", paletteComponent.getName());
                         break;
@@ -2948,10 +2948,10 @@ export class Utils {
         const tableData : any[] = [];
 
         for (const category in CategoryData.cData){
-            const cData = CategoryData.getCategoryInfo(<Category>category);
+            const cData = CategoryData.getCategoryInfo(<CategoryName>category);
 
             tableData.push({
-                category: <Category>category,
+                category: <CategoryName>category,
                 categoryType: cData.categoryType,
             });
         }
@@ -3331,7 +3331,7 @@ export class Utils {
         });
     }
 
-    static copyFieldsFromPrototype(node: Node, paletteName: string, category: Category) : void {
+    static copyFieldsFromPrototype(node: Node, paletteName: string, category: CategoryName) : void {
         const eagle: Eagle = Eagle.getInstance();
 
         // get a reference to the builtin palette

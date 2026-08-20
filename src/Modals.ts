@@ -1,4 +1,4 @@
-import { Daliuge } from './Daliuge';
+import { DataType } from './Daliuge';
 import { Eagle, EagleFileType } from './Eagle';
 import { Field } from './Field';
 import { FileLocation } from "./FileLocation";
@@ -563,7 +563,7 @@ export class Modals {
 
     static validateField(type: string, value: string) : ValidationResult {
         // make sure JSON fields are parse-able
-        if (type === Daliuge.DataType.Json){
+        if (type === DataType.Json){
             return Utils.jsonStringValidator("JSON")(value);
         }
 
@@ -583,7 +583,7 @@ export class Modals {
         const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
 
         // only validate Json fields
-        if (realType !== Daliuge.DataType.Json){
+        if (realType !== DataType.Json){
             Modals.applyValidationState($(eventTarget), null);
             return;
         }
@@ -668,22 +668,22 @@ export class Modals {
         
 
         //toggle on the correct value input fields depending on type
-        $('#editFieldModalValueInputText').toggle(dataType !== Daliuge.DataType.Boolean && dataType !== Daliuge.DataType.Select && dataType !== Daliuge.DataType.Float && dataType !== Daliuge.DataType.Integer);
-        $('#editFieldModalValueInputNumber').toggle(dataType === Daliuge.DataType.Float || dataType === Daliuge.DataType.Integer);
-        $('#editFieldModalValueInputCheckbox').parent().toggle(dataType === Daliuge.DataType.Boolean);
-        $('#editFieldModalValueInputSelect').toggle(dataType === Daliuge.DataType.Select);
+        $('#editFieldModalValueInputText').toggle(dataType !== DataType.Boolean && dataType !== DataType.Select && dataType !== DataType.Float && dataType !== DataType.Integer);
+        $('#editFieldModalValueInputNumber').toggle(dataType === DataType.Float || dataType === DataType.Integer);
+        $('#editFieldModalValueInputCheckbox').parent().toggle(dataType === DataType.Boolean);
+        $('#editFieldModalValueInputSelect').toggle(dataType === DataType.Select);
 
-        $('#editFieldModalDefaultValueInputText').toggle(dataType !== Daliuge.DataType.Boolean && dataType !== Daliuge.DataType.Select && dataType !== Daliuge.DataType.Float && dataType !== Daliuge.DataType.Integer);
-        $('#editFieldModalDefaultValueInputNumber').toggle(dataType === Daliuge.DataType.Float || dataType === Daliuge.DataType.Integer);
-        $('#editFieldModalDefaultValueInputCheckbox').parent().toggle(dataType === Daliuge.DataType.Boolean);
-        $('#editFieldModalDefaultValueInputSelect').toggle(dataType === Daliuge.DataType.Select);
+        $('#editFieldModalDefaultValueInputText').toggle(dataType !== DataType.Boolean && dataType !== DataType.Select && dataType !== DataType.Float && dataType !== DataType.Integer);
+        $('#editFieldModalDefaultValueInputNumber').toggle(dataType === DataType.Float || dataType === DataType.Integer);
+        $('#editFieldModalDefaultValueInputCheckbox').parent().toggle(dataType === DataType.Boolean);
+        $('#editFieldModalDefaultValueInputSelect').toggle(dataType === DataType.Select);
 
         //setting up number value input specific things that are different for integers of floats 
-        if(dataType === Daliuge.DataType.Integer){
+        if(dataType === DataType.Integer){
             $('#editFieldModalValueInputNumber').attr('min',"0").attr('step',"1").attr('onfocus',"this.previousValue = this.value").attr( 'onkeydown', "this.previousValue = this.value").attr( 'oninput',"validity.valid || (value = this.previousValue)")
             $('#editFieldModalDefaultValueInputNumber').attr('min',"0").attr('step',"1").attr('onfocus',"this.previousValue = this.value").attr( 'onkeydown', "this.previousValue = this.value").attr( 'oninput',"validity.valid || (value = this.previousValue)")
 
-        }else if (dataType === Daliuge.DataType.Float){
+        }else if (dataType === DataType.Float){
             $('#editFieldModalValueInputNumber').addClass('inputNoArrows')
             $('#editFieldModalDefaultValueInputNumber').addClass('inputNoArrows')
         }

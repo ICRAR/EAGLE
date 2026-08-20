@@ -28,7 +28,7 @@ import "jquery-migrate";
 import "jqueryui";
 import * as bootstrap from 'bootstrap';
 
-import { Category } from './Category';
+import { CategoryName } from './Category';
 import { CategoryData } from './CategoryData';
 import { Daliuge } from './Daliuge';
 import { Eagle } from './Eagle';
@@ -82,7 +82,6 @@ $(function(){
     // TODO: remove this when possible, use Eagle.getInstance() if we can
     (<any>window).eagle = eagle;
 
-    (<any>window).Category = Category;
     (<any>window).Daliuge = Daliuge;
     (<any>window).Eagle = Eagle;
     (<any>window).EagleConfig = EagleConfig;
@@ -252,11 +251,11 @@ $(function(){
     })
 
     // check that all categories have category data
-    for (const category of Utils.enumKeys(Category)){
-        CategoryData.getCategoryInfo(<Category>category);
+    for (const category of Utils.enumKeys(CategoryName)){
+        CategoryData.getCategoryInfo(<CategoryName>category);
 
         // exit after the last category, before we get to the other enums in the Category object
-        if (category === Category.UnknownApplication){
+        if (category === CategoryName.UnknownApplication){
             break;
         }
     }

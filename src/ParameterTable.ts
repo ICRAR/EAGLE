@@ -1,6 +1,6 @@
 import * as ko from "knockout";
 
-import { Daliuge } from "./Daliuge";
+import { DataType, FieldName, FieldType, FieldUsage } from "./Daliuge";
 import { Eagle, EagleBottomWindowMode, EagleFileType } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { Field } from './Field';
@@ -170,7 +170,7 @@ export class ParameterTable {
                         const lgNode = lg.getNodeById(graphConfigNode.getNode().getId());
 
                         if (typeof lgNode === 'undefined'){
-                            const missingNodeField: Field = new Field(graphConfigNode.getNode(), graphConfigField.getField().getId(), "<Missing Node:" + graphConfigNode.getNode().getId() +">", graphConfigField.getValue(), "?", graphConfigField.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
+                            const missingNodeField: Field = new Field(graphConfigNode.getNode(), graphConfigField.getField().getId(), "<Missing Node:" + graphConfigNode.getNode().getId() +">", graphConfigField.getValue(), "?", graphConfigField.getComment(), true, DataType.Unknown, false, [], false, FieldType.Unknown, FieldUsage.NoPort);
                             displayedFields.push(missingNodeField);
                             continue;
                         }
@@ -178,7 +178,7 @@ export class ParameterTable {
                         const lgField = lgNode.getFieldById(graphConfigField.getField().getId());
         
                         if (typeof lgField === 'undefined'){
-                            const missingField: Field = new Field(lgNode, graphConfigField.getField().getId(), "<Missing Field: " + graphConfigField.getField().getId() + ">", graphConfigField.getValue(), "?", graphConfigField.getComment(), true, Daliuge.DataType.Unknown, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
+                            const missingField: Field = new Field(lgNode, graphConfigField.getField().getId(), "<Missing Field: " + graphConfigField.getField().getId() + ">", graphConfigField.getValue(), "?", graphConfigField.getComment(), true, DataType.Unknown, false, [], false, FieldType.Unknown, FieldUsage.NoPort);
                             displayedFields.push(missingField);
                             continue;
                         }
@@ -380,7 +380,7 @@ export class ParameterTable {
 
     static isCodeField(fieldName: string) : boolean {
         //func code is for python functions, command is for bash commands
-        return fieldName === Daliuge.FieldName.FUNC_CODE || fieldName === Daliuge.FieldName.COMMAND;
+        return fieldName === FieldName.FUNC_CODE || fieldName === FieldName.COMMAND;
     }
 
     static select(selection: string, selectionName: string, selectionParent: Field, selectionIndex: number) : void {
@@ -906,12 +906,12 @@ export class ParameterTable {
         const parameterTypeList : string[] = []
         const fieldParamType = field.getParameterType()
 
-        if(fieldParamType === Daliuge.FieldType.Construct){
-            parameterTypeList.push(Daliuge.FieldType.Construct)
-        }else if(fieldParamType === Daliuge.FieldType.Constraint){
-            parameterTypeList.push(Daliuge.FieldType.Constraint)
+        if(fieldParamType === FieldType.Construct){
+            parameterTypeList.push(FieldType.Construct)
+        }else if(fieldParamType === FieldType.Constraint){
+            parameterTypeList.push(FieldType.Constraint)
         }else{
-            parameterTypeList.push(Daliuge.FieldType.Application,Daliuge.FieldType.Component)
+            parameterTypeList.push(FieldType.Application, FieldType.Component)
         }
 
         return parameterTypeList

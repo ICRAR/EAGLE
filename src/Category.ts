@@ -1,4 +1,6 @@
-export enum Category {
+/* TODO: should this stuff be in Daliuge.ts? */
+
+export enum CategoryName {
     Comment = "Comment",
 
     Scatter = "Scatter",
@@ -13,17 +15,22 @@ export enum Category {
     DynlibProcApp = "DynlibProcApp",
     Mpi = "Mpi",
     Docker = "Docker",
+    Singularity = "Singularity",
 
     PythonMemberFunction = "PythonMemberFunction",
     PythonObject = "PythonObject",
+    DynlibMemberFunction = "DynlibMemberFunction",
+    DynlibObject = "DynlibObject",
 
     NGAS = "NGAS",
     S3 = "S3",
     Memory = "Memory",
     SharedMemory = "SharedMemory",
     File = "File",
+    Directory = "Directory",
     Plasma = "Plasma",
     PlasmaFlight = "PlasmaFlight",
+    RDBMS = "RDBMS",
     Data = "Data",
 
     ParameterSet = "ParameterSet",

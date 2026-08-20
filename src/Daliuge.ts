@@ -22,13 +22,9 @@
 #
 */
 
-import { Category, CategoryType } from './Category';
+import { CategoryName, CategoryType } from './Category';
 import { Field } from './Field';
 import { Node } from './Node';
-
-export const DEFAULT_PYDATA_VALUE: string = "None";
-export const DEFAULT_PYFUNCAPP_DROPCLASS_VALUE: string = "dlg.apps.pyfunc.PyFuncApp";
-export const DEFAULT_GRAPH_CONFIGURATION_NAME: string = "Default Graph Configuration";
 
 export enum FieldName {
     DATA_VOLUME = "data_volume",
@@ -128,186 +124,12 @@ export enum DaliugeFileType {
     Unknown = "Unknown"
 }
 
-const dummyNode = new Node("", "", "", Category.Unknown);
-
-export const dlgToFieldTypeMap: { [key in DLGFieldType]: FieldType } = {
-    [DLGFieldType.ApplicationArgument]: FieldType.Application,
-    [DLGFieldType.ComponentParameter]: FieldType.Component,
-    [DLGFieldType.ConstraintParameter]: FieldType.Constraint,
-    [DLGFieldType.ConstructParameter]: FieldType.Construct,
-    [DLGFieldType.Unknown]: FieldType.Unknown,
-};
-
-export const fieldTypeToDlgMap: { [key in FieldType]: DLGFieldType } = {
-    [FieldType.Application]: DLGFieldType.ApplicationArgument,
-    [FieldType.Component]: DLGFieldType.ComponentParameter,
-    [FieldType.Constraint]: DLGFieldType.ConstraintParameter,
-    [FieldType.Construct]: DLGFieldType.ConstructParameter,
-    [FieldType.Unknown]: DLGFieldType.Unknown,
-};
-
-export const groupStartField = new Field(dummyNode, FieldName.GROUP_START as FieldId, FieldName.GROUP_START, "true", "true", "Is this node the start of a group?", false, DataType.Boolean, false, [], false, FieldType.Component, FieldUsage.NoPort);
-export const groupEndField = new Field(dummyNode, FieldName.GROUP_END as FieldId, FieldName.GROUP_END, "true", "true", "Is this node the end of a group?", false, DataType.Boolean, false, [], false, FieldType.Component, FieldUsage.NoPort);
-
-export const dropClassField = new Field(dummyNode, FieldName.DROP_CLASS as FieldId, FieldName.DROP_CLASS, "", "", "", false, DataType.String, false, [], false, FieldType.Component, FieldUsage.NoPort);
-export const branchTrueField = new Field(dummyNode, FieldName.TRUE as FieldId, FieldName.TRUE, "", "", "The affirmative output from a branch node", false, DataType.Object, false, [], false, FieldType.Component, FieldUsage.OutputPort);
-export const branchFalseField = new Field(dummyNode, FieldName.FALSE as FieldId, FieldName.FALSE, "", "", "The negative output from a branch node", false, DataType.Object, false, [], false, FieldType.Component, FieldUsage.OutputPort);
-
-export const executionTimeField = new Field(dummyNode, FieldName.EXECUTION_TIME as FieldId, FieldName.EXECUTION_TIME, "5", "5", "", false, DataType.Float, false, [], false, FieldType.Constraint, FieldUsage.NoPort);
-export const numCpusField = new Field(dummyNode, FieldName.NUM_OF_CPUS as FieldId, FieldName.NUM_OF_CPUS, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.Constraint, FieldUsage.NoPort);
-export const dataVolumeField = new Field(dummyNode, FieldName.DATA_VOLUME as FieldId, FieldName.DATA_VOLUME, "5", "5", "", false, DataType.Float, false, [], false, FieldType.Constraint, FieldUsage.NoPort);
-
-export const kField = new Field(dummyNode, FieldName.K as FieldId, FieldName.K, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.Construct, FieldUsage.NoPort);
-export const numCopiesField = new Field(dummyNode, FieldName.NUM_OF_COPIES as FieldId, FieldName.NUM_OF_COPIES, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.Construct, FieldUsage.NoPort);
-export const numInputsField = new Field(dummyNode, FieldName.NUM_OF_INPUTS as FieldId, FieldName.NUM_OF_INPUTS, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.Construct, FieldUsage.NoPort);
-export const numIterationsField = new Field(dummyNode, FieldName.NUM_OF_ITERATIONS as FieldId, FieldName.NUM_OF_ITERATIONS, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.Construct, FieldUsage.NoPort);
-
-export const baseNameField = new Field(dummyNode, FieldName.BASE_NAME as FieldId, FieldName.BASE_NAME, "", "", "The base name of the class of this Member function", false, DataType.String, false, [], false, FieldType.Component, FieldUsage.NoPort);
-export const funcCodeField = new Field(dummyNode, FieldName.FUNC_CODE as FieldId, FieldName.FUNC_CODE, "", "def func_name(args): return args", "Python function code", false, DataType.Python, false, [], false, FieldType.Component, FieldUsage.NoPort);
-export const funcNameField = new Field(dummyNode, FieldName.FUNC_NAME as FieldId, FieldName.FUNC_NAME, "", "func_name", "Python function name", false, DataType.Python, false, [], false, FieldType.Component, FieldUsage.NoPort);
-
-export const selfFieldApplication = new Field(dummyNode, FieldName.SELF as FieldId, FieldName.SELF, "", "", "", false, DataType.Object, false, [], false, FieldType.Application, FieldUsage.InputOutput);
-export const selfFieldComponent = new Field(dummyNode, FieldName.SELF as FieldId, FieldName.SELF, "", "", "", false, DataType.Object, false, [], false, FieldType.Component, FieldUsage.InputOutput);
-
-export const persistField = new Field(dummyNode, FieldName.PERSIST as FieldId, FieldName.PERSIST, "false", "false", "Specifies whether this data component contains data that should not be deleted after execution", false, DataType.Boolean, false, [], false, FieldType.Component, FieldUsage.NoPort);
-export const streamingField = new Field(dummyNode, FieldName.STREAMING as FieldId, FieldName.STREAMING, "false", "false", "Specifies whether this data component streams input and output data", false, DataType.Boolean, false, [], false, FieldType.Component, FieldUsage.NoPort);
-
-export const categoryTypeFieldsRequired = [
-    {
-        categoryTypes: [
-            CategoryType.Application,
-            CategoryType.Data
-        ],
-        fields: [
-            dropClassField
-        ]
-    },
-    {
-        categoryTypes: [
-            CategoryType.Application
-        ],
-        fields: [
-            executionTimeField,
-            numCpusField
-        ]
-    },
-    {
-        categoryTypes: [
-            CategoryType.Data
-        ],
-        fields: [
-            dataVolumeField
-        ]
-    }
-];
-
-export const categoryFieldsRequired = [
-    {
-        categories: [
-            Category.Scatter
-        ],
-        fields: [
-            numCopiesField
-        ]
-    },
-    {
-        categories: [
-            Category.Gather,
-            Category.GroupBy
-        ],
-        fields: [
-            numInputsField
-        ]
-    },
-    {
-        categories: [
-            Category.Loop
-        ],
-        fields: [
-            numIterationsField
-        ]
-    },
-    {
-        categories: [
-            Category.Branch
-        ],
-        fields: [
-            branchTrueField,
-            branchFalseField,
-            dropClassField
-        ]
-    },
-    {
-        categories: [
-            Category.PythonMemberFunction
-        ],
-        fields: [
-            baseNameField,
-            selfFieldApplication
-        ]
-    },
-    {
-        categories: [
-            Category.PythonObject
-        ],
-        fields: [
-            baseNameField,
-            selfFieldComponent
-        ]
-    },
-    {
-        categories: [
-            Category.PyFuncApp,
-            Category.PythonMemberFunction
-        ],
-        fields: [
-            funcNameField
-        ]
-    },
-    {
-        categories: [
-            Category.Data
-        ],
-        fields: [
-            baseNameField
-        ]
-    }
-];
+const dummyNode = new Node("", "", "", CategoryName.Unknown);
 
 export class Daliuge {
-    static readonly DEFAULT_PYDATA_VALUE = DEFAULT_PYDATA_VALUE;
-    static readonly DEFAULT_PYFUNCAPP_DROPCLASS_VALUE = DEFAULT_PYFUNCAPP_DROPCLASS_VALUE;
-    static readonly DEFAULT_GRAPH_CONFIGURATION_NAME = DEFAULT_GRAPH_CONFIGURATION_NAME;
-    static readonly FieldName = FieldName;
-    static readonly DataType = DataType;
-    static readonly Encoding = Encoding;
-    static readonly FieldType = FieldType;
-    static readonly DLGFieldType = DLGFieldType;
-    static readonly FieldUsage = FieldUsage;
-    static readonly FileType = DaliugeFileType;
-    static readonly dlgToFieldTypeMap = dlgToFieldTypeMap;
-    static readonly fieldTypeToDlgMap = fieldTypeToDlgMap;
-    static readonly groupStartField = groupStartField;
-    static readonly groupEndField = groupEndField;
-    static readonly dropClassField = dropClassField;
-    static readonly branchTrueField = branchTrueField;
-    static readonly branchFalseField = branchFalseField;
-    static readonly executionTimeField = executionTimeField;
-    static readonly numCpusField = numCpusField;
-    static readonly dataVolumeField = dataVolumeField;
-    static readonly kField = kField;
-    static readonly numCopiesField = numCopiesField;
-    static readonly numInputsField = numInputsField;
-    static readonly numIterationsField = numIterationsField;
-    static readonly baseNameField = baseNameField;
-    static readonly funcCodeField = funcCodeField;
-    static readonly funcNameField = funcNameField;
-    static readonly selfFieldApplication = selfFieldApplication;
-    static readonly selfFieldComponent = selfFieldComponent;
-    static readonly persistField = persistField;
-    static readonly streamingField = streamingField;
-    static readonly categoryTypeFieldsRequired = categoryTypeFieldsRequired;
-    static readonly categoryFieldsRequired = categoryFieldsRequired;
+    static readonly DEFAULT_PYDATA_VALUE: string = "None";
+    static readonly DEFAULT_PYFUNCAPP_DROPCLASS_VALUE: string = "dlg.apps.pyfunc.PyFuncApp";
+    static readonly DEFAULT_GRAPH_CONFIGURATION_NAME: string = "Default Graph Configuration";
 
     // automatically loaded palettes
     static readonly PALETTE_URL : string  = "https://raw.githubusercontent.com/ICRAR/EAGLE-graph-repo/master/daliuge/daliuge-master.palette";
@@ -318,7 +140,152 @@ export class Daliuge {
     static readonly V4_GRAPH_SCHEMA_URL : string = window.location.origin + "/static/lg.graph.v4.schema";
 
     // NOTE: eventually this can be replaced. Once we have added a new category for PythonInitialiser
+    /* TODO: should we move this to Node.ts? */
     static isPythonInitialiser(node: Node): boolean {
-        return node.getCategory() === Category.PythonMemberFunction && (node.getName().includes("__init__") || node.getName().includes("__class__"));
+        return node.getCategory() === CategoryName.PythonMemberFunction && (node.getName().includes("__init__") || node.getName().includes("__class__"));
     }
+
+    static readonly groupStartField = new Field(dummyNode, FieldName.GROUP_START as FieldId, FieldName.GROUP_START, "true", "true", "Is this node the start of a group?", false, DataType.Boolean, false, [], false, FieldType.Component, FieldUsage.NoPort);
+    static readonly groupEndField = new Field(dummyNode, FieldName.GROUP_END as FieldId, FieldName.GROUP_END, "true", "true", "Is this node the end of a group?", false, DataType.Boolean, false, [], false, FieldType.Component, FieldUsage.NoPort);
+
+    static readonly dropClassField = new Field(dummyNode, FieldName.DROP_CLASS as FieldId, FieldName.DROP_CLASS, "", "", "", false, DataType.String, false, [], false, FieldType.Component, FieldUsage.NoPort);
+    static readonly branchTrueField = new Field(dummyNode, FieldName.TRUE as FieldId, FieldName.TRUE, "", "", "The affirmative output from a branch node", false, DataType.Object, false, [], false, FieldType.Component, FieldUsage.OutputPort);
+    static readonly branchFalseField = new Field(dummyNode, FieldName.FALSE as FieldId, FieldName.FALSE, "", "", "The negative output from a branch node", false, DataType.Object, false, [], false, FieldType.Component, FieldUsage.OutputPort);
+
+    static readonly executionTimeField = new Field(dummyNode, FieldName.EXECUTION_TIME as FieldId, FieldName.EXECUTION_TIME, "5", "5", "", false, DataType.Float, false, [], false, FieldType.Constraint, FieldUsage.NoPort);
+    static readonly numCpusField = new Field(dummyNode, FieldName.NUM_OF_CPUS as FieldId, FieldName.NUM_OF_CPUS, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.Constraint, FieldUsage.NoPort);
+    static readonly dataVolumeField = new Field(dummyNode, FieldName.DATA_VOLUME as FieldId, FieldName.DATA_VOLUME, "5", "5", "", false, DataType.Float, false, [], false, FieldType.Constraint, FieldUsage.NoPort);
+
+    static readonly kField = new Field(dummyNode, FieldName.K as FieldId, FieldName.K, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.Construct, FieldUsage.NoPort);
+    static readonly numCopiesField = new Field(dummyNode, FieldName.NUM_OF_COPIES as FieldId, FieldName.NUM_OF_COPIES, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.Construct, FieldUsage.NoPort);
+    static readonly numInputsField = new Field(dummyNode, FieldName.NUM_OF_INPUTS as FieldId, FieldName.NUM_OF_INPUTS, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.Construct, FieldUsage.NoPort);
+    static readonly numIterationsField = new Field(dummyNode, FieldName.NUM_OF_ITERATIONS as FieldId, FieldName.NUM_OF_ITERATIONS, "1", "1", "", false, DataType.Integer, false, [], false, FieldType.Construct, FieldUsage.NoPort);
+
+    static readonly baseNameField = new Field(dummyNode, FieldName.BASE_NAME as FieldId, FieldName.BASE_NAME, "", "", "The base name of the class of this Member function", false, DataType.String, false, [], false, FieldType.Component, FieldUsage.NoPort);
+    static readonly funcCodeField = new Field(dummyNode, FieldName.FUNC_CODE as FieldId, FieldName.FUNC_CODE, "", "def func_name(args): return args", "Python function code", false, DataType.Python, false, [], false, FieldType.Component, FieldUsage.NoPort);
+    static readonly funcNameField = new Field(dummyNode, FieldName.FUNC_NAME as FieldId, FieldName.FUNC_NAME, "", "func_name", "Python function name", false, DataType.Python, false, [], false, FieldType.Component, FieldUsage.NoPort);
+
+    static readonly selfFieldApplication = new Field(dummyNode, FieldName.SELF as FieldId, FieldName.SELF, "", "", "", false, DataType.Object, false, [], false, FieldType.Application, FieldUsage.InputOutput);
+    static readonly selfFieldComponent = new Field(dummyNode, FieldName.SELF as FieldId, FieldName.SELF, "", "", "", false, DataType.Object, false, [], false, FieldType.Component, FieldUsage.InputOutput);
+
+    static readonly persistField = new Field(dummyNode, FieldName.PERSIST as FieldId, FieldName.PERSIST, "false", "false", "Specifies whether this data component contains data that should not be deleted after execution", false, DataType.Boolean, false, [], false, FieldType.Component, FieldUsage.NoPort);
+    static readonly streamingField = new Field(dummyNode, FieldName.STREAMING as FieldId, FieldName.STREAMING, "false", "false", "Specifies whether this data component streams input and output data", false, DataType.Boolean, false, [], false, FieldType.Component, FieldUsage.NoPort);
+
+    static readonly categoryTypeFieldsRequired = [
+        {
+            categoryTypes: [
+                CategoryType.Application,
+                CategoryType.Data
+            ],
+            fields: [
+                Daliuge.dropClassField
+            ]
+        },
+        {
+            categoryTypes: [
+                CategoryType.Application
+            ],
+            fields: [
+                Daliuge.executionTimeField,
+                Daliuge.numCpusField
+            ]
+        },
+        {
+            categoryTypes: [
+                CategoryType.Data
+            ],
+            fields: [
+                Daliuge.dataVolumeField
+            ]
+        }
+    ];
+
+    static readonly categoryFieldsRequired = [
+        {
+            categories: [
+                CategoryName.Scatter
+            ],
+            fields: [
+                Daliuge.numCopiesField
+            ]
+        },
+        {
+            categories: [
+                CategoryName.Gather,
+                CategoryName.GroupBy
+            ],
+            fields: [
+                Daliuge.numInputsField
+            ]
+        },
+        {
+            categories: [
+                CategoryName.Loop
+            ],
+            fields: [
+                Daliuge.numIterationsField
+            ]
+        },
+        {
+            categories: [
+                CategoryName.Branch
+            ],
+            fields: [
+                Daliuge.branchTrueField,
+                Daliuge.branchFalseField,
+                Daliuge.dropClassField
+            ]
+        },
+        {
+            categories: [
+                CategoryName.PythonMemberFunction
+            ],
+            fields: [
+                Daliuge.baseNameField,
+                Daliuge.selfFieldApplication
+            ]
+        },
+        {
+            categories: [
+                CategoryName.PythonObject
+            ],
+            fields: [
+                Daliuge.baseNameField,
+                Daliuge.selfFieldComponent
+            ]
+        },
+        {
+            categories: [
+                CategoryName.PyFuncApp,
+                CategoryName.PythonMemberFunction
+            ],
+            fields: [
+                Daliuge.funcNameField
+            ]
+        },
+        {
+            categories: [
+                CategoryName.Data
+            ],
+            fields: [
+                Daliuge.baseNameField
+            ]
+        }
+    ];
+
+    static readonly dlgToFieldTypeMap: { [key in DLGFieldType]: FieldType } = {
+        [DLGFieldType.ApplicationArgument]: FieldType.Application,
+        [DLGFieldType.ComponentParameter]: FieldType.Component,
+        [DLGFieldType.ConstraintParameter]: FieldType.Constraint,
+        [DLGFieldType.ConstructParameter]: FieldType.Construct,
+        [DLGFieldType.Unknown]: FieldType.Unknown,
+    };
+
+    static readonly fieldTypeToDlgMap: { [key in FieldType]: DLGFieldType } = {
+        [FieldType.Application]: DLGFieldType.ApplicationArgument,
+        [FieldType.Component]: DLGFieldType.ComponentParameter,
+        [FieldType.Constraint]: DLGFieldType.ConstraintParameter,
+        [FieldType.Construct]: DLGFieldType.ConstructParameter,
+        [FieldType.Unknown]: DLGFieldType.Unknown,
+    };
 }
