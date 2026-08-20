@@ -29,7 +29,7 @@ Creating Palettes within EAGLE
 
 You can build palettes directly in EAGLE.
 
-1. Change Ui Mode to ``Component`` in settings.
+1. Change UI Mode to ``Component`` in settings.
 2. Right click a component in the ``Component Templates`` Palette or another existing palette.
 3. Select ``Add to another palette`` and enter a name under custom to create a new one.
 4. The Component can be edited under the new palette, or you can add more components to the palette by repeating the process.
