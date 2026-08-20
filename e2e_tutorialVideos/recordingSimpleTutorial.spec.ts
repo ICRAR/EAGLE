@@ -1,7 +1,7 @@
 // import { test } from '@playwright/test';
 import { test, expect } from '@playwright/test';
 import { enableMouseCursor, explainElement, moveMouseCursor, textNotification } from '../playwrightHelpers';
-import { TestHelpers } from './TestHelpers';
+import { TestHelpers } from '../e2e/TestHelpers';
 
 test.use({ 
   viewport: { width: 2560, height: 1440 },
