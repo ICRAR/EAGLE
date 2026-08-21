@@ -29,7 +29,7 @@
                 <button id="openGraphModelDataModal" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="style:{'color': $root.logicalGraph().fileInfo().getGraphInfoBtnColor()}, click: function(){Utils.showModelDataModal('Graph Info', $root.logicalGraph().fileInfo());}, eagleTooltip: 'Show Graph Info'">
                     <i class="material-symbols-outlined md-18 filled">info</i>
                 </button>
-                <button id="openGraphConfigurationTable" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: function(){ParameterTable.openTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.Normal)}, eagleTooltip: KeyboardShortcut.idToFullText('open_graph_attributes_configuration_table')">
+                <button id="openGraphConfigurationTable" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: function(){ParameterTable.openTable(EagleBottomWindowMode.ConfigParameterTable, ParameterTableSelectType.Normal)}, eagleTooltip: KeyboardShortcut.idToFullText('open_graph_attributes_configuration_table')">
                     <i class="md-18 icon-key_attribute_table"></i>
                 </button>
                 <button id="copyGraphUrl" class="btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: copyGraphUrl, eagleTooltip: 'Copy Graph Url'">
@@ -80,10 +80,10 @@
                         <i class="md-18 icon-visuals"></i>
                     </a>
                     <div class="dropdown-menu dropdown-menu-right dropdown-area" aria-labelledby="navbarDropdownVisuals">
-                        <button class="dropdown-item btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: function(){eagle.addVisualToLogicalGraph('Text', Eagle.AddNodeMode.Default)}, eagleTooltip: 'Add Text Visual. Explain your graph! These can be linked to objects.'">
+                        <button class="dropdown-item btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: function(){eagle.addVisualToLogicalGraph('Text', EagleAddNodeMode.Default)}, eagleTooltip: 'Add Text Visual. Explain your graph! These can be linked to objects.'">
                             <i class="md-18 icon-text"></i>
                         </button>
-                        <button class="dropdown-item btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: function(){eagle.addVisualToLogicalGraph('Group', Eagle.AddNodeMode.Default)}, eagleTooltip: `Add Group Visual. Organise your graph with these coloured background shapes. These are purely visual and dont affect the graph's function.`">
+                        <button class="dropdown-item btn btn-outline-secondary navbar-btn iconHoverEffect" type="button" data-bs-placement="bottom" data-bind="click: function(){eagle.addVisualToLogicalGraph('Group', EagleAddNodeMode.Default)}, eagleTooltip: `Add Group Visual. Organise your graph with these coloured background shapes. These are purely visual and dont affect the graph's function.`">
                             <i class="md-18 icon-checkbox-unchecked"></i>
                         </button>
                     </div>
@@ -165,13 +165,13 @@
                             <div class="dropDropDown">
                                 <a class="dropdown-item" href="#" data-bind="click: function(){commitToGit(eagle.logicalGraph().fileInfo().type)}">Save</a>
                                 <a class="dropdown-item" id="commitToGitAsGraph" href="#" data-bind="click: function(){commitToGitAs(eagle.logicalGraph().fileInfo().type)}">Save As</a>
-                                <a class="dropdown-item" id="gitLoadGraphFromRepo" href="#" data-bind="click: function(){eagle.rightWindow().shown(true).mode(Eagle.RightWindowMode.Repository)}">Load From Repository</a>
+                                <a class="dropdown-item" id="gitLoadGraphFromRepo" href="#" data-bind="click: function(){eagle.rightWindow().shown(true).mode(EagleRightWindowMode.Repository)}">Load From Repository</a>
                             </div>
                         </span>
                         <span class="dropdown-item dropDropDownParent" href="#">Local Storage<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
                             <div class="dropDropDown">
-                                <a class="dropdown-item" id="saveGraph" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Graph)}">Save</a>
-                                <a class="dropdown-item" id="saveAsGraph" href="#" data-bind="click: function(){saveAsFileToLocal(Eagle.FileType.Graph)}">Save As</a>
+                                <a class="dropdown-item" id="saveGraph" href="#" data-bind="click: function(){saveFileToLocal(EagleFileType.Graph)}">Save</a>
+                                <a class="dropdown-item" id="saveAsGraph" href="#" data-bind="click: function(){saveAsFileToLocal(EagleFileType.Graph)}">Save As</a>
                                 <a class="dropdown-item" id="loadGraph" href="#" data-bind="click: getGraphFileToLoad">Load
                                     <span data-bind="text: KeyboardShortcut.idToKeysText('open_graph_from_local_disk', true)"></span>
                                 </a>
@@ -180,7 +180,7 @@
                                 </a>
                             </div>
                         </span>
-                        <a class="dropdown-item" id="createNewGraphFromUrl" href="#" data-bind="click: function(){loadFileFromUrl(Eagle.FileType.Graph)}">Open from URL</a>
+                        <a class="dropdown-item" id="createNewGraphFromUrl" href="#" data-bind="click: function(){loadFileFromUrl(EagleFileType.Graph)}">Open from URL</a>
                         <div class="dropdown-divider"></div>
 
                         <span class="dropdown-item dropDropDownParent" href="#">Config<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
@@ -205,12 +205,12 @@
                         </div>
                         </span>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" id="displayGraphAsJson" href="#" data-bind="click: function(){displayObjectAsJson(Eagle.FileType.Graph, eagle.logicalGraph());}">Display As Json</a>
+                        <a class="dropdown-item" id="displayGraphAsJson" href="#" data-bind="click: function(){displayObjectAsJson(EagleFileType.Graph, eagle.logicalGraph());}">Display As Json</a>
                         <a class="dropdown-item" id="screenshotGraph" href="#" data-bind="click: saveGraphScreenshot">Screenshot</a>
                         <a class="dropdown-item" id="validateGraph" href="#" data-bind="click: validateGraph">Validate</a>
                     <!-- /ko -->
                     <!-- ko ifnot: Setting.findValue(Setting.ALLOW_GRAPH_EDITING) -->
-                        <a class="dropdown-item" id="saveGraph" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Graph)}">Save</a>
+                        <a class="dropdown-item" id="saveGraph" href="#" data-bind="click: function(){saveFileToLocal(EagleFileType.Graph)}">Save</a>
                         <a class="dropdown-item" id="loadGraph" href="#" data-bind="click: getGraphFileToLoad">Load
                             <span data-bind="text: KeyboardShortcut.idToKeysText('open_graph_from_local_disk', true)"></span>
                         </a>
@@ -235,21 +235,21 @@
                     <div class="dropdown-divider"></div>
                     <span class="dropdown-item dropDropDownParent" href="#">Git Storage<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
                         <div class="dropDropDown">
-                            <a class="dropdown-item" href="#" data-bind="click: function(){commitToGit(Eagle.FileType.Palette)}">Save</a>
-                            <a class="dropdown-item" id="commitToGitAsPalette" href="#" data-bind="click: function(){commitToGitAs(Eagle.FileType.Palette)}">Save As</a>
-                            <a class="dropdown-item" id="loadPaletteFromGitRepo" href="#" data-bind="click: function(){eagle.rightWindow().shown(true).mode(Eagle.RightWindowMode.Repository)}">Load From Repository</a>
+                            <a class="dropdown-item" href="#" data-bind="click: function(){commitToGit(EagleFileType.Palette)}">Save</a>
+                            <a class="dropdown-item" id="commitToGitAsPalette" href="#" data-bind="click: function(){commitToGitAs(EagleFileType.Palette)}">Save As</a>
+                            <a class="dropdown-item" id="loadPaletteFromGitRepo" href="#" data-bind="click: function(){eagle.rightWindow().shown(true).mode(EagleRightWindowMode.Repository)}">Load From Repository</a>
                         </div>
                     </span>
                     <span class="dropdown-item dropDropDownParent" href="#">Local Storage<img src="/static/assets/img/arrow_right_white_24dp.svg" alt="">
                         <div class="dropDropDown">
-                            <a class="dropdown-item" id="savePalette" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Palette)}">Save</a>
-                            <a class="dropdown-item" id="saveAsPalette" href="#" data-bind="click: function(){saveAsFileToLocal(Eagle.FileType.Palette)}">Save As</a>
+                            <a class="dropdown-item" id="savePalette" href="#" data-bind="click: function(){saveFileToLocal(EagleFileType.Palette)}">Save</a>
+                            <a class="dropdown-item" id="saveAsPalette" href="#" data-bind="click: function(){saveAsFileToLocal(EagleFileType.Palette)}">Save As</a>
                             <a class="dropdown-item" id="loadPalette" href="#" data-bind="click: getPaletteFileToLoad">Load
                                 <span data-bind="text: KeyboardShortcut.idToKeysText('open_palette_from_local_disk', true)"></span>
                             </a>
                         </div>
                     </span>
-                    <a class="dropdown-item" id="createNewPaletteFromUrl" href="#" data-bind="click: function(){loadFileFromUrl(Eagle.FileType.Palette)}">Open from URL</a>
+                    <a class="dropdown-item" id="createNewPaletteFromUrl" href="#" data-bind="click: function(){loadFileFromUrl(EagleFileType.Palette)}">Open from URL</a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" id="saveToPalette" href="#" data-bind="click: addGraphNodesToPalette">Add Graph Nodes</a>
                 <!-- /ko -->
@@ -257,7 +257,7 @@
                     <a class="dropdown-item" id="loadPalette" href="#" data-bind="click: getPaletteFileToLoad">Load
                         <span data-bind="text: KeyboardShortcut.idToKeysText('open_palette_from_local_disk', true)"></span>
                     </a>
-                    <a class="dropdown-item" id="savePalette" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Palette)}">Save</a>
+                    <a class="dropdown-item" id="savePalette" href="#" data-bind="click: function(){saveFileToLocal(EagleFileType.Palette)}">Save</a>
                 <!-- /ko -->
                 </div>
             </li>

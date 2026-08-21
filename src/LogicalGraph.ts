@@ -52,7 +52,7 @@ export class LogicalGraph {
     constructor(){
         this.fileInfo = ko.observable(new FileInfo());
         this.fileInfo().type = EagleFileType.Graph;
-        this.fileInfo().schemaVersion = Setting.SchemaVersion.V4;
+        this.fileInfo().schemaVersion = SchemaVersion.V4;
         this.fileInfo().readonly = false;
         this.fileInfo().builtIn = false;
         this.nodes = ko.observable(new Map<NodeId, Node>());
@@ -67,7 +67,7 @@ export class LogicalGraph {
         const result : any = {};
 
         result.modelData = FileInfo.toOJSJson(graph.fileInfo());
-        result.modelData.schemaVersion = Setting.SchemaVersion.OJS;
+        result.modelData.schemaVersion = SchemaVersion.OJS;
         result.modelData.numLGNodes = graph.getNumNodes();
 
         // add nodes
@@ -149,7 +149,7 @@ export class LogicalGraph {
         const result : any = {};
 
         result.modelData = FileInfo.toV4Json(graph.fileInfo());
-        result.modelData.schemaVersion = Setting.SchemaVersion.V4;
+        result.modelData.schemaVersion = SchemaVersion.V4;
 
         // add nodes
         result.nodes = {};
@@ -268,10 +268,10 @@ export class LogicalGraph {
         let result: string = "";
 
         switch(version){
-            case Setting.SchemaVersion.OJS:
+            case SchemaVersion.OJS:
                 result = LogicalGraph.toOJSJsonString(graph, forTranslation);
                 break;
-            case Setting.SchemaVersion.V4:
+            case SchemaVersion.V4:
                 result = LogicalGraph.toV4JsonString(graph, forTranslation);
                 break;
             default:
@@ -1403,7 +1403,7 @@ export class LogicalGraph {
                 "Graph does not have a short description.",
                 LogicalGraph.withEagle(eagle, e => e.editShortDescription(graph.fileInfo()))
             );
-            graph.issues.push({issue : issue, validity : Errors.Validity.Warning})
+            graph.issues.push({issue : issue, validity : Validity.Warning})
         }
 
         //if the graph has been user created but does not have a detailed description, warn the user
@@ -1412,7 +1412,7 @@ export class LogicalGraph {
                 "Graph does not have a detailed description.",
                 LogicalGraph.withEagle(eagle, e => e.editDetailedDescription(graph.fileInfo()))
             );
-            graph.issues.push({issue : issue, validity : Errors.Validity.Warning})
+            graph.issues.push({issue : issue, validity : Validity.Warning})
         }
 
         // check that all nodes in the nodes dict have a key that matches the id inside the node
@@ -1424,7 +1424,7 @@ export class LogicalGraph {
                     function(){node.setId(id)},
                     "Set node id to match key in nodes dictionary"
                 );
-                graph.issues.push({issue : issue, validity : Errors.Validity.Error})
+                graph.issues.push({issue : issue, validity : Validity.Error})
             }
         }
 
@@ -1437,7 +1437,7 @@ export class LogicalGraph {
                     function(){graphConfig.fileInfo().graphLocation = graph.fileInfo().location.clone()},
                     "Set graph config's graph location to match that of the graph"
                 );
-                graph.issues.push({issue : issue, validity : Errors.Validity.Error})
+                graph.issues.push({issue : issue, validity : Validity.Error})
             }
         }
 
@@ -1445,20 +1445,20 @@ export class LogicalGraph {
         for (const [id, edge] of graph.edges()){
             if (typeof edge.getSrcPort() === 'undefined' || typeof edge.getDestPort() === 'undefined'){
                 const issue = Errors.Show("Edge (" + id + ") has undefined srcPort or undefined destPort", LogicalGraph.withEagle(eagle, e => Utils.showEdge(e, edge)));
-                graph.issues.push({issue:issue, validity: Errors.Validity.Error});
+                graph.issues.push({issue:issue, validity: Validity.Error});
                 continue;
             }
 
             // check source port
             if (typeof edge.getSrcPort().getEdgeById(id) === 'undefined'){
                 const issue = Errors.Show("Edge (" + id + ") is not present in source port edges list", LogicalGraph.withEagle(eagle, e => Utils.showEdge(e, edge)));
-                graph.issues.push({issue:issue, validity: Errors.Validity.Error});
+                graph.issues.push({issue:issue, validity: Validity.Error});
             }
 
             // check destination port
             if (typeof edge.getDestPort().getEdgeById(id) === 'undefined'){
                 const issue = Errors.Show("Edge (" + id + ") is not present in destination port edges list", LogicalGraph.withEagle(eagle, e => Utils.showEdge(e, edge)));
-                graph.issues.push({issue:issue, validity: Errors.Validity.Error});
+                graph.issues.push({issue:issue, validity: Validity.Error});
             }
         }
 
@@ -1471,7 +1471,7 @@ export class LogicalGraph {
                     function(){edge.setId(id)},
                     "Set edge id to match key in edges dictionary"
                 );
-                graph.issues.push({issue : issue, validity : Errors.Validity.Error})
+                graph.issues.push({issue : issue, validity : Validity.Error})
             }
         }
 
@@ -1485,7 +1485,7 @@ export class LogicalGraph {
                     function(){visual.setId(id)},
                     "Set visual id to match key in visuals dictionary"
                 );
-                graph.issues.push({issue : issue, validity : Errors.Validity.Error})
+                graph.issues.push({issue : issue, validity : Validity.Error})
             }
 
             // check that the visual's target exists within the graph
@@ -1513,7 +1513,7 @@ export class LogicalGraph {
                         function(){visual.setTarget(null)},
                         "Reset visual target to empty state"
                     );
-                    graph.issues.push({issue : issue, validity : Errors.Validity.Error})
+                    graph.issues.push({issue : issue, validity : Validity.Error})
                 }
             }
         }
@@ -1534,7 +1534,7 @@ export class LogicalGraph {
                     },
                     "Make first graph config active, or set undefined if no graph configs present"
                 );
-                graph.issues.push({issue : issue, validity : Errors.Validity.Error})
+                graph.issues.push({issue : issue, validity : Validity.Error})
             }
         }
 
@@ -1552,7 +1552,7 @@ export class LogicalGraph {
                         },
                         "Delete node from graph config"
                     );
-                    graph.issues.push({issue : issue, validity : Errors.Validity.Error});
+                    graph.issues.push({issue : issue, validity : Validity.Error});
                     break;
                 }
 
@@ -1567,7 +1567,7 @@ export class LogicalGraph {
                             },
                             "Delete field from node in graph config"
                         );
-                        graph.issues.push({issue: issue, validity: Errors.Validity.Error});
+                        graph.issues.push({issue: issue, validity: Validity.Error});
                     }
                 }
             }
@@ -1581,7 +1581,7 @@ export class LogicalGraph {
 
         let issues = Utils.gatherGraphIssues(graph);
         if (!includeWarnings){
-            issues = issues.filter(entry => entry.validity !== Errors.Validity.Warning);
+            issues = issues.filter(entry => entry.validity !== Validity.Warning);
         }
 
         while (numIssues !== issues.length){
@@ -1603,7 +1603,7 @@ export class LogicalGraph {
             LogicalGraph.isValid(graph, null);
             issues = Utils.gatherGraphIssues(graph);
             if (!includeWarnings){
-                issues = issues.filter(entry => entry.validity !== Errors.Validity.Warning);
+                issues = issues.filter(entry => entry.validity !== Validity.Warning);
             }
         }
     }

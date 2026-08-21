@@ -1,3 +1,5 @@
+import { RepositoryService } from './Repository';
+import { EagleFileType } from './Eagle';
 /*
 #
 #    ICRAR - International Centre for Radio Astronomy Research
@@ -25,13 +27,11 @@
 import * as ko from "knockout";
 
 import { CategoryName, CategoryType } from './Category';
-import { Eagle } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { Errors, type ErrorsWarnings } from './Errors';
 import { FileInfo } from './FileInfo';
 import { FileLocation } from "./FileLocation";
 import { Node } from './Node';
-import { Repository } from "./Repository";
 import { RepositoryFile } from './RepositoryFile';
 import { SchemaVersion, Setting } from "./Setting";
 import { Utils } from './Utils';
@@ -49,7 +49,7 @@ export class Palette {
 
     constructor(){
         this.fileInfo = ko.observable(new FileInfo());
-        this.fileInfo().type = Eagle.FileType.Palette;
+        this.fileInfo().type = EagleFileType.Palette;
         this.fileInfo().readonly = false;
         this.fileInfo().builtIn = false;
         this.nodes = ko.observable(new Map<NodeId, Node>());
@@ -195,7 +195,7 @@ export class Palette {
         const result : any = {};
 
         result.modelData = FileInfo.toV4Json(palette.fileInfo());
-        result.modelData.schemaVersion = Setting.SchemaVersion.V4;
+        result.modelData.schemaVersion = SchemaVersion.V4;
 
         // add nodes
         result.nodes = {};
@@ -252,10 +252,10 @@ export class Palette {
         let result: string = "";
 
         switch(version){
-            case Setting.SchemaVersion.OJS:
+            case SchemaVersion.OJS:
                 result = Palette.toOJSJsonString(palette);
                 break;
-            case Setting.SchemaVersion.V4:
+            case SchemaVersion.V4:
                 result = Palette.toV4JsonString(palette);
                 break;
             default:
@@ -297,7 +297,7 @@ export class Palette {
 
     clear = () : void => {
         this.fileInfo().clear();
-        this.fileInfo().type = Eagle.FileType.Palette;
+        this.fileInfo().type = EagleFileType.Palette;
         this.nodes().clear();
         this.nodes.valueHasMutated();
     }
@@ -446,7 +446,7 @@ export class Palette {
 
         // if we don't know where this file came from then we can't build a URL
         // for example, if the palette was loaded from local disk, then we can't build a URL for others to reach it
-        if (fileInfo.location.repositoryService() === Repository.Service.Unknown || fileInfo.location.repositoryService() === Repository.Service.File){
+        if (fileInfo.location.repositoryService() === RepositoryService.Unknown || fileInfo.location.repositoryService() === RepositoryService.File){
             Utils.showNotification("Palette URL", "Source of palette is a local file or unknown, unable to create URL for palette.", "danger");
             return;
         }

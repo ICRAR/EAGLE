@@ -38,8 +38,6 @@ export class ParameterTable {
 
     private static readonly ROW_HEIGHT: number = 30;
 
-    static readonly SelectType = ParameterTableSelectType;
-
     static init(){
         ParameterTable.selectionParent = ko.observable(null);
         ParameterTable.selectionParentIndex = ko.observable(-1);
@@ -475,7 +473,7 @@ export class ParameterTable {
                 return;
             }
 
-            ParameterTable.openTable(EagleBottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal);
+            ParameterTable.openTable(EagleBottomWindowMode.NodeParameterTable, ParameterTableSelectType.Normal);
 
             // set name
             graphConfig.fileInfo().name = configName;
@@ -496,7 +494,7 @@ export class ParameterTable {
         // TODO: actually, there is a difference between wanting to make a config active, and wanting to edit a config, but we don't have that separation at the moment
         Eagle.getInstance().logicalGraph().setActiveGraphConfig(config.getId());
 
-        ParameterTable.openTable(EagleBottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.Normal);
+        ParameterTable.openTable(EagleBottomWindowMode.ConfigParameterTable, ParameterTableSelectType.Normal);
     }
 
     static async requestEditDescriptionInModal(field:Field): Promise<void> {
@@ -709,7 +707,7 @@ export class ParameterTable {
         }
 
         //make sure the right click menu is closed
-        if(selectType === ParameterTable.SelectType.RightClick){
+        if(selectType === ParameterTableSelectType.RightClick){
             eagle.setSelection(Eagle.selectedRightClickObject(), Eagle.selectedRightClickLocation())
 
             RightClick.closeCustomContextMenu(true);
@@ -722,7 +720,7 @@ export class ParameterTable {
 
         eagle.setSelection(node, EagleFileType.Graph)
 
-        ParameterTable.openTable(EagleBottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal);
+        ParameterTable.openTable(EagleBottomWindowMode.NodeParameterTable, ParameterTableSelectType.Normal);
         
         setTimeout(function(){
             $('#tableRow_'+field.getId()).addClass('highlighted')
@@ -854,14 +852,14 @@ export class ParameterTable {
             return false;
         }
         
-        const valueEditingPermissions = Setting.findValue<ValueEditingPermission>(Setting.VALUE_EDITING_PERMS, Setting.ValueEditingPermission.Normal);
-        if(valueEditingPermissions === Setting.ValueEditingPermission.ReadOnly){
+        const valueEditingPermissions = Setting.findValue<ValueEditingPermission>(Setting.VALUE_EDITING_PERMS, ValueEditingPermission.Normal);
+        if(valueEditingPermissions === ValueEditingPermission.ReadOnly){
             return false;
         }
-        if(valueEditingPermissions === Setting.ValueEditingPermission.Normal){
+        if(valueEditingPermissions === ValueEditingPermission.Normal){
             return field.isReadonly();
         }
-        if(valueEditingPermissions === Setting.ValueEditingPermission.ConfigOnly){
+        if(valueEditingPermissions === ValueEditingPermission.ConfigOnly){
             return field.isReadonly();
         }
         

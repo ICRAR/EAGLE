@@ -35,7 +35,7 @@ export class GitHub {
             const repositories: Repository[] = [];
 
             // find repos in IndexedDB
-            const customRepositories = await EagleStorage.listCustomRepositories(Repository.Service.GitHub);
+            const customRepositories = await EagleStorage.listCustomRepositories(RepositoryService.GitHub);
             repositories.push(...customRepositories);
 
             let data;
@@ -49,7 +49,7 @@ export class GitHub {
 
             // add the repositories from the POST response
             for (const d of data){
-                repositories.push(new Repository(Repository.Service.GitHub, d.repository, d.branch, true));
+                repositories.push(new Repository(RepositoryService.GitHub, d.repository, d.branch, true));
             }
 
             resolve(repositories);
@@ -70,14 +70,14 @@ export class GitHub {
 
         // remove all GitHub repos from the list of repositories
         for (let i = Repositories.repositories().length - 1 ; i >= 0 ; i--){
-            if (Repositories.repositories()[i].service === Repository.Service.GitHub){
+            if (Repositories.repositories()[i].service === RepositoryService.GitHub){
                 Repositories.repositories.splice(i, 1);
             }
         }
 
         // add the repositories from the POST response
         for (const d of data){
-            Repositories.repositories.push(new Repository(Repository.Service.GitHub, d.repository, d.branch, true));
+            Repositories.repositories.push(new Repository(RepositoryService.GitHub, d.repository, d.branch, true));
         }
 
         // sort the repository list
@@ -89,7 +89,7 @@ export class GitHub {
      */
     static async loadRepoContent(repository : Repository, path: string): Promise<void> {
         return new Promise(async(resolve, reject) => {
-            const token = Utils.getServiceToken(Repository.Service.GitHub);
+            const token = Utils.getServiceToken(RepositoryService.GitHub);
 
             // get location
             const location: Repository | RepositoryFolder | null = repository.findPath(path);
@@ -204,7 +204,7 @@ export class GitHub {
      */
     static async openRemoteFile(repositoryService : RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string): Promise<string> {
         return new Promise(async(resolve, reject) => {
-            const token = Utils.getServiceToken(Repository.Service.GitHub);
+            const token = Utils.getServiceToken(RepositoryService.GitHub);
             const fullFileName : string = Utils.joinPath(filePath, fileName);
 
             // Add parameters in json data.
@@ -239,7 +239,7 @@ export class GitHub {
 
     static async deleteRemoteFile(repositoryService : RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string){
         return new Promise(async(resolve, reject) => {
-            const token = Utils.getServiceToken(Repository.Service.GitHub);
+            const token = Utils.getServiceToken(RepositoryService.GitHub);
 
             if (token === null || token === "") {
                 Utils.showUserMessage("Access Token", "The GitHub access token is not set! To open GitHub repositories, set the token via settings.");

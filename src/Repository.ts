@@ -18,8 +18,6 @@ export enum RepositoryService {
 }
 
 export class Repository {
-    static readonly Service = RepositoryService;
-
     _id : RepositoryId
     name : string
     service : RepositoryService
@@ -68,9 +66,9 @@ export class Repository {
             this.expanded(!this.expanded());
         } else {
             switch(this.service){
-                case Repository.Service.GitHub:
+                case RepositoryService.GitHub:
                     return GitHub.loadRepoContent(this, "");
-                case Repository.Service.GitLab:
+                case RepositoryService.GitLab:
                     return GitLab.loadRepoContent(this, "");
                 default:
                     Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab! (" + this.service + ")");
@@ -81,11 +79,11 @@ export class Repository {
     refresh = async () : Promise<void> => {
         return new Promise(async(resolve, reject) => {
             switch(this.service){
-                case Repository.Service.GitHub:
+                case RepositoryService.GitHub:
                     await GitHub.loadRepoContent(this, "");
                     resolve();
                     break;
-                case Repository.Service.GitLab:
+                case RepositoryService.GitLab:
                     GitLab.loadRepoContent(this, "");
                     resolve();
                     break;
@@ -330,7 +328,7 @@ export class Repository {
     // a placeholder repository
     // used by some functions when a repository is not actually required, but a placeholder is required for the input arguments
     public static placeholder(){
-        return new Repository(Repository.Service.Unknown, "", "", false);
+        return new Repository(RepositoryService.Unknown, "", "", false);
     }
 
     // sorting order
@@ -390,11 +388,11 @@ export class Repository {
     public static async fetch(repository: Repository, path: string) : Promise<void> {
         return new Promise(async(resolve, reject) => {
             switch(repository.service){
-                case Repository.Service.GitHub:
+                case RepositoryService.GitHub:
                     await GitHub.loadRepoContent(repository, path);
                     resolve();
                     break;
-                case Repository.Service.GitLab:
+                case RepositoryService.GitLab:
                     GitLab.loadRepoContent(repository, path);
                     resolve();
                     break;

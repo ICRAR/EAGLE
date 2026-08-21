@@ -1,3 +1,4 @@
+import { EagleFileType } from './Eagle';
 /*
 #
 #    ICRAR - International Centre for Radio Astronomy Research
@@ -54,6 +55,7 @@ import { Repository, RepositoryService } from './Repository';
 import { RepositoryFile } from './RepositoryFile';
 import { RightClick } from './RightClick';
 import { Setting } from './Setting';
+import { Mode } from './Errors';
 import { SideWindow } from "./SideWindow";
 import { TutorialSystem } from "./Tutorial";
 import { UiModeSystem } from './UiModes';
@@ -239,9 +241,9 @@ $(function(){
             return
         }
         if(!event.shiftKey){
-            eagle.setSelection(selectEdge, Eagle.FileType.Graph);
+            eagle.setSelection(selectEdge, EagleFileType.Graph);
         }else{
-            eagle.editSelection(selectEdge, Eagle.FileType.Graph);
+            eagle.editSelection(selectEdge, EagleFileType.Graph);
         }
     })
 
@@ -268,7 +270,7 @@ $(function(){
     ko.applyBindings(eagle);
     
     //changing errors mode from loading to graph as eagle is now ready and finished loading
-    eagle.errorsMode(Errors.Mode.Graph);
+    eagle.errorsMode(Mode.Graph);
 });
 
 async function loadRepos() {
@@ -305,13 +307,13 @@ async function autoLoad() {
     const realService: RepositoryService = Repositories.translateStringToService(service);
 
     // skip unknown services
-    if (typeof realService === "undefined" || realService === Repository.Service.Unknown){
+    if (typeof realService === "undefined" || realService === RepositoryService.Unknown){
         console.log("No auto load. Service Unknown");
         return;
     }
 
     // check if service is a supported git service
-    const serviceIsGit: boolean = [Repository.Service.GitHub, Repository.Service.GitLab].includes(realService);
+    const serviceIsGit: boolean = [RepositoryService.GitHub, RepositoryService.GitLab].includes(realService);
 
     // skip empty strings
     if (serviceIsGit && (repository === "" || branch === "")){
@@ -320,13 +322,13 @@ async function autoLoad() {
     }
 
     // skip url if url is not specified
-    if (realService === Repository.Service.Url && url === ""){
+    if (realService === RepositoryService.Url && url === ""){
         console.log("No auto load. Url not specified");
         return;
     }
 
     // decide what to do based on the url
-    if (realService === Repository.Service.Url){
+    if (realService === RepositoryService.Url){
         Repositories.selectFile(new RepositoryFile(new Repository(realService, "", "", false), "", url));
     } else {
         if (filename === ""){

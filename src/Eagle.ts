@@ -109,13 +109,6 @@ export enum EagleDirection {
 
 
 export class Eagle {
-    static readonly LeftWindowMode = EagleLeftWindowMode;
-    static readonly RightWindowMode = EagleRightWindowMode;
-    static readonly BottomWindowMode = EagleBottomWindowMode;
-    static readonly AddNodeMode = EagleAddNodeMode;
-    static readonly FileType = EagleFileType;
-    static readonly Direction = EagleDirection;
-
     static _instance : Eagle;
 
     palettes : ko.ObservableArray<Palette>;
@@ -188,11 +181,11 @@ export class Eagle {
         this.bottomWindow = ko.observable(new SideWindow(Utils.getBottomWindowHeight()));
 
         this.selectedObjects = ko.observableArray<Node | Edge>([]).extend({ deferred: true });
-        Eagle.selectedLocation = ko.observable<EagleFileType>(Eagle.FileType.Unknown);
+        Eagle.selectedLocation = ko.observable<EagleFileType>(EagleFileType.Unknown);
         this.currentField = ko.observable(null);
 
         Eagle.selectedRightClickObject = ko.observable(null);
-        Eagle.selectedRightClickLocation = ko.observable<EagleFileType>(Eagle.FileType.Unknown);
+        Eagle.selectedRightClickLocation = ko.observable<EagleFileType>(EagleFileType.Unknown);
 
         this.repositories = ko.observable(new Repositories());
         this.translator = ko.observable(new Translator());
@@ -220,7 +213,7 @@ export class Eagle {
 
         this.dockerHubBrowser = ko.observable(new DockerHubBrowser());
 
-        this.errorsMode = ko.observable<Mode>(Errors.Mode.Loading);
+        this.errorsMode = ko.observable<Mode>(Mode.Loading);
         this.graphWarnings = ko.observableArray<Issue>([]);
         this.graphErrors = ko.observableArray<Issue>([]);
         this.loadingWarnings = ko.observableArray<Issue>([]);
@@ -255,7 +248,7 @@ export class Eagle {
      * Returns true if the save should proceed, false if the user cancels.
      */
     static async confirmOjsSave(version: SchemaVersion): Promise<boolean> {
-        if (version !== Setting.SchemaVersion.OJS) {
+        if (version !== SchemaVersion.OJS) {
             return true;
         }
         if (!Setting.findValue<boolean>(Setting.CONFIRM_OJS_FORMAT, true)) {
@@ -319,7 +312,7 @@ export class Eagle {
 
         // add additional custom types
         switch (Eagle.selectedLocation()){
-            case Eagle.FileType.Palette:
+            case EagleFileType.Palette:
                 const selectedNode = this.selectedNode();    
 
                 // build a list from the selected component in the palettes
@@ -332,7 +325,7 @@ export class Eagle {
                     console.warn('selected node is null when selecting palette component')
                 }
                 break;
-            case Eagle.FileType.Graph:
+            case EagleFileType.Graph:
             default:
                 // build a list from all nodes in the current logical graph
                 for (const node of this.logicalGraph().getNodes()){
@@ -483,7 +476,7 @@ export class Eagle {
         const allowGraphEditing: boolean = Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false);
         const editingAllowed: boolean = allowPaletteEditing || allowGraphEditing;
         if (setOpen && !editingAllowed){
-            Utils.notifyUserOfEditingIssue(Eagle.FileType.Unknown, "Toggle Windows");
+            Utils.notifyUserOfEditingIssue(EagleFileType.Unknown, "Toggle Windows");
             return;
         }
 
@@ -716,7 +709,7 @@ export class Eagle {
     resetEditor = () : void => {
         setTimeout(() => {
             this.selectedObjects([]);
-            Eagle.selectedLocation(Eagle.FileType.Unknown);
+            Eagle.selectedLocation(EagleFileType.Unknown);
         }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT);
     }
 
@@ -768,7 +761,7 @@ export class Eagle {
     
     getTranslatorColor : ko.PureComputed<string> = ko.pureComputed(() : string => {
         // check if current graph comes from a supported git service
-        const serviceIsGit: boolean = [Repository.Service.GitHub, Repository.Service.GitLab].includes(this.logicalGraph().fileInfo().location.repositoryService());
+        const serviceIsGit: boolean = [RepositoryService.GitHub, RepositoryService.GitLab].includes(this.logicalGraph().fileInfo().location.repositoryService());
 
         if(!serviceIsGit){
             return 'dodgerblue'
@@ -861,10 +854,10 @@ export class Eagle {
         
         SideWindow.setShown('right', true)
 
-        const rightWindowMode = Setting.findValue<EagleRightWindowMode>(Setting.RIGHT_WINDOW_MODE, Eagle.RightWindowMode.None);
+        const rightWindowMode = Setting.findValue<EagleRightWindowMode>(Setting.RIGHT_WINDOW_MODE, EagleRightWindowMode.None);
 
         //trigger a re-render of the hierarchy
-        if (rightWindowMode === Eagle.RightWindowMode.Hierarchy){
+        if (rightWindowMode === EagleRightWindowMode.Hierarchy){
             window.setTimeout(function(){
                 Hierarchy.updateDisplay()
             }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT)
@@ -1003,7 +996,7 @@ export class Eagle {
                 eagle._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
                     eagle.logicalGraph(lg);
 
-                    eagle._postLoadGraph(new RepositoryFile(new Repository(Repository.Service.File, "", "", false), Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath)));
+                    eagle._postLoadGraph(new RepositoryFile(new Repository(RepositoryService.File, "", "", false), Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath)));
                 });
             }
             reader.onerror = function (evt) {
@@ -1084,7 +1077,7 @@ export class Eagle {
                 this.loadingErrors(errorsWarnings.errors);
                 this.loadingWarnings(errorsWarnings.warnings);
 
-                this.errorsMode(Errors.Mode.Loading);
+                this.errorsMode(Mode.Loading);
                 Utils.showErrorsModal("Loading File");
             } else {
                 Utils.showNotification("Warning", "File (" + fileName + ") loaded successfully from " + service + " but contains one or more warnings or errors.", "warning");
@@ -1109,7 +1102,7 @@ export class Eagle {
         const fileType : EagleFileType = Utils.determineFileType(dataObject);
 
         // Only load graph files.
-        if (fileType !== Eagle.FileType.Graph) {
+        if (fileType !== EagleFileType.Graph) {
             Utils.showUserMessage("Error", "This is not a graph file!");
             return;
         }
@@ -1121,8 +1114,8 @@ export class Eagle {
 
         // use the correct parsing function based on schema version
         switch (schemaVersion){
-            case Setting.SchemaVersion.OJS:
-            case Setting.SchemaVersion.Unknown:
+            case SchemaVersion.OJS:
+            case SchemaVersion.Unknown:
                 // check if we need to update the graph from keys to ids
                 if (GraphUpdater.usesNodeKeys(dataObject)){
                     GraphUpdater.updateKeysToIds(dataObject);
@@ -1130,7 +1123,7 @@ export class Eagle {
 
                 loadFunc(LogicalGraph.fromOJSJson(dataObject, "", errorsWarnings));
                 break;
-            case Setting.SchemaVersion.V4:
+            case SchemaVersion.V4:
                 loadFunc(LogicalGraph.fromV4Json(dataObject, "", errorsWarnings));
                 break;
             default:
@@ -1138,7 +1131,7 @@ export class Eagle {
                 break;
         }
 
-        this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), Repository.Service.File);
+        this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), RepositoryService.File);
     }
 
     createSubgraphFromSelection = () : void => {
@@ -1149,7 +1142,7 @@ export class Eagle {
         }
 
         if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
-            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Create Subgraph From Selection");
+            Utils.notifyUserOfEditingIssue(EagleFileType.Graph, "Create Subgraph From Selection");
             return;
         }
 
@@ -1205,7 +1198,7 @@ export class Eagle {
         }
 
         if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
-            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Create Construct From Selection");
+            Utils.notifyUserOfEditingIssue(EagleFileType.Graph, "Create Construct From Selection");
             return;
         }
 
@@ -1477,7 +1470,7 @@ export class Eagle {
 
                 eagle._loadPaletteJSON(data, fileFullPath);
 
-                eagle.palettes()[0].fileInfo().location.repositoryService(Repository.Service.File);
+                eagle.palettes()[0].fileInfo().location.repositoryService(RepositoryService.File);
                 eagle.palettes()[0].fileInfo.valueHasMutated();
             }
             reader.onerror = function (evt) {
@@ -1505,14 +1498,14 @@ export class Eagle {
         const loadedFileType : EagleFileType = Utils.determineFileType(dataObject);
 
         // abort if not palette
-        if (loadedFileType !== Eagle.FileType.Palette){
+        if (loadedFileType !== EagleFileType.Palette){
             Utils.showUserMessage("Error", "This is not a palette file! Looks like a " + loadedFileType);
             return;
         }
 
         // create a destination palette and add to palettes list
         const palette = new Palette();
-        palette.fileInfo().location.repositoryService(Repository.Service.File);
+        palette.fileInfo().location.repositoryService(RepositoryService.File);
         palette.fileInfo().location.repositoryPath(Utils.getFilePathFromFullPath(fileFullPath));
         palette.fileInfo().location.repositoryFileName(Utils.getFileNameFromFullPath(fileFullPath));
         palette.isFetching(true);
@@ -1585,7 +1578,7 @@ export class Eagle {
         const allowGraphEditing = Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false);
 
         if (!allowGraphEditing){
-            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Load Graph");
+            Utils.notifyUserOfEditingIssue(EagleFileType.Graph, "Load Graph");
             return;
         }
 
@@ -1602,7 +1595,7 @@ export class Eagle {
         const allowGraphEditing = Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false);
 
         if (!allowGraphEditing){
-            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Insert Graph");
+            Utils.notifyUserOfEditingIssue(EagleFileType.Graph, "Insert Graph");
             return;
         }
 
@@ -1618,7 +1611,7 @@ export class Eagle {
         const allowPaletteEditing = Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false);
 
         if (allowPaletteEditing){
-            Utils.notifyUserOfEditingIssue(Eagle.FileType.Palette, "Load Palette");
+            Utils.notifyUserOfEditingIssue(EagleFileType.Palette, "Load Palette");
             return;
         }
 
@@ -1634,7 +1627,7 @@ export class Eagle {
         const allowGraphEditing = Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false);
 
         if (!allowGraphEditing){
-            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Load Graph Config");
+            Utils.notifyUserOfEditingIssue(EagleFileType.Graph, "Load Graph Config");
             return;
         }
 
@@ -1654,7 +1647,7 @@ export class Eagle {
 
         // check that graph editing is permitted
         if (!allowGraphEditing){
-            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "New Logical Graph");
+            Utils.notifyUserOfEditingIssue(EagleFileType.Graph, "New Logical Graph");
             return;
         }
 
@@ -1679,7 +1672,7 @@ export class Eagle {
 
         // check that graph editing is permitted
         if (!allowGraphEditing){
-            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "New Logical Graph From JSON")
+            Utils.notifyUserOfEditingIssue(EagleFileType.Graph, "New Logical Graph From JSON")
             return;
         }
 
@@ -1703,7 +1696,7 @@ export class Eagle {
 
         // check that graph editing is permitted
         if (!allowGraphEditing){
-            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Insert Graph from JSON");
+            Utils.notifyUserOfEditingIssue(EagleFileType.Graph, "Insert Graph from JSON");
             return;
         }
 
@@ -1741,7 +1734,7 @@ export class Eagle {
         }
 
         try {
-            Repositories.selectFile(new RepositoryFile(new Repository(Repository.Service.Url, "", "", false), "", url));
+            Repositories.selectFile(new RepositoryFile(new Repository(RepositoryService.Url, "", "", false), "", url));
         } catch(error){
             console.error(error);
             return;
@@ -1750,16 +1743,16 @@ export class Eagle {
 
     displayObjectAsJson = (fileType: EagleFileType, object: LogicalGraph | Palette | GraphConfig) : void => {
         let jsonString: string;
-        const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
+        const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, SchemaVersion.Unknown);
         
         switch(fileType){
-            case Eagle.FileType.Graph:
+            case EagleFileType.Graph:
                 jsonString = LogicalGraph.toJsonString(object as LogicalGraph, false, version);
                 break;
-            case Eagle.FileType.Palette:
+            case EagleFileType.Palette:
                 jsonString = Palette.toJsonString(object as Palette, version);
                 break;
-            case Eagle.FileType.GraphConfig:
+            case EagleFileType.GraphConfig:
                 jsonString = GraphConfig.toJsonString(object as GraphConfig);
                 break;
             default:
@@ -1772,13 +1765,13 @@ export class Eagle {
 
     displayNodeAsJson = (node: Node) : void => {
         let jsonString: string;
-        const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
+        const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, SchemaVersion.Unknown);
 
         switch(version){
-            case Setting.SchemaVersion.OJS:
+            case SchemaVersion.OJS:
                 jsonString = JSON.stringify(Node.toOJSGraphJson(node), null, EagleConfig.JSON_INDENT);
                 break;
-            case Setting.SchemaVersion.V4:
+            case SchemaVersion.V4:
                 jsonString = JSON.stringify(Node.toV4GraphJson(node), null, EagleConfig.JSON_INDENT);
                 break;
             default:
@@ -1798,13 +1791,13 @@ export class Eagle {
 
         // check that palette editing is permitted
         if (!allowPaletteEditing){
-            Utils.notifyUserOfEditingIssue(Eagle.FileType.Palette, "New Palette");
+            Utils.notifyUserOfEditingIssue(EagleFileType.Palette, "New Palette");
             return;
         }
 
         let filename: string;
         try {
-            filename = await Utils.requestDiagramFilename(Eagle.FileType.Palette);
+            filename = await Utils.requestDiagramFilename(EagleFileType.Palette);
         } catch (error){
             console.warn(error);
             return;
@@ -1831,7 +1824,7 @@ export class Eagle {
 
         // check that palette editing is permitted
         if (!allowPaletteEditing){
-            Utils.notifyUserOfEditingIssue(Eagle.FileType.Palette, "New Palette from JSON");
+            Utils.notifyUserOfEditingIssue(EagleFileType.Palette, "New Palette from JSON");
             return;
         }
 
@@ -1855,15 +1848,15 @@ export class Eagle {
          this.closePalette(palette);
 
          switch (fileInfo.location.repositoryService()){
-             case Repository.Service.File:
+             case RepositoryService.File:
                 // load palette
                 this.getPaletteFileToLoad();
                 break;
-            case Repository.Service.GitLab:
-            case Repository.Service.GitHub:
+            case RepositoryService.GitLab:
+            case RepositoryService.GitHub:
                 Repositories.selectFile(new RepositoryFile(new Repository(fileInfo.location.repositoryService(), fileInfo.location.repositoryName(), fileInfo.location.repositoryBranch(), false), fileInfo.location.repositoryPath(), fileInfo.location.repositoryFileName()));
                 break;
-            case Repository.Service.Url:
+            case RepositoryService.Url:
                 const {palettes} = await this.loadPalettes([
                     {name:palette.fileInfo().name, filename:palette.fileInfo().location.downloadUrl(), readonly:palette.fileInfo().readonly, expanded: true}
                 ]);
@@ -1889,14 +1882,14 @@ export class Eagle {
 
         // check that editing graphs is permitted
         if (!allowGraphEditing){
-            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "New Config");
+            Utils.notifyUserOfEditingIssue(EagleFileType.Graph, "New Config");
             return;
         }
 
         const c: GraphConfig = new GraphConfig();
         c.fileInfo().name = 'newConfig';
-        c.fileInfo().type = Eagle.FileType.GraphConfig;
-        c.fileInfo().schemaVersion = Setting.SchemaVersion.V4;
+        c.fileInfo().type = EagleFileType.GraphConfig;
+        c.fileInfo().schemaVersion = SchemaVersion.V4;
         c.fileInfo().readonly = false;
 
         // adding a new graph config to the array
@@ -1919,18 +1912,18 @@ export class Eagle {
             const eagle: Eagle = Eagle.getInstance();
 
             switch (eagle.logicalGraph().fileInfo().location.repositoryService()){
-                case Repository.Service.File:
+                case RepositoryService.File:
                     try {
-                        await eagle.saveFileToLocal(Eagle.FileType.Graph);
+                        await eagle.saveFileToLocal(EagleFileType.Graph);
                     } catch (error) {
                         reject(error);
                         return;
                     }
                     break;
-                case Repository.Service.GitHub:
-                case Repository.Service.GitLab:
+                case RepositoryService.GitHub:
+                case RepositoryService.GitLab:
                     try {
-                        await this.commitToGit(Eagle.FileType.Graph);
+                        await this.commitToGit(EagleFileType.Graph);
                     } catch (error) {
                         reject(error);
                         return;
@@ -1952,7 +1945,7 @@ export class Eagle {
 
     saveGraphAs = async () : Promise<void> => {
         return new Promise(async(resolve, reject) => {
-            const isLocalFile = this.logicalGraph().fileInfo().location.repositoryService() === Repository.Service.File;
+            const isLocalFile = this.logicalGraph().fileInfo().location.repositoryService() === RepositoryService.File;
 
             const userChoice: string = await Utils.requestUserChoice("Save Graph As", "Please choose where to save the graph", ["Local File", "Remote Git Repository"], isLocalFile?0:1, false, "");
 
@@ -2000,7 +1993,7 @@ export class Eagle {
                     return;
                 }
 
-                const isLocalFile = this.logicalGraph().fileInfo().location.repositoryService() === Repository.Service.File;
+                const isLocalFile = this.logicalGraph().fileInfo().location.repositoryService() === RepositoryService.File;
 
                 const userChoice: string = await Utils.requestUserChoice("Save Graph Configuration As", "Please choose where to save the graph configuration", ["Local File", "Remote Git Repository"], isLocalFile?0:1, false, "");
 
@@ -2012,7 +2005,7 @@ export class Eagle {
 
                 if (userChoice === "Local File"){
                     try {
-                        this.saveAsFileToLocal(Eagle.FileType.GraphConfig, graphConfig);
+                        this.saveAsFileToLocal(EagleFileType.GraphConfig, graphConfig);
                         resolve();
                     } catch (error) {
                         Utils.showNotification("Save Failed", "Failed to save graph config locally: " + Errors.UnknownToError(error), "danger");
@@ -2021,7 +2014,7 @@ export class Eagle {
                     }
                 } else {
                     try {
-                        this.commitToGitAs(Eagle.FileType.GraphConfig, graphConfig);
+                        this.commitToGitAs(EagleFileType.GraphConfig, graphConfig);
                         resolve();
                     } catch(error) {
                         Utils.showNotification("Save Failed", "Failed to save graph config to remote repository: " + Errors.UnknownToError(error), "danger");
@@ -2053,7 +2046,7 @@ export class Eagle {
     saveFileToLocal = async (fileType : EagleFileType, graphConfig: GraphConfig | null = null) : Promise<void> => {
         return new Promise(async(resolve, reject) => {
             switch (fileType){
-                case Eagle.FileType.Graph:
+                case EagleFileType.Graph:
                     try {
                         await this.saveGraphToDisk(this.logicalGraph(), this.logicalGraph().fileInfo().name);
                     } catch(error) {
@@ -2061,7 +2054,7 @@ export class Eagle {
                         return;
                     }
                     break;
-                case Eagle.FileType.GraphConfig:
+                case EagleFileType.GraphConfig:
                     if (graphConfig === null){
                         Utils.showUserMessage("Error", "No graph config provided to save.");
                         reject(new Error("No graph config provided to save."));
@@ -2075,7 +2068,7 @@ export class Eagle {
                         return;
                     }
                     break;
-                case Eagle.FileType.Palette: {
+                case EagleFileType.Palette: {
                     // build a list of palette names
                     const paletteNames: string[] = this.buildReadablePaletteNamesList();
 
@@ -2109,7 +2102,7 @@ export class Eagle {
     saveAsFileToLocal = async (fileType: EagleFileType, graphConfig: GraphConfig | null = null): Promise<void> => {
         return new Promise(async(resolve, reject) => {
             switch (fileType){
-                case Eagle.FileType.Graph:
+                case EagleFileType.Graph:
                     try {
                         await this.saveAsFileToDisk(this.logicalGraph());
                     } catch (error){
@@ -2117,7 +2110,7 @@ export class Eagle {
                         return;
                     }
                     break;
-                case Eagle.FileType.GraphConfig:
+                case EagleFileType.GraphConfig:
                     if (graphConfig === null){
                         Utils.showUserMessage("Error", "No graph config provided to save.");
                         reject(new Error("No graph config provided to save."));
@@ -2131,7 +2124,7 @@ export class Eagle {
                         return;
                     }
                     break;
-                case Eagle.FileType.Palette: {
+                case EagleFileType.Palette: {
                     // build a list of palette names
                     const paletteNames: string[] = this.buildReadablePaletteNamesList();
 
@@ -2171,10 +2164,10 @@ export class Eagle {
             let url : string;
 
             switch (file.repository.service){
-                case Repository.Service.GitHub:
+                case RepositoryService.GitHub:
                     url = '/saveFileToRemoteGithub';
                     break;
-                case Repository.Service.GitLab:
+                case RepositoryService.GitLab:
                     url = '/saveFileToRemoteGitlab';
                     break;
                 default:
@@ -2201,13 +2194,13 @@ export class Eagle {
             }
 
             // show repo in the right window
-            this.changeRightWindowMode(Eagle.RightWindowMode.Repository);
+            this.changeRightWindowMode(EagleRightWindowMode.Repository);
 
             // Show success message
-            if (file.repository.service === Repository.Service.GitHub){
+            if (file.repository.service === RepositoryService.GitHub){
                 Utils.showNotification("Success", "The file has been saved to GitHub repository.", "success");
             }
-            if (file.repository.service === Repository.Service.GitLab){
+            if (file.repository.service === RepositoryService.GitLab){
                 Utils.showNotification("Success", "The file has been saved to GitLab repository.", "success");
             }
 
@@ -2232,10 +2225,10 @@ export class Eagle {
             let url : string;
 
             switch (repository.service){
-                case Repository.Service.GitHub:
+                case RepositoryService.GitHub:
                     url = '/saveFilesToRemoteGithub';
                     break;
-                case Repository.Service.GitLab:
+                case RepositoryService.GitLab:
                     url = '/saveFilesToRemoteGitlab';
                     break;
                 default:
@@ -2262,13 +2255,13 @@ export class Eagle {
             }
 
             // show repo in the right window
-            this.changeRightWindowMode(Eagle.RightWindowMode.Repository);
+            this.changeRightWindowMode(EagleRightWindowMode.Repository);
 
             // Show success message
-            if (repository.service === Repository.Service.GitHub){
+            if (repository.service === RepositoryService.GitHub){
                 Utils.showNotification("Success", "Saved file(s) to GitHub repository.", "success");
             }
-            if (repository.service === Repository.Service.GitLab){
+            if (repository.service === RepositoryService.GitLab){
                 Utils.showNotification("Success", "Saved file(s) to GitLab repository.", "success");
             }
 
@@ -2286,11 +2279,11 @@ export class Eagle {
 
             // determine which object of the given filetype we are committing
             switch (fileType){
-                case Eagle.FileType.Graph:
+                case EagleFileType.Graph:
                     fileInfo = this.logicalGraph().fileInfo;
                     obj = this.logicalGraph();
                     break;
-                case Eagle.FileType.GraphConfig:
+                case EagleFileType.GraphConfig:
                     if (graphConfig === null){
                         Utils.showUserMessage("Error", "No graph config provided to commit.");
                         reject("No graph config provided to commit.");
@@ -2300,7 +2293,7 @@ export class Eagle {
                     fileInfo = graphConfig.fileInfo;
                     obj = graphConfig;
                     break;
-                case Eagle.FileType.Palette: {
+                case EagleFileType.Palette: {
                     const paletteNames: string[] = this.buildReadablePaletteNamesList();
                     const paletteName = await Utils.userChoosePalette(paletteNames);
                     const palette = this.findPalette(paletteName, false);
@@ -2325,22 +2318,22 @@ export class Eagle {
             if (this.logicalGraph()){
                 // if the repository service is unknown (or file), probably because the graph hasn't been saved before, then
                 // just use any existing repo
-                if (fileInfo().location.repositoryService() === Repository.Service.Unknown || fileInfo().location.repositoryService() === Repository.Service.File){
-                    const gitHubRepoList : Repository[] = Repositories.getList(Repository.Service.GitHub);
-                    const gitLabRepoList : Repository[] = Repositories.getList(Repository.Service.GitLab);
+                if (fileInfo().location.repositoryService() === RepositoryService.Unknown || fileInfo().location.repositoryService() === RepositoryService.File){
+                    const gitHubRepoList : Repository[] = Repositories.getList(RepositoryService.GitHub);
+                    const gitLabRepoList : Repository[] = Repositories.getList(RepositoryService.GitLab);
 
                     // use first gitlab repo as second preference
                     if (gitLabRepoList.length > 0){
-                        defaultRepository = new Repository(Repository.Service.GitLab, gitLabRepoList[0].name, gitLabRepoList[0].branch, false);
+                        defaultRepository = new Repository(RepositoryService.GitLab, gitLabRepoList[0].name, gitLabRepoList[0].branch, false);
                     }
 
                     // overwrite with first github repo as first preference
                     if (gitHubRepoList.length > 0){
-                        defaultRepository = new Repository(Repository.Service.GitHub, gitHubRepoList[0].name, gitHubRepoList[0].branch, false);
+                        defaultRepository = new Repository(RepositoryService.GitHub, gitHubRepoList[0].name, gitHubRepoList[0].branch, false);
                     }
 
                     if (gitHubRepoList.length === 0 && gitLabRepoList.length === 0){
-                        defaultRepository = new Repository(Repository.Service.GitHub, "", "", false);
+                        defaultRepository = new Repository(RepositoryService.GitHub, "", "", false);
                     }
                 } else {
                     defaultRepository = new Repository(fileInfo().location.repositoryService(), fileInfo().location.repositoryName(), fileInfo().location.repositoryBranch(), false);
@@ -2349,7 +2342,7 @@ export class Eagle {
 
             // determine a default filename
             let defaultFilename: string = fileInfo().location.repositoryFileName();
-            if (fileType === Eagle.FileType.GraphConfig){
+            if (fileType === EagleFileType.GraphConfig){
                 // abort if graphConfig is null
                 if (graphConfig === null){
                     reject("No graph config provided to commit.");
@@ -2394,11 +2387,11 @@ export class Eagle {
 
             // determine which object of the given filetype we are committing
             switch (fileType){
-                case Eagle.FileType.Graph:
+                case EagleFileType.Graph:
                     fileInfo = this.logicalGraph().fileInfo;
                     obj = this.logicalGraph();
                     break;
-                case Eagle.FileType.Palette: {
+                case EagleFileType.Palette: {
                     // build a list of palettes, as user to choose the one to save, abort if no palette is chosen
                     const paletteNames: string[] = this.buildReadablePaletteNamesList();
                     const paletteName = await Utils.userChoosePalette(paletteNames);
@@ -2433,7 +2426,7 @@ export class Eagle {
 
             // if there is no git repository or filename defined for this file. Please use 'save as' instead!
             if (
-                [Repository.Service.Unknown, Repository.Service.File, Repository.Service.Url].includes(fileInfo().location.repositoryService()) || fileInfo().location.repositoryName() === null
+                [RepositoryService.Unknown, RepositoryService.File, RepositoryService.Url].includes(fileInfo().location.repositoryService()) || fileInfo().location.repositoryName() === null
             ) {
                 await this.commitToGitAs(fileType);
                 return;
@@ -2441,9 +2434,9 @@ export class Eagle {
 
             // check that filetype is appropriate for a file with this extension
             if (fileInfo().name === "") {
-                if (fileType == Eagle.FileType.Graph) {
+                if (fileType == EagleFileType.Graph) {
                     Utils.showUserMessage('Error', 'Graph is not chosen! Open existing or create a new graph.');
-                } else if (fileType == Eagle.FileType.Palette) {
+                } else if (fileType == EagleFileType.Palette) {
                     Utils.showUserMessage('Error', 'Palette is not chosen! Open existing or create a new palette.');
                 }
                 return;
@@ -2511,10 +2504,10 @@ export class Eagle {
             console.log("saveDiagramToGit() repositoryName", file.repository.name, "fileType", file.type, "filePath", file.path, "fileName", file.name, "commitMessage", commitMessage);
 
             // get version (hoisted for OJS format check)
-            const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
+            const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, SchemaVersion.Unknown);
 
             // warn if saving in older OJS format (not applicable to GraphConfig which has no version-dependent serialization)
-            if (file.type !== Eagle.FileType.GraphConfig) {
+            if (file.type !== EagleFileType.GraphConfig) {
                 if (!await Eagle.confirmOjsSave(version)) { resolve(); return; }
             }
 
@@ -2523,13 +2516,13 @@ export class Eagle {
 
             let jsonString: string = "";
             switch (file.type){
-                case Eagle.FileType.Graph:
+                case EagleFileType.Graph:
                     jsonString = LogicalGraph.toJsonString(<LogicalGraph>clone, false, version);
                     break;
-                case Eagle.FileType.GraphConfig:
+                case EagleFileType.GraphConfig:
                     jsonString = GraphConfig.toJsonString(<GraphConfig>clone);
                     break;
-                case Eagle.FileType.Palette:
+                case EagleFileType.Palette:
                     jsonString = Palette.toJsonString(<Palette>clone, version);
                     break;
             }
@@ -2602,7 +2595,7 @@ export class Eagle {
             this.loadingErrors(errorsWarnings.errors);
             this.loadingWarnings(errorsWarnings.warnings);
 
-            this.errorsMode(Errors.Mode.Loading);
+            this.errorsMode(Mode.Loading);
             Utils.showErrorsModal("Loading File");
         }
     }
@@ -2662,14 +2655,14 @@ export class Eagle {
                         // attempt to determine schema version from FileInfo
                         const schemaVersion: SchemaVersion = Utils.determineSchemaVersion(paletteData);
                         let palette: Palette;
-                        const file = new RepositoryFile(new Repository(Repository.Service.Url, "", "", false), "", paletteList[i].name);
-                        file.type = Eagle.FileType.Palette;
+                        const file = new RepositoryFile(new Repository(RepositoryService.Url, "", "", false), "", paletteList[i].name);
+                        file.type = EagleFileType.Palette;
                         switch (schemaVersion){
-                            case Setting.SchemaVersion.OJS:
-                            case Setting.SchemaVersion.Unknown:
+                            case SchemaVersion.OJS:
+                            case SchemaVersion.Unknown:
                                 palette = Palette.fromOJSJson(paletteData, file, errorsWarnings);
                                 break;
-                            case Setting.SchemaVersion.V4:
+                            case SchemaVersion.V4:
                                 palette = Palette.fromV4Json(paletteData, file, errorsWarnings);
                                 break;
                         }
@@ -2687,7 +2680,7 @@ export class Eagle {
                 }
 
                 // palette fetched successfully
-                const repositoryFile = new RepositoryFile(new Repository(Repository.Service.Url, "", "", false), "", paletteList[i].name);
+                const repositoryFile = new RepositoryFile(new Repository(RepositoryService.Url, "", "", false), "", paletteList[i].name);
                 const palette: Palette = Palette.fromOJSJson(data, repositoryFile, errorsWarnings);
                 Utils.preparePalette(palette, paletteList[index]);
 
@@ -2714,7 +2707,7 @@ export class Eagle {
 
         // if this is a palette, create the destination palette and add to list of palettes so that it shows in the UI
         let destinationPalette: Palette | null = null;
-        if (file.type === Eagle.FileType.Palette){
+        if (file.type === EagleFileType.Palette){
             destinationPalette = new Palette();
             destinationPalette.isFetching(true);
             destinationPalette.fileInfo().name = file.name;
@@ -2725,13 +2718,13 @@ export class Eagle {
         // check the service required to fetch the file
         let openRemoteFileFunc: (repositoryService: RepositoryService, repositoryName: string, repositoryBranch: string, filePath: string, fileName: string) => Promise<string>;
         switch (file.repository.service){
-            case Repository.Service.GitHub:
+            case RepositoryService.GitHub:
                 openRemoteFileFunc = GitHub.openRemoteFile;
                 break;
-            case Repository.Service.GitLab:
+            case RepositoryService.GitLab:
                 openRemoteFileFunc = GitLab.openRemoteFile;
                 break;
-            case Repository.Service.Url:
+            case RepositoryService.Url:
                 openRemoteFileFunc = Utils.openRemoteFileFromUrl;
                 break;
             default:
@@ -2754,7 +2747,7 @@ export class Eagle {
         
         // determine file extension
         const fileExtension = Utils.getFileExtension(file.name);
-        let fileTypeLoaded: EagleFileType = Eagle.FileType.Unknown;
+        let fileTypeLoaded: EagleFileType = EagleFileType.Unknown;
         let dataObject: any = null;
 
         if (fileExtension !== "md"){
@@ -2769,11 +2762,11 @@ export class Eagle {
 
             fileTypeLoaded = Utils.determineFileType(dataObject);
         } else {
-            fileTypeLoaded = Eagle.FileType.Markdown;
+            fileTypeLoaded = EagleFileType.Markdown;
         }        
 
         switch (fileTypeLoaded){
-            case Eagle.FileType.Graph: {
+            case EagleFileType.Graph: {
                 // attempt to determine schema version from FileInfo
                 const eagleVersion: string = Utils.determineEagleVersion(dataObject);
 
@@ -2793,7 +2786,7 @@ export class Eagle {
                 }
                 break;
             }
-            case Eagle.FileType.Palette:
+            case EagleFileType.Palette:
                 // abort if destination palette is null
                 if (destinationPalette === null){
                     Utils.showUserMessage("Error", "Destination palette is null when loading remote palette.");
@@ -2802,11 +2795,11 @@ export class Eagle {
                 this._remotePaletteLoaded(file, data, destinationPalette);
                 break;
 
-            case Eagle.FileType.GraphConfig:
+            case EagleFileType.GraphConfig:
                 this._loadGraphConfig(dataObject, file);
                 break;
 
-            case Eagle.FileType.Markdown:
+            case EagleFileType.Markdown:
                 Utils.showUserMessage(file.name, Utils.markdown2html(data), true);
                 break;
 
@@ -2865,7 +2858,7 @@ export class Eagle {
         if (!someGraphAlreadyLoaded || !configMatch){
             const repository = new Repository(graphConfig.fileInfo().graphLocation.repositoryService(), graphConfig.fileInfo().graphLocation.repositoryName(), graphConfig.fileInfo().graphLocation.repositoryBranch(), false);
             const repositoryFile = new RepositoryFile(repository, graphConfig.fileInfo().graphLocation.repositoryPath(), graphConfig.fileInfo().graphLocation.repositoryFileName());
-            repositoryFile.type = Eagle.FileType.GraphConfig;
+            repositoryFile.type = EagleFileType.GraphConfig;
 
             // load graph first
             await this.openRemoteFile(repositoryFile);
@@ -2914,10 +2907,10 @@ export class Eagle {
         // check the service required to fetch the file
         let insertRemoteFileFunc: (repositoryService: RepositoryService, repositoryName: string, repositoryBranch: string, filePath: string, fileName: string) => Promise<string>;
         switch (file.repository.service){
-            case Repository.Service.GitHub:
+            case RepositoryService.GitHub:
                 insertRemoteFileFunc = GitHub.openRemoteFile;
                 break;
-            case Repository.Service.GitLab:
+            case RepositoryService.GitLab:
                 insertRemoteFileFunc = GitLab.openRemoteFile;
                 break;
             default:
@@ -2951,7 +2944,7 @@ export class Eagle {
         const fileTypeLoaded: EagleFileType = Utils.determineFileType(dataObject);
 
         // only do this for graphs at the moment
-        if (fileTypeLoaded !== Eagle.FileType.Graph){
+        if (fileTypeLoaded !== EagleFileType.Graph){
             Utils.showUserMessage("Error", "Unable to insert non-graph!");
             console.error("Unable to insert non-graph!");
             return;
@@ -2970,11 +2963,11 @@ export class Eagle {
         // use the correct parsing function based on schema version
         let lg: LogicalGraph;
         switch (schemaVersion){
-            case Setting.SchemaVersion.OJS:
-            case Setting.SchemaVersion.Unknown:
+            case SchemaVersion.OJS:
+            case SchemaVersion.Unknown:
                 lg = LogicalGraph.fromOJSJson(dataObject, file.name, errorsWarnings);
                 break;
-            case Setting.SchemaVersion.V4:
+            case SchemaVersion.V4:
                 lg = LogicalGraph.fromV4Json(dataObject, file.name, errorsWarnings);
                 break;
             default:
@@ -3013,10 +3006,10 @@ export class Eagle {
         let deleteRemoteFileFunc;
 
         switch (file.repository.service){
-            case Repository.Service.GitHub:
+            case RepositoryService.GitHub:
                 deleteRemoteFileFunc = GitHub.deleteRemoteFile;
                 break;
-            case Repository.Service.GitLab:
+            case RepositoryService.GitLab:
                 deleteRemoteFileFunc = GitLab.deleteRemoteFile;
                 break;
             default:
@@ -3057,11 +3050,11 @@ export class Eagle {
         const errorsWarnings: ErrorsWarnings = {"errors":[], "warnings":[]};
         let newPalette: Palette;
         switch (schemaVersion){
-            case Setting.SchemaVersion.OJS:
-            case Setting.SchemaVersion.Unknown:
+            case SchemaVersion.OJS:
+            case SchemaVersion.Unknown:
                 newPalette = Palette.fromOJSJson(data, file, errorsWarnings);
                 break;
-            case Setting.SchemaVersion.V4:
+            case SchemaVersion.V4:
                 newPalette = Palette.fromV4Json(data, file, errorsWarnings);
                 break;
             default:
@@ -3069,8 +3062,8 @@ export class Eagle {
                 return;
         }
 
-        if (file.repository.service === Repository.Service.Url){
-            newPalette.fileInfo().location.repositoryService(Repository.Service.Url);
+        if (file.repository.service === RepositoryService.Url){
+            newPalette.fileInfo().location.repositoryService(RepositoryService.Url);
             newPalette.fileInfo().location.downloadUrl(file.name);
             newPalette.fileInfo.valueHasMutated();
         }
@@ -3124,7 +3117,7 @@ export class Eagle {
     selectAllInPalette = (palette: Palette): void => {
         this.selectedObjects([]);
         for (const node of palette.getNodes()){
-            this.editSelection(node, Eagle.FileType.Palette);
+            this.editSelection(node, EagleFileType.Palette);
         }
 
         Utils.showNotification("Select All", "All components in '" + palette.fileInfo().name + "' palette selected", "info", false);
@@ -3168,7 +3161,7 @@ export class Eagle {
             }
 
             // get version (hoisted for OJS format check)
-            const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
+            const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, SchemaVersion.Unknown);
 
             // warn if saving in older OJS format
             if (!await Eagle.confirmOjsSave(version)) { resolve(); return; }
@@ -3182,7 +3175,7 @@ export class Eagle {
             const jsonString: string = Palette.toJsonString(p_clone, version);
 
             // validate json
-            Utils.validateJSON(jsonString, Eagle.FileType.Palette, version);
+            Utils.validateJSON(jsonString, EagleFileType.Palette, version);
 
             let data: any;
             try {
@@ -3199,7 +3192,7 @@ export class Eagle {
             // since changes are now stored locally, the file will have become out of sync with the GitHub repository, so the association should be broken
             // clear the modified flag
             palette.fileInfo().modified = false;
-            palette.fileInfo().location.repositoryService(Repository.Service.File);
+            palette.fileInfo().location.repositoryService(RepositoryService.File);
             palette.fileInfo().location.repositoryName("");
             palette.fileInfo().repositoryUrl = "";
             palette.fileInfo().location.commitHash("");
@@ -3218,7 +3211,7 @@ export class Eagle {
             console.log("saveGraphToDisk()", fileName);
 
             // check that the fileType has been set for the logicalGraph
-            if (graph.fileInfo().type !== Eagle.FileType.Graph){
+            if (graph.fileInfo().type !== EagleFileType.Graph){
                 Utils.showUserMessage("Error", "Graph fileType not set correctly. Could not save file.");
                 return;
             }
@@ -3230,7 +3223,7 @@ export class Eagle {
             }
 
             // get version (hoisted for OJS format check)
-            const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
+            const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, SchemaVersion.Unknown);
 
             // warn if saving in older OJS format
             if (!await Eagle.confirmOjsSave(version)) { resolve(); return; }
@@ -3244,7 +3237,7 @@ export class Eagle {
             const jsonString: string = LogicalGraph.toJsonString(lg_clone, false, version);
 
             // validate json
-            Utils.validateJSON(jsonString, Eagle.FileType.Graph, version);
+            Utils.validateJSON(jsonString, EagleFileType.Graph, version);
 
             let data: any;
             try {
@@ -3264,7 +3257,7 @@ export class Eagle {
             // since changes are now stored locally, the file will have become out of sync with the GitHub repository, so the association should be broken
             // clear the modified flag
             graph.fileInfo().modified = false;
-            graph.fileInfo().location.repositoryService(Repository.Service.File);
+            graph.fileInfo().location.repositoryService(RepositoryService.File);
             graph.fileInfo().location.repositoryName("");
             graph.fileInfo().repositoryUrl = "";
             graph.fileInfo().location.commitHash("");
@@ -3280,13 +3273,13 @@ export class Eagle {
             console.log("saveGraphConfigToDisk()", fileName);
 
             // get version
-            const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
+            const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, SchemaVersion.Unknown);
 
             // convert to json
             const jsonString: string = GraphConfig.toJsonString(graphConfig);
 
             // validate json
-            Utils.validateJSON(jsonString, Eagle.FileType.GraphConfig, version);
+            Utils.validateJSON(jsonString, EagleFileType.GraphConfig, version);
 
             try {
                 await Utils.downloadFile(jsonString, fileName);
@@ -3305,7 +3298,7 @@ export class Eagle {
         let defaultFilename = file.fileInfo().name;
 
         // if the file is a GraphConfig, then prepend the parent graph name to the default filename
-        if (file.fileInfo().type === Eagle.FileType.GraphConfig){
+        if (file.fileInfo().type === EagleFileType.GraphConfig){
             defaultFilename = Utils.generateFilenameForGraphConfig(this.logicalGraph(), file as GraphConfig);
         }
 
@@ -3329,13 +3322,13 @@ export class Eagle {
         }
 
         switch(file.fileInfo().type){
-            case Eagle.FileType.Graph:
+            case EagleFileType.Graph:
                 this.saveGraphToDisk(file as LogicalGraph, userString);
                 break;
-            case Eagle.FileType.GraphConfig:
+            case EagleFileType.GraphConfig:
                 this.saveGraphConfigToDisk(file as GraphConfig, userString);
                 break;
-            case Eagle.FileType.Palette:
+            case EagleFileType.Palette:
                 this.savePaletteToDisk(file as Palette, userString);
                 break;
             default:
@@ -3348,7 +3341,7 @@ export class Eagle {
         console.log("savePaletteToGit()", palette.fileInfo().name, palette.fileInfo().type);
 
         // get version (hoisted for OJS format check)
-        const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
+        const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, SchemaVersion.Unknown);
 
         // warn if saving in older OJS format
         if (!await Eagle.confirmOjsSave(version)) return;
@@ -3357,7 +3350,7 @@ export class Eagle {
 
         let commit: RepositoryCommit;
         try {
-            commit = await Utils.requestUserGitCommit(defaultRepository, Repositories.getList(Repository.Service.GitHub),  palette.fileInfo().location.repositoryPath(), palette.fileInfo().name, Eagle.FileType.Palette);
+            commit = await Utils.requestUserGitCommit(defaultRepository, Repositories.getList(RepositoryService.GitHub),  palette.fileInfo().location.repositoryPath(), palette.fileInfo().name, EagleFileType.Palette);
         } catch (error) {
             console.error(error);
             return;
@@ -3398,7 +3391,7 @@ export class Eagle {
         try {
             // TODO: a bit of a kludge here to have to create a new RepositoryFile object just to pass to _commit()
             const file: RepositoryFile = new RepositoryFile(repository, commit.location.repositoryPath(), commit.location.repositoryFileName());
-            file.type = Eagle.FileType.Palette;
+            file.type = EagleFileType.Palette;
             await this.saveFileToRemote(file, palette.fileInfo, commitJsonString);
         } catch (error){
             console.log(error);
@@ -3410,7 +3403,7 @@ export class Eagle {
         const lg: LogicalGraph = Eagle.getInstance().logicalGraph();
 
         // get schema version
-        const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
+        const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, SchemaVersion.Unknown);
 
         // get json for logical graph
         const jsonString: string = LogicalGraph.toJsonString(lg, true, version);
@@ -3426,7 +3419,7 @@ export class Eagle {
         }
 
         // validate object
-        const validatorResult : {valid: boolean, errors: string} = Utils._validateJSON(jsonObject, version, Eagle.FileType.Graph);
+        const validatorResult : {valid: boolean, errors: string} = Utils._validateJSON(jsonObject, version, EagleFileType.Graph);
         if (validatorResult.valid){
             Utils.showNotification("Success",  "JSON Output valid against internal JSON schema (" + version + ")", "success");
         } else {
@@ -3447,7 +3440,7 @@ export class Eagle {
 
         //prepare the graph for a screenshot
         eagle.centerGraph()
-        eagle.setSelection(null,Eagle.FileType.Graph)
+        eagle.setSelection(null,EagleFileType.Graph)
 
         // get reference to the body element
         const bodyElement = document.querySelector('body');
@@ -3647,11 +3640,11 @@ export class Eagle {
         }
 
         switch(location){
-            case Eagle.FileType.Graph:
+            case EagleFileType.Graph:
                 {
                     // check that graph editing is allowed
                     if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
-                        Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Duplicate Selection");
+                        Utils.notifyUserOfEditingIssue(EagleFileType.Graph, "Duplicate Selection");
                         return;
                     }
 
@@ -3695,7 +3688,7 @@ export class Eagle {
                     this.logicalGraph.valueHasMutated();
                 }
                 break;
-            case Eagle.FileType.Palette:
+            case EagleFileType.Palette:
                 {
                     // check that palette editing is allowed
                     if (!Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false)){
@@ -3841,7 +3834,7 @@ export class Eagle {
 
         // check that graph editing is allowed
         if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
-            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Paste from Clipboard");
+            Utils.notifyUserOfEditingIssue(EagleFileType.Graph, "Paste from Clipboard");
             return;
         }
 
@@ -3933,7 +3926,7 @@ export class Eagle {
 
         // set selection
         this.selectedObjects(newSelection);
-        Eagle.selectedLocation(Eagle.FileType.Graph);
+        Eagle.selectedLocation(EagleFileType.Graph);
     }
 
     selectNoneInGraph = () : void => {
@@ -3961,7 +3954,7 @@ export class Eagle {
 
         // Adding file extension to the title if it does not have it.
         if (!Utils.verifyFileExtension(userString)) {
-            userString = userString + "." + Utils.getDiagramExtension(Eagle.FileType.Palette);
+            userString = userString + "." + Utils.getDiagramExtension(EagleFileType.Palette);
         }
 
         // get reference to palette (based on userString)
@@ -4037,7 +4030,7 @@ export class Eagle {
 
     deleteSelection = async (rightClick: boolean, suppressUserConfirmationRequest: boolean, deleteChildren: boolean): Promise<void> => {
         let data: (Node | Edge | Visual)[] = [];
-        let location: EagleFileType = Eagle.FileType.Unknown;
+        let location: EagleFileType = EagleFileType.Unknown;
 
         GraphRenderer.clearPortPeek()
 
@@ -4056,7 +4049,7 @@ export class Eagle {
 
         // check that graph editing is allowed
         if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
-            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Delete Selection");
+            Utils.notifyUserOfEditingIssue(EagleFileType.Graph, "Delete Selection");
             return;
         }
 
@@ -4177,7 +4170,7 @@ export class Eagle {
 
     private _deleteSelection = (deleteChildren: boolean, data: (Node | Edge | Visual)[], location: EagleFileType) : void => {
         switch(location){
-            case Eagle.FileType.Graph:
+            case EagleFileType.Graph:
                 // if not deleting children, move them to different parents first
                 if (!deleteChildren){
                     this._moveChildrenOfSelection();
@@ -4222,7 +4215,7 @@ export class Eagle {
                 this.undo().pushSnapshot(this, "Delete Selection");
                 break;
 
-            case Eagle.FileType.Palette:
+            case EagleFileType.Palette:
 
                 for (const object of data){
                     if (object instanceof Node){
@@ -4260,7 +4253,7 @@ export class Eagle {
     }
 
     addNodeToLogicalGraphAndConnect = async (newNodeId: NodeId) => {
-        const nodes: Node[] = await this.addNodeToLogicalGraph(undefined, newNodeId, Eagle.AddNodeMode.ContextMenu);
+        const nodes: Node[] = await this.addNodeToLogicalGraph(undefined, newNodeId, EagleAddNodeMode.ContextMenu);
 
         const realSourceNode: Node | null = RightClick.edgeDropSrcNode;
         const realSourcePort: Field | null = RightClick.edgeDropSrcPort;
@@ -4315,7 +4308,7 @@ export class Eagle {
                 return;
             }
 
-            if(mode === Eagle.AddNodeMode.ContextMenu){
+            if(mode === EagleAddNodeMode.ContextMenu){
                 // when addNodeToLogicalGraph is called from the ContextMenu, we expect node to be null. The node is specified by the nodeId instead
                 console.assert(node === null);
 
@@ -4458,7 +4451,7 @@ export class Eagle {
             }
 
             // select the new node
-            this.setSelection(newNode, Eagle.FileType.Graph);
+            this.setSelection(newNode, EagleFileType.Graph);
 
             this.checkEagle();
             this.undo().pushSnapshot(this, "Add node " + newNode.getName());
@@ -4478,7 +4471,7 @@ export class Eagle {
     addGraphNodesToPalette = async () => {
         // check that palette editing is permitted
         if (!Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false)){
-            Utils.notifyUserOfEditingIssue(Eagle.FileType.Palette, "Add Graph Nodes to Palette");
+            Utils.notifyUserOfEditingIssue(EagleFileType.Palette, "Add Graph Nodes to Palette");
             return;
         }
 
@@ -4508,7 +4501,7 @@ export class Eagle {
 
         // Adding file extension to the title if it does not have it.
         if (!Utils.verifyFileExtension(userString)) {
-            userString = userString + "." + Utils.getDiagramExtension(Eagle.FileType.Palette);
+            userString = userString + "." + Utils.getDiagramExtension(EagleFileType.Palette);
         }
 
         // get reference to palette (based on userString)
@@ -4611,7 +4604,7 @@ export class Eagle {
             // create a new visual of the requested type
             const newVisual = new Visual(type, '');
 
-            if(mode === Eagle.AddNodeMode.ContextMenu){
+            if(mode === EagleAddNodeMode.ContextMenu){
                 // use the position where the right click occurred
                 pos = Eagle.selectedRightClickPosition;
 
@@ -4635,7 +4628,7 @@ export class Eagle {
             const addedVisual = await this.addVisual(newVisual);
 
             // select the new visual in the graph so it is easy to spot
-            this.setSelection(addedVisual, Eagle.FileType.Graph)
+            this.setSelection(addedVisual, EagleFileType.Graph)
             this.logicalGraph.valueHasMutated();
 
             resolve(addedVisual);
@@ -4716,7 +4709,7 @@ export class Eagle {
     }
 
     graphEditComment = (object:Node | Edge): void => {
-        this.setSelection(object, Eagle.FileType.Graph)
+        this.setSelection(object, EagleFileType.Graph)
         
         setTimeout(() => {
             if (object instanceof Node){
@@ -4738,7 +4731,7 @@ export class Eagle {
 
         // check that graph editing is allowed
         if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
-            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Change Node Parent")
+            Utils.notifyUserOfEditingIssue(EagleFileType.Graph, "Change Node Parent")
             return;
         }
 
@@ -4825,7 +4818,7 @@ export class Eagle {
         }
 
         // if some node in the graph is selected, ignore it and used the node that was dragged from the palette
-        if (Eagle.selectedLocation() === Eagle.FileType.Graph || Eagle.selectedLocation() === Eagle.FileType.Unknown){
+        if (Eagle.selectedLocation() === EagleFileType.Graph || Eagle.selectedLocation() === EagleFileType.Unknown){
             const component = this.palettes()[Eagle.nodeDragPaletteIndex].getNodeById(Eagle.nodeDragComponentId);
             if (typeof component === 'undefined'){
                 console.error("Unable to find dragged component in palette");
@@ -4835,7 +4828,7 @@ export class Eagle {
         }
 
         // if a node or nodes in the palette are selected, then assume those are being moved to the destination
-        if (Eagle.selectedLocation() === Eagle.FileType.Palette){
+        if (Eagle.selectedLocation() === EagleFileType.Palette){
             for (const object of this.selectedObjects()){
                 if (object instanceof Node){
                     sourceComponents.push(object);
@@ -4845,7 +4838,7 @@ export class Eagle {
 
         // add each of the nodes we are moving
         for (const sourceComponent of sourceComponents){
-            this.addNodeToLogicalGraph(sourceComponent, null, Eagle.AddNodeMode.Default);
+            this.addNodeToLogicalGraph(sourceComponent, null, EagleAddNodeMode.Default);
 
             // to avoid placing all the selected nodes on top of each other at the same spot, we increment the nodeDropLocation after each node
             Eagle.nodeDropLocation.x += EagleConfig.DUPLICATE_OFFSET;
@@ -4865,7 +4858,7 @@ export class Eagle {
         }
 
         // if some node in the graph is selected, ignore it and used the node that was dragged from the palette
-        if (Eagle.selectedLocation() === Eagle.FileType.Graph || Eagle.selectedLocation() === Eagle.FileType.Unknown){
+        if (Eagle.selectedLocation() === EagleFileType.Graph || Eagle.selectedLocation() === EagleFileType.Unknown){
             const component = this.palettes()[Eagle.nodeDragPaletteIndex].getNodeById(Eagle.nodeDragComponentId);
 
             if (typeof component === 'undefined'){
@@ -4877,7 +4870,7 @@ export class Eagle {
         }
 
         // if a node or nodes in the palette are selected, then assume those are being moved to the destination
-        if (Eagle.selectedLocation() === Eagle.FileType.Palette){
+        if (Eagle.selectedLocation() === EagleFileType.Palette){
             for (const object of this.selectedObjects()){
                 if (object instanceof Node){
                     sourceComponents.push(object);
@@ -4921,9 +4914,9 @@ export class Eagle {
         const e: PointerEvent = event.originalEvent as PointerEvent;
         
         if (e && e.shiftKey){
-            this.editSelection(node, Eagle.FileType.Palette);
+            this.editSelection(node, EagleFileType.Palette);
         }else{
-            this.setSelection(node, Eagle.FileType.Palette);
+            this.setSelection(node, EagleFileType.Palette);
         }
     }
 
@@ -4933,7 +4926,7 @@ export class Eagle {
             Utils.showNotification("No node selected", "Please select a node before trying to select its input application", "warning");
             return;
         }
-        this.setSelection(selectedNode.getInputApplication(), Eagle.FileType.Graph);
+        this.setSelection(selectedNode.getInputApplication(), EagleFileType.Graph);
     }
 
     selectOutputApplicationNode = () : void => {
@@ -4942,7 +4935,7 @@ export class Eagle {
             Utils.showNotification("No node selected", "Please select a node before trying to select its output application", "warning");
             return;
         }
-        this.setSelection(selectedNode.getOutputApplication(), Eagle.FileType.Graph);
+        this.setSelection(selectedNode.getOutputApplication(), EagleFileType.Graph);
     }
 
     editField = async (field: Field): Promise<void> => {
@@ -5067,7 +5060,7 @@ export class Eagle {
 
         // if we don't know where this file came from then we can't build a URL
         // for example, if the graph was loaded from local disk, then we can't build a URL for others to reach it
-        if (fileInfo.location.repositoryService() === Repository.Service.Unknown || fileInfo.location.repositoryService() === Repository.Service.File){
+        if (fileInfo.location.repositoryService() === RepositoryService.Unknown || fileInfo.location.repositoryService() === RepositoryService.File){
             Utils.showNotification("Graph URL", "Source of graph is a local file or unknown, unable to create URL for graph.", "danger");
             return;
         }
@@ -5098,10 +5091,10 @@ export class Eagle {
         if (this.graphWarnings().length > 0 || this.graphErrors().length > 0){
 
             // switch to graph errors mode
-            this.errorsMode(Errors.Mode.Graph);
+            this.errorsMode(Mode.Graph);
 
             //switch bottom window mode
-            Setting.setValue(Setting.BOTTOM_WINDOW_MODE, Eagle.BottomWindowMode.EagleErrors);
+            Setting.setValue(Setting.BOTTOM_WINDOW_MODE, EagleBottomWindowMode.EagleErrors);
 
             //show bottom window
             SideWindow.setShown('bottom',true)
@@ -5173,7 +5166,7 @@ export class Eagle {
                 }
 
                 setTimeout(() => {
-                    this.setSelection(edge,Eagle.FileType.Graph)
+                    this.setSelection(edge,EagleFileType.Graph)
                 }, EagleConfig.STANDARD_UI_TINY_TIMEOUT);
                 resolve(edge);
                 return;
@@ -5465,7 +5458,7 @@ export class Eagle {
 
         // check if graph editing is allowed
         if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
-            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Check for Component Updates");
+            Utils.notifyUserOfEditingIssue(EagleFileType.Graph, "Check for Component Updates");
             return;
         }
 
@@ -5499,7 +5492,7 @@ export class Eagle {
     updateSelection = (): void => {
         // check if graph editing is allowed
         if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
-            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Update Selection");
+            Utils.notifyUserOfEditingIssue(EagleFileType.Graph, "Update Selection");
             return;
         }
 
@@ -5551,7 +5544,7 @@ export class Eagle {
     fixSelection = (): void => {
         // check if graph editing is allowed
         if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
-            Utils.notifyUserOfEditingIssue(Eagle.FileType.Graph, "Fix Selection");
+            Utils.notifyUserOfEditingIssue(EagleFileType.Graph, "Fix Selection");
             return;
         }
 
@@ -5822,9 +5815,9 @@ $( document ).ready(function() {
             return
         }
         if(!e.shiftKey){
-            eagle.setSelection(selectEdge, Eagle.FileType.Graph);
+            eagle.setSelection(selectEdge, EagleFileType.Graph);
         }else{
-            eagle.editSelection(selectEdge, Eagle.FileType.Graph);
+            eagle.editSelection(selectEdge, EagleFileType.Graph);
         }
     })
 

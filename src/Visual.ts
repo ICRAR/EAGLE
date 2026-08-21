@@ -52,19 +52,17 @@ export class Visual {
     private color : ko.Observable<string>; //used for the background of group visuals
     private issues : ko.ObservableArray<{issue: Issue, validity: Validity}> //keeps track of visual errors
 
-    static readonly Type = VisualType;
-
     constructor(type: VisualType, content: string) {
         this.id = ko.observable(Id.generateVisualId());
         this.x = ko.observable(0);
         this.y = ko.observable(0);
 
         switch(type){
-            case Visual.Type.Text:
+            case VisualType.Text:
                 this.width = ko.observable(EagleConfig.TEXT_VISUAL_DEFAULT_WIDTH);
                 this.height = ko.observable(EagleConfig.TEXT_VISUAL_DEFAULT_HEIGHT);
                 break;
-            case Visual.Type.Group:
+            case VisualType.Group:
                 this.width = ko.observable(EagleConfig.GROUP_VISUAL_DEFAULT_WIDTH);
                 this.height = ko.observable(EagleConfig.GROUP_VISUAL_DEFAULT_HEIGHT);
                 break;
@@ -180,11 +178,11 @@ export class Visual {
     }
 
     isText = () : boolean => {
-        return this.type() === Visual.Type.Text;
+        return this.type() === VisualType.Text;
     }
 
     isGroup = () : boolean => {
-        return this.type() === Visual.Type.Group;
+        return this.type() === VisualType.Group;
     }
 
     clone = () : Visual => {
@@ -241,10 +239,10 @@ export class Visual {
         if(visual.isText() && visual.content() === ''){
             const message: string = "Text Visual (" + visual.getId() + ") has no content.";
             const issue = Errors.Show(message, function(){Utils.showVisual(eagle, visual)});
-            visual.issues.push({issue: issue, validity: Errors.Validity.Warning});
-            return Errors.Validity.Warning;
+            visual.issues.push({issue: issue, validity: Validity.Warning});
+            return Validity.Warning;
         }
         
-        return Errors.Validity.Valid;
+        return Validity.Valid;
     }
 }

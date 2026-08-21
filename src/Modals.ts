@@ -371,7 +371,7 @@ export class Modals {
                     callback(false, FileLocation.Unknown, "");
                 } else {
                     // check selected option in select tag
-                    const repositoryService : RepositoryService = Utils.getUIValue('#gitCommitModalRepositoryServiceSelect', 'val', Repository.Service.Unknown);
+                    const repositoryService : RepositoryService = Utils.getUIValue('#gitCommitModalRepositoryServiceSelect', 'val', RepositoryService.Unknown);
                     const repositories : Repository[] = $('#gitCommitModal').data('repositories');
                     const repositoryNameChoice : number = parseInt(Utils.getUIValue('#gitCommitModalRepositoryNameSelect', 'val', "0"), 10);
 
@@ -405,7 +405,7 @@ export class Modals {
             $('#gitCommitModal').removeData(['callback', 'completed', 'fileType', 'repositories']);
         });
         $('#gitCommitModalRepositoryServiceSelect').on('change', function(){
-            const repositoryService : RepositoryService = Utils.getUIValue('#gitCommitModalRepositoryServiceSelect', 'val', Repository.Service.Unknown);
+            const repositoryService : RepositoryService = Utils.getUIValue('#gitCommitModalRepositoryServiceSelect', 'val', RepositoryService.Unknown);
             const repositories: Repository[] = Repositories.getList(repositoryService);
             $('#gitCommitModal').data('repositories', repositories);
             Utils.updateGitCommitRepositoriesList(repositories, null);
@@ -439,11 +439,11 @@ export class Modals {
                 // check if the modal was completed (user clicked OK), if not, return false
                 const completed : boolean = $('#gitCustomRepositoryModal').data('completed');
                 if (!completed){
-                    callback(false, Repository.Service.Unknown, "", "");
+                    callback(false, RepositoryService.Unknown, "", "");
                 } else {
 
                     // check selected option in select tag
-                    const repositoryService : RepositoryService = <RepositoryService>Utils.getUIValue('#gitCustomRepositoryModalRepositoryServiceSelect', 'val', Repository.Service.Unknown);
+                    const repositoryService : RepositoryService = <RepositoryService>Utils.getUIValue('#gitCustomRepositoryModalRepositoryServiceSelect', 'val', RepositoryService.Unknown);
                     const repositoryName : string = Utils.getUIValue('#gitCustomRepositoryModalRepositorySlugInput', 'val', "");
                     const repositoryBranch : string = Utils.getUIValue('#gitCustomRepositoryModalRepositoryBranchInput', 'val', "");
 

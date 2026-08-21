@@ -1,3 +1,4 @@
+import { Validity } from './Errors';
 /*
 #
 #    ICRAR - International Centre for Radio Astronomy Research
@@ -23,7 +24,7 @@
 */
 
 import { Eagle } from './Eagle';
-import { Errors, type ErrorsWarnings } from './Errors';
+import { type ErrorsWarnings } from './Errors';
 import { GitHub } from './GitHub';
 import { GitLab } from './GitLab';
 import { Id } from './Id';
@@ -31,7 +32,7 @@ import { LogicalGraph } from './LogicalGraph';
 import { Repositories } from './Repositories';
 import { Repository, RepositoryService } from './Repository';
 import { RepositoryFile } from './RepositoryFile';
-import { SchemaVersion, Setting } from './Setting';
+import { SchemaVersion } from './Setting';
 import { Utils } from './Utils';
 
 import * as ko from 'knockout';
@@ -77,7 +78,7 @@ export class GraphUpdaterFile {
         this.update = ko.observable(true);
         this.push = ko.observable(true);
         this.file = ko.observable(file);
-        this.state = ko.observable(GraphUpdater.FileStatus.No);
+        this.state = ko.observable(GraphUpdaterFileStatus.No);
         this.error = ko.observable("");
         this.numNodes = ko.observable(0);
         this.numEdges = ko.observable(0);
@@ -241,7 +242,7 @@ export class GraphUpdater {
 
     static async showModal(preSelectRepository?: Repository): Promise<void> {
         GraphUpdater.initCollapseToggle();
-        GraphUpdater.state(GraphUpdater.Status.Start);
+        GraphUpdater.state(GraphUpdaterStatus.Start);
 
         // add list of repositories to source select
         const srcRepoSelect = $('#graphUpdaterModalSourceRepositorySelect');
@@ -289,22 +290,22 @@ export class GraphUpdater {
     static onSourceRepositoryChange(): void {
         // reset the updatedLogicalGraphs array and the hasFetched/hasUpdated observables
         this.updatedLogicalGraphs.removeAll();
-        this.state(GraphUpdater.Status.Start);
+        this.state(GraphUpdaterStatus.Start);
     }
 
     static onDestinationRepositoryChange(): void {
-        this.state(GraphUpdater.Status.Updated);
+        this.state(GraphUpdaterStatus.Updated);
     }
 
     static async fetchLogicalGraphs(): Promise<void> {
-        this.state(GraphUpdater.Status.Fetching);
+        this.state(GraphUpdaterStatus.Fetching);
 
         // get source repository
         const srcRepoIndex = parseInt($('#graphUpdaterModalSourceRepositorySelect').val() as string);
         const srcRepo = Repositories.repositories()[srcRepoIndex];
         if (srcRepo === null){
             Utils.showNotification("Error", "Source repository not found", "danger");
-            this.state(GraphUpdater.Status.Start);
+            this.state(GraphUpdaterStatus.Start);
             return;
         }
 
@@ -321,24 +322,24 @@ export class GraphUpdater {
             await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
         });
 
-        this.state(GraphUpdater.Status.Fetched);
+        this.state(GraphUpdaterStatus.Fetched);
     }
 
     static async update(): Promise<void> {
-        this.state(GraphUpdater.Status.Updating);
+        this.state(GraphUpdaterStatus.Updating);
 
         // determine the correct function to load the file(s), based on the source repository service
         let openRemoteFileFunc: (repositoryService: RepositoryService, repositoryName: string, repositoryBranch: string, filePath: string, fileName: string) => Promise<string>;
         switch (this.sourceRepository.service){
-            case Repository.Service.GitHub:
+            case RepositoryService.GitHub:
                 openRemoteFileFunc = GitHub.openRemoteFile;
                 break;
-            case Repository.Service.GitLab:
+            case RepositoryService.GitLab:
                 openRemoteFileFunc = GitLab.openRemoteFile;
                 break;
             default:
                 Utils.showNotification("Error", "Unsupported repository service: " + this.sourceRepository.service, "danger");
-                this.state(GraphUpdater.Status.Start);
+                this.state(GraphUpdaterStatus.Start);
                 return;
         }
 
@@ -346,11 +347,11 @@ export class GraphUpdater {
         for (const graphFile of this.updatedLogicalGraphs()){
             // abort if user has not selected to update this graph
             if (!graphFile.update()){
-                graphFile.state(GraphUpdater.FileStatus.Skipped);
+                graphFile.state(GraphUpdaterFileStatus.Skipped);
                 continue;
             }
 
-            graphFile.state(GraphUpdater.FileStatus.Updating);
+            graphFile.state(GraphUpdaterFileStatus.Updating);
 
             // fetch the file data
             let fileData: string;
@@ -359,7 +360,7 @@ export class GraphUpdater {
             } catch (error) {
                 const errorMessage = "Error fetching remote file: " + graphFile.file().name + ", Error: " + error;
                 console.error(errorMessage);
-                graphFile.state(GraphUpdater.FileStatus.Error);
+                graphFile.state(GraphUpdaterFileStatus.Error);
                 graphFile.error(errorMessage);
                 graphFile.push(false); // uncheck the push checkbox for this graph since there was an error updating it
                 continue;
@@ -378,10 +379,10 @@ export class GraphUpdater {
             let fromJsonFunc: (graphObject: any, fileName: string, errorsWarnings: ErrorsWarnings) => LogicalGraph;
 
             switch (schemaVersion){
-                case Setting.SchemaVersion.OJS:
+                case SchemaVersion.OJS:
                     fromJsonFunc = LogicalGraph.fromOJSJson;
                     break;
-                case Setting.SchemaVersion.V4:
+                case SchemaVersion.V4:
                     fromJsonFunc = LogicalGraph.fromV4Json;
                     break;
                 default:
@@ -397,13 +398,13 @@ export class GraphUpdater {
             catch (error) {
                 let errorMessage: string;
 
-                if (schemaVersion === Setting.SchemaVersion.Unknown){
+                if (schemaVersion === SchemaVersion.Unknown){
                     errorMessage = "Error parsing graph file with unknown schema version, defaulted to OJS parser. File: " + graphFile.file().name + ", Error: " + error;
                 } else {
                     errorMessage = "Error parsing graph file: " + graphFile.file().name + ", Error: " + error;
                 }
                 console.error(errorMessage);
-                graphFile.state(GraphUpdater.FileStatus.Error);
+                graphFile.state(GraphUpdaterFileStatus.Error);
                 graphFile.error(errorMessage);
                 graphFile.push(false); // uncheck the push checkbox for this graph since there was an error updating it
                 continue;
@@ -412,8 +413,8 @@ export class GraphUpdater {
             // run pre-fix validation
             Utils.checkGraph(lg);
             const preFixIssues = Utils.gatherGraphIssues(lg);
-            graphFile.preFixNumErrors(preFixIssues.filter(issue => issue.validity === Errors.Validity.Error || issue.validity === Errors.Validity.Impossible || issue.validity === Errors.Validity.Unknown).length);
-            graphFile.preFixNumWarnings(preFixIssues.filter(issue => issue.validity === Errors.Validity.Warning).length);
+            graphFile.preFixNumErrors(preFixIssues.filter(issue => issue.validity === Validity.Error || issue.validity === Validity.Impossible || issue.validity === Validity.Unknown).length);
+            graphFile.preFixNumWarnings(preFixIssues.filter(issue => issue.validity === Validity.Warning).length);
 
             // if GraphUpdater.autoFix is enabled, attempt to fix any errors in the graph
             if (GraphUpdater.autoFix()){
@@ -423,8 +424,8 @@ export class GraphUpdater {
                 // run post-fix validation
                 Utils.checkGraph(lg);
                 const postFixIssues = Utils.gatherGraphIssues(lg);
-                graphFile.postFixNumErrors(postFixIssues.filter(issue => issue.validity === Errors.Validity.Error || issue.validity === Errors.Validity.Impossible || issue.validity === Errors.Validity.Unknown).length);
-                graphFile.postFixNumWarnings(postFixIssues.filter(issue => issue.validity === Errors.Validity.Warning).length);
+                graphFile.postFixNumErrors(postFixIssues.filter(issue => issue.validity === Validity.Error || issue.validity === Validity.Impossible || issue.validity === Validity.Unknown).length);
+                graphFile.postFixNumWarnings(postFixIssues.filter(issue => issue.validity === Validity.Warning).length);
             }
 
             // update graph information
@@ -434,10 +435,10 @@ export class GraphUpdater {
             // save to v4 string
             graphFile.data = LogicalGraph.toV4JsonString(lg, false);
 
-            graphFile.state(GraphUpdater.FileStatus.Success);
+            graphFile.state(GraphUpdaterFileStatus.Success);
         }
 
-        GraphUpdater.state(GraphUpdater.Status.Updated);
+        GraphUpdater.state(GraphUpdaterStatus.Updated);
     }
 
     static async push(): Promise<void> {
@@ -446,7 +447,7 @@ export class GraphUpdater {
 
         // check if the user selected the custom option to auto-generate a new branch on the source repository
         if (destRepoValue === "-1") {
-            GraphUpdater.state(GraphUpdater.Status.AutoGeneratingBranch);
+            GraphUpdater.state(GraphUpdaterStatus.AutoGeneratingBranch);
 
             // generate a new branch name
             const now = new Date();
@@ -458,12 +459,12 @@ export class GraphUpdater {
             // create the new branch on the source repository
             try {
                 this.destinationRepository = await Eagle.getInstance().repositories().createBranch(this.sourceRepository, newBranchName);
-                GraphUpdater.state(GraphUpdater.Status.AutoGeneratedBranch);
+                GraphUpdater.state(GraphUpdaterStatus.AutoGeneratedBranch);
             } catch (error) {
                 const errorMessage = "Error auto-generating branch on source repository: " + error;
                 console.error(errorMessage);
                 Utils.showUserMessage("Error", errorMessage);
-                GraphUpdater.state(GraphUpdater.Status.Updated); // revert back to updated state so user can try again or select a different option
+                GraphUpdater.state(GraphUpdaterStatus.Updated); // revert back to updated state so user can try again or select a different option
                 return;
             }
         } else {
@@ -487,7 +488,7 @@ export class GraphUpdater {
         }
 
         // set state to pushing
-        GraphUpdater.state(GraphUpdater.Status.Pushing);
+        GraphUpdater.state(GraphUpdaterStatus.Pushing);
 
         // use generic commit message
         const commitMessage = "Updated graphs from " + this.sourceRepository.getNameAndBranch();
@@ -500,7 +501,7 @@ export class GraphUpdater {
             }
 
             // skip any files that were not successfully updated
-            if (graphFile.state() !== GraphUpdater.FileStatus.Success){
+            if (graphFile.state() !== GraphUpdaterFileStatus.Success){
                 continue;
             }
 
@@ -539,7 +540,7 @@ export class GraphUpdater {
             return errorJSON.error;
         }
 
-        GraphUpdater.state(GraphUpdater.Status.Pushed);
+        GraphUpdater.state(GraphUpdaterStatus.Pushed);
     }
 
     static numberOfFilesToUpdate : ko.PureComputed<number> = ko.pureComputed(() => {
@@ -555,32 +556,32 @@ export class GraphUpdater {
     static numberOfFilesToPush : ko.PureComputed<number> = ko.pureComputed(() => {
         let count = 0;
         for (const graphFile of GraphUpdater.updatedLogicalGraphs()){
-            if (graphFile.push() && graphFile.state() === GraphUpdater.FileStatus.Success){
+            if (graphFile.push() && graphFile.state() === GraphUpdaterFileStatus.Success){
                 count++;
             }
         }
         return count;
     }, this);
 
-    static isFetching: ko.PureComputed<boolean> = ko.pureComputed(() => GraphUpdater.state() === GraphUpdater.Status.Fetching);
-    static isUpdating: ko.PureComputed<boolean> = ko.pureComputed(() => GraphUpdater.state() === GraphUpdater.Status.Updating);
-    static isUpdated: ko.PureComputed<boolean> = ko.pureComputed(() => GraphUpdater.state() === GraphUpdater.Status.Updated);
-    static isAutoGeneratingBranch: ko.PureComputed<boolean> = ko.pureComputed(() => GraphUpdater.state() === GraphUpdater.Status.AutoGeneratingBranch);
-    static isPushing: ko.PureComputed<boolean> = ko.pureComputed(() => GraphUpdater.state() === GraphUpdater.Status.Pushing);
+    static isFetching: ko.PureComputed<boolean> = ko.pureComputed(() => GraphUpdater.state() === GraphUpdaterStatus.Fetching);
+    static isUpdating: ko.PureComputed<boolean> = ko.pureComputed(() => GraphUpdater.state() === GraphUpdaterStatus.Updating);
+    static isUpdated: ko.PureComputed<boolean> = ko.pureComputed(() => GraphUpdater.state() === GraphUpdaterStatus.Updated);
+    static isAutoGeneratingBranch: ko.PureComputed<boolean> = ko.pureComputed(() => GraphUpdater.state() === GraphUpdaterStatus.AutoGeneratingBranch);
+    static isPushing: ko.PureComputed<boolean> = ko.pureComputed(() => GraphUpdater.state() === GraphUpdaterStatus.Pushing);
 
     static hasFetched: ko.PureComputed<boolean> = ko.pureComputed(() => {
-        return [GraphUpdater.Status.Fetched, GraphUpdater.Status.Updating, GraphUpdater.Status.Updated, GraphUpdater.Status.AutoGeneratingBranch, GraphUpdater.Status.AutoGeneratedBranch, GraphUpdater.Status.Pushing, GraphUpdater.Status.Pushed].includes(GraphUpdater.state());
+        return [GraphUpdaterStatus.Fetched, GraphUpdaterStatus.Updating, GraphUpdaterStatus.Updated, GraphUpdaterStatus.AutoGeneratingBranch, GraphUpdaterStatus.AutoGeneratedBranch, GraphUpdaterStatus.Pushing, GraphUpdaterStatus.Pushed].includes(GraphUpdater.state());
     });
     static hasUpdated: ko.PureComputed<boolean> = ko.pureComputed(() => {
-        return [GraphUpdater.Status.Updated, GraphUpdater.Status.AutoGeneratingBranch, GraphUpdater.Status.AutoGeneratedBranch, GraphUpdater.Status.Pushing, GraphUpdater.Status.Pushed].includes(GraphUpdater.state());
+        return [GraphUpdaterStatus.Updated, GraphUpdaterStatus.AutoGeneratingBranch, GraphUpdaterStatus.AutoGeneratedBranch, GraphUpdaterStatus.Pushing, GraphUpdaterStatus.Pushed].includes(GraphUpdater.state());
     });
     static hasAutoGeneratedBranch: ko.PureComputed<boolean> = ko.pureComputed(() => {
-        return [GraphUpdater.Status.AutoGeneratedBranch, GraphUpdater.Status.Pushing, GraphUpdater.Status.Pushed].includes(GraphUpdater.state());
+        return [GraphUpdaterStatus.AutoGeneratedBranch, GraphUpdaterStatus.Pushing, GraphUpdaterStatus.Pushed].includes(GraphUpdater.state());
     });
     static hasPushed: ko.PureComputed<boolean> = ko.pureComputed(() => {
-        return [GraphUpdater.Status.Pushed].includes(GraphUpdater.state());
+        return [GraphUpdaterStatus.Pushed].includes(GraphUpdater.state());
     });
 
 }
 
-GraphUpdater.state = ko.observable(GraphUpdater.Status.Start);
+GraphUpdater.state = ko.observable(GraphUpdaterStatus.Start);

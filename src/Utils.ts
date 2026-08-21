@@ -140,9 +140,9 @@ export class Utils {
 
     static getServiceToken(service: RepositoryService): string {
         switch (service) {
-            case Repository.Service.GitHub:
+            case RepositoryService.GitHub:
                 return Setting.findValue<string>(Setting.GITHUB_ACCESS_TOKEN_KEY, "");
-            case Repository.Service.GitLab:
+            case RepositoryService.GitLab:
                 return Setting.findValue<string>(Setting.GITLAB_ACCESS_TOKEN_KEY, "");
             default:
                 throw new Error("Unsupported repository service: " + service);
@@ -1037,7 +1037,7 @@ export class Utils {
         });
     }
 
-    // , callback : (completed : boolean, repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void ) : void {
+    // , callback : (completed : boolean, repositoryService : RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void ) : void {
     static async requestUserGitCommit(defaultRepository : Repository, repositories: Repository[], filePath: string, fileName: string, fileType: EagleFileType): Promise<RepositoryCommit> {
         return new Promise(async(resolve, _reject) => {
             $('#gitCommitModal').data('completed', false);
@@ -1056,7 +1056,7 @@ export class Utils {
             $('#gitCommitModal').modal("show");
 
             //
-            let defaultRepositoryService: RepositoryService = Repository.Service.Unknown;
+            let defaultRepositoryService: RepositoryService = RepositoryService.Unknown;
             if (defaultRepository !== null){
                 defaultRepositoryService = defaultRepository.service;
             }
@@ -1066,14 +1066,14 @@ export class Utils {
 
             // add options to the repository service select tag
             $('#gitCommitModalRepositoryServiceSelect').append($('<option>', {
-                value: Repository.Service.GitHub,
-                text: Repository.Service.GitHub,
-                selected: defaultRepositoryService === Repository.Service.GitHub
+                value: RepositoryService.GitHub,
+                text: RepositoryService.GitHub,
+                selected: defaultRepositoryService === RepositoryService.GitHub
             }));
             $('#gitCommitModalRepositoryServiceSelect').append($('<option>', {
-                value: Repository.Service.GitLab,
-                text: Repository.Service.GitLab,
-                selected: defaultRepositoryService === Repository.Service.GitLab
+                value: RepositoryService.GitLab,
+                text: RepositoryService.GitLab,
+                selected: defaultRepositoryService === RepositoryService.GitLab
             }));
 
             Utils.updateGitCommitRepositoriesList(repositories, defaultRepository);
@@ -1135,7 +1135,7 @@ export class Utils {
         Modals.applyValidationState(repositoryBranchInput, null);
 
         // check service
-        if (repositoryService.trim() !== Repository.Service.GitHub && repositoryService.trim() !== Repository.Service.GitLab){
+        if (repositoryService.trim() !== RepositoryService.GitHub && repositoryService.trim() !== RepositoryService.GitLab){
             return false;
         }
 
@@ -1639,9 +1639,9 @@ export class Utils {
 
     static getLocalStorageKey(repositoryService : RepositoryService, repositoryName : string, repositoryBranch : string) : string | null{
         switch (repositoryService){
-            case Repository.Service.GitHub:
+            case RepositoryService.GitHub:
                 return repositoryName + "|" + repositoryBranch + ".github_repository_and_branch";
-            case Repository.Service.GitLab:
+            case RepositoryService.GitLab:
                 return repositoryName + "|" + repositoryBranch + ".gitlab_repository_and_branch";
             default:
                 console.warn("Utils.getLocalStorageKey(): unknown repository service:", repositoryService);
@@ -1745,16 +1745,16 @@ export class Utils {
         if (typeof data.modelData !== 'undefined'){
             if (typeof data.modelData.schemaVersion !== 'undefined'){
                 // check whether the value of data.modelData.schemaVersion is a valid SchemaVersion enum value
-                if (Object.values(Setting.SchemaVersion).includes(data.modelData.schemaVersion)){
+                if (Object.values(SchemaVersion).includes(data.modelData.schemaVersion)){
                     return data.modelData.schemaVersion;
                 } else {
                     console.warn("Unknown schema version:", data.modelData.schemaVersion);
-                    return Setting.SchemaVersion.Unknown;
+                    return SchemaVersion.Unknown;
                 }
             }
         }
 
-        return Setting.SchemaVersion.Unknown;
+        return SchemaVersion.Unknown;
     }
 
     static portsMatch(port0: Field, port1: Field){
@@ -1812,7 +1812,7 @@ export class Utils {
         }
 
         for(const error of paletteIssues){
-            if(error.validity === Errors.Validity.Error){
+            if(error.validity === Validity.Error){
                 errorsWarnings.errors.push(error.issue)
             }else{
                 errorsWarnings.warnings.push(error.issue)
@@ -1909,7 +1909,7 @@ export class Utils {
                     function(){Utils.newNodeId(graph, id)},
                     "Assign node a new id"
                 );
-                graph.addIssue(issue, Errors.Validity.Error);
+                graph.addIssue(issue, Validity.Error);
             }
             ids.add(id);
 
@@ -1923,7 +1923,7 @@ export class Utils {
                         function(){Utils.newFieldId(eagle, node, field)},
                         "Assign field a new id"
                     );
-                    graph.addIssue(issue, Errors.Validity.Error);
+                    graph.addIssue(issue, Validity.Error);
                 }
                 ids.add(id);
             }
@@ -1939,7 +1939,7 @@ export class Utils {
                     function(){Utils.newEdgeId(graph, id)},
                     "Assign edge a new id"
                 );
-                graph.addIssue(issue, Errors.Validity.Error);
+                graph.addIssue(issue, Validity.Error);
             }
             ids.add(id);
         }
@@ -1954,7 +1954,7 @@ export class Utils {
                     function(){Utils.newGraphConfigId(graph, id)},
                     "Assign graph config a new id"
                 );
-                graph.addIssue(issue, Errors.Validity.Error);
+                graph.addIssue(issue, Validity.Error);
             }
 
             ids.add(id);
@@ -2021,7 +2021,7 @@ export class Utils {
 
         //sort all issues into warnings or errors
         for(const error of graphIssues){
-            if(error.validity === Errors.Validity.Error || error.validity === Errors.Validity.Impossible || error.validity === Errors.Validity.Unknown){
+            if(error.validity === Validity.Error || error.validity === Validity.Impossible || error.validity === Validity.Unknown){
                 errorsWarnings.errors.push(error.issue)
             }else{
                 errorsWarnings.warnings.push(error.issue)
@@ -2050,7 +2050,7 @@ export class Utils {
         let valid : boolean;
 
         switch(version){
-            case Setting.SchemaVersion.OJS:
+            case SchemaVersion.OJS:
                 switch(fileType){
                     case EagleFileType.Graph:
                         valid = ajv.validate(Utils.ojsGraphSchema, json) as boolean;
@@ -2067,7 +2067,7 @@ export class Utils {
                         break;
                 }
                 break;
-            case Setting.SchemaVersion.V4:
+            case SchemaVersion.V4:
                 switch(fileType){
                     case EagleFileType.Graph:
                         valid = ajv.validate(Utils.v4GraphSchema, json) as boolean;
@@ -2917,18 +2917,18 @@ export class Utils {
     static worstEdgeError(errorsWarnings: ErrorsWarnings) : Validity {
         if (errorsWarnings === null){
             console.warn("errorsWarnings is null");
-            return Errors.Validity.Valid;
+            return Validity.Valid;
         }
 
         if (errorsWarnings.warnings.length === 0 && errorsWarnings.errors.length === 0){
-            return Errors.Validity.Valid;
+            return Validity.Valid;
         }
 
         if (errorsWarnings.errors.length !== 0){
-            return Errors.Validity.Error;
+            return Validity.Error;
         }
 
-        return Errors.Validity.Warning;
+        return Validity.Warning;
     }
 
     static toDegrees360(radians:number) : number {
@@ -3471,22 +3471,22 @@ export class Utils {
 
             // handle legacy repositories where the branch is not specified (assume master)
             if (keyExtension === "github_repository"){
-                customRepositories.push(new Repository(Repository.Service.GitHub, value, "master", false));
+                customRepositories.push(new Repository(RepositoryService.GitHub, value, "master", false));
             }
             if (keyExtension === "gitlab_repository"){
-                customRepositories.push(new Repository(Repository.Service.GitLab, value, "master", false));
+                customRepositories.push(new Repository(RepositoryService.GitLab, value, "master", false));
             }
 
             // handle the current method of storing repositories where both the service and branch are specified
             if (keyExtension === "github_repository_and_branch") {
                 const repositoryName = value.split("|")[0];
                 const repositoryBranch = value.split("|")[1];
-                customRepositories.push(new Repository(Repository.Service.GitHub, repositoryName, repositoryBranch, false));
+                customRepositories.push(new Repository(RepositoryService.GitHub, repositoryName, repositoryBranch, false));
             }
             if (keyExtension === "gitlab_repository_and_branch") {
                 const repositoryName = value.split("|")[0];
                 const repositoryBranch = value.split("|")[1];
-                customRepositories.push(new Repository(Repository.Service.GitLab, repositoryName, repositoryBranch, false));
+                customRepositories.push(new Repository(RepositoryService.GitLab, repositoryName, repositoryBranch, false));
             }
         }
 
@@ -3508,7 +3508,7 @@ export class Utils {
         fileInfo().name = repositoryFile.name;
 
         // set url
-        if (repositoryFile.repository.service === Repository.Service.Url){
+        if (repositoryFile.repository.service === RepositoryService.Url){
             fileInfo().location.downloadUrl(repositoryFile.name);
         }
 
@@ -3601,8 +3601,8 @@ export class Utils {
         if (repositoryBranch !== undefined && path !== undefined && filename !== undefined) {
             const repositoryName = arg1;
 
-            if (service === Repository.Service.Url){
-                console.warn("Utils.buildUrl with repositoryName, repositoryBranch, path and filename is not intended for Repository.Service.Url, unexpected service:", service);
+            if (service === RepositoryService.Url){
+                console.warn("Utils.buildUrl with repositoryName, repositoryBranch, path and filename is not intended for RepositoryService.Url, unexpected service:", service);
             }
 
             let url = window.location.origin;
@@ -3617,8 +3617,8 @@ export class Utils {
         if (repositoryBranch !== undefined && path === undefined && filename === undefined) {
             const repositoryName = arg1;
 
-            if (service === Repository.Service.Url){
-                console.warn("Utils.buildUrl with repositoryName and repositoryBranch is not intended for Repository.Service.Url, unexpected service:", service);
+            if (service === RepositoryService.Url){
+                console.warn("Utils.buildUrl with repositoryName and repositoryBranch is not intended for RepositoryService.Url, unexpected service:", service);
             }
 
             let url = window.location.origin;
@@ -3629,8 +3629,8 @@ export class Utils {
         }
 
         const downloadUrl = arg1;
-        if (service !== Repository.Service.Url){
-            console.warn("Utils.buildUrl with downloadUrl is only intended for Repository.Service.Url, unexpected service:", service);
+        if (service !== RepositoryService.Url){
+            console.warn("Utils.buildUrl with downloadUrl is only intended for RepositoryService.Url, unexpected service:", service);
         }
 
         let url = window.location.origin;

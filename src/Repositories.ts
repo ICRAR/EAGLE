@@ -1,3 +1,4 @@
+import { EagleFileType } from './Eagle';
 import * as ko from "knockout";
 
 import { Eagle } from './Eagle';
@@ -20,22 +21,22 @@ export class Repositories {
     static async selectFile(file : RepositoryFile): Promise<void> {
         const eagle: Eagle = Eagle.getInstance();
 
-        if(file.type === Eagle.FileType.Graph || file.type === Eagle.FileType.JSON){
+        if(file.type === EagleFileType.Graph || file.type === EagleFileType.JSON){
             eagle.showEagleIsLoading()
         }
 
         // check if the current file has been modified
         let isModified = false;
         switch (file.type){
-            case Eagle.FileType.Graph:
+            case EagleFileType.Graph:
                 isModified = eagle.logicalGraph().fileInfo().modified;
                 break;
-            case Eagle.FileType.Palette: {
+            case EagleFileType.Palette: {
                 const palette = eagle.findPalette(file.name, false);
                 isModified = typeof palette !== "undefined" && palette.fileInfo().modified;
                 break;
             }
-            case Eagle.FileType.JSON:
+            case EagleFileType.JSON:
                 isModified = eagle.logicalGraph().fileInfo().modified;
                 break;
         }
@@ -54,13 +55,13 @@ export class Repositories {
     }
     
     static translateStringToService(service: string): RepositoryService {
-        for (const s in Repository.Service){
+        for (const s in RepositoryService){
             if (s.toLowerCase() === service.toLowerCase()){
                 return s as RepositoryService;
             }
         }
 
-        return Repository.Service.Unknown;
+        return RepositoryService.Unknown;
     }
 
     static generateUrl(repository: Repository): string {
@@ -69,9 +70,9 @@ export class Repositories {
 
     static getWebUrl(repository: Repository): string {
         switch (repository.service){
-            case Repository.Service.GitHub:
+            case RepositoryService.GitHub:
                 return "https://github.com/" + encodeURI(repository.name) + "/tree/" + encodeURIComponent(repository.branch);
-            case Repository.Service.GitLab:
+            case RepositoryService.GitLab:
                 return "https://gitlab.com/" + encodeURI(repository.name) + "/-/tree/" + encodeURIComponent(repository.branch);
             default:
                 throw new Error("Unsupported repository service: " + repository.service);

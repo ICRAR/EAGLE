@@ -1,7 +1,7 @@
 import * as ko from "knockout";
 
 import { type ErrorsWarnings } from "./Errors";
-import { Repository, RepositoryService } from "./Repository";
+import { RepositoryService } from "./Repository";
 import { Utils } from "./Utils";
 
 export class FileLocation {
@@ -14,7 +14,7 @@ export class FileLocation {
     downloadUrl: ko.Observable<string>;
 
     constructor(){
-        this.repositoryService = ko.observable<RepositoryService>(Repository.Service.Unknown);
+        this.repositoryService = ko.observable<RepositoryService>(RepositoryService.Unknown);
         this.repositoryBranch = ko.observable("");
         this.repositoryName = ko.observable("");
         this.repositoryPath = ko.observable("");
@@ -24,7 +24,7 @@ export class FileLocation {
     }
 
     clear = () : void => {
-        this.repositoryService(Repository.Service.Unknown);
+        this.repositoryService(RepositoryService.Unknown);
         this.repositoryBranch("");
         this.repositoryName("");
         this.repositoryPath("");
@@ -112,7 +112,7 @@ export class FileLocation {
     static fromJson(data: any, _errorsWarnings: ErrorsWarnings): FileLocation {
         const result: FileLocation = new FileLocation();
 
-        result.repositoryService(data.repositoryService ?? Repository.Service.Unknown);
+        result.repositoryService(data.repositoryService ?? RepositoryService.Unknown);
         result.repositoryBranch(data.repositoryBranch ?? "");
         result.repositoryName(data.repositoryName ?? "");
         result.repositoryPath(data.repositoryPath ?? "");
@@ -124,7 +124,7 @@ export class FileLocation {
     }
 
     static generateUrl(fileLocation: FileLocation): string {
-        if (fileLocation.repositoryService() === Repository.Service.Url){
+        if (fileLocation.repositoryService() === RepositoryService.Url){
             return Utils.buildUrl(fileLocation.repositoryService(), fileLocation.downloadUrl());
         } else {
             return Utils.buildUrl(

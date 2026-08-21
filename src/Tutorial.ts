@@ -42,7 +42,7 @@ export class TutorialSystem {
                 TutorialSystem.activeTut = tut
                 TutorialSystem.activeTutNumSteps = tut.getTutorialSteps().length
                 TutorialSystem.activeTutCurrentStepIndex = 0
-                TutorialSystem.activeTut.initiateTutStep(TutorialStep.Direction.Next)
+                TutorialSystem.activeTut.initiateTutStep(TutorialStepDirection.Next)
                 TutorialSystem.addTutKeyboardShortcuts()
 
                 TutorialSystem.activeTut.ensureUIState()
@@ -74,7 +74,7 @@ export class TutorialSystem {
                 case "ArrowRight":
                 case "ArrowDown":
                     e.preventDefault()
-                    if (TutorialSystem.activeTutCurrentStep.getType() === TutorialStep.Type.Info) {
+                    if (TutorialSystem.activeTutCurrentStep.getType() === TutorialStepType.Info) {
                         TutorialSystem.activeTut.tutButtonNext()
                     }
                     break;
@@ -87,7 +87,7 @@ export class TutorialSystem {
                 case "Enter":
                     e.preventDefault()
                     e.stopImmediatePropagation()
-                    if(TutorialSystem.activeTutCurrentStep.getType() === TutorialStep.Type.Press){
+                    if(TutorialSystem.activeTutCurrentStep.getType() === TutorialStepType.Press){
                         const targetFunc = TutorialSystem.activeTutCurrentStep.getTargetFunc();
                         const targetElement = targetFunc ? targetFunc() : $();
 
@@ -199,7 +199,7 @@ export class Tutorial {
     }
 
     newTutStep = (title:string, description:string, selector:() => JQuery<HTMLElement>) : TutorialStep =>{
-        const x = new TutorialStep(title, description, TutorialStep.Type.Info, TutorialStep.Wait.None, null, selector, null, null, false, "", null, null, null)
+        const x = new TutorialStep(title, description, TutorialStepType.Info, TutorialStepWait.None, null, selector, null, null, false, "", null, null, null)
         this.tutorialSteps.push(x)
         return x
     }
@@ -229,9 +229,9 @@ export class Tutorial {
         //if there is a preFunction set, then we execute it here
         let preFunction
 
-        if (direction === TutorialStep.Direction.Next) {
+        if (direction === TutorialStepDirection.Next) {
             preFunction = tutStep.getPreFunc()
-        } else if (direction === TutorialStep.Direction.Prev) {
+        } else if (direction === TutorialStepDirection.Prev) {
             preFunction = tutStep.getBackPreFunc()
         }
 
@@ -241,9 +241,9 @@ export class Tutorial {
 
         const that = this
         //we always pass through the wait function, it is decided there if we actually wait or not
-        if (tutStep.getWaitType() === TutorialStep.Wait.None) {
+        if (tutStep.getWaitType() === TutorialStepWait.None) {
             this.initiateStep(TutorialSystem.activeTutCurrentStep, null)
-        } else if (tutStep.getWaitType() === TutorialStep.Wait.Delay) {
+        } else if (tutStep.getWaitType() === TutorialStepWait.Delay) {
             //if a delay amount is not specified we will default to 4ms
             const delay: number = TutorialSystem.activeTutCurrentStep.getDelayAmount() || 400;
 
@@ -278,7 +278,7 @@ export class Tutorial {
         let targetElement: JQuery<HTMLElement> = targetFunc()
         let autoAlternateHighlightTarget = null // used for modals to automatically highlight the modal body, footer or header
 
-        if (waitType === TutorialStep.Wait.Modal) {
+        if (waitType === TutorialStepWait.Modal) {
             //in  case of a modal we make sure the selector is for the modal, we then check if it has the class 'show'
             if (!targetElement.hasClass('modal')) {
                 //we also pass this modal selector to the highlighting function, so whole modal is highlighted, 
@@ -298,7 +298,7 @@ export class Tutorial {
 
             elementAvailable = targetElement.hasClass('show')
 
-        } else if (waitType === TutorialStep.Wait.Element|| TutorialSystem.activeTutCurrentStepIndex === 0 ) {      //in case of an element we check if the element exists
+        } else if (waitType === TutorialStepWait.Element|| TutorialSystem.activeTutCurrentStepIndex === 0 ) {      //in case of an element we check if the element exists
             if (targetElement.length) {
                 elementAvailable = true
             } else {
@@ -331,13 +331,13 @@ export class Tutorial {
         targetFunc().trigger("focus");
 
         //call the correct function depending on which type of tutorial step this is
-        if (tutStep.getType() === TutorialStep.Type.Info) {
+        if (tutStep.getType() === TutorialStepType.Info) {
             this.initiateInfoStep(tutStep, autoAlternateHighlightTarget)
-        } else if (tutStep.getType() === TutorialStep.Type.Press) {
+        } else if (tutStep.getType() === TutorialStepType.Press) {
             this.initiatePressStep(tutStep, autoAlternateHighlightTarget)
-        } else if (tutStep.getType() === TutorialStep.Type.Input) {
+        } else if (tutStep.getType() === TutorialStepType.Input) {
             this.initiateInputStep(tutStep, autoAlternateHighlightTarget)
-        } else if (tutStep.getType() === TutorialStep.Type.Condition) {
+        } else if (tutStep.getType() === TutorialStepType.Condition) {
             this.initiateConditionStep(tutStep, autoAlternateHighlightTarget)
         }
     }
@@ -635,7 +635,7 @@ export class Tutorial {
         if (TutorialSystem.activeTutCurrentStepIndex > 0) {
             tooltipPopUp = tooltipPopUp + "<button class='tutPreviousBtn' onclick='eagle.tutorial().tutButtonPrev()'>Previous</button>"
         }
-        if (TutorialSystem.activeTutCurrentStepIndex + 1 !== TutorialSystem.activeTutNumSteps && step.getType() === TutorialStep.Type.Info) {
+        if (TutorialSystem.activeTutCurrentStepIndex + 1 !== TutorialSystem.activeTutNumSteps && step.getType() === TutorialStepType.Info) {
             tooltipPopUp = tooltipPopUp + "<button class='tutNextBtn' onclick='eagle.tutorial().tutButtonNext()'>Next</button>"
         }
         tooltipPopUp = tooltipPopUp + "<span class='tutProgress'>" + activeStepIndexDisplay + " of " + TutorialSystem.activeTutNumSteps + "</span>"
@@ -658,7 +658,7 @@ export class Tutorial {
             if (TutorialSystem.activeTutCurrentStepIndex + 1 !== TutorialSystem.activeTutNumSteps) {
                 this.closeInfoPopUp()
                 TutorialSystem.activeTutCurrentStepIndex++
-                this.initiateTutStep(TutorialStep.Direction.Next)
+                this.initiateTutStep(TutorialStepDirection.Next)
                 TutorialSystem.startCoolDown()
             } else {
                 this.tutButtonEnd()
@@ -679,7 +679,7 @@ export class Tutorial {
                 if(TutorialSystem.activeTut.getTutorialSteps()[TutorialSystem.activeTutCurrentStepIndex].getBackSkip() === true){
                     this.tutButtonPrev()
                 }else{
-                    this.initiateTutStep(TutorialStep.Direction.Prev)
+                    this.initiateTutStep(TutorialStepDirection.Prev)
                     TutorialSystem.startCoolDown()
                 }
             }
@@ -801,10 +801,6 @@ export class TutorialStep {
 
     private backSkip : boolean;
     private expectedInput : string;
-
-    static readonly Type = TutorialStepType;
-    static readonly Direction = TutorialStepDirection;
-    static readonly Wait = TutorialStepWait;
 
     constructor(title: string, text: string, type: TutorialStepType, waitType: TutorialStepWait, delayAmount: number | null, targetFunc: () => JQuery<HTMLElement>, preFunc: ((eagle: Eagle) => void) | null, backPreFunc: ((eagle: Eagle) => void) | null, backSkip:boolean, expectedInput:string, conditionFunc:((eagle: Eagle) => boolean) | null, alternateHighlightTargetFunc: (() => JQuery<HTMLElement>) | null, testStepFunction: TutorialTestHook | null) {
         this.title = title;

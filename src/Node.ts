@@ -1201,7 +1201,7 @@ export class Node {
         const errorsWarnings : ErrorsWarnings = {warnings: [], errors: []};
 
         this.getIssues().forEach(function(error){
-            if(error.validity === Errors.Validity.Error || error.validity === Errors.Validity.Unknown){
+            if(error.validity === Validity.Error || error.validity === Validity.Unknown){
                 errorsWarnings.errors.push(error.issue)
             }else{
                 errorsWarnings.warnings.push(error.issue)
@@ -1229,13 +1229,13 @@ export class Node {
 
     getBorderColor : ko.PureComputed<string> = ko.pureComputed(() => {
         const errorsWarnings = this.getAllErrorsWarnings()
-        const showGraphWarnings = Setting.findValue<ShowErrorsMode>(Setting.SHOW_GRAPH_WARNINGS, Setting.ShowErrorsMode.None);
+        const showGraphWarnings = Setting.findValue<ShowErrorsMode>(Setting.SHOW_GRAPH_WARNINGS, ShowErrorsMode.None);
 
         if(this.isEmbedded()){
             return '' //returning nothing lets the means we are not over writing the default css behaviour
-        }else if(errorsWarnings.errors.length>0 && showGraphWarnings !== Setting.ShowErrorsMode.None){
+        }else if(errorsWarnings.errors.length>0 && showGraphWarnings !== ShowErrorsMode.None){
             return EagleConfig.getColor('graphError')
-        }else if(errorsWarnings.warnings.length>0 && showGraphWarnings === Setting.ShowErrorsMode.Warnings){
+        }else if(errorsWarnings.warnings.length>0 && showGraphWarnings === ShowErrorsMode.Warnings){
             return EagleConfig.getColor('graphWarning')
         }else{
             return EagleConfig.getColor('bodyBorder')
@@ -1256,11 +1256,11 @@ export class Node {
 
     getBackgroundColor : ko.PureComputed<string> = ko.pureComputed(() => {
         const errorsWarnings = this.getAllErrorsWarnings()
-        const showGraphWarnings = Setting.findValue<ShowErrorsMode>(Setting.SHOW_GRAPH_WARNINGS, Setting.ShowErrorsMode.None);
+        const showGraphWarnings = Setting.findValue<ShowErrorsMode>(Setting.SHOW_GRAPH_WARNINGS, ShowErrorsMode.None);
 
-        if(errorsWarnings.errors.length>0 && showGraphWarnings !== Setting.ShowErrorsMode.None){
+        if(errorsWarnings.errors.length>0 && showGraphWarnings !== ShowErrorsMode.None){
             return EagleConfig.getColor('errorBackground');
-        }else if(errorsWarnings.warnings.length>0 && showGraphWarnings === Setting.ShowErrorsMode.Warnings){
+        }else if(errorsWarnings.warnings.length>0 && showGraphWarnings === ShowErrorsMode.Warnings){
             return EagleConfig.getColor('warningBackground');
         }else{
             return '' //returning nothing lets the means we are not over writing the default css behaviour
@@ -2074,7 +2074,7 @@ export class Node {
                     if (nodeField.isChangeable() !== originalField.isChangeable()){
                         const message: string = "Node (" + node.getName() + ") field (" + nodeField.getDisplayText() + ") has incorrect changeable property. Expected: " + originalField.isChangeable() + ", Actual: " + nodeField.isChangeable();
                         const issue = Errors.ShowFix(message, function(){Utils.showField(eagle, location, node, nodeField)}, function(){nodeField.setChangeable(originalField.isChangeable())}, "Set changeable to " + originalField.isChangeable());
-                        node.issues().push({issue:issue, validity:Errors.Validity.Warning});
+                        node.issues().push({issue:issue, validity:Validity.Warning});
                     }
                 }
             }
@@ -2083,7 +2083,7 @@ export class Node {
         if(!Utils.isKnownCategory(node.getCategory())){
             const message: string = "Node (" + node.getName() + ") has unrecognised category " + node.getCategory();
             const issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
-            node.issues().push({issue:issue,validity:Errors.Validity.Warning});
+            node.issues().push({issue:issue,validity:Validity.Warning});
         }
 
         if(node.isConstruct()){
@@ -2104,7 +2104,7 @@ export class Node {
             if (typeof parentsChild === 'undefined'){
                 const message: string = "Node (" + node.getName() + ") has parent (" + parent.getName() + "), but does not appear in that node's list of children.";
                 const issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
-                node.issues().push({issue:issue, validity:Errors.Validity.Error});
+                node.issues().push({issue:issue, validity:Validity.Error});
             }
         }
 
@@ -2114,7 +2114,7 @@ export class Node {
             if (childParent === null || childParent.getId() !== node.getId()){
                 const message: string = "Node (" + node.getName() + ") has child (" + child.getName() + "), but is not that node's parent.";
                 const issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
-                node.issues().push({issue:issue, validity:Errors.Validity.Error});
+                node.issues().push({issue:issue, validity:Validity.Error});
             }
         }
 
@@ -2126,7 +2126,7 @@ export class Node {
             if ((embedInputApplication !== null && embedInputApplication.getId() !== node.getId()) && (embedOutputApplication !== null && embedOutputApplication.getId() !== node.getId())){
                 const message: string = "Node (" + node.getName() + ") has embed (" + embed.getName() + "), but is not that node's inputApplication or outputApplication.";
                 const issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
-                node.issues().push({issue:issue, validity:Errors.Validity.Error});
+                node.issues().push({issue:issue, validity:Validity.Error});
             }
         }
 
@@ -2136,7 +2136,7 @@ export class Node {
             if (inputApplicationEmbed !== null && inputApplicationEmbed.getId() !== node.getId()){
                 const message: string = "Node (" + node.getName() + ") has inputApplication (" + inputApplication.getName() + "), but is not that node's embed.";
                 const issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
-                node.issues().push({issue:issue, validity:Errors.Validity.Error});
+                node.issues().push({issue:issue, validity:Validity.Error});
             }
         }
 
@@ -2146,7 +2146,7 @@ export class Node {
             if (outputApplicationEmbed !== null && outputApplicationEmbed.getId() !== node.getId()){
                 const message: string = "Node (" + node.getName() + ") has outputApplication (" + outputApplication.getName() + "), but is not that node's embed.";
                 const issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
-                node.issues().push({issue:issue, validity:Errors.Validity.Error});
+                node.issues().push({issue:issue, validity:Validity.Error});
             }
         }
 
@@ -2157,29 +2157,29 @@ export class Node {
         if (node.getCategoryType() !== cData.categoryType){
             const message: string = "Node (" + node.getName() + ") has incorrect category type. Expected: " + cData.categoryType + ", Actual: " + node.getCategoryType();
             const issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, location, node)}, function(){node.setCategoryType(cData.categoryType)}, "Set category type to " + cData.categoryType);
-            node.issues().push({issue:issue, validity:Errors.Validity.Error});
+            node.issues().push({issue:issue, validity:Validity.Error});
         }
 
         // check that node has correct number of inputs and outputs
         if (node.getInputPorts().length < cData.minInputs){
             const message: string = "Node (" + node.getName() + ") may have too few input ports. A " + node.getCategory() + " component would typically have at least " + cData.minInputs;
             const issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
-            node.issues().push({issue:issue,validity:Errors.Validity.Warning})
+            node.issues().push({issue:issue,validity:Validity.Warning})
         }
         if ((node.getInputPorts().length - node.getInputEventPorts().length) > cData.maxInputs){
             const message: string = "Node (" + node.getName() + ") has too many input ports. Should have at most " + cData.maxInputs;
             const issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
-            node.issues().push({issue:issue,validity:Errors.Validity.Warning})
+            node.issues().push({issue:issue,validity:Validity.Warning})
         }
         if (node.getOutputPorts().length < cData.minOutputs){
             const message: string = "Node (" + node.getName() + ") may have too few output ports.  A " + node.getCategory() + " component would typically have at least " + cData.minOutputs;
             const issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
-            node.issues().push({issue:issue,validity:Errors.Validity.Warning})
+            node.issues().push({issue:issue,validity:Validity.Warning})
         }
         if ((node.getOutputPorts().length - node.getOutputEventPorts().length) > cData.maxOutputs){
             const message: string = "Node (" + node.getName() + ") may have too many output ports. Should have at most " + cData.maxOutputs;
             const issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
-            node.issues().push({issue:issue,validity:Errors.Validity.Warning})
+            node.issues().push({issue:issue,validity:Validity.Warning})
         }
 
         // check if this category of node is a legacy node
@@ -2208,7 +2208,7 @@ export class Node {
                     "Change node category from " + node.getCategory() + " to " + updatedCategory
                 );
             }
-            node.issues().push({issue:issue,validity:Errors.Validity.Warning})
+            node.issues().push({issue:issue,validity:Validity.Warning})
         }
 
         // check that node has at least one connected edge, otherwise what purpose does it serve?
@@ -2232,7 +2232,7 @@ export class Node {
         // only check this if the component has been selected in the graph. If it was selected from the palette, it doesn't make sense to complain that it is not connected.
         if (!isConnected && !(cData.maxInputs === 0 && cData.maxOutputs === 0) && location === EagleFileType.Graph && node.getCategory() !== CategoryName.GlobalVariables){
             const issue = Errors.Show("Node (" + node.getName() + ") has no connected edges. It should be connected to the graph in some way", function(){Utils.showNode(eagle, location, node)});
-            node.issues().push({issue:issue,validity:Errors.Validity.Warning})
+            node.issues().push({issue:issue,validity:Validity.Warning})
         }
 
         // check that Memory and SharedMemory nodes have at least one input OR have a pydata field with a non-"None" value
@@ -2243,30 +2243,30 @@ export class Node {
             if (!hasInputEdge && !hasPydataValue){
                 const message: string = node.category() + " node (" + node.getName() + ") has no connected input edges, and no data in its '" + FieldName.PYDATA + "' field. The node will not contain data.";
                 const issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
-                node.issues().push({issue:issue,validity:Errors.Validity.Warning})
+                node.issues().push({issue:issue,validity:Validity.Warning})
             }
 
             if (hasInputEdge && pydataField && hasPydataValue){
                 const message: string = node.category() + " node (" + node.getName() + ") has a connected input edge, and also contains data in its '" + FieldName.PYDATA + "' field. The two sources of data could cause a conflict. Note that a " + FieldName.PYDATA + " field is considered a source of data if its value is NOT '" + Daliuge.DEFAULT_PYDATA_VALUE + "'.";
                 const issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, location, node)}, function(){if (pydataField.getValue() === ""){pydataField.setValue(Daliuge.DEFAULT_PYDATA_VALUE);}}, "Replace empty pydata with default value (" + Daliuge.DEFAULT_PYDATA_VALUE + ")");
-                node.issues().push({issue:issue,validity:Errors.Validity.Warning})
+                node.issues().push({issue:issue,validity:Validity.Warning})
             }
         }
 
         // check embedded application categories are not 'None'
         if (inputApplication !== null && inputApplication.getCategory() === CategoryName.None){
             const issue = Errors.Message("Node (" + node.getName() + ") has input application with category 'None'.")
-            node.issues().push({issue:issue,validity:Errors.Validity.Error});
+            node.issues().push({issue:issue,validity:Validity.Error});
         }
         if (outputApplication !== null && outputApplication.getCategory() === CategoryName.None){
             const issue = Errors.Message("Node (" + node.getName() + ") has output application with category 'None'.")
-            node.issues().push({issue:issue,validity:Errors.Validity.Error});
+            node.issues().push({issue:issue,validity:Validity.Error});
         }
 
         // check that Service nodes have inputApplications with no output ports!
         if (node.getCategory() === CategoryName.Service && inputApplication !== null && inputApplication.getOutputPorts().length > 0){
             const issue = Errors.Message("Node (" + node.getName() + ") is a Service node, but has an input application with at least one output.")
-            node.issues().push({issue:issue,validity:Errors.Validity.Error});
+            node.issues().push({issue:issue,validity:Validity.Error});
         }
 
         // check that this category of node contains all the fields it requires
@@ -2300,7 +2300,7 @@ export class Node {
                 if (funcCodeValue !== null && funcNameValue !== null && funcCodeValue.trim() !== ""){
                     if (!funcCodeValue.includes(funcNameValue)){
                         const issue = Errors.Show("Node (" + node.getName() + ") has a value of func_name (" + funcNameValue + ") which does not appear in its func_code field.", function(){Utils.showNode(eagle, location, node)});
-                        node.issues().push({issue:issue,validity:Errors.Validity.Error});
+                        node.issues().push({issue:issue,validity:Validity.Error});
                     }
                 }
             }
@@ -2310,7 +2310,7 @@ export class Node {
         for (const [id, field] of node.fields()){
             if (id !== field.getId()){
                 const issue = Errors.Show("Node (" + node.getName() + ") has mismatch between key in fields dict, and id of fields dict value.", function(){Utils.showNode(eagle, location, node)});
-                node.issues().push({issue: issue, validity: Errors.Validity.Error});
+                node.issues().push({issue: issue, validity: Validity.Error});
             }
         }
     }
@@ -2355,11 +2355,11 @@ export class Node {
         if (typeof existingField === 'undefined'){
             const message = "Node (" + node.getName() + ":" + node.category() + ":" + node.categoryType() + ") does not have the required '" + field.getDisplayText() + "' field";
             const issue = Errors.ShowFix(message, function(){Utils.showNode(eagle, location, node);}, function(){Utils.addMissingRequiredField(eagle, node, field);}, "Add missing " + field.getDisplayText() + " field.")
-            node.issues().push({issue:issue,validity:Errors.Validity.Error});
+            node.issues().push({issue:issue,validity:Validity.Error});
         } else if (existingField.getParameterType() !== field.getParameterType()){
             const message = "Node (" + node.getName() + ") has a '" + field.getDisplayText() + "' field with the wrong parameter type (" + existingField.getParameterType() + "), should be a " + field.getParameterType();
             const issue = Errors.ShowFix(message, function(){Utils.showField(eagle, location, node, existingField);}, function(){Utils.fixFieldParameterType(eagle, node, existingField, field.getParameterType())}, "Switch type of field to '" + field.getParameterType())
-            existingField.addError(issue,Errors.Validity.Error)
+            existingField.addError(issue,Validity.Error)
         }
     }
 }

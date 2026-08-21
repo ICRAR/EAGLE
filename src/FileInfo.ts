@@ -1,11 +1,11 @@
+import { RepositoryService } from './Repository';
 import * as ko from "knockout";
 
 import { Eagle, EagleFileType } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { Errors, type ErrorsWarnings } from './Errors';
 import { FileLocation } from "./FileLocation";
-import { Repository } from "./Repository";
-import { SchemaVersion, Setting } from "./Setting";
+import { SchemaVersion } from "./Setting";
 import { Utils } from './Utils';
 
 
@@ -48,7 +48,7 @@ export class FileInfo {
         this._shortDescription = ko.observable("");
         this._detailedDescription = ko.observable("");
         this._type = ko.observable<EagleFileType>(EagleFileType.Unknown);
-        this._schemaVersion = ko.observable<SchemaVersion>(Setting.SchemaVersion.Unknown);
+        this._schemaVersion = ko.observable<SchemaVersion>(SchemaVersion.Unknown);
         this._readonly = ko.observable(true);
         this._location = ko.observable(new FileLocation());
 
@@ -229,7 +229,7 @@ export class FileInfo {
         this._shortDescription("");
         this._detailedDescription("");
         this._type(EagleFileType.Unknown);
-        this._schemaVersion(Setting.SchemaVersion.Unknown);
+        this._schemaVersion(SchemaVersion.Unknown);
         this._readonly(true);
         this._location().clear();
 
@@ -287,7 +287,7 @@ export class FileInfo {
     }
 
     removeGitInfo = () : void => {
-        this._location().repositoryService(Repository.Service.Unknown);
+        this._location().repositoryService(RepositoryService.Unknown);
         this._location().repositoryBranch("");
         this._location().repositoryName("");
         this._location().repositoryPath("");
@@ -324,7 +324,7 @@ export class FileInfo {
 
     getSummaryHTML = (title : string) : string => {
         let text
-        if (this._location().repositoryService() === Repository.Service.Unknown){
+        if (this._location().repositoryService() === RepositoryService.Unknown){
             text = "- Location -</br>Url:&nbsp;" + this._repositoryUrl() + "</br>Hash:&nbsp;" + this._location().commitHash();
         } else {
             text = "<p>" + this._location().repositoryService() + " : " + this._location().repositoryName() + ((this._location().repositoryBranch() == "") ? "" : ("(" + this._location().repositoryBranch() + ")")) + " : " + this._location().repositoryPath() + "/" + this._name() + "</p>";
@@ -471,7 +471,7 @@ export class FileInfo {
 
         const fileName = Utils.getFileNameFromFullPath(modelData.filePath);
         const filePath = Utils.getFilePathFromFullPath(modelData.filePath);
-        const repoService = modelData.repoService ?? Repository.Service.Unknown;
+        const repoService = modelData.repoService ?? RepositoryService.Unknown;
 
         result.name = fileName;
         result.shortDescription = modelData.shortDescription ?? "";
@@ -494,7 +494,7 @@ export class FileInfo {
         // For URL-backed graphs we store the full URL in repositoryFileName and
         // keep repositoryPath empty. This matches updateFileInfo() behavior and
         // keeps graphLocation comparisons stable across undo reloads.
-        if (repoService === Repository.Service.Url){
+        if (repoService === RepositoryService.Url){
             const url = modelData.downloadUrl ?? modelData.filePath ?? "";
             result.location.repositoryPath("");
             result.location.repositoryFileName(url);

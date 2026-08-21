@@ -21,9 +21,6 @@ export enum Mode {
 }
 
 export class Errors {
-    static readonly Validity = Validity;
-    static readonly Mode = Mode;
-
     static Message(message: string): Issue {
         return {message: message, show: null, fix: null, fixDescription:""};
     }

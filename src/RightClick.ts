@@ -1,3 +1,4 @@
+import { EagleFileType } from './Eagle';
 import { CategoryName, CategoryType } from './Category';
 import { FieldName } from './Daliuge';
 import { Eagle } from './Eagle';
@@ -230,13 +231,13 @@ export class RightClick {
             collectionOfNodes.forEach(function(node){
                 //this mode is the simplest version for right click adding a node on the graph canvas
                 if(node.isData()){
-                    dataHtml = dataHtml+`<a id='rightclickNode_`+node.getId()+`' onclick='eagle.addNodeToLogicalGraph(null,"`+node.getId()+`",Eagle.AddNodeMode.ContextMenu, null)' class='contextMenuDropdownOption rightClickPaletteNode `+originClass+`'>`+node.getName()+'</a>'
+                    dataHtml = dataHtml+`<a id='rightclickNode_`+node.getId()+`' onclick='eagle.addNodeToLogicalGraph(null,"`+node.getId()+`",EagleAddNodeMode.ContextMenu, null)' class='contextMenuDropdownOption rightClickPaletteNode `+originClass+`'>`+node.getName()+'</a>'
                     dataFound = true
                 }else if (node.isApplication()){
-                    appHtml = appHtml+`<a id='rightclickNode_`+node.getId()+`' onclick='eagle.addNodeToLogicalGraph(null,"`+node.getId()+`",Eagle.AddNodeMode.ContextMenu, null)' class='contextMenuDropdownOption rightClickPaletteNode `+originClass+`'>`+node.getName()+'</a>'
+                    appHtml = appHtml+`<a id='rightclickNode_`+node.getId()+`' onclick='eagle.addNodeToLogicalGraph(null,"`+node.getId()+`",EagleAddNodeMode.ContextMenu, null)' class='contextMenuDropdownOption rightClickPaletteNode `+originClass+`'>`+node.getName()+'</a>'
                     appFound = true
                 }else{
-                    otherHtml = otherHtml+`<a id='rightclickNode_`+node.getId()+`' onclick='eagle.addNodeToLogicalGraph(null,"`+node.getId()+`",Eagle.AddNodeMode.ContextMenu, null)' class='contextMenuDropdownOption rightClickPaletteNode `+originClass+`'>`+node.getName()+'</a>'
+                    otherHtml = otherHtml+`<a id='rightclickNode_`+node.getId()+`' onclick='eagle.addNodeToLogicalGraph(null,"`+node.getId()+`",EagleAddNodeMode.ContextMenu, null)' class='contextMenuDropdownOption rightClickPaletteNode `+originClass+`'>`+node.getName()+'</a>'
                     otherFound = true
                 }
                 nodeFound = true
@@ -509,12 +510,12 @@ export class RightClick {
         let mouseY = thisEvent.clientY+2
 
         if(data instanceof Node||data instanceof Edge || data instanceof Visual){
-            Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
+            Eagle.selectedRightClickLocation(EagleFileType.Graph)
             Eagle.selectedRightClickObject(data)
         }
 
         if(data instanceof Edge){
-            eagle.setSelection(data,Eagle.FileType.Graph)
+            eagle.setSelection(data,EagleFileType.Graph)
         }
 
         // close any existing context menu, the close custom context menu function seems to be doing too much
@@ -594,7 +595,7 @@ export class RightClick {
     
                     $('#rightClickPaletteList').append(paletteList)
     
-                    Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
+                    Eagle.selectedRightClickLocation(EagleFileType.Graph)
                     $('#rightClickSearchBar').trigger("focus")
                     RightClick.initiateQuickSelect()
                 }else{
@@ -616,7 +617,7 @@ export class RightClick {
 
                 $('#customContextMenu').append(`<a class='rightClickPerpetual' onclick="eagle.pasteFromClipboard();">Paste</a>`)
                 $('#customContextMenu').append(`<a class='rightClickPerpetual' onclick="Utils.showModelDataModal('Graph Info', eagle.logicalGraph().fileInfo());">Show Graph Info</a>`)
-                $('#customContextMenu').append(`<a class='rightClickPerpetual' onclick="ParameterTable.openTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.Normal);">Graph Attributes Table</a>`)
+                $('#customContextMenu').append(`<a class='rightClickPerpetual' onclick="ParameterTable.openTable(EagleBottomWindowMode.ConfigParameterTable, ParameterTableSelectType.Normal);">Graph Attributes Table</a>`)
                 $('#customContextMenu').append(`<a class='rightClickPerpetual' onclick="eagle.copyGraphUrl();">Copy Graph URL</a>`)
 
 //edge drop menu options
@@ -628,7 +629,7 @@ export class RightClick {
                     const paletteList = RightClick.createHtmlEdgeDragList(data)
                     $('#rightClickPaletteList').append(paletteList)
     
-                    Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
+                    Eagle.selectedRightClickLocation(EagleFileType.Graph)
                     $('#rightClickSearchBar').trigger("focus")
                     RightClick.initiateQuickSelect()
                 }else{
@@ -648,7 +649,7 @@ export class RightClick {
 
                     //making sure the construct we are trying to add an embedded node to is selected
                     if(data instanceof Node){
-                        eagle.setSelection(data,Eagle.FileType.Graph)
+                        eagle.setSelection(data,EagleFileType.Graph)
                     }
 
                     $('#customContextMenu').append(searchbar)
@@ -657,7 +658,7 @@ export class RightClick {
                     const paletteList = RightClick.createHtmlEligibleEmbeddedNodesList(CategoryType.Application,passedObjectClass)
                     $('#rightClickPaletteList').append(paletteList)
     
-                    Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
+                    Eagle.selectedRightClickLocation(EagleFileType.Graph)
                     $('#rightClickSearchBar').trigger("focus")
                     RightClick.initiateQuickSelect()
                 }else{
@@ -667,22 +668,22 @@ export class RightClick {
 
 //palette node right click options
             }else if(passedObjectClass === 'rightClick_paletteComponent'){
-                Eagle.selectedRightClickLocation(Eagle.FileType.Palette)
+                Eagle.selectedRightClickLocation(EagleFileType.Palette)
     
                 if(Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false)){
                     $('#customContextMenu').append(RightClick.getNodeDescriptionDropdown())
-                    $('#customContextMenu').append('<a onclick="ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.RightClick)">Open Fields Table</a>')
+                    $('#customContextMenu').append('<a onclick="ParameterTable.openTable(EagleBottomWindowMode.NodeParameterTable, ParameterTableSelectType.RightClick)">Open Fields Table</a>')
                     $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,false)>Delete</a>')
                     $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to another palette</a>')
                 }
 
 //hierarchy node right click options
             }else if(passedObjectClass === 'rightClick_hierarchyNode'){
-                Eagle.selectedRightClickLocation(Eagle.FileType.Graph)
+                Eagle.selectedRightClickLocation(EagleFileType.Graph)
 
                 $('#customContextMenu').append(RightClick.getNodeDescriptionDropdown())
-                $('#customContextMenu').append('<a onclick="ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.RightClick)">Open Fields Table</a>')
-                $('#customContextMenu').append('<a onclick="ParameterTable.openTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.RightClick)">Graph Attributes</a>')
+                $('#customContextMenu').append('<a onclick="ParameterTable.openTable(EagleBottomWindowMode.NodeParameterTable, ParameterTableSelectType.RightClick)">Open Fields Table</a>')
+                $('#customContextMenu').append('<a onclick="ParameterTable.openTable(EagleBottomWindowMode.ConfigParameterTable, ParameterTableSelectType.RightClick)">Graph Attributes</a>')
                 $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,false)>Delete</a>')
                 if(Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false)){
                     $('#customContextMenu').append('<a onclick=eagle.addSelectedNodesToPalette("contextMenuRequest")>Add to palette</a>')
@@ -696,7 +697,7 @@ export class RightClick {
                     //check if the node has a field for func code. if so we can add an option to quickly access its contents via the code editor
                     $('#customContextMenu').append('<a onclick=RightClick.editNodeFuncCode()>Edit Function Code</a>')
                 }
-                $('#customContextMenu').append('<a onclick="ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.RightClick)">Open Fields Table</a>')
+                $('#customContextMenu').append('<a onclick="ParameterTable.openTable(EagleBottomWindowMode.NodeParameterTable, ParameterTableSelectType.RightClick)">Open Fields Table</a>')
                 $('#customContextMenu').append('<a onclick="eagle.editNodeDescription()">Open Description</a>')
                 $('#customContextMenu').append('<a onclick="eagle.editNodeComment()">Open Comment</a>')
                 if (data.isConstruct()){

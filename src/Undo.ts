@@ -1,3 +1,4 @@
+import { EagleFileType } from './Eagle';
 /*
 #
 #    ICRAR - International Centre for Radio Astronomy Research
@@ -253,7 +254,7 @@ export class Undo {
         }
 
         // clear selection
-        eagle.setSelection(null, Eagle.FileType.Graph);
+        eagle.setSelection(null, EagleFileType.Graph);
 
         // find the objects in the ids list, and add them to the selection
         for (const id of objectIds){

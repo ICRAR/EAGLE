@@ -79,12 +79,12 @@
                                     <tr data-bind="attr: {'id' : 'tableRow_'+$data.getId()}">
                                         
 <!-- node name field -->
-                                        <td class='columnCell column_NodeName' data-bind="click: function(){Utils.showField($root, Eagle.FileType.Graph, node(), $data)}">
+                                        <td class='columnCell column_NodeName' data-bind="click: function(){Utils.showField($root, EagleFileType.Graph, node(), $data)}">
                                             <input class="tableParameter" type="string" data-bind="value: node().getName(), disabled: true, eagleTooltip: node().getDescription()">
                                         </td>
 
 <!-- display text field -->
-                                        <td class='columnCell column_DisplayText' data-bind=" css: { selectedTableParameter: ParameterTable.isSelected('displayText', $data) }, eagleTooltip:description, click: function(){Utils.showField($root, Eagle.FileType.Graph, node(), $data)}">
+                                        <td class='columnCell column_DisplayText' data-bind=" css: { selectedTableParameter: ParameterTable.isSelected('displayText', $data) }, eagleTooltip:description, click: function(){Utils.showField($root, EagleFileType.Graph, node(), $data)}">
                                             <input class="tableParameter selectionTargets tableFieldDisplayName" placeholder="New Parameter" type="string" data-bind="value: displayText, disabled: true, valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $data, $index())}, event:{blur: function(){$(event.target).removeClass('newEmpty')} ,keyup: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $data, $index())}}">
                                         </td>
                                             
