@@ -13,7 +13,8 @@ At this stage, you are defining workflow structure and parameters.
 
 
 .. raw:: html
-    :file: _static/helloWorld_creation_video.html
+
+    <video controls src="_static/videos/playwrightHelloWorld_creation.webm"></video>
 
 A logical graph is not executed directly.
 It must be translated into a :doc:`Physical Graph Template <graphs>` before execution.
@@ -26,6 +27,5 @@ Execute the physical graph using your selected execution environment.
 The video demonstrates one local Docker-based approach.
 
 .. raw:: html
-    :file: _static/helloWorld_execute_graph.html
 
-
+    <video controls src="_static/videos/helloWorld_execute_graph.mp4"></video>

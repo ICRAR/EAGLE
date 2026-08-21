@@ -15,7 +15,19 @@ EAGLE is the UI for the `DALiuGE <https://daliuge.readthedocs.io>`_ workflow fra
 You design workflows as connected components, tune parameters, translate to a deployable graph, and then execute.
 
 .. raw:: html
-    :file: _static/intro_map.html
+
+    <img src="_static/images/full_process_diagram.png" alt="Full process diagram" usemap="#process" style="display:block;margin-left:auto;margin-right:auto;">
+
+    <map name="process">
+    <area shape="rect" coords="150,20,450,114" alt="Execution" href="#execution" style="outline-style:none">
+    <area shape="rect" coords="150,115,450,222" alt="Translation" href="#translation" style="outline-style:none">
+    <area shape="rect" coords="123,219,450,330" alt="Graph parameters" href="#graph-parameters" style="outline-style:none">
+    <area shape="rect" coords="150,333,450,438" alt="Graph construction" href="#graph-construction" style="outline-style:none">
+    <area shape="rect" coords="150,439,450,544" alt="Palette" href="#palette" style="outline-style:none">
+    <area shape="rect" coords="150,545,450,648" alt="Component description" href="#component-description" style="outline-style:none">
+    <area shape="rect" coords="150,649,450,756" alt="Component" href="#component" style="outline-style:none">
+    <area shape="rect" coords="150,757,450,867" alt="Application" href="#application" style="outline-style:none">
+    </map>
 
 .. .. figure:: _static/images/full_process_diagram.png
 ..   :width: 600px
