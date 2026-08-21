@@ -43,8 +43,8 @@ import { EagleConfig } from "./EagleConfig";
 import { Edge } from './Edge';
 import { Errors, type ErrorsWarnings, type Issue, Validity } from './Errors';
 import { Field } from './Field';
-import { FileInfo } from "./FileInfo";
-import { FileLocation } from "./FileLocation";
+import type { FileInfo } from "./FileInfo";
+import type { FileLocation } from "./FileLocation";
 import { GraphConfig } from "./GraphConfig";
 import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 import { GraphRenderer } from "./GraphRenderer";
@@ -69,7 +69,7 @@ import { Node } from './Node';
 import { Palette } from './Palette';
 import { ParameterTable } from "./ParameterTable";
 import { Repository, RepositoryCommit, RepositoryService } from './Repository';
-import { RepositoryFile } from './RepositoryFile';
+import type { RepositoryFile } from './RepositoryFile';
 import { SchemaVersion, Setting } from './Setting';
 import { UiModeSystem } from "./UiModes";
 import { Visual } from "./Visual";
@@ -176,7 +176,7 @@ export class Utils {
     // extracts a file name from the full path.
     static getFileNameFromFullPath(fullPath : string) : string {
         if (typeof fullPath === 'undefined'){return "";}
-        return fullPath.replace(/^.*[\\\/]/, '');
+        return fullPath.replace(/^.*[\\/]/, '');
     }
 
     // extracts a file path (not including the file name) from the full path.
@@ -238,9 +238,9 @@ export class Utils {
 
         const pos = basename.lastIndexOf(".");           // get last position of `.`
 
-        if (basename === "" || pos < 1)            // if file name is empty or ...
+        if (basename === "" || pos < 1){           // if file name is empty or ...
             return "";                             //  `.` not found (-1) or comes first (0)
-
+        }
         return basename.slice(pos + 1);            // extract extension ignoring `.`
     }
 
@@ -252,7 +252,7 @@ export class Utils {
         const fileExtension = Utils.getFileExtension(filename);
 
         // Check if the extension is in the list of allowed extensions
-        if ($.inArray(fileExtension, Utils.FILE_EXTENSIONS) != -1) {
+        if ($.inArray(fileExtension, Utils.FILE_EXTENSIONS) !== -1) {
             return true;
         } else {
             return false;
@@ -414,7 +414,7 @@ export class Utils {
             // first make sure the jsonString is parsable as JSON
             try {
                 JSON.parse(jsonString);
-            } catch (e) {
+            } catch (_e) {
                 reject("Attempting to send an invalid JSON string");
                 return;
             }
@@ -694,7 +694,7 @@ export class Utils {
                 return { isValid: false, message: label + " cannot have path segments starting with '.'." };
             }
 
-            if (/[\x00-\x1F\x7F~^:?*\[\\]/.test(userString)){
+            if (/[\x00-\x1F\x7F~^:?*[\\]/.test(userString)){
                 return { isValid: false, message: label + " contains invalid characters." };
             }
 
@@ -2041,7 +2041,7 @@ export class Utils {
         const jsonObject = JSON.parse(jsonString);
         const validatorResult : {valid: boolean, errors: string} = Utils._validateJSON(jsonObject, version, fileType);
         if (!validatorResult.valid){
-            Utils.showNotification("Error",  "JSON Output failed validation against internal JSON schema, saving anyway" + "<br/>" + validatorResult.errors, "danger", true);
+            Utils.showNotification("Error",  "JSON Output failed validation against internal JSON schema, saving anyway<br/>" + validatorResult.errors, "danger", true);
         }
     }
 
@@ -2242,7 +2242,7 @@ export class Utils {
 
         function walk(parent: Element | DocumentFragment): void {
             for (const child of Array.from(parent.childNodes)) {
-                if (!(child instanceof Element)) continue;
+                if (!(child instanceof Element)) { continue; }
                 const tag = child.tagName.toLowerCase();
                 if (!ALLOWED_TAGS.has(tag)) {
                     if (DANGEROUS_TAGS.has(tag)) {
@@ -3303,7 +3303,7 @@ export class Utils {
     }
     
     static enumKeys<O extends object, K extends keyof O = keyof O>(obj: O): K[] {
-        return Object.keys(obj).filter(k => Number.isNaN(+k)) as K[];
+        return Object.keys(obj).filter(k => Number.isNaN(Number(k))) as K[];
     }
 
     static createCommitJsonString(jsonString: string, repository: Repository, token: string, fullFileName: string, commitMessage: string): string {
@@ -3551,13 +3551,15 @@ export class Utils {
     }
 
     // a wait/delay for a given number of milliseconds (used for debugging)
-    static delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+    static delay = (ms: number) => new Promise(res => {
+        setTimeout(res, ms);
+    });
 
     // sanitize a string to be used as a filename
     static sanitizeFileName = (name: string): string => {
         // Replace invalid filename characters with underscores
         // This regex covers most OS restrictions (Windows, macOS, Linux)
-        return name.replace(/[^a-zA-Z0-9_\-\.]/g, "_");
+        return name.replace(/[^a-zA-Z0-9_.-]/g, "_");
     }
 
     // Reads a value from a DOM element using a zero-argument jQuery method (e.g. 'val').

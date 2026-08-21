@@ -3,10 +3,10 @@ import * as ko from "knockout";
 import { EagleFileType } from './Eagle';
 import { GitHub } from './GitHub';
 import { GitLab } from "./GitLab";
-import { FileLocation } from "./FileLocation";
+import type { FileLocation } from "./FileLocation";
 import { Id } from './Id';
-import { RepositoryFolder } from './RepositoryFolder';
-import { RepositoryFile } from './RepositoryFile';
+import type { RepositoryFolder } from './RepositoryFolder';
+import type { RepositoryFile } from './RepositoryFile';
 import { Utils } from './Utils';
 
 export enum RepositoryService {
@@ -128,23 +128,18 @@ export class Repository {
         if (path === ""){
             return this;
         }
-
-        let pointer: Repository | RepositoryFolder = this;
-        const pathParts: string[] = path.split('/');
+        let pointer: RepositoryFolder | null = null;
+        const pathParts: string[] = path.split('/').filter((pathPart) => pathPart !== "");
 
         for (const pathPart of pathParts){
-            let foundPathPart = false;
+            const folders = pointer === null ? this.folders() : pointer.folders();
+            const nextPointer = folders.find((folder) => folder.name === pathPart) ?? null;
 
-            for (const folder of pointer.folders()){
-                if (folder.name === pathPart){
-                    foundPathPart = true;
-                    pointer = folder;
-                }
-            }
-
-            if (!foundPathPart){
+            if (nextPointer === null){
                 return null;
             }
+
+            pointer = nextPointer;
         }
     
         return pointer;
@@ -157,31 +152,21 @@ export class Repository {
                 resolve();
                 return;
             }
-
-            let pointer: Repository | RepositoryFolder = this;
-            const pathParts: string[] = path.split('/');
+            let pointer: RepositoryFolder | null = null;
+            const pathParts: string[] = path.split('/').filter((pathPart) => pathPart !== "");
 
             for (const pathPart of pathParts){
-                if (pathPart === ""){
-                    break;
-                }
+                const folders = pointer === null ? this.folders() : pointer.folders();
+                const nextPointer = folders.find((folder) => folder.name === pathPart) ?? null;
 
-                let foundPathPart = false;
-
-                for (const folder of pointer.folders()){
-                    if (folder.name === pathPart){
-                        foundPathPart = true;
-                        pointer = folder;
-                        await folder.select();
-                        break;
-                    }
-                }
-
-                // if we could not find one step in the path, then abort
-                if (!foundPathPart){
-                    reject(new Error("Could not find path part (" + pathPart + "), pointer is at " + pointer.name));
+                if (nextPointer === null){
+                    const pointerName = pointer === null ? this.name : pointer.name;
+                    reject(new Error("Could not find path part (" + pathPart + "), pointer is at " + pointerName));
                     return;
                 }
+
+                pointer = nextPointer;
+                await pointer.select();
             }
 
             resolve();
@@ -259,27 +244,21 @@ export class Repository {
     refreshPath = async (path: string) : Promise<void> => {
         return new Promise(async(resolve, reject) => {
             await this.refresh();
-
-            let pointer: Repository | RepositoryFolder = this;
-            const pathParts: string[] = path.split('/');
+            let pointer: RepositoryFolder | null = null;
+            const pathParts: string[] = path.split('/').filter((pathPart) => pathPart !== "");
 
             for (const pathPart of pathParts){
-                let foundPathPart = false;
+                const folders = pointer === null ? this.folders() : pointer.folders();
+                const nextPointer = folders.find((folder) => folder.name === pathPart) ?? null;
 
-                for (const folder of pointer.folders()){
-                    if (folder.name === pathPart){
-                        foundPathPart = true;
-                        pointer = folder;
-                        await folder.refresh();
-                        break;
-                    }
-                }
-
-                // if we could not find one step in the path, then abort
-                if (!foundPathPart){
-                    reject(new Error("Could not find path part (" + pathPart + "), pointer is at " + pointer.name));
+                if (nextPointer === null){
+                    const pointerName = pointer === null ? this.name : pointer.name;
+                    reject(new Error("Could not find path part (" + pathPart + "), pointer is at " + pointerName));
                     return;
                 }
+
+                pointer = nextPointer;
+                await pointer.refresh();
             }
 
             resolve();
@@ -287,21 +266,35 @@ export class Repository {
     }
 
     deleteFile = (file: RepositoryFile) : void => {
-        let pointer: Repository | RepositoryFolder = this;
-        let lastPointer: Repository | RepositoryFolder = pointer;
         const fileIsInTopLevelOfRepo: boolean = file.path === "";
-
-        if (!fileIsInTopLevelOfRepo){
-            // traverse down the folder structure
-            const pathParts: string[] = file.path.split('/');
-            for (const pathPart of pathParts){
-                for (const folder of pointer.folders()){
-                    if (folder.name === pathPart){
-                        lastPointer = pointer;
-                        pointer = folder;
-                    }
+        if (fileIsInTopLevelOfRepo){
+            for (let i = 0 ; i < this.files().length; i++){
+                if (this.files()[i]._id === file._id){
+                    this.files.splice(i, 1);
+                    break;
                 }
             }
+            return;
+        }
+
+        const pathParts: string[] = file.path.split('/').filter((pathPart) => pathPart !== "");
+        let pointer: RepositoryFolder | null = null;
+        let parentPointer: RepositoryFolder | null = null;
+
+        for (const pathPart of pathParts){
+            const folders = pointer === null ? this.folders() : pointer.folders();
+            const nextPointer = folders.find((folder) => folder.name === pathPart) ?? null;
+
+            if (nextPointer === null){
+                return;
+            }
+
+            parentPointer = pointer;
+            pointer = nextPointer;
+        }
+
+        if (pointer === null){
+            return;
         }
 
         // remove the file here
@@ -314,12 +307,12 @@ export class Repository {
 
         // check if we removed the last file in the folder
         // if so, the remove the folder too
-        if (!fileIsInTopLevelOfRepo){
-            if (pointer.files().length === 0){
-                for (let i = 0; i < lastPointer.folders().length ; i++){
-                    if (lastPointer.folders()[i].name === pointer.name){
-                        lastPointer.folders.splice(i, 1);
-                    }
+        if (pointer.files().length === 0){
+            const parentFolders = parentPointer === null ? this.folders() : parentPointer.folders();
+            for (let i = 0; i < parentFolders.length ; i++){
+                if (parentFolders[i] === pointer){
+                    parentFolders.splice(i, 1);
+                    break;
                 }
             }
         }
@@ -336,26 +329,19 @@ export class Repository {
     // 2. alphabetically by name
     // 3. alphabetically by branch (master always first)
     public static repositoriesSortFunc(a : Repository, b : Repository) : number {
-        if (a.service < b.service)
-            return -1;
+        if (a.service < b.service) { return -1; }
+        
+        if (a.service > b.service) { return 1; }
 
-        if (a.service > b.service)
-            return 1;
+        if (a.name < b.name) { return -1; }
 
-        if (a.name < b.name)
-            return -1;
+        if (a.name > b.name) { return 1; }
 
-        if (a.name > b.name)
-            return 1;
+        if (a.branch === "master") { return -1; }
 
-        if (a.branch === "master")
-            return -1;
+        if (a.branch < b.branch) { return -1; }
 
-        if (a.branch < b.branch)
-            return -1;
-
-        if (a.branch > b.branch)
-            return 1;
+        if (a.branch > b.branch) { return 1; }
 
         return 0;
     }

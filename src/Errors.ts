@@ -166,7 +166,7 @@ export class Errors {
                 if (errorObj.error){
                     return errorObj.error;
                 }
-            } catch (err){
+            } catch (_err){
                 // not JSON, ignore
                 return error;
             }

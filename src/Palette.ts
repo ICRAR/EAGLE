@@ -32,7 +32,7 @@ import { Errors, type ErrorsWarnings } from './Errors';
 import { FileInfo } from './FileInfo';
 import { FileLocation } from "./FileLocation";
 import { Node } from './Node';
-import { RepositoryFile } from './RepositoryFile';
+import type { RepositoryFile } from './RepositoryFile';
 import { SchemaVersion, Setting } from "./Setting";
 import { Utils } from './Utils';
 import { UiModeSystem } from "./UiModes";

@@ -26,7 +26,7 @@ import { EagleFileType } from './Eagle';
 import * as ko from "knockout";
 
 import { Eagle } from './Eagle';
-import { type ErrorsWarnings } from "./Errors";
+import type { ErrorsWarnings } from "./Errors";
 import { Hierarchy } from "./Hierarchy";
 import { LogicalGraph } from './LogicalGraph';
 import { ParameterTable } from "./ParameterTable";

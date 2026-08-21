@@ -5,12 +5,12 @@ import { CategoryName } from './Category';
 import { DLGFieldType, Daliuge, DataType, Encoding, FieldName, FieldType, FieldUsage } from './Daliuge';
 import { Eagle, EagleBottomWindowMode, EagleFileType } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
-import { Edge } from "./Edge";
+import type { Edge } from "./Edge";
 import { Errors, type ErrorsWarnings, type Issue, Validity } from './Errors';
-import { GraphConfigField } from "./GraphConfig";
+import type { GraphConfigField } from "./GraphConfig";
 import { Id } from './Id';
-import { LogicalGraph } from './LogicalGraph';
-import { Node } from './Node';
+import type { LogicalGraph } from './LogicalGraph';
+import type { Node } from './Node';
 import { Setting, ShowErrorsMode } from './Setting';
 import { Utils } from './Utils';
 
@@ -138,7 +138,7 @@ export class Field {
     }
 
     getDescriptionText : ko.PureComputed<string> = ko.pureComputed(() => {
-        return this.description() == "" ? "No description available" + " (" + this.type() + ", default value:'" + this.defaultValue() + "')" : this.description() + " (" + this.type() + ", default value:'" + this.defaultValue() + "')";
+        return this.description() === "" ? "No description available (" + this.type() + ", default value:'" + this.defaultValue() + "')" : this.description() + " (" + this.type() + ", default value:'" + this.defaultValue() + "')";
     }, this);
 
     getInputPosition = () : {x:number, y:number} => {
@@ -628,38 +628,37 @@ export class Field {
 
         let searchTermNo : number = 0
         let searchTermTrueNo : number = 0
-        const that = this
         const bottomWindowMode = Setting.findValue<EagleBottomWindowMode>(Setting.BOTTOM_WINDOW_MODE, EagleBottomWindowMode.None);
 
-        Eagle.tableSearchString().toLocaleLowerCase().split(',').forEach(function(term){
+        Eagle.tableSearchString().toLocaleLowerCase().split(',').forEach((term) => {
             term = term.trim()
             searchTermNo ++
             let result : boolean = false
 
             //check if the display text matches
-            if(that.displayText().toLowerCase().indexOf(term) >= 0){
+            if(this.displayText().toLowerCase().indexOf(term) >= 0){
                 result = true
             }
 
             //check if the node name matches, but only if using the key parameter table modal
             if(bottomWindowMode === EagleBottomWindowMode.ConfigParameterTable){
-                if(that.node().getName().toLowerCase().indexOf(term) >= 0){
+                if(this.node().getName().toLowerCase().indexOf(term) >= 0){
                     result = true
                 }
             }
 
             //check if the usage matches
-            if(that.usage().toLowerCase().indexOf(term) >= 0){
+            if(this.usage().toLowerCase().indexOf(term) >= 0){
                 result = true
             }
 
             //check if the parameter type matches
-            if(that.parameterType().toLowerCase().indexOf(term) >= 0){   
+            if(this.parameterType().toLowerCase().indexOf(term) >= 0){   
                 result = true
             }
 
             //check if the type matches
-            if(that.type().toLowerCase().indexOf(term) >= 0){
+            if(this.type().toLowerCase().indexOf(term) >= 0){
                 result = true
             }
 
@@ -845,15 +844,10 @@ export class Field {
         let encoding: Encoding = Encoding.Pickle;
         let fieldChangeable: boolean = changeable;
 
-        if (typeof data.id !== 'undefined')
-            id = data.id;
-            
-        if (typeof data.name !== 'undefined')
-            name = data.name;
-        if (typeof data.description !== 'undefined')
-            description = data.description;
-        if (typeof data.readonly !== 'undefined')
-            readonly = data.readonly;
+        if (typeof data.id !== 'undefined') { id = data.id; }   
+        if (typeof data.name !== 'undefined') { name = data.name; }
+        if (typeof data.description !== 'undefined') { description = data.description; }
+        if (typeof data.readonly !== 'undefined') { readonly = data.readonly; }
         if (typeof data.type !== 'undefined'){
             if (data.type === "Event"){
                 isEvent = true;
@@ -863,18 +857,16 @@ export class Field {
                 type = data.type;
             }
         }
-        if (typeof data.value !== 'undefined' && data.value !== null)
+        if (typeof data.value !== 'undefined' && data.value !== null) {
             value = data.value.toString();
-        if (typeof data.defaultValue !== 'undefined' && data.defaultValue !== null)
+        }
+        if (typeof data.defaultValue !== 'undefined' && data.defaultValue !== null) {
             defaultValue = data.defaultValue.toString();
-        if (typeof data.precious !== 'undefined')
-            precious = data.precious;
-        if (typeof data.options !== 'undefined')
-            options = data.options;
-        if (typeof data.positional !== 'undefined')
-            positional = data.positional;
-        if (typeof data.changeable !== 'undefined')
-            fieldChangeable = data.changeable;
+        }
+        if (typeof data.precious !== 'undefined') { precious = data.precious; }
+        if (typeof data.options !== 'undefined') { options = data.options; }
+        if (typeof data.positional !== 'undefined') { positional = data.positional; }
+        if (typeof data.changeable !== 'undefined') { fieldChangeable = data.changeable; }
 
         // handle legacy fieldType
         if (typeof data.fieldType !== 'undefined'){
@@ -908,14 +900,12 @@ export class Field {
             }
         }
 
-        if (typeof data.parameterType !== 'undefined')
+        if (typeof data.parameterType !== 'undefined') {
             parameterType = Daliuge.dlgToFieldTypeMap[<DLGFieldType>data.parameterType] || FieldType.Unknown;
-        if (typeof data.usage !== 'undefined')
-            usage = data.usage;
-        if (typeof data.event !== 'undefined')
-            isEvent = data.event;
-        if (typeof data.encoding !== 'undefined')
-            encoding = data.encoding;
+        }
+        if (typeof data.usage !== 'undefined') { usage = data.usage; }
+        if (typeof data.event !== 'undefined') { isEvent = data.event; }
+        if (typeof data.encoding !== 'undefined') { encoding = data.encoding; }
         const result = new Field(node, id, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage);
         result.isEvent(isEvent);
         result.encoding(encoding);
@@ -930,16 +920,11 @@ export class Field {
         let description: string = "";
         let encoding: Encoding = Encoding.Pickle;
 
-        if (typeof data.name !== 'undefined')
-            name = data.name;
-        if (typeof data.event !== 'undefined')
-            event = data.event;
-        if (typeof data.type !== 'undefined')
-            type = data.type;
-        if (typeof data.description !== 'undefined')
-            description = data.description;
-        if (typeof data.encoding !== 'undefined')
-            encoding = data.encoding;
+        if (typeof data.name !== 'undefined') { name = data.name; }
+        if (typeof data.event !== 'undefined') { event = data.event; }
+        if (typeof data.type !== 'undefined') { type = data.type; }
+        if (typeof data.description !== 'undefined') { description = data.description; }
+        if (typeof data.encoding !== 'undefined') { encoding = data.encoding; }
 
         // avoid empty text fields if we can
         if (name === ""){
@@ -971,41 +956,28 @@ export class Field {
         let encoding: Encoding = Encoding.Pickle;
         let fieldChangeable: boolean = changeable;
 
-        if (typeof data.id !== 'undefined')
-            id = data.id;
-        if (typeof data.name !== 'undefined')
-            name = data.name;
-        if (typeof data.value !== 'undefined')
+        if (typeof data.id !== 'undefined') { id = data.id; }
+        if (typeof data.name !== 'undefined') { name = data.name; }
+        if (typeof data.value !== 'undefined') {
             if (data.value !== null){
                 value = data.value.toString();
             } else {
                 value = null;
             }
-        if (typeof data.defaultValue !== 'undefined')
-            defaultValue = data.defaultValue.toString();
-        if (typeof data.description !== 'undefined')
-            description = data.description;
-        if (typeof data.readonly !== 'undefined')
-            readonly = data.readonly;
-        if (typeof data.type !== 'undefined')
-            type = data.type;
-        if (typeof data.precious !== 'undefined')
-            precious = data.precious;
-        if (typeof data.options !== 'undefined')
-            options = data.options;
-        if (typeof data.positional !== 'undefined')
-            positional = data.positional;
-        if (typeof data.changeable !== 'undefined')
-            fieldChangeable = data.changeable;
-        if (typeof data.parameterType !== 'undefined')
-            parameterType = data.parameterType;
-        if (typeof data.usage !== 'undefined')
-            usage = data.usage;
+        }
+        if (typeof data.defaultValue !== 'undefined') { defaultValue = data.defaultValue.toString(); }
+        if (typeof data.description !== 'undefined') { description = data.description; }
+        if (typeof data.readonly !== 'undefined') { readonly = data.readonly; }
+        if (typeof data.type !== 'undefined') { type = data.type; }
+        if (typeof data.precious !== 'undefined') { precious = data.precious; }
+        if (typeof data.options !== 'undefined') { options = data.options; }
+        if (typeof data.positional !== 'undefined') { positional = data.positional; }
+        if (typeof data.changeable !== 'undefined') { fieldChangeable = data.changeable; }
+        if (typeof data.parameterType !== 'undefined') { parameterType = data.parameterType; }
+        if (typeof data.usage !== 'undefined') { usage = data.usage; }
 
-        if (typeof data.event !== 'undefined')
-            event = data.event;
-        if (typeof data.encoding !== 'undefined')
-            encoding = data.encoding;
+        if (typeof data.event !== 'undefined') { event = data.event; }
+        if (typeof data.encoding !== 'undefined') { encoding = data.encoding; }
 
         const f = new Field(node, id, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage);
         f.isEvent(event);
@@ -1185,17 +1157,13 @@ export class Field {
     }
 
     public static sortFunc(a: Field, b: Field) : number {
-        if (a.displayText() < b.displayText())
-            return -1;
+        if (a.displayText() < b.displayText()) { return -1; }
 
-        if (a.displayText() > b.displayText())
-            return 1;
+        if (a.displayText() > b.displayText()) { return 1; }
 
-        if (a.type() < b.type())
-            return -1;
+        if (a.type() < b.type()) { return -1; }
 
-        if (a.type() > b.type())
-            return 1;
+        if (a.type() > b.type()) { return 1; }
 
         return 0;
     }

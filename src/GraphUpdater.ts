@@ -24,14 +24,14 @@ import { Validity } from './Errors';
 */
 
 import { Eagle } from './Eagle';
-import { type ErrorsWarnings } from './Errors';
+import type { ErrorsWarnings } from './Errors';
 import { GitHub } from './GitHub';
 import { GitLab } from './GitLab';
 import { Id } from './Id';
 import { LogicalGraph } from './LogicalGraph';
 import { Repositories } from './Repositories';
 import { Repository, RepositoryService } from './Repository';
-import { RepositoryFile } from './RepositoryFile';
+import type { RepositoryFile } from './RepositoryFile';
 import { SchemaVersion } from './Setting';
 import { Utils } from './Utils';
 
@@ -230,7 +230,7 @@ export class GraphUpdater {
     private static collapseToggleInitialised = false;
 
     static initCollapseToggle(): void {
-        if (GraphUpdater.collapseToggleInitialised) return;
+        if (GraphUpdater.collapseToggleInitialised) { return; }
         const stepsEl = document.getElementById('graphUpdaterSteps');
         const toggleEl = document.getElementById('graphUpdaterStepsToggle');
         if (stepsEl && toggleEl) {
@@ -301,7 +301,7 @@ export class GraphUpdater {
         this.state(GraphUpdaterStatus.Fetching);
 
         // get source repository
-        const srcRepoIndex = parseInt($('#graphUpdaterModalSourceRepositorySelect').val() as string);
+        const srcRepoIndex = parseInt($('#graphUpdaterModalSourceRepositorySelect').val() as string, 10);
         const srcRepo = Repositories.repositories()[srcRepoIndex];
         if (srcRepo === null){
             Utils.showNotification("Error", "Source repository not found", "danger");
@@ -319,7 +319,9 @@ export class GraphUpdater {
         await this.sourceRepository.expandAllAndFindGraphs(async (graphFile) => {
             this.updatedLogicalGraphs.push(new GraphUpdaterFile(graphFile));
             ko.tasks.runEarly();
-            await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+            await new Promise<void>(resolve => {
+                requestAnimationFrame(() => resolve());
+            });
         });
 
         this.state(GraphUpdaterStatus.Fetched);
@@ -394,8 +396,7 @@ export class GraphUpdater {
             let lg: LogicalGraph;
             try {
                 lg = fromJsonFunc(graphObject, graphFile.file().name, {"errors":[], "warnings":[]});
-            }
-            catch (error) {
+            } catch (error) {
                 let errorMessage: string;
 
                 if (schemaVersion === SchemaVersion.Unknown){
@@ -468,7 +469,7 @@ export class GraphUpdater {
                 return;
             }
         } else {
-            const destRepoIndex = parseInt(destRepoValue);
+            const destRepoIndex = parseInt(destRepoValue, 10);
             this.destinationRepository = Repositories.repositories()[destRepoIndex];
         }
 

@@ -53,6 +53,7 @@ export enum CategoryName {
     EnvironmentVariables = "EnvironmentVariables",
 }
 
+// TODO: add to CategoryData somehow? use in Node.isData() etc?
 export enum CategoryType {
     Application = "Application",
     Construct = "Construct",
@@ -72,7 +73,6 @@ export enum CategoryColor {
     Description = "#9d2b60",
     Error       = "#ff66cc",
     Global      = "#228b22",
-    Legacy      = "#ff66cc",
     Object      = "#00bfa6",
     Service     = "#800080"
 }
