@@ -25,7 +25,7 @@ sys.path.insert(0, os.path.abspath("../"))
 # -- Project information -----------------------------------------------------
 
 project = "EAGLE<sup>π"
-copyright = "2023, James Strauss, Vitaliy Ogarko, Andreas Wicenec, Lisa Evans, Moritz Wicenec"
+copyright = "2026, James Strauss, Vitaliy Ogarko, Andreas Wicenec, Lisa Evans, Moritz Wicenec"
 author = "James Strauss, Vitaliy Ogarko, Andreas Wicenec, Lisa Evans, Moritz Wicenec"
 
 # The short X.Y version

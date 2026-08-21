@@ -1,3 +1,5 @@
+.. _graph-configurations:
+
 Graph Configurations
 ====================
 
