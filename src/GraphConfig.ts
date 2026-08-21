@@ -1,6 +1,8 @@
 import * as ko from "knockout";
 
+import type { DataType } from "./Daliuge";
 import { Eagle, EagleFileType } from "./Eagle";
+import { EagleConfig } from "./EagleConfig";
 import { Errors, type ErrorsWarnings } from "./Errors";
 import { Field } from "./Field";
 import { FileInfo } from "./FileInfo";
@@ -8,8 +10,7 @@ import { Id } from "./Id";
 import type { LogicalGraph } from "./LogicalGraph";
 import type { Node } from "./Node";
 import { Utils } from "./Utils";
-import { EagleConfig } from "./EagleConfig";
-import { DataType } from "./Daliuge";
+
 
 export class GraphConfig {
     fileInfo : ko.Observable<FileInfo>;

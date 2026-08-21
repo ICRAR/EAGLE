@@ -1,4 +1,4 @@
-import { Repository, RepositoryService } from "./Repository";
+import { Repository, type RepositoryService } from "./Repository";
 import { Utils } from "./Utils";
 
 export class EagleStorage {

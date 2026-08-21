@@ -3,7 +3,7 @@ import { Eagle, EagleFileType } from './Eagle';
 import type { Field } from './Field';
 import { FileLocation } from "./FileLocation";
 import { Repositories } from './Repositories';
-import { Repository, RepositoryService } from './Repository';
+import { type Repository, RepositoryService } from './Repository';
 import { Setting } from './Setting';
 import { TutorialSystem } from './Tutorial';
 import { UiModeSystem } from './UiModes';

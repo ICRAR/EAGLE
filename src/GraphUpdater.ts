@@ -30,7 +30,7 @@ import { GitLab } from './GitLab';
 import { Id } from './Id';
 import { LogicalGraph } from './LogicalGraph';
 import { Repositories } from './Repositories';
-import { Repository, RepositoryService } from './Repository';
+import { type Repository, RepositoryService } from './Repository';
 import type { RepositoryFile } from './RepositoryFile';
 import { SchemaVersion } from './Setting';
 import { Utils } from './Utils';

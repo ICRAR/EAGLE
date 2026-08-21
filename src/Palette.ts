@@ -26,7 +26,7 @@ import { EagleFileType } from './Eagle';
 
 import * as ko from "knockout";
 
-import { CategoryName, CategoryType } from './Category';
+import type { CategoryName, CategoryType } from './Category';
 import { EagleConfig } from "./EagleConfig";
 import { Errors, type ErrorsWarnings } from './Errors';
 import { FileInfo } from './FileInfo';

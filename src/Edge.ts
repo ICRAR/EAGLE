@@ -30,7 +30,7 @@ import { Daliuge, Encoding, FieldName, FieldUsage } from './Daliuge';
 import { Eagle } from './Eagle';
 import { EagleConfig } from './EagleConfig';
 import { Errors, type ErrorsWarnings, type Issue, Validity } from './Errors';
-import { Field } from './Field';
+import type { Field } from './Field';
 import { Id } from './Id';
 import type { Node } from './Node';
 import { Utils } from './Utils';

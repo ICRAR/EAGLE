@@ -52,18 +52,18 @@ import { Id } from "./Id";
 import { KeyboardShortcut } from './KeyboardShortcut';
 import { LogicalGraph } from './LogicalGraph';
 import {
-    GitCommitCallback,
-    GitCustomRepositoryCallback,
+    type GitCommitCallback,
+    type GitCustomRepositoryCallback,
     Modals,
-    UserChoiceCallback,
-    UserConfirmCallback,
-    UserFieldCallback,
-    UserMarkdownCallback,
-    UserNumberCallback,
-    UserOptionsCallback,
-    UserStringCallback,
-    UserStringValidator,
-    UserTextCallback,
+    type UserChoiceCallback,
+    type UserConfirmCallback,
+    type UserFieldCallback,
+    type UserMarkdownCallback,
+    type UserNumberCallback,
+    type UserOptionsCallback,
+    type UserStringCallback,
+    type UserStringValidator,
+    type UserTextCallback,
 } from "./Modals";
 import { Node } from './Node';
 import { Palette } from './Palette';
@@ -263,11 +263,11 @@ export class Utils {
      * Returns an appropriate diagram file extension.
      */
     static getDiagramExtension(fileType : EagleFileType) : string {
-        if (fileType == EagleFileType.Graph) {
+        if (fileType === EagleFileType.Graph) {
             return "graph";
-        } else if (fileType == EagleFileType.Palette) {
+        } else if (fileType === EagleFileType.Palette) {
             return "palette";
-        } else if (fileType == EagleFileType.GraphConfig) {
+        } else if (fileType === EagleFileType.GraphConfig) {
             return "graphConfig";
         } else {
             console.error("Utils.getDiagramExtension() : Unknown file type! (" + fileType + ")");

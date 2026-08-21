@@ -52,10 +52,10 @@ import { Node } from './Node';
 import { Palette } from './Palette';
 import { ParameterTable } from './ParameterTable';
 import { Repositories } from './Repositories';
-import { Repository, RepositoryCommit, RepositoryService } from './Repository';
+import { Repository, type RepositoryCommit, RepositoryService } from './Repository';
 import { RepositoryFile } from './RepositoryFile';
 import { RightClick } from "./RightClick";
-import { SchemaVersion, Setting, SettingsGroup } from './Setting';
+import { SchemaVersion, Setting, type SettingsGroup } from './Setting';
 import { SideWindow } from './SideWindow';
 import { Translator } from './Translator';
 import type { Tutorial} from './Tutorial';
@@ -65,7 +65,7 @@ import { UiModeSystem } from './UiModes';
 import { Utils } from './Utils';
 import { GraphUpdater } from "./GraphUpdater";
 import { versions } from "./Versions";
-import { Visual, VisualType } from "./Visual";
+import { Visual, type VisualType } from "./Visual";
 
 export enum EagleLeftWindowMode {
     None = "None",

@@ -1,4 +1,4 @@
-import { Eagle } from '../Eagle';
+import type { Eagle } from '../Eagle';
 import { EagleBottomWindowMode } from '../Eagle';
 import { RightClick } from '../RightClick';
 import { TutorialStepType, TutorialStepWait, TutorialSystem } from '../Tutorial';

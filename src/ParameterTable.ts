@@ -848,7 +848,7 @@ export class ParameterTable {
             return false;
         }
         
-        if (Eagle.selectedLocation() != EagleFileType.Palette && Setting.findValue<boolean>(Setting.ALLOW_COMPONENT_EDITING, false)){
+        if (Eagle.selectedLocation() !== EagleFileType.Palette && Setting.findValue<boolean>(Setting.ALLOW_COMPONENT_EDITING, false)){
             return false;
         }
         

@@ -3,7 +3,7 @@ import * as ko from "knockout";
 import { CategoryData } from './CategoryData';
 import { CategoryName } from './Category';
 import { DLGFieldType, Daliuge, DataType, Encoding, FieldName, FieldType, FieldUsage } from './Daliuge';
-import { Eagle, EagleBottomWindowMode, EagleFileType } from './Eagle';
+import { Eagle, EagleBottomWindowMode, type EagleFileType } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import type { Edge } from "./Edge";
 import { Errors, type ErrorsWarnings, type Issue, Validity } from './Errors';
@@ -456,7 +456,7 @@ export class Field {
         const errorsWarnings = this.getErrorsWarnings()
         const showGraphWarnings = Setting.findValue<ShowErrorsMode>(Setting.SHOW_GRAPH_WARNINGS, ShowErrorsMode.None);
 
-        if(errorsWarnings.errors.length>0 && showGraphWarnings != ShowErrorsMode.None){
+        if(errorsWarnings.errors.length>0 && showGraphWarnings !== ShowErrorsMode.None){
             return EagleConfig.getColor('graphError')
         }else if(errorsWarnings.warnings.length>0 && showGraphWarnings === ShowErrorsMode.Warnings){
             return EagleConfig.getColor('graphWarning')
@@ -1106,7 +1106,7 @@ export class Field {
 
         // check that fields have parameter types that are suitable for this node
         // skip the 'drop class' component parameter, those are always suitable for every node
-        if (field.getDisplayText() != FieldName.DROP_CLASS && field.getParameterType() != FieldType.Component){
+        if (field.getDisplayText() !== FieldName.DROP_CLASS && field.getParameterType() !== FieldType.Component){
             if (
                 (field.getParameterType() === FieldType.Component) && !CategoryData.getCategoryInfo(node.getCategory()).canHaveComponentParameters ||
                 (field.getParameterType() === FieldType.Application) && !CategoryData.getCategoryInfo(node.getCategory()).canHaveApplicationArguments ||
