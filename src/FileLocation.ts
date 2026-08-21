@@ -1,6 +1,6 @@
 import * as ko from "knockout";
 
-import { Errors } from "./Errors";
+import type { Errors } from "./Errors";
 import { Repository } from "./Repository";
 import { Utils } from "./Utils";
 

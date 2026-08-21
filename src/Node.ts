@@ -32,7 +32,7 @@ import { EagleConfig } from "./EagleConfig";
 import { Errors } from './Errors';
 import { Field } from './Field';
 import { Id } from './Id';
-import { LogicalGraph } from './LogicalGraph';
+import type { LogicalGraph } from './LogicalGraph';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
 
@@ -149,7 +149,7 @@ export class Node {
     }
 
     getDisplayName : ko.PureComputed<string> = ko.pureComputed(() => {
-        if (this.name() === 'Enter label' || this.name() == ''){
+        if (this.name() === 'Enter label' || this.name() === ''){
             return this.category();
         } else {
             return this.name();
@@ -157,7 +157,7 @@ export class Node {
     }, this);
 
     getPaletteComponentId = () : string => {
-        if (this.name() === 'Enter label' || this.name() == ''){
+        if (this.name() === 'Enter label' || this.name() === ''){
             const processedCategory = this.category().replace(/\s/g, '_')
             return processedCategory;
         } else {
@@ -1269,7 +1269,7 @@ export class Node {
 
     getNodeIssuesHtml : ko.PureComputed<string> = ko.pureComputed(() => {
         const errorsWarnings = this.getAllErrorsWarnings()
-        return 'This Node has **' + errorsWarnings.errors.length + '** errors and **' + errorsWarnings.warnings.length + '** warnings. \ Click to view the graph issues table.'
+        return 'This Node has **' + errorsWarnings.errors.length + '** errors and **' + errorsWarnings.warnings.length + '** warnings. Click to view the graph issues table.'
     }, this);
 
     getInspectorFields : ko.PureComputed<Field[]> = ko.pureComputed(() => {
@@ -1277,21 +1277,19 @@ export class Node {
 
         const importantFields : Field[] = [] //fields for a node we deem important eg. num copies for scatter nodes
         const configFields : Field[] = [] 
-        const selectedNode = this
-
-        for (const field of selectedNode.fields().values()){
+        for (const field of this.fields().values()){
             // get important fields 
-            if(selectedNode.isGather()){
+            if(this.isGather()){
                 if(field.getDisplayText() === Daliuge.FieldName.NUM_OF_INPUTS || field.getDisplayText() === Daliuge.FieldName.GATHER_AXIS){
                     importantFields.push(field)
                     continue;
                 }
-            }else if (selectedNode.isScatter()){
+            }else if (this.isScatter()){
                 if(field.getDisplayText() === Daliuge.FieldName.NUM_OF_COPIES){
                     importantFields.push(field)
                     continue;
                 }
-            }else if (selectedNode.isLoop()){
+            }else if (this.isLoop()){
                 if(field.getDisplayText() === Daliuge.FieldName.NUM_OF_ITERATIONS){
                     importantFields.push(field)
                     continue;

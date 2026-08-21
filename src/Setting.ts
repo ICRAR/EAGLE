@@ -405,6 +405,7 @@ export class Setting {
     static readonly DALIUGE_SCHEMA_VERSION: string = "DaliugeSchemaVersion";
 }
 
+/* eslint-disable @typescript-eslint/no-namespace */
 export namespace Setting {
     export enum Type {
         String,

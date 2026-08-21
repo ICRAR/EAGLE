@@ -5,13 +5,14 @@ import { Eagle } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { Field } from './Field';
 import { Id } from "./Id";
-import { LogicalGraph } from "./LogicalGraph";
+import type { LogicalGraph } from "./LogicalGraph";
 import { Node } from "./Node";
 import { RightClick } from "./RightClick";
 import { Setting } from "./Setting";
 import { UiModeSystem } from "./UiModes";
 import { Utils } from './Utils';
-import { GraphConfig, GraphConfigField } from "./GraphConfig";
+import type { GraphConfigField } from "./GraphConfig";
+import { GraphConfig } from "./GraphConfig";
 import { SideWindow } from "./SideWindow";
 
 export class ParameterTable {
@@ -387,7 +388,7 @@ export class ParameterTable {
     }
 
     static isSelected(selectionName: string, selectionParent: Field): boolean {
-        return ParameterTable.selection() != null && selectionParent == ParameterTable.selectionParent() && ParameterTable.selectionName() == selectionName;
+        return ParameterTable.selection() != null && selectionParent === ParameterTable.selectionParent() && ParameterTable.selectionName() === selectionName;
     }
 
     static resetSelection() : void {
@@ -593,7 +594,6 @@ export class ParameterTable {
             configField.setComment(fieldComment);
         } catch (error){
             console.error(error);
-            return;
         }
     }
 
@@ -843,7 +843,7 @@ export class ParameterTable {
             return false;
         }
         
-        if (Eagle.selectedLocation() != Eagle.FileType.Palette && Setting.findValue<boolean>(Setting.ALLOW_COMPONENT_EDITING, false)){
+        if (Eagle.selectedLocation() !== Eagle.FileType.Palette && Setting.findValue<boolean>(Setting.ALLOW_COMPONENT_EDITING, false)){
             return false;
         }
         
@@ -915,6 +915,7 @@ export class ParameterTable {
     }
 }
 
+/* eslint-disable @typescript-eslint/no-namespace */
 export namespace ParameterTable {
     export enum SelectType {
         Normal = "Normal",
@@ -1135,9 +1136,7 @@ export class ColumnVisibilities {
 
         const columnVisibilitiesObjArray : any[] = JSON.parse(columnVisibilities)
         const that = ParameterTable.getActiveColumnVisibility()
-        if(columnVisibilitiesObjArray === null){
-            return
-        }else{
+        if(columnVisibilitiesObjArray !== null){
             columnVisibilitiesObjArray.forEach(function(columnVisibility){
 
                 const columnVisActual = that.getModeByName(columnVisibility.name)

@@ -26,9 +26,9 @@ import * as ko from "knockout";
 
 import { Id } from './Id';
 import { Utils } from './Utils';
-import { LogicalGraph } from "./LogicalGraph";
-import { Edge } from "./Edge";
-import { Node } from "./Node";
+import type { LogicalGraph } from "./LogicalGraph";
+import type { Edge } from "./Edge";
+import type { Node } from "./Node";
 import { Errors } from "./Errors";
 import { EagleConfig } from "./EagleConfig";
 import { Eagle } from "./Eagle";
@@ -242,6 +242,7 @@ export class Visual {
     }
 }
 
+/* eslint-disable @typescript-eslint/no-namespace */
 export namespace Visual {
     export enum Type {
         Text = "Text",

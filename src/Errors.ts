@@ -149,7 +149,7 @@ export class Errors {
                 if (errorObj.error){
                     return errorObj.error;
                 }
-            } catch (err){
+            } catch (_err){
                 // not JSON, ignore
                 return error;
             }
@@ -159,6 +159,7 @@ export class Errors {
     }
 }
 
+/* eslint-disable @typescript-eslint/no-namespace */
 export namespace Errors
 {
     export type Issue = {message: string, show: (() => void) | null, fix: (() => void) | null, fixDescription: string};

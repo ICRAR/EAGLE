@@ -1,6 +1,6 @@
 import { Daliuge } from './Daliuge';
 import { Eagle } from './Eagle';
-import { Field } from './Field';
+import type { Field } from './Field';
 import { FileLocation } from "./FileLocation";
 import { Repositories } from './Repositories';
 import { Repository } from './Repository';
@@ -596,13 +596,11 @@ export class Modals {
     static showBrowseDockerHub(image: string, tag: string, callback: Modals.UserDockerHubCallback ) : void {
         const dockerHubBrowser = Eagle.getInstance().dockerHubBrowser();
 
-        // check if supplied values are usable, populate the UI,
+        // check if supplied values are usable, populate the UI, otherwise, a fetch is required
         if (image !== ""){
             const username: string = image.split('/')[0];
             dockerHubBrowser.populate(username, image, tag);
-        }
-        else // otherwise, a fetch is required
-        {
+        } else {
             Eagle.getInstance().dockerHubBrowser().fetchImages(null, null);
         }
 
@@ -707,6 +705,7 @@ export class Modals {
     }
 }
 
+/* eslint-disable @typescript-eslint/no-namespace */
 export namespace Modals {
     export type UserStringCallback = (completed: boolean, userString: string) => void;
     export type UserStringValidator = (userString: string) => Utils.ValidationResult;

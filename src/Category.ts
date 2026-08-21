@@ -46,6 +46,7 @@ export enum Category {
     EnvironmentVariables = "EnvironmentVariables",
 }
 
+/* eslint-disable @typescript-eslint/no-namespace */
 export namespace Category {
 
     export type CategoryData = {
@@ -84,7 +85,6 @@ export namespace Category {
         Description = "#9d2b60",
         Error       = "#ff66cc",
         Global      = "#228b22",
-        Legacy      = "#ff66cc",
         Object      = "#00bfa6",
         Service     = "#800080"
     }

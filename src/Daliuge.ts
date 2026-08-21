@@ -41,6 +41,7 @@ export class Daliuge {
     }
 }
 
+/* eslint-disable @typescript-eslint/no-namespace */
 export namespace Daliuge {
     export const DEFAULT_PYDATA_VALUE: string = "None";
     export const DEFAULT_PYFUNCAPP_DROPCLASS_VALUE: string = "dlg.apps.pyfunc.PyFuncApp";
