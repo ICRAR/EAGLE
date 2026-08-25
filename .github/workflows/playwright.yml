@@ -43,7 +43,7 @@ jobs:
         # stripping devDependencies (e.g. @playwright/test); reinstall with devDependencies afterwards.
         run: npm ci --include=dev
       - name: Compile Typescript
-        # Invoke the script via node directly; the node_modules/.bin symlink is not reliably present on CI.
+        # Invoke the script directly rather than via npx, which can otherwise fetch a mismatched copy from the registry.
         run: |
           node node_modules/typescript/bin/tsc --version
           node node_modules/typescript/bin/tsc
@@ -53,7 +53,7 @@ jobs:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ matrix.browser }}-${{ hashFiles('package-lock.json') }}
       - name: Install Playwright Browser (${{ matrix.browser }})
-        # Invoke the script via node directly; the node_modules/.bin symlink is not reliably present on CI.
+        # Invoke the script directly rather than via npx, which can otherwise fetch a mismatched copy from the registry.
         run: node node_modules/@playwright/test/cli.js install --with-deps ${{ matrix.browser }}
       - name: Start server
         run: python eagleServer/eagleServer.py -t /tmp --debug &
