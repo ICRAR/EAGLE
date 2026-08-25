@@ -24,9 +24,6 @@ jobs:
         with:
           node-version: lts/*
           cache: 'npm'
-      - name: Install dependencies
-        # --include=dev guards against NODE_ENV/omit=dev config skipping devDependencies (e.g. @playwright/test).
-        run: npm ci --include=dev
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
@@ -41,6 +38,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install .
           pip install setuptools
+      - name: Install npm dependencies
+        # Runs after `pip install .`, whose setup.py build step reinstalls node_modules with --only=production,
+        # stripping devDependencies (e.g. @playwright/test); reinstall with devDependencies afterwards.
+        run: npm ci --include=dev
       - name: Compile Typescript
         # Invoke the script via node directly; the node_modules/.bin symlink is not reliably present on CI.
         run: |
