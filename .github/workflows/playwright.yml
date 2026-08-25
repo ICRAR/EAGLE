@@ -41,22 +41,22 @@ jobs:
           pip install .
           pip install setuptools
       - name: Compile Typescript
-        # Call the local binary directly; npx was resolving to a freshly fetched package instead of node_modules.
+        # Invoke the script via node directly; the node_modules/.bin symlink is not reliably present on CI.
         run: |
-          ./node_modules/.bin/tsc --version
-          ./node_modules/.bin/tsc
+          node node_modules/typescript/bin/tsc --version
+          node node_modules/typescript/bin/tsc
       - name: Cache Playwright browsers
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ matrix.browser }}-${{ hashFiles('package-lock.json') }}
       - name: Install Playwright Browser (${{ matrix.browser }})
-        # Call the local binary directly; npx was resolving to a freshly fetched package instead of node_modules.
-        run: ./node_modules/.bin/playwright install --with-deps ${{ matrix.browser }}
+        # Invoke the script via node directly; the node_modules/.bin symlink is not reliably present on CI.
+        run: node node_modules/@playwright/test/cli.js install --with-deps ${{ matrix.browser }}
       - name: Start server
         run: python eagleServer/eagleServer.py -t /tmp --debug &
       - name: Run Playwright tests
-        run: ./node_modules/.bin/playwright test --project=${{ matrix.browser }}
+        run: node node_modules/@playwright/test/cli.js test --project=${{ matrix.browser }}
       - uses: actions/upload-artifact@v7
         if: always()
         with:
