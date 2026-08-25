@@ -42,19 +42,20 @@ jobs:
           pip install setuptools
       - name: Compile Typescript
         run: |
-          npx tsc --version
-          npx tsc
+          npx --no-install tsc --version
+          npx --no-install tsc
       - name: Cache Playwright browsers
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ matrix.browser }}-${{ hashFiles('package-lock.json') }}
       - name: Install Playwright Browser (${{ matrix.browser }})
-        run: npx playwright install --with-deps ${{ matrix.browser }}
+        # --no-install forces the locally installed @playwright/test binary instead of npx fetching a standalone copy.
+        run: npx --no-install playwright install --with-deps ${{ matrix.browser }}
       - name: Start server
         run: python eagleServer/eagleServer.py -t /tmp --debug &
       - name: Run Playwright tests
-        run: npx playwright test --project=${{ matrix.browser }}
+        run: npx --no-install playwright test --project=${{ matrix.browser }}
       - uses: actions/upload-artifact@v7
         if: always()
         with:
