@@ -4,7 +4,7 @@ import { Eagle } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { Errors } from './Errors';
 import { FileLocation } from "./FileLocation";
-import { JsonObject, LegacyV4FileInfoJson, V4FileInfoJson, V4FileLocationJson } from "./JsonLoadTypes";
+import type { JsonObject, LegacyV4FileInfoJson, V4FileInfoJson, V4FileLocationJson } from "./JsonLoadTypes";
 import { Repository } from "./Repository";
 import { Setting } from "./Setting";
 import { Utils } from './Utils';

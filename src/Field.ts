@@ -9,7 +9,7 @@ import type { Edge } from "./Edge";
 import { Errors } from './Errors';
 import type { GraphConfigField } from "./GraphConfig";
 import { Id } from './Id';
-import { V4FieldJson } from './JsonLoadTypes';
+import type { V4FieldJson } from './JsonLoadTypes';
 import type { LogicalGraph } from './LogicalGraph';
 import type { Node } from './Node';
 import { Setting } from './Setting';

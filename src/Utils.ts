@@ -49,7 +49,7 @@ import { GraphConfig } from "./GraphConfig";
 import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 import { GraphRenderer } from "./GraphRenderer";
 import { Id } from "./Id";
-import { JsonScalar } from "./JsonLoadTypes";
+import type { JsonScalar } from "./JsonLoadTypes";
 import { KeyboardShortcut } from './KeyboardShortcut';
 import { LogicalGraph } from './LogicalGraph';
 import { Modals } from "./Modals";

@@ -35,7 +35,7 @@ import { FileInfo } from './FileInfo';
 import { FileLocation } from "./FileLocation";
 import { GraphConfig } from './GraphConfig';
 import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
-import { JsonObject, V4GraphJson, V4FileInfoJson } from './JsonLoadTypes';
+import type { JsonObject, V4GraphJson, V4FileInfoJson } from './JsonLoadTypes';
 import { Node } from './Node';
 import { Setting } from './Setting';
 import { Utils } from './Utils';

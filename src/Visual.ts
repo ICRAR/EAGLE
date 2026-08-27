@@ -32,7 +32,7 @@ import type { Node } from "./Node";
 import { Errors } from "./Errors";
 import { EagleConfig } from "./EagleConfig";
 import { Eagle } from "./Eagle";
-import { V4VisualLoadJson } from "./JsonLoadTypes";
+import type { V4VisualLoadJson } from "./JsonLoadTypes";
 
 export class Visual {
     private id: ko.Observable<VisualId>;
