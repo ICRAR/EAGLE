@@ -31,6 +31,7 @@ import { EagleConfig } from './EagleConfig';
 import { Errors } from './Errors';
 import type { Field } from './Field';
 import { Id } from './Id';
+import type { V4EdgeJson } from './JsonLoadTypes';
 import type { Node } from './Node';
 import { Utils } from './Utils';
 import type { LogicalGraph } from "./LogicalGraph";
@@ -237,9 +238,10 @@ export class Edge {
         };
     }
 
-    static toV4Json(edge: Edge) : object {
+    static toV4Json(edge: Edge) : V4EdgeJson {
         return {
             id: edge.getId(),
+            comment: edge.comment(),
             srcNodeId: edge.srcNode.getId(),
             srcPortId: edge.srcPort.getId(),
             destNodeId: edge.destNode.getId(),
@@ -361,14 +363,14 @@ export class Edge {
         return new Edge(comment, srcNode, srcPort, destNode, destPort, loopAware, closesLoop, false);
     }
 
-    static fromV4Json(edgeData: any, lg: LogicalGraph, errorsWarnings: Errors.ErrorsWarnings) : Edge | null {
+    static fromV4Json(edgeData: V4EdgeJson, lg: LogicalGraph, errorsWarnings: Errors.ErrorsWarnings) : Edge | null {
         const comment: string = edgeData.comment || '';
         const loopAware: boolean = edgeData.loopAware;
         const closesLoop: boolean = edgeData.closesLoop;
 
-        const edgeId: EdgeId = edgeData.id;
-        const srcNode: Node | undefined = lg.getNodeById(edgeData.srcNodeId);
-        const destNode: Node | undefined = lg.getNodeById(edgeData.destNodeId);
+        const edgeId: EdgeId = edgeData.id as EdgeId;
+        const srcNode: Node | undefined = lg.getNodeById(edgeData.srcNodeId as NodeId);
+        const destNode: Node | undefined = lg.getNodeById(edgeData.destNodeId as NodeId);
 
         if (typeof srcNode === 'undefined'){
             errorsWarnings.warnings.push(Errors.Message("edge (" + edgeData.id + ") source node (" + edgeData.srcNodeId + ") could not be found, skipping"));
@@ -380,8 +382,8 @@ export class Edge {
             return null;
         }
 
-        const srcPort: Field | undefined = srcNode.getFieldById(edgeData.srcPortId);
-        const destPort: Field | undefined = destNode.getFieldById(edgeData.destPortId);
+        const srcPort: Field | undefined = srcNode.getFieldById(edgeData.srcPortId as FieldId);
+        const destPort: Field | undefined = destNode.getFieldById(edgeData.destPortId as FieldId);
 
         if (typeof srcPort === 'undefined'){
             errorsWarnings.warnings.push(Errors.Message("edge (" + edgeData.id + ") source port (" + edgeData.srcPortId + ") could not be found, skipping"));

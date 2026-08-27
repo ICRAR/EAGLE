@@ -141,3 +141,18 @@ Optional debug mode:
 .. code-block:: shell
 
     eagleServer -t /tmp --debug
+
+Schema Type Generation
+----------------------
+
+The TypeScript snapshot used for typed V4 JSON loading is generated from the canonical schema in ``static/lg.graph.v4.schema``. If you change that schema, regenerate the snapshot from the repository root with:
+
+.. code-block:: shell
+
+    npm run generate:lgGraphV4Schema
+
+To verify that the generated snapshot matches the canonical schema, run:
+
+.. code-block:: shell
+
+    npm run check:lgGraphV4Schema

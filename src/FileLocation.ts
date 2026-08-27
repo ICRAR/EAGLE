@@ -1,6 +1,7 @@
 import * as ko from "knockout";
 
 import type { Errors } from "./Errors";
+import type { V4FileLocationJson } from "./JsonLoadTypes";
 import { Repository } from "./Repository";
 import { Utils } from "./Utils";
 
@@ -109,10 +110,10 @@ export class FileLocation {
         };
     }
 
-    static fromJson(data: any, _errorsWarnings: Errors.ErrorsWarnings): FileLocation {
+    static fromJson(data: V4FileLocationJson, _errorsWarnings: Errors.ErrorsWarnings): FileLocation {
         const result: FileLocation = new FileLocation();
 
-        result.repositoryService(data.repositoryService ?? Repository.Service.Unknown);
+        result.repositoryService((data.repositoryService as Repository.Service | undefined) ?? Repository.Service.Unknown);
         result.repositoryBranch(data.repositoryBranch ?? "");
         result.repositoryName(data.repositoryName ?? "");
         result.repositoryPath(data.repositoryPath ?? "");

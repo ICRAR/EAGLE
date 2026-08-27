@@ -35,6 +35,7 @@ import { FileInfo } from './FileInfo';
 import { FileLocation } from "./FileLocation";
 import { GraphConfig } from './GraphConfig';
 import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
+import type { JsonObject, V4GraphJson, V4FileInfoJson } from './JsonLoadTypes';
 import { Node } from './Node';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
@@ -145,16 +146,21 @@ export class LogicalGraph {
         return result;
     }
 
-    static toV4Json(graph: LogicalGraph, _forTranslation: boolean) : object {
-        const result : any = {};
+    static toV4Json(graph: LogicalGraph, _forTranslation: boolean) : V4GraphJson {
+        const result: V4GraphJson = {
+            modelData: FileInfo.toV4Json(graph.fileInfo()) as V4FileInfoJson,
+            nodes: {},
+            edges: {},
+            visuals: {},
+            graphConfigurations: {},
+            activeGraphConfigId: null,
+        };
 
-        result.modelData = FileInfo.toV4Json(graph.fileInfo());
         result.modelData.schemaVersion = Setting.SchemaVersion.V4;
 
         // add nodes
-        result.nodes = {};
         for (const [id, node] of graph.nodes()){
-            const nodeData : any = Node.toV4GraphJson(node);
+            const nodeData = Node.toV4GraphJson(node);
             result.nodes[id] = nodeData;
 
             const inputApplication = node.getInputApplication();
@@ -172,21 +178,18 @@ export class LogicalGraph {
 
         // edges
         // NOTE: we do not skip close loop edges
-        result.edges = {};
         for (const [id, edge] of graph.edges()){
-            const edgeData : any = Edge.toV4Json(edge);
+            const edgeData = Edge.toV4Json(edge);
             result.edges[id] = edgeData;
         }
 
         // visuals
-        result.visuals = {};
         for (const [id, visual] of graph.visuals()){
-            const visualData : any = Visual.toJson(visual);
+            const visualData = Visual.toJson(visual);
             result.visuals[id] = visualData;
         }
 
         // add graph configurations
-        result.graphConfigurations = {};
         for (const gc of graph.graphConfigs().values()){
             result.graphConfigurations[gc.getId()] = GraphConfig.toJson(gc);
         }
@@ -233,7 +236,7 @@ export class LogicalGraph {
     static toV4JsonString(graph: LogicalGraph, forTranslation: boolean) : string {
         let result: string = "";
 
-        const json: any = LogicalGraph.toV4Json(graph, forTranslation);
+        const json = LogicalGraph.toV4Json(graph, forTranslation);
 
         // NOTE: manually build the JSON so that we can enforce ordering of attributes (modelData first)
         result += "{\n";
@@ -248,7 +251,7 @@ export class LogicalGraph {
             if (typeof activeGraphConfig === "undefined"){
                 result += '"graphConfigurations": {},\n';
             } else {
-                const graphConfigurations: any = {};
+                const graphConfigurations: JsonObject = {};
                 graphConfigurations[activeGraphConfig.getId()] = GraphConfig.toJson(activeGraphConfig);
                 result += '"graphConfigurations": ' + JSON.stringify(graphConfigurations, null, EagleConfig.JSON_INDENT) + ",\n";
             }
@@ -463,7 +466,7 @@ export class LogicalGraph {
         return result;
     }
 
-    static fromV4Json(dataObject : any, filename: string, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph {
+    static fromV4Json(dataObject : V4GraphJson, filename: string, errorsWarnings : Errors.ErrorsWarnings) : LogicalGraph {
         // create new logical graph object
         const result : LogicalGraph = new LogicalGraph();
 
@@ -481,10 +484,10 @@ export class LogicalGraph {
         // second pass through the nodes
         // used to set parent, embed, subject, inputApplication, outputApplication
         for (const [nodeId, nodeData] of Object.entries(dataObject.nodes)){
-            const embed = result.getNodeById((<any>nodeData).embedId);
-            const parent = result.getNodeById((<any>nodeData).parentId);
-            const inputApplication = result.getNodeById((<any>nodeData).inputApplicationId);
-            const outputApplication = result.getNodeById((<any>nodeData).outputApplicationId);
+            const embed = result.getNodeById(nodeData.embedId as NodeId);
+            const parent = result.getNodeById(nodeData.parentId as NodeId);
+            const inputApplication = result.getNodeById(nodeData.inputApplicationId as NodeId);
+            const outputApplication = result.getNodeById(nodeData.outputApplicationId as NodeId);
 
             const node = result.getNodeById(nodeId as NodeId);
 
@@ -526,7 +529,7 @@ export class LogicalGraph {
         // add visuals
         if (typeof dataObject.visuals !== 'undefined'){
             for (const [visualId, visualData] of Object.entries(dataObject.visuals)){
-                const visual = Visual.fromJson(visualData, result, errorsWarnings);
+                const visual = Visual.fromV4GraphJson(visualData, result, errorsWarnings);
 
                 if (visual === null){
                     continue;
@@ -539,7 +542,7 @@ export class LogicalGraph {
 
         // load configs
         for (const [gcId, gcData] of Object.entries(dataObject.graphConfigurations)){
-            const gc = GraphConfig.fromJson(gcData, result, errorsWarnings);
+            const gc = GraphConfig.fromV4GraphJson(gcData, result, errorsWarnings);
             gc.setId(gcId as GraphConfigId);
             result.graphConfigs().set(gcId as GraphConfigId, gc);
         }
@@ -558,7 +561,7 @@ export class LogicalGraph {
         if(typeof dataObject.activeGraphConfigId === 'undefined' || dataObject.activeGraphConfigId === ''){
             result.activeGraphConfigId(null);
         }else{
-            result.activeGraphConfigId(dataObject.activeGraphConfigId);
+            result.activeGraphConfigId(dataObject.activeGraphConfigId as GraphConfigId);
         }
 
         return result;

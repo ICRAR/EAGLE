@@ -15,6 +15,8 @@ jobs:
           node-version: lts/*
       - name: Install dependencies
         run: npm ci
+      - name: Check V4 schema snapshot
+        run: npm run -s check:lgGraphV4Schema
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
