@@ -2,9 +2,9 @@ import * as ko from "knockout";
 
 import { Eagle } from './Eagle';
 import { EagleStorage } from "./EagleStorage";
-import { FileLocation } from "./FileLocation";
+import type { FileLocation } from "./FileLocation";
 import { Repository } from './Repository';
-import { RepositoryFile } from './RepositoryFile';
+import type { RepositoryFile } from './RepositoryFile';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
 
@@ -88,12 +88,12 @@ export class Repositories {
             return;
         }
 
-        if (customRepository.name.trim() == ""){
+        if (customRepository.name.trim() === ""){
             console.log("Error", "Repository name is empty!");
             return;
         }
 
-        if (customRepository.branch.trim() == ""){
+        if (customRepository.branch.trim() === ""){
             Utils.showUserMessage("Error", "Repository branch is empty! If you wish to use the master branch, please enter 'master'.");
             return;
         }
@@ -156,7 +156,7 @@ export class Repositories {
         if (win) {
             win.focus();
         } else {
-            alert("Please allow popups for this website");
+            Utils.showNotification("Popup Blocked", "Please allow popups for this website", "warning");
         }
     }
 
@@ -194,7 +194,7 @@ export class Repositories {
         let response;
         try {
             response = typeof responseStr === "string" ? JSON.parse(responseStr) : responseStr;
-        } catch (e) {
+        } catch (_e) {
             response = responseStr;
         }
         if (response.error) {

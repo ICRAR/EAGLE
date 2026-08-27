@@ -1,8 +1,8 @@
-EAGLE :sup:`π`
-==============
+EAGLE :sup:`pi`
+===============
 
-
-Welcome to the documentation for the Editor for the Astronomical Graph Language Environment (EAGLE). 
+EAGLE is the visual editor for building DALiuGE workflows.
+This guide helps you go from first launch to your first runnable graph.
 
 .. figure:: _static/images/eagle_eagle.png
   :width: 400px
@@ -11,10 +11,23 @@ Welcome to the documentation for the Editor for the Astronomical Graph Language 
   :figclass: align-center
 
 
-EAGLE is the UI of the `DALiuGE <https://daliuge.readthedocs.io>`_ workflow development and execution framework. It is an interface designed to streamline and simplify workflow development, while creating a clear separation of different concerns and operational constraints. A major aim of EAGLE and its larger workflow creation model is to allow code to be as re-usable as possible, while still enabling highly optimised and integrated ways of implementing or migrating algorithms. It is also concerned with optimising the granularity and potential parallelism of workflows.
+EAGLE is the UI for the `DALiuGE <https://daliuge.readthedocs.io>`_ workflow framework.
+You design workflows as connected components, tune parameters, translate to a deployable graph, and then execute.
 
 .. raw:: html
-    :file: _static/intro_map.html
+
+    <img src="_static/images/full_process_diagram.png" alt="Full process diagram" usemap="#process" style="display:block;margin-left:auto;margin-right:auto;">
+
+    <map name="process">
+    <area shape="rect" coords="150,20,450,114" alt="Execution" href="#execution" style="outline-style:none">
+    <area shape="rect" coords="150,115,450,222" alt="Translation" href="#translation" style="outline-style:none">
+    <area shape="rect" coords="123,219,450,330" alt="Graph parameters" href="#graph-parameters" style="outline-style:none">
+    <area shape="rect" coords="150,333,450,438" alt="Graph construction" href="#graph-construction" style="outline-style:none">
+    <area shape="rect" coords="150,439,450,544" alt="Palette" href="#palette" style="outline-style:none">
+    <area shape="rect" coords="150,545,450,648" alt="Component description" href="#component-description" style="outline-style:none">
+    <area shape="rect" coords="150,649,450,756" alt="Component" href="#component" style="outline-style:none">
+    <area shape="rect" coords="150,757,450,867" alt="Application" href="#application" style="outline-style:none">
+    </map>
 
 .. .. figure:: _static/images/full_process_diagram.png
 ..   :width: 600px
@@ -24,39 +37,18 @@ EAGLE is the UI of the `DALiuGE <https://daliuge.readthedocs.io>`_ workflow deve
 ..
 ..   Diagram of the full process from applications, to EAGLE workflows, to execution
 
-.. _application:
+How EAGLE Works
+===============
 
-As illustrated in the above diagram, an EAGLE workflow may integrate any number of applications that have been developed for different purposes. These may range from simple command line shell scripts to Python programs, C/C++ dynamic libraries and MPI applications.
+1. Build a workflow from :doc:`Components <components>`.
+2. Organize components through :doc:`Palettes <palettes>`.
+3. Create a :ref:`Logical Graph Template <logical-graph-template>` in the editor.
+4. Set values in a :ref:`Graph Configuration <graph-configurations>` to produce a :ref:`Logical Graph <logical-graph>`.
+5. Translate it into a :ref:`Physical Graph Template <physical-graph-template>`.
+6. Deploy and execute as a :ref:`Physical Graph <physical-graph>`.
 
-.. _component:
-
-Workflows within EAGLE are built from :doc:`Components <components>`. Some components provide compatibility with applications developed separately to EAGLE, while others are stand-alone.
-
-.. _component-description:
-
-Components are loaded into EAGLE via JSON files, referred to as Component Descriptions, containing all the specifications required for EAGLE to display and integrate each component.
-
-.. _palette:
-
-A :doc:`palette <palettes>` is used to group components together, to make it easier and more efficient to access components that are relevant to a particular workflow or domain.
-
-.. _graph-construction:
-
-Within the EAGLE drag-and-drop interface, :doc:`Logical Graph Templates <graphs>` are constructed.
-
-.. _graph-parameters:
-
-EAGLE allows values to be set for the exposed parameters of each component. Once these parameters are defined for a specific workflow, the graph is no longer considered a template, and is referred to as a :doc:`Logical Graph <graphs>`.
-
-Translation
-===========
-
-A completed Logical Graph may then be translated  by the DALiuGE translation engine, using a selected algorithm. A translated graph is referred to as a :doc:`Physical Graph Template <graphs>`.
-
-Execution
-=========
-
-The final step is execution. This occurs on a selected facility, where the Physical Graph Template is mapped to specific computer nodes. At this stage it is a :doc:`Physical Graph <graphs>`.
+A component can wrap many payload types, such as shell commands, Python code, C/C++, MPI apps, or data handlers.
+Components are defined in JSON descriptions so EAGLE can display, validate, and connect them.
 
 .. toctree::
    :maxdepth: 2
@@ -64,9 +56,9 @@ The final step is execution. This occurs on a selected facility, where the Physi
    :hidden:
 
    Installation <installation>
-   Quick Start <quickStart2>
-   Settings <settings>
+   Getting Started <gettingStarted>
    Hello World Example <helloWorld>
+   Settings <settings>
 
 .. toctree::
    :maxdepth: 2
@@ -75,8 +67,10 @@ The final step is execution. This occurs on a selected facility, where the Physi
 
    Components <components>
    Palettes <palettes>
+   Graph Configurations <graphConfigurations>
    Templates and Graphs <graphs>
    Annotating Graphs <annotating>
+   Tools <tools>
 
 
 .. Indices and tables

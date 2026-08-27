@@ -194,7 +194,7 @@ test('Create Branch and Delete Branch Actions', async ({ page }) => {
 
       const isVisible = await createBranchAction.isVisible().catch(() => false);
       if (!isVisible) {
-        await createBranchAction.waitFor({state: 'visible', timeout: 1500}).catch(() => {});
+        await createBranchAction.waitFor({state: 'visible', timeout: 1500}).catch(() => undefined);
       }
 
       if (await createBranchAction.isVisible().catch(() => false)) {

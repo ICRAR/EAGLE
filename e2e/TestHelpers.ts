@@ -1,6 +1,6 @@
 import fs from 'fs';
 import https from 'https';
-import http from 'http';
+import type http from 'http';
 import path from 'path';
 import { test, expect, type Page } from '@playwright/test';
 
@@ -761,7 +761,7 @@ export class TestHelpers {
     }
 
     static async saveGraphToString(page: Page): Promise<string> {
-        return new Promise<string>(async (resolve, reject) => {
+        return new Promise<string>(async (resolve, _reject) => {
             // click 'display as JSON' from the 'Graph' menu
             await page.locator('#navbarDropdownGraph').click();
             await page.locator('#displayGraphAsJson').click();
@@ -811,7 +811,7 @@ export class TestHelpers {
     // Check if an object is empty
     static isEmpty(o: Record<string, any>): boolean {
         for (const p in o) {
-        if (o.hasOwnProperty(p)) { return false; }
+        if (Object.hasOwn(o, p)) { return false; }
         }
         return true;
     }
@@ -828,7 +828,7 @@ export class TestHelpers {
             ret[i] = rett;
             }
         } else {
-            if (!obj1 || !obj1.hasOwnProperty(i) || obj2[i] !== obj1[i]) {
+            if (!obj1 || !Object.hasOwn(obj1, i) || obj2[i] !== obj1[i]) {
             ret[i] = obj2[i];
             }
         }
@@ -933,7 +933,7 @@ export class TestHelpers {
                 modal.data('completed', false);
                 modal.modal('hide');
             });
-            await inputModal.waitFor({state: 'hidden', timeout: 1500}).catch(() => {});
+            await inputModal.waitFor({state: 'hidden', timeout: 1500}).catch(() => undefined);
 
             if (page.isClosed()) {
                 return;
@@ -946,7 +946,7 @@ export class TestHelpers {
                     modal.data('completed', false);
                     modal.modal('hide');
                 });
-                await inputModal.waitFor({state: 'hidden', timeout: 2000}).catch(() => {});
+                await inputModal.waitFor({state: 'hidden', timeout: 2000}).catch(() => undefined);
             }
 
             if (!page.isClosed()) {

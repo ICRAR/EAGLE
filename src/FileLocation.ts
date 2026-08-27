@@ -1,7 +1,7 @@
 import * as ko from "knockout";
 
-import { Errors } from "./Errors";
-import { V4FileLocationJson } from "./JsonLoadTypes";
+import type { Errors } from "./Errors";
+import type { V4FileLocationJson } from "./JsonLoadTypes";
 import { Repository } from "./Repository";
 import { Utils } from "./Utils";
 

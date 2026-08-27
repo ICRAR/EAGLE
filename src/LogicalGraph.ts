@@ -30,7 +30,7 @@ import { EagleConfig } from "./EagleConfig";
 import { Edge } from './Edge';
 import { Visual } from './Visual';
 import { Errors } from './Errors';
-import { Field } from './Field';
+import type { Field } from './Field';
 import { FileInfo } from './FileInfo';
 import { FileLocation } from "./FileLocation";
 import { GraphConfig } from './GraphConfig';
@@ -677,7 +677,7 @@ export class LogicalGraph {
 
     getInspectorShortDescriptionHTML : ko.PureComputed<string> = ko.pureComputed(() => {
         let text = 'No short description available'
-        if(this.fileInfo().shortDescription != ''){
+        if(this.fileInfo().shortDescription !== ''){
             text = Utils.markdown2html(this.fileInfo().shortDescription)
         }
 
@@ -686,7 +686,7 @@ export class LogicalGraph {
 
     getInspectorDetailedDescriptionHTML : ko.PureComputed<string> = ko.pureComputed(() => {
         let text = 'No detailed description available'
-        if(this.fileInfo().detailedDescription != ''){
+        if(this.fileInfo().detailedDescription !== ''){
             text = Utils.markdown2html(this.fileInfo().detailedDescription)
         }
         
@@ -996,13 +996,12 @@ export class LogicalGraph {
         //  - there are edge(s) connected to a port on the embedded node
         //  - but the edge(s) have source or destination node id of the construct
         // This situation should not occur in a well-formed graph, but does occur in many existing graphs
-        const that = this
         if(node.isEmbedded()){
             for (const field of node.getFields()){
                 if(field.isInputPort() || field.isOutputPort()){
-                    that.edges().forEach(function(edge:Edge){
+                    this.edges().forEach((edge: Edge) => {
                         if(edge.getDestPort().getId() === field.getId() || edge.getSrcPort().getId() === field.getId()){
-                            that.removeEdgeById(edge.getId())
+                            this.removeEdgeById(edge.getId())
                         }
                     })
                 }
@@ -1391,7 +1390,7 @@ export class LogicalGraph {
     }
 
     private static withEagle(eagle: Eagle | null, fn: (e: Eagle) => void): () => void {
-        return eagle !== null ? () => fn(eagle) : () => {};
+        return eagle !== null ? () => fn(eagle) : () => undefined;
     }
 
     static isValid (graph: LogicalGraph, eagle: Eagle | null) : void {
@@ -1496,16 +1495,12 @@ export class LogicalGraph {
                 const target = visual.getTarget();
                 let targetExists = false;
 
-                // check if target is a node
+                // check if target is a node, edge or visual
                 if (target instanceof Node){
                     targetExists = typeof graph.getNodeById(target.getId()) !== 'undefined';
-                }
-                // check if target is an edge
-                else if (target instanceof Edge){
+                } else if (target instanceof Edge){
                     targetExists = typeof graph.getEdgeById(target.getId()) !== 'undefined';
-                }
-                // check if target is a visual
-                else if (target instanceof Visual){
+                } else if (target instanceof Visual){
                     targetExists = typeof graph.getVisualById(target.getId()) !== 'undefined';
                 }
 

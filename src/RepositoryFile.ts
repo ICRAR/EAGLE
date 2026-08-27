@@ -2,7 +2,7 @@ import * as ko from "knockout";
 
 import { Eagle } from './Eagle';
 import { Id } from './Id';
-import { Repository } from './Repository';
+import type { Repository } from './Repository';
 import { Utils } from './Utils';
 
 export class RepositoryFile {
@@ -62,7 +62,7 @@ export class RepositoryFile {
         if (win) {
             win.focus();
         } else {
-            alert("Please allow popups for this website");
+            Utils.showNotification("Popup Blocked", "Please allow popups for this website", "warning");
         }
     }
 
