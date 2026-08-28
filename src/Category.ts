@@ -1,4 +1,6 @@
-export enum Category {
+/* TODO: should this stuff be in Daliuge.ts? */
+
+export enum CategoryName {
     Comment = "Comment",
 
     Scatter = "Scatter",
@@ -13,17 +15,22 @@ export enum Category {
     DynlibProcApp = "DynlibProcApp",
     Mpi = "Mpi",
     Docker = "Docker",
+    Singularity = "Singularity",
 
     PythonMemberFunction = "PythonMemberFunction",
     PythonObject = "PythonObject",
+    DynlibMemberFunction = "DynlibMemberFunction",
+    DynlibObject = "DynlibObject",
 
     NGAS = "NGAS",
     S3 = "S3",
     Memory = "Memory",
     SharedMemory = "SharedMemory",
     File = "File",
+    Directory = "Directory",
     Plasma = "Plasma",
     PlasmaFlight = "PlasmaFlight",
+    RDBMS = "RDBMS",
     Data = "Data",
 
     ParameterSet = "ParameterSet",
@@ -46,46 +53,26 @@ export enum Category {
     EnvironmentVariables = "EnvironmentVariables",
 }
 
-/* eslint-disable @typescript-eslint/no-namespace */
-export namespace Category {
+// TODO: add to CategoryData somehow? use in Node.isData() etc?
+export enum CategoryType {
+    Application = "Application",
+    Construct = "Construct",
+    Container = "Container",
+    Data = "Data",
+    Global = "Global",
+    Other = "Other",
+    Service = "Service",
+    Socket = "Socket",
+    Unknown = "Unknown",
+}
 
-    export type CategoryData = {
-        categoryType: Type,
-
-        isGroup:boolean,
-        minInputs: number,
-        maxInputs: number,
-        minOutputs: number,
-        maxOutputs: number,
-        canHaveComponentParameters: boolean,
-        canHaveApplicationArguments: boolean,
-        canHaveConstructParameters: boolean, 
-        icon: string,
-        color: string,
-        radius: number,
-    };
-
-    // TODO: add to CategoryData somehow? use in Node.isData() etc?
-    export enum Type {
-        Application = "Application",
-        Construct = "Construct",
-        Container = "Container",
-        Data = "Data",
-        Global = "Global",
-        Other = "Other",
-        Service = "Service",
-        Socket = "Socket",
-        Unknown = "Unknown",
-    }
-
-    export enum Color {
-        Application = "#0059a5",
-        Construct   = "#e3bd64",
-        Data        = "#2c2c2c",
-        Description = "#9d2b60",
-        Error       = "#ff66cc",
-        Global      = "#228b22",
-        Object      = "#00bfa6",
-        Service     = "#800080"
-    }
+export enum CategoryColor {
+    Application = "#0059a5",
+    Construct   = "#e3bd64",
+    Data        = "#2c2c2c",
+    Description = "#9d2b60",
+    Error       = "#ff66cc",
+    Global      = "#228b22",
+    Object      = "#00bfa6",
+    Service     = "#800080"
 }

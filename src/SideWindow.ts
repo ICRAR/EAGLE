@@ -1,3 +1,4 @@
+import { EagleFileType } from './Eagle';
 import * as ko from "knockout";
 
 import { Eagle } from './Eagle';
@@ -27,7 +28,7 @@ export class SideWindow {
         // don't allow toggle if palette and graph editing are disabled
         const editingAllowed: boolean = Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false) || Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false);
         if (window === "left" && !editingAllowed){
-            Utils.notifyUserOfEditingIssue(Eagle.FileType.Unknown, "Toggle Window");
+            Utils.notifyUserOfEditingIssue(EagleFileType.Unknown, "Toggle Window");
             return;
         }
         
@@ -103,7 +104,7 @@ export class SideWindow {
         Eagle.nodeDragComponentId = componentId;
 
         //this is for dealing with drag and drop actions while there is already one or more palette components selected
-        if (Eagle.selectedLocation() === Eagle.FileType.Palette){
+        if (Eagle.selectedLocation() === EagleFileType.Palette){
             const draggedNode = eagle.palettes()[Eagle.nodeDragPaletteIndex].getNodeById(componentId);
 
             if (typeof draggedNode === 'undefined'){

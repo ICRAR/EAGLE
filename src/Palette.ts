@@ -1,3 +1,5 @@
+import { RepositoryService } from './Repository';
+import { EagleFileType } from './Eagle';
 /*
 #
 #    ICRAR - International Centre for Radio Astronomy Research
@@ -24,16 +26,14 @@
 
 import * as ko from "knockout";
 
-import type { Category } from './Category';
-import { Eagle } from './Eagle';
+import type { CategoryName, CategoryType } from './Category';
 import { EagleConfig } from "./EagleConfig";
-import { Errors } from './Errors';
+import { Errors, type ErrorsWarnings } from './Errors';
 import { FileInfo } from './FileInfo';
 import { FileLocation } from "./FileLocation";
 import { Node } from './Node';
-import { Repository } from "./Repository";
 import type { RepositoryFile } from './RepositoryFile';
-import { Setting } from "./Setting";
+import { SchemaVersion, Setting } from "./Setting";
 import { Utils } from './Utils';
 import { UiModeSystem } from "./UiModes";
 
@@ -49,7 +49,7 @@ export class Palette {
 
     constructor(){
         this.fileInfo = ko.observable(new FileInfo());
-        this.fileInfo().type = Eagle.FileType.Palette;
+        this.fileInfo().type = EagleFileType.Palette;
         this.fileInfo().readonly = false;
         this.fileInfo().builtIn = false;
         this.nodes = ko.observable(new Map<NodeId, Node>());
@@ -58,7 +58,7 @@ export class Palette {
         this.isFetching = ko.observable(false);
     }
 
-    static fromOJSJson(data: string, file: RepositoryFile, errorsWarnings: Errors.ErrorsWarnings) : Palette {
+    static fromOJSJson(data: string, file: RepositoryFile, errorsWarnings: ErrorsWarnings) : Palette {
         // parse the JSON first
         const dataObject : any = JSON.parse(data);
         const result : Palette = new Palette();
@@ -113,7 +113,7 @@ export class Palette {
         return result;
     }
 
-    static fromV4Json(data: string, file: RepositoryFile, errorsWarnings: Errors.ErrorsWarnings): Palette {
+    static fromV4Json(data: string, file: RepositoryFile, errorsWarnings: ErrorsWarnings): Palette {
         // parse the JSON first
         const dataObject : any = JSON.parse(data);
         const result : Palette = new Palette();
@@ -195,7 +195,7 @@ export class Palette {
         const result : any = {};
 
         result.modelData = FileInfo.toV4Json(palette.fileInfo());
-        result.modelData.schemaVersion = Setting.SchemaVersion.V4;
+        result.modelData.schemaVersion = SchemaVersion.V4;
 
         // add nodes
         result.nodes = {};
@@ -248,14 +248,14 @@ export class Palette {
         return result;
     }
 
-    static toJsonString(palette: Palette, version: Setting.SchemaVersion) : string {
+    static toJsonString(palette: Palette, version: SchemaVersion) : string {
         let result: string = "";
 
         switch(version){
-            case Setting.SchemaVersion.OJS:
+            case SchemaVersion.OJS:
                 result = Palette.toOJSJsonString(palette);
                 break;
-            case Setting.SchemaVersion.V4:
+            case SchemaVersion.V4:
                 result = Palette.toV4JsonString(palette);
                 break;
             default:
@@ -297,7 +297,7 @@ export class Palette {
 
     clear = () : void => {
         this.fileInfo().clear();
-        this.fileInfo().type = Eagle.FileType.Palette;
+        this.fileInfo().type = EagleFileType.Palette;
         this.nodes().clear();
         this.nodes.valueHasMutated();
     }
@@ -365,7 +365,7 @@ export class Palette {
         this.nodes.valueHasMutated();
     }
 
-    findNodeByNameAndCategory = (nameAndCategory: Category) : Node | undefined=> {
+    findNodeByNameAndCategory = (nameAndCategory: CategoryName) : Node | undefined=> {
         for (const node of this.nodes().values()){
             // callers provide a category; return a prototype node for that category.
             if (node.getCategory() === nameAndCategory){
@@ -375,7 +375,7 @@ export class Palette {
         return undefined;
     }
 
-    getNodesByCategoryType = (categoryType: Category.Type) : Node[] => {
+    getNodesByCategoryType = (categoryType: CategoryType) : Node[] => {
         const result : Node[] = []
 
         for (const node of this.nodes().values()){
@@ -446,7 +446,7 @@ export class Palette {
 
         // if we don't know where this file came from then we can't build a URL
         // for example, if the palette was loaded from local disk, then we can't build a URL for others to reach it
-        if (fileInfo.location.repositoryService() === Repository.Service.Unknown || fileInfo.location.repositoryService() === Repository.Service.File){
+        if (fileInfo.location.repositoryService() === RepositoryService.Unknown || fileInfo.location.repositoryService() === RepositoryService.File){
             Utils.showNotification("Palette URL", "Source of palette is a local file or unknown, unable to create URL for palette.", "danger");
             return;
         }

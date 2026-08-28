@@ -89,24 +89,24 @@
                                             <td><input type="checkbox" data-bind="checked: update, enable: GraphUpdater.hasFetched() && !GraphUpdater.isUpdating() && !GraphUpdater.hasUpdated()"></td>
                                             <!-- /ko -->
                                             <!-- ko if: GraphUpdater.hasFetched() && (GraphUpdater.isUpdating() || GraphUpdater.hasUpdated()) -->
-                                                <!-- ko if: state() === GraphUpdater.FileStatus.No -->
+                                                <!-- ko if: state() === GraphUpdaterFileStatus.No -->
                                                 <td></td>
                                                 <!-- /ko -->
-                                                <!-- ko if: state() === GraphUpdater.FileStatus.Skipped -->
+                                                <!-- ko if: state() === GraphUpdaterFileStatus.Skipped -->
                                                 <td>Skipped</td>
                                                 <!-- /ko -->
-                                                <!-- ko if: state() === GraphUpdater.FileStatus.Success -->
+                                                <!-- ko if: state() === GraphUpdaterFileStatus.Success -->
                                                 <td>Success</td>
                                                 <!-- /ko -->
-                                                <!-- ko if: state() === GraphUpdater.FileStatus.Error -->
+                                                <!-- ko if: state() === GraphUpdaterFileStatus.Error -->
                                                 <td data-bind="eagleTooltip: error">Error</td>
                                                 <!-- /ko -->
-                                                <!-- ko if: state() === GraphUpdater.FileStatus.Updating -->
+                                                <!-- ko if: state() === GraphUpdaterFileStatus.Updating -->
                                                 <td>
                                                     <div class="spinner-border spinner-border-sm" role="status"></div>
                                                 </td>
                                                 <!-- /ko -->
-                                                <!-- ko if: state() === GraphUpdater.FileStatus.Success -->
+                                                <!-- ko if: state() === GraphUpdaterFileStatus.Success -->
                                                     <td data-bind="text: numNodes()"></td>
                                                     <td data-bind="text: numEdges()"></td>
                                                     <td data-bind="text: preFixNumErrors()"></td>
@@ -116,7 +116,7 @@
                                                         <td data-bind="text: postFixNumWarnings()"></td>
                                                     <!-- /ko -->
                                                 <!-- /ko -->
-                                                <!-- ko if: state() !== GraphUpdater.FileStatus.Success -->
+                                                <!-- ko if: state() !== GraphUpdaterFileStatus.Success -->
                                                     <td></td>
                                                     <td></td>
                                                     <td></td>
@@ -128,13 +128,13 @@
                                                 <!-- /ko -->
                                             <!-- /ko -->
                                             <!-- ko if: GraphUpdater.hasFetched() && GraphUpdater.hasUpdated() -->
-                                            <td><input type="checkbox" data-bind="checked: push, enable: state() === GraphUpdater.FileStatus.Success && !GraphUpdater.hasPushed()"></td>
+                                            <td><input type="checkbox" data-bind="checked: push, enable: state() === GraphUpdaterFileStatus.Success && !GraphUpdater.hasPushed()"></td>
                                             <!-- /ko -->
                                             <!-- ko if: GraphUpdater.hasPushed() -->
-                                                <!-- ko if: state() === GraphUpdater.FileStatus.Success -->
+                                                <!-- ko if: state() === GraphUpdaterFileStatus.Success -->
                                                     <td><a data-bind="attr: { href: updatedFileUrl() }" target="_blank">Load</a></td>
                                                 <!-- /ko -->
-                                                <!-- ko if: state() !== GraphUpdater.FileStatus.Success -->
+                                                <!-- ko if: state() !== GraphUpdaterFileStatus.Success -->
                                                     <td></td>
                                                 <!-- /ko -->
                                             <!-- /ko -->

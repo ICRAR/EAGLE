@@ -3,17 +3,34 @@ import * as ko from "knockout";
 import { Eagle } from './Eagle';
 import { Utils } from './Utils';
 
+export type Issue = {message: string, show: (() => void) | null, fix: (() => void) | null, fixDescription: string};
+export type ErrorsWarnings = {warnings: Issue[], errors: Issue[]};
+
+export enum Validity {
+    Unknown = "Unknown",        // validity of the edge is unknown
+    Impossible = "Impossible",  // never useful or valid
+    Error = "Error",        // invalid, but possibly useful for expert users?   change to error
+    Warning = "Warning",        // valid, but some issue that the user should be aware of
+    Fixable = "Fixable",        // there is an issue with the connection but for drawing edges eagle will fix this for you
+    Valid = "Valid"             // fine
+}
+
+export enum Mode {
+    Loading = "Loading",
+    Graph = "Graph"
+}
+
 export class Errors {
-    static Message(message: string): Errors.Issue {
+    static Message(message: string): Issue {
         return {message: message, show: null, fix: null, fixDescription:""};
     }
-    static Show(message: string, show: () => void): Errors.Issue {
+    static Show(message: string, show: () => void): Issue {
         return {message: message, show: show, fix: null, fixDescription:""};
     }
-    static Fix(message: string, fix: () => void, fixDescription: string): Errors.Issue {
+    static Fix(message: string, fix: () => void, fixDescription: string): Issue {
         return {message: message, show: null, fix: fix, fixDescription: fixDescription};
     }
-    static ShowFix(message: string, show: () => void, fix: () => void, fixDescription: string): Errors.Issue {
+    static ShowFix(message: string, show: () => void, fix: () => void, fixDescription: string): Issue {
         return {message: message, show: show, fix: fix, fixDescription: fixDescription};
     }
 
@@ -76,21 +93,21 @@ export class Errors {
         }
     }
 
-    static hasWarnings(errorsWarnings: Errors.ErrorsWarnings) : boolean {
+    static hasWarnings(errorsWarnings: ErrorsWarnings) : boolean {
         return errorsWarnings.warnings.length > 0;
     }
 
-    static hasErrors(errorsWarnings: Errors.ErrorsWarnings) : boolean {
+    static hasErrors(errorsWarnings: ErrorsWarnings) : boolean {
         return errorsWarnings.errors.length > 0;
     }
 
-    static getWarnings : ko.PureComputed<Errors.Issue[]> = ko.pureComputed(() => {
+    static getWarnings : ko.PureComputed<Issue[]> = ko.pureComputed(() => {
         const eagle: Eagle = Eagle.getInstance();
 
         switch (eagle.errorsMode()){
-            case Errors.Mode.Loading:
+            case Mode.Loading:
                 return eagle.loadingWarnings();
-            case Errors.Mode.Graph:
+            case Mode.Graph:
                 return eagle.graphWarnings();
             default:
                 console.warn("Unknown errorsMode (" + eagle.errorsMode() + "). Unable to getWarnings()");
@@ -98,13 +115,13 @@ export class Errors {
         }
     }, this);
 
-    static getErrors : ko.PureComputed<Errors.Issue[]> = ko.pureComputed(() => {
+    static getErrors : ko.PureComputed<Issue[]> = ko.pureComputed(() => {
         const eagle: Eagle = Eagle.getInstance();
 
         switch (eagle.errorsMode()){
-            case Errors.Mode.Loading:
+            case Mode.Loading:
                 return eagle.loadingErrors();
-            case Errors.Mode.Graph:
+            case Mode.Graph:
                 return eagle.graphErrors();
             default:
                 console.warn("Unknown errorsMode (" + eagle.errorsMode() + "). Unable to getErrors()");
@@ -114,8 +131,8 @@ export class Errors {
 
     static getNumFixableIssues : ko.PureComputed<number> = ko.pureComputed(() => {
         let count: number = 0;
-        const errors: Errors.Issue[] = Errors.getErrors();
-        const warnings: Errors.Issue[] = Errors.getWarnings();
+        const errors: Issue[] = Errors.getErrors();
+        const warnings: Issue[] = Errors.getWarnings();
 
         // count the errors
         for (const error of errors){
@@ -156,26 +173,5 @@ export class Errors {
         }
 
         return String(error);
-    }
-}
-
-/* eslint-disable @typescript-eslint/no-namespace */
-export namespace Errors
-{
-    export type Issue = {message: string, show: (() => void) | null, fix: (() => void) | null, fixDescription: string};
-    export type ErrorsWarnings = {warnings: Issue[], errors: Issue[]};
-    
-    export enum Validity {
-        Unknown = "Unknown",        // validity of the edge is unknown
-        Impossible = "Impossible",  // never useful or valid
-        Error = "Error",        // invalid, but possibly useful for expert users?   change to error
-        Warning = "Warning",        // valid, but some issue that the user should be aware of
-        Fixable = "Fixable",        // there is an issue with the connection but for drawing edges eagle will fix this for you
-        Valid = "Valid"             // fine
-    }
-    
-    export enum Mode {
-        Loading = "Loading",
-        Graph = "Graph"
     }
 }

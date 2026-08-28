@@ -1,3 +1,4 @@
+import { EagleFileType } from './Eagle';
 import { Eagle } from './Eagle';
 import { EagleConfig } from './EagleConfig';
 import { Edge } from './Edge';
@@ -296,15 +297,15 @@ export class Hierarchy {
         }
 
         if(!e.shiftKey && !e.altKey){
-            eagle.setSelection(node, Eagle.FileType.Graph);
+            eagle.setSelection(node, EagleFileType.Graph);
 
         }else if (e.altKey && !e.shiftKey){
             GraphRenderer.selectNodeAndChildren(node, e.shiftKey)
         }else if(e.altKey && e.shiftKey){
             GraphRenderer.selectNodeAndChildren(node, e.shiftKey)
-            eagle.editSelection(node, Eagle.FileType.Graph)
+            eagle.editSelection(node, EagleFileType.Graph)
         }else if(e.shiftKey){
-            eagle.editSelection(node, Eagle.FileType.Graph)
+            eagle.editSelection(node, EagleFileType.Graph)
         }
         
         eagle.logicalGraph.valueHasMutated();

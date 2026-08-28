@@ -10,10 +10,10 @@
             <i class="material-symbols-outlined md-18 interactive iconHoverEffect" data-bs-placement="bottom" data-bind="click: refresh, visible: (folders().length != 0 || files().length != 0)&& fetched, eagleTooltip: 'Refresh'">cloud_done</i>
 
             <!-- ko ifnot: fetched -->
-            <!-- ko if: service === Repository.Service.GitHub -->
+            <!-- ko if: service === RepositoryService.GitHub -->
             <img src="static/assets/img/GitHub-Mark-32px.png" data-bind="click: select" width="18px" />
             <!-- /ko -->
-            <!-- ko if: service === Repository.Service.GitLab -->
+            <!-- ko if: service === RepositoryService.GitLab -->
             <img src="static/assets/img/fi-cnsuxt-gitlab-alt-solid.png" data-bind="click: select" width="18px"/>
             <!-- /ko -->
             <!-- /ko -->
@@ -34,10 +34,10 @@
                 <a href="#" data-bind="click: $root.repositories().copyRepository, attr: {id: htmlId() + '-copy'}"><span>Copy</span></a>
                 <a href="#" data-bind="click: $root.repositories().promptCreateBranch, attr: {id: htmlId() + '-create-branch'}"><span>Create Branch</span></a>
                 <a href="#" data-bind="click: $root.repositories().promptDeleteBranch, attr: {id: htmlId() + '-delete-branch'}"><span>Delete Branch</span></a>
-                <!-- ko if: service === Repository.Service.GitHub -->
+                <!-- ko if: service === RepositoryService.GitHub -->
                 <a href="#" data-bind="click: $root.repositories().openRepositoryInBrowser, attr: {id: htmlId() + '-show-on-github'}"><span>Show on GitHub</span></a>
                 <!-- /ko -->
-                <!-- ko if: service === Repository.Service.GitLab -->
+                <!-- ko if: service === RepositoryService.GitLab -->
                 <a href="#" data-bind="click: $root.repositories().openRepositoryInBrowser, attr: {id: htmlId() + '-show-on-gitlab'}"><span>Show on GitLab</span></a>
                 <!-- /ko -->
                 <a href="#" data-bind="click: expandAll, attr: {id: htmlId() + '-expand'}"><span>Expand</span></a>

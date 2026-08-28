@@ -24,7 +24,7 @@
             <!-- ko if: selectedNode() != null -->
             <button type="button" class="btn btn-primary" id="parameterTableAddParameterButton" data-bind="click: ParameterTable.addEmptyTableRow, clickBubble:false, disabled: selectedNode().isLocked()" ><span id="parameterTableAddParameter">Add Parameter</span></button>
             <!-- /ko -->
-            <!-- ko if: selectedNode() != null && selectedNode().getCategory() === Category.Docker -->
+            <!-- ko if: selectedNode() != null && selectedNode().getCategory() === CategoryName.Docker -->
                 <button class="btn btn-primary float-left" data-bind="click: ParameterTable.initiateBrowseDocker, clickBubble: false, eagleTooltip: `Browse images on dockerhub`" data-bs-toggle="tooltip" data-html="true" data-bs-placement="right" data-bs-original-title="">
                     Browse DockerHub
                 </button>
@@ -185,7 +185,7 @@
                                             <!-- ko if: ParameterTable.getActiveColumnVisibility().displayText() -->
                                                 <td class='columnCell column_DisplayText' data-bind=" css: { selectedTableParameter: ParameterTable.isSelected('displayText', $data) }, eagleTooltip:description">
                                                     <input class="tableParameter selectionTargets tableFieldDisplayName" placeholder="New Parameter" type="string" data-bind="value: displayText, disabled: ParameterTable.getNodeLockedState($data) || !$data.isChangeable(), valueUpdate: ['afterkeydown', 'input'], click: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $data, $index())}, event:{blur: function(){$(event.target).removeClass('newEmpty')} ,keyup: function(event, data){ParameterTable.select($data.displayText(), 'displayText', $data, $index())}}">
-                                                    <!-- ko if: Eagle.selectedLocation() === Eagle.FileType.Graph -->
+                                                    <!-- ko if: Eagle.selectedLocation() === EagleFileType.Graph -->
                                                         <!-- ko ifnot: $root.logicalGraph().getActiveGraphConfig()?.hasField($data) -->
                                                         <button class="iconHoverEffect" data-bind="click: function(){ParameterTable.requestAddField($data)}, disabled: !Setting.findValue(Setting.ALLOW_MODIFY_GRAPH_CONFIG) || ParameterTable.getCurrentParamValueReadonly($data), eagleTooltip:'Add Field to Graph Config', style:{'visibility':'hidden'}, clickBubble:false">
                                                             <i class="material-symbols-outlined">favorite_border</i>
@@ -408,7 +408,7 @@
                                                                 <i class="material-symbols-outlined iconHoverEffect">lock_open</i>
                                                             </button>
                                                         <!-- /ko -->
-                                                        <!-- ko if: $data.parameterType() === Daliuge.FieldType.Application -->
+                                                        <!-- ko if: $data.parameterType() === FieldType.Application -->
                                                             <!-- ko if: Setting.findValue(Setting.ALLOW_COMPONENT_EDITING)-->
                                                                 <!-- ko if: $data.isPrecious() -->
                                                                     <button type="button" data-bind="click: $data.togglePrecious, eagleTooltip: 'Parameter is precious<br/>Click to toggle'" data-bs-placement="left">
@@ -446,7 +446,7 @@
                                                                 </button>
                                                             <!-- /ko -->
                                                         <!-- /ko -->
-                                                        <!-- ko ifnot: $data.usage() === Daliuge.FieldUsage.NoPort-->
+                                                        <!-- ko ifnot: $data.usage() === FieldUsage.NoPort-->
                                                             <!-- ko if: $data.isEvent() -->
                                                                 <button type="button" data-bind="click: function(){$data.toggleEvent();}, eagleTooltip: 'Port is event port<br/>Click to toggle'" data-bs-placement="left">
                                                                     <i class="material-symbols-outlined iconHoverEffect">alarm_on</i>
@@ -490,12 +490,12 @@
  
                                             <!-- ko if: ParameterTable.getActiveColumnVisibility().encoding() && eagle.selectedNode()?.isApplication() -->
                                                 <td class='columnCell column_Encoding'>
-                                                    <!-- ko if: $data.usage() === Daliuge.FieldUsage.NoPort-->
+                                                    <!-- ko if: $data.usage() === FieldUsage.NoPort-->
                                                         <span class="faded">N/A</span>
                                                     <!-- /ko -->
-                                                    <!-- ko ifnot: $data.usage() === Daliuge.FieldUsage.NoPort-->
+                                                    <!-- ko ifnot: $data.usage() === FieldUsage.NoPort-->
                                                         <div class="checkboxWrapper">
-                                                            <select class="tableFieldEncoding" data-bind="options: Object.values(Daliuge.Encoding), value: encoding, disabled: ParameterTable.getParamsTableEditState()">
+                                                            <select class="tableFieldEncoding" data-bind="options: Object.values(Encoding), value: encoding, disabled: ParameterTable.getParamsTableEditState()">
                                                                 <!-- options are added dynamically -->
                                                             </select>
                                                         </div>

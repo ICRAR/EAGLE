@@ -1,18 +1,18 @@
 import * as ko from "knockout";
 
 import { CategoryData } from './CategoryData';
-import { Category } from './Category';
-import { Daliuge } from './Daliuge';
-import { Eagle } from './Eagle';
+import { CategoryName } from './Category';
+import { DLGFieldType, Daliuge, DataType, Encoding, FieldName, FieldType, FieldUsage } from './Daliuge';
+import { Eagle, EagleBottomWindowMode, type EagleFileType } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import type { Edge } from "./Edge";
-import { Errors } from './Errors';
+import { Errors, type ErrorsWarnings, type Issue, Validity } from './Errors';
 import type { GraphConfigField } from "./GraphConfig";
 import { Id } from './Id';
 import type { V4FieldJson } from './JsonLoadTypes';
 import type { LogicalGraph } from './LogicalGraph';
 import type { Node } from './Node';
-import { Setting } from './Setting';
+import { Setting, ShowErrorsMode } from './Setting';
 import { Utils } from './Utils';
 
 export class Field {
@@ -21,16 +21,16 @@ export class Field {
     private defaultValue : ko.Observable<string | null>;  // default value
     private description : ko.Observable<string>;
     private readonly : ko.Observable<boolean>;
-    private type : ko.Observable<Daliuge.DataType>; // NOTE: this is a little unusual (type can have more values than just the enum)
+    private type : ko.Observable<DataType>; // NOTE: this is a little unusual (type can have more values than just the enum)
     private precious : ko.Observable<boolean>; // indicates that the field is somehow important and should always be shown to the user
     private options : ko.ObservableArray<string>;
     private positional : ko.Observable<boolean>;
-    private encoding : ko.Observable<Daliuge.Encoding>;
+    private encoding : ko.Observable<Encoding>;
 
     // port-specific attributes
     private id : ko.Observable<FieldId>;
-    private parameterType : ko.Observable<Daliuge.FieldType>;
-    private usage : ko.Observable<Daliuge.FieldUsage>;
+    private parameterType : ko.Observable<FieldType>;
+    private usage : ko.Observable<FieldUsage>;
     private isEvent : ko.Observable<boolean>;
     private node : ko.Observable<Node>;
     private edges: ko.Observable<Map<EdgeId, Edge>>;
@@ -50,9 +50,9 @@ export class Field {
     private inputAngle : number;
     private outputAngle : number;
 
-    private issues : ko.ObservableArray<{issue:Errors.Issue, validity:Errors.Validity}>//keeps track of issues on the field
+    private issues : ko.ObservableArray<{issue: Issue, validity: Validity}>//keeps track of issues on the field
 
-    constructor(node: Node, id: FieldId, displayText: string, value: string | null, defaultValue: string | null, description: string, readonly: boolean, type: Daliuge.DataType, precious: boolean, options: string[], positional: boolean, parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage){
+    constructor(node: Node, id: FieldId, displayText: string, value: string | null, defaultValue: string | null, description: string, readonly: boolean, type: DataType, precious: boolean, options: string[], positional: boolean, parameterType: FieldType, usage: FieldUsage){
         this.displayText = ko.observable(displayText);
         this.value = ko.observable(value);
         this.defaultValue = ko.observable(defaultValue);
@@ -62,7 +62,7 @@ export class Field {
         this.precious = ko.observable(precious);
         this.options = ko.observableArray(options);
         this.positional = ko.observable(positional);
-        this.encoding = ko.observable<Daliuge.Encoding>(Daliuge.Encoding.Pickle);
+        this.encoding = ko.observable<Encoding>(Encoding.Pickle);
 
         this.id = ko.observable(id);
         this.parameterType = ko.observable(parameterType);
@@ -86,7 +86,7 @@ export class Field {
         this.inputAngle = 0;
         this.outputAngle = 0;
 
-        this.issues = ko.observableArray<{issue:Errors.Issue, validity:Errors.Validity}>([])
+        this.issues = ko.observableArray<{issue: Issue, validity: Validity}>([])
     }
 
     getId = () : FieldId => {
@@ -203,7 +203,7 @@ export class Field {
         return this;
     }
 
-    getType = () : Daliuge.DataType => {
+    getType = () : DataType => {
         return this.type();
     }
 
@@ -211,12 +211,12 @@ export class Field {
         return Utils.dataTypePrefix(this.type()) === type;
     }
     
-    setEncoding = (encoding: Daliuge.Encoding): Field => {
+    setEncoding = (encoding: Encoding): Field => {
         this.encoding(encoding);
         return this;
     }
 
-    getEncoding = () : Daliuge.Encoding => {
+    getEncoding = () : Encoding => {
         return this.encoding();
     }
 
@@ -244,7 +244,7 @@ export class Field {
         return this;
     }
 
-    setType = (type: Daliuge.DataType) : Field => {
+    setType = (type: DataType) : Field => {
         this.type(type);
         return this;
     }
@@ -381,20 +381,20 @@ export class Field {
         return this;
     }
 
-    getParameterType = (): Daliuge.FieldType => {
+    getParameterType = (): FieldType => {
         return this.parameterType();
     }
 
-    setParameterType = (parameterType: Daliuge.FieldType) : Field => {
+    setParameterType = (parameterType: FieldType) : Field => {
         this.parameterType(parameterType);
         return this;
     }
 
-    getUsage = (): Daliuge.FieldUsage => {
+    getUsage = (): FieldUsage => {
         return this.usage();
     }
 
-    setUsage = (usage: Daliuge.FieldUsage) : Field => {
+    setUsage = (usage: FieldUsage) : Field => {
         this.usage(usage);
         return this;
     }
@@ -429,11 +429,11 @@ export class Field {
         return this.edges().size;
     }
 
-    getErrorsWarnings : ko.PureComputed<Errors.ErrorsWarnings> = ko.pureComputed(() => {
-        const errorsWarnings : Errors.ErrorsWarnings = {warnings: [], errors: []};
+    getErrorsWarnings : ko.PureComputed<ErrorsWarnings> = ko.pureComputed(() => {
+        const errorsWarnings : ErrorsWarnings = {warnings: [], errors: []};
         
         this.getIssues().forEach(function(error){
-            if(error.validity === Errors.Validity.Error || error.validity === Errors.Validity.Unknown){
+            if(error.validity === Validity.Error || error.validity === Validity.Unknown){
                 errorsWarnings.errors.push(error.issue)
             }else{
                 errorsWarnings.warnings.push(error.issue)
@@ -443,11 +443,11 @@ export class Field {
         return errorsWarnings;
     }, this);
 
-    getIssues = (): {issue:Errors.Issue, validity:Errors.Validity}[] => {
+    getIssues = (): {issue: Issue, validity: Validity}[] => {
         return this.issues();
     }
 
-    addError = (issue:Errors.Issue, validity:Errors.Validity): Field => {
+    addError = (issue: Issue, validity: Validity): Field => {
         this.issues().push({issue:issue,validity:validity})
         return this;
     }
@@ -455,11 +455,11 @@ export class Field {
     // TODO: these colors could be added to EagleConfig.ts
     getBackgroundColor : ko.PureComputed<string> = ko.pureComputed(() => {
         const errorsWarnings = this.getErrorsWarnings()
-        const showGraphWarnings = Setting.findValue<Setting.ShowErrorsMode>(Setting.SHOW_GRAPH_WARNINGS, Setting.ShowErrorsMode.None);
+        const showGraphWarnings = Setting.findValue<ShowErrorsMode>(Setting.SHOW_GRAPH_WARNINGS, ShowErrorsMode.None);
 
-        if(errorsWarnings.errors.length>0 && showGraphWarnings !== Setting.ShowErrorsMode.None){
+        if(errorsWarnings.errors.length>0 && showGraphWarnings !== ShowErrorsMode.None){
             return EagleConfig.getColor('graphError')
-        }else if(errorsWarnings.warnings.length>0 && showGraphWarnings === Setting.ShowErrorsMode.Warnings){
+        }else if(errorsWarnings.warnings.length>0 && showGraphWarnings === ShowErrorsMode.Warnings){
             return EagleConfig.getColor('graphWarning')
         }else{
             return ''
@@ -584,11 +584,11 @@ export class Field {
     }
 
     isInputPort = () : boolean => {
-        return this.usage() === Daliuge.FieldUsage.InputPort || this.usage() === Daliuge.FieldUsage.InputOutput;
+        return this.usage() === FieldUsage.InputPort || this.usage() === FieldUsage.InputOutput;
     }
 
     isOutputPort = () : boolean => {
-        return this.usage() === Daliuge.FieldUsage.OutputPort || this.usage() === Daliuge.FieldUsage.InputOutput;
+        return this.usage() === FieldUsage.OutputPort || this.usage() === FieldUsage.InputOutput;
     }
 
     fitsComponentSearchQuery : ko.PureComputed<boolean> = ko.pureComputed(() => {
@@ -629,7 +629,7 @@ export class Field {
 
         let searchTermNo : number = 0
         let searchTermTrueNo : number = 0
-        const bottomWindowMode = Setting.findValue<Eagle.BottomWindowMode>(Setting.BOTTOM_WINDOW_MODE, Eagle.BottomWindowMode.None);
+        const bottomWindowMode = Setting.findValue<EagleBottomWindowMode>(Setting.BOTTOM_WINDOW_MODE, EagleBottomWindowMode.None);
 
         Eagle.tableSearchString().toLocaleLowerCase().split(',').forEach((term) => {
             term = term.trim()
@@ -642,7 +642,7 @@ export class Field {
             }
 
             //check if the node name matches, but only if using the key parameter table modal
-            if(bottomWindowMode === Eagle.BottomWindowMode.ConfigParameterTable){
+            if(bottomWindowMode === EagleBottomWindowMode.ConfigParameterTable){
                 if(this.node().getName().toLowerCase().indexOf(term) >= 0){
                     result = true
                 }
@@ -675,26 +675,26 @@ export class Field {
 
     // TODO: move to Daliuge.ts?
     isDaliugeField : ko.PureComputed<boolean> = ko.pureComputed(() => {
-        return Object.values<string>(Daliuge.FieldName).includes(this.displayText());
+        return Object.values<string>(FieldName).includes(this.displayText());
     }, this);
 
     isFloatValueType = () : boolean => {
         const typePrefix = Utils.dataTypePrefix(this.type());
-        return typePrefix === Daliuge.DataType.Float || typePrefix === Daliuge.DataType.float;
+        return typePrefix === DataType.Float || typePrefix === DataType.float;
     }
 
     isIntegerValueType = () : boolean => {
         const typePrefix = Utils.dataTypePrefix(this.type());
-        return typePrefix === Daliuge.DataType.Integer || typePrefix === Daliuge.DataType.int;
+        return typePrefix === DataType.Integer || typePrefix === DataType.int;
     }
 
     isBooleanValueType = () : boolean => {
         const typePrefix = Utils.dataTypePrefix(this.type());
-        return typePrefix === Daliuge.DataType.Boolean || typePrefix === Daliuge.DataType.bool;
+        return typePrefix === DataType.Boolean || typePrefix === DataType.bool;
     }
 
     isSelectValueType = () : boolean => {
-        return Utils.dataTypePrefix(this.type()) === Daliuge.DataType.Select;
+        return Utils.dataTypePrefix(this.type()) === DataType.Select;
     }
 
     isStringValueType = () : boolean => {
@@ -702,21 +702,21 @@ export class Field {
         return !this.isFloatValueType() && !this.isIntegerValueType() && !this.isBooleanValueType() && !this.isSelectValueType();
     }
 
-    static getHtmlTitleText(parameterType: Daliuge.FieldType, usage: Daliuge.FieldUsage) : string {
-        if (usage === Daliuge.FieldUsage.NoPort){
+    static getHtmlTitleText(parameterType: FieldType, usage: FieldUsage) : string {
+        if (usage === FieldUsage.NoPort){
             switch(parameterType){
-                case Daliuge.FieldType.Application:
+                case FieldType.Application:
                 return "Application Argument";
-                case Daliuge.FieldType.Component:
+                case FieldType.Component:
                 return "Component Parameter";
             }
         } else {
             switch(usage){
-                case Daliuge.FieldUsage.InputPort:
+                case FieldUsage.InputPort:
                 return "Input Port";
-                case Daliuge.FieldUsage.OutputPort:
+                case FieldUsage.OutputPort:
                 return "Output Port";
-                case Daliuge.FieldUsage.InputOutput:
+                case FieldUsage.InputOutput:
                 return "Input/Output Port";
             }
         }
@@ -767,17 +767,17 @@ export class Field {
 
     // used to transform the value attribute of a field into a variable with the correct type
     // the value attribute is always stored as a string internally
-    static stringAsType(value: string | null, type: Daliuge.DataType) : boolean | number | string | null {
+    static stringAsType(value: string | null, type: DataType) : boolean | number | string | null {
         if (value === null){
             return null;
         }
 
         switch (type){
-            case Daliuge.DataType.Boolean:
+            case DataType.Boolean:
                 return Utils.asBool(value);
-            case Daliuge.DataType.Float:
+            case DataType.Float:
                 return parseFloat(value);
-            case Daliuge.DataType.Integer:
+            case DataType.Integer:
                 const parsedValue = parseInt(value, 10);
                 if (isNaN(parsedValue)){
                     console.warn("Field.stringAsType(): Unable to parse value as integer:", value);
@@ -803,7 +803,7 @@ export class Field {
             changeable:field.changeable(),
             encoding:field.encoding(),
             id: field.id(),
-            parameterType: Daliuge.fieldTypeToDlgMap[field.parameterType()] || Daliuge.DLGFieldType.Unknown,
+            parameterType: Daliuge.fieldTypeToDlgMap[field.parameterType()] || DLGFieldType.Unknown,
             usage: field.usage(),
         };
     }
@@ -833,16 +833,16 @@ export class Field {
         let name: string = "";
         let description: string = "";
         let readonly: boolean = false;
-        let type: Daliuge.DataType = Daliuge.DataType.Unknown;
+        let type: DataType = DataType.Unknown;
         let value: string = "";
         let defaultValue: string = "";
         let precious: boolean = false;
         let options: string[] = [];
         let positional: boolean = false;
-        let parameterType: Daliuge.FieldType = Daliuge.FieldType.Unknown;
-        let usage: Daliuge.FieldUsage = Daliuge.FieldUsage.NoPort;
+        let parameterType: FieldType = FieldType.Unknown;
+        let usage: FieldUsage = FieldUsage.NoPort;
         let isEvent: boolean = false;
-        let encoding: Daliuge.Encoding = Daliuge.Encoding.Pickle;
+        let encoding: Encoding = Encoding.Pickle;
         let fieldChangeable: boolean = changeable;
 
         if (typeof data.id !== 'undefined') { id = data.id; }   
@@ -852,7 +852,7 @@ export class Field {
         if (typeof data.type !== 'undefined'){
             if (data.type === "Event"){
                 isEvent = true;
-                type = Daliuge.DataType.Unknown;
+                type = DataType.Unknown;
             } else {
                 isEvent = false;
                 type = data.type;
@@ -872,29 +872,29 @@ export class Field {
         // handle legacy fieldType
         if (typeof data.fieldType !== 'undefined'){
             switch (data.fieldType){
-                case Daliuge.DLGFieldType.ApplicationArgument:
-                    parameterType = Daliuge.FieldType.Application;
-                    usage = Daliuge.FieldUsage.NoPort;
+                case DLGFieldType.ApplicationArgument:
+                    parameterType = FieldType.Application;
+                    usage = FieldUsage.NoPort;
                     break;
-                case Daliuge.DLGFieldType.ComponentParameter:
-                    parameterType = Daliuge.FieldType.Component;
-                    usage = Daliuge.FieldUsage.NoPort;
+                case DLGFieldType.ComponentParameter:
+                    parameterType = FieldType.Component;
+                    usage = FieldUsage.NoPort;
                     break;
-                case Daliuge.DLGFieldType.ConstraintParameter:
-                    parameterType = Daliuge.FieldType.Constraint;
-                    usage = Daliuge.FieldUsage.NoPort;
+                case DLGFieldType.ConstraintParameter:
+                    parameterType = FieldType.Constraint;
+                    usage = FieldUsage.NoPort;
                     break;
-                case Daliuge.DLGFieldType.ConstructParameter:
-                    parameterType = Daliuge.FieldType.Construct;
-                    usage = Daliuge.FieldUsage.NoPort;
+                case DLGFieldType.ConstructParameter:
+                    parameterType = FieldType.Construct;
+                    usage = FieldUsage.NoPort;
                     break;
-                case Daliuge.FieldUsage.InputPort:
-                    parameterType = Daliuge.FieldType.Application;
-                    usage = Daliuge.FieldUsage.InputPort;
+                case FieldUsage.InputPort:
+                    parameterType = FieldType.Application;
+                    usage = FieldUsage.InputPort;
                     break;
-                case Daliuge.FieldUsage.OutputPort:
-                    parameterType = Daliuge.FieldType.Application;
-                    usage = Daliuge.FieldUsage.OutputPort;
+                case FieldUsage.OutputPort:
+                    parameterType = FieldType.Application;
+                    usage = FieldUsage.OutputPort;
                     break;
                 default:
                     console.warn("Unhandled fieldType", data.fieldType);
@@ -902,7 +902,7 @@ export class Field {
         }
 
         if (typeof data.parameterType !== 'undefined') {
-            parameterType = Daliuge.dlgToFieldTypeMap[<Daliuge.DLGFieldType>data.parameterType] || Daliuge.FieldType.Unknown;
+            parameterType = Daliuge.dlgToFieldTypeMap[<DLGFieldType>data.parameterType] || FieldType.Unknown;
         }
         if (typeof data.usage !== 'undefined') { usage = data.usage; }
         if (typeof data.event !== 'undefined') { isEvent = data.event; }
@@ -917,9 +917,9 @@ export class Field {
     static fromOJSJsonPort(data : any, node: Node, changeable: boolean) : Field {
         let name: string = "";
         let event: boolean = false;
-        let type: Daliuge.DataType = Daliuge.DataType.Unknown;
+        let type: DataType = DataType.Unknown;
         let description: string = "";
-        let encoding: Daliuge.Encoding = Daliuge.Encoding.Pickle;
+        let encoding: Encoding = Encoding.Pickle;
 
         if (typeof data.name !== 'undefined') { name = data.name; }
         if (typeof data.event !== 'undefined') { event = data.event; }
@@ -932,7 +932,7 @@ export class Field {
             name = data.IdText;
         }
      
-        const f = new Field(node, data.Id, name, "", "", description, false, type, false, [], false, Daliuge.FieldType.Unknown, Daliuge.FieldUsage.NoPort);
+        const f = new Field(node, data.Id, name, "", "", description, false, type, false, [], false, FieldType.Unknown, FieldUsage.NoPort);
         f.isEvent(event);
         f.encoding(encoding);
         f.changeable(changeable);
@@ -946,15 +946,15 @@ export class Field {
         let defaultValue: string | null = "";
         let description: string = "";
         let readonly: boolean = false;
-        let type: Daliuge.DataType = Daliuge.DataType.Unknown;
+        let type: DataType = DataType.Unknown;
         let precious: boolean = false;
         let options: string[] = [];
         let positional: boolean = false;
-        let parameterType: Daliuge.FieldType = Daliuge.FieldType.Unknown;
-        let usage: Daliuge.FieldUsage = Daliuge.FieldUsage.NoPort;
+        let parameterType: FieldType = FieldType.Unknown;
+        let usage: FieldUsage = FieldUsage.NoPort;
 
         let event: boolean = false;
-        let encoding: Daliuge.Encoding = Daliuge.Encoding.Pickle;
+        let encoding: Encoding = Encoding.Pickle;
         let fieldChangeable: boolean = changeable;
 
         if (typeof data.id !== 'undefined') { id = data.id as FieldId; }
@@ -978,9 +978,9 @@ export class Field {
         if (typeof data.type !== 'undefined') {
             if (data.type === "Event") {
                 event = true;
-                type = Daliuge.DataType.Unknown;
+                type = DataType.Unknown;
             } else {
-                type = data.type as Daliuge.DataType;
+                type = data.type as DataType;
             }
         }
         if (typeof data.precious !== 'undefined') {
@@ -996,13 +996,13 @@ export class Field {
             fieldChangeable = data.changeable;
         }
         if (typeof data.parameterType !== 'undefined') {
-            parameterType = data.parameterType as Daliuge.FieldType;
+            parameterType = data.parameterType as FieldType;
         }
         if (typeof data.usage !== 'undefined') {
-            usage = data.usage as Daliuge.FieldUsage;
+            usage = data.usage as FieldUsage;
         }
         if (typeof data.encoding !== 'undefined') {
-            encoding = data.encoding as Daliuge.Encoding;
+            encoding = data.encoding as Encoding;
         }
 
         const f = new Field(node, id, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage);
@@ -1012,7 +1012,7 @@ export class Field {
         return f;
     }
 
-    static isValid(graph: LogicalGraph, node:Node, field:Field, location:Eagle.FileType){
+    static isValid(graph: LogicalGraph, node:Node, field:Field, location:EagleFileType){
         const eagle = Eagle.getInstance()
         field.issues([]) //clear old issues
     
@@ -1020,8 +1020,8 @@ export class Field {
         if(field.isInputPort()){
 
             //check the data type is known (except in the case of event ports, they can be unknown)
-            if (!field.isEvent() && field.isType(Daliuge.DataType.Unknown)){
-                let issue: Errors.Issue
+            if (!field.isEvent() && field.isType(DataType.Unknown)){
+                let issue
                 const constructNode = node.getEmbed();
 
                 // for normal nodes
@@ -1036,7 +1036,7 @@ export class Field {
                         issue = Errors.ShowFix("Node (" + constructNode.getName() + ") has output application (" + node.getName() + ") with input port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixFieldType(eagle, field)}, "");
                     }
                 }
-                field.issues().push({issue:issue,validity:Errors.Validity.Warning})
+                field.issues().push({issue:issue,validity:Validity.Warning})
             }
 
 
@@ -1046,8 +1046,8 @@ export class Field {
         if(field.isOutputPort()){
 
             //check the data type is known (except in the case of event ports, they can be unknown)
-            if (!field.isEvent() && field.isType(Daliuge.DataType.Unknown)){
-                let issue: Errors.Issue
+            if (!field.isEvent() && field.isType(DataType.Unknown)){
+                let issue
                 const constructNode = node.getEmbed();
 
                 //for normal nodes
@@ -1062,7 +1062,7 @@ export class Field {
                         issue = Errors.ShowFix("Node (" + constructNode.getName() + ") has output application (" + node.getName() + ") with output port (" + field.getDisplayText() + ") whose type is not specified", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixFieldType(eagle, field)}, "");
                     }
                 }
-                field.issues().push({issue:issue,validity:Errors.Validity.Warning})
+                field.issues().push({issue:issue,validity:Validity.Warning})
             }
 
 
@@ -1071,19 +1071,19 @@ export class Field {
         //check that the field has an id
         if (field.getId() === "" || field.getId() === null){
             const issue = Errors.ShowFix("Node (" + node.getName() + ") has field (" + field.getDisplayText() + ") with no id", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixFieldId(eagle, field)}, "Generate id for field");
-                field.issues().push({issue:issue,validity:Errors.Validity.Error})
+                field.issues().push({issue:issue,validity:Validity.Error})
         }
 
         // check that the field has a known type
         if (!Utils.validateType(field.getType())) {
-            const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") has a component parameter (" + field.getDisplayText() + ") whose type (" + field.getType() + ") is unknown", function(){Utils.showField(eagle, location, node, field)}, function(){Utils.fixFieldType(eagle, field)}, "Prepend existing type (" + field.getType() + ") with 'Object.'");
-                field.issues().push({issue:issue,validity:Errors.Validity.Warning})
+            const issue = Errors.ShowFix("Node (" + node.getName() + ") has a component parameter (" + field.getDisplayText() + ") whose type (" + field.getType() + ") is unknown", function(){Utils.showField(eagle, location, node, field)}, function(){Utils.fixFieldType(eagle, field)}, "Prepend existing type (" + field.getType() + ") with 'Object.'");
+                field.issues().push({issue:issue,validity:Validity.Warning})
         }
 
         // check that the fields "key" is the same as the key of the node it belongs to
         if (field.getNode().getId() !== node.getId()) {
-            const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") has a field (" + field.getDisplayText() + ") whose node id (" + field.getNode().getId() + ") doesn't match the node (" + node.getId() + ")", function(){Utils.showField(eagle, location, node, field)}, function(){Utils.fixFieldNodeId(eagle, node, field)}, "Set field node id correctly");
-                field.issues().push({issue:issue,validity:Errors.Validity.Error})
+            const issue = Errors.ShowFix("Node (" + node.getName() + ") has a field (" + field.getDisplayText() + ") whose node id (" + field.getNode().getId() + ") doesn't match the node (" + node.getId() + ")", function(){Utils.showField(eagle, location, node, field)}, function(){Utils.fixFieldNodeId(eagle, node, field)}, "Set field node id correctly");
+                field.issues().push({issue:issue,validity:Validity.Error})
         }
 
         // check that the field has a unique display text on the node
@@ -1094,19 +1094,19 @@ export class Field {
 
             if (field.getDisplayText() === field1.getDisplayText() && field.getParameterType() === field1.getParameterType()){
                 if (field.getId() === field1.getId()){
-                    const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") has multiple attributes with the same display text and id (" + field.getDisplayText() + ").", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixNodeMergeFields(graph, node, field.getId(), field1.getId())}, "Merge fields");
-                    field.issues().push({issue:issue,validity:Errors.Validity.Warning})
+                    const issue = Errors.ShowFix("Node (" + node.getName() + ") has multiple attributes with the same display text and id (" + field.getDisplayText() + ").", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixNodeMergeFields(graph, node, field.getId(), field1.getId())}, "Merge fields");
+                    field.issues().push({issue:issue,validity:Validity.Warning})
                     // errorsWarnings.warnings.push(issue);
                 } else {
-                    const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") has multiple attributes with the same display text (" + field.getDisplayText() + ").", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixNodeMergeFields(graph, node, field.getId(), field1.getId())}, "Merge fields");
-                    field.issues().push({issue:issue,validity:Errors.Validity.Warning})
+                    const issue = Errors.ShowFix("Node (" + node.getName() + ") has multiple attributes with the same display text (" + field.getDisplayText() + ").", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixNodeMergeFields(graph, node, field.getId(), field1.getId())}, "Merge fields");
+                    field.issues().push({issue:issue,validity:Validity.Warning})
                     // errorsWarnings.warnings.push(issue);
                 }
             }
         }
 
         // check that PythonObject's self port is input for only one edge
-        if (node.getCategory() === Category.PythonObject && field.getDisplayText() === Daliuge.FieldName.SELF){
+        if (node.getCategory() === CategoryName.PythonObject && field.getDisplayText() === FieldName.SELF){
             let numSelfPortConnections: number = 0;
             for (const edge of graph.getEdges()){
                 if (edge.getDestPort().getId() === field.getId()){
@@ -1115,69 +1115,69 @@ export class Field {
             }
 
             if (numSelfPortConnections > 1){
-                const issue: Errors.Issue = Errors.Message("Port " + field.getDisplayText() + " on node " + node.getName() + " cannot have multiple inputs.")
-                field.issues().push({issue:issue,validity:Errors.Validity.Error})
+                const issue = Errors.Message("Port " + field.getDisplayText() + " on node " + node.getName() + " cannot have multiple inputs.")
+                field.issues().push({issue:issue,validity:Validity.Error})
             }
         }
 
         // check whether this field's name is a non-standard capitalization of a Daliuge field name
         const fieldDisplayText = field.getDisplayText();
         const fieldDisplayTextLower = fieldDisplayText.toLowerCase();
-        for (const fieldName of Object.values<string>(Daliuge.FieldName)){
+        for (const fieldName of Object.values<string>(FieldName)){
             if (fieldDisplayTextLower === fieldName.toLowerCase() && fieldDisplayText !== fieldName){
-                const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") has field (" + fieldDisplayText + ") whose name is a non-standard capitalization of Daliuge field name (" + fieldName + ").", function(){Utils.showField(eagle, location, node, field);}, function(){field.setDisplayText(fieldName)}, "Change to standard capitalization (" + fieldName + ")");
-                field.issues().push({issue:issue, validity:Errors.Validity.Warning})
+                const issue = Errors.ShowFix("Node (" + node.getName() + ") has field (" + fieldDisplayText + ") whose name is a non-standard capitalization of Daliuge field name (" + fieldName + ").", function(){Utils.showField(eagle, location, node, field);}, function(){field.setDisplayText(fieldName)}, "Change to standard capitalization (" + fieldName + ")");
+                field.issues().push({issue:issue, validity:Validity.Warning})
             }
         }
 
         // check that fields have parameter types that are suitable for this node
         // skip the 'drop class' component parameter, those are always suitable for every node
-        if (field.getDisplayText() !== Daliuge.FieldName.DROP_CLASS && field.getParameterType() !== Daliuge.FieldType.Component){
+        if (field.getDisplayText() !== FieldName.DROP_CLASS && field.getParameterType() !== FieldType.Component){
             if (
-                (field.getParameterType() === Daliuge.FieldType.Component) && !CategoryData.getCategoryData(node.getCategory()).canHaveComponentParameters ||
-                (field.getParameterType() === Daliuge.FieldType.Application) && !CategoryData.getCategoryData(node.getCategory()).canHaveApplicationArguments ||
-                (field.getParameterType() === Daliuge.FieldType.Construct) && !CategoryData.getCategoryData(node.getCategory()).canHaveConstructParameters
+                (field.getParameterType() === FieldType.Component) && !CategoryData.getCategoryInfo(node.getCategory()).canHaveComponentParameters ||
+                (field.getParameterType() === FieldType.Application) && !CategoryData.getCategoryInfo(node.getCategory()).canHaveApplicationArguments ||
+                (field.getParameterType() === FieldType.Construct) && !CategoryData.getCategoryInfo(node.getCategory()).canHaveConstructParameters
             ){
                 // determine a suitable type
-                let suitableType: Daliuge.FieldType = Daliuge.FieldType.Unknown;
-                const categoryData: Category.CategoryData = CategoryData.getCategoryData(node.getCategory());
+                let suitableType: FieldType = FieldType.Unknown;
+                const categoryData: ReturnType<typeof CategoryData.getCategoryInfo> = CategoryData.getCategoryInfo(node.getCategory());
 
                 if (categoryData.canHaveComponentParameters){
-                    suitableType = Daliuge.FieldType.Component;
+                    suitableType = FieldType.Component;
                 } else {
                     if (categoryData.canHaveApplicationArguments){
-                        suitableType = Daliuge.FieldType.Application;
+                        suitableType = FieldType.Application;
                     } else {
                         if (categoryData.canHaveConstructParameters){
-                            suitableType = Daliuge.FieldType.Construct;
+                            suitableType = FieldType.Construct;
                         }
                     }
                 }
 
                 const message = "Node (" + node.getName() + ") with category " + node.getCategory() + " contains field (" + field.getDisplayText() + ") with unsuitable type (" + field.getParameterType() + ").";
-                const issue: Errors.Issue = Errors.ShowFix(message, function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixFieldParameterType(eagle, node, field, suitableType)}, "Switch to suitable type, or remove if no suitable type");
-                field.issues().push({issue:issue,validity:Errors.Validity.Warning})
+                const issue = Errors.ShowFix(message, function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixFieldParameterType(eagle, node, field, suitableType)}, "Switch to suitable type, or remove if no suitable type");
+                field.issues().push({issue:issue,validity:Validity.Warning})
             }
         }
 
         // if this field has edges, it must be a port
         if (field.edges().size > 0){
-            if (field.getUsage() === Daliuge.FieldUsage.NoPort){
-                const issue: Errors.Issue = Errors.Show("Node (" + node.getName() + ") field (" + field.getDisplayText() + ") has edges, but is not a port.", function(){Utils.showField(eagle, location, node, field)});
-                field.issues().push({issue: issue, validity: Errors.Validity.Error});
+            if (field.getUsage() === FieldUsage.NoPort){
+                const issue = Errors.Show("Node (" + node.getName() + ") field (" + field.getDisplayText() + ") has edges, but is not a port.", function(){Utils.showField(eagle, location, node, field)});
+                field.issues().push({issue: issue, validity: Validity.Error});
             }
         }
 
         // check that all edges on this field actually start or end on the field
         for (const edge of field.edges().values()){
             if (edge.getSrcPort().getId() !== field.getId() && edge.getDestPort().getId() !== field.getId()){
-                const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") field (" + field.getDisplayText() + ") has edge that isn't connected to the field", function(){Utils.showNode(eagle, location, field.getNode())}, function(){Utils.fixFieldEdges(graph, field)}, "Regenerate the list of edges for this field");
-                field.issues().push({issue:issue, validity:Errors.Validity.Error});
+                const issue = Errors.ShowFix("Node (" + node.getName() + ") field (" + field.getDisplayText() + ") has edge that isn't connected to the field", function(){Utils.showNode(eagle, location, field.getNode())}, function(){Utils.fixFieldEdges(graph, field)}, "Regenerate the list of edges for this field");
+                field.issues().push({issue:issue, validity:Validity.Error});
             }
 
             if (edge.getSrcNode().getId() !== field.getNode().getId() && edge.getDestNode().getId() !== field.getNode().getId()){
-                const issue: Errors.Issue = Errors.ShowFix("Node (" + node.getName() + ") field (" + field.getDisplayText() + ") has edge that isn't connected to the field", function(){Utils.showNode(eagle, location, field.getNode())}, function(){Utils.fixFieldEdges(graph, field)}, "Regenerate the list of edges for this field");
-                field.issues().push({issue:issue, validity:Errors.Validity.Error});
+                const issue = Errors.ShowFix("Node (" + node.getName() + ") field (" + field.getDisplayText() + ") has edge that isn't connected to the field", function(){Utils.showNode(eagle, location, field.getNode())}, function(){Utils.fixFieldEdges(graph, field)}, "Regenerate the list of edges for this field");
+                field.issues().push({issue:issue, validity:Validity.Error});
             }
         }
     }

@@ -1,12 +1,12 @@
+import { RepositoryService } from './Repository';
 import * as ko from "knockout";
 
-import { Eagle } from './Eagle';
+import { Eagle, EagleFileType } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
-import { Errors } from './Errors';
+import { Errors, type ErrorsWarnings } from './Errors';
 import { FileLocation } from "./FileLocation";
-import type { JsonObject, LegacyV4FileInfoJson, V4FileInfoJson, V4FileLocationJson } from "./JsonLoadTypes";
-import { Repository } from "./Repository";
-import { Setting } from "./Setting";
+import type { JsonObject, V4FileInfoJson, V4FileLocationJson, LegacyV4FileInfoJson } from "./JsonLoadTypes";
+import { SchemaVersion } from "./Setting";
 import { Utils } from './Utils';
 
 
@@ -14,8 +14,8 @@ export class FileInfo {
     private _name : ko.Observable<string>;
     private _shortDescription : ko.Observable<string>;
     private _detailedDescription : ko.Observable<string>;
-    private _type : ko.Observable<Eagle.FileType>;
-    private _schemaVersion : ko.Observable<Setting.SchemaVersion>;
+    private _type : ko.Observable<EagleFileType>;
+    private _schemaVersion : ko.Observable<SchemaVersion>;
     private _readonly : ko.Observable<boolean>;
     private _location : ko.Observable<FileLocation>;
 
@@ -48,8 +48,8 @@ export class FileInfo {
         this._name = ko.observable("");
         this._shortDescription = ko.observable("");
         this._detailedDescription = ko.observable("");
-        this._type = ko.observable<Eagle.FileType>(Eagle.FileType.Unknown);
-        this._schemaVersion = ko.observable<Setting.SchemaVersion>(Setting.SchemaVersion.Unknown);
+        this._type = ko.observable<EagleFileType>(EagleFileType.Unknown);
+        this._schemaVersion = ko.observable<SchemaVersion>(SchemaVersion.Unknown);
         this._readonly = ko.observable(true);
         this._location = ko.observable(new FileLocation());
 
@@ -97,11 +97,11 @@ export class FileInfo {
         this._detailedDescription(detailedDescription);
     }
 
-    get type() : Eagle.FileType {
+    get type() : EagleFileType {
         return this._type();
     }
 
-    set type(type : Eagle.FileType){
+    set type(type : EagleFileType){
         this._type(type);
     }
 
@@ -137,11 +137,11 @@ export class FileInfo {
         this._generatorName(hash);
     }
 
-    get schemaVersion(): Setting.SchemaVersion{
+    get schemaVersion(): SchemaVersion{
         return this._schemaVersion();
     }
 
-    set schemaVersion(version: Setting.SchemaVersion){
+    set schemaVersion(version: SchemaVersion){
         this._schemaVersion(version);
     }
 
@@ -229,8 +229,8 @@ export class FileInfo {
         this._name("");
         this._shortDescription("");
         this._detailedDescription("");
-        this._type(Eagle.FileType.Unknown);
-        this._schemaVersion(Setting.SchemaVersion.Unknown);
+        this._type(EagleFileType.Unknown);
+        this._schemaVersion(SchemaVersion.Unknown);
         this._readonly(true);
         this._location().clear();
 
@@ -288,7 +288,7 @@ export class FileInfo {
     }
 
     removeGitInfo = () : void => {
-        this._location().repositoryService(Repository.Service.Unknown);
+        this._location().repositoryService(RepositoryService.Unknown);
         this._location().repositoryBranch("");
         this._location().repositoryName("");
         this._location().repositoryPath("");
@@ -326,7 +326,7 @@ export class FileInfo {
 
     getSummaryHTML = (title : string) : string => {
         let text
-        if (this._location().repositoryService() === Repository.Service.Unknown){
+        if (this._location().repositoryService() === RepositoryService.Unknown){
             text = "- Location -</br>Url:&nbsp;" + this._repositoryUrl() + "</br>Hash:&nbsp;" + this._location().commitHash();
         } else {
             text = "<p>" + this._location().repositoryService() + " : " + this._location().repositoryName() + ((this._location().repositoryBranch() === "") ? "" : ("(" + this._location().repositoryBranch() + ")")) + " : " + this._location().repositoryPath() + "/" + this._name() + "</p>";
@@ -468,12 +468,12 @@ export class FileInfo {
     }
 
     // TODO: use errors array if attributes cannot be found
-    static fromOJSJson(modelData : any, errorsWarnings: Errors.ErrorsWarnings) : FileInfo {
+    static fromOJSJson(modelData : any, errorsWarnings: ErrorsWarnings) : FileInfo {
         const result : FileInfo = new FileInfo();
 
         const fileName = Utils.getFileNameFromFullPath(modelData.filePath);
         const filePath = Utils.getFilePathFromFullPath(modelData.filePath);
-        const repoService = modelData.repoService ?? Repository.Service.Unknown;
+        const repoService = modelData.repoService ?? RepositoryService.Unknown;
 
         result.name = fileName;
         result.shortDescription = modelData.shortDescription ?? "";
@@ -496,7 +496,7 @@ export class FileInfo {
         // For URL-backed graphs we store the full URL in repositoryFileName and
         // keep repositoryPath empty. This matches updateFileInfo() behavior and
         // keeps graphLocation comparisons stable across undo reloads.
-        if (repoService === Repository.Service.Url){
+        if (repoService === RepositoryService.Url){
             const url = modelData.downloadUrl ?? modelData.filePath ?? "";
             result.location.repositoryPath("");
             result.location.repositoryFileName(url);
@@ -533,10 +533,10 @@ export class FileInfo {
         return result;
     }
 
-    static fromV4Json(modelData: V4FileInfoJson | JsonObject, errorsWarnings: Errors.ErrorsWarnings): FileInfo{
+    static fromV4Json(modelData: V4FileInfoJson | JsonObject, errorsWarnings: ErrorsWarnings): FileInfo{
         const typedModelData = modelData as LegacyV4FileInfoJson;
         const defaultLocation: V4FileLocationJson = {
-            repositoryService: Repository.Service.Unknown,
+            repositoryService: RepositoryService.Unknown,
             repositoryBranch: "",
             repositoryName: "",
             repositoryPath: "",
@@ -560,7 +560,7 @@ export class FileInfo {
         result.shortDescription = typedModelData.shortDescription ?? "";
         result.detailedDescription = typedModelData.detailedDescription ?? "";
         result.type = Utils.translateStringToFileType(typedModelData.type);
-        result.schemaVersion = (typedModelData.schemaVersion as Setting.SchemaVersion | undefined) ?? Setting.SchemaVersion.Unknown;
+        result.schemaVersion = (typedModelData.schemaVersion as SchemaVersion | undefined) ?? SchemaVersion.Unknown;
         result.readonly = typedModelData.readonly ?? true;
         result.location = FileLocation.fromJson(locationData, errorsWarnings);
 

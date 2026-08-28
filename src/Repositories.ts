@@ -1,9 +1,10 @@
+import { EagleFileType } from './Eagle';
 import * as ko from "knockout";
 
 import { Eagle } from './Eagle';
 import { EagleStorage } from "./EagleStorage";
 import type { FileLocation } from "./FileLocation";
-import { Repository } from './Repository';
+import { Repository, RepositoryService } from './Repository';
 import type { RepositoryFile } from './RepositoryFile';
 import { Setting } from './Setting';
 import { Utils } from './Utils';
@@ -20,22 +21,22 @@ export class Repositories {
     static async selectFile(file : RepositoryFile): Promise<void> {
         const eagle: Eagle = Eagle.getInstance();
 
-        if(file.type === Eagle.FileType.Graph || file.type === Eagle.FileType.JSON){
+        if(file.type === EagleFileType.Graph || file.type === EagleFileType.JSON){
             eagle.showEagleIsLoading()
         }
 
         // check if the current file has been modified
         let isModified = false;
         switch (file.type){
-            case Eagle.FileType.Graph:
+            case EagleFileType.Graph:
                 isModified = eagle.logicalGraph().fileInfo().modified;
                 break;
-            case Eagle.FileType.Palette: {
+            case EagleFileType.Palette: {
                 const palette = eagle.findPalette(file.name, false);
                 isModified = typeof palette !== "undefined" && palette.fileInfo().modified;
                 break;
             }
-            case Eagle.FileType.JSON:
+            case EagleFileType.JSON:
                 isModified = eagle.logicalGraph().fileInfo().modified;
                 break;
         }
@@ -53,14 +54,14 @@ export class Repositories {
         }
     }
     
-    static translateStringToService(service: string): Repository.Service {
-        for (const s in Repository.Service){
+    static translateStringToService(service: string): RepositoryService {
+        for (const s in RepositoryService){
             if (s.toLowerCase() === service.toLowerCase()){
-                return s as Repository.Service;
+                return s as RepositoryService;
             }
         }
 
-        return Repository.Service.Unknown;
+        return RepositoryService.Unknown;
     }
 
     static generateUrl(repository: Repository): string {
@@ -69,9 +70,9 @@ export class Repositories {
 
     static getWebUrl(repository: Repository): string {
         switch (repository.service){
-            case Repository.Service.GitHub:
+            case RepositoryService.GitHub:
                 return "https://github.com/" + encodeURI(repository.name) + "/tree/" + encodeURIComponent(repository.branch);
-            case Repository.Service.GitLab:
+            case RepositoryService.GitLab:
                 return "https://gitlab.com/" + encodeURI(repository.name) + "/-/tree/" + encodeURIComponent(repository.branch);
             default:
                 throw new Error("Unsupported repository service: " + repository.service);
@@ -101,7 +102,7 @@ export class Repositories {
         Repositories._addCustomRepository(customRepository.service, customRepository.name, customRepository.branch);
     };
 
-    static async _addCustomRepository(repositoryService: Repository.Service, repositoryName: string, repositoryBranch: string): Promise<Repository> {
+    static async _addCustomRepository(repositoryService: RepositoryService, repositoryName: string, repositoryBranch: string): Promise<Repository> {
         // create repo
         const newRepo = new Repository(repositoryService, repositoryName, repositoryBranch, false);
 
@@ -277,7 +278,7 @@ export class Repositories {
         Repositories.repositories.sort(Repository.repositoriesSortFunc);
     }
 
-    static getList(service : Repository.Service) : Repository[]{
+    static getList(service : RepositoryService) : Repository[]{
         const list : Repository[] = [];
 
         for (const repository of Repositories.repositories()){
@@ -289,7 +290,7 @@ export class Repositories {
         return list;
     }
 
-    static get(service : Repository.Service, name : string, branch : string) : Repository | null {
+    static get(service : RepositoryService, name : string, branch : string) : Repository | null {
         for (const repository of Repositories.repositories()){
             if (repository.service === service && repository.name === name && repository.branch === branch){
                 return repository;

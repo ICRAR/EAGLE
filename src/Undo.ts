@@ -1,3 +1,4 @@
+import { EagleFileType } from './Eagle';
 /*
 #
 #    ICRAR - International Centre for Radio Astronomy Research
@@ -25,7 +26,7 @@
 import * as ko from "knockout";
 
 import { Eagle } from './Eagle';
-import type { Errors } from "./Errors";
+import type { ErrorsWarnings } from "./Errors";
 import { Hierarchy } from "./Hierarchy";
 import { LogicalGraph } from './LogicalGraph';
 import { ParameterTable } from "./ParameterTable";
@@ -235,7 +236,7 @@ export class Undo {
             return;
         }
 
-        const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+        const errorsWarnings : ErrorsWarnings = {"errors":[], "warnings":[]};
         const dataObject: LogicalGraph = LogicalGraph.fromOJSJson(snapshot.data(), null, errorsWarnings);
         eagle.logicalGraph(dataObject);
     }
@@ -253,7 +254,7 @@ export class Undo {
         }
 
         // clear selection
-        eagle.setSelection(null, Eagle.FileType.Graph);
+        eagle.setSelection(null, EagleFileType.Graph);
 
         // find the objects in the ids list, and add them to the selection
         for (const id of objectIds){
@@ -294,7 +295,7 @@ export class Undo {
             }
 
             // parse the snapshot data into a LogicalGraph object
-            const errorsWarnings : Errors.ErrorsWarnings = {"errors":[], "warnings":[]};
+            const errorsWarnings : ErrorsWarnings = {"errors":[], "warnings":[]};
             const dataObject: LogicalGraph = LogicalGraph.fromOJSJson(snapshot.data(), null, errorsWarnings);
 
             tableData.push({

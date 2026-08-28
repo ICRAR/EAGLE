@@ -28,10 +28,10 @@ import "jquery-migrate";
 import "jqueryui";
 import * as bootstrap from 'bootstrap';
 
-import { Category } from './Category';
+import { CategoryName, CategoryType } from './Category';
 import { CategoryData } from './CategoryData';
-import { Daliuge } from './Daliuge';
-import { Eagle } from './Eagle';
+import { Daliuge, Encoding, FieldType, FieldUsage } from './Daliuge';
+import { Eagle, EagleAddNodeMode, EagleFileType, EagleBottomWindowMode, EagleRightWindowMode } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { EagleStorage } from "./EagleStorage";
 import { Errors } from './Errors';
@@ -47,13 +47,14 @@ import { KeyboardShortcut } from './KeyboardShortcut';
 import { StatusEntry } from './StatusEntry';
 import { LogicalGraph } from './LogicalGraph';
 import { Modals } from './Modals';
-import { ParameterTable } from "./ParameterTable";
+import { ParameterTable, ParameterTableSelectType } from "./ParameterTable";
 import { QuickActions } from './QuickActions';
 import { Repositories } from './Repositories';
-import { Repository } from './Repository';
+import { Repository, RepositoryService } from './Repository';
 import { RepositoryFile } from './RepositoryFile';
 import { RightClick } from './RightClick';
-import { Setting } from './Setting';
+import { Setting, SettingType, TranslatorMode } from './Setting';
+import { Mode } from './Errors';
 import { SideWindow } from "./SideWindow";
 import { TutorialSystem } from "./Tutorial";
 import { UiModeSystem } from './UiModes';
@@ -82,23 +83,35 @@ $(function(){
     // TODO: remove this when possible, use Eagle.getInstance() if we can
     (<any>window).eagle = eagle;
 
-    (<any>window).Category = Category;
+    (<any>window).CategoryName = CategoryName;
+    (<any>window).CategoryType = CategoryType;
     (<any>window).Daliuge = Daliuge;
+    (<any>window).Encoding = Encoding;
     (<any>window).Eagle = Eagle;
+    (<any>window).EagleAddNodeMode = EagleAddNodeMode;
     (<any>window).EagleConfig = EagleConfig;
+    (<any>window).EagleFileType = EagleFileType;
+    (<any>window).EagleBottomWindowMode = EagleBottomWindowMode;
+    (<any>window).EagleRightWindowMode = EagleRightWindowMode;
     (<any>window).EagleStorage = EagleStorage;
     (<any>window).Errors = Errors;
+    (<any>window).FieldType = FieldType;
+    (<any>window).FieldUsage = FieldUsage;
     (<any>window).FileInfo = FileInfo;
     (<any>window).GraphConfig = GraphConfig;
     (<any>window).GraphConfigurationsTable = GraphConfigurationsTable;
     (<any>window).GraphUpdater = GraphUpdater;
     (<any>window).Hierarchy = Hierarchy;
     (<any>window).ParameterTable = ParameterTable;
+    (<any>window).ParameterTableSelectType = ParameterTableSelectType;
     (<any>window).Repositories = Repositories;
     (<any>window).Repository = Repository;
+    (<any>window).RepositoryService = RepositoryService;
     (<any>window).RightClick = RightClick;
     (<any>window).Setting = Setting;
+    (<any>window).SettingType = SettingType;
     (<any>window).SideWindow = SideWindow;
+    (<any>window).TranslatorMode = TranslatorMode;
     (<any>window).TutorialSystem = TutorialSystem;
     (<any>window).GraphRenderer = GraphRenderer;
     (<any>window).UiModeSystem = UiModeSystem;
@@ -240,9 +253,9 @@ $(function(){
             return
         }
         if(!event.shiftKey){
-            eagle.setSelection(selectEdge, Eagle.FileType.Graph);
+            eagle.setSelection(selectEdge, EagleFileType.Graph);
         }else{
-            eagle.editSelection(selectEdge, Eagle.FileType.Graph);
+            eagle.editSelection(selectEdge, EagleFileType.Graph);
         }
     })
 
@@ -252,11 +265,11 @@ $(function(){
     })
 
     // check that all categories have category data
-    for (const category of Utils.enumKeys(Category)){
-        CategoryData.getCategoryData(<Category>category);
+    for (const category of Utils.enumKeys(CategoryName)){
+        CategoryData.getCategoryInfo(<CategoryName>category);
 
         // exit after the last category, before we get to the other enums in the Category object
-        if (category === Category.UnknownApplication){
+        if (category === CategoryName.UnknownApplication){
             break;
         }
     }
@@ -269,7 +282,7 @@ $(function(){
     ko.applyBindings(eagle);
     
     //changing errors mode from loading to graph as eagle is now ready and finished loading
-    eagle.errorsMode(Errors.Mode.Graph);
+    eagle.errorsMode(Mode.Graph);
 });
 
 async function loadRepos() {
@@ -303,16 +316,16 @@ async function autoLoad() {
     const url        = (<any>window).auto_load_url;
 
     // cast the service string to an enum
-    const realService: Repository.Service = Repositories.translateStringToService(service);
+    const realService: RepositoryService = Repositories.translateStringToService(service);
 
     // skip unknown services
-    if (typeof realService === "undefined" || realService === Repository.Service.Unknown){
+    if (typeof realService === "undefined" || realService === RepositoryService.Unknown){
         console.log("No auto load. Service Unknown");
         return;
     }
 
     // check if service is a supported git service
-    const serviceIsGit: boolean = [Repository.Service.GitHub, Repository.Service.GitLab].includes(realService);
+    const serviceIsGit: boolean = [RepositoryService.GitHub, RepositoryService.GitLab].includes(realService);
 
     // skip empty strings
     if (serviceIsGit && (repository === "" || branch === "")){
@@ -321,13 +334,13 @@ async function autoLoad() {
     }
 
     // skip url if url is not specified
-    if (realService === Repository.Service.Url && url === ""){
+    if (realService === RepositoryService.Url && url === ""){
         console.log("No auto load. Url not specified");
         return;
     }
 
     // decide what to do based on the url
-    if (realService === Repository.Service.Url){
+    if (realService === RepositoryService.Url){
         Repositories.selectFile(new RepositoryFile(new Repository(realService, "", "", false), "", url));
     } else {
         if (filename === ""){

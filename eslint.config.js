@@ -219,7 +219,7 @@ module.exports = [
             // Broader TS patterns that are likely to require code refactors.
             // "@typescript-eslint/no-require-imports": "error",
             // "@typescript-eslint/no-useless-empty-export": "error",
-            // "@typescript-eslint/no-namespace": ["error", { "allowDeclarations": true }],
+            "@typescript-eslint/no-namespace": ["error", { "allowDeclarations": true }],
             // "@typescript-eslint/ban-ts-comment": ["error", { "ts-ignore": true, "ts-nocheck": true, "ts-check": false, "ts-expect-error": "allow-with-description", "minimumDescriptionLength": 5 }],
 
             // =============================================================
