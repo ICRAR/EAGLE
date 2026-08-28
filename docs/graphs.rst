@@ -1,10 +1,19 @@
 Templates and Graphs
 ====================
 
-The process of constructing a workflow using EAGLE begins at the most general level -- a Logical Graph Template, and moves through a series of steps to the most specific level -- a Physical Graph. The steps are shown in the following diagram:
+EAGLE workflows move through four stages.
+You start with intent and end with an executable deployment.
 
 .. raw:: html
-    :file: _static/graphs_map.html
+
+    <img src="_static/images/templates_and_graphs.png" alt="Templates and Graphs" usemap="#graphs" style="display:block;margin-left:auto;margin-right:auto;">
+
+    <map name="graphs">
+    <area shape="rect" coords="0,0,500,134" alt="Logical Graph Template" href="#logical-graph-template" style="outline-style:none">
+    <area shape="rect" coords="0,135,500,268" alt="Logical Graph" href="#logical-graph" style="outline-style:none">
+    <area shape="rect" coords="0,269,500,402" alt="Physical Graph Template" href="#physical-graph-template" style="outline-style:none">
+    <area shape="rect" coords="0,403,500,536" alt="Physical Graph" href="#physical-graph" style="outline-style:none">
+    </map>
 
 .. 
 .. .. figure:: _static/images/templates_and_graphs.png
@@ -15,51 +24,81 @@ The process of constructing a workflow using EAGLE begins at the most general le
 ..
 ..   The progression of a workflow from Logical Graph Template to Physical Graph
 
+.. _logical-graph-template:
+
 Logical Graph Template
 ----------------------
 
-Logical Graph Templates are created within the EAGLE drag-and-drop interface. They are usually designed for one experiment or one instrument, but they allow some flexibility in the form of exposed parameters that may be set to different values by the user prior to execution.
+A Logical Graph Template defines workflow structure.
+It includes components, edges, and exposed parameters, but no run-specific values.
+These exposed parameters can be defined as run-specific values as part of a :doc:`graph configuration <graphConfigurations>`, to simplify reuse of the template for different runs.
 
-.. figure:: _static/images/logical_graph_template.png
-  :width: 700px
+.. figure:: _static/images/components.png
+  :width: 90%
   :align: center
   :alt: An example of a Logical Graph Template
   :figclass: align-center
 
   An example of a Logical Graph Template
 
-In an operational environment Logical Graph Templates represent different data processing modes, and after a period of development and use they will become quite stable. They can increase in complexity very quickly; however, if developers approach them as a template and use the ability to expose adjustable parameters, this can highlight the inherent parallelism and potential bottlenecks of complex workflows. Logical Graph Templates provide a birds-eye view of an arbitrarily parallel process, even though parallelism isn't explicitly represented at this stage of the workflow.
+Keep them stable and only add important parameters to the :doc:`graph configuration <graphConfigurations>`, which are likely to change between runs.
+
+.. _logical-graph:
 
 Logical Graph
 -------------
 
-Logical Graphs are constructed from Logical Graph Templates by setting the exposed parameters of the graph's :doc:`Components <components>`. In general, most of these parameters are settings that influence the behaviour of the components, while some others control the size or the parameterisation of the data being processed.
+A Logical Graph is a Logical Graph Template with an activated :doc:`graph configuration <graphConfigurations>`.
+At this point the graph configuration has been filled in by the user with run-specific values and has been applied when it was sent to the DALiuGE translator.
 
-.. figure:: _static/images/helloWorld_param.gif
-  :width: 200px
+.. figure:: _static/images/graph_configuration.png
+  :width: 90%
   :align: center
-  :alt: An example of a parameter for the HelloWorldApp being edited
+  :alt: An example of a graph configuration for the HelloWorld-Universe graph
   :figclass: align-center
 
-  An example of a parameter for the HelloWorldApp being edited
+  An example of a graph configuration for the HelloWorld-Universe graph
+
+.. _physical-graph-template:
 
 Physical Graph Template
 -----------------------
 
-Physical Graph Templates are calculated from Logical Graphs by the DALiuGE translation engine, and then displayed in an additional browser tab. They represent a translation of a Logical Graph into a Directed Acyclic Graph, and a mapping of that graph onto a potentially available cluster.
+The `DALiuGE <https://daliuge.readthedocs.io>`_ translator first converts the Logical Graph into a Physical Graph Template.
+This stage applies partitioning and scheduling decisions for target resources.
 
 .. figure:: _static/images/physical_graph_template.png
-  :width: 500px
+  :width: 90%
   :align: center
   :alt: An example of a Physical Graph Template
   :figclass: align-center
 
   An example of a Physical Graph Template
 
-The DALiuGE translation engine implements multiple algorithms for the translation, but the result is always a Physical Graph Template partitioned in a way to meet the hardware capabilities and any additional constraints given to the algorithms (e.g. minimise run-time). Since some of the translation algorithms are quite expensive and time consuming to run, it is good practice to generate them as soon as the parameterisation of the reduction run is clear.
+Different translation algorithms are available.
+Choose based on your constraints, such as runtime or resource usage.
 
+
+.. _physical-graph:
 
 Physical Graph
 --------------
 
-Physical Graphs represent the final mapping of the Physical Graph Templates to available computer node(s), in the final step before execution. EAGLE displays the deployed graph and shows progression of the execution. It provides  a visualisation during execution time which is just informative and will not scale to many thousands or millions of tasks. However, it shows failures immediately, providing a helpful tool during graph development. Physical Graphs are completely bound to an actual execution of a workflow, and will be saved as part of the logs.
+A Physical Graph is the deployed form where the partitions are mapped to compute nodes in a cluster.
+
+.. figure:: _static/images/physical_graph.png
+  :width: 90%
+  :align: center
+  :alt: An example of a Physical Graph
+  :figclass: align-center
+
+  An example of a Physical Graph
+
+
+The Engine UI shows the graph as it is executing (or just a progress bar). 
+Nodes on the graph are changing colors as the execution progresses. 
+They are light-yellow before execution and yellow during execution. 
+After execution application nodes turn green or red, depending on whether they had been successful or not.  
+Memory data nodes are turning first grey and then black, once they had been garbage collected. 
+All nodes following a failed application node are turning red. It is possible to click on the nodes and get information from the DALiuGE logging system. 
+For file data nodes it is also possible to download the data.

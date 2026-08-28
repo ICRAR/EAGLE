@@ -9,6 +9,7 @@ import type { Edge } from "./Edge";
 import { Errors } from './Errors';
 import type { GraphConfigField } from "./GraphConfig";
 import { Id } from './Id';
+import type { V4FieldJson } from './JsonLoadTypes';
 import type { LogicalGraph } from './LogicalGraph';
 import type { Node } from './Node';
 import { Setting } from './Setting';
@@ -807,7 +808,7 @@ export class Field {
         };
     }
 
-    static toV4Json(field : Field) : object {
+    static toV4Json(field : Field) : V4FieldJson {
         return {
             name:field.displayText(),
             value:Field.stringAsType(field.value(), field.type()),
@@ -938,11 +939,11 @@ export class Field {
         return f;
     }
 
-    static fromV4Json(data: any, node: Node, changeable: boolean): Field {
+    static fromV4Json(data: V4FieldJson, node: Node, changeable: boolean): Field {
         let id: FieldId = Id.generateFieldId();
         let name: string = "";
-        let value: string = "";
-        let defaultValue: string = "";
+        let value: string | null = "";
+        let defaultValue: string | null = "";
         let description: string = "";
         let readonly: boolean = false;
         let type: Daliuge.DataType = Daliuge.DataType.Unknown;
@@ -956,7 +957,7 @@ export class Field {
         let encoding: Daliuge.Encoding = Daliuge.Encoding.Pickle;
         let fieldChangeable: boolean = changeable;
 
-        if (typeof data.id !== 'undefined') { id = data.id; }
+        if (typeof data.id !== 'undefined') { id = data.id as FieldId; }
         if (typeof data.name !== 'undefined') { name = data.name; }
         if (typeof data.value !== 'undefined') {
             if (data.value !== null){
@@ -965,19 +966,44 @@ export class Field {
                 value = null;
             }
         }
-        if (typeof data.defaultValue !== 'undefined') { defaultValue = data.defaultValue.toString(); }
-        if (typeof data.description !== 'undefined') { description = data.description; }
-        if (typeof data.readonly !== 'undefined') { readonly = data.readonly; }
-        if (typeof data.type !== 'undefined') { type = data.type; }
-        if (typeof data.precious !== 'undefined') { precious = data.precious; }
-        if (typeof data.options !== 'undefined') { options = data.options; }
-        if (typeof data.positional !== 'undefined') { positional = data.positional; }
-        if (typeof data.changeable !== 'undefined') { fieldChangeable = data.changeable; }
-        if (typeof data.parameterType !== 'undefined') { parameterType = data.parameterType; }
-        if (typeof data.usage !== 'undefined') { usage = data.usage; }
-
-        if (typeof data.event !== 'undefined') { event = data.event; }
-        if (typeof data.encoding !== 'undefined') { encoding = data.encoding; }
+        if (typeof data.defaultValue !== 'undefined') {
+            defaultValue = Utils.scalarLoadValueToString(data.defaultValue);
+        }
+        if (typeof data.description !== 'undefined') {
+            description = data.description;
+        }
+        if (typeof data.readonly !== 'undefined') {
+            readonly = data.readonly;
+        }
+        if (typeof data.type !== 'undefined') {
+            if (data.type === "Event") {
+                event = true;
+                type = Daliuge.DataType.Unknown;
+            } else {
+                type = data.type as Daliuge.DataType;
+            }
+        }
+        if (typeof data.precious !== 'undefined') {
+            precious = data.precious;
+        }
+        if (typeof data.options !== 'undefined') {
+            options = Array.isArray(data.options) ? data.options.map(Utils.scalarOptionToString) : [];
+        }
+        if (typeof data.positional !== 'undefined') {
+            positional = data.positional;
+        }
+        if (typeof data.changeable !== 'undefined') {
+            fieldChangeable = data.changeable;
+        }
+        if (typeof data.parameterType !== 'undefined') {
+            parameterType = data.parameterType as Daliuge.FieldType;
+        }
+        if (typeof data.usage !== 'undefined') {
+            usage = data.usage as Daliuge.FieldUsage;
+        }
+        if (typeof data.encoding !== 'undefined') {
+            encoding = data.encoding as Daliuge.Encoding;
+        }
 
         const f = new Field(node, id, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage);
         f.isEvent(event);

@@ -1,7 +1,10 @@
 // import { test } from '@playwright/test';
-import { test, expect,chromium, Page,Browser } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { enableMouseCursor, explainElement, moveMouseCursor, textNotification } from '../playwrightHelpers';
 import { TestHelpers } from '../e2e/TestHelpers';
+
+// to run this test, use the following command:
+// npx playwright test --config playwright.tutorial.config.ts e2e_tutorialVideos/recordingSimpleTutorial.spec.ts --headed
 
 test.use({ 
   viewport: { width: 2560, height: 1440 },
@@ -10,7 +13,7 @@ test.use({
     size: { width: 2560, height: 1440 }
   },
   launchOptions:{
-    slowMo: 700,
+    slowMo: 500
   }
 });
 
@@ -20,14 +23,22 @@ test('Hello World Tutorial Video', async ({ page }) => {
   let clickTarget:any = null;
 
   //over write the test timeout limit. these tutorials are way longer than normal tests.
-  test.setTimeout(150000);
+  test.setTimeout(900000);
 
   //this is needed to catch and forward console logs to the test results console in visual studio code
   page.on('console', (msg) => {
     console.log(msg);
   });
 
-  await page.goto('http://localhost:8888/');
+  await page.goto('http://localhost:8888/?tutorial=none');
+  await page.waitForFunction(() => (window as any).eagle?.eagleIsReady?.() === true, { timeout: 30000 });
+
+  // Some environments auto-start the welcome tutorial; dismiss it so it does not block scripted clicks.
+  const tutExitButton = page.locator('#tutorialInfoPopUp .tutEndBtn');
+  if (await tutExitButton.count() > 0) {
+    await tutExitButton.click();
+    await page.locator('#tutorialInfoPopUp').waitFor({ state: 'detached', timeout: 10000 });
+  }
 
   //this will add our custom mouse cursor svg into the body of the website, so we can move it around later.
   await enableMouseCursor(page);
@@ -64,22 +75,36 @@ test('Hello World Tutorial Video', async ({ page }) => {
   await moveMouseCursor(page, clickTarget)
   await clickTarget.click();
 
-  //move mouse to graph info explain then click
-  clickTarget = await page.getByRole('button', { name: 'info' })
+  //move mouse to graph description edit button explain then click
+  clickTarget = await page.locator('#shortDescriptionEditBtn')
   await moveMouseCursor(page, clickTarget)
-  await explainElement(page, clickTarget, 'down', 'This is where you can access the graph info modal. It gives access to information like graph author, date last edited and graph descriptions.', 7000)
+  await explainElement(page, clickTarget, 'down', 'This opens the short graph description editor so we can document what this graph does.', 7000)
   await clickTarget.click();
-  
-  //move mouse to graph description, show message and enter a description
-  clickTarget = await page.getByLabel('Graph Info').locator('input[type="text"]')
+
+  //move mouse to graph description editor, show message and enter a description
+  clickTarget = await page.locator('#inputMarkdownModalEditor')
+  if (!(await clickTarget.isVisible())) {
+    const editToggle = page.locator('#inputMarkdownModal input[type="checkbox"]').first();
+    await editToggle.check();
+    await clickTarget.waitFor({ state: 'visible', timeout: 10000 });
+  }
   await moveMouseCursor(page, clickTarget)
   await explainElement(page, clickTarget, 'down', 'Lets enter a description for our graph.', 3000)
   await clickTarget.click();
   await clickTarget.pressSequentially('A graph saving the output of a HelloWorldApp to disk.');    
   await page.waitForTimeout(500); // small wait to let the viewer see what happened
 
-  //click ok to close the modal
-  clickTarget = await page.getByRole('button', { name: 'OK' })
+  //click ok to close the markdown modal
+  clickTarget = await page.locator('#inputMarkdownModal .affirmativeBtn')
+  await moveMouseCursor(page, clickTarget)
+  await clickTarget.click();
+
+  //show and close the graph info modal
+  clickTarget = await page.locator('#inspectorGraphInfoBtn')
+  await moveMouseCursor(page, clickTarget)
+  await explainElement(page, clickTarget, 'down', 'This opens graph information such as metadata, descriptions, and version details.', 5000)
+  await clickTarget.click();
+  clickTarget = await page.locator('#modelDataModalOKButton')
   await moveMouseCursor(page, clickTarget)
   await clickTarget.click();
 
@@ -97,7 +122,7 @@ test('Hello World Tutorial Video', async ({ page }) => {
   await clickTarget.click();
 
   //use right click on the canvas to add a file node
-  clickTarget = await page.getByText('HelloWorldApp hello')
+  clickTarget = await page.locator('#logicalGraphParent')
   await moveMouseCursor(page, clickTarget)
   await clickTarget.click({
     button: 'right'
@@ -130,7 +155,11 @@ test('Hello World Tutorial Video', async ({ page }) => {
   await clickTarget.click()
 
   //change the name of who we are greeting
-  clickTarget = await page.getByRole('row', { name: 'greet World World String' }).getByRole('textbox').nth(1)
+  clickTarget = await page
+    .getByRole('row', { name: /greet/i })
+    .locator('input:not([disabled]), textarea:not([disabled])')
+    .first()
+  await expect(clickTarget).toBeVisible({ timeout: 10000 });
   await moveMouseCursor(page, clickTarget)
   await clickTarget.click();
   await clickTarget.press('ControlOrMeta+a');
@@ -138,20 +167,38 @@ test('Hello World Tutorial Video', async ({ page }) => {
   await page.waitForTimeout(500); // small wait to let the viewer see what happened
 
   //close the bottom window
-  clickTarget = await page.locator('.closeBottomWindowBtn')
+  clickTarget = await page.locator('.closeBottomWindowBtn button').first()
+  await expect(clickTarget).toBeVisible({ timeout: 10000 });
   await moveMouseCursor(page, clickTarget)
-  await clickTarget.click();
+  await clickTarget.click({ timeout: 10000 });
 
   //draw an edge between the nodes
-  const outputPort = await page.locator('#HelloWorldApp .outputPort')
-  const inputPort = await page.locator('#File .inputPort')
+  console.log('[tutorial-video] Preparing dragEdge step');
+  const outputPort = await page.locator('#HelloWorldApp .outputPort').first()
+  let inputPort = await page.locator('#File .inputPort').first()
   await moveMouseCursor(page, outputPort)
   await explainElement(page, outputPort, 'down', 'This is the output port of the hello world app.',3000)
   await explainElement(page, inputPort, 'down', 'And this is the input port of the File node.',3000)
   await explainElement(page, outputPort, 'down', 'Drag and drop from one port to the other to create a connection.',4000)
   await moveMouseCursor(page, inputPort)
-  await TestHelpers.dragEdge(page, 'HelloWorldApp', 'File');
-  
+  const edgesBefore = await TestHelpers.getEdgeCount(page);
+  console.log('[tutorial-video] Starting dragEdge step');
+  const outputPortBox = await outputPort.boundingBox();
+  const inputPortBox = await inputPort.boundingBox();
+  if (outputPortBox === null || inputPortBox === null) {
+    throw new Error('Could not determine port positions for final edge drag.');
+  }
+  await page.mouse.move(outputPortBox.x + outputPortBox.width / 2, outputPortBox.y + outputPortBox.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(inputPortBox.x + inputPortBox.width / 2, inputPortBox.y + inputPortBox.height / 2, { steps: 20 });
+  await page.mouse.up();
+  console.log('[tutorial-video] dragEdge completed');
+  await expect
+    .poll(async () => await TestHelpers.getEdgeCount(page), { timeout: 10000 })
+    .toBeGreaterThan(edgesBefore);
+  console.log('[tutorial-video] Edge count increased; continuing');
+  inputPort = await page.locator('#File .inputPort').first()
+
   await explainElement(page, inputPort, 'down', 'The output of the Hello World App will now be saved to disk as a file.',4000)
 
   //end notification

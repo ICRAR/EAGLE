@@ -24,6 +24,8 @@ jobs:
         with:
           node-version: lts/*
           cache: 'npm'
+      - name: Check V4 schema snapshot
+        run: npm run -s check:lgGraphV4Schema
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
