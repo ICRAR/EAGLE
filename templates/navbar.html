@@ -254,7 +254,7 @@
                     <a class="dropdown-item" id="saveToPalette" href="#" data-bind="click: addGraphNodesToPalette">Add Graph Nodes</a>
                 <!-- /ko -->
                 <!-- ko ifnot: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
-                    <a class="dropdown-item" id="loadPalette" href="#" data-bind="click: getPaletteFileToLoad">Load
+                    <a class="dropdown-item" id="loadPaletteReadonly" href="#" data-bind="click: getPaletteFileToLoad">Load
                         <span data-bind="text: KeyboardShortcut.idToKeysText('open_palette_from_local_disk', true)"></span>
                     </a>
                     <a class="dropdown-item" id="savePalette" href="#" data-bind="click: function(){saveFileToLocal(Eagle.FileType.Palette)}">Save</a>
