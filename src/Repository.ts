@@ -77,7 +77,7 @@ export class Repository {
                     resolve();
                     break;
                 case Repository.Service.GitLab:
-                    GitLab.loadRepoContent(this, "");
+                    await GitLab.loadRepoContent(this, "");
                     resolve();
                     break;
                 default:
@@ -372,7 +372,7 @@ export class Repository {
                     resolve();
                     break;
                 case Repository.Service.GitLab:
-                    GitLab.loadRepoContent(repository, path);
+                    await GitLab.loadRepoContent(repository, path);
                     resolve();
                     break;
                 default:

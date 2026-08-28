@@ -302,12 +302,4 @@ export class Repositories {
     static getByLocation(fileLocation: FileLocation) : Repository | null {
         return Repositories.get(fileLocation.repositoryService(), fileLocation.repositoryName(), fileLocation.repositoryBranch());
     }
-
-    static fetchAll() : void {
-        for (const repository of Repositories.repositories()){
-            if (!repository.fetched()){
-                repository.select();
-            }
-        }
-    }
 }
