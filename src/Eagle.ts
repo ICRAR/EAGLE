@@ -2605,9 +2605,11 @@ export class Eagle {
                 const postData = {url: paletteList[i].filename};
 
                 let data: any;
+                let fetchFailed = false;
                 try {
                     data = await Utils.httpPostJSON("/openRemoteUrlFile", postData);
                 } catch (error){
+                    fetchFailed = true;
                     // an error occurred when fetching the palette
                     errorsWarnings.errors.push(Errors.Message(Errors.UnknownToError(error)));
 
@@ -2639,11 +2641,14 @@ export class Eagle {
                         destinationPalettes[index].copy(palette);
                     }
 
-                    _checkAllPalettesComplete();
-                    return;
                 } finally {
                     destinationPalettes[index].isFetching(false);
                     destinationPalettes[index].expanded(paletteList[index].expanded);
+                }
+
+                if (fetchFailed){
+                    _checkAllPalettesComplete();
+                    continue;
                 }
 
                 // palette fetched successfully
