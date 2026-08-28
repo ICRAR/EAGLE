@@ -1002,10 +1002,10 @@ export class Eagle {
                     data = "";
                 }
 
-                this._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
+                this._loadGraphJSON(data, fileFullPath, async (lg: LogicalGraph) : Promise<void> => {
                     const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().location.getText(), "", Category.SubGraph);
     
-                    void this.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges()), parentNode, errorsWarnings);
+                    await this.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges()), parentNode, errorsWarnings);
     
                     // TODO: handle errors and warnings
     
