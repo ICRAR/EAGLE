@@ -1580,7 +1580,7 @@ export class Eagle {
     getPaletteFileToLoad = () : void => {
         const allowPaletteEditing = Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false);
 
-        if (allowPaletteEditing){
+        if (!allowPaletteEditing){
             Utils.notifyUserOfEditingIssue(Eagle.FileType.Palette, "Load Palette");
             return;
         }
