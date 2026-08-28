@@ -2640,7 +2640,7 @@ export class Eagle {
                     }
 
                     _checkAllPalettesComplete();
-                    return;
+                    continue;
                 } finally {
                     destinationPalettes[index].isFetching(false);
                     destinationPalettes[index].expanded(paletteList[index].expanded);
