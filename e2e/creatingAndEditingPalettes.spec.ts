@@ -55,27 +55,42 @@ test('Palette loading continues after an unavailable palette', async ({ page }) 
     };
 
     try {
-      // race the palette loading against a timeout to avoid hanging the test if something goes wrong (fetch takes longer than 1 sec)
-      const loadResult = await Promise.race([
-
-        eagle.loadPalettes([
-          { name: 'Missing Palette', filename: 'missing.palette', readonly: true, expanded: false },
-          { name: 'Second Palette', filename: 'second.palette', readonly: true, expanded: false }
-        ]),
+      // Race palette loading against a timeout so a pending loader is
+      // observable instead of allowing the test to hang indefinitely.
+      const loadWithTimeout = (paletteList: any[]) => Promise.race([
+        eagle.loadPalettes(paletteList),
         new Promise((_, reject) => {
           setTimeout(() => reject(new Error('palette loading timed out')), 1000);
         })
       ]);
 
-      // both fake palettes should be present once all palette work is complete
-      return loadResult.palettes.map((palette: any) => palette.fileInfo().name);
+      // The failed first request must not prevent the later palette from loading.
+      const firstFailureResult = await loadWithTimeout([
+        { name: 'Missing Palette', filename: 'missing.palette', readonly: true, expanded: false },
+        { name: 'Second Palette', filename: 'second.palette', readonly: true, expanded: false }
+      ]);
+
+      // Also cover the case when the final request fails, completion
+      // must be checked after that palette's finally block clears isFetching.
+      const finalFailureResult = await loadWithTimeout([
+        { name: 'First Palette', filename: 'second.palette', readonly: true, expanded: false },
+        { name: 'Final Missing Palette', filename: 'missing.palette', readonly: true, expanded: false }
+      ]);
+
+      // both placeholders should be present once each load is complete
+      return {
+        firstFailure: firstFailureResult.palettes.map((palette: any) => palette.fileInfo().name),
+        finalFailure: finalFailureResult.palettes.map((palette: any) => palette.fileInfo().name)
+      };
     } finally {
-      // restore the original httpPostJSON function so other tests are not affected
+      // restore the original httpPostJSON so other tests are not affected
       utils.httpPostJSON = originalHttpPostJSON;
     }
   });
 
-  // The failed first request must not prevent the later palette from loading.
-  expect(result).toEqual(['Missing Palette', 'Second Palette']);
+  expect(result).toEqual({
+    firstFailure: ['Missing Palette', 'Second Palette'],
+    finalFailure: ['First Palette', 'Final Missing Palette']
+  });
   await page.close();
 });
