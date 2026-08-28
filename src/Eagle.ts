@@ -2838,10 +2838,11 @@ export class Eagle {
             }
         }
 
+        // if no graph is loaded, or the graphConfig does not match the current graph, then load the graph that matches the graphConfig
         if (!someGraphAlreadyLoaded || !configMatch){
             const repository = new Repository(graphConfig.fileInfo().graphLocation.repositoryService(), graphConfig.fileInfo().graphLocation.repositoryName(), graphConfig.fileInfo().graphLocation.repositoryBranch(), false);
             const repositoryFile = new RepositoryFile(repository, graphConfig.fileInfo().graphLocation.repositoryPath(), graphConfig.fileInfo().graphLocation.repositoryFileName());
-            repositoryFile.type = Eagle.FileType.GraphConfig;
+            repositoryFile.type = Eagle.FileType.Graph;
 
             // load graph first
             await this.openRemoteFile(repositoryFile);
@@ -4372,7 +4373,7 @@ export class Eagle {
                 if (outputApplication !== null){
                     // add the output application to the logical graph
                     const outputApp: Node = await this.addNode(outputApplication, 0, 0);
-                    newNode.setInputApplication(outputApp); // TODO: bug? should this be setOutputApplication?`
+                    newNode.setOutputApplication(outputApp);
                     result.push(outputApp);
                 }
             }
