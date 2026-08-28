@@ -356,6 +356,8 @@ test('gitCommit filename validator UX', async ({ page }) => {
   // Modal close is animated and can be flaky across browsers; assert transition states before final hidden check.
   await expect(gitCommitCancelButton).toBeVisible();
   await expect(gitCommitCancelButton).toBeEnabled();
+
+  await page.waitForTimeout(400); // wait for any potential animation to complete before clicking cancel
   await gitCommitCancelButton.click();
 
   // First ensure bootstrap removed the "show" state, then confirm backdrop is gone and modal is hidden.
