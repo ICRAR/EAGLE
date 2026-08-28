@@ -62,6 +62,7 @@ import type { Tutorial} from './Tutorial';
 import { tutorialArray } from './Tutorial';
 import { Undo } from './Undo';
 import { UiModeSystem } from './UiModes';
+import type { JsonObject, V4GraphJson } from './JsonLoadTypes';
 import { Utils } from './Utils';
 import { GraphUpdater } from "./GraphUpdater";
 import { versions } from "./Versions";
@@ -1083,6 +1084,20 @@ export class Eagle {
         }
     }
 
+    private _validateV4GraphLoadJSON = (dataObject: JsonObject, errorsWarnings: ErrorsWarnings): boolean => {
+        if (Setting.findValue<boolean>(Setting.DISABLE_JSON_VALIDATION, false)) {
+            return true;
+        }
+
+        const validatorResult = Utils._validateJSON(dataObject, SchemaVersion.V4, EagleFileType.Graph);
+        if (validatorResult.valid) {
+            return true;
+        }
+
+        errorsWarnings.errors.push(Errors.Message("V4 graph JSON failed schema validation: " + validatorResult.errors));
+        return false;
+    }
+
     private _loadGraphJSON = (data: string, fileFullPath: string, loadFunc: (lg: LogicalGraph) => void) : void => {
         let dataObject;
 
@@ -1119,7 +1134,10 @@ export class Eagle {
                 loadFunc(LogicalGraph.fromOJSJson(dataObject, "", errorsWarnings));
                 break;
             case SchemaVersion.V4:
-                loadFunc(LogicalGraph.fromV4Json(dataObject, "", errorsWarnings));
+                if (!this._validateV4GraphLoadJSON(dataObject as JsonObject, errorsWarnings)) {
+                    break;
+                }
+                loadFunc(LogicalGraph.fromV4Json(dataObject as V4GraphJson, "", errorsWarnings));
                 break;
             default:
                 errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
@@ -1601,7 +1619,7 @@ export class Eagle {
     getPaletteFileToLoad = () : void => {
         const allowPaletteEditing = Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false);
 
-        if (allowPaletteEditing){
+        if (!allowPaletteEditing){
             Utils.notifyUserOfEditingIssue(EagleFileType.Palette, "Load Palette");
             return;
         }
@@ -2736,12 +2754,20 @@ export class Eagle {
         // determine file extension
         const fileExtension = Utils.getFileExtension(file.name);
         let fileTypeLoaded: EagleFileType = EagleFileType.Unknown;
-        let dataObject: any = null;
+        let dataObject: JsonObject | null = null;
+        const eagleWindow = window as Window & {version?: string};
 
         if (fileExtension !== "md"){
             // attempt to parse the JSON
             try {
-                dataObject = JSON.parse(data);
+                const parsed = JSON.parse(data);
+
+                if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)){
+                    Utils.showUserMessage("Error parsing file JSON", "Top-level JSON must be an object");
+                    return;
+                }
+
+                dataObject = parsed as JsonObject;
             } catch(err){
                 Utils.showUserMessage("Error parsing file JSON", Errors.UnknownToError(err));
                 return;
@@ -2754,6 +2780,11 @@ export class Eagle {
 
         switch (fileTypeLoaded){
             case EagleFileType.Graph: {
+                if (dataObject === null){
+                    Utils.showUserMessage("Error", "Graph JSON payload is empty or invalid.");
+                    return;
+                }
+
                 // attempt to determine schema version from FileInfo
                 const eagleVersion: string = Utils.determineEagleVersion(dataObject);
 
@@ -2763,8 +2794,8 @@ export class Eagle {
                 }
 
                 // warn user if file newer than EAGLE
-                if (Utils.newerEagleVersion(eagleVersion, (<any>window).version)){
-                    const confirmed = await Utils.requestUserConfirm("Newer EAGLE Version", "File " + file.name + " was written with EAGLE version " + eagleVersion + ", whereas the current EAGLE version is " + (<any>window).version + ". Do you wish to load the file anyway?", "Yes", "No", undefined);
+                if (Utils.newerEagleVersion(eagleVersion, eagleWindow.version ?? "")){
+                    const confirmed = await Utils.requestUserConfirm("Newer EAGLE Version", "File " + file.name + " was written with EAGLE version " + eagleVersion + ", whereas the current EAGLE version is " + (eagleWindow.version ?? "") + ". Do you wish to load the file anyway?", "Yes", "No", undefined);
                     if (confirmed){
                         this._loadGraph(data, file);
                     }
@@ -2783,6 +2814,10 @@ export class Eagle {
                 break;
 
             case EagleFileType.GraphConfig:
+                if (dataObject === null){
+                    Utils.showUserMessage("Error", "GraphConfig JSON payload is empty or invalid.");
+                    return;
+                }
                 this._loadGraphConfig(dataObject, file);
                 break;
 
@@ -2821,7 +2856,7 @@ export class Eagle {
         Utils.updateFileInfo(this.logicalGraph().fileInfo, file);
     }
 
-    _loadGraphConfig = async (dataObject: any, file: RepositoryFile): Promise<void> => {
+    _loadGraphConfig = async (dataObject: JsonObject, file: RepositoryFile): Promise<void> => {
         const errorsWarnings: ErrorsWarnings = {"errors":[], "warnings":[]};
 
         const graphConfig = GraphConfig.fromJson(dataObject, this.logicalGraph(), errorsWarnings);
@@ -2842,10 +2877,11 @@ export class Eagle {
             }
         }
 
+        // if no graph is loaded, or the graphConfig does not match the current graph, then load the graph that matches the graphConfig
         if (!someGraphAlreadyLoaded || !configMatch){
             const repository = new Repository(graphConfig.fileInfo().graphLocation.repositoryService(), graphConfig.fileInfo().graphLocation.repositoryName(), graphConfig.fileInfo().graphLocation.repositoryBranch(), false);
             const repositoryFile = new RepositoryFile(repository, graphConfig.fileInfo().graphLocation.repositoryPath(), graphConfig.fileInfo().graphLocation.repositoryFileName());
-            repositoryFile.type = EagleFileType.GraphConfig;
+            repositoryFile.type = EagleFileType.Graph;
 
             // load graph first
             await this.openRemoteFile(repositoryFile);
@@ -2954,7 +2990,11 @@ export class Eagle {
                 lg = LogicalGraph.fromOJSJson(dataObject, file.name, errorsWarnings);
                 break;
             case SchemaVersion.V4:
-                lg = LogicalGraph.fromV4Json(dataObject, file.name, errorsWarnings);
+                if (!this._validateV4GraphLoadJSON(dataObject as JsonObject, errorsWarnings)) {
+                    this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
+                    return;
+                }
+                lg = LogicalGraph.fromV4Json(dataObject as V4GraphJson, file.name, errorsWarnings);
                 break;
             default:
                 errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
@@ -4372,7 +4412,7 @@ export class Eagle {
                 if (outputApplication !== null){
                     // add the output application to the logical graph
                     const outputApp: Node = await this.addNode(outputApplication, 0, 0);
-                    newNode.setInputApplication(outputApp); // TODO: bug? should this be setOutputApplication?`
+                    newNode.setOutputApplication(outputApp);
                     result.push(outputApp);
                 }
             }

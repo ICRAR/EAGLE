@@ -14,6 +14,22 @@ Web Application: http://eagle.icrar.org/
 
 See [instructions](INSTALL.md) for a local installation.
 
+## Development
+
+EAGLE now derives the TypeScript schema snapshot for V4 JSON loading from the canonical runtime schema in [static/lg.graph.v4.schema](static/lg.graph.v4.schema). The generated snapshot lives in [src/generated/lgGraphV4Schema.ts](src/generated/lgGraphV4Schema.ts) and is used by the typed JSON load boundary in [src/JsonLoadTypes.ts](src/JsonLoadTypes.ts).
+
+When you change the canonical schema, regenerate the snapshot with:
+
+```bash
+npm run generate:lgGraphV4Schema
+```
+
+To verify that the generated snapshot is still in sync with the canonical schema, run:
+
+```bash
+npm run check:lgGraphV4Schema
+```
+
 ## Basic Concepts
 
 EAGLE envisions the development of executable workflows in three distinct steps.

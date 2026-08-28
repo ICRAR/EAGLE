@@ -49,6 +49,7 @@ import { GraphConfig } from "./GraphConfig";
 import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 import { GraphRenderer } from "./GraphRenderer";
 import { Id } from "./Id";
+import type { JsonScalar } from "./JsonLoadTypes";
 import { KeyboardShortcut } from './KeyboardShortcut';
 import { LogicalGraph } from './LogicalGraph';
 import {
@@ -78,6 +79,7 @@ export type ValidationResult = {
     isValid: boolean;
     message?: string;
 };
+
 
 
 export class Utils {
@@ -136,6 +138,14 @@ export class Utils {
         }
 
         return `${graphName}-${configName}.${extension}`;
+    }
+
+    static scalarLoadValueToString(value: JsonScalar): string | null {
+        return value === null ? null : value.toString();
+    }
+
+    static scalarOptionToString(value: JsonScalar): string {
+        return value === null ? "" : value.toString();
     }
 
     static getServiceToken(service: RepositoryService): string {

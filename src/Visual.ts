@@ -32,6 +32,7 @@ import type { Node } from "./Node";
 import { Errors, type ErrorsWarnings, type Issue, Validity } from "./Errors";
 import { EagleConfig } from "./EagleConfig";
 import { Eagle } from "./Eagle";
+import type { V4VisualLoadJson } from "./JsonLoadTypes";
 
 export enum VisualType {
     Text = "Text",
@@ -217,7 +218,24 @@ export class Visual {
         .setColor(color)
     }
 
-    static toJson(visual: Visual) : object {
+    static fromV4GraphJson(visualData: V4VisualLoadJson, lg: LogicalGraph, _errorsWarnings: ErrorsWarnings) : Visual {
+        const targetId = visualData.targetId;
+        const target : Node | Edge | Visual | null =
+            lg.getNodeById(targetId as NodeId) ||
+            lg.getEdgeById(targetId as EdgeId) ||
+            lg.getVisualById(targetId as VisualId) ||
+            null;
+
+        return new Visual(visualData.type as VisualType, visualData.content)
+            .setId(visualData.id as VisualId)
+            .setPosition(visualData.x, visualData.y)
+            .setWidth(visualData.width)
+            .setHeight(visualData.height)
+            .setTarget(target)
+            .setColor(visualData.color);
+    }
+
+    static toJson(visual: Visual) : V4VisualLoadJson {
         return {
             id: visual.getId(),
             x: visual.x(),

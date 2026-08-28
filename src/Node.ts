@@ -32,6 +32,7 @@ import { EagleConfig } from "./EagleConfig";
 import { Errors, type ErrorsWarnings, type Issue, Validity } from './Errors';
 import { Field } from './Field';
 import { Id } from './Id';
+import type { V4NodeJson } from './JsonLoadTypes';
 import type { LogicalGraph } from './LogicalGraph';
 import { Setting, ShowErrorsMode } from './Setting';
 import { Utils } from './Utils';
@@ -1744,9 +1745,9 @@ export class Node {
         return node;
     }
 
-    static fromV4Json(nodeData : any, errorsWarnings: ErrorsWarnings, isPaletteNode: boolean) : Node {
+    static fromV4Json(nodeData : V4NodeJson, errorsWarnings: ErrorsWarnings, isPaletteNode: boolean) : Node {
         // translate categories if required
-        const category: CategoryName = nodeData.category;
+        const category: CategoryName = nodeData.category as CategoryName;
 
         // if category is not known, then add error
         if (!Utils.isKnownCategory(category)){
@@ -1756,7 +1757,7 @@ export class Node {
         const node : Node = new Node(nodeData.name, "", "", category);
         const categoryData: ReturnType<typeof CategoryData.getCategoryInfo> = CategoryData.getCategoryInfo(category);
 
-        node.setId(nodeData.id);
+        node.setId(nodeData.id as NodeId);
 
         // set position
         node.setPosition(nodeData.x, nodeData.y);
@@ -1996,47 +1997,34 @@ export class Node {
         return result;
     }
 
-    static toV4GraphJson(node: Node) : object {
-        const result: any = {};
-
-        result.category = node.category();
-        result.categoryType = node.categoryType();
-
-        result.id = node.id();
-        result.name = node.name();
-        result.description = node.description();
-        result.x = node.x();
-        result.y = node.y();
-        result.repositoryUrl = node.repositoryUrl();
-        result.commitHash = node.commitHash();
-        result.paletteDownloadUrl = node.paletteDownloadUrl();
-        result.dataHash = node.dataHash();
-
+    static toV4GraphJson(node: Node) : V4NodeJson {
         const parent = node.parent();
         const embed = node.embed();
-
-        result.parentId = parent === null ? null : parent.getId();
-        result.embedId = embed === null ? null : embed.getId();
-
-        // add fields
-        result.fields = {};
-        for (const field of node.fields().values()){
-            result.fields[field.getId()] = Field.toV4Json(field);
-        }
-
         const inputApplication = node.inputApplication();
         const outputApplication = node.outputApplication();
 
-        // write application names and types
-        if (inputApplication !== null){
-            result.inputApplicationId  = inputApplication.id();
-        } else {
-            result.inputApplicationId  = null;
-        }
-        if (outputApplication !== null){
-            result.outputApplicationId  = outputApplication.id();
-        } else {
-            result.outputApplicationId  = null;
+        const result: V4NodeJson = {
+            category: node.category(),
+            categoryType: node.categoryType(),
+            id: node.id(),
+            name: node.name(),
+            description: node.description(),
+            x: node.x(),
+            y: node.y(),
+            repositoryUrl: node.repositoryUrl(),
+            commitHash: node.commitHash(),
+            paletteDownloadUrl: node.paletteDownloadUrl(),
+            dataHash: node.dataHash(),
+            parentId: parent === null ? null : parent.getId(),
+            embedId: embed === null ? null : embed.getId(),
+            fields: {},
+            inputApplicationId: inputApplication === null ? null : inputApplication.id(),
+            outputApplicationId: outputApplication === null ? null : outputApplication.id(),
+        };
+
+        // add fields
+        for (const field of node.fields().values()){
+            result.fields[field.getId()] = Field.toV4Json(field);
         }
 
         return result;
