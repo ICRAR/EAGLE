@@ -2410,7 +2410,7 @@ export class GraphRenderer {
     }
     
     static findNearestMatchingPort(positionX: number, positionY: number, _sourceNode: Node, _sourcePort: Field, sourcePortIsInput: boolean) : {node: Node | null, field: Field | null, validity: Errors.Validity} {
-        let minDistance: number = Number.MAX_SAFE_INTEGER;
+        let minDistanceSquared: number = Number.MAX_SAFE_INTEGER;
         let minNode: Node | null = null;
         let minPort: Field | null = null;
         let minValidity: Errors.Validity = Errors.Validity.Unknown;
@@ -2435,22 +2435,23 @@ export class GraphRenderer {
             portX = node.getPosition().x - node.getRadius() + portX
             portY = node.getPosition().y - node.getRadius() + portY
 
-            // get distance to port
-            const distance = Math.sqrt( Math.pow(portX - positionX, 2) + Math.pow(portY - positionY, 2) );
+            const deltaX = portX - positionX;
+            const deltaY = portY - positionY;
+            const distanceSquared = deltaX * deltaX + deltaY * deltaY;
 
-            if(distance > EagleConfig.NODE_SUGGESTION_RADIUS){
+            if(distanceSquared > EagleConfig.NODE_SUGGESTION_RADIUS * EagleConfig.NODE_SUGGESTION_RADIUS){
                 continue
             }
 
             // remember this port if it the best so far
-            if (distance < minDistance){
+            if (distanceSquared < minDistanceSquared){
                 minPort = port;
                 minNode = node;
-                minDistance = distance;
+                minDistanceSquared = distanceSquared;
                 minValidity = validity;
             }
         }
-        if (minDistance<EagleConfig.NODE_SUGGESTION_SNAP_RADIUS){
+        if (minDistanceSquared < EagleConfig.NODE_SUGGESTION_SNAP_RADIUS * EagleConfig.NODE_SUGGESTION_SNAP_RADIUS){
             GraphRenderer.portMatchCloseEnough(true)
         }
 
