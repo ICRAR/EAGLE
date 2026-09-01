@@ -1265,34 +1265,30 @@ export class GraphRenderer {
 
             if (GraphRenderer.selectionRegionStart === null || GraphRenderer.selectionRegionEnd === null){
                 console.warn("endDrag called with null selection region points");
-                return;
-            }
+            } else {
+                const nodes: (Node|Visual)[] = GraphRenderer.findNodesInRegion(GraphRenderer.selectionRegionStart.x, GraphRenderer.selectionRegionEnd.x, GraphRenderer.selectionRegionStart.y, GraphRenderer.selectionRegionEnd.y);
 
-            const nodes: (Node|Visual)[] = GraphRenderer.findNodesInRegion(GraphRenderer.selectionRegionStart.x, GraphRenderer.selectionRegionEnd.x, GraphRenderer.selectionRegionStart.y, GraphRenderer.selectionRegionEnd.y);
-            
-            //checking if there was no drag distance, if so we are clicking a single object and we will toggle its selection
-            if(Math.abs(GraphRenderer.selectionRegionStart.x-GraphRenderer.selectionRegionEnd.x)+Math.abs(GraphRenderer.selectionRegionStart.y - GraphRenderer.selectionRegionEnd.y)<3){
-                if(!GraphRenderer.altSelect && object instanceof Node){
-                    GraphRenderer.selectNodeAndChildren(object,GraphRenderer.shiftSelect)
+                // checking if there was no drag distance, if so we are clicking a single object and we will toggle its selection
+                if(Math.abs(GraphRenderer.selectionRegionStart.x-GraphRenderer.selectionRegionEnd.x)+Math.abs(GraphRenderer.selectionRegionStart.y - GraphRenderer.selectionRegionEnd.y)<3){
+                    if(!GraphRenderer.altSelect && object instanceof Node){
+                        GraphRenderer.selectNodeAndChildren(object,GraphRenderer.shiftSelect)
+                    }
+                    eagle.editSelection(object,Eagle.FileType.Graph);
+                }else{
+                    GraphRenderer.selectInRegion(nodes);
                 }
-                eagle.editSelection(object,Eagle.FileType.Graph);
-            }else{
-                GraphRenderer.selectInRegion(nodes);
+
+                // necessary to make un-collapsed nodes show up
+                eagle.logicalGraph.valueHasMutated();
             }
 
-            //resetting some helper variables
             GraphRenderer.ctrlDrag = false;
-            
             GraphRenderer.selectionRegionStart = {x: 0, y: 0};
             GraphRenderer.selectionRegionEnd = {x: 0, y: 0};
-            
             GraphRenderer.isDraggingSelectionRegion = false;
 
-            //hide the selection rectangle
+            // hide the selection rectangle
             $('#selectionRectangle').hide()
-
-            // necessary to make un-collapsed nodes show up
-            eagle.logicalGraph.valueHasMutated();
         }
 
         // if we aren't multi selecting and the node has moved by a larger amount
