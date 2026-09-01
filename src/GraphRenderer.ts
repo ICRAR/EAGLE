@@ -1799,36 +1799,30 @@ export class GraphRenderer {
 
     static isAncestor(node : Node | null, possibleAncestor : Node) : boolean {
         let n : Node | null = node;
-        let iterations = 0;
-        const MAX_ITERATIONS = 32;
+        const visitedIds = new Set<NodeId>(); // keep a set of visited node IDs to detect cycles and avoid infinite loops
 
         if (n === null){
             return false;
         }
 
-        while (true){
-            if (iterations > MAX_ITERATIONS){
-                console.error("too many iterations in isDescendent()");
+        while (n !== null){
+            const nodeId = n.getId();
+            if (visitedIds.has(nodeId)){
+                console.error("cycle detected in isAncestor()");
                 return false;
             }
-
-            iterations += 1;
+            visitedIds.add(nodeId);
 
             // check if found
-            if (n.getId() === possibleAncestor.getId()){
+            if (nodeId === possibleAncestor.getId()){
                 return true;
             }
 
             // otherwise keep traversing upwards
-            const newParent = n.getParent();
-
-            // if we reach a null parent, we are done looking
-            if (newParent === null){
-                return false;
-            }
-
-            n = newParent;
+            n = n.getParent();
         }
+
+        return false;
     }
 
     // update the parent of the given node
@@ -2285,7 +2279,6 @@ export class GraphRenderer {
     // TODO: maybe replace the nodes parameter here with graph: LogicalGraph
     static findDepthOfNode(index: number, nodes : Node[]) : number {
         const eagle = Eagle.getInstance();
-        const MAX_ITERATIONS = 10;
 
         if (index >= nodes.length){
             console.warn("findDepthOfNode() with node index outside range of nodes. index:", index, "nodes.length", nodes.length);
@@ -2296,19 +2289,19 @@ export class GraphRenderer {
         let node : Node | undefined = nodes[index];
         let nodeId: NodeId;
         let nodeParent: Node | null = node.getParent();
-        let iterations = 0;
+        const visitedIds = new Set<NodeId>(); // keep a set of visited node IDs to detect cycles and avoid infinite loops
 
         // follow the chain of parents
         while (nodeParent != null){
-            if (iterations > MAX_ITERATIONS){
-                console.error("too many iterations in findDepthOfNode()");
+            nodeId = node.getId();
+            if (visitedIds.has(nodeId)){
+                console.error("cycle detected in findDepthOfNode()");
                 break;
             }
 
-            iterations += 1;
+            visitedIds.add(nodeId);
             depth += 1;
             depth += node.getDrawOrderHint() / 10;
-            nodeId = node.getId();
             nodeParent = node.getParent();
 
             if (nodeParent === null){
