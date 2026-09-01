@@ -2249,12 +2249,13 @@ export class GraphRenderer {
 
     static depthFirstTraversalOfNodes(graph: LogicalGraph) : Node[] {
         // TODO: think about changing this to idPlusDepths (as above, re-use possible?)
+        const nodes = Array.from(graph.getNodes());
         const indexPlusDepths : {index:number, depth:number}[] = [];
         const result : Node[] = [];
 
         // populate key plus depths
-        for (let i = 0 ; i < graph.getNumNodes() ; i++){
-            const depth = GraphRenderer.findDepthOfNode(i, Array.from(graph.getNodes()));
+        for (let i = 0 ; i < nodes.length ; i++){
+            const depth = GraphRenderer.findDepthOfNode(i, nodes);
 
             indexPlusDepths.push({index:i, depth:depth});
         }
@@ -2266,7 +2267,7 @@ export class GraphRenderer {
 
         // write nodes to result in sorted order
         for (const indexPlusDepth of indexPlusDepths){
-            result.push(Array.from(graph.getNodes())[indexPlusDepth.index]);
+            result.push(nodes[indexPlusDepth.index]);
         }
 
         return result;
