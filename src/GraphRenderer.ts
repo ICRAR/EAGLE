@@ -1069,12 +1069,9 @@ export class GraphRenderer {
         const xsb = GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null)
         const ysb = GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)
 
-        eagle.globalScale(eagle.globalScale()*(1-(wheelDelta/zoomDivisor)));
-
-        if(eagle.globalScale()<0){
-            //prevent negative scale which results in an inverted graph
-            eagle.globalScale(Math.abs(eagle.globalScale()))
-        }
+        const MIN_GRAPH_SCALE = 0.01;
+        const newScale = eagle.globalScale()*(1-(wheelDelta/zoomDivisor));
+        eagle.globalScale(Math.max(MIN_GRAPH_SCALE, Math.abs(newScale)));
 
         const xsa = GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null)
         const ysa = GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)
