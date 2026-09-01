@@ -1133,6 +1133,7 @@ export class GraphRenderer {
         // these two are needed to keep track of these modifiers for the mouse move and release event
         GraphRenderer.altSelect = event.altKey
         GraphRenderer.shiftSelect = event.shiftKey
+        GraphRenderer.dragCurrentPosition = {x:event.pageX,y:event.pageY}
 
         // if no node is selected, or we are dragging using middle mouse, then we are dragging the background
         if(object === null || event.button === 1){
@@ -1146,7 +1147,6 @@ export class GraphRenderer {
             GraphRenderer.draggingObject(object);
             GraphRenderer.nodeDragElement = event.target
             GraphRenderer.dragStartPosition = {x:event.pageX,y:event.pageY}
-            GraphRenderer.dragCurrentPosition = {x:event.pageX,y:event.pageY}
             
             //checking if the node is inside of a construct, if so, fetching it's parent
             if(object instanceof Node && object.getParent() !== null){
@@ -1213,7 +1213,7 @@ export class GraphRenderer {
                 const dragStartPos = GraphRenderer.dragStartPosition ? GraphRenderer.dragStartPosition : {x:0,y:0}
 
                 //check and note if the mouse has moved
-                GraphRenderer.simpleSelect = dragStartPos.x - moveDistance.x < 5 && dragStartPos.y - moveDistance.y < 5
+                GraphRenderer.simpleSelect = Math.abs(e.pageX - dragStartPos.x) < 5 && Math.abs(e.pageY - dragStartPos.y) < 5
                 
                 //this is to prevent the de-parent transition effect, which we don't want in this case
                 $('.node.transition').removeClass('transition')
