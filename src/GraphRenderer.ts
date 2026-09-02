@@ -1367,7 +1367,7 @@ export class GraphRenderer {
         const eagle = Eagle.getInstance()
         //filter passed selected objects to only nodes, so we can use this to find edges
         const nodes =  selectObjects.filter(item => item instanceof Node) as Node[];
-        const edges: Edge[] = GraphRenderer.findEdgesContainedByNodes(Array.from(eagle.logicalGraph().getEdges()), nodes);
+        const edges: Edge[] = GraphRenderer.findEdgesContainedByNodes(eagle.logicalGraph().getEdges(), nodes);
         const objects: (Node | Edge | Visual)[] = [];
 
         // depending on if its shift+ctrl or just shift we are either only adding or only removing nodes
@@ -1603,34 +1603,27 @@ export class GraphRenderer {
         }
     }
 
-    // TODO: change input parameters to iterators
-    static findEdgesContainedByNodes(edges: Edge[], nodes: Node[]): Edge[]{
+    // Accept iterables so callers can provide arrays or graph collection iterators.
+    static findEdgesContainedByNodes(edges: Iterable<Edge>, nodes: Iterable<Node>): Edge[]{
         const result: Edge[] = [];
+        const nodeIds = new Set<NodeId>();
 
-        for (const edge of edges){
-            const srcId = edge.getSrcNode().getId();
-            const destId = edge.getDestNode().getId();
-            let srcFound = false;
-            let destFound = false;
+        for (const node of nodes){
+            nodeIds.add(node.getId());
 
-            for (const node of nodes){
-                const inputApplication = node.getInputApplication();
-                const outputApplication = node.getOutputApplication();
-
-                if ((node.getId() === srcId) ||
-                    (inputApplication !== null && inputApplication.getId() === srcId) ||
-                    (outputApplication !== null && outputApplication.getId() === srcId)){
-                    srcFound = true;
-                }
-
-                if ((node.getId() === destId) ||
-                    (inputApplication !== null && inputApplication.getId() === destId) ||
-                    (outputApplication !== null && outputApplication.getId() === destId)){
-                    destFound = true;
-                }
+            const inputApplication = node.getInputApplication();
+            if (inputApplication !== null){
+                nodeIds.add(inputApplication.getId());
             }
 
-            if (srcFound && destFound){
+            const outputApplication = node.getOutputApplication();
+            if (outputApplication !== null){
+                nodeIds.add(outputApplication.getId());
+            }
+        }
+
+        for (const edge of edges){
+            if (nodeIds.has(edge.getSrcNode().getId()) && nodeIds.has(edge.getDestNode().getId())){
                 result.push(edge);
             }
         }
