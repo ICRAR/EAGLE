@@ -1069,12 +1069,9 @@ export class GraphRenderer {
         const xsb = GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null)
         const ysb = GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)
 
-        eagle.globalScale(eagle.globalScale()*(1-(wheelDelta/zoomDivisor)));
-
-        if(eagle.globalScale()<0){
-            //prevent negative scale which results in an inverted graph
-            eagle.globalScale(Math.abs(eagle.globalScale()))
-        }
+        const MIN_GRAPH_SCALE = 0.01;
+        const newScale = eagle.globalScale()*(1-(wheelDelta/zoomDivisor));
+        eagle.globalScale(Math.max(MIN_GRAPH_SCALE, Math.abs(newScale)));
 
         const xsa = GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null)
         const ysa = GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null)
@@ -1133,6 +1130,7 @@ export class GraphRenderer {
         // these two are needed to keep track of these modifiers for the mouse move and release event
         GraphRenderer.altSelect = event.altKey
         GraphRenderer.shiftSelect = event.shiftKey
+        GraphRenderer.dragCurrentPosition = {x:event.pageX,y:event.pageY}
 
         // if no node is selected, or we are dragging using middle mouse, then we are dragging the background
         if(object === null || event.button === 1){
@@ -1146,7 +1144,6 @@ export class GraphRenderer {
             GraphRenderer.draggingObject(object);
             GraphRenderer.nodeDragElement = event.target
             GraphRenderer.dragStartPosition = {x:event.pageX,y:event.pageY}
-            GraphRenderer.dragCurrentPosition = {x:event.pageX,y:event.pageY}
             
             //checking if the node is inside of a construct, if so, fetching it's parent
             if(object instanceof Node && object.getParent() !== null){
@@ -1213,7 +1210,7 @@ export class GraphRenderer {
                 const dragStartPos = GraphRenderer.dragStartPosition ? GraphRenderer.dragStartPosition : {x:0,y:0}
 
                 //check and note if the mouse has moved
-                GraphRenderer.simpleSelect = dragStartPos.x - moveDistance.x < 5 && dragStartPos.y - moveDistance.y < 5
+                GraphRenderer.simpleSelect = Math.abs(e.pageX - dragStartPos.x) < 5 && Math.abs(e.pageY - dragStartPos.y) < 5
                 
                 //this is to prevent the de-parent transition effect, which we don't want in this case
                 $('.node.transition').removeClass('transition')
@@ -1268,34 +1265,30 @@ export class GraphRenderer {
 
             if (GraphRenderer.selectionRegionStart === null || GraphRenderer.selectionRegionEnd === null){
                 console.warn("endDrag called with null selection region points");
-                return;
-            }
+            } else {
+                const nodes: (Node|Visual)[] = GraphRenderer.findNodesInRegion(GraphRenderer.selectionRegionStart.x, GraphRenderer.selectionRegionEnd.x, GraphRenderer.selectionRegionStart.y, GraphRenderer.selectionRegionEnd.y);
 
-            const nodes: (Node|Visual)[] = GraphRenderer.findNodesInRegion(GraphRenderer.selectionRegionStart.x, GraphRenderer.selectionRegionEnd.x, GraphRenderer.selectionRegionStart.y, GraphRenderer.selectionRegionEnd.y);
-            
-            //checking if there was no drag distance, if so we are clicking a single object and we will toggle its selection
-            if(Math.abs(GraphRenderer.selectionRegionStart.x-GraphRenderer.selectionRegionEnd.x)+Math.abs(GraphRenderer.selectionRegionStart.y - GraphRenderer.selectionRegionEnd.y)<3){
-                if(!GraphRenderer.altSelect && object instanceof Node){
-                    GraphRenderer.selectNodeAndChildren(object,GraphRenderer.shiftSelect)
+                // checking if there was no drag distance, if so we are clicking a single object and we will toggle its selection
+                if(Math.abs(GraphRenderer.selectionRegionStart.x-GraphRenderer.selectionRegionEnd.x)+Math.abs(GraphRenderer.selectionRegionStart.y - GraphRenderer.selectionRegionEnd.y)<3){
+                    if(!GraphRenderer.altSelect && object instanceof Node){
+                        GraphRenderer.selectNodeAndChildren(object,GraphRenderer.shiftSelect)
+                    }
+                    eagle.editSelection(object,Eagle.FileType.Graph);
+                }else{
+                    GraphRenderer.selectInRegion(nodes);
                 }
-                eagle.editSelection(object,Eagle.FileType.Graph);
-            }else{
-                GraphRenderer.selectInRegion(nodes);
+
+                // necessary to make un-collapsed nodes show up
+                eagle.logicalGraph.valueHasMutated();
             }
 
-            //resetting some helper variables
             GraphRenderer.ctrlDrag = false;
-            
             GraphRenderer.selectionRegionStart = {x: 0, y: 0};
             GraphRenderer.selectionRegionEnd = {x: 0, y: 0};
-            
             GraphRenderer.isDraggingSelectionRegion = false;
 
-            //hide the selection rectangle
+            // hide the selection rectangle
             $('#selectionRectangle').hide()
-
-            // necessary to make un-collapsed nodes show up
-            eagle.logicalGraph.valueHasMutated();
         }
 
         // if we aren't multi selecting and the node has moved by a larger amount
@@ -1374,7 +1367,7 @@ export class GraphRenderer {
         const eagle = Eagle.getInstance()
         //filter passed selected objects to only nodes, so we can use this to find edges
         const nodes =  selectObjects.filter(item => item instanceof Node) as Node[];
-        const edges: Edge[] = GraphRenderer.findEdgesContainedByNodes(Array.from(eagle.logicalGraph().getEdges()), nodes);
+        const edges: Edge[] = GraphRenderer.findEdgesContainedByNodes(eagle.logicalGraph().getEdges(), nodes);
         const objects: (Node | Edge | Visual)[] = [];
 
         // depending on if its shift+ctrl or just shift we are either only adding or only removing nodes
@@ -1610,34 +1603,27 @@ export class GraphRenderer {
         }
     }
 
-    // TODO: change input parameters to iterators
-    static findEdgesContainedByNodes(edges: Edge[], nodes: Node[]): Edge[]{
+    // Accept iterables so callers can provide arrays or graph collection iterators.
+    static findEdgesContainedByNodes(edges: Iterable<Edge>, nodes: Iterable<Node>): Edge[]{
         const result: Edge[] = [];
+        const nodeIds = new Set<NodeId>();
 
-        for (const edge of edges){
-            const srcId = edge.getSrcNode().getId();
-            const destId = edge.getDestNode().getId();
-            let srcFound = false;
-            let destFound = false;
+        for (const node of nodes){
+            nodeIds.add(node.getId());
 
-            for (const node of nodes){
-                const inputApplication = node.getInputApplication();
-                const outputApplication = node.getOutputApplication();
-
-                if ((node.getId() === srcId) ||
-                    (inputApplication !== null && inputApplication.getId() === srcId) ||
-                    (outputApplication !== null && outputApplication.getId() === srcId)){
-                    srcFound = true;
-                }
-
-                if ((node.getId() === destId) ||
-                    (inputApplication !== null && inputApplication.getId() === destId) ||
-                    (outputApplication !== null && outputApplication.getId() === destId)){
-                    destFound = true;
-                }
+            const inputApplication = node.getInputApplication();
+            if (inputApplication !== null){
+                nodeIds.add(inputApplication.getId());
             }
 
-            if (srcFound && destFound){
+            const outputApplication = node.getOutputApplication();
+            if (outputApplication !== null){
+                nodeIds.add(outputApplication.getId());
+            }
+        }
+
+        for (const edge of edges){
+            if (nodeIds.has(edge.getSrcNode().getId()) && nodeIds.has(edge.getDestNode().getId())){
                 result.push(edge);
             }
         }
@@ -1802,36 +1788,30 @@ export class GraphRenderer {
 
     static isAncestor(node : Node | null, possibleAncestor : Node) : boolean {
         let n : Node | null = node;
-        let iterations = 0;
-        const MAX_ITERATIONS = 32;
+        const visitedIds = new Set<NodeId>(); // keep a set of visited node IDs to detect cycles and avoid infinite loops
 
         if (n === null){
             return false;
         }
 
-        while (true){
-            if (iterations > MAX_ITERATIONS){
-                console.error("too many iterations in isDescendent()");
+        while (n !== null){
+            const nodeId = n.getId();
+            if (visitedIds.has(nodeId)){
+                console.error("cycle detected in isAncestor()");
                 return false;
             }
-
-            iterations += 1;
+            visitedIds.add(nodeId);
 
             // check if found
-            if (n.getId() === possibleAncestor.getId()){
+            if (nodeId === possibleAncestor.getId()){
                 return true;
             }
 
             // otherwise keep traversing upwards
-            const newParent = n.getParent();
-
-            // if we reach a null parent, we are done looking
-            if (newParent === null){
-                return false;
-            }
-
-            n = newParent;
+            n = n.getParent();
         }
+
+        return false;
     }
 
     // update the parent of the given node
@@ -2262,12 +2242,13 @@ export class GraphRenderer {
 
     static depthFirstTraversalOfNodes(graph: LogicalGraph) : Node[] {
         // TODO: think about changing this to idPlusDepths (as above, re-use possible?)
+        const nodes = Array.from(graph.getNodes());
         const indexPlusDepths : {index:number, depth:number}[] = [];
         const result : Node[] = [];
 
         // populate key plus depths
-        for (let i = 0 ; i < graph.getNumNodes() ; i++){
-            const depth = GraphRenderer.findDepthOfNode(i, Array.from(graph.getNodes()));
+        for (let i = 0 ; i < nodes.length ; i++){
+            const depth = GraphRenderer.findDepthOfNode(i, nodes);
 
             indexPlusDepths.push({index:i, depth:depth});
         }
@@ -2279,7 +2260,7 @@ export class GraphRenderer {
 
         // write nodes to result in sorted order
         for (const indexPlusDepth of indexPlusDepths){
-            result.push(Array.from(graph.getNodes())[indexPlusDepth.index]);
+            result.push(nodes[indexPlusDepth.index]);
         }
 
         return result;
@@ -2288,7 +2269,6 @@ export class GraphRenderer {
     // TODO: maybe replace the nodes parameter here with graph: LogicalGraph
     static findDepthOfNode(index: number, nodes : Node[]) : number {
         const eagle = Eagle.getInstance();
-        const MAX_ITERATIONS = 10;
 
         if (index >= nodes.length){
             console.warn("findDepthOfNode() with node index outside range of nodes. index:", index, "nodes.length", nodes.length);
@@ -2298,28 +2278,23 @@ export class GraphRenderer {
         let depth : number = 0;
         let node : Node | undefined = nodes[index];
         let nodeId: NodeId;
-        let nodeParent: Node | null = node.getParent();
-        let iterations = 0;
+        const visitedIds = new Set<NodeId>(); // keep a set of visited node IDs to detect cycles and avoid infinite loops
 
         // follow the chain of parents
-        while (nodeParent != null){
-            if (iterations > MAX_ITERATIONS){
-                console.error("too many iterations in findDepthOfNode()");
+        while (node.getParent() !== null){
+            nodeId = node.getId();
+            if (visitedIds.has(nodeId)){
+                console.error("cycle detected in findDepthOfNode()");
                 break;
             }
 
-            iterations += 1;
+            visitedIds.add(nodeId);
             depth += 1;
             depth += node.getDrawOrderHint() / 10;
-            nodeId = node.getId();
-            nodeParent = node.getParent();
-
-            if (nodeParent === null){
-                return depth;
-            }
+            const nodeParent = node.getParent();
 
             // TODO: could we use something else here?
-            node = GraphRenderer.findNodeWithId(nodeParent.getId(), nodes);
+            node = GraphRenderer.findNodeWithId(nodeParent!.getId(), nodes);
 
             if (typeof node === "undefined"){
                 console.error("Node", nodeId, "has parent", nodeParent ? nodeParent.getName() : null, "but call to findNodeWithId(", nodeParent.getId(), ") returned null");
@@ -2423,7 +2398,7 @@ export class GraphRenderer {
     }
     
     static findNearestMatchingPort(positionX: number, positionY: number, _sourceNode: Node, _sourcePort: Field, sourcePortIsInput: boolean) : {node: Node | null, field: Field | null, validity: Errors.Validity} {
-        let minDistance: number = Number.MAX_SAFE_INTEGER;
+        let minDistanceSquared: number = Number.MAX_SAFE_INTEGER;
         let minNode: Node | null = null;
         let minPort: Field | null = null;
         let minValidity: Errors.Validity = Errors.Validity.Unknown;
@@ -2448,22 +2423,23 @@ export class GraphRenderer {
             portX = node.getPosition().x - node.getRadius() + portX
             portY = node.getPosition().y - node.getRadius() + portY
 
-            // get distance to port
-            const distance = Math.sqrt( Math.pow(portX - positionX, 2) + Math.pow(portY - positionY, 2) );
+            const deltaX = portX - positionX;
+            const deltaY = portY - positionY;
+            const distanceSquared = deltaX * deltaX + deltaY * deltaY;
 
-            if(distance > EagleConfig.NODE_SUGGESTION_RADIUS){
+            if(distanceSquared > EagleConfig.NODE_SUGGESTION_RADIUS * EagleConfig.NODE_SUGGESTION_RADIUS){
                 continue
             }
 
             // remember this port if it the best so far
-            if (distance < minDistance){
+            if (distanceSquared < minDistanceSquared){
                 minPort = port;
                 minNode = node;
-                minDistance = distance;
+                minDistanceSquared = distanceSquared;
                 minValidity = validity;
             }
         }
-        if (minDistance<EagleConfig.NODE_SUGGESTION_SNAP_RADIUS){
+        if (minDistanceSquared < EagleConfig.NODE_SUGGESTION_SNAP_RADIUS * EagleConfig.NODE_SUGGESTION_SNAP_RADIUS){
             GraphRenderer.portMatchCloseEnough(true)
         }
 
