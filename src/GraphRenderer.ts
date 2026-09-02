@@ -2278,11 +2278,10 @@ export class GraphRenderer {
         let depth : number = 0;
         let node : Node | undefined = nodes[index];
         let nodeId: NodeId;
-        let nodeParent: Node | null = node.getParent();
         const visitedIds = new Set<NodeId>(); // keep a set of visited node IDs to detect cycles and avoid infinite loops
 
         // follow the chain of parents
-        while (nodeParent != null){
+        while (node.getParent() !== null){
             nodeId = node.getId();
             if (visitedIds.has(nodeId)){
                 console.error("cycle detected in findDepthOfNode()");
@@ -2292,14 +2291,10 @@ export class GraphRenderer {
             visitedIds.add(nodeId);
             depth += 1;
             depth += node.getDrawOrderHint() / 10;
-            nodeParent = node.getParent();
-
-            if (nodeParent === null){
-                return depth;
-            }
+            const nodeParent = node.getParent();
 
             // TODO: could we use something else here?
-            node = GraphRenderer.findNodeWithId(nodeParent.getId(), nodes);
+            node = GraphRenderer.findNodeWithId(nodeParent!.getId(), nodes);
 
             if (typeof node === "undefined"){
                 console.error("Node", nodeId, "has parent", nodeParent ? nodeParent.getName() : null, "but call to findNodeWithId(", nodeParent.getId(), ") returned null");
