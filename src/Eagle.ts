@@ -982,7 +982,7 @@ export class Eagle {
         if (file) {
             const reader = new FileReader();
             reader.readAsText(file, "UTF-8");
-            reader.onload = (evt) => {
+            reader.onload = async (evt) => {
                 let data: string = evt.target?.result?.toString();
 
                 if (!data) {
@@ -991,7 +991,7 @@ export class Eagle {
                     data = "";
                 }
 
-                this._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
+                await this._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
                     this.logicalGraph(lg);
 
                     this._postLoadGraph(new RepositoryFile(new Repository(RepositoryService.File, "", "", false), Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath)));
@@ -1032,7 +1032,7 @@ export class Eagle {
         if (file) {
             const reader = new FileReader();
             reader.readAsText(file, "UTF-8");
-            reader.onload = (evt) => {
+            reader.onload = async (evt) => {
                 let data: string = evt.target?.result?.toString();
 
                 if (!data) {
@@ -1041,10 +1041,10 @@ export class Eagle {
                     data = "";
                 }
 
-                this._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
+                await this._loadGraphJSON(data, fileFullPath, async (lg: LogicalGraph) : Promise<void> => {
                     const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().location.getText(), "", CategoryName.SubGraph);
     
-                    void this.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges()), parentNode, errorsWarnings);
+                    await this.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges()), parentNode, errorsWarnings);
     
                     // TODO: handle errors and warnings
     
@@ -1098,7 +1098,7 @@ export class Eagle {
         return false;
     }
 
-    private _loadGraphJSON = (data: string, fileFullPath: string, loadFunc: (lg: LogicalGraph) => void) : void => {
+    private _loadGraphJSON = async (data: string, fileFullPath: string, loadFunc: (lg: LogicalGraph) => void | Promise<void>) : Promise<void> => {
         let dataObject;
 
         // attempt to parse the JSON
@@ -1131,13 +1131,13 @@ export class Eagle {
                     GraphUpdater.updateKeysToIds(dataObject);
                 }
 
-                loadFunc(LogicalGraph.fromOJSJson(dataObject, "", errorsWarnings));
+                await loadFunc(LogicalGraph.fromOJSJson(dataObject, "", errorsWarnings));
                 break;
             case SchemaVersion.V4:
                 if (!this._validateV4GraphLoadJSON(dataObject as JsonObject, errorsWarnings)) {
                     break;
                 }
-                loadFunc(LogicalGraph.fromV4Json(dataObject as V4GraphJson, "", errorsWarnings));
+                await loadFunc(LogicalGraph.fromV4Json(dataObject as V4GraphJson, "", errorsWarnings));
                 break;
             default:
                 errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
@@ -1693,7 +1693,7 @@ export class Eagle {
             return;
         }
 
-        this._loadGraphJSON(userCode, "", (lg: LogicalGraph) : void => {
+        await this._loadGraphJSON(userCode, "", (lg: LogicalGraph) : void => {
             this.logicalGraph(lg);
         });
 
@@ -2802,10 +2802,10 @@ export class Eagle {
                 if (Utils.newerEagleVersion(eagleVersion, eagleWindow.version ?? "")){
                     const confirmed = await Utils.requestUserConfirm("Newer EAGLE Version", "File " + file.name + " was written with EAGLE version " + eagleVersion + ", whereas the current EAGLE version is " + (eagleWindow.version ?? "") + ". Do you wish to load the file anyway?", "Yes", "No", undefined);
                     if (confirmed){
-                        this._loadGraph(data, file);
+                        await this._loadGraph(data, file);
                     }
                 } else {
-                    this._loadGraph(data, file);
+                    await this._loadGraph(data, file);
                 }
                 break;
             }
@@ -2837,9 +2837,9 @@ export class Eagle {
         this.resetEditor();
     };
 
-    _loadGraph = (data: string, file: RepositoryFile) : void => {
+    _loadGraph = async (data: string, file: RepositoryFile) : Promise<void> => {
         // load graph
-        this._loadGraphJSON(data, file.path, (lg: LogicalGraph) => {
+        await this._loadGraphJSON(data, file.path, (lg: LogicalGraph) => {
             this.logicalGraph(lg);
         });
 
