@@ -77,21 +77,15 @@ export class Repository {
     }
 
     refresh = async () : Promise<void> => {
-        return new Promise(async(resolve, reject) => {
-            switch(this.service){
-                case RepositoryService.GitHub:
-                    await GitHub.loadRepoContent(this, "");
-                    resolve();
-                    break;
-                case RepositoryService.GitLab:
-                    GitLab.loadRepoContent(this, "");
-                    resolve();
-                    break;
-                default:
-                    Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
-                    reject("Unknown repository service. Not GitHub or GitLab!");
-            }
-        });
+        switch(this.service){
+            case RepositoryService.GitHub:
+                return GitHub.loadRepoContent(this, "");
+            case RepositoryService.GitLab:
+                return GitLab.loadRepoContent(this, "");
+            default:
+                Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
+                return Promise.reject("Unknown repository service. Not GitHub or GitLab!");
+        }
     }
 
     // TODO: a bit of repeated code here, could we make traverseFolder accept a folder OR a repository?
@@ -372,21 +366,15 @@ export class Repository {
     }
 
     public static async fetch(repository: Repository, path: string) : Promise<void> {
-        return new Promise(async(resolve, reject) => {
-            switch(repository.service){
-                case RepositoryService.GitHub:
-                    await GitHub.loadRepoContent(repository, path);
-                    resolve();
-                    break;
-                case RepositoryService.GitLab:
-                    GitLab.loadRepoContent(repository, path);
-                    resolve();
-                    break;
-                default:
-                    Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
-                    reject("Unknown repository service. Not GitHub or GitLab!");
-            }
-        });
+        switch(repository.service){
+            case RepositoryService.GitHub:
+                return GitHub.loadRepoContent(repository, path);
+            case RepositoryService.GitLab:
+                return GitLab.loadRepoContent(repository, path);
+            default:
+                Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab!");
+                return Promise.reject("Unknown repository service. Not GitHub or GitLab!");
+        }
     }
 }
 
