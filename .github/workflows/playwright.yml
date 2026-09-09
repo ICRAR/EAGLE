@@ -2,8 +2,8 @@ name: Playwright Tests
 on:
   push:
   schedule:
-    # Full cross-browser run, nightly.
-    - cron: '0 2 * * *'
+    # Full cross-browser run at 02:00 AWST (GitHub Actions cron is UTC).
+    - cron: '0 18 * * *'
   workflow_dispatch:
 
 jobs:
@@ -53,10 +53,11 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ matrix.browser }}-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-playwright-${{ matrix.browser }}-chromium-${{ hashFiles('package-lock.json') }}
       - name: Install Playwright Browser (${{ matrix.browser }})
         # Invoke the script directly rather than via npx, which can otherwise fetch a mismatched copy from the registry.
-        run: node node_modules/@playwright/test/cli.js install --with-deps ${{ matrix.browser }}
+        # Chromium is installed in every job because Playwright may use its headless shell during test startup.
+        run: node node_modules/@playwright/test/cli.js install --with-deps chromium ${{ matrix.browser }}
       - name: Start server
         run: python eagleServer/eagleServer.py -t /tmp --debug &
       - name: Run Playwright tests

@@ -1,3 +1,4 @@
+import { ParameterTableSelectType } from './ParameterTable';
 /*
 #
 #    ICRAR - International Centre for Radio Astronomy Research
@@ -24,15 +25,15 @@
 
 import * as ko from "knockout";
 
-import { Eagle } from './Eagle';
-import { Errors } from './Errors';
+import { Eagle, EagleBottomWindowMode, EagleDirection, EagleFileType } from './Eagle';
+import { Validity } from './Errors';
 import { EagleConfig } from "./EagleConfig";
 import { Edge } from "./Edge";
 import type { Field } from './Field';
 import type { LogicalGraph } from './LogicalGraph';
 import { Node } from './Node';
 import { Utils } from './Utils';
-import { Setting } from './Setting';
+import { Setting, ShowErrorsMode } from './Setting';
 import { RightClick } from "./RightClick";
 import { ParameterTable } from "./ParameterTable";
 import { Visual } from "./Visual";
@@ -276,7 +277,7 @@ export class GraphRenderer {
 
     //port drag handler globals
     static draggingPort : boolean = false;
-    static isDraggingPortValid: ko.Observable<Errors.Validity> = ko.observable<Errors.Validity>(Errors.Validity.Unknown);
+    static isDraggingPortValid: ko.Observable<Validity> = ko.observable<Validity>(Validity.Unknown);
     static destinationNode : Node | null = null;
     static destinationPort : Field | null = null;
     
@@ -286,8 +287,8 @@ export class GraphRenderer {
 
     static portDragSuggestedNode : ko.Observable<Node | null> = ko.observable(null);
     static portDragSuggestedField : ko.Observable<Field | null> = ko.observable(null);
-    static portDragSuggestionValidity : ko.Observable<Errors.Validity> = ko.observable<Errors.Validity>(Errors.Validity.Unknown) // this is necessary because we cannot keep the validity on the ege as it does not exist
-    static createEdgeSuggestedPorts : {field:Field,node:Node,validity: Errors.Validity}[] = []
+    static portDragSuggestionValidity : ko.Observable<Validity> = ko.observable<Validity>(Validity.Unknown) // this is necessary because we cannot keep the validity on the ege as it does not exist
+    static createEdgeSuggestedPorts : {field:Field,node:Node,validity: Validity}[] = []
     static portMatchCloseEnough :ko.Observable<boolean> = ko.observable(false);
 
     static draggingTextVisualPort : ko.Observable<boolean> = ko.observable(false);
@@ -783,13 +784,13 @@ export class GraphRenderer {
     static getCurveDirection(angle:any) : any {
         let result 
         if(angle > Math.PI/4 && angle < 3*Math.PI/4){
-            result = Eagle.Direction.Up
+            result = EagleDirection.Up
         }else if(angle < -Math.PI/4 && angle > -3*Math.PI/4){
-            result = Eagle.Direction.Down
+            result = EagleDirection.Down
         }else if(angle > -Math.PI/4 && angle < Math.PI/4){
-            result = Eagle.Direction.Right
+            result = EagleDirection.Right
         }else{
-            result = Eagle.Direction.Left
+            result = EagleDirection.Left
         }
         return result
     }
@@ -1159,21 +1160,21 @@ export class GraphRenderer {
         if(object !== null && event.button !== 1 && !event.shiftKey){
             //double click and alt + clicking has highest priority
             if(GraphRenderer.dragSelectionDoubleClick || event.altKey) {
-                eagle.setSelection(object, Eagle.FileType.Graph);
+                eagle.setSelection(object, EagleFileType.Graph);
             } else if(object instanceof Node && event.button !== 2 && !event.altKey && object.isGroup() && !eagle.objectIsSelected(object)){
                 //check that we are not alt + clicking, add the target node and its children to the selection
                 GraphRenderer.selectNodeAndChildren(object,GraphRenderer.shiftSelect)
             } else if(!eagle.objectIsSelected(object)) {
                 //normal node selection
-                eagle.setSelection(object, Eagle.FileType.Graph);
+                eagle.setSelection(object, EagleFileType.Graph);
             }
 
             const bottomWindowVisible = Setting.findValue<boolean>(Setting.BOTTOM_WINDOW_VISIBLE, false);
-            const bottomWindowMode = Setting.findValue<Eagle.BottomWindowMode>(Setting.BOTTOM_WINDOW_MODE, Eagle.BottomWindowMode.None);
+            const bottomWindowMode = Setting.findValue<EagleBottomWindowMode>(Setting.BOTTOM_WINDOW_MODE, EagleBottomWindowMode.None);
 
             //switch back to the node parameter table if a node is selected
-            if(bottomWindowVisible && bottomWindowMode !== Eagle.BottomWindowMode.NodeParameterTable){
-                ParameterTable.openTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal)
+            if(bottomWindowVisible && bottomWindowMode !== EagleBottomWindowMode.NodeParameterTable){
+                ParameterTable.openTable(EagleBottomWindowMode.NodeParameterTable, ParameterTableSelectType.Normal)
             }
         }else{
             if(event.shiftKey && event.button === 0){
@@ -1181,7 +1182,7 @@ export class GraphRenderer {
                 GraphRenderer.initiateDragSelection()
             }else{
                 //if node is null, the empty canvas has been clicked. clear the selection
-                eagle.setSelection(null, Eagle.FileType.Graph);
+                eagle.setSelection(null, EagleFileType.Graph);
             }
         }
 
@@ -1273,7 +1274,7 @@ export class GraphRenderer {
                     if(!GraphRenderer.altSelect && object instanceof Node){
                         GraphRenderer.selectNodeAndChildren(object,GraphRenderer.shiftSelect)
                     }
-                    eagle.editSelection(object,Eagle.FileType.Graph);
+                    eagle.editSelection(object, EagleFileType.Graph);
                 }else{
                     GraphRenderer.selectInRegion(nodes);
                 }
@@ -1396,7 +1397,7 @@ export class GraphRenderer {
         }
 
         objects.forEach(function(element){
-            eagle.editSelection(element, Eagle.FileType.Graph )
+            eagle.editSelection(element, EagleFileType.Graph )
         })
     }
 
@@ -1580,8 +1581,8 @@ export class GraphRenderer {
 
         //if shift is not clicked, we first clear the selection
         if(!additive){
-            eagle.setSelection(null, Eagle.FileType.Graph);
-            eagle.editSelection(node, Eagle.FileType.Graph);
+            eagle.setSelection(null, EagleFileType.Graph);
+            eagle.editSelection(node, EagleFileType.Graph);
         }
 
         //getting all children, including children of child constructs etc..
@@ -1592,7 +1593,7 @@ export class GraphRenderer {
             const construct = constructs[i]
             for (const node of eagle.logicalGraph().getNodes()){
                 if(node.getParent()?.getId() === construct?.getId()){
-                    eagle.editSelection(node, Eagle.FileType.Graph);
+                    eagle.editSelection(node, EagleFileType.Graph);
 
                     if(node.isGroup()){
                         constructs.push(node)
@@ -1869,7 +1870,7 @@ export class GraphRenderer {
         GraphRenderer.mousePosY(GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null));
     }
 
-    // TODO: can we use the Daliuge.FieldUsage type here for the 'usage' parameter?
+    // TODO: can we use the FieldUsage type here for the 'usage' parameter?
     static portDragStart(usage: "input" | "output" | "textVisual", visual?:Visual, port?:Field) : void {
         const e:any = event; //somehow the event here will always log in the console as a mouseevent. this allows the following line to access the button attribute.
         //further down we are calling stopPropagation on the same event object and it works, even though stopPropagation shouldn't exist on a mouseEvent. this is why i created a constant of type any. its working as it should but i don't know how.
@@ -1926,7 +1927,7 @@ export class GraphRenderer {
             return;
         }
         // check for nearest matching port in the nearby nodes
-        const match: {node: Node | null, field: Field | null, validity:Errors.Validity} = GraphRenderer.findNearestMatchingPort(GraphRenderer.mousePosX(), GraphRenderer.mousePosY(), portDragSourceNode, portDragSourcePort, GraphRenderer.portDragSourcePortIsInput);
+        const match: {node: Node | null, field: Field | null, validity: Validity} = GraphRenderer.findNearestMatchingPort(GraphRenderer.mousePosX(), GraphRenderer.mousePosY(), portDragSourceNode, portDragSourcePort, GraphRenderer.portDragSourcePortIsInput);
 
         if (match.field !== null){
             GraphRenderer.portDragSuggestedNode(match.node);
@@ -1935,7 +1936,7 @@ export class GraphRenderer {
         } else {
             GraphRenderer.portDragSuggestedNode(null);
             GraphRenderer.portDragSuggestedField(null);
-            GraphRenderer.portDragSuggestionValidity(Errors.Validity.Unknown)
+            GraphRenderer.portDragSuggestionValidity(Validity.Unknown)
         }
     }
 
@@ -2066,12 +2067,12 @@ export class GraphRenderer {
         }
 
         // check if link is valid
-        const linkValid : Errors.Validity = Edge.isValid(Eagle.getInstance().logicalGraph(), true, null, realSourceNode.getId(), realSourcePort.getId(), realDestinationNode.getId(), realDestinationPort.getId(), false, false, true, true, {errors:[], warnings:[]});
+        const linkValid : Validity = Edge.isValid(Eagle.getInstance().logicalGraph(), true, null, realSourceNode.getId(), realSourcePort.getId(), realDestinationNode.getId(), realDestinationPort.getId(), false, false, true, true, {errors:[], warnings:[]});
 
         // abort if edge is invalid
         const allowInvalidEdges = Setting.findValue<boolean>(Setting.ALLOW_INVALID_EDGES, false);
-        if ((allowInvalidEdges && linkValid === Errors.Validity.Error) || linkValid === Errors.Validity.Valid || linkValid === Errors.Validity.Warning || linkValid === Errors.Validity.Fixable){
-            if (linkValid === Errors.Validity.Warning){
+        if ((allowInvalidEdges && linkValid === Validity.Error) || linkValid === Validity.Valid || linkValid === Validity.Warning || linkValid === Validity.Fixable){
+            if (linkValid === Validity.Warning){
                 GraphRenderer.addEdge(realSourceNode, realSourcePort, realDestinationNode, realDestinationPort, true, false);
             } else {
                 GraphRenderer.addEdge(realSourceNode, realSourcePort, realDestinationNode, realDestinationPort, false, false);
@@ -2350,12 +2351,12 @@ export class GraphRenderer {
         return undefined;
     }
 
-    static findMatchingPorts(sourceNode: Node, sourcePort: Field): {node: Node, field: Field, validity: Errors.Validity}[]{
+    static findMatchingPorts(sourceNode: Node, sourcePort: Field): {node: Node, field: Field, validity: Validity}[]{
         const eagle = Eagle.getInstance();
-        const result: {node: Node, field: Field,validity:Errors.Validity}[] = [];
+        const result: {node: Node, field: Field,validity: Validity}[] = [];
 
-        const minValidity: Errors.Validity = Setting.findValue<Errors.Validity>(Setting.AUTO_COMPLETE_EDGES_LEVEL, Errors.Validity.Unknown);
-        const minValidityIndex: number = Object.values(Errors.Validity).indexOf(minValidity);
+        const minValidity: Validity = Setting.findValue<Validity>(Setting.AUTO_COMPLETE_EDGES_LEVEL, Validity.Unknown);
+        const minValidityIndex: number = Object.values(Validity).indexOf(minValidity);
 
         const potentialNodes :Node[] = []
 
@@ -2375,13 +2376,13 @@ export class GraphRenderer {
 
         for(const node of potentialNodes){
             for (const port of node.getPorts()){
-                let isValid: Errors.Validity
+                let isValid: Validity
                 if(!GraphRenderer.portDragSourcePortIsInput){
                     isValid = Edge.isValid(eagle.logicalGraph(), true, null, sourceNode.getId(), sourcePort.getId(), node.getId(), port.getId(), false, false, false, false, {errors:[], warnings:[]});
                 }else{
                     isValid = Edge.isValid(eagle.logicalGraph(), true, null, node.getId(), port.getId(), sourceNode.getId(), sourcePort.getId(), false, false, false, false, {errors:[], warnings:[]});
                 }
-                const isValidIndex: number = Object.values(Errors.Validity).indexOf(isValid);
+                const isValidIndex: number = Object.values(Validity).indexOf(isValid);
 
                 if (isValidIndex >= minValidityIndex){
                     result.push({node: node, field: port,validity: isValid});
@@ -2397,11 +2398,11 @@ export class GraphRenderer {
         return result;
     }
     
-    static findNearestMatchingPort(positionX: number, positionY: number, _sourceNode: Node, _sourcePort: Field, sourcePortIsInput: boolean) : {node: Node | null, field: Field | null, validity: Errors.Validity} {
+    static findNearestMatchingPort(positionX: number, positionY: number, _sourceNode: Node, _sourcePort: Field, sourcePortIsInput: boolean) : {node: Node | null, field: Field | null, validity: Validity} {
         let minDistanceSquared: number = Number.MAX_SAFE_INTEGER;
         let minNode: Node | null = null;
         let minPort: Field | null = null;
-        let minValidity: Errors.Validity = Errors.Validity.Unknown;
+        let minValidity: Validity = Validity.Unknown;
         GraphRenderer.portMatchCloseEnough(false)
 
         const portList = GraphRenderer.createEdgeSuggestedPorts
@@ -2466,13 +2467,13 @@ export class GraphRenderer {
         //if the port we are dragging from and are hovering one are the same type of port return an error
         if(usage === 'input' && GraphRenderer.portDragSourcePortIsInput || usage === 'output' && !GraphRenderer.portDragSourcePortIsInput){
             if(port.isInputPort() && port.isOutputPort()){
-                GraphRenderer.isDraggingPortValid(Errors.Validity.Fixable)
+                GraphRenderer.isDraggingPortValid(Validity.Fixable)
             }else{
-                GraphRenderer.isDraggingPortValid(Errors.Validity.Impossible)
+                GraphRenderer.isDraggingPortValid(Validity.Impossible)
             }
             return
         }
-        let isValid: Errors.Validity
+        let isValid: Validity
 
         if(!GraphRenderer.portDragSourcePortIsInput){
             isValid = Edge.isValid(Eagle.getInstance().logicalGraph(), true, null, portDragSourceNode.getId(), portDragSourcePort.getId(), GraphRenderer.destinationNode.getId(), GraphRenderer.destinationPort.getId(), false, false, false, false, {errors:[], warnings:[]});
@@ -2486,14 +2487,14 @@ export class GraphRenderer {
         GraphRenderer.destinationPort = null;
         GraphRenderer.destinationNode = null;
 
-        GraphRenderer.isDraggingPortValid(Errors.Validity.Unknown);
+        GraphRenderer.isDraggingPortValid(Validity.Unknown);
     }
 
     static draggingEdgeGetStrokeColor: ko.PureComputed<string> = ko.pureComputed(() => {
         let edgeTargetValidity = GraphRenderer.isDraggingPortValid()
 
         //if this is the case, we are not hovering on a port and want the validity of the suggested connection to determine the edge color
-        if(edgeTargetValidity===Errors.Validity.Unknown){
+        if(edgeTargetValidity===Validity.Unknown){
             edgeTargetValidity = GraphRenderer.portDragSuggestionValidity()
 
             //we are coloring the edge according to suggested connections, but the suggestion is not close enough
@@ -2503,16 +2504,16 @@ export class GraphRenderer {
         }
 
         switch (edgeTargetValidity){
-            case Errors.Validity.Unknown:
+            case Validity.Unknown:
                 return EagleConfig.getColor("edgeDefault");
-            case Errors.Validity.Fixable:
+            case Validity.Fixable:
                 return EagleConfig.getColor("edgeFixable")
-            case Errors.Validity.Impossible:
-            case Errors.Validity.Error:
+            case Validity.Impossible:
+            case Validity.Error:
                 return EagleConfig.getColor("edgeInvalid");
-            case Errors.Validity.Warning:
+            case Validity.Warning:
                 return EagleConfig.getColor("edgeWarning");
-            case Errors.Validity.Valid:
+            case Validity.Valid:
                 return EagleConfig.getColor("edgeValid");
             default:
                 return EagleConfig.getColor("edgeDefault");
@@ -2564,9 +2565,9 @@ export class GraphRenderer {
         const eagle = Eagle.getInstance();
         if (edge !== null){
             if (event.shiftKey){
-                eagle.editSelection(edge, Eagle.FileType.Graph);
+                eagle.editSelection(edge, EagleFileType.Graph);
             } else {
-                eagle.setSelection(edge, Eagle.FileType.Graph);
+                eagle.setSelection(edge, EagleFileType.Graph);
             }
         }
     }
@@ -2620,7 +2621,7 @@ export class GraphRenderer {
 
     static edgeGetStrokeColor(edge: Edge) : string {
         const eagle = Eagle.getInstance();
-        const showErrorsMode = Setting.findValue<Setting.ShowErrorsMode>(Setting.SHOW_GRAPH_WARNINGS, Setting.ShowErrorsMode.None);
+        const showErrorsMode = Setting.findValue<ShowErrorsMode>(Setting.SHOW_GRAPH_WARNINGS, ShowErrorsMode.None);
 
         let normalColor: string = EagleConfig.getColor('edgeDefault');
         let selectedColor: string = EagleConfig.getColor('edgeDefaultSelected');
@@ -2638,15 +2639,15 @@ export class GraphRenderer {
         }
 
         // check if link has a warning or is invalid
-        // const linkValid : Errors.Validity = Edge.isValid(eagle,false, edge.getId(), edge.getSrcNodeId(), edge.getSrcPortId(), edge.getDestNodeId(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {errors:[], warnings:[]});
-        const linkValid : Errors.Validity = Utils.worstEdgeError(edge.getErrorsWarnings());
+        // const linkValid : Validity = Edge.isValid(eagle,false, edge.getId(), edge.getSrcNodeId(), edge.getSrcPortId(), edge.getDestNodeId(), edge.getDestPortId(), edge.isLoopAware(), edge.isClosesLoop(), false, false, {errors:[], warnings:[]});
+        const linkValid : Validity = Utils.worstEdgeError(edge.getErrorsWarnings());
 
-        if ((linkValid === Errors.Validity.Error || linkValid === Errors.Validity.Impossible) && showErrorsMode !== Setting.ShowErrorsMode.None){
+        if ((linkValid === Validity.Error || linkValid === Validity.Impossible) && showErrorsMode !== ShowErrorsMode.None){
             normalColor = EagleConfig.getColor('edgeInvalid');
             selectedColor = EagleConfig.getColor('edgeInvalidSelected');
         }
 
-        if (linkValid === Errors.Validity.Warning && showErrorsMode === Setting.ShowErrorsMode.Warnings){
+        if (linkValid === Validity.Warning && showErrorsMode === ShowErrorsMode.Warnings){
             normalColor = EagleConfig.getColor('edgeWarning');
             selectedColor = EagleConfig.getColor('edgeWarningSelected');
         }
