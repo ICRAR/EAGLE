@@ -1,9 +1,9 @@
 import * as ko from "knockout";
 
-import { Category } from "./Category";
+import { CategoryName } from "./Category";
 import { CategoryData } from "./CategoryData";
 import { Eagle } from './Eagle';
-import { Errors } from './Errors';
+import { Validity } from './Errors';
 import { Palette } from "./Palette";
 import { UiModeSystem } from './UiModes';
 import { Utils } from './Utils';
@@ -39,15 +39,47 @@ export class SettingsGroup {
 
 type validValueTypes = string | number | boolean;
 
-export class Setting {
+export enum SettingType {
+    String,
+    Number,
+    Boolean,
+    Password,
+    Button,
+    Select
+}
 
+export enum ShowErrorsMode {
+    None = "None",
+    Errors = "Errors",
+    Warnings = "Warnings"
+}
+
+export enum ValueEditingPermission {
+    ConfigOnly = "ConfigOnly",
+    Normal = "Normal",
+    ReadOnly = "Readonly"
+}
+
+export enum TranslatorMode {
+    Minimal = "minimal",
+    Normal = "normal",
+    Expert = "expert"
+}
+
+export enum SchemaVersion {
+    Unknown = "Unknown",
+    OJS = "OJS",
+    V4 = "V4" //dict-of-dicts
+}
+
+export class Setting {
     value : ko.Observable<validValueTypes>;
     private display : boolean; // if true, display setting in settings modal, otherwise do not display
     private name : string;
     private key : string;
     private description : string;
     private perpetual : boolean; // if true, then this setting will stay the same across all ui modes(always storing and using the data from the default ui mode)
-    private type : Setting.Type;
+    private type : SettingType;
     private studentDefaultValue : validValueTypes;
     private minimalDefaultValue : validValueTypes;
     private graphDefaultValue : validValueTypes;
@@ -57,7 +89,7 @@ export class Setting {
     options : string[] | undefined; // an optional list of possible values for this setting (accessed via Knockout templates)
     private eventFunc : (() => void) | undefined; // optional function to be called when a settings button is clicked, or checkbox is toggled, or a input is changed
 
-    constructor(display: boolean, name: string, key: string, description: string, perpetual: boolean, type: Setting.Type, studentDefaultValue: validValueTypes, minimalDefaultValue: validValueTypes, graphDefaultValue: validValueTypes, componentDefaultValue: validValueTypes, expertDefaultValue: validValueTypes, options?: string[], eventFunc?: () => void){
+    constructor(display: boolean, name: string, key: string, description: string, perpetual: boolean, type: SettingType, studentDefaultValue: validValueTypes, minimalDefaultValue: validValueTypes, graphDefaultValue: validValueTypes, componentDefaultValue: validValueTypes, expertDefaultValue: validValueTypes, options?: string[], eventFunc?: () => void){
         this.display = display;
         this.name = name;
         this.key = key;
@@ -88,7 +120,7 @@ export class Setting {
         return this.description;
     }
 
-    getType = () : Setting.Type => {
+    getType = () : SettingType => {
         return this.type;
     }
 
@@ -140,7 +172,7 @@ export class Setting {
     }
 
     toggle = () : void => {
-        if (this.type !== Setting.Type.Boolean){
+        if (this.type !== SettingType.Boolean){
             console.warn("toggle() called on Setting that is not a boolean!" + this.getName() + " " + this.getType() + " " + this.value());
             return;
         }
@@ -232,7 +264,7 @@ export class Setting {
             return;
         }
 
-        if (setting.getType() !== Setting.Type.Boolean){
+        if (setting.getType() !== SettingType.Boolean){
             console.warn("toggle() called on Setting that is not a boolean!" + setting.getName() + " " + setting.getType() + " " + setting.value());
             return;
         }
@@ -292,12 +324,12 @@ export class Setting {
             return false;
         }
 
-        switch (Setting.findValue<Setting.ShowErrorsMode>(Setting.SHOW_GRAPH_WARNINGS, Setting.ShowErrorsMode.None)){
-            case Setting.ShowErrorsMode.Warnings:
+        switch (Setting.findValue<ShowErrorsMode>(Setting.SHOW_GRAPH_WARNINGS, ShowErrorsMode.None)){
+            case ShowErrorsMode.Warnings:
                 return selectedNode.getErrorsWarnings().errors.length + selectedNode.getErrorsWarnings().warnings.length > 0;
-            case Setting.ShowErrorsMode.Errors:
+            case ShowErrorsMode.Errors:
                 return selectedNode.getErrorsWarnings().errors.length > 0;
-            case Setting.ShowErrorsMode.None:
+            case ShowErrorsMode.None:
             default:
                 return false;
         }
@@ -405,132 +437,96 @@ export class Setting {
     static readonly DALIUGE_SCHEMA_VERSION: string = "DaliugeSchemaVersion";
 }
 
-/* eslint-disable @typescript-eslint/no-namespace */
-export namespace Setting {
-    export enum Type {
-        String,
-        Number,
-        Boolean,
-        Password,
-        Button,
-        Select
-    }
-
-    export enum ShowErrorsMode {
-        None = "None",
-        Errors = "Errors",
-        Warnings = "Warnings"
-    }
-
-    export enum ValueEditingPermission {
-        ConfigOnly = "ConfigOnly",
-        Normal = "Normal",
-        ReadOnly = "Readonly"
-    }
-
-    export enum TranslatorMode {
-        Minimal = "minimal",
-        Normal = "normal",
-        Expert = "expert"
-    }
-
-    export enum SchemaVersion {
-        Unknown = "Unknown",
-        OJS = "OJS",
-        V4 = "V4" //dict-of-dicts
-    }
-}
-
 //setting order (display, name, key, description, perpetual, type, studentDefaultValue, minimalDefaultValue, GraphDefaultValue, ComponentDefaultValue, ExpertDefaultValue, options(only add for type select))
 const settings : SettingsGroup[] = [
     new SettingsGroup(
         "User Options",
         () => {return true;},
         [
-            new Setting(true, "Reset Action Confirmations", Setting.ACTION_CONFIRMATIONS, "Enable all action confirmation prompts", false, Setting.Type.Button, '', '', '', '', '', [], function(){Eagle.getInstance().resetActionConfirmations();}),
-            new Setting(false, "Confirm Discard Changes", Setting.CONFIRM_DISCARD_CHANGES, "Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.", true, Setting.Type.Boolean, true, true,true,true,true),
-            new Setting(false, "Confirm Node Category Changes", Setting.CONFIRM_NODE_CATEGORY_CHANGES, "Prompt user to confirm that changing the node category may break the node.", true, Setting.Type.Boolean, true, true,true,true,true),
-            new Setting(false, "Confirm Remove Repositories", Setting.CONFIRM_REMOVE_REPOSITORIES, "Prompt user to confirm removing a repository from the list of known repositories.", true, Setting.Type.Boolean, true,true,true,true,true),
-            new Setting(false, "Confirm Delete Files", Setting.CONFIRM_DELETE_FILES, "Prompt user to confirm when deleting files from a repository.", true, Setting.Type.Boolean, true,true,true,true,true),
-            new Setting(false, "Confirm Delete Objects", Setting.CONFIRM_DELETE_OBJECTS, "Prompt user to confirm when deleting node(s) or edge(s) from a graph.", true, Setting.Type.Boolean, true,true,true,true,true),
-            new Setting(false, "Confirm OJS Format Save", Setting.CONFIRM_OJS_FORMAT, "Prompt the user to confirm saving in the older OJS format and warn that the newer V4 format is recommended.", true, Setting.Type.Boolean, true,true,true,true,true),
-            new Setting(false, "Open " + Palette.BUILTIN_PALETTE_NAME + " Palette on Startup", Setting.OPEN_BUILTIN_PALETTE, "Open the '" + Palette.BUILTIN_PALETTE_NAME + "' palette on startup.", true, Setting.Type.Boolean, false, false, false, false, false),
-            new Setting(false, "Open " + Palette.TEMPLATE_PALETTE_NAME + " Palette on Startup", Setting.OPEN_TEMPLATE_PALETTE, "Open the '" + Palette.TEMPLATE_PALETTE_NAME + "' palette on startup.", true, Setting.Type.Boolean, false, false, false, false, false),
-            new Setting(true, "Disable JSON Validation", Setting.DISABLE_JSON_VALIDATION, "Allow EAGLE to load/save/send-to-translator graphs and palettes that would normally fail validation against schema.", false, Setting.Type.Boolean, false,false,false,false,false),
-            new Setting(true, "Overwrite Existing Translator Tab", Setting.OVERWRITE_TRANSLATION_TAB, "When translating a graph, overwrite an existing translator tab", false, Setting.Type.Boolean, true,true,true,true,true),
-            new Setting(false, "Test Translate Mode", Setting.TEST_TRANSLATE_MODE, "Remove the necessity to save when translating.", false, Setting.Type.Boolean, false,false,false,false,false),
-            new Setting(false, "Markdown Editing Enabled", Setting.MARKDOWN_EDITING_ENABLED, "Enable editing mode in the markdown editing modal.", false, Setting.Type.Boolean, false, false, false, false, false),
+            new Setting(true, "Reset Action Confirmations", Setting.ACTION_CONFIRMATIONS, "Enable all action confirmation prompts", false, SettingType.Button, '', '', '', '', '', [], function(){Eagle.getInstance().resetActionConfirmations();}),
+            new Setting(false, "Confirm Discard Changes", Setting.CONFIRM_DISCARD_CHANGES, "Prompt user to confirm that unsaved changes to the current file should be discarded when opening a new file, or when navigating away from EAGLE.", true, SettingType.Boolean, true, true,true,true,true),
+            new Setting(false, "Confirm Node Category Changes", Setting.CONFIRM_NODE_CATEGORY_CHANGES, "Prompt user to confirm that changing the node category may break the node.", true, SettingType.Boolean, true, true,true,true,true),
+            new Setting(false, "Confirm Remove Repositories", Setting.CONFIRM_REMOVE_REPOSITORIES, "Prompt user to confirm removing a repository from the list of known repositories.", true, SettingType.Boolean, true,true,true,true,true),
+            new Setting(false, "Confirm Delete Files", Setting.CONFIRM_DELETE_FILES, "Prompt user to confirm when deleting files from a repository.", true, SettingType.Boolean, true,true,true,true,true),
+            new Setting(false, "Confirm Delete Objects", Setting.CONFIRM_DELETE_OBJECTS, "Prompt user to confirm when deleting node(s) or edge(s) from a graph.", true, SettingType.Boolean, true,true,true,true,true),
+            new Setting(false, "Confirm OJS Format Save", Setting.CONFIRM_OJS_FORMAT, "Prompt the user to confirm saving in the older OJS format and warn that the newer V4 format is recommended.", true, SettingType.Boolean, true,true,true,true,true),
+            new Setting(false, "Open " + Palette.BUILTIN_PALETTE_NAME + " Palette on Startup", Setting.OPEN_BUILTIN_PALETTE, "Open the '" + Palette.BUILTIN_PALETTE_NAME + "' palette on startup.", true, SettingType.Boolean, false, false, false, false, false),
+            new Setting(false, "Open " + Palette.TEMPLATE_PALETTE_NAME + " Palette on Startup", Setting.OPEN_TEMPLATE_PALETTE, "Open the '" + Palette.TEMPLATE_PALETTE_NAME + "' palette on startup.", true, SettingType.Boolean, false, false, false, false, false),
+            new Setting(true, "Disable JSON Validation", Setting.DISABLE_JSON_VALIDATION, "Allow EAGLE to load/save/send-to-translator graphs and palettes that would normally fail validation against schema.", false, SettingType.Boolean, false,false,false,false,false),
+            new Setting(true, "Overwrite Existing Translator Tab", Setting.OVERWRITE_TRANSLATION_TAB, "When translating a graph, overwrite an existing translator tab", false, SettingType.Boolean, true,true,true,true,true),
+            new Setting(false, "Test Translate Mode", Setting.TEST_TRANSLATE_MODE, "Remove the necessity to save when translating.", false, SettingType.Boolean, false,false,false,false,false),
+            new Setting(false, "Markdown Editing Enabled", Setting.MARKDOWN_EDITING_ENABLED, "Enable editing mode in the markdown editing modal.", false, SettingType.Boolean, false, false, false, false, false),
         ]
     ),
     new SettingsGroup(
         "UI Options",
         () => {return true;},
         [
-            new Setting(true, "Show non key parameters", Setting.SHOW_NON_CONFIG_PARAMETERS, "Show additional parameters that are not part of a graph configuration for the current graph",false, Setting.Type.Boolean, false,true,true,true,true),
-            new Setting(false, "Show Developer Tab", Setting.SHOW_DEVELOPER_TAB, "Reveals the developer tab in the settings menu", false, Setting.Type.Boolean, false,false,false,false,true),
-            new Setting(true, "Translator Mode", Setting.USER_TRANSLATOR_MODE, "Configure the translator mode", false, Setting.Type.Select, Setting.TranslatorMode.Minimal,Setting.TranslatorMode.Minimal,Setting.TranslatorMode.Normal,Setting.TranslatorMode.Normal,Setting.TranslatorMode.Expert, Object.values(Setting.TranslatorMode)),
-            new Setting(true, "Graph Zoom Divisor", Setting.GRAPH_ZOOM_DIVISOR, "The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.", false, Setting.Type.Number,1000,1000,1000,1000,1000),
-            new Setting(false, "Snap To Grid", Setting.SNAP_TO_GRID, "Align positions of nodes in graph to a grid", false, Setting.Type.Boolean,false,false,false,false,false),
-            new Setting(false, "Snap To Grid Size", Setting.SNAP_TO_GRID_SIZE, "Size of grid used when aligning positions of nodes in graph (pixels)", false, Setting.Type.Number, 50, 50, 50, 50, 50),
-            new Setting(true, "Show edge/node errors/warnings in Graph", Setting.SHOW_GRAPH_WARNINGS, "Show the errors/warnings found in the graph", false, Setting.Type.Select,  Setting.ShowErrorsMode.None, Setting.ShowErrorsMode.None, Setting.ShowErrorsMode.Errors, Setting.ShowErrorsMode.Errors,Setting.ShowErrorsMode.Errors, Object.values(Setting.ShowErrorsMode)),
-            new Setting(false, "Right Window Width", Setting.RIGHT_WINDOW_WIDTH, "saving the width of the right window", true, Setting.Type.Number,400,400,400,400,400),
-            new Setting(false, "Right Window Visibility", Setting.RIGHT_WINDOW_VISIBLE, "visibility state of the right window", true, Setting.Type.Boolean,true,true,true,true,true),
-            new Setting(false, "Right Window Mode/Tab", Setting.RIGHT_WINDOW_MODE, "saving the selected mode/tab of the right window", true, Setting.Type.String,'Repository','Repository','Repository','Repository','Repository'),
-            new Setting(false, "Left Window Width", Setting.LEFT_WINDOW_WIDTH, "saving the width of the left window", true, Setting.Type.Number, 310, 310, 310, 310, 310),
-            new Setting(false, "Left Window Visibility", Setting.LEFT_WINDOW_VISIBLE, "saving the visibility state of the left window", true, Setting.Type.Boolean, false, false, true, true, true),
-            new Setting(false, "Bottom Window Height", Setting.BOTTOM_WINDOW_HEIGHT, "saving the height of the bottom window", true, Setting.Type.Number, 25, 25, 25, 25, 25),
-            new Setting(false, "Bottom Window Visibility", Setting.BOTTOM_WINDOW_VISIBLE, "saving the visibility state of the bottom window", true, Setting.Type.Boolean, false, false, false, false, false),
-            new Setting(false, "Bottom Window Mode/Tab", Setting.BOTTOM_WINDOW_MODE, "saving the mode/tab of the bottom window", true, Setting.Type.Number, 'ParameterTable', 'ParameterTable', 'ParameterTable', 'ParameterTable', 'ParameterTable'),
-            new Setting(false, "Graph and Object Inspector", Setting.INSPECTOR_COLLAPSED_STATE, "saving the collapsed state of the graph object inspector", true, Setting.Type.Boolean, false, false, false, false, false),
-            new Setting(false, "Visibility of data node titles", Setting.HIDE_DATA_NODE_TITLES, "saving the visibility of the data node titles", true, Setting.Type.Boolean, false, false, false, false, false),
-            new Setting(false, "Visibility of visuals in graph", Setting.HIDE_VISUALS, "saving the visibility of visuals in graph", true, Setting.Type.Boolean, false, false, false, false, false),
+            new Setting(true, "Show non key parameters", Setting.SHOW_NON_CONFIG_PARAMETERS, "Show additional parameters that are not part of a graph configuration for the current graph",false, SettingType.Boolean, false,true,true,true,true),
+            new Setting(false, "Show Developer Tab", Setting.SHOW_DEVELOPER_TAB, "Reveals the developer tab in the settings menu", false, SettingType.Boolean, false,false,false,false,true),
+            new Setting(true, "Translator Mode", Setting.USER_TRANSLATOR_MODE, "Configure the translator mode", false, SettingType.Select, TranslatorMode.Minimal,TranslatorMode.Minimal,TranslatorMode.Normal,TranslatorMode.Normal,TranslatorMode.Expert, Object.values(TranslatorMode)),
+            new Setting(true, "Graph Zoom Divisor", Setting.GRAPH_ZOOM_DIVISOR, "The number by which zoom inputs are divided before being applied. Larger divisors reduce the amount of zoom.", false, SettingType.Number,1000,1000,1000,1000,1000),
+            new Setting(false, "Snap To Grid", Setting.SNAP_TO_GRID, "Align positions of nodes in graph to a grid", false, SettingType.Boolean,false,false,false,false,false),
+            new Setting(false, "Snap To Grid Size", Setting.SNAP_TO_GRID_SIZE, "Size of grid used when aligning positions of nodes in graph (pixels)", false, SettingType.Number, 50, 50, 50, 50, 50),
+            new Setting(true, "Show edge/node errors/warnings in Graph", Setting.SHOW_GRAPH_WARNINGS, "Show the errors/warnings found in the graph", false, SettingType.Select,  ShowErrorsMode.None, ShowErrorsMode.None, ShowErrorsMode.Errors, ShowErrorsMode.Errors,ShowErrorsMode.Errors, Object.values(ShowErrorsMode)),
+            new Setting(false, "Right Window Width", Setting.RIGHT_WINDOW_WIDTH, "saving the width of the right window", true, SettingType.Number,400,400,400,400,400),
+            new Setting(false, "Right Window Visibility", Setting.RIGHT_WINDOW_VISIBLE, "visibility state of the right window", true, SettingType.Boolean,true,true,true,true,true),
+            new Setting(false, "Right Window Mode/Tab", Setting.RIGHT_WINDOW_MODE, "saving the selected mode/tab of the right window", true, SettingType.String,'Repository','Repository','Repository','Repository','Repository'),
+            new Setting(false, "Left Window Width", Setting.LEFT_WINDOW_WIDTH, "saving the width of the left window", true, SettingType.Number, 310, 310, 310, 310, 310),
+            new Setting(false, "Left Window Visibility", Setting.LEFT_WINDOW_VISIBLE, "saving the visibility state of the left window", true, SettingType.Boolean, false, false, true, true, true),
+            new Setting(false, "Bottom Window Height", Setting.BOTTOM_WINDOW_HEIGHT, "saving the height of the bottom window", true, SettingType.Number, 25, 25, 25, 25, 25),
+            new Setting(false, "Bottom Window Visibility", Setting.BOTTOM_WINDOW_VISIBLE, "saving the visibility state of the bottom window", true, SettingType.Boolean, false, false, false, false, false),
+            new Setting(false, "Bottom Window Mode/Tab", Setting.BOTTOM_WINDOW_MODE, "saving the mode/tab of the bottom window", true, SettingType.Number, 'ParameterTable', 'ParameterTable', 'ParameterTable', 'ParameterTable', 'ParameterTable'),
+            new Setting(false, "Graph and Object Inspector", Setting.INSPECTOR_COLLAPSED_STATE, "saving the collapsed state of the graph object inspector", true, SettingType.Boolean, false, false, false, false, false),
+            new Setting(false, "Visibility of data node titles", Setting.HIDE_DATA_NODE_TITLES, "saving the visibility of the data node titles", true, SettingType.Boolean, false, false, false, false, false),
+            new Setting(false, "Visibility of visuals in graph", Setting.HIDE_VISUALS, "saving the visibility of visuals in graph", true, SettingType.Boolean, false, false, false, false, false),
         ]
     ),
     new SettingsGroup(
         "Advanced Editing",
         () => {return true;},
         [
-            new Setting(true, "Allow Invalid edges", Setting.ALLOW_INVALID_EDGES, "Allow the user to create edges even if they would normally be determined invalid.", false, Setting.Type.Boolean, false, false, false, false, true),
-            new Setting(true, "Allow Component Editing", Setting.ALLOW_COMPONENT_EDITING, "Allow the user to add/remove ports and parameters from components.",false, Setting.Type.Boolean,false, false, false, true,true),
-            new Setting(true, "Allow Modify Graph Configurations", Setting.ALLOW_MODIFY_GRAPH_CONFIG, "Allow the user to add/remove parameters from graph configurations.", false, Setting.Type.Boolean,false, true, true, true,true),
-            new Setting(true, "Allow Graph Editing", Setting.ALLOW_GRAPH_EDITING, "Allow the user to edit and create graphs.", false, Setting.Type.Boolean, false, false, true, true, true),
-            new Setting(true, "Allow Palette Editing", Setting.ALLOW_PALETTE_EDITING, "Allow the user to edit palettes.", false, Setting.Type.Boolean, false, false, false, true, true),
-            new Setting(true, "Allow Readonly Palette Editing", Setting.ALLOW_READONLY_PALETTE_EDITING, "Allow the user to modify palettes that would otherwise be readonly.", false, Setting.Type.Boolean,false,false,false,false,true),
-            new Setting(true, "Filter Node Suggestions", Setting.FILTER_NODE_SUGGESTIONS, "Filter Node Options When Drawing Edges Into Empty Space", false, Setting.Type.Boolean,true,true,true,true,false),
-            new Setting(false, "STUDENT_SETTINGS_MODE", Setting.STUDENT_SETTINGS_MODE, "Mode disabling setting editing for students.", false, Setting.Type.Boolean, true, false,false, false, false),
-            new Setting(true, "Disable Rename on Edge Connect", Setting.DISABLE_RENAME_ON_EDGE_CONNECT, "Disable renaming of nodes when connecting edges to existing nodes.", false, Setting.Type.Boolean, false, false, false, false, false),
-            new Setting(true, "Value Editing", Setting.VALUE_EDITING_PERMS, "Set which values are allowed to be edited.", false, Setting.Type.Select, Setting.ValueEditingPermission.ConfigOnly,Setting.ValueEditingPermission.Normal,Setting.ValueEditingPermission.Normal,Setting.ValueEditingPermission.ReadOnly,Setting.ValueEditingPermission.ReadOnly, Object.values(Setting.ValueEditingPermission)),
-            new Setting(true, "Auto-complete edges level", Setting.AUTO_COMPLETE_EDGES_LEVEL, "Specifies the minimum validity level of auto-complete edges displayed when dragging a new edge", false, Setting.Type.Select, Errors.Validity.Valid, Errors.Validity.Valid, Errors.Validity.Warning, Errors.Validity.Warning, Errors.Validity.Error, [Errors.Validity.Error, Errors.Validity.Warning, Errors.Validity.Valid]),
-            new Setting(true, "Default Data Node", Setting.DEFAULT_DATA_NODE, "Default category of Data node that is automatically created when the user creates a edge between two Application nodes", false, Setting.Type.Select, Category.Memory, Category.Memory, Category.Memory, Category.Memory, Category.Memory, CategoryData.INTERMEDIATE_DATA_NODES),
+            new Setting(true, "Allow Invalid edges", Setting.ALLOW_INVALID_EDGES, "Allow the user to create edges even if they would normally be determined invalid.", false, SettingType.Boolean, false, false, false, false, true),
+            new Setting(true, "Allow Component Editing", Setting.ALLOW_COMPONENT_EDITING, "Allow the user to add/remove ports and parameters from components.",false, SettingType.Boolean,false, false, false, true,true),
+            new Setting(true, "Allow Modify Graph Configurations", Setting.ALLOW_MODIFY_GRAPH_CONFIG, "Allow the user to add/remove parameters from graph configurations.", false, SettingType.Boolean,false, true, true, true,true),
+            new Setting(true, "Allow Graph Editing", Setting.ALLOW_GRAPH_EDITING, "Allow the user to edit and create graphs.", false, SettingType.Boolean, false, false, true, true, true),
+            new Setting(true, "Allow Palette Editing", Setting.ALLOW_PALETTE_EDITING, "Allow the user to edit palettes.", false, SettingType.Boolean, false, false, false, true, true),
+            new Setting(true, "Allow Readonly Palette Editing", Setting.ALLOW_READONLY_PALETTE_EDITING, "Allow the user to modify palettes that would otherwise be readonly.", false, SettingType.Boolean,false,false,false,false,true),
+            new Setting(true, "Filter Node Suggestions", Setting.FILTER_NODE_SUGGESTIONS, "Filter Node Options When Drawing Edges Into Empty Space", false, SettingType.Boolean,true,true,true,true,false),
+            new Setting(false, "STUDENT_SETTINGS_MODE", Setting.STUDENT_SETTINGS_MODE, "Mode disabling setting editing for students.", false, SettingType.Boolean, true, false,false, false, false),
+            new Setting(true, "Disable Rename on Edge Connect", Setting.DISABLE_RENAME_ON_EDGE_CONNECT, "Disable renaming of nodes when connecting edges to existing nodes.", false, SettingType.Boolean, false, false, false, false, false),
+            new Setting(true, "Value Editing", Setting.VALUE_EDITING_PERMS, "Set which values are allowed to be edited.", false, SettingType.Select, ValueEditingPermission.ConfigOnly,ValueEditingPermission.Normal,ValueEditingPermission.Normal,ValueEditingPermission.ReadOnly,ValueEditingPermission.ReadOnly, Object.values(ValueEditingPermission)),
+            new Setting(true, "Auto-complete edges level", Setting.AUTO_COMPLETE_EDGES_LEVEL, "Specifies the minimum validity level of auto-complete edges displayed when dragging a new edge", false, SettingType.Select, Validity.Valid, Validity.Valid, Validity.Warning, Validity.Warning, Validity.Error, [Validity.Error, Validity.Warning, Validity.Valid]),
+            new Setting(true, "Default Data Node", Setting.DEFAULT_DATA_NODE, "Default category of Data node that is automatically created when the user creates a edge between two Application nodes", false, SettingType.Select, CategoryName.Memory, CategoryName.Memory, CategoryName.Memory, CategoryName.Memory, CategoryName.Memory, CategoryData.INTERMEDIATE_DATA_NODES),
         ]
     ),
     new SettingsGroup(
         "External Services",
         () => {return true;},
         [
-            new Setting(true, "Translator URL", Setting.TRANSLATOR_URL, "The URL of the translator server", true, Setting.Type.String, "http://localhost:8084/gen_pgt","http://localhost:8084/gen_pgt","http://localhost:8084/gen_pgt", "http://localhost:8084/gen_pgt", "http://localhost:8084/gen_pgt"),
-            new Setting(true, "GitHub Access Token", Setting.GITHUB_ACCESS_TOKEN_KEY, "A users access token for GitHub repositories.",true , Setting.Type.Password, "", "", "", "", ""),
-            new Setting(true, "GitLab Access Token", Setting.GITLAB_ACCESS_TOKEN_KEY, "A users access token for GitLab repositories.", true, Setting.Type.Password, "","","", "", ""),
-            new Setting(true, "Docker Hub Username", Setting.DOCKER_HUB_USERNAME, "The username to use when retrieving data on images stored on Docker Hub", true, Setting.Type.String, "icrar","icrar","icrar", "icrar", "icrar"),
-            new Setting(false, "Default Translation Algorithm", Setting.TRANSLATOR_ALGORITHM_DEFAULT, "Which of the algorithms will be used by default", true, Setting.Type.String, "agl-1", "agl-1", "agl-1", "agl-1", "agl-1"),
+            new Setting(true, "Translator URL", Setting.TRANSLATOR_URL, "The URL of the translator server", true, SettingType.String, "http://localhost:8084/gen_pgt","http://localhost:8084/gen_pgt","http://localhost:8084/gen_pgt", "http://localhost:8084/gen_pgt", "http://localhost:8084/gen_pgt"),
+            new Setting(true, "GitHub Access Token", Setting.GITHUB_ACCESS_TOKEN_KEY, "A users access token for GitHub repositories.",true , SettingType.Password, "", "", "", "", ""),
+            new Setting(true, "GitLab Access Token", Setting.GITLAB_ACCESS_TOKEN_KEY, "A users access token for GitLab repositories.", true, SettingType.Password, "","","", "", ""),
+            new Setting(true, "Docker Hub Username", Setting.DOCKER_HUB_USERNAME, "The username to use when retrieving data on images stored on Docker Hub", true, SettingType.String, "icrar","icrar","icrar", "icrar", "icrar"),
+            new Setting(false, "Default Translation Algorithm", Setting.TRANSLATOR_ALGORITHM_DEFAULT, "Which of the algorithms will be used by default", true, SettingType.String, "agl-1", "agl-1", "agl-1", "agl-1", "agl-1"),
         ]
     ),
     new SettingsGroup(
         "Developer",
         () => {return false;},
         [
-            new Setting(true, "Show Developer Notifications", Setting.SHOW_DEVELOPER_NOTIFICATIONS, "EAGLE generates a number of messages intended to alert developers to unusual occurrences or issues. Enabling this setting displays those messages.", false, Setting.Type.Boolean, false, false, false, false, false),
-            new Setting(true, "Show File Loading Warnings", Setting.SHOW_FILE_LOADING_ERRORS, "Display list of issues with files encountered during loading.", false, Setting.Type.Boolean, false, false, false, false, false),
-            new Setting(true, "Open Translator In Current Tab", Setting.OPEN_TRANSLATOR_IN_CURRENT_TAB, "When translating a graph, display the output of the translator in the current tab", false, Setting.Type.Boolean, false, false, false, false, false),
-            new Setting(true, "Create Applications for Construct Ports", Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, "When loading old graph files with ports on construct nodes, move the port to an embedded application", false, Setting.Type.Boolean, true, true, true, true, true),
-            new Setting(true, "Skip 'closes loop' edges in JSON output", Setting.SKIP_CLOSE_LOOP_EDGES, "We've recently added edges to the LinkDataArray that 'close' loop constructs and set the 'group_start' and 'group_end' automatically. In the short-term, such edges are not supported by the translator. This setting will keep the new edges during saving/loading, but remove them before sending the graph to the translator.", false, Setting.Type.Boolean, true, true, true, true, true),
-            new Setting(true, "Print Undo state to JS Console", Setting.PRINT_UNDO_STATE_TO_JS_CONSOLE, "Prints the state of the undo memory whenever a change occurs. The state is written to the browser's javascript console", false, Setting.Type.Boolean, false, false, false, false, false),
-            new Setting(true, "Print Translator JSON to JS Console", Setting.PRINT_TRANSLATOR_JSON_TO_JS_CONSOLE, "When translating a graph, print the JSON data sent to the translator to the browser's javascript console", false, Setting.Type.Boolean, false, false, false, false, false),
-            new Setting(true, "Display all Category options", Setting.SHOW_ALL_CATEGORY_OPTIONS, "Displays all category options when changing the category of a node", false, Setting.Type.Boolean, false, false, false, false, false),
-            new Setting(true, "Allow modified graph translation", Setting.ALLOW_MODIFIED_GRAPH_TRANSLATION, "Allow users to submit graphs for translation even when not saved or committed", true, Setting.Type.Boolean, false, false, false, false, false),
-            new Setting(true, "Fetch repository for URLs", Setting.FETCH_REPOSITORY_FOR_URLS, "Automatically fetch the contents of the object's repository when a graph/palette is specified in the URL", true, Setting.Type.Boolean, false, false ,false, false, false),
-            new Setting(true, "Keep Old Fields during Category Change", Setting.KEEP_OLD_FIELDS_DURING_CATEGORY_CHANGE, "When changing the category of an existing node, several fields may become useless and would normally be deleted. Enabling this setting will keep those fields.", false, Setting.Type.Boolean, false, false, false, false, false),
-            new Setting(true, "DALiuGE Schema Version", Setting.DALIUGE_SCHEMA_VERSION, "JSON file format for output graphs (used for saving and translation)", true, Setting.Type.Select, Setting.SchemaVersion.OJS, Setting.SchemaVersion.OJS, Setting.SchemaVersion.OJS, Setting.SchemaVersion.OJS, Setting.SchemaVersion.OJS, [Setting.SchemaVersion.OJS, Setting.SchemaVersion.V4])
+            new Setting(true, "Show Developer Notifications", Setting.SHOW_DEVELOPER_NOTIFICATIONS, "EAGLE generates a number of messages intended to alert developers to unusual occurrences or issues. Enabling this setting displays those messages.", false, SettingType.Boolean, false, false, false, false, false),
+            new Setting(true, "Show File Loading Warnings", Setting.SHOW_FILE_LOADING_ERRORS, "Display list of issues with files encountered during loading.", false, SettingType.Boolean, false, false, false, false, false),
+            new Setting(true, "Open Translator In Current Tab", Setting.OPEN_TRANSLATOR_IN_CURRENT_TAB, "When translating a graph, display the output of the translator in the current tab", false, SettingType.Boolean, false, false, false, false, false),
+            new Setting(true, "Create Applications for Construct Ports", Setting.CREATE_APPLICATIONS_FOR_CONSTRUCT_PORTS, "When loading old graph files with ports on construct nodes, move the port to an embedded application", false, SettingType.Boolean, true, true, true, true, true),
+            new Setting(true, "Skip 'closes loop' edges in JSON output", Setting.SKIP_CLOSE_LOOP_EDGES, "We've recently added edges to the LinkDataArray that 'close' loop constructs and set the 'group_start' and 'group_end' automatically. In the short-term, such edges are not supported by the translator. This setting will keep the new edges during saving/loading, but remove them before sending the graph to the translator.", false, SettingType.Boolean, true, true, true, true, true),
+            new Setting(true, "Print Undo state to JS Console", Setting.PRINT_UNDO_STATE_TO_JS_CONSOLE, "Prints the state of the undo memory whenever a change occurs. The state is written to the browser's javascript console", false, SettingType.Boolean, false, false, false, false, false),
+            new Setting(true, "Print Translator JSON to JS Console", Setting.PRINT_TRANSLATOR_JSON_TO_JS_CONSOLE, "When translating a graph, print the JSON data sent to the translator to the browser's javascript console", false, SettingType.Boolean, false, false, false, false, false),
+            new Setting(true, "Display all Category options", Setting.SHOW_ALL_CATEGORY_OPTIONS, "Displays all category options when changing the category of a node", false, SettingType.Boolean, false, false, false, false, false),
+            new Setting(true, "Allow modified graph translation", Setting.ALLOW_MODIFIED_GRAPH_TRANSLATION, "Allow users to submit graphs for translation even when not saved or committed", true, SettingType.Boolean, false, false, false, false, false),
+            new Setting(true, "Fetch repository for URLs", Setting.FETCH_REPOSITORY_FOR_URLS, "Automatically fetch the contents of the object's repository when a graph/palette is specified in the URL", true, SettingType.Boolean, false, false ,false, false, false),
+            new Setting(true, "Keep Old Fields during Category Change", Setting.KEEP_OLD_FIELDS_DURING_CATEGORY_CHANGE, "When changing the category of an existing node, several fields may become useless and would normally be deleted. Enabling this setting will keep those fields.", false, SettingType.Boolean, false, false, false, false, false),
+            new Setting(true, "DALiuGE Schema Version", Setting.DALIUGE_SCHEMA_VERSION, "JSON file format for output graphs (used for saving and translation)", true, SettingType.Select, SchemaVersion.OJS, SchemaVersion.OJS, SchemaVersion.OJS, SchemaVersion.OJS, SchemaVersion.OJS, [SchemaVersion.OJS, SchemaVersion.V4])
         ]
     )
 ];

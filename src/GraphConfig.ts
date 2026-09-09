@@ -1,15 +1,15 @@
 import * as ko from "knockout";
 
-import { Eagle } from "./Eagle";
-import { Errors } from "./Errors";
+import type { DataType } from "./Daliuge";
+import { Eagle, EagleFileType } from "./Eagle";
+import { EagleConfig } from "./EagleConfig";
+import { Errors, type ErrorsWarnings } from "./Errors";
 import { Field } from "./Field";
 import { FileInfo } from "./FileInfo";
 import { Id } from "./Id";
 import type { LogicalGraph } from "./LogicalGraph";
 import type { Node } from "./Node";
 import { Utils } from "./Utils";
-import { EagleConfig } from "./EagleConfig";
-import type { Daliuge } from "./Daliuge";
 import type { LegacyGraphConfigFieldJson, LegacyGraphConfigJson, LegacyGraphConfigNodeJson, JsonObject, V4GraphConfigFieldJson, V4GraphConfigJson, V4GraphConfigNodeJson } from "./JsonLoadTypes";
 
 export class GraphConfig {
@@ -20,7 +20,7 @@ export class GraphConfig {
     
     constructor(){
         this.fileInfo = ko.observable(new FileInfo());
-        this.fileInfo().type = Eagle.FileType.GraphConfig;
+        this.fileInfo().type = EagleFileType.GraphConfig;
         this.fileInfo().readonly = false;
         this.fileInfo().builtIn = false;
         this.id = ko.observable(Id.generateGraphConfigId());
@@ -140,7 +140,7 @@ export class GraphConfig {
         return Utils.markdown2html(this.fileInfo().name);
     }, this); 
 
-    static fromJson(data: JsonObject, lg: LogicalGraph, errorsWarnings: Errors.ErrorsWarnings) : GraphConfig {
+    static fromJson(data: JsonObject, lg: LogicalGraph, errorsWarnings: ErrorsWarnings) : GraphConfig {
         const graphConfigData = data as LegacyGraphConfigJson;
         const result: GraphConfig = new GraphConfig();
 
@@ -165,7 +165,7 @@ export class GraphConfig {
                 fi.lastModifiedDatetime = graphConfigData.lastModifiedDatetime;
             }
 
-            fi.type = Eagle.FileType.GraphConfig;
+            fi.type = EagleFileType.GraphConfig;
             result.fileInfo(fi);
         } else {
             result.fileInfo(FileInfo.fromV4Json(graphConfigData.modelData, errorsWarnings));
@@ -195,7 +195,7 @@ export class GraphConfig {
         return result;
     }
 
-    static fromV4GraphJson(data: V4GraphConfigJson, lg: LogicalGraph, errorsWarnings: Errors.ErrorsWarnings) : GraphConfig {
+    static fromV4GraphJson(data: V4GraphConfigJson, lg: LogicalGraph, errorsWarnings: ErrorsWarnings) : GraphConfig {
         const result: GraphConfig = new GraphConfig();
 
         result.fileInfo(FileInfo.fromV4Json(data.modelData, errorsWarnings));
@@ -312,7 +312,7 @@ export class GraphConfigNode {
         return this.fields().values();
     }
 
-    static fromJson(data: JsonObject, node: Node, errorsWarnings: Errors.ErrorsWarnings): GraphConfigNode {
+    static fromJson(data: JsonObject, node: Node, errorsWarnings: ErrorsWarnings): GraphConfigNode {
         const nodeData = data as LegacyGraphConfigNodeJson;
         const result = new GraphConfigNode(node);
 
@@ -338,7 +338,7 @@ export class GraphConfigNode {
         return result;
     }
 
-    static fromV4GraphJson(data: V4GraphConfigNodeJson, node: Node, errorsWarnings: Errors.ErrorsWarnings): GraphConfigNode {
+    static fromV4GraphJson(data: V4GraphConfigNodeJson, node: Node, errorsWarnings: ErrorsWarnings): GraphConfigNode {
         const result = new GraphConfigNode(node);
 
         for (const [fieldId, fieldData] of Object.entries(data.fields)){
@@ -432,7 +432,7 @@ export class GraphConfigField {
         return this.comment();
     }
 
-    static fromJson(data: JsonObject, field: Field, _errorsWarnings: Errors.ErrorsWarnings): GraphConfigField {
+    static fromJson(data: JsonObject, field: Field, _errorsWarnings: ErrorsWarnings): GraphConfigField {
         const fieldData = data as LegacyGraphConfigFieldJson;
         const result = new GraphConfigField(field);
 
@@ -451,7 +451,7 @@ export class GraphConfigField {
         return result;
     }
 
-    static fromV4GraphJson(data: V4GraphConfigFieldJson, field: Field, _errorsWarnings: Errors.ErrorsWarnings): GraphConfigField {
+    static fromV4GraphJson(data: V4GraphConfigFieldJson, field: Field, _errorsWarnings: ErrorsWarnings): GraphConfigField {
         const result = new GraphConfigField(field);
 
         result.value(Utils.scalarLoadValueToString(data.value));
@@ -460,7 +460,7 @@ export class GraphConfigField {
         return result;
     }
 
-    static toJson(field: GraphConfigField, type: Daliuge.DataType): V4GraphConfigFieldJson {
+    static toJson(field: GraphConfigField, type: DataType): V4GraphConfigFieldJson {
         return {
             // NOTE: do not add 'id' attribute, since fields are stored in a dict keyed by id
             value: Field.stringAsType(field.value(), type),

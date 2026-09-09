@@ -25,7 +25,7 @@
                                 <div class="row">
                                     <!-- ko foreach: $data.settings -->
                                         <!-- ko if: $data.getDisplay() -->
-                                            <!-- ko if: $data.getType() === Setting.Type.String -->
+                                            <!-- ko if: $data.getType() === SettingType.String -->
                                                 <div class="input-group mb-1">
                                                     <div class="input-group-prepend">
                                                         <span class="input-group-text" data-bind="attr:{id:'setting'+$data.getKey()}, text:$data.getName(), eagleTooltip: $data.getDescription()" data-bs-placement="left"></span>
@@ -33,7 +33,7 @@
                                                     <input type="text" class="form-control" placeholder="" data-bind="value: $data.value, attr:{id:'setting'+$data.getKey()+'Value'}">
                                                 </div>
                                             <!-- /ko -->
-                                            <!-- ko if: $data.getType() === Setting.Type.Number -->
+                                            <!-- ko if: $data.getType() === SettingType.Number -->
                                                 <div class="input-group mb-1">
                                                     <div class="input-group-prepend">
                                                         <span class="input-group-text" data-bind="attr:{id:'setting'+$data.getKey()}, text:$data.getName(), eagleTooltip: $data.getDescription()" data-bs-placement="left"></span>
@@ -41,7 +41,7 @@
                                                     <input type="text" class="form-control" placeholder="" data-bind="value: $data.value, attr:{id:'setting'+$data.getKey()+'Value'}">
                                                 </div>
                                             <!-- /ko -->
-                                            <!-- ko if: $data.getType() === Setting.Type.Boolean -->
+                                            <!-- ko if: $data.getType() === SettingType.Boolean -->
                                                 <div class="settingSm col-6">
                                                     <div class="input-group mb-1 checkSettingLabel" data-bind="click: $data.toggle">
                                                         <input type="text" class="form-control" placeholder="" data-bind="attr:{id:'setting'+$data.getKey(),value:$data.getName()}, eagleTooltip:$data.getDescription()" data-bs-placement="left" readonly>
@@ -54,7 +54,7 @@
                                                     </div>
                                                 </div>
                                             <!-- /ko --> 
-                                            <!-- ko if: $data.getType() === Setting.Type.Button -->
+                                            <!-- ko if: $data.getType() === SettingType.Button -->
                                                 <div class="settingSm col-6">
                                                     <div class="input-group mb-1 checkSettingLabel" data-bind="click: $data.callEventFunc">
                                                         <input type="text" class="form-control" placeholder="" data-bind="attr:{id:'setting'+$data.getKey(),value:$data.getName()}, eagleTooltip:$data.getDescription()" data-bs-placement="left" readonly>
@@ -66,7 +66,7 @@
                                                     </div>
                                                 </div>
                                             <!-- /ko --> 
-                                            <!-- ko if: $data.getType() === Setting.Type.Password -->
+                                            <!-- ko if: $data.getType() === SettingType.Password -->
                                                 <div class="input-group mb-1">
                                                     <div class="input-group-prepend">
                                                         <span class="input-group-text" data-bind="attr:{id:'setting'+$data.getKey()}, text:$data.getName(), eagleTooltip:$data.getDescription()" data-bs-placement="left"></span>
@@ -79,7 +79,7 @@
                                                     </div>
                                                 </div>
                                             <!-- /ko -->
-                                            <!-- ko if: $data.getType() === Setting.Type.Select -->
+                                            <!-- ko if: $data.getType() === SettingType.Select -->
                                                 <div class="input-group mb-1">
                                                     <div class="input-group-prepend">
                                                         <span class="input-group-text" data-bind="attr:{id:'setting'+$data.getKey()}, text:$data.getName(), eagleTooltip:$data.getDescription()" data-bs-placement="left"></span>
