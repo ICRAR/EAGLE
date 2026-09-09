@@ -66,7 +66,7 @@ test('findDepthOfNode follows nested parents', async ({ page }) => {
     const depth = await page.evaluate(() => {
         const eagle = (window as any).eagle;
         const graph = eagle.logicalGraph();
-        eagle.setSelection(null, (window as any).Eagle.FileType.Graph);
+        eagle.setSelection(null, 'Graph');
         const nodes = Array.from(graph.getNodes());
         const child = nodes[0];
         const parent = nodes[1];
