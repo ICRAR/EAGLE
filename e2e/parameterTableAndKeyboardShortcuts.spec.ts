@@ -46,8 +46,16 @@ test('Parameter Tables and keyboard Shortcuts', async ({ page }) => {
   await expect(page.getByRole('row').last().locator('.column_ParamType').getByRole('combobox')).toHaveValue('Application')
   
   //change use as and then make sure that the value has been changed accordingly
-  await page.getByRole('row').last().locator('.column_Usage').getByRole('combobox').selectOption('OutputPort');
-  await expect(page.getByRole('row').last().locator('.column_Usage').getByRole('combobox')).toHaveValue('OutputPort')
+  const inputPortsBefore = await page.evaluate(() => {
+    const node = Array.from((window as any).eagle.logicalGraph().getNodes())[0];
+    return node.getInputPorts().length;
+  });
+  await page.getByRole('row').last().locator('.column_Usage').getByRole('combobox').selectOption('InputPort');
+  await expect(page.getByRole('row').last().locator('.column_Usage').getByRole('combobox')).toHaveValue('InputPort')
+  await expect.poll(async () => page.evaluate(() => {
+    const node = Array.from((window as any).eagle.logicalGraph().getNodes())[0];
+    return node.getInputPorts().length;
+  })).toBe(inputPortsBefore + 1);
   
   //duplicate the new custom field
   await page.getByRole('row').last().locator('.duplicate').click();
