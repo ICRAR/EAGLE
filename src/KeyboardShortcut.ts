@@ -1,3 +1,7 @@
+import { EagleBottomWindowMode } from './Eagle';
+import { EagleRightWindowMode } from './Eagle';
+import { EagleFileType } from './Eagle';
+import { ParameterTableSelectType } from './ParameterTable';
 import { Eagle } from './Eagle';
 import { Errors } from './Errors';
 import { ParameterTable } from './ParameterTable';
@@ -8,6 +12,14 @@ import { GraphRenderer } from './GraphRenderer';
 import { GraphConfigurationsTable } from './GraphConfigurationsTable';
 import { SideWindow } from './SideWindow';
 import { GraphUpdater } from './GraphUpdater';
+
+export enum KeyboardShortcutPlatform {
+    All = "All",
+    Linux = "Linux",
+    Mac = "Mac",
+    Windows = "Windows",
+    Unknown = "Unknown"
+}
 
 enum Modifier {
     Alt = "Alt",
@@ -28,6 +40,15 @@ class Key {
     }
 }
 
+export interface KeyboardShortcutOptions {
+    id: string,
+    text: string,
+    keys?: Key[],
+    tags?: string[],
+    icon?: string,
+    run: (eagle: Eagle, event: KeyboardEvent | null) => void
+}
+
 export class KeyboardShortcut {
     id: string;
     text: string;
@@ -37,7 +58,7 @@ export class KeyboardShortcut {
     icon: string;
     run: (eagle: Eagle, event: KeyboardEvent | null) => void;
 
-    constructor(options: KeyboardShortcut.Options){
+    constructor(options: KeyboardShortcutOptions){
         this.id = options.id;
         this.text = options.text;
         this.run = options.run;
@@ -240,7 +261,7 @@ export class KeyboardShortcut {
         new KeyboardShortcut({
             id: "display_graph_as_json",
             text: "Display Graph As Json",
-            run: (eagle): void => {eagle.displayObjectAsJson(Eagle.FileType.Graph, eagle.logicalGraph());}
+            run: (eagle): void => {eagle.displayObjectAsJson(EagleFileType.Graph, eagle.logicalGraph());}
         }),
         // load/save
         // TODO: this one (open_graph_from_repo) does almost nothing! we should have a real modal
@@ -249,7 +270,7 @@ export class KeyboardShortcut {
             text: "Open Graph From Repo",
             keys: [new Key("g")],
             tags: ['git','repository','github','gitlab','load','canvas'],
-            run: (eagle): void => {eagle.changeRightWindowMode(Eagle.RightWindowMode.Repository); SideWindow.setShown('right',true);}
+            run: (eagle): void => {eagle.changeRightWindowMode(EagleRightWindowMode.Repository); SideWindow.setShown('right',true);}
         }),
         new KeyboardShortcut({
             id: "open_graph_from_local_disk",
@@ -263,7 +284,7 @@ export class KeyboardShortcut {
             text: "Open Palette From Repo",
             keys: [new Key("p")],
             tags: ['git','repository','github','gitlab','load','template'],
-            run: (eagle): void => {eagle.changeRightWindowMode(Eagle.RightWindowMode.Repository);SideWindow.setShown('right',true);}
+            run: (eagle): void => {eagle.changeRightWindowMode(EagleRightWindowMode.Repository);SideWindow.setShown('right',true);}
         }),
         new KeyboardShortcut({
             id: "open_palette_from_local_disk",
@@ -277,45 +298,45 @@ export class KeyboardShortcut {
             id: "save_graph_to_repo",
             text: "Save Graph To Repo",
             tags: ['git'],
-            run: (eagle): void => {eagle.commitToGit(Eagle.FileType.Graph);}
+            run: (eagle): void => {eagle.commitToGit(EagleFileType.Graph);}
         }),
         new KeyboardShortcut({
             id: "save_graph_to_repo_as",
             text: "Save Graph To Repo As",
             tags: ['git'],
-            run: (eagle): void => {eagle.commitToGitAs(Eagle.FileType.Graph);}
+            run: (eagle): void => {eagle.commitToGitAs(EagleFileType.Graph);}
         }),
         new KeyboardShortcut({
             id: "save_palette_to_repo",
             text: "Save Palette To Repo",
             tags: ['git'],
-            run: (eagle): void => {eagle.commitToGit(Eagle.FileType.Palette);}
+            run: (eagle): void => {eagle.commitToGit(EagleFileType.Palette);}
         }),
         new KeyboardShortcut({
             id: "save_palette_to_repo_as",
             text: "Save Palette To Repo As",
             tags: ['git'],
-            run: (eagle): void => {eagle.commitToGitAs(Eagle.FileType.Palette);}
+            run: (eagle): void => {eagle.commitToGitAs(EagleFileType.Palette);}
         }),
         new KeyboardShortcut({
             id: "save_graph_to_local_disk",
             text: "Save Graph To Local Disk",
-            run: (eagle): void => {eagle.saveFileToLocal(Eagle.FileType.Graph);}
+            run: (eagle): void => {eagle.saveFileToLocal(EagleFileType.Graph);}
         }),
         new KeyboardShortcut({
             id: "save_graph_to_local_disk_as",
             text: "Save Graph To Local Disk As",
-            run: (eagle): void => {eagle.saveAsFileToLocal(Eagle.FileType.Graph);}
+            run: (eagle): void => {eagle.saveAsFileToLocal(EagleFileType.Graph);}
         }),
         new KeyboardShortcut({
             id: "save_palette_to_local_disk",
             text: "Save Palette To Local Disk",
-            run: (eagle): void => {eagle.saveFileToLocal(Eagle.FileType.Palette);}
+            run: (eagle): void => {eagle.saveFileToLocal(EagleFileType.Palette);}
         }),
         new KeyboardShortcut({
             id: "save_palette_to_local_disk_as",
             text: "Save Palette To Local Disk As",
-            run: (eagle): void => {eagle.saveAsFileToLocal(Eagle.FileType.Palette);}
+            run: (eagle): void => {eagle.saveAsFileToLocal(EagleFileType.Palette);}
         }),
 
         // these are "smart saves", that use the current graph location (local or git), to save again in the same place
@@ -510,14 +531,14 @@ export class KeyboardShortcut {
             text: "Open Parameter Table",
             keys: [new Key("t")],
             tags: ['fields','field','node'],
-            run: (_eagle): void => {ParameterTable.toggleTable(Eagle.BottomWindowMode.NodeParameterTable, ParameterTable.SelectType.Normal);}
+            run: (_eagle): void => {ParameterTable.toggleTable(EagleBottomWindowMode.NodeParameterTable, ParameterTableSelectType.Normal);}
         }),
         new KeyboardShortcut({
             id: "open_graph_attributes_configuration_table",
             text: "Open Graph Attributes Configuration Table",
             keys: [new Key("t", Modifier.Shift)],
             tags: ['fields','field','node','favourites','favorites'],
-            run: (_eagle): void => {ParameterTable.toggleTable(Eagle.BottomWindowMode.ConfigParameterTable, ParameterTable.SelectType.Normal);}
+            run: (_eagle): void => {ParameterTable.toggleTable(EagleBottomWindowMode.ConfigParameterTable, ParameterTableSelectType.Normal);}
         }),
         new KeyboardShortcut({
             id: "open_graph_configurations_table",
@@ -530,21 +551,21 @@ export class KeyboardShortcut {
             text: "Open Repository",
             keys: [new Key("1")],
             tags: ['tab','tabs','window','menu','right'],
-            run: (eagle): void => {eagle.changeRightWindowMode(Eagle.RightWindowMode.Repository)}
+            run: (eagle): void => {eagle.changeRightWindowMode(EagleRightWindowMode.Repository)}
         }),
         new KeyboardShortcut({
             id: "open_translation_tab",
             text: "Open Translation",
             keys: [new Key("3")],
             tags: ['tab','tabs','window','menu','right'],
-            run: (eagle): void => {eagle.changeRightWindowMode(Eagle.RightWindowMode.TranslationMenu)}
+            run: (eagle): void => {eagle.changeRightWindowMode(EagleRightWindowMode.TranslationMenu)}
         }),
         new KeyboardShortcut({
             id: "open_hierarchy_tab",
             text: "Open Hierarchy",
             keys: [new Key("2")],
             tags: ['tab','tabs','window','menu','right'],
-            run: (eagle): void => {eagle.changeRightWindowMode(Eagle.RightWindowMode.Hierarchy)}
+            run: (eagle): void => {eagle.changeRightWindowMode(EagleRightWindowMode.Hierarchy)}
         }),
 
         // undo/redo
@@ -758,7 +779,7 @@ export class KeyboardShortcut {
         return ks ? ks.run : undefined;
     }
 
-    static detectPlatform(): KeyboardShortcut.Platform {
+    static detectPlatform(): KeyboardShortcutPlatform {
         // if a browser has no support for navigator.userAgentData.platform use platform as fallback
         let userAgent = (<any>navigator)?.userAgentData?.platform?.toLowerCase();
         if (typeof userAgent === "undefined"){
@@ -766,46 +787,26 @@ export class KeyboardShortcut {
         }
 
         if (userAgent.includes('win')) {
-            return KeyboardShortcut.Platform.Windows;
+            return KeyboardShortcutPlatform.Windows;
         } else if (userAgent.includes('mac')) {
-            return KeyboardShortcut.Platform.Mac;
+            return KeyboardShortcutPlatform.Mac;
         } else if (userAgent.includes('linux')) {
-            return KeyboardShortcut.Platform.Linux;
+            return KeyboardShortcutPlatform.Linux;
         }
-        return KeyboardShortcut.Platform.Unknown;
+        return KeyboardShortcutPlatform.Unknown;
     }
 
-    static modifierOKForPlatform(modifier: Modifier, platform: KeyboardShortcut.Platform): boolean {
+    static modifierOKForPlatform(modifier: Modifier, platform: KeyboardShortcutPlatform): boolean {
         // TODO: anything we should do for Linux?
 
-        if (modifier === Modifier.Ctrl && platform === KeyboardShortcut.Platform.Windows){
+        if (modifier === Modifier.Ctrl && platform === KeyboardShortcutPlatform.Windows){
             return false;
         }
-        if (modifier === Modifier.Alt && platform === KeyboardShortcut.Platform.Mac){
+        if (modifier === Modifier.Alt && platform === KeyboardShortcutPlatform.Mac){
             return false;
         }
 
         return true;
-    }
-}
-
-/* eslint-disable @typescript-eslint/no-namespace */
-export namespace KeyboardShortcut{
-    export enum Platform {
-        All = "All",
-        Linux = "Linux",
-        Mac = "Mac",
-        Windows = "Windows",
-        Unknown = "Unknown"
-    }
-
-    export interface Options {
-        id: string,
-        text: string,
-        keys?: Key[],
-        tags?: string[],
-        icon?: string,
-        run: (eagle: Eagle, event: KeyboardEvent | null) => void
     }
 }
     

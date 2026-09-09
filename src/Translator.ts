@@ -1,3 +1,5 @@
+import { RepositoryService } from './Repository';
+import { EagleFileType } from './Eagle';
 /*
 #
 #    ICRAR - International Centre for Radio Astronomy Research
@@ -26,9 +28,8 @@ import * as ko from "knockout";
 
 import { Eagle } from './Eagle';
 import { LogicalGraph } from './LogicalGraph';
-import { Setting } from './Setting';
+import { SchemaVersion, Setting, TranslatorMode } from './Setting';
 import { Utils } from './Utils';
-import { Repository } from "./Repository";
 
 export class Translator {
     numberOfIslands : ko.Observable<number>;
@@ -130,7 +131,7 @@ export class Translator {
         }
 
         // is the graph a local file?
-        const isLocalFile: boolean = eagle.logicalGraph().fileInfo().location.repositoryService() === Repository.Service.File;
+        const isLocalFile: boolean = eagle.logicalGraph().fileInfo().location.repositoryService() === RepositoryService.File;
 
         // check if the graph is committed before translation
         if (!Setting.findValue<boolean>(Setting.TEST_TRANSLATE_MODE, false) && !isLocalFile && this._checkGraphModified(eagle)){
@@ -167,13 +168,13 @@ export class Translator {
         const lgClone: LogicalGraph = eagle.logicalGraph().clone();
 
         // get the version of JSON we are using
-        const version: Setting.SchemaVersion = Setting.findValue<Setting.SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, Setting.SchemaVersion.Unknown);
+        const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, SchemaVersion.Unknown);
 
         // convert to JSON
         const jsonString: string = LogicalGraph.toJsonString(lgClone, true, version);
 
         // validate json
-        Utils.validateJSON(jsonString, Eagle.FileType.Graph, version);
+        Utils.validateJSON(jsonString, EagleFileType.Graph, version);
 
         const translatorData = {
             algo: algorithmName,
@@ -196,7 +197,7 @@ export class Translator {
     }
 
     algorithmVisible = (algorithm: string) : boolean => {
-        const normalTranslatorMode :boolean = Setting.findValue<Setting.TranslatorMode>(Setting.USER_TRANSLATOR_MODE, Setting.TranslatorMode.Normal) === Setting.TranslatorMode.Normal;
+        const normalTranslatorMode :boolean = Setting.findValue<TranslatorMode>(Setting.USER_TRANSLATOR_MODE, TranslatorMode.Normal) === TranslatorMode.Normal;
         if(!normalTranslatorMode){
             return true
         }
