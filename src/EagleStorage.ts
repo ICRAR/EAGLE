@@ -1,4 +1,4 @@
-import { Repository } from "./Repository";
+import { Repository, type RepositoryService } from "./Repository";
 import { Utils } from "./Utils";
 
 export class EagleStorage {
@@ -51,7 +51,7 @@ export class EagleStorage {
         });
     }
 
-    static async listCustomRepositories(service: Repository.Service): Promise<Repository[]> {
+    static async listCustomRepositories(service: RepositoryService): Promise<Repository[]> {
         return new Promise(async(resolve, reject) => {
             const customRepositories: Repository[] = [];
 
@@ -70,7 +70,7 @@ export class EagleStorage {
             };
 
             request.onsuccess = (event) => {
-                const repos: {id: RepositoryId, service: Repository.Service, name: string, branch: string}[] = (<any>event.target).result;
+                const repos: {id: RepositoryId, service: RepositoryService, name: string, branch: string}[] = (<any>event.target).result;
 
                 repos.forEach((repo) => {
                     if (repo.service !== service){

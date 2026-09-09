@@ -22,7 +22,7 @@
 #
 */
 
-import { Repository } from './Repository';
+import { Repository, RepositoryService } from './Repository';
 import { RepositoryFolder } from './RepositoryFolder';
 import { RepositoryFile } from './RepositoryFile';
 import { Utils } from './Utils';
@@ -34,7 +34,7 @@ export class GitLab {
             const repositories: Repository[] = [];
 
             // find and add custom gitlab repositories from browser storage
-            const customRepositories = await EagleStorage.listCustomRepositories(Repository.Service.GitLab);
+            const customRepositories = await EagleStorage.listCustomRepositories(RepositoryService.GitLab);
             repositories.push(...customRepositories);
 
             // fetch additional gitlab repositories from the server
@@ -49,7 +49,7 @@ export class GitLab {
 
             // add the repositories from the POST response
             for (const d of data){
-                repositories.push(new Repository(Repository.Service.GitLab, d.repository, d.branch, true));
+                repositories.push(new Repository(RepositoryService.GitLab, d.repository, d.branch, true));
             }
 
             resolve(repositories);
@@ -61,7 +61,7 @@ export class GitLab {
      */
     static async loadRepoContent(repository : Repository, path: string): Promise<void> {
         return new Promise(async(resolve, reject) => {
-            const token = Utils.getServiceToken(Repository.Service.GitLab);
+            const token = Utils.getServiceToken(RepositoryService.GitLab);
 
             // get location
             const location: Repository | RepositoryFolder | null = repository.findPath(path);
@@ -170,9 +170,9 @@ export class GitLab {
      * Gets the specified remote file from the server
      * @param filePath File path.
      */
-    static async openRemoteFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string): Promise<string> {
+    static async openRemoteFile(repositoryService : RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string): Promise<string> {
         return new Promise(async(resolve, reject) => {
-            const token = Utils.getServiceToken(Repository.Service.GitLab);
+            const token = Utils.getServiceToken(RepositoryService.GitLab);
 
             const fullFileName : string = Utils.joinPath(filePath, fileName);
 
@@ -206,9 +206,9 @@ export class GitLab {
         });
     }
 
-    static deleteRemoteFile(repositoryService : Repository.Service, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string){
+    static deleteRemoteFile(repositoryService : RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string){
         return new Promise(async(resolve, reject) => {
-            const token = Utils.getServiceToken(Repository.Service.GitLab);
+            const token = Utils.getServiceToken(RepositoryService.GitLab);
 
             if (token === null || token === "") {
                 Utils.showUserMessage("Access Token", "The GitLab access token is not set! To open GitLab repositories, set the token via settings.");

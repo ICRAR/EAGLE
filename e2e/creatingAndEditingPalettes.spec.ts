@@ -92,5 +92,24 @@ test('Palette loading continues after an unavailable palette', async ({ page }) 
     firstFailure: ['Missing Palette', 'Second Palette'],
     finalFailure: ['First Palette', 'Final Missing Palette']
   });
+
+  await page.close();
+});
+
+test('Load Palette navbar option opens the local file picker', async ({ page }) => {
+  await page.goto('http://localhost:8888/?tutorial=none');
+  await expect(page).toHaveTitle(/EAGLE/);
+
+  // Expert mode enables palette editing, which is the mode where the inverted
+  // permission check prevents this menu option from working.
+  await TestHelpers.setUIMode(page, 'Expert');
+  await page.locator('#navbarDropdownPalette').click();
+  await page.locator('span.dropDropDownParent').filter({ has: page.locator('#loadPalette') }).hover();
+
+  // Clicking Load should delegate to the hidden file input and emit a chooser.
+  const fileChooserPromise = page.waitForEvent('filechooser');
+  await page.locator('#loadPalette').click();
+  await fileChooserPromise;
+
   await page.close();
 });

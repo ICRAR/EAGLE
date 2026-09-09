@@ -1,6 +1,6 @@
 import * as ko from "knockout";
 
-import { Eagle } from './Eagle';
+import { EagleFileType } from './Eagle';
 import { GitHub } from './GitHub';
 import { GitLab } from "./GitLab";
 import type { FileLocation } from "./FileLocation";
@@ -9,11 +9,18 @@ import type { RepositoryFolder } from './RepositoryFolder';
 import type { RepositoryFile } from './RepositoryFile';
 import { Utils } from './Utils';
 
+export enum RepositoryService {
+    GitHub = "GitHub",
+    GitLab = "GitLab",
+    File = "File",
+    Url = "Url",
+    Unknown = "Unknown"
+}
 
 export class Repository {
     _id : RepositoryId
     name : string
-    service : Repository.Service
+    service : RepositoryService
     branch : string
     isBuiltIn : boolean
     isFetching: ko.Observable<boolean>
@@ -22,7 +29,7 @@ export class Repository {
     files : ko.ObservableArray<RepositoryFile>
     folders : ko.ObservableArray<RepositoryFolder>
 
-    constructor(service : Repository.Service, name : string, branch : string, isBuiltIn : boolean){
+    constructor(service : RepositoryService, name : string, branch : string, isBuiltIn : boolean){
         this._id = Id.generateRepositoryId();
         this.name = name;
         this.service = service;
@@ -59,9 +66,9 @@ export class Repository {
             this.expanded(!this.expanded());
         } else {
             switch(this.service){
-                case Repository.Service.GitHub:
+                case RepositoryService.GitHub:
                     return GitHub.loadRepoContent(this, "");
-                case Repository.Service.GitLab:
+                case RepositoryService.GitLab:
                     return GitLab.loadRepoContent(this, "");
                 default:
                     Utils.showUserMessage("Error", "Unknown repository service. Not GitHub or GitLab! (" + this.service + ")");
@@ -72,11 +79,11 @@ export class Repository {
     refresh = async () : Promise<void> => {
         return new Promise(async(resolve, reject) => {
             switch(this.service){
-                case Repository.Service.GitHub:
+                case RepositoryService.GitHub:
                     await GitHub.loadRepoContent(this, "");
                     resolve();
                     break;
-                case Repository.Service.GitLab:
+                case RepositoryService.GitLab:
                     GitLab.loadRepoContent(this, "");
                     resolve();
                     break;
@@ -91,7 +98,7 @@ export class Repository {
     findAllGraphs = async (callback: (file: RepositoryFile) => void | Promise<void>) : Promise<void> => {
         const traverseFolder = async (folder: RepositoryFolder) : Promise<void> => {
             for (const file of folder.files()){
-                if (file.type === Eagle.FileType.Graph){
+                if (file.type === EagleFileType.Graph){
                     await callback(file);
                 }
             }
@@ -103,7 +110,7 @@ export class Repository {
 
         // check top-level files
         for (const file of this.files()){
-            if (file.type === Eagle.FileType.Graph){
+            if (file.type === EagleFileType.Graph){
                 await callback(file);
             }
         }
@@ -210,7 +217,7 @@ export class Repository {
     expandAllAndFindGraphs = async (callback: (file: RepositoryFile) => void | Promise<void>) : Promise<void> => {
         const emitGraphs = async (files: RepositoryFile[]) : Promise<void> => {
             for (const file of files){
-                if (file.type === Eagle.FileType.Graph){
+                if (file.type === EagleFileType.Graph){
                     await callback(file);
                 }
             }
@@ -314,7 +321,7 @@ export class Repository {
     // a placeholder repository
     // used by some functions when a repository is not actually required, but a placeholder is required for the input arguments
     public static placeholder(){
-        return new Repository(Repository.Service.Unknown, "", "", false);
+        return new Repository(RepositoryService.Unknown, "", "", false);
     }
 
     // sorting order
@@ -340,8 +347,8 @@ export class Repository {
     }
 
     public static fileSortFunc(fileNameA: string, fileNameB: string) : number {
-        const aType : Eagle.FileType = Utils.getFileTypeFromFileName(fileNameA);
-        const bType : Eagle.FileType = Utils.getFileTypeFromFileName(fileNameB);
+        const aType : EagleFileType = Utils.getFileTypeFromFileName(fileNameA);
+        const bType : EagleFileType = Utils.getFileTypeFromFileName(fileNameB);
 
         if (aType !== bType){
             const aTypeNum : number = Utils.getFileTypeNum(aType);
@@ -367,11 +374,11 @@ export class Repository {
     public static async fetch(repository: Repository, path: string) : Promise<void> {
         return new Promise(async(resolve, reject) => {
             switch(repository.service){
-                case Repository.Service.GitHub:
+                case RepositoryService.GitHub:
                     await GitHub.loadRepoContent(repository, path);
                     resolve();
                     break;
-                case Repository.Service.GitLab:
+                case RepositoryService.GitLab:
                     GitLab.loadRepoContent(repository, path);
                     resolve();
                     break;
@@ -380,17 +387,6 @@ export class Repository {
                     reject("Unknown repository service. Not GitHub or GitLab!");
             }
         });
-    }
-}
-
-/* eslint-disable @typescript-eslint/no-namespace */
-export namespace Repository {
-    export enum Service {
-        GitHub = "GitHub",
-        GitLab = "GitLab",
-        File = "File",
-        Url = "Url",
-        Unknown = "Unknown"
     }
 }
 

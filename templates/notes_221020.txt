@@ -1,0 +1,17 @@
+789, 790 are related
+
+799 related to another shift-click-drag type issue
+
+all fields are select bug?
+
+check 812 still exists
+
+725 - 815 same (closed 725)
+
+individualised group of settings to localStorage (842)
+
+precious for field, persist for node (precious means it appears on the commandline even if empty)
+
+right click menu epic
+
+bugs first
