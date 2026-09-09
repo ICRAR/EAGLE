@@ -215,6 +215,7 @@ test('Create Branch and Delete Branch Actions', async ({ page }) => {
   // invalid branch names stay blocked and show validation feedback
   await openCreateBranchModal();
   await page.locator('#inputModalInput').fill('   ')
+  await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
   await page.locator('#inputModal button.affirmativeBtn').click()
   await expect(page.locator('#inputModal')).toBeVisible();
   await expect(page.locator('#inputModalInput')).toHaveClass(/is-invalid/)
@@ -223,7 +224,8 @@ test('Create Branch and Delete Branch Actions', async ({ page }) => {
   await TestHelpers.closeInputModalWithoutCompleting(page);
 
   await openCreateBranchModal();
-  await page.locator('#inputModalInput').fill('bad branch')
+  await page.locator('#inputModalInput').fill('bad branch');
+  await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
   await page.locator('#inputModal button.affirmativeBtn').click()
   await expect(page.locator('#inputModal')).toBeVisible();
   await expect(page.locator('#inputModalInput')).toHaveClass(/is-invalid/)
@@ -233,6 +235,7 @@ test('Create Branch and Delete Branch Actions', async ({ page }) => {
 
   await openCreateBranchModal();
   await page.locator('#inputModalInput').fill('bad..branch')
+  await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
   await page.locator('#inputModal button.affirmativeBtn').click()
   await expect(page.locator('#inputModal')).toBeVisible();
   await expect(page.locator('#inputModalInput')).toHaveClass(/is-invalid/)
@@ -242,7 +245,8 @@ test('Create Branch and Delete Branch Actions', async ({ page }) => {
 
   // verify successful create branch flow via UI
   await openCreateBranchModal();
-  await page.locator('#inputModalInput').fill(CREATED_BRANCH)
+  await page.locator('#inputModalInput').fill(CREATED_BRANCH);
+  await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
   await page.locator('#inputModal button.affirmativeBtn').click()
 
   const createBranchDialog = page.getByRole('dialog', { name: 'Create Branch' });
@@ -339,14 +343,20 @@ test('gitCommit filename validator UX', async ({ page }) => {
 
   await expect(page.locator('#gitCommitModal')).toBeVisible();
 
-  // Invalid extension should show inline feedback and disable commit.
+  // fill with an invalid name, then wait for validation to trigger and show feedback.
   await page.locator('#gitCommitModalFileNameInput').fill('invalid-name.txt');
+  await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
+
+  // Invalid extension should show inline feedback and disable commit.
   await expect(page.locator('#gitCommitModalFileNameInput')).toHaveClass(/is-invalid/);
   await expect(page.locator('#validationFeedback')).toContainText("File name must end with '.graph'.");
   await expect(page.locator('#gitCommitModalAffirmativeButton')).toBeDisabled();
 
-  // A valid extension should clear invalid state and re-enable commit.
+  // fill with valid name, then wait
   await page.locator('#gitCommitModalFileNameInput').fill('valid-name.graph');
+  await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
+
+  // A valid extension should clear invalid state and re-enable commit.
   await expect(page.locator('#gitCommitModalFileNameInput')).toHaveClass(/is-valid/);
   await expect(page.locator('#gitCommitModalAffirmativeButton')).toBeEnabled();
 

@@ -28,7 +28,7 @@
                     <!-- ko ifnot: $data.fileInfo().builtIn -->
                     <a href="#" data-bind="click: $root.closePalette" data-html="true"><span>Remove</span></a>
                     <!-- /ko -->
-                    <!-- ko if: $data.fileInfo().repositoryService !== Repository.Service.Unknown -->
+                    <!-- ko if: $data.fileInfo().repositoryService !== RepositoryService.Unknown -->
                     <a href="#" data-bind="click: function(){$root.reloadPalette($data, $index())}" data-html="true"><span>Reload</span></a>
                     <!-- /ko -->
                     <!-- ko if: Setting.findValue(Setting.ALLOW_PALETTE_EDITING) -->
@@ -42,7 +42,7 @@
                     <a href="#" data-bind="click: function(){$data.setSearchExclude(true)}"><span>Exclude From Search Filter</span></a>
                     <!-- /ko -->
                     <a href="#" data-bind="click: $data.copyUrl"><span>Copy URL</span></a>
-                    <a href="#" data-bind="click: function(){eagle.displayObjectAsJson(Eagle.FileType.Palette, $data);}"><span>Display as JSON</span></a>
+                    <a href="#" data-bind="click: function(){eagle.displayObjectAsJson(EagleFileType.Palette, $data);}"><span>Display as JSON</span></a>
                 </div>
                 <div class="accordion-item paletteWrapper" data-bind="attr: {'data-palette-index': $index}, event: { dragover: SideWindow.nodeDragOver, drop: $root.nodeDropPalette }">
                     <div class="accordion-header">

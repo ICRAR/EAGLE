@@ -1,4 +1,4 @@
-import { Errors } from './Errors';
+import { Errors, type ErrorsWarnings } from './Errors';
 import type { Field } from './Field';
 import type { LogicalGraph } from './LogicalGraph';
 import { Node } from './Node';
@@ -6,8 +6,8 @@ import type { Palette } from './Palette';
 
 export class ComponentUpdater {
 
-    static updateLogicalGraph(palettes: Palette[], graph: LogicalGraph): {updatedNodes: Node[], errorsWarnings: Errors.ErrorsWarnings} {
-        const errorsWarnings: Errors.ErrorsWarnings = {errors: [], warnings: []};
+    static updateLogicalGraph(palettes: Palette[], graph: LogicalGraph): {updatedNodes: Node[], errorsWarnings: ErrorsWarnings} {
+        const errorsWarnings: ErrorsWarnings = {errors: [], warnings: []};
         const updatedNodes: Node[] = [];
 
         // make sure we have a palette available for each component in the graph
@@ -21,7 +21,7 @@ export class ComponentUpdater {
         return {updatedNodes: updatedNodes, errorsWarnings: errorsWarnings};
     }
 
-    static updateNode(palettes: Palette[], node: Node, errorsWarnings: Errors.ErrorsWarnings): Node | null {
+    static updateNode(palettes: Palette[], node: Node, errorsWarnings: ErrorsWarnings): Node | null {
         let newVersion : Node | null = null;
 
             for (const palette of palettes){
