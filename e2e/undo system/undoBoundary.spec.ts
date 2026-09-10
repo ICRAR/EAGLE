@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { TestHelpers } from './TestHelpers';
+import { TestHelpers } from '../TestHelpers';
 
 test('Undo exhausted history warns on first boundary keypress', async ({ page }) => {
     await page.goto('http://localhost:8888/?tutorial=none');
