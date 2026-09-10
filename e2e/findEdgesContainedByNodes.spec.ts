@@ -43,6 +43,8 @@ test('findEdgesContainedByNodes handles graph iterators and partial selections',
     expect(result.graphEdgeCount).toBeGreaterThan(0);
     expect(result.allSelectedIds).toHaveLength(result.graphEdgeCount);
     expect(result.oneSelectedCount).toBe(0);
+
+    await page.close();
 });
 
 test('findDepthOfNode follows nested parents', async ({ page }) => {
@@ -88,4 +90,6 @@ test('findDepthOfNode follows nested parents', async ({ page }) => {
     });
 
     expect(depth.actual).toBe(depth.expected);
+    
+    await page.close();
 });
