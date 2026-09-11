@@ -5741,15 +5741,23 @@ $( document ).ready(function() {
     })
 
     $('.modal').on('hidden.bs.modal', function () {
-        $('.modal-dialog').css({"left":"0px", "top":"0px"})
-        $("#editFieldModal textarea").attr('style','')
-        $("#issuesDisplayAccordion").parent().parent().attr('style','')
+        const modal = $(this);
+        const dialog = modal.find('.modal-dialog') as JQuery<HTMLElement>;
+
+        //destroy any previous draggable instance on the modal dialog
+        dialog.draggable('destroy');
+        modal.find('.modal-header').off('mousedown.modalDrag');
+
+        //reset modal dialog position and styles
+        dialog.css({"left":"0px", "top":"0px"})
+        modal.find("#editFieldModal textarea").attr('style','')
+        modal.find("#issuesDisplayAccordion").parent().parent().attr('style','')
         //reset parameter table selection
         ParameterTable.resetSelection()
 
         //reset the modal dialog pointer events so that the modal can be closed when clicked outside
-        $('.modal').css({"pointerEvents":"auto"})
-        $('.modal .modal-content').css({"pointerEvents":"auto"})
+        modal.css({"pointerEvents":"auto"})
+        modal.find('.modal-content').css({"pointerEvents":"auto"})        
     });  
 
     $('.modal').on('show.bs.modal',function(){
@@ -5766,12 +5774,12 @@ $( document ).ready(function() {
         const modal = $(this);
 
         // modal draggable
-        ($('.modal-dialog') as JQuery<HTMLElement>).draggable({
+        (modal.find('.modal-dialog') as JQuery<HTMLElement>).draggable({
             handle: '.modal-header'
         });
 
         //this is a system that allows graph interaction with a modal open, it triggers when the user clicks and drags the modal header
-        $(event.target).find('.modal-header').on('mousedown', function(){
+        $(event.target).find('.modal-header').on('mousedown.modalDrag', function(){
             modal.css({"pointerEvents":"none"})
             modal.find('.modal-content').css({"pointerEvents":"all"})
             $('.modal-backdrop').remove()
