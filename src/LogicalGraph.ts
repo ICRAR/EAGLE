@@ -141,7 +141,7 @@ export class LogicalGraph {
         }
 
         // saving the id of the active graph configuration
-        result.activeGraphConfigId = Eagle.getInstance().logicalGraph().activeGraphConfigId();
+        result.activeGraphConfigId = graph.activeGraphConfigId();
 
         return result;
     }
@@ -195,7 +195,7 @@ export class LogicalGraph {
         }
 
         // saving the id of the active graph configuration
-        result.activeGraphConfigId = Eagle.getInstance().logicalGraph().activeGraphConfigId();
+        result.activeGraphConfigId = graph.activeGraphConfigId();
         
         return result;
     }
