@@ -626,6 +626,17 @@ export class LogicalGraph {
         return undefined;
     }
 
+    getNodeByIndex = (index: number): Node | undefined => {
+        let i = 0;
+        for (const node of this.nodes().values()){
+            if (i === index){
+                return node;
+            }
+            i++;
+        }
+        return undefined;
+    }
+
     addEdgeComplete = (edge : Edge) => {
         this.edges().set(edge.getId(), edge);
         this.edges.valueHasMutated();
