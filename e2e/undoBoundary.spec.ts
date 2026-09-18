@@ -64,6 +64,7 @@ test('Undo exhausted history warns on first boundary keypress', async ({ page })
     await expect.poll(async () => await TestHelpers.getNodeCount(page)).toBe(0);
 
     await page.locator('button[data-notify="dismiss"]').first().click();
+
     await page.close();
 });
 
@@ -122,5 +123,6 @@ test('Undo still works after add undo add branch', async ({ page }) => {
     await expect.poll(async () => await TestHelpers.getNodeCount(page)).toBe(0);
 
     await page.locator('button[data-notify="dismiss"]').first().click();
+    
     await page.close();
 });
