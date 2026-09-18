@@ -73,9 +73,6 @@
                                 <button type="button" class="iconHoverEffect" data-bind="click: function(){Utils.showModelDataModal('Graph Configuration Info', $data.fileInfo())}, eagleTooltip:'Show Graph Configuration Info', clickBubble:false">
                                     <i class="material-symbols-outlined">info</i>
                                 </button>
-                                <button type="button" class="iconHoverEffect" data-bind="click: ParameterTable.requestEditConfig, eagleTooltip:'Edit', clickBubble:false">
-                                    <i class="material-symbols-outlined">edit</i>
-                                </button>
                                 <button type="button" class="iconHoverEffect" data-bind="click: $root.logicalGraph().removeGraphConfig, eagleTooltip:'Remove Config from Graph', clickBubble:false">
                                     <i class="material-symbols-outlined">delete</i>
                                 </button>
@@ -83,6 +80,7 @@
                                     <button type="button" class="material-symbols-outlined md-18 dropdown-toggle dropdown-control repoTripleDot iconHoverEffect" data-bs-toggle="dropdown" aria-label="More graph configuration actions">more_vert</button>
                                     <div class="dropdown-menu dropdown-area">
                                         <a href="#" class="btmWindowDuplicateBtn" data-bind="click: $root.duplicateGraphConfig"><span>Duplicate</span></a>
+                                        <a href="#" data-bind="click: ParameterTable.requestEditConfig"><span>Edit</span></a>
                                         <a href="#" data-bind="click: function(){$root.displayObjectAsJson(EagleFileType.GraphConfig, $data)}"><span>Display Config as JSON</span></a>
                                         <a href="#" data-bind="click: $root.saveGraphConfigAs"><span>Save Config As</span></a>
                                     </div>
