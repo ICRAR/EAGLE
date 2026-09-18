@@ -57,16 +57,6 @@ test('Undo after fixAll does not reintroduce fixed errors', async ({ page }) => 
         return Array.from(eagle.logicalGraph().nodes().keys()) as string[];
     });
 
-    // inspect browser globals for debugging purposes
-    const globals = await page.evaluate(() => ({
-        eagle: typeof (window as any).eagle,
-        eagleFileType: typeof (window as any).EagleFileType,
-        graph: (window as any).EagleFileType?.Graph,
-        url: window.location.href,
-    }));
-
-    console.log('Browser globals:', globals);
-
     // delete first node via the eagle API directly
     await page.evaluate(async (id: string) => {
         const eagle = (window as any).eagle;
