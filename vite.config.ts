@@ -1,0 +1,18 @@
+import { defineConfig } from "vite";
+import vue from "@vitejs/plugin-vue";
+
+export default defineConfig({
+    plugins: [vue()],
+    build: {
+        outDir: "static/vue",
+        emptyOutDir: true,
+        manifest: true,
+        sourcemap: true,
+        rollupOptions: {
+            input: "src/vuePilotEntry.ts",
+            output: {
+                entryFileNames: "vuePilotEntry.js",
+            },
+        },
+    },
+});

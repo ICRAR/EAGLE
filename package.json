@@ -33,7 +33,6 @@
     "@types/jquery": "^3.3.38",
     "@types/jquery-migrate": "^3.3.3",
     "@types/jqueryui": "^1.12.24",
-    "@types/node": "^14.0.11",
     "ajv": "^8.17.1",
     "bootstrap": "^5.1.1",
     "easy-pie-chart": "^2.1.7",
@@ -44,12 +43,16 @@
     "marked": "^18.0.5",
     "marked-highlight": "^2.2.4",
     "material-symbols": "^0.32.0",
-    "typescript": "^6.0.0"
+    "typescript": "^6.0.0",
+    "vue": "^3.5.43"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.1",
+    "@types/node": "^22.20.3",
     "@typescript-eslint/eslint-plugin": "^8.66.0",
     "@typescript-eslint/parser": "^8.66.0",
-    "eslint": "^9.39.5"
+    "@vitejs/plugin-vue": "^6.0.9",
+    "eslint": "^9.39.5",
+    "vite": "^7.3.6"
   }
 }

@@ -455,6 +455,10 @@ export class Modals {
         });
 
         // #settingsModal - showSettingsModal()
+        document.addEventListener('eagle:settings-mode-changed', function(){
+            $('#settingsModal').data('completed', true);
+        });
+
         $('#settingsModal').on('shown.bs.modal', function(){
             $('#settingsModal').data('completed', false);
             Setting.copy();

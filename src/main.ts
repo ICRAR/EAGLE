@@ -280,6 +280,7 @@ $(function(){
     //applying html ko bindings
     ko.applyBindings(eagle, document.getElementById("tabTitle"));
     ko.applyBindings(eagle);
+    window.dispatchEvent(new CustomEvent("eagle:ready"));
     
     //changing errors mode from loading to graph as eagle is now ready and finished loading
     eagle.errorsMode(Mode.Graph);
