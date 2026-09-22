@@ -86,8 +86,8 @@ export class GraphUpdaterFile {
         this.preFixNumWarnings = ko.observable(0);
         this.postFixNumErrors = ko.observable(0);
         this.postFixNumWarnings = ko.observable(0);
-        this.updatedFileUrl = ko.observable(null);
-        this.updatedPathAndName = ko.observable(null);
+        this.updatedFileUrl = ko.observable("");
+        this.updatedPathAndName = ko.observable("");
     }
 }
 
@@ -99,8 +99,8 @@ export class GraphUpdater {
 
     static autoFix: ko.Observable<boolean> = ko.observable(true);
 
-    static sourceRepository: Repository = null;
-    static destinationRepository: Repository = null;
+    static sourceRepository: Repository | null = null;
+    static destinationRepository: Repository | null = null;
     static updatedLogicalGraphs: ko.ObservableArray<GraphUpdaterFile> = ko.observableArray([]);
 
     // NOTE: for use in translation of OJS object to internal graph representation
@@ -328,6 +328,12 @@ export class GraphUpdater {
     }
 
     static async update(): Promise<void> {
+        if (this.sourceRepository === null){
+            Utils.showNotification("Error", "Source repository not set", "danger");
+            this.state(GraphUpdaterStatus.Start);
+            return;
+        }
+
         this.state(GraphUpdaterStatus.Updating);
 
         // determine the correct function to load the file(s), based on the source repository service
@@ -443,6 +449,12 @@ export class GraphUpdater {
     }
 
     static async push(): Promise<void> {
+        if (this.sourceRepository === null){
+            Utils.showNotification("Error", "Source repository not set", "danger");
+            GraphUpdater.state(GraphUpdaterStatus.Start);
+            return;
+        }
+
         // get destination repository or handle custom option
         const destRepoValue = $('#graphUpdaterModalDestinationRepositorySelect').val() as string;
 

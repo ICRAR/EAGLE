@@ -729,7 +729,7 @@ export class Eagle {
     }, this);
 
     // if selectedObjects contains nothing but one node, return the node, else null
-    selectedVisual : ko.PureComputed<Visual> = ko.pureComputed(() : Visual => {
+    selectedVisual : ko.PureComputed<Visual | null> = ko.pureComputed(() : Visual | null => {
         if (this.selectedObjects().length !== 1){
             return null;
         }
@@ -983,7 +983,7 @@ export class Eagle {
             const reader = new FileReader();
             reader.readAsText(file, "UTF-8");
             reader.onload = async (evt) => {
-                let data: string = evt.target?.result?.toString();
+                let data: string | undefined = evt.target?.result?.toString();
 
                 if (!data) {
                     console.error("loadLocalGraphFile: file is empty or could not be read");
@@ -1033,7 +1033,7 @@ export class Eagle {
             const reader = new FileReader();
             reader.readAsText(file, "UTF-8");
             reader.onload = async (evt) => {
-                let data: string = evt.target?.result?.toString();
+                let data: string | undefined = evt.target?.result?.toString();
 
                 if (!data) {
                     console.error("insertLocalGraphFile: file is empty or could not be read");
@@ -1472,7 +1472,7 @@ export class Eagle {
             const reader = new FileReader();
             reader.readAsText(file, "UTF-8");
             reader.onload = (evt) => {
-                let data: string = evt.target?.result?.toString();
+                let data = evt.target?.result?.toString();
 
                 if (!data) {
                     console.error("loadLocalPaletteFile: file is empty or could not be read");
@@ -1552,7 +1552,7 @@ export class Eagle {
             const reader = new FileReader();
             reader.readAsText(file, "UTF-8");
             reader.onload = (evt) => {
-                let data: string = evt.target?.result?.toString();
+                let data = evt.target?.result?.toString();
 
                 if (!data) {
                     console.error("loadLocalGraphConfigFile: file is empty or could not be read");
@@ -5342,7 +5342,7 @@ export class Eagle {
 
     editTextVisualContent = async (visual ?: Visual): Promise<void> => {
         const markdownEditingEnabled: boolean = Setting.findValue<boolean>(Setting.MARKDOWN_EDITING_ENABLED, false);
-        const thisVisual : Visual = visual || this.selectedVisual();
+        const thisVisual = visual || this.selectedVisual();
 
         // abort if no node is selected
         if (thisVisual === null) {

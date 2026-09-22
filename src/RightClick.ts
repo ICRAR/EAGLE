@@ -33,9 +33,15 @@ export class RightClick {
         $(menuElement).find('.contextMenuDropdown').hide()
     }
 
-    // TODO: global event
-    static checkSearchField() : void {
-        const searchField = $((event as InputEvent).target)
+    static checkSearchField(inputEvent?: Event) : void {
+        const searchFieldTarget = inputEvent?.target ?? document.getElementById('rightClickSearchBar')
+
+        if (!(searchFieldTarget instanceof HTMLInputElement)) {
+            console.warn('Search field not found in checkSearchField()');
+            return;
+        }
+
+        const searchField = $(searchFieldTarget)
 
         if (typeof searchField === 'undefined') {
             console.warn('Search field not found in checkSearchField()');
@@ -580,7 +586,7 @@ export class RightClick {
                         <a onclick="RightClick.clearSearchField()">
                             <i class="material-symbols-outlined md-18 searchBarIconClose">close</i>
                         </a>
-                        <input id="rightClickSearchBar" autocomplete="off" type="text" placeholder="Search" oninput="RightClick.checkSearchField()" >
+                        <input id="rightClickSearchBar" autocomplete="off" type="text" placeholder="Search" oninput="RightClick.checkSearchField(event)" >
                     </div>` 
 
 //canvas right click options
@@ -738,7 +744,6 @@ export class RightClick {
             }
         }
         // adding a listener to function options that closes the menu if an option is clicked
-        // TODO: get event from somewhere instead of global
-        $('#customContextMenu a').on('click',function(){if($((thisEvent).target).parents('.searchBarContainer').length){return}RightClick.closeCustomContextMenu(true)})
+        $('#customContextMenu a').on('click',function(event){if($(event.target).parents('.searchBarContainer').length){return}RightClick.closeCustomContextMenu(true)})
     }
 }

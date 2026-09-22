@@ -285,7 +285,7 @@ export class Utils {
         }
     }
 
-    static translateStringToFileType(fileType : string) : EagleFileType {
+    static translateStringToFileType(fileType: string | undefined) : EagleFileType {
         // check input parameter is a string
         if (typeof fileType !== 'string'){
             console.warn("Can't determine file type, not a string");

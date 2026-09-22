@@ -126,7 +126,7 @@ export class Repository {
         const pathParts: string[] = path.split('/').filter((pathPart) => pathPart !== "");
 
         for (const pathPart of pathParts){
-            const folders = pointer === null ? this.folders() : pointer.folders();
+            const folders : RepositoryFolder[] = pointer === null ? this.folders() : pointer.folders();
             const nextPointer = folders.find((folder) => folder.name === pathPart) ?? null;
 
             if (nextPointer === null){
@@ -150,7 +150,7 @@ export class Repository {
             const pathParts: string[] = path.split('/').filter((pathPart) => pathPart !== "");
 
             for (const pathPart of pathParts){
-                const folders = pointer === null ? this.folders() : pointer.folders();
+                const folders : RepositoryFolder[] = pointer === null ? this.folders() : pointer.folders();
                 const nextPointer = folders.find((folder) => folder.name === pathPart) ?? null;
 
                 if (nextPointer === null){
@@ -242,7 +242,7 @@ export class Repository {
             const pathParts: string[] = path.split('/').filter((pathPart) => pathPart !== "");
 
             for (const pathPart of pathParts){
-                const folders = pointer === null ? this.folders() : pointer.folders();
+                const folders : RepositoryFolder[] = pointer === null ? this.folders() : pointer.folders();
                 const nextPointer = folders.find((folder) => folder.name === pathPart) ?? null;
 
                 if (nextPointer === null){
@@ -276,7 +276,7 @@ export class Repository {
         let parentPointer: RepositoryFolder | null = null;
 
         for (const pathPart of pathParts){
-            const folders = pointer === null ? this.folders() : pointer.folders();
+            const folders : RepositoryFolder[] = pointer === null ? this.folders() : pointer.folders();
             const nextPointer = folders.find((folder) => folder.name === pathPart) ?? null;
 
             if (nextPointer === null){
