@@ -33,7 +33,7 @@ export class Repositories {
                 break;
             case EagleFileType.Palette: {
                 const palette = eagle.findPalette(file.name, false);
-                isModified = typeof palette !== "undefined" && palette.fileInfo().modified;
+                isModified = palette?.fileInfo().modified ?? false;
                 break;
             }
             case EagleFileType.JSON:

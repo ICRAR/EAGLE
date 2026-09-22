@@ -15,15 +15,13 @@ ko.bindingHandlers.eagleTooltip = {
 
             // read the aria-describedby parameter of the current element, the
             // value of this element is the id of the tooltip
-            const tooltipElementId : string = element.getAttribute('aria-describedby');
+            const tooltipElementId : string | null = element.getAttribute('aria-describedby');
 
             // if tooltip id is not null, remove the tooltip from the DOM
-            if (tooltipElementId !== null && tooltipElementId.startsWith('tooltip')){
+            if (tooltipElementId?.startsWith('tooltip')){
                 const tooltipElement = document.getElementById(tooltipElementId);
 
-                if (tooltipElement){
-                    tooltipElement.remove();
-                }
+                tooltipElement?.remove();
             }
         });
     },

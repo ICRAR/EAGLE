@@ -160,7 +160,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
         switch(dataType){
             case 'inputPort':
                 for(const edge of eagle.logicalGraph().getEdges()){
-                    if(field != null && field.getId()===edge.getDestPort().getId()){
+                    if(field?.getId()===edge.getDestPort().getId()){
                         const adjacentNode: Node = edge.getSrcNode();
                         
                         if (adjacentNode === null){
@@ -176,7 +176,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
             case 'outputPort':
                 for(const edge of eagle.logicalGraph().getEdges()){
-                    if(field != null && field.getId()===edge.getSrcPort().getId()){
+                    if(field?.getId()===edge.getSrcPort().getId()){
                         const adjacentNode: Node = edge.getDestNode();
 
                         if (adjacentNode === null){
@@ -2676,7 +2676,7 @@ export class GraphRenderer {
         if (srcNode !== null){
             const srcPort : Field = edge.getSrcPort();
 
-            if (srcPort !== null && srcPort.getIsEvent()){
+            if (srcPort?.getIsEvent()){
                 normalColor = EagleConfig.getColor('edgeEvent');
                 selectedColor = EagleConfig.getColor('edgeEventSelected');
             }

@@ -1551,7 +1551,7 @@ export class Utils {
             const dropClassField = node.findFieldByDisplayText(FieldName.DROP_CLASS);
 
             // by default, update PythonApp to a DALiuGEApp, unless dropclass field value indicates it is a PyFuncApp
-            if (dropClassField && dropClassField.getValue() === Daliuge.DEFAULT_PYFUNCAPP_DROPCLASS_VALUE){
+            if (dropClassField?.getValue() === Daliuge.DEFAULT_PYFUNCAPP_DROPCLASS_VALUE){
                 return CategoryName.PyFuncApp;
             } else {
                 return CategoryName.DALiuGEApp;

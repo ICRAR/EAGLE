@@ -410,7 +410,7 @@ export class Palette {
             }
 
             // delete the input application
-            if (inputApplication && inputApplication.getId() === id){
+            if (inputApplication?.getId() === id){
                 this.nodes().delete(inputApplication.getId());
                 this.nodes.valueHasMutated();
                 node.setInputApplication(null);
@@ -418,7 +418,7 @@ export class Palette {
             }
 
             // delete the output application
-            if (outputApplication && outputApplication.getId() === id){
+            if (outputApplication?.getId() === id){
                 this.nodes().delete(outputApplication.getId());
                 this.nodes.valueHasMutated();
                 node.setOutputApplication(null);

@@ -273,7 +273,7 @@ export class TestHelpers {
         let x = Math.max(80, Math.min(size.width - 80, Math.floor(size.width / 2 + Math.cos(angle) * radius)));
         let y = Math.max(80, Math.min(size.height - 120, Math.floor(size.height / 2 + Math.sin(angle) * radius)));
 
-        if (TestHelpers.lastContextMenuPoint && TestHelpers.lastContextMenuPoint.x === x && TestHelpers.lastContextMenuPoint.y === y) {
+        if (TestHelpers.lastContextMenuPoint?.x === x && TestHelpers.lastContextMenuPoint?.y === y) {
             x = Math.max(80, Math.min(size.width - 80, x + 35));
             y = Math.max(80, Math.min(size.height - 120, y + 20));
         }

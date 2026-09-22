@@ -30,84 +30,17 @@ module.exports = [
             "node_modules/",
         ],
 
-        /*
-            These overrides are staged to match the lint rollout plan.
-            Keep only Commit A-critical exceptions enabled in this branch.
-            Re-enable the others when you move into Commit B/Commit C/JSON-typing-plan work.
-        */
         overrides: [
             {
                 files: [
                     "e2e/TestHelpers.ts",
                 ],
                 rules: {
-                    // Commit A: keep this off for the intentional "while (true)" wait loop in TestHelpers.
                     "no-constant-condition": "off",
-
-                    // Commit B: re-enable by commenting this override out once promise/condition strictness work begins.
-                    // "@typescript-eslint/no-misused-promises": "off",
-                    // "@typescript-eslint/await-thenable": "off",
-                    // "@typescript-eslint/strict-boolean-expressions": "off",
-                    // "@typescript-eslint/no-unnecessary-condition": "off",
-                    // "@typescript-eslint/prefer-nullish-coalescing": "off",
-                    // "@typescript-eslint/prefer-optional-chain": "off",
-
-                    // JSON Typing Plan (EAGLE-1679): re-enable by commenting this override out after typed JSON loader refactor.
-                    // "@typescript-eslint/no-explicit-any": "off",
-                    // "@typescript-eslint/no-unsafe-assignment": "off",
-                    // "@typescript-eslint/no-unsafe-member-access": "off",
-                    // "@typescript-eslint/no-unsafe-call": "off",
-                    // "@typescript-eslint/no-unsafe-argument": "off",
-                    // "@typescript-eslint/no-unsafe-return": "off"
                 },
             },
-
-            // JSON Typing Plan (EAGLE-1679): re-enable this override block before running the strict unsafe/any rules.
-            // {
-            //     files: [
-            //         "e2e/cloneLogicalGraph.spec.ts",
-            //         "e2e/undoAfterFixAll.spec.ts"
-            //     ],
-            //     rules: {
-            //         "@typescript-eslint/no-explicit-any": "off",
-            //         "@typescript-eslint/no-unsafe-assignment": "off",
-            //         "@typescript-eslint/no-unsafe-member-access": "off",
-            //         "@typescript-eslint/no-unsafe-call": "off",
-            //         "@typescript-eslint/no-unsafe-argument": "off",
-            //         "@typescript-eslint/no-unsafe-return": "off"
-            //     }
-            // },
-
-            // JSON Typing Plan (EAGLE-1679): re-enable this override block before running the strict unsafe/any rules.
-            // {
-            //     files: [
-            //         "src/Node.ts",
-            //         "src/LogicalGraph.ts",
-            //         "src/Utils.ts",
-            //         "src/Eagle.ts",
-            //         "src/Field.ts",
-            //         "src/FileInfo.ts",
-            //         "src/Edge.ts",
-            //         "src/Palette.ts",
-            //         "src/ParameterTable.ts",
-            //         "src/GraphConfig.ts",
-            //         "src/GraphUpdater.ts"
-            //     ],
-            //     rules: {
-            //         "@typescript-eslint/no-explicit-any": "off",
-            //         "@typescript-eslint/no-unsafe-assignment": "off",
-            //         "@typescript-eslint/no-unsafe-member-access": "off",
-            //         "@typescript-eslint/no-unsafe-call": "off",
-            //         "@typescript-eslint/no-unsafe-argument": "off",
-            //         "@typescript-eslint/no-unsafe-return": "off"
-            //     }
-            // }
         ],
         rules: {
-            // =====================
-            // Commit A (enable now)
-            // =====================
-            // Safer mechanical fixes and broad JS hygiene.
             "@typescript-eslint/no-inferrable-types": "off",
             "@typescript-eslint/ban-types": "off",
             "@typescript-eslint/no-this-alias": "error",
@@ -116,8 +49,10 @@ module.exports = [
             "@typescript-eslint/no-empty-function": "error",
             "@typescript-eslint/consistent-type-imports": "error",
             "@typescript-eslint/no-array-constructor": "error",
-            // Commit D (JSON typing hardening): re-enable as "error" after typed JSON loader refactor.
+
+            //"@typescript-eslint/no-explicit-any": "error",
             "@typescript-eslint/no-explicit-any": "off",
+
             "@typescript-eslint/explicit-module-boundary-types": "off",
 
             "no-constructor-return": "error",
@@ -200,37 +135,23 @@ module.exports = [
             "prefer-const": "error",
             "no-var": 2,
 
-            // =====================
-            // Commit B (commented)
-            // =====================
-            // Promise handling and conditional strictness.
-            // "@typescript-eslint/no-floating-promises": "error",
-            // "@typescript-eslint/no-misused-promises": "error",
-            // "@typescript-eslint/await-thenable": "error",
-            // "@typescript-eslint/return-await": ["error", "in-try-catch"],
-            // "@typescript-eslint/no-unnecessary-condition": "error",
-            // "@typescript-eslint/strict-boolean-expressions": "error",
-            // "@typescript-eslint/prefer-nullish-coalescing": "error",
-            // "@typescript-eslint/prefer-optional-chain": "error",
-
-            // =====================
-            // Commit C (commented)
-            // =====================
-            // Broader TS patterns that are likely to require code refactors.
-            // "@typescript-eslint/no-require-imports": "error",
-            // "@typescript-eslint/no-useless-empty-export": "error",
+            //"@typescript-eslint/no-floating-promises": "error",
+            //"@typescript-eslint/no-misused-promises": "error",
+            //"@typescript-eslint/await-thenable": "error",
+            //"@typescript-eslint/return-await": ["error", "in-try-catch"],
+            //"@typescript-eslint/no-unnecessary-condition": "error",
+            //"@typescript-eslint/strict-boolean-expressions": "error",
+            //"@typescript-eslint/prefer-nullish-coalescing": "error",
+            "@typescript-eslint/prefer-optional-chain": "error",
+            "@typescript-eslint/no-require-imports": "error",
+            "@typescript-eslint/no-useless-empty-export": "error",
             "@typescript-eslint/no-namespace": ["error", { "allowDeclarations": true }],
-            // "@typescript-eslint/ban-ts-comment": ["error", { "ts-ignore": true, "ts-nocheck": true, "ts-check": false, "ts-expect-error": "allow-with-description", "minimumDescriptionLength": 5 }],
-
-            // =============================================================
-            // Commit D: JSON typing hardening / EAGLE-1679 (mostly commented)
-            // =============================================================
-            // Re-enable once the parsed JSON/OJS/V4 loader path is strongly typed.
-            // "@typescript-eslint/no-explicit-any": "error",
-            // "@typescript-eslint/no-unsafe-assignment": "error",
-            // "@typescript-eslint/no-unsafe-member-access": "error",
-            // "@typescript-eslint/no-unsafe-call": "error",
-            // "@typescript-eslint/no-unsafe-return": "error"
+            "@typescript-eslint/ban-ts-comment": ["error", { "ts-ignore": true, "ts-nocheck": true, "ts-check": false, "ts-expect-error": "allow-with-description", "minimumDescriptionLength": 5 }],
+            //"@typescript-eslint/no-unsafe-assignment": "error",
+            //"@typescript-eslint/no-unsafe-member-access": "error",
+            //"@typescript-eslint/no-unsafe-call": "error",
+            //"@typescript-eslint/no-unsafe-argument": "error",
+            //"@typescript-eslint/no-unsafe-return": "error"
         },
     }),
 ];

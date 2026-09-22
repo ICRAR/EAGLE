@@ -2097,7 +2097,7 @@ export class Node {
         // check that children have this as the parent
         for (const child of node.children().values()){
             const childParent = child.parent();
-            if (childParent === null || childParent.getId() !== node.getId()){
+            if (childParent?.getId() !== node.getId()){
                 const message: string = "Node (" + node.getName() + ") has child (" + child.getName() + "), but is not that node's parent.";
                 const issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
                 node.issues().push({issue:issue, validity:Validity.Error});
