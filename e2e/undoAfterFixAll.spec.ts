@@ -40,7 +40,7 @@ test('Undo after fixAll does not reintroduce fixed errors', async ({ page }) => 
     await page.locator('div[data-notify="container"]').waitFor({ state: 'detached' });
 
     // Wait until graph state settles after applying fixes.
-    await expect.poll(async () => await TestHelpers.getNumWarningsErrors(page)).toBeLessThanOrEqual(initialCount);
+    await expect.poll(() => TestHelpers.getNumWarningsErrors(page)).toBeLessThanOrEqual(initialCount);
 
     // capture the post-fix count — this is the count that must be preserved after undo
     const postFixCount = await TestHelpers.getNumWarningsErrors(page);
@@ -66,7 +66,7 @@ test('Undo after fixAll does not reintroduce fixed errors', async ({ page }) => 
             await eagle.deleteSelection(false, true, false);
         }
     }, nodeIds[0]);
-    await expect.poll(async () => await TestHelpers.getNodeCount(page)).toBe(nodeCount - 1);
+    await expect.poll(() => TestHelpers.getNodeCount(page)).toBe(nodeCount - 1);
 
     // delete second node
     await page.evaluate(async (id: string) => {
@@ -77,7 +77,7 @@ test('Undo after fixAll does not reintroduce fixed errors', async ({ page }) => 
             await eagle.deleteSelection(false, true, false);
         }
     }, nodeIds[1]);
-    await expect.poll(async () => await TestHelpers.getNodeCount(page)).toBe(nodeCount - 2);
+    await expect.poll(() => TestHelpers.getNodeCount(page)).toBe(nodeCount - 2);
 
     // verify two nodes were deleted
     const nodeCountAfterDelete = await TestHelpers.getNodeCount(page);
@@ -85,7 +85,7 @@ test('Undo after fixAll does not reintroduce fixed errors', async ({ page }) => 
 
     // undo once (restores one deletion)
     await TestHelpers.undo(page);
-    await expect.poll(async () => await TestHelpers.getNodeCount(page)).toBe(nodeCount - 1);
+    await expect.poll(() => TestHelpers.getNodeCount(page)).toBe(nodeCount - 1);
 
     // one node should be back
     const nodeCountAfterUndo = await TestHelpers.getNodeCount(page);

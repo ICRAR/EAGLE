@@ -83,7 +83,7 @@ test('Undo recomputes navbar graph issues state', async ({ page }) => {
     await TestHelpers.setShortDescription(page, 'Undo regression graph');
     await TestHelpers.setDetailedDescription(page, 'Graph used to verify navbar issue recomputation after undo.');
 
-    await expect.poll(async () => await TestHelpers.getNumWarningsErrors(page)).toBe(0);
+    await expect.poll(() => TestHelpers.getNumWarningsErrors(page)).toBe(0);
     await expect(page.locator('#checkEagleDone')).toBeVisible();
 
     await TestHelpers.setShortDescription(page, '');
@@ -94,7 +94,7 @@ test('Undo recomputes navbar graph issues state', async ({ page }) => {
 
     await TestHelpers.undo(page);
 
-    await expect.poll(async () => await TestHelpers.getNumWarningsErrors(page)).toBe(0);
+    await expect.poll(() => TestHelpers.getNumWarningsErrors(page)).toBe(0);
     await expect(page.locator('#checkEagleDone')).toBeVisible();
     await expect(page.locator('#checkEagleWarnings')).toBeHidden();
 
