@@ -8,7 +8,7 @@ test('Undo exhausted history warns on first boundary keypress', async ({ page })
     await TestHelpers.setUIMode(page, 'Expert');
 
     // start from an empty graph
-    await expect(await TestHelpers.getNodeCount(page)).toBe(0);
+    expect(await TestHelpers.getNodeCount(page)).toBe(0);
 
     // expand the first palette and add 4 nodes one-by-one
     await TestHelpers.expandPalette(page, 0);
@@ -72,7 +72,7 @@ test('Undo still works after add undo add branch', async ({ page }) => {
     await page.goto('http://localhost:8888/?tutorial=none');
 
     await TestHelpers.setUIMode(page, 'Expert');
-    await expect(await TestHelpers.getNodeCount(page)).toBe(0);
+    expect(await TestHelpers.getNodeCount(page)).toBe(0);
 
     await TestHelpers.expandPalette(page, 0);
 

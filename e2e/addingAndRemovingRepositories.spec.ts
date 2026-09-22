@@ -37,7 +37,7 @@ async function addCustomRepository(page: Page, name: string, branch: string): Pr
   await page.locator('input#gitCustomRepositoryModalRepositoryBranchInput').pressSequentially(branch)
   await page.locator('button#gitCustomRepositoryModalAffirmativeButton').click()
   await page.waitForTimeout(1000);
-  await expect(await page.locator(repoHTMLId).count()).toBeGreaterThan(0)
+  expect(await page.locator(repoHTMLId).count()).toBeGreaterThan(0)
 
   return repoHTMLId;
 }
@@ -122,7 +122,7 @@ test('Adding and Removing Repositories', async ({ page }) => {
   await page.waitForTimeout(1000);
 
   //making sure the repo now exists in the repositories tab
-  await expect(await page.locator(repoHTMLId).count() === 1).toBeTruthy()
+  expect(await page.locator(repoHTMLId).count() === 1).toBeTruthy()
 
   //removing the repo
   await page.locator('.repoContainer').filter({has:page.locator(repoHTMLId)}).hover()
@@ -135,7 +135,7 @@ test('Adding and Removing Repositories', async ({ page }) => {
   await page.waitForTimeout(1000);
 
   //making sure the repo has been removed
-  await expect(await page.locator(repoHTMLId).count() === 1).toBeFalsy()
+  expect(await page.locator(repoHTMLId).count() === 1).toBeFalsy()
 
   //closing the browser
   await page.close();
@@ -220,7 +220,7 @@ test('Create Branch and Delete Branch Actions', async ({ page }) => {
   await expect(page.locator('#inputModal')).toBeVisible();
   await expect(page.locator('#inputModalInput')).toHaveClass(/is-invalid/)
   await expect(page.locator('#inputModalInvalidFeedback')).toContainText('Branch name cannot be empty.')
-  await expect(createBranchCallCount).toBe(0);
+  expect(createBranchCallCount).toBe(0);
   await TestHelpers.closeInputModalWithoutCompleting(page);
 
   await openCreateBranchModal();
@@ -230,7 +230,7 @@ test('Create Branch and Delete Branch Actions', async ({ page }) => {
   await expect(page.locator('#inputModal')).toBeVisible();
   await expect(page.locator('#inputModalInput')).toHaveClass(/is-invalid/)
   await expect(page.locator('#inputModalInvalidFeedback')).toContainText('Branch name cannot contain whitespace.')
-  await expect(createBranchCallCount).toBe(0);
+  expect(createBranchCallCount).toBe(0);
   await TestHelpers.closeInputModalWithoutCompleting(page);
 
   await openCreateBranchModal();
@@ -240,7 +240,7 @@ test('Create Branch and Delete Branch Actions', async ({ page }) => {
   await expect(page.locator('#inputModal')).toBeVisible();
   await expect(page.locator('#inputModalInput')).toHaveClass(/is-invalid/)
   await expect(page.locator('#inputModalInvalidFeedback')).toContainText("Branch name cannot contain '..'.")
-  await expect(createBranchCallCount).toBe(0);
+  expect(createBranchCallCount).toBe(0);
   await TestHelpers.closeInputModalWithoutCompleting(page);
 
   // verify successful create branch flow via UI
@@ -263,10 +263,10 @@ test('Create Branch and Delete Branch Actions', async ({ page }) => {
   await expect(inputModal).toBeHidden();
   await expect.poll(() => createBranchCallCount).toBe(1);
   await page.waitForTimeout(500);
-  await expect(createBranchCallCount).toBe(1);
+  expect(createBranchCallCount).toBe(1);
 
   // confirm the newly created branch entry appears in the repository list.
-  await expect(await page.locator(createdRepoHTMLId).count()).toBeGreaterThan(0)
+  expect(await page.locator(createdRepoHTMLId).count()).toBeGreaterThan(0)
 
   // verify delete branch asks for confirmation and deletes
   await page.locator('.repoContainer').filter({has:page.locator(createdRepoHTMLId)}).hover()
@@ -290,7 +290,7 @@ test('Create Branch and Delete Branch Actions', async ({ page }) => {
   await page.locator(protectedRepoHTMLId + '-delete-branch').click()
   await page.waitForTimeout(500);
   await expect(page.locator('#confirmModal')).toBeHidden();
-  await expect(await page.locator(protectedRepoHTMLId).count()).toBeGreaterThan(0)
+  expect(await page.locator(protectedRepoHTMLId).count()).toBeGreaterThan(0)
 
   // reset any repositories created during this test.
   await removeCustomRepositoryIfPresent(page, baseRepoHTMLId, false);

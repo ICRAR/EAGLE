@@ -29,7 +29,7 @@ export class TestHelpers {
         await page.locator('#settings').click()
 
         // enable specified mode
-        const uiModeSelect = await page.getByPlaceholder('uiMode')
+        const uiModeSelect = page.getByPlaceholder('uiMode')
         uiModeSelect.selectOption({value: mode})
 
         // close settings modal (wait is needed, bootstrap is not ready to close the modal again that quickly)
@@ -587,7 +587,7 @@ export class TestHelpers {
         await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
 
         // check the state of the #editInputMarkdownModalInput form-switch, if enabled, do nothing, if disabled, click it to enable it
-        const formSwitch = await page.locator('#editMarkdownSwitchCheck');
+        const formSwitch = page.locator('#editMarkdownSwitchCheck');
         if (!(await formSwitch.isChecked())) {
             await formSwitch.click();
         }
@@ -630,7 +630,7 @@ export class TestHelpers {
         await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
 
         // check the state of the #editInputMarkdownModalInput form-switch, if enabled, do nothing, if disabled, click it to enable it
-        const formSwitch = await page.locator('#editMarkdownSwitchCheck');
+        const formSwitch = page.locator('#editMarkdownSwitchCheck');
         if (!(await formSwitch.isChecked())) {
             await formSwitch.click();
         }

@@ -64,7 +64,7 @@ test('Creating a Simple Graph', async ({ page }) => {
   // check that the graph has the expected number of nodes
   const numNodesPreDelete = await TestHelpers.getNodeCount(page);
 
-  await expect(numNodesPreDelete).toBe(2);
+  expect(numNodesPreDelete).toBe(2);
 
   // add a second file node
   await page.locator('#palette_0_File').scrollIntoViewIfNeeded();
@@ -82,7 +82,7 @@ test('Creating a Simple Graph', async ({ page }) => {
   // check that the graph has the expected number of nodes
   const numNodesPostDelete = await TestHelpers.getNodeCount(page);
 
-  await expect(numNodesPostDelete).toBe(2);
+  expect(numNodesPostDelete).toBe(2);
 
   await page.close();
 });

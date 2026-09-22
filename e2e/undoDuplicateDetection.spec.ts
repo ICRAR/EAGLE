@@ -34,7 +34,7 @@ test('Undo duplicate snapshot detection', async ({ page }) => {
     });
 
     // front pointer must not have advanced — duplicate was detected
-    await expect(frontAfterDuplicatePush).toBe(frontAfterAdd);
+    expect(frontAfterDuplicatePush).toBe(frontAfterAdd);
 
     // now add a File node to genuinely change the graph
     await page.locator('#palette_0_File').scrollIntoViewIfNeeded();
@@ -46,7 +46,7 @@ test('Undo duplicate snapshot detection', async ({ page }) => {
     });
 
     // front pointer must have advanced — the change was real
-    await expect(frontAfterFileAdd).not.toBe(frontAfterAdd);
+    expect(frontAfterFileAdd).not.toBe(frontAfterAdd);
 
     await page.close();
 });
