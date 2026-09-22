@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { TestHelpers } from './TestHelpers';
+import { TestHelpers } from '../TestHelpers';
 
 // Regression test for: fix all issues, do other actions, undo — previously fixed
 // errors/warnings must NOT reappear.

@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { TestHelpers } from './TestHelpers';
+import { TestHelpers } from '../TestHelpers';
 
 test('findEdgesContainedByNodes handles graph iterators and partial selections', async ({ page }) => {
     await page.goto('http://localhost:8888/?tutorial=none');

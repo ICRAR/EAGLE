@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { TestHelpers } from './TestHelpers';
+import { TestHelpers } from '../TestHelpers';
 
 test('Creating a Simple Graph', async ({ page }) => {
   await test.step('Set up the graph and add nodes', async () => {

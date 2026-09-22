@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { TestHelpers } from './TestHelpers';
+import { TestHelpers } from '../TestHelpers';
 
 test('Undo duplicate snapshot detection', async ({ page }) => {
     let frontAfterAdd: number;

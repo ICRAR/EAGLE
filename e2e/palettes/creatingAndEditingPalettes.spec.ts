@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { TestHelpers } from './TestHelpers';
+import { TestHelpers } from '../TestHelpers';
 
 test('Creating and editing Palettes', async ({ page }) => {
   await test.step('Open the palette editing workflow', async () => {

@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { TestHelpers } from './TestHelpers';
+import { TestHelpers } from '../TestHelpers';
 
 async function removeCustomRepositoryIfPresent(page: Page, repoHTMLId: string, failIfStillPresent: boolean = true): Promise<void> {
   const maxAttempts = 5;
