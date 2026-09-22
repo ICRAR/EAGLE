@@ -203,11 +203,11 @@ export class Visual {
         const width: number = visualData.width;
         const height: number = visualData.height;
         const type: VisualType = visualData.type;
-        const content: string = visualData.content || '';
+        const content: string = visualData.content ?? '';
         const color: string = visualData.color;
-        const targetId: string = visualData.targetId || null;
+        const targetId: string | null = visualData.targetId ?? null;
 
-        const target : Node | Edge | Visual | null = lg.getNodeById(targetId as NodeId) || lg.getEdgeById(targetId as EdgeId) || lg.getVisualById(targetId as VisualId) || null;
+        const target : Node | Edge | Visual | null = lg.getNodeById(targetId as NodeId) ?? lg.getEdgeById(targetId as EdgeId) ?? lg.getVisualById(targetId as VisualId) ?? null;
 
         return new Visual(type, content)
         .setId(id)
@@ -221,9 +221,9 @@ export class Visual {
     static fromV4GraphJson(visualData: V4VisualLoadJson, lg: LogicalGraph, _errorsWarnings: ErrorsWarnings) : Visual {
         const targetId = visualData.targetId;
         const target : Node | Edge | Visual | null =
-            lg.getNodeById(targetId as NodeId) ||
-            lg.getEdgeById(targetId as EdgeId) ||
-            lg.getVisualById(targetId as VisualId) ||
+            lg.getNodeById(targetId as NodeId) ??
+            lg.getEdgeById(targetId as EdgeId) ??
+            lg.getVisualById(targetId as VisualId) ??
             null;
 
         return new Visual(visualData.type as VisualType, visualData.content)

@@ -141,7 +141,7 @@ module.exports = [
             "@typescript-eslint/return-await": ["error", "in-try-catch"],
             //"@typescript-eslint/no-unnecessary-condition": "error",
             //"@typescript-eslint/strict-boolean-expressions": "error",
-            //"@typescript-eslint/prefer-nullish-coalescing": "error",
+            "@typescript-eslint/prefer-nullish-coalescing": "error",
             "@typescript-eslint/prefer-optional-chain": "error",
             "@typescript-eslint/no-require-imports": "error",
             "@typescript-eslint/no-useless-empty-export": "error",

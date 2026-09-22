@@ -260,7 +260,7 @@ export class Undo {
         for (const id of objectIds){
             const node = eagle.logicalGraph().getNodeById(id as NodeId);
             const edge = eagle.logicalGraph().getEdgeById(id as EdgeId);
-            const object = node || edge;
+            const object = node ?? edge;
 
             // abort if no edge or node exists fot that id
             if (typeof object === 'undefined'){

@@ -365,7 +365,7 @@ export class Edge {
     }
 
     static fromV4Json(edgeData: V4EdgeJson, lg: LogicalGraph, errorsWarnings: ErrorsWarnings) : Edge | null {
-        const comment: string = edgeData.comment || '';
+        const comment: string = edgeData.comment ?? '';
         const loopAware: boolean = edgeData.loopAware;
         const closesLoop: boolean = edgeData.closesLoop;
 

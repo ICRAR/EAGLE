@@ -73,7 +73,7 @@ let eagle : Eagle;
 $(function(){
     //Check if the user is a first time visitor to the site
     const firstTimeVisit = localStorage.getItem('activeUiMode') === null;
-    const lastSeenVersion = localStorage.getItem('lastSeenVersion') || "0.0.0";
+    const lastSeenVersion = localStorage.getItem('lastSeenVersion') ?? "0.0.0";
     const showWhatsNew = Utils.compareVersions((<any>window).version, lastSeenVersion) > 0;
 
     // Global variables.

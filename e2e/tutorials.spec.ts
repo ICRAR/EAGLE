@@ -10,7 +10,7 @@ test('Tutorials', async ({ page }) => {
     await page.waitForFunction(() => (window as any).eagle?.eagleIsReady?.() === true, { timeout: TestHelpers.LONG_TIMEOUT });
 
     const tutorialNames = await page.evaluate(() => {
-        return (window as any).TutorialSystem?.getTutorialNames?.() || [];
+        return (window as any).TutorialSystem?.getTutorialNames?.() ?? [];
     });
 
     expect(tutorialNames.length).toBeGreaterThan(0);

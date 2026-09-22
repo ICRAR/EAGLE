@@ -597,7 +597,7 @@ export class Modals {
         const inputElementValue = Utils.getUIValue('#gitCommitModalFileNameInput', 'val', "");
 
         const fileTypeData = $('#gitCommitModal').data('fileType');
-        const fileType: EagleFileType = fileTypeData ? fileTypeData : EagleFileType.Unknown;
+        const fileType: EagleFileType = fileTypeData ?? EagleFileType.Unknown;
 
         const validator = Utils.gitCommitFileNameStringValidator(fileType);
         const validationResult = validator(inputElementValue);

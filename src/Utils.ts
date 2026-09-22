@@ -817,7 +817,7 @@ export class Utils {
             $('#inputTextModalTitle').text(title);
             $('#inputTextModalMessage').html(Utils.markdown2html(message));
 
-            $('#inputTextModalInput').val(defaultText ? defaultText : '');
+            $('#inputTextModalInput').val(defaultText ?? '');
             $('#inputTextModalInput').prop('readonly', readonly);
 
             // store the callback, result on the modal HTML element
@@ -862,7 +862,7 @@ export class Utils {
             const editor = $('#inputCodeModal').data('editor');
             editor.setOption('readOnly', readonly);
             editor.setOption('mode', mode);
-            editor.setValue(defaultText ? defaultText : '');
+            editor.setValue(defaultText ?? '');
 
             // store the callback, result on the modal HTML element
             // so that the info is available to event handlers

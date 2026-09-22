@@ -141,7 +141,7 @@ export class TutorialSystem {
 
     static initiateSimpleFindGraphNodeIdByNodeName(name:string) : string {
         const nodeId = Eagle.getInstance().logicalGraph().findNodeIdByName(name)
-        return nodeId === null ? "<name not found" : nodeId;
+        return nodeId ?? "<name not found";
     }
 
     static isRequestedNodeSelected(name:string) : boolean {
@@ -241,7 +241,7 @@ export class Tutorial {
             this.initiateStep(TutorialSystem.activeTutCurrentStep, null)
         } else if (tutStep.getWaitType() === TutorialStepWait.Delay) {
             //if a delay amount is not specified we will default to 4ms
-            const delay: number = TutorialSystem.activeTutCurrentStep.getDelayAmount() || 400;
+            const delay: number = TutorialSystem.activeTutCurrentStep.getDelayAmount() ?? 400;
 
             setTimeout(() => {
                 this.initiateStep(TutorialSystem.activeTutCurrentStep, null)

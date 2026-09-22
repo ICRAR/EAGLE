@@ -2052,7 +2052,7 @@ export class Node {
         }
 
         // check that all fields present in the original (palette) component have the changeable property set correctly (to false)
-        const originalComponent = Utils.getPaletteComponentByName(node.getName()) || Utils.getPaletteComponentByName(node.getCategory());
+        const originalComponent = Utils.getPaletteComponentByName(node.getName()) ?? Utils.getPaletteComponentByName(node.getCategory());
         if (typeof originalComponent !== 'undefined'){
             for (const originalField of originalComponent.getFields()){
                 const nodeField = node.findFieldByDisplayText(originalField.getDisplayText());

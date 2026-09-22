@@ -531,8 +531,8 @@ export class RightClick {
         const minXMargin = 390 // this is the minimum amount of room we need on the right side of the click location to draw the context menu
         const minYMargin = 430 // this is the minimum amount of room we need on the bottom side of the click location to draw the context menu
 
-        const innerWidth = $(document).innerWidth() || 0
-        const innerHeight = $(document).innerHeight() || 0
+        const innerWidth = $(document).innerWidth() ?? 0
+        const innerHeight = $(document).innerHeight() ?? 0
 
         //checking for screen real estate to the right and bottom, if we are too close to the edges of the window, we expand left, up or both
         if(innerWidth-mouseX<minXMargin){

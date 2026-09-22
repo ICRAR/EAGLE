@@ -129,9 +129,9 @@ export class Hierarchy {
             const innerItem = $('.hierarchy .hierarchyNodeIsSelected')
             const parentDiv = $('.hierarchy')
             if(innerItem.length > 0 && parentDiv.length > 0){
-                const parentDivScrollTop = parentDiv.scrollTop() || 0;
-                const parentDivHeight = parentDiv.height() || 0;
-                const innerItemHeight = innerItem.height() || 0;
+                const parentDivScrollTop = parentDiv.scrollTop() ?? 0;
+                const parentDivHeight = parentDiv.height() ?? 0;
+                const innerItemHeight = innerItem.height() ?? 0;
 
                 parentDiv.scrollTop(parentDivScrollTop + innerItem.position().top - parentDivHeight/2 + innerItemHeight/2)
             }

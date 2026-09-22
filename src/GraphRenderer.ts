@@ -1219,7 +1219,7 @@ export class GraphRenderer {
 
         if (GraphRenderer.isDragging() && !GraphRenderer.isResizingVisual()){
             if (GraphRenderer.draggingObject() !== null && !GraphRenderer.isDraggingSelectionRegion ){
-                const dragStartPos = GraphRenderer.dragStartPosition ? GraphRenderer.dragStartPosition : {x:0,y:0}
+                const dragStartPos = GraphRenderer.dragStartPosition ?? {x:0,y:0}
 
                 //check and note if the mouse has moved
                 GraphRenderer.simpleSelect = Math.abs(e.pageX - dragStartPos.x) < 5 && Math.abs(e.pageY - dragStartPos.y) < 5

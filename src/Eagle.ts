@@ -2585,8 +2585,8 @@ export class Eagle {
         // get collapsed/expanded state of palettes from html local storage
         let templatePaletteExpanded: boolean = Setting.findValue<boolean>(Setting.OPEN_TEMPLATE_PALETTE, false);
         let builtinPaletteExpanded: boolean = Setting.findValue<boolean>(Setting.OPEN_BUILTIN_PALETTE, false);
-        templatePaletteExpanded = templatePaletteExpanded === null ? false : templatePaletteExpanded;
-        builtinPaletteExpanded = builtinPaletteExpanded === null ? false : builtinPaletteExpanded;
+        templatePaletteExpanded ??= false;
+        builtinPaletteExpanded ??= false;
 
         const {errorsWarnings} = await this.loadPalettes([
             {name:Palette.TEMPLATE_PALETTE_NAME, filename:Daliuge.TEMPLATE_URL, readonly:true, expanded: templatePaletteExpanded},
@@ -4298,9 +4298,7 @@ export class Eagle {
         let realDestPort: Field | null = realDestNode.findPortByMatchingType(realSourcePort.getType(), usages);
 
         // if no dest port was found, just use first input port on dest node
-        if (realDestPort === null){
-            realDestPort = realDestNode.findPortOfAnyType(true);
-        }
+        realDestPort ??= realDestNode.findPortOfAnyType(true);
 
         // abort if we don't have destNode or destPort
         if (realDestNode === null || realDestPort === null){
@@ -4683,10 +4681,10 @@ export class Eagle {
 
         // set values for the fields
         if (typeof imageField !== 'undefined'){
-            image = imageField.getValue() || "";
+            image = imageField.getValue() ?? "";
         }
         if (typeof tagField !== 'undefined'){
-            tag = tagField.getValue() || "";
+            tag = tagField.getValue() ?? "";
         }
 
         Modals.showBrowseDockerHub(image, tag, (completed: boolean) => {
@@ -5279,7 +5277,7 @@ export class Eagle {
 
     editNodeDescription = async (node?: Node): Promise<void> => {
         const markdownEditingEnabled: boolean = Setting.findValue<boolean>(Setting.MARKDOWN_EDITING_ENABLED, false);
-        const targetNode = node || this.selectedNode();
+        const targetNode = node ?? this.selectedNode();
 
         // abort if no node is selected AND no node was passed in
         if (targetNode === null) {
@@ -5300,7 +5298,7 @@ export class Eagle {
 
     editNodeComment = async (node? : Node): Promise<void> => {
         const markdownEditingEnabled: boolean = Setting.findValue<boolean>(Setting.MARKDOWN_EDITING_ENABLED, false);
-        const targetNode = node || this.selectedNode();
+        const targetNode = node ?? this.selectedNode();
 
         // abort if no node is selected
         if (targetNode === null || !(targetNode instanceof Node)) {
@@ -5342,7 +5340,7 @@ export class Eagle {
 
     editTextVisualContent = async (visual ?: Visual): Promise<void> => {
         const markdownEditingEnabled: boolean = Setting.findValue<boolean>(Setting.MARKDOWN_EDITING_ENABLED, false);
-        const thisVisual = visual || this.selectedVisual();
+        const thisVisual = visual ?? this.selectedVisual();
 
         // abort if no node is selected
         if (thisVisual === null) {
