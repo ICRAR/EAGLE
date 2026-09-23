@@ -3958,9 +3958,7 @@ export class Eagle {
         Eagle.selectedLocation(EagleFileType.Graph);
     }
 
-    selectNoneInGraph = () : void => {
-        console.log("selectNoneInGraph()");
-
+    selectNoObjectsInGraph = () : void => {
         this.selectedObjects([]);
     }
 
