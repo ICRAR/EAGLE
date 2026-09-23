@@ -162,8 +162,8 @@ export class Errors {
         // handle JSON
         if (typeof error === "string"){
             try {
-                const errorObj = JSON.parse(error);
-                if (errorObj.error){
+                const errorObj: unknown = JSON.parse(error);
+                if (typeof errorObj === "object" && errorObj !== null && "error" in errorObj && typeof errorObj.error === "string"){
                     return errorObj.error;
                 }
             } catch (_err){

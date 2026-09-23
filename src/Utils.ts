@@ -1755,8 +1755,9 @@ export class Utils {
         if (typeof data.modelData !== 'undefined'){
             if (typeof data.modelData.schemaVersion !== 'undefined'){
                 // check whether the value of data.modelData.schemaVersion is a valid SchemaVersion enum value
-                if (Object.values(SchemaVersion).includes(data.modelData.schemaVersion)){
-                    return data.modelData.schemaVersion;
+                const schemaVersion = data.modelData.schemaVersion as SchemaVersion;
+                if (Object.values(SchemaVersion).includes(schemaVersion)){
+                    return schemaVersion;
                 } else {
                     console.warn("Unknown schema version:", data.modelData.schemaVersion);
                     return SchemaVersion.Unknown;

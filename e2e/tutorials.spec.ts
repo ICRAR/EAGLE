@@ -9,8 +9,8 @@ test('Tutorials', async ({ page }) => {
     await expect(page).toHaveTitle(/EAGLE/);
     await page.waitForFunction(() => (window as any).eagle?.eagleIsReady?.() === true, { timeout: TestHelpers.LONG_TIMEOUT });
 
-    const tutorialNames = await page.evaluate(() => {
-        return (window as any).TutorialSystem?.getTutorialNames?.() ?? [];
+    const tutorialNames = await page.evaluate<string[]>(() => {
+        return ((window as any).TutorialSystem?.getTutorialNames?.() ?? []) as string[];
     });
 
     expect(tutorialNames.length).toBeGreaterThan(0);

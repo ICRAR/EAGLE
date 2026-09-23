@@ -188,7 +188,7 @@ export class Palette {
         // add links (none in a palette)
         result.linkDataArray = [];
 
-        return result;
+        return result as object;
     }
 
     static toV4Json(palette: Palette) : object {
@@ -216,7 +216,7 @@ export class Palette {
             }
         }
 
-        return result;
+        return result as object;
     }
 
     static toOJSJsonString(palette: Palette) : string {

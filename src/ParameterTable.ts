@@ -258,9 +258,9 @@ export class ParameterTable {
         }
         
         if($.isNumeric(valA) && $.isNumeric(valB)){
-            return valA - valB
+            return Number(valA) - Number(valB)
         }else{
-            return valA.toString().localeCompare(valB)
+            return String(valA).localeCompare(String(valB))
         }
     }
 

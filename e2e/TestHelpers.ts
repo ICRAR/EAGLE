@@ -66,7 +66,9 @@ export class TestHelpers {
     static async runTutorialByName(page: Page, tutorialName: string): Promise<void> {
         //.step is creating a test step. this is so we know exactly where we failed if something goes wrong.
         await test.step(`Start tutorial: ${tutorialName}`, async () => {
-            await page.evaluate((name: string) => (window as any).TutorialSystem.initiateTutorial(name), tutorialName);
+            await page.evaluate((name: string) => {
+                (window as any).TutorialSystem.initiateTutorial(name);
+            }, tutorialName);
             await page.locator('#tutorialInfoPopUp').waitFor({ state: 'attached', timeout: TestHelpers.LONG_TIMEOUT });
         });
 
@@ -526,7 +528,7 @@ export class TestHelpers {
                 const eagle = (window as any).eagle;
                 const selected = eagle?.selectedNode?.();
                 const nodeNames = eagle?.logicalGraph?.()?.getNodes?.()
-                    ? Array.from(eagle.logicalGraph().getNodes()).map((node: any) => node.getName())
+                    ? Array.from(eagle.logicalGraph().getNodes()).map((node: any): string => node.getName() as string)
                     : [];
 
                 const tutorialTarget = (window as any).TutorialSystem?.activeTutCurrentStep?.getTargetFunc?.();
@@ -544,6 +546,16 @@ export class TestHelpers {
                     graphNodeNames: nodeNames,
                     targetId,
                     diagnostics,
+                } as {
+                    requestedName: string;
+                    selectedName: string | null;
+                    graphNodeNames: string[];
+                    targetId: string | null;
+                    diagnostics: {
+                        nodeBodyMatches: number;
+                        nodeMatches: number;
+                        containerMatches: number;
+                    } | null;
                 };
             }, nodeName);
 
@@ -659,7 +671,7 @@ export class TestHelpers {
 
     static getMarkdownModalContent(): string {
         const editor = ($('#inputMarkdownModal') as JQuery<HTMLElement>).data('editor');
-        return editor.getValue();
+        return editor.getValue() as string;
     }
 
     // Set the content of the editor in the modal
@@ -671,7 +683,7 @@ export class TestHelpers {
     // Get the content of the editor in the modal
     static getCodeModalContent(): string {
         const editor = ($('#inputCodeModal') as JQuery<HTMLElement>).data('editor');
-        return editor.getValue();
+        return editor.getValue() as string;
     }
 
     // Read a graph file from disk
@@ -789,14 +801,14 @@ export class TestHelpers {
     }
 
     static async getNodeCount(page: Page): Promise<number> {
-        return page.evaluate( () => {
-            return (window as any).eagle.logicalGraph().nodes().size;
+        return page.evaluate<number>(() => {
+            return (window as any).eagle.logicalGraph().nodes().size as number;
         });
     }
 
     static async getEdgeCount(page: Page): Promise<number> {
-        return page.evaluate( () => {
-            return (window as any).eagle.logicalGraph().getNumEdges();
+        return page.evaluate<number>(() => {
+            return (window as any).eagle.logicalGraph().getNumEdges() as number;
         });
     }
 

@@ -362,7 +362,7 @@ export class Repository {
         result.name = repository.name;
         result.branch = repository.branch;
 
-        return result;
+        return result as object;
     }
 
     public static async fetch(repository: Repository, path: string) : Promise<void> {

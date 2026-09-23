@@ -219,7 +219,8 @@ export class UiMode {
     getSettingByKey = (key:string) : void => {
         for(const setting of this.getSettings()){
             if(setting.getKey() === key){
-                return setting.getValue()
+                setting.getValue();
+                return;
             }
         }
     }

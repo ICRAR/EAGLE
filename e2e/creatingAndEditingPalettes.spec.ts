@@ -79,8 +79,8 @@ test('Palette loading continues after an unavailable palette', async ({ page }) 
 
       // both placeholders should be present once each load is complete
       return {
-        firstFailure: firstFailureResult.palettes.map((palette: any) => palette.fileInfo().name),
-        finalFailure: finalFailureResult.palettes.map((palette: any) => palette.fileInfo().name)
+        firstFailure: firstFailureResult.palettes.map((palette: any) => palette.fileInfo().name as string),
+        finalFailure: finalFailureResult.palettes.map((palette: any) => palette.fileInfo().name as string)
       };
     } finally {
       // restore the original httpPostJSON so other tests are not affected

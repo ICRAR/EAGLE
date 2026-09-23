@@ -1907,7 +1907,7 @@ export class Node {
             result.outputApplicationComment = "";
         }
 
-        return result;
+        return result as object;
     }
 
     static toOJSGraphJson(node : Node) : object {
@@ -1994,7 +1994,7 @@ export class Node {
             result.outputApplicationComment = "";
         }
 
-        return result;
+        return result as object;
     }
 
     static toV4GraphJson(node: Node) : V4NodeJson {
@@ -2027,7 +2027,7 @@ export class Node {
             result.fields[field.getId()] = Field.toV4Json(field);
         }
 
-        return result;
+        return result as V4NodeJson;
     }
 
     static createEmbeddedApplicationNode(name : string, category: CategoryName, description: string, comment: string, embed: Node) : Node {
@@ -2304,30 +2304,30 @@ export class Node {
     // helper functions used when loading graphs from JSON
     static determineNodeId(nodeData: any): NodeId | null {
         if (typeof nodeData.oid !== 'undefined'){
-            return nodeData.oid;
+            return nodeData.oid as NodeId;
         }
         if (typeof nodeData.id !== 'undefined'){
-            return nodeData.id;
+            return nodeData.id as NodeId;
         }
         return null;
     }
 
     static determineNodeParentId(nodeData: any): NodeId | null {
         if (typeof nodeData.parentId !== 'undefined'){
-            return nodeData.parentId;
+            return nodeData.parentId as NodeId;
         }
         if (typeof nodeData.group !== 'undefined'){
-            return nodeData.group;
+            return nodeData.group as NodeId;
         }
         return null;
     }
 
     static determineNodeSubjectId(nodeData: any): NodeId | null {
         if (typeof nodeData.subjectId !== 'undefined'){
-            return nodeData.subjectId;
+            return nodeData.subjectId as NodeId;
         }
         if (typeof nodeData.subject !== 'undefined'){
-            return nodeData.subject;
+            return nodeData.subject as NodeId;
         }
         return null;
     }

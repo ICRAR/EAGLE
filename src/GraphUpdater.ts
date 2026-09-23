@@ -546,11 +546,12 @@ export class GraphUpdater {
            await eagle.saveFilesToRemote(this.destinationRepository, JSON.stringify(commitJson));
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
-            const errorJSON = JSON.parse(errorMessage);
+            const errorJSON: { error?: string } = JSON.parse(errorMessage) as { error?: string };
 
-            Utils.showUserMessage("Error", errorJSON.error + "<br/><br/>NOTE: These error messages provided by " + this.destinationRepository.service + " are not very helpful. Please contact EAGLE admin to help with further investigation.");
-            console.error("Error: " + errorJSON.error);
-            return errorJSON.error;
+            const errorText = errorJSON.error ?? errorMessage;
+            Utils.showUserMessage("Error", errorText + "<br/><br/>NOTE: These error messages provided by " + this.destinationRepository.service + " are not very helpful. Please contact EAGLE admin to help with further investigation.");
+            console.error("Error: " + errorText);
+            return;
         }
 
         GraphUpdater.state(GraphUpdaterStatus.Pushed);

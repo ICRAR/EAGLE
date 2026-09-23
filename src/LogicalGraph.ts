@@ -143,7 +143,7 @@ export class LogicalGraph {
         // saving the id of the active graph configuration
         result.activeGraphConfigId = graph.activeGraphConfigId();
 
-        return result;
+        return result as object;
     }
 
     static toV4Json(graph: LogicalGraph, _forTranslation: boolean) : V4GraphJson {

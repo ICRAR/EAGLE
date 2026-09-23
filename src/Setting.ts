@@ -254,7 +254,7 @@ export class Setting {
             return;
         }
 
-        return setting.value(value);
+        setting.value(value);
     }
 
     static toggle(key : string) : void {
