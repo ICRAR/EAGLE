@@ -56,6 +56,17 @@ import { Repository, type RepositoryCommit, RepositoryService } from './Reposito
 import { RepositoryFile } from './RepositoryFile';
 import { RightClick } from "./RightClick";
 import { SchemaVersion, Setting, type SettingsGroup } from './Setting';
+
+type AsyncPromiseExecutor<T> = (
+    resolve: (value?: T | PromiseLike<T>) => void,
+    reject: (reason?: unknown) => void
+) => Promise<void>;
+
+function runAsyncPromise<T>(executor: AsyncPromiseExecutor<T>): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+        void executor((value) => resolve(value as T | PromiseLike<T>), reject);
+    });
+}
 import { SideWindow } from './SideWindow';
 import { Translator } from './Translator';
 import type { Tutorial} from './Tutorial';
@@ -1916,7 +1927,7 @@ export class Eagle {
     }
 
     saveGraph = async () : Promise<void> => {
-        return new Promise(async(resolve, reject) => {
+        return runAsyncPromise(async(resolve, reject) => {
             const eagle: Eagle = Eagle.getInstance();
 
             switch (eagle.logicalGraph().fileInfo().location.repositoryService()){
@@ -1952,7 +1963,7 @@ export class Eagle {
     }
 
     saveGraphAs = async () : Promise<void> => {
-        return new Promise(async(resolve, reject) => {
+        return runAsyncPromise(async(resolve, reject) => {
             const isLocalFile = this.logicalGraph().fileInfo().location.repositoryService() === RepositoryService.File;
 
             const userChoice: string = await Utils.requestUserChoice("Save Graph As", "Please choose where to save the graph", ["Local File", "Remote Git Repository"], isLocalFile?0:1, false, "");
@@ -1984,7 +1995,7 @@ export class Eagle {
     }
 
     saveGraphConfigAs = async (graphConfig: GraphConfig) : Promise<void> => {
-        return new Promise(async(resolve, reject) => {
+        return runAsyncPromise(async(resolve, reject) => {
             try {
                 // Robust null/invalid check
                 if (!graphConfig || typeof graphConfig !== "object" || Object.keys(graphConfig).length === 0) {
@@ -2050,7 +2061,7 @@ export class Eagle {
      * Saves the file to a local download folder.
      */
     saveFileToLocal = async (fileType : EagleFileType, graphConfig: GraphConfig | null = null) : Promise<void> => {
-        return new Promise(async(resolve, reject) => {
+        return runAsyncPromise(async(resolve, reject) => {
             switch (fileType){
                 case EagleFileType.Graph:
                     try {
@@ -2106,7 +2117,7 @@ export class Eagle {
     }
 
     saveAsFileToLocal = async (fileType: EagleFileType, graphConfig: GraphConfig | null = null): Promise<void> => {
-        return new Promise(async(resolve, reject) => {
+        return runAsyncPromise(async(resolve, reject) => {
             switch (fileType){
                 case EagleFileType.Graph:
                     try {
@@ -2166,7 +2177,7 @@ export class Eagle {
      * Saves a file to the remote server repository.
      */
     saveFileToRemote = async (file: RepositoryFile, fileInfo: ko.Observable<FileInfo>, jsonString : string): Promise<void> => {
-        return new Promise(async(resolve, reject) => {
+        return runAsyncPromise(async(resolve, reject) => {
             let url : string;
 
             switch (file.repository.service){
@@ -2227,7 +2238,7 @@ export class Eagle {
      * the repository service and URL.
      */
     saveFilesToRemote = async (repository: Repository, jsonString : string): Promise<void> => {
-        return new Promise(async(resolve, reject) => {
+        return runAsyncPromise(async(resolve, reject) => {
             let url : string;
 
             switch (repository.service){
@@ -2279,7 +2290,7 @@ export class Eagle {
      * Performs a Git commit of a graph/palette. Asks user for a file name before saving.
      */
     commitToGitAs = async (fileType : EagleFileType, graphConfig: GraphConfig | null = null) : Promise<void> => {
-        return new Promise(async(resolve, reject) => {
+        return runAsyncPromise(async(resolve, reject) => {
             let fileInfo : ko.Observable<FileInfo>;
             let obj : LogicalGraph | Palette | GraphConfig;
 
@@ -2387,7 +2398,7 @@ export class Eagle {
      * Performs a Git commit of a graph/palette.
      */
     commitToGit = async (fileType : EagleFileType) : Promise<void> => {
-        return new Promise(async(resolve, reject) => {
+        return runAsyncPromise(async(resolve, reject) => {
             let fileInfo : ko.Observable<FileInfo> | undefined;
             let obj : LogicalGraph | Palette | GraphConfig | undefined;
 
@@ -2479,7 +2490,7 @@ export class Eagle {
     }
 
     _commit = async (file: RepositoryFile, fileInfo: ko.Observable<FileInfo>, commitMessage: string, obj: LogicalGraph | Palette | GraphConfig) : Promise<void> => {
-        return new Promise(async(resolve, reject) => {
+        return runAsyncPromise(async(resolve, reject) => {
             // check that repository was found, if not try "save as"!
             if (file.repository === null){
                 try {
@@ -2506,7 +2517,7 @@ export class Eagle {
      * Saves a graph/palette file to the GitHub repository.
      */
     saveDiagramToGit = (file: RepositoryFile, fileInfo: ko.Observable<FileInfo>, commitMessage : string, obj: LogicalGraph | Palette | GraphConfig) : Promise<void> => {
-        return new Promise(async(resolve, reject) => {
+        return runAsyncPromise(async(resolve, reject) => {
             console.log("saveDiagramToGit() repositoryName", file.repository.name, "fileType", file.type, "filePath", file.path, "fileName", file.name, "commitMessage", commitMessage);
 
             // get version (hoisted for OJS format check)
@@ -2545,7 +2556,7 @@ export class Eagle {
     }
 
     _saveDiagramToGit = async (file: RepositoryFile, fileInfo: ko.Observable<FileInfo>, commitMessage : string, jsonString: string, version: SchemaVersion) : Promise<void> => {
-        return new Promise(async(resolve, reject) => {
+        return runAsyncPromise(async(resolve, reject) => {
             // generate filename
             const fullFileName : string = Utils.joinPath(file.path, file.name);
 
@@ -2607,7 +2618,7 @@ export class Eagle {
     }
 
     loadPalettes = async (paletteList: {name:string, filename:string, readonly:boolean, expanded:boolean}[]): Promise<{palettes: Palette[], errorsWarnings: ErrorsWarnings}> => {
-        return new Promise(async(resolve) => {
+        return runAsyncPromise(async(resolve) => {
             const destinationPalettes: Palette[] = [];
             const errorsWarnings: ErrorsWarnings = {"errors":[], "warnings":[]};
 
@@ -3183,7 +3194,7 @@ export class Eagle {
 
     // TODO: shares some code with saveFileToLocal(), we should try to factor out the common stuff at some stage
     savePaletteToDisk = async (palette : Palette, fileName: string) : Promise<void> => {
-        return new Promise(async (resolve, reject) => {
+        return runAsyncPromise(async (resolve, reject) => {
             // generate a fileName, if the supplied filename is null or empty
             if (fileName === null || fileName === ""){
                 const rawName = palette.fileInfo().name;
@@ -3238,7 +3249,7 @@ export class Eagle {
      * Saves the file to a local download folder.
      */
     saveGraphToDisk = async (graph : LogicalGraph, fileName: string): Promise<void> => {
-        return new Promise(async(resolve, reject) => {
+        return runAsyncPromise(async(resolve, reject) => {
             console.log("saveGraphToDisk()", fileName);
 
             // check that the fileType has been set for the logicalGraph
@@ -3300,7 +3311,7 @@ export class Eagle {
     }
 
     saveGraphConfigToDisk = async (graphConfig: GraphConfig, fileName: string): Promise<void> => {
-        return new Promise(async(resolve, reject) => {
+        return runAsyncPromise(async(resolve, reject) => {
             console.log("saveGraphConfigToDisk()", fileName);
 
             // get version
@@ -4323,7 +4334,7 @@ export class Eagle {
     }
 
     addNodeToLogicalGraph = (node: Node | undefined, nodeId: NodeId | null, mode: EagleAddNodeMode): Promise<Node[]> => {
-        return new Promise(async(resolve, reject) => {
+        return runAsyncPromise(async(resolve, reject) => {
             const result: Node[] = [];
             let pos : {x:number, y:number};
             pos = {x:0,y:0}
@@ -4617,7 +4628,7 @@ export class Eagle {
     }
 
     addVisualToLogicalGraph = async (type: VisualType, mode: EagleAddNodeMode) : Promise<Visual> => {
-        return new Promise(async(resolve, reject) => {
+        return runAsyncPromise(async(resolve, reject) => {
 
             let pos : {x:number, y:number};
             pos = {x:0,y:0}
@@ -5131,7 +5142,7 @@ export class Eagle {
     }
 
     addEdge = async (srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean, forceAutoRename: boolean = false): Promise<Edge> => {
-        return new Promise(async(resolve, reject) => {
+        return runAsyncPromise(async(resolve, reject) => {
             // check that none of the supplied nodes and ports are null
             if (srcNode === null){
                 reject("addEdge(): srcNode is null");
@@ -5212,7 +5223,7 @@ export class Eagle {
     }
 
     addVisual = async (visual: Visual): Promise<Visual> => {
-        return new Promise(async(resolve, reject) => {
+        return runAsyncPromise(async(resolve, reject) => {
             // check that graph editing is allowed
             if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
                 reject("Unable to Add Visual: Graph Editing is disabled");

@@ -136,7 +136,7 @@ module.exports = [
             "no-var": 2,
 
             //"@typescript-eslint/no-floating-promises": "error",
-            //"@typescript-eslint/no-misused-promises": "error",
+            "@typescript-eslint/no-misused-promises": "error",
             "@typescript-eslint/await-thenable": "error",
             "@typescript-eslint/return-await": ["error", "in-try-catch"],
             //"@typescript-eslint/no-unnecessary-condition": "error",

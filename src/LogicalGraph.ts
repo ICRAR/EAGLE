@@ -892,29 +892,26 @@ export class LogicalGraph {
      * Opens a dialog for selecting a data component type.
      */
     addDataComponentDialog = async (eligibleComponents : Node[]): Promise<Node> => {
-        return new Promise(async(resolve, reject) => {
-            const eligibleComponentNames: string[] = [];
-            for (const component of eligibleComponents){
-                eligibleComponentNames.push(component.getName());
-            }
+        const eligibleComponentNames: string[] = [];
+        for (const component of eligibleComponents){
+            eligibleComponentNames.push(component.getName());
+        }
 
-            // ask the user to choose from the eligibleTypes
-            const userChoice: string = await Utils.requestUserChoice("Add Data Component", "Select data component type", eligibleComponentNames, 0, false, "");
-            
-            if (userChoice === null){
-                return;
-            }
+        // ask the user to choose from the eligibleTypes
+        const userChoice: string = await Utils.requestUserChoice("Add Data Component", "Select data component type", eligibleComponentNames, 0, false, "");
+        
+        if (userChoice === null){
+            throw new Error("No data component was selected");
+        }
 
-            // find choice withing eligibleComponents
-            for (const ec of eligibleComponents){
-                if (ec.getName() === userChoice){
-                    resolve(ec);
-                    return;
-                }
+        // find choice withing eligibleComponents
+        for (const ec of eligibleComponents){
+            if (ec.getName() === userChoice){
+                return ec;
             }
+        }
 
-            reject("Could not find user choice");
-        });
+        throw new Error("Could not find user choice");
     }
 
     /**
@@ -1412,7 +1409,7 @@ export class LogicalGraph {
         if (graph.fileInfo().isInitiated() && graph.fileInfo().shortDescription === ''){
             const issue = Errors.Show(
                 "Graph does not have a short description.",
-                LogicalGraph.withEagle(eagle, e => e.editShortDescription(graph.fileInfo()))
+                LogicalGraph.withEagle(eagle, e => { void e.editShortDescription(graph.fileInfo()); })
             );
             graph.issues.push({issue : issue, validity : Validity.Warning})
         }
@@ -1421,7 +1418,7 @@ export class LogicalGraph {
         if (graph.fileInfo().isInitiated() && graph.fileInfo().detailedDescription === ''){
             const issue = Errors.Show(
                 "Graph does not have a detailed description.",
-                LogicalGraph.withEagle(eagle, e => e.editDetailedDescription(graph.fileInfo()))
+                LogicalGraph.withEagle(eagle, e => { void e.editDetailedDescription(graph.fileInfo()); })
             );
             graph.issues.push({issue : issue, validity : Validity.Warning})
         }

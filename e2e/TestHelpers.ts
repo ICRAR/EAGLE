@@ -773,21 +773,19 @@ export class TestHelpers {
     }
 
     static async saveGraphToString(page: Page): Promise<string> {
-        return new Promise<string>(async (resolve, _reject) => {
-            // click 'display as JSON' from the 'Graph' menu
-            await page.locator('#navbarDropdownGraph').click();
-            await page.locator('#displayGraphAsJson').click();
-            await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
+        // click 'display as JSON' from the 'Graph' menu
+        await page.locator('#navbarDropdownGraph').click();
+        await page.locator('#displayGraphAsJson').click();
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
 
-            // get JSON from modal
-            const outputOJS: string = await page.evaluate(TestHelpers.getCodeModalContent);
+        // get JSON from modal
+        const outputOJS: string = await page.evaluate(TestHelpers.getCodeModalContent);
 
-            await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
-            await page.locator('#inputCodeModal button.affirmativeBtn').click()
-            await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
+        await page.locator('#inputCodeModal button.affirmativeBtn').click()
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
 
-            resolve(outputOJS);
-        });
+        return outputOJS;
     }
 
     // Set the schema version in the app (OJS or V4)

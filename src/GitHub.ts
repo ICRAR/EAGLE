@@ -31,8 +31,7 @@ import { Utils } from './Utils';
 
 export class GitHub {
     static async loadRepoList(): Promise<Repository[]> {
-        return new Promise(async(resolve, reject) => {
-            const repositories: Repository[] = [];
+        const repositories: Repository[] = [];
 
             // find repos in IndexedDB
             const customRepositories = await EagleStorage.listCustomRepositories(RepositoryService.GitHub);
@@ -43,8 +42,7 @@ export class GitHub {
                 data = await Utils.httpGetJSON("/getGitHubRepositoryList", {}) as {repository: string, branch: string}[];
             } catch (error){
                 console.error(error);
-                reject(error);
-                return;
+                throw error;
             }
 
             // add the repositories from the POST response
@@ -52,8 +50,7 @@ export class GitHub {
                 repositories.push(new Repository(RepositoryService.GitHub, d.repository, d.branch, true));
             }
 
-            resolve(repositories);
-        });
+        return repositories;
     }
 
     /**
@@ -88,15 +85,13 @@ export class GitHub {
      * Shows the remote files on the GitHub.
      */
     static async loadRepoContent(repository : Repository, path: string): Promise<void> {
-        return new Promise(async(resolve, reject) => {
-            const token = Utils.getServiceToken(RepositoryService.GitHub);
+        const token = Utils.getServiceToken(RepositoryService.GitHub);
 
             // get location
             const location: Repository | RepositoryFolder | null = repository.findPath(path);
 
             if (location === null) {
-                reject(new Error("Location not found for path: " + path));
-                return;
+                throw new Error("Location not found for path: " + path);
             }
 
             // flag the location as being fetched
@@ -118,8 +113,7 @@ export class GitHub {
                 if (error !== null){
                     console.error(error, data);
                     Utils.showUserMessage("Error", "Unable to fetch files for this repository. A server error occurred. " + error);
-                    reject(error);
-                    return;
+                    throw error;
                 }
             } finally {
                 location.isFetching(false);
@@ -129,8 +123,7 @@ export class GitHub {
             if (typeof data.error !== 'undefined'){
                 console.log("error", data.error);
                 Utils.showUserMessage("Error", data.error);
-                reject(data.error);
-                return;
+                throw data.error;
             }
 
             // flag as fetched and expand by default
@@ -165,8 +158,6 @@ export class GitHub {
                 location.folders.push(new RepositoryFolder(folderName, repository, path));
             }
 
-            resolve();
-        });
     }
 
     private static parseFolder = (repository : Repository, path : string, data : any) : RepositoryFolder => {
@@ -202,8 +193,7 @@ export class GitHub {
      * @param filePath File path.
      */
     static async openRemoteFile(repositoryService : RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string): Promise<string> {
-        return new Promise(async(resolve, reject) => {
-            const token = Utils.getServiceToken(RepositoryService.GitHub);
+        const token = Utils.getServiceToken(RepositoryService.GitHub);
             const fullFileName : string = Utils.joinPath(filePath, fileName);
 
             // Add parameters in json data.
@@ -215,13 +205,7 @@ export class GitHub {
                 filename: fullFileName
             };
 
-            let data: any;
-            try {
-                data = await Utils.httpPostJSON('/openRemoteGithubFile', jsonData);
-            } catch (error){
-                reject(error);
-                return;
-            }
+            const data = await Utils.httpPostJSON('/openRemoteGithubFile', jsonData) as unknown as { credentialsIgnored?: boolean; data: string };
 
             // warn if credentials were ignored (bad token, fell back to anonymous access)
             if (data.credentialsIgnored){
@@ -232,13 +216,11 @@ export class GitHub {
                 );
             }
 
-            resolve(data.data);
-        });
+        return data.data;
     }
 
     static async deleteRemoteFile(repositoryService : RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string){
-        return new Promise(async(resolve, reject) => {
-            const token = Utils.getServiceToken(RepositoryService.GitHub);
+        const token = Utils.getServiceToken(RepositoryService.GitHub);
 
             if (token === null || token === "") {
                 Utils.showUserMessage("Access Token", "The GitHub access token is not set! To open GitHub repositories, set the token via settings.");
@@ -256,14 +238,7 @@ export class GitHub {
                 filename: fullFileName
             };
 
-            let data: any;
-            try {
-                data = await Utils.httpPostJSON('/deleteRemoteGithubFile', jsonData);
-            } catch (error){
-                reject(error);
-                return;
-            }
-            resolve(data);
-        });
+            const data: unknown = await Utils.httpPostJSON('/deleteRemoteGithubFile', jsonData);
+        return data;
     }
 }

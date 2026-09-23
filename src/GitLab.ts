@@ -30,8 +30,7 @@ import { EagleStorage } from './EagleStorage';
 
 export class GitLab {    
     static async loadRepoList(): Promise<Repository[]> {
-        return new Promise(async(resolve) => {
-            const repositories: Repository[] = [];
+        const repositories: Repository[] = [];
 
             // find and add custom gitlab repositories from browser storage
             const customRepositories = await EagleStorage.listCustomRepositories(RepositoryService.GitLab);
@@ -43,8 +42,7 @@ export class GitLab {
                 data = await Utils.httpGetJSON("/getGitLabRepositoryList", {}) as {repository: string, branch: string}[];
             } catch (error) {
                 console.error(error);
-                resolve(repositories);
-                return;
+                return repositories;
             }
 
             // add the repositories from the POST response
@@ -52,23 +50,20 @@ export class GitLab {
                 repositories.push(new Repository(RepositoryService.GitLab, d.repository, d.branch, true));
             }
 
-            resolve(repositories);
-        });
+        return repositories;
     }
 
     /**
      * Shows the remote files
      */
     static async loadRepoContent(repository : Repository, path: string): Promise<void> {
-        return new Promise(async(resolve, reject) => {
-            const token = Utils.getServiceToken(RepositoryService.GitLab);
+        const token = Utils.getServiceToken(RepositoryService.GitLab);
 
             // get location
             const location: Repository | RepositoryFolder | null = repository.findPath(path);
 
             if (location === null) {
-                reject(new Error("Location not found for path: " + path));
-                return;
+                throw new Error("Location not found for path: " + path);
             }
 
             // flag the location as being fetched
@@ -88,8 +83,7 @@ export class GitLab {
             } catch (error) {
                 console.error(error, data);
                 Utils.showUserMessage("Error", "Unable to fetch files for this repository. A server error occurred. " + error);
-                reject(error);
-                return;
+                throw error;
             } finally {
                 location.isFetching(false);
             }
@@ -98,8 +92,7 @@ export class GitLab {
             if (typeof data.error !== 'undefined'){
                 console.log("error", data.error);
                 Utils.showUserMessage("Error", data.error);
-                reject(data.error);
-                return;
+                throw data.error;
             }
 
             // flag as fetched and expand by default
@@ -134,8 +127,6 @@ export class GitLab {
                 location.folders.push(new RepositoryFolder(folderName, repository, path));
             }
 
-            resolve();
-        });
     }
 
     private static parseFolder = (repository : Repository, path : string, data : any) : RepositoryFolder => {
@@ -171,8 +162,7 @@ export class GitLab {
      * @param filePath File path.
      */
     static async openRemoteFile(repositoryService : RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string): Promise<string> {
-        return new Promise(async(resolve, reject) => {
-            const token = Utils.getServiceToken(RepositoryService.GitLab);
+        const token = Utils.getServiceToken(RepositoryService.GitLab);
 
             const fullFileName : string = Utils.joinPath(filePath, fileName);
 
@@ -185,13 +175,7 @@ export class GitLab {
                 filename: fullFileName
             };
 
-            let data: any;
-            try {
-                data = await Utils.httpPostJSON('/openRemoteGitlabFile', jsonData);
-            } catch (error){
-                reject(error);
-                return;
-            }
+            const data = await Utils.httpPostJSON('/openRemoteGitlabFile', jsonData) as unknown as { credentialsIgnored?: boolean; data: string };
 
             // warn if credentials were ignored (bad token, fell back to anonymous access)
             if (data.credentialsIgnored){
@@ -202,13 +186,11 @@ export class GitLab {
                 );
             }
 
-            resolve(data.data);
-        });
+        return data.data;
     }
 
-    static deleteRemoteFile(repositoryService : RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string){
-        return new Promise(async(resolve, reject) => {
-            const token = Utils.getServiceToken(RepositoryService.GitLab);
+    static async deleteRemoteFile(repositoryService : RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string){
+        const token = Utils.getServiceToken(RepositoryService.GitLab);
 
             if (token === null || token === "") {
                 Utils.showUserMessage("Access Token", "The GitLab access token is not set! To open GitLab repositories, set the token via settings.");
@@ -226,14 +208,7 @@ export class GitLab {
                 filename: fullFileName
             };
 
-            let data: any;
-            try {
-                data = await Utils.httpPostJSON('/deleteRemoteGitlabFile', jsonData);
-            } catch (error) {
-                reject(error);
-                return;
-            }
-            resolve(data);
-        });
+            const data: unknown = await Utils.httpPostJSON('/deleteRemoteGitlabFile', jsonData);
+        return data;
     }
 }
