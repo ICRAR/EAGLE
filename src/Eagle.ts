@@ -2764,7 +2764,7 @@ export class Eagle {
         });
     }
 
-    openRemoteFile = async (file : RepositoryFile): Promise<void> => {
+    openRemoteFile = async (file : RepositoryFile, replaceActiveGraph: boolean = false): Promise<void> => {
         // flag file as being fetched
         file.isFetching(true);
 
@@ -2862,10 +2862,18 @@ export class Eagle {
                 if (Utils.newerEagleVersion(eagleVersion, eagleWindow.version ?? "")){
                     const confirmed = await Utils.requestUserConfirm("Newer EAGLE Version", "File " + file.name + " was written with EAGLE version " + eagleVersion + ", whereas the current EAGLE version is " + (eagleWindow.version ?? "") + ". Do you wish to load the file anyway?", "Yes", "No", undefined);
                     if (confirmed){
-                        await this._loadGraphWithChoice(data, file);
+                        if (replaceActiveGraph) {
+                            await this._loadGraph(data, file);
+                        } else {
+                            await this._loadGraphWithChoice(data, file);
+                        }
                     }
                 } else {
-                    await this._loadGraphWithChoice(data, file);
+                    if (replaceActiveGraph) {
+                        await this._loadGraph(data, file);
+                    } else {
+                        await this._loadGraphWithChoice(data, file);
+                    }
                 }
                 break;
             }
@@ -3011,7 +3019,7 @@ export class Eagle {
             }
 
             // load graph first
-            await this.openRemoteFile(repositoryFile);
+            await this.openRemoteFile(repositoryFile, true);
 
             someGraphAlreadyLoaded = true;
             configMatch = true;
