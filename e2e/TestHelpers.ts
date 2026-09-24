@@ -155,7 +155,7 @@ export class TestHelpers {
                         }
 
                         case TestHelpers.TutorialStepType.Input: {
-                            if (typeof stepInfo.testStepFunction === 'function') {
+                            if (stepInfo.testStepFunction != null) {
                                 await TestHelpers.runTutorialCustomStep(page, stepInfo.testStepFunction);
                             } else {
                                 const inputText = TestHelpers.getTutorialInputText(stepInfo.title, stepInfo.expectedInput);
@@ -175,7 +175,7 @@ export class TestHelpers {
                         }
 
                         case TestHelpers.TutorialStepType.Condition: {
-                            if (typeof stepInfo.testStepFunction !== 'function') {
+                            if (stepInfo.testStepFunction == null) {
                                 throw new Error(`Condition step '${stepInfo.title}' requires a test hook. Add .setTestStepFunction(...) in the tutorial definition.`);
                             }
 
