@@ -1012,42 +1012,47 @@ export class Eagle {
      */
     loadDroppedFile = (file: File): void => {
         const reader = new FileReader();
-        reader.onload = (evt) => {
-            const data = evt.target?.result?.toString() ?? "";
-            if (data === "") {
-                Utils.showUserMessage("Error", "File is empty or could not be read.");
-                return;
-            }
-
-            let dataObject: any;
+        reader.onload = async (evt) => {
             try {
-                dataObject = JSON.parse(data);
-            } catch (err) {
-                Utils.showUserMessage("Error parsing file JSON", Errors.UnknownToError(err));
-                return;
-            }
+                const data = evt.target?.result?.toString() ?? "";
+                if (data === "") {
+                    Utils.showUserMessage("Error", "File is empty or could not be read.");
+                    return;
+                }
 
-            const fileType = Utils.determineFileType(dataObject);
-            const repositoryFile = new RepositoryFile(
-                new Repository(RepositoryService.File, "", "", false),
-                Utils.getFilePathFromFullPath(file.name),
-                Utils.getFileNameFromFullPath(file.name)
-            );
-            switch (fileType) {
-                case EagleFileType.Graph:
-                    void this._loadGraphWithChoice(data, repositoryFile);
-                    break;
-                case EagleFileType.Palette:
-                    this._loadPaletteJSON(data, file.name);
-                    break;
-                case EagleFileType.GraphConfig:
-                    void this._loadGraphConfig(
-                        dataObject,
-                        new RepositoryFile(Repository.placeholder(), "", Utils.getFileNameFromFullPath(file.name))
-                    );
-                    break;
-                default:
-                    Utils.showUserMessage("Error", "Unable to determine the dropped file type.");
+                let dataObject: any;
+                try {
+                    dataObject = JSON.parse(data);
+                } catch (err) {
+                    Utils.showUserMessage("Error parsing file JSON", Errors.UnknownToError(err));
+                    return;
+                }
+
+                const fileType = Utils.determineFileType(dataObject);
+                const repositoryFile = new RepositoryFile(
+                    new Repository(RepositoryService.File, "", "", false),
+                    Utils.getFilePathFromFullPath(file.name),
+                    Utils.getFileNameFromFullPath(file.name)
+                );
+                switch (fileType) {
+                    case EagleFileType.Graph:
+                        await this._loadGraphWithChoice(data, repositoryFile);
+                        break;
+                    case EagleFileType.Palette:
+                        this._loadPaletteJSON(data, file.name);
+                        break;
+                    case EagleFileType.GraphConfig:
+                        await this._loadGraphConfig(
+                            dataObject,
+                            new RepositoryFile(Repository.placeholder(), "", Utils.getFileNameFromFullPath(file.name))
+                        );
+                        break;
+                    default:
+                        Utils.showUserMessage("Error", "Unable to determine the dropped file type.");
+                }
+            } catch (err) {
+                console.error("Error loading dropped file", err);
+                Utils.showUserMessage("Error", "Unable to load dropped file: " + Errors.UnknownToError(err));
             }
         };
         reader.onerror = () => {
@@ -2792,7 +2797,9 @@ export class Eagle {
                 openRemoteFileFunc = Utils.openRemoteFileFromUrl;
                 break;
             default:
-                console.warn("Unsure how to fetch file with unknown service ", file.repository.service);
+                const message = "Unable to load '" + file.name + "': repository service '" + file.repository.service + "' is not supported for remote loading.";
+                console.warn(message);
+                Utils.showUserMessage("Error", message);
                 return;
         }
 
@@ -2993,6 +3000,15 @@ export class Eagle {
             const repository = new Repository(graphConfig.fileInfo().graphLocation.repositoryService(), graphConfig.fileInfo().graphLocation.repositoryName(), graphConfig.fileInfo().graphLocation.repositoryBranch(), false);
             const repositoryFile = new RepositoryFile(repository, graphConfig.fileInfo().graphLocation.repositoryPath(), graphConfig.fileInfo().graphLocation.repositoryFileName());
             repositoryFile.type = EagleFileType.Graph;
+
+            // if the associated graph is a local file, we cannot load the graph config remotely
+            if (repository.service === RepositoryService.File) {
+                Utils.showUserMessage(
+                    "Error",
+                    "Unable to load graph config '" + file.name + "': its associated graph is a local file. Load the associated graph first, then load the graph config."
+                );
+                return;
+            }
 
             // load graph first
             await this.openRemoteFile(repositoryFile);
