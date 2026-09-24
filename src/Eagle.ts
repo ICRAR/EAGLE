@@ -1091,7 +1091,6 @@ export class Eagle {
     insertLocalGraphFile = async () : Promise<void> => {
         const graphFileToInsertInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("graphFileToInsert");
         const fileFullPath : string = graphFileToInsertInputElement.value;
-        const errorsWarnings : ErrorsWarnings = {"errors":[], "warnings":[]};
 
         // abort if value is empty string
         if (fileFullPath === ""){
@@ -1126,12 +1125,10 @@ export class Eagle {
                     data = "";
                 }
 
-                await this._loadGraphJSON(data, fileFullPath, async (lg: LogicalGraph) : Promise<void> => {
+                await this._loadGraphJSON(data, fileFullPath, async (lg: LogicalGraph, errorsWarnings: ErrorsWarnings) : Promise<void> => {
                     const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().location.getText(), "", CategoryName.SubGraph);
     
                     await this.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges()), parentNode, errorsWarnings);
-    
-                    // TODO: handle errors and warnings
     
                     this.checkEagle();
                     this.undo().pushSnapshot(this, "Insert Logical Graph");
@@ -1183,7 +1180,7 @@ export class Eagle {
         return false;
     }
 
-    private _loadGraphJSON = async (data: string, fileFullPath: string, loadFunc: (lg: LogicalGraph) => void | Promise<void>) : Promise<boolean> => {
+    private _loadGraphJSON = async (data: string, fileFullPath: string, loadFunc: (lg: LogicalGraph, errorsWarnings: ErrorsWarnings) => void | Promise<void>) : Promise<boolean> => {
         let dataObject;
 
         // attempt to parse the JSON
@@ -1217,14 +1214,14 @@ export class Eagle {
                     GraphUpdater.updateKeysToIds(dataObject);
                 }
 
-                await loadFunc(LogicalGraph.fromOJSJson(dataObject, "", errorsWarnings));
+                await loadFunc(LogicalGraph.fromOJSJson(dataObject, "", errorsWarnings), errorsWarnings);
                 loaded = true;
                 break;
             case SchemaVersion.V4:
                 if (!this._validateV4GraphLoadJSON(dataObject as JsonObject, errorsWarnings)) {
                     break;
                 }
-                await loadFunc(LogicalGraph.fromV4Json(dataObject as V4GraphJson, "", errorsWarnings));
+                await loadFunc(LogicalGraph.fromV4Json(dataObject as V4GraphJson, "", errorsWarnings), errorsWarnings);
                 loaded = true;
                 break;
             default:
@@ -2990,8 +2987,7 @@ export class Eagle {
 
 
         // Insert as subgraph
-        const errorsWarnings: ErrorsWarnings = {"errors": [], "warnings": []};
-        await this._loadGraphJSON(data, file.name, async (logicalGraph: LogicalGraph): Promise<void> => {
+        await this._loadGraphJSON(data, file.name, async (logicalGraph: LogicalGraph, errorsWarnings: ErrorsWarnings): Promise<void> => {
             const parentNode = new Node(
                 logicalGraph.fileInfo().name,
                 logicalGraph.fileInfo().location.getText(),
