@@ -6,36 +6,32 @@ import { TestHelpers } from './TestHelpers';
 const INPUT_GRAPH_LOCATION: string = "data/LoopWithBranch.graph";
 
 test('V4 Format JSON Match', async ({ page }) => {
-  await page.goto('http://localhost:8888/?tutorial=none');
+  let inputOJS: string;
+  let outputOJS: string;
 
-  // set 'Expert' UI mode
-  await TestHelpers.setUIMode(page, 'Expert');
+  await test.step('Load the input graph', async () => {
+    await page.goto('http://localhost:8888/?tutorial=none');
+    await TestHelpers.setUIMode(page, 'Expert');
+    inputOJS = await TestHelpers.readGraph(INPUT_GRAPH_LOCATION);
+    await TestHelpers.loadGraphFromString(page, inputOJS);
+  });
 
-  // 1 - read input graph from file, and load it into the app
-  const inputOJS = await TestHelpers.readGraph(INPUT_GRAPH_LOCATION);
-  await TestHelpers.loadGraphFromString(page, inputOJS);
+  await test.step('Round-trip the graph through V4', async () => {
+    await TestHelpers.setSchemaVersion(page, 'V4');
+    const outputV4 = await TestHelpers.saveGraphToString(page);
+    await TestHelpers.loadGraphFromString(page, outputV4);
+    await TestHelpers.setSchemaVersion(page, 'OJS');
+    outputOJS = await TestHelpers.saveGraphToString(page);
+  });
 
-  // 2 - set schema to V4, and output graph to string
-  await TestHelpers.setSchemaVersion(page, 'V4')
-  const outputV4 = await TestHelpers.saveGraphToString(page);
-
-  // 3 - load the V4 graph back into the app
-  await TestHelpers.loadGraphFromString(page, outputV4)
-
-  // 4 - set schema to OJS, and output graph to string
-  await TestHelpers.setSchemaVersion(page, 'OJS');
-  const outputOJS = await TestHelpers.saveGraphToString(page);
-
-  // 5 - compare steps 1 and 4
-  const obj1 = JSON.parse(inputOJS);
-  const obj2 = JSON.parse(outputOJS);
-
-  const result0 = TestHelpers.compareObj(obj1, obj2);
-  const result1 = TestHelpers.compareObj(obj2, obj1);
-
-  // !!!!!!!!!!!!! CHECK FOR MATCH
-  await expect(JSON.stringify(result0)).toBe("{}");
-  await expect(JSON.stringify(result1)).toBe("{}");
+  await test.step('Compare the round-tripped graph', async () => {
+    const obj1 = JSON.parse(inputOJS);
+    const obj2 = JSON.parse(outputOJS);
+    const result0 = TestHelpers.compareObj(obj1, obj2);
+    const result1 = TestHelpers.compareObj(obj2, obj1);
+    await expect(JSON.stringify(result0)).toBe("{}");
+    await expect(JSON.stringify(result1)).toBe("{}");
+  });
 
   // close the browser
   await page.close();

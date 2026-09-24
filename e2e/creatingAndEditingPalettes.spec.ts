@@ -2,37 +2,29 @@ import { test, expect } from '@playwright/test';
 import { TestHelpers } from './TestHelpers';
 
 test('Creating and editing Palettes', async ({ page }) => {
-  
-  await page.goto('http://localhost:8888/?tutorial=none');
-
-  // Expect a title "to contain" a substring.
-  await expect(page).toHaveTitle(/EAGLE/);
-  
-  // set 'Expert' UI mode
-  await TestHelpers.setUIMode(page, 'Expert');
-
-  //expand the 'Builtin Components' palette
-  await TestHelpers.expandPalette(page, 0);
-
-  //right click the hello world app in the palette
-  await page.locator('#palette_0_CopyApp').click({
-    button: 'right'
+  await test.step('Open the palette editing workflow', async () => {
+    await page.goto('http://localhost:8888/?tutorial=none');
+    await expect(page).toHaveTitle(/EAGLE/);
+    await TestHelpers.setUIMode(page, 'Expert');
+    await TestHelpers.expandPalette(page, 0);
   });
 
-  //click menu item add to another palette
-  await page.getByText('Add to another palette').click();
-
-  //enter the new palette name and confirm
-  await TestHelpers.enterCustomChoiceName(page, 'test');
+  await test.step('Add a component to another palette', async () => {
+    await page.locator('#palette_0_CopyApp').click({ button: 'right' });
+    await page.getByText('Add to another palette').click();
+    await TestHelpers.enterCustomChoiceName(page, 'test');
+  });
 
   await page.close();
 });
 
 test('Palette loading continues after an unavailable palette', async ({ page }) => {
-  await page.goto('http://localhost:8888/?tutorial=none');
-  await expect(page).toHaveTitle(/EAGLE/);
+  await test.step('Prepare palette loading', async () => {
+    await page.goto('http://localhost:8888/?tutorial=none');
+    await expect(page).toHaveTitle(/EAGLE/);
+  });
 
-  const result = await page.evaluate(async () => {
+  const result = await test.step('Load palettes with a failed request', async () => page.evaluate(async () => {
     const eagle = (window as any).eagle;
     const utils = (window as any).Utils;
 
@@ -86,30 +78,32 @@ test('Palette loading continues after an unavailable palette', async ({ page }) 
       // restore the original httpPostJSON so other tests are not affected
       utils.httpPostJSON = originalHttpPostJSON;
     }
-  });
+  }));
 
-  expect(result).toEqual({
-    firstFailure: ['Missing Palette', 'Second Palette'],
-    finalFailure: ['First Palette', 'Final Missing Palette']
+  await test.step('Verify later palettes still load', async () => {
+    expect(result).toEqual({
+      firstFailure: ['Missing Palette', 'Second Palette'],
+      finalFailure: ['First Palette', 'Final Missing Palette']
+    });
   });
 
   await page.close();
 });
 
 test('Load Palette navbar option opens the local file picker', async ({ page }) => {
-  await page.goto('http://localhost:8888/?tutorial=none');
-  await expect(page).toHaveTitle(/EAGLE/);
+  await test.step('Open the palette menu', async () => {
+    await page.goto('http://localhost:8888/?tutorial=none');
+    await expect(page).toHaveTitle(/EAGLE/);
+    await TestHelpers.setUIMode(page, 'Expert');
+    await page.locator('#navbarDropdownPalette').click();
+    await page.locator('span.dropDropDownParent').filter({ has: page.locator('#loadPalette') }).hover();
+  });
 
-  // Expert mode enables palette editing, which is the mode where the inverted
-  // permission check prevents this menu option from working.
-  await TestHelpers.setUIMode(page, 'Expert');
-  await page.locator('#navbarDropdownPalette').click();
-  await page.locator('span.dropDropDownParent').filter({ has: page.locator('#loadPalette') }).hover();
-
-  // Clicking Load should delegate to the hidden file input and emit a chooser.
-  const fileChooserPromise = page.waitForEvent('filechooser');
-  await page.locator('#loadPalette').click();
-  await fileChooserPromise;
+  await test.step('Open the local file picker', async () => {
+    const fileChooserPromise = page.waitForEvent('filechooser');
+    await page.locator('#loadPalette').click();
+    await fileChooserPromise;
+  });
 
   await page.close();
 });
