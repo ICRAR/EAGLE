@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { TestHelpers } from './TestHelpers';
+import { TestHelpers } from '../TestHelpers';
 
 test('Undo', async ({ page }) => {
     await page.goto('http://localhost:8888/?tutorial=none');
@@ -75,28 +75,29 @@ test('Undo', async ({ page }) => {
 });
 
 test('Undo recomputes navbar graph issues state', async ({ page }) => {
-    await page.goto('http://localhost:8888/?tutorial=none');
+    await test.step('Create a valid graph', async () => {
+        await page.goto('http://localhost:8888/?tutorial=none');
+        await TestHelpers.setUIMode(page, 'Expert');
+        await TestHelpers.createNewGraph(page);
+        await TestHelpers.setShortDescription(page, 'Undo regression graph');
+        await TestHelpers.setDetailedDescription(page, 'Graph used to verify navbar issue recomputation after undo.');
+        await expect.poll(async () => await TestHelpers.getNumWarningsErrors(page)).toBe(0);
+        await expect(page.locator('#checkEagleDone')).toBeVisible();
+    });
 
-    await TestHelpers.setUIMode(page, 'Expert');
+    await test.step('Create an issue and undo it', async () => {
+        await TestHelpers.setShortDescription(page, '');
+        const warningCountAfterMutation = await TestHelpers.getNumWarningsErrors(page);
+        expect(warningCountAfterMutation).toBeGreaterThan(0);
+        await expect(page.locator('#checkEagleWarnings')).toBeVisible();
+        await TestHelpers.undo(page);
+    });
 
-    await TestHelpers.createNewGraph(page);
-    await TestHelpers.setShortDescription(page, 'Undo regression graph');
-    await TestHelpers.setDetailedDescription(page, 'Graph used to verify navbar issue recomputation after undo.');
-
-    await expect.poll(async () => await TestHelpers.getNumWarningsErrors(page)).toBe(0);
-    await expect(page.locator('#checkEagleDone')).toBeVisible();
-
-    await TestHelpers.setShortDescription(page, '');
-    const warningCountAfterMutation = await TestHelpers.getNumWarningsErrors(page);
-
-    expect(warningCountAfterMutation).toBeGreaterThan(0);
-    await expect(page.locator('#checkEagleWarnings')).toBeVisible();
-
-    await TestHelpers.undo(page);
-
-    await expect.poll(async () => await TestHelpers.getNumWarningsErrors(page)).toBe(0);
-    await expect(page.locator('#checkEagleDone')).toBeVisible();
-    await expect(page.locator('#checkEagleWarnings')).toBeHidden();
+    await test.step('Verify the issue state is restored', async () => {
+        await expect.poll(async () => await TestHelpers.getNumWarningsErrors(page)).toBe(0);
+        await expect(page.locator('#checkEagleDone')).toBeVisible();
+        await expect(page.locator('#checkEagleWarnings')).toBeHidden();
+    });
 
     await page.close();
 });
