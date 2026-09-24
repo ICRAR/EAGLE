@@ -146,7 +146,16 @@ export class SideWindow {
         return true;
     }
 
-    static nodeDragOver() : boolean {
+    static nodeDragOver(_eagle: Eagle, event: JQuery.TriggeredEvent) : boolean {
+        const dragEvent = event.originalEvent as DragEvent;
+        const isFileDrag = dragEvent.dataTransfer !== null && (
+            dragEvent.dataTransfer.files.length > 0 ||
+            Array.from(dragEvent.dataTransfer.types).includes("Files")
+        );
+        if (isFileDrag) {
+            dragEvent.preventDefault();
+            dragEvent.dataTransfer.dropEffect = "copy";
+        }
         return false;
     }
 
