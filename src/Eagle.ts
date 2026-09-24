@@ -960,7 +960,21 @@ export class Eagle {
     /**
      * Uploads a file from a local file location.
      */
-    loadLocalGraphFile = () : void => {
+    private _isTextFile = async (file: File): Promise<boolean> => {
+        try {
+            const data = new TextDecoder("utf-8", {fatal: true}).decode(await file.arrayBuffer());
+            return !/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/.test(data);
+        } catch (_error) {
+            return false;
+        }
+    }
+
+    private _rejectBinaryFile = (file: File): void => {
+        console.warn("Rejected binary upload", file.name);
+        Utils.showUserMessage("Error", "The requested file is not a valid text file.");
+    }
+
+    loadLocalGraphFile = async () : Promise<void> => {
         const graphFileToLoadInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("graphFileToLoad");
         const fileFullPath : string = graphFileToLoadInputElement.value;
 
@@ -980,6 +994,12 @@ export class Eagle {
 
         // read the file
         if (file) {
+            if (!await this._isTextFile(file)) {
+                this._rejectBinaryFile(file);
+                graphFileToLoadInputElement.value = "";
+                return;
+            }
+
             const reader = new FileReader();
             reader.readAsText(file, "UTF-8");
             reader.onload = async (evt) => {
@@ -1010,7 +1030,12 @@ export class Eagle {
      * Loads a dropped graph, palette, or graph configuration by inspecting its JSON type.
      * The existing type-specific loaders remain responsible for validation and UI updates.
      */
-    loadDroppedFile = (file: File): void => {
+    loadDroppedFile = async (file: File): Promise<void> => {
+        if (!await this._isTextFile(file)) {
+            this._rejectBinaryFile(file);
+            return;
+        }
+
         const reader = new FileReader();
         reader.onload = async (evt) => {
             try {
@@ -1064,7 +1089,7 @@ export class Eagle {
     /**
      * Uploads a file from a local file location. File will be "insert"ed into the current graph
      */
-    insertLocalGraphFile = () : void => {
+    insertLocalGraphFile = async () : Promise<void> => {
         const graphFileToInsertInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("graphFileToInsert");
         const fileFullPath : string = graphFileToInsertInputElement.value;
         const errorsWarnings : ErrorsWarnings = {"errors":[], "warnings":[]};
@@ -1085,6 +1110,12 @@ export class Eagle {
 
         // read the file
         if (file) {
+            if (!await this._isTextFile(file)) {
+                this._rejectBinaryFile(file);
+                graphFileToInsertInputElement.value = "";
+                return;
+            }
+
             const reader = new FileReader();
             reader.readAsText(file, "UTF-8");
             reader.onload = async (evt) => {
@@ -1507,7 +1538,7 @@ export class Eagle {
     /**
      * Loads a custom palette from a file.
      */
-    loadLocalPaletteFile = () : void => {
+    loadLocalPaletteFile = async () : Promise<void> => {
         const paletteFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("paletteFileToLoad");
         const fileFullPath : string = paletteFileInputElement.value;
 
@@ -1527,6 +1558,12 @@ export class Eagle {
         
         // read the file
         if (file) {
+            if (!await this._isTextFile(file)) {
+                this._rejectBinaryFile(file);
+                paletteFileInputElement.value = "";
+                return;
+            }
+
             const reader = new FileReader();
             reader.readAsText(file, "UTF-8");
             reader.onload = (evt) => {
@@ -1587,7 +1624,7 @@ export class Eagle {
     /**
      * Loads a custom graph config from a file.
      */
-    loadLocalGraphConfigFile = () : void => {
+    loadLocalGraphConfigFile = async () : Promise<void> => {
         const graphConfigFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("graphConfigFileToLoad");
         const fileFullPath : string = graphConfigFileInputElement.value;
 
@@ -1607,6 +1644,12 @@ export class Eagle {
         
         // read the file
         if (file) {
+            if (!await this._isTextFile(file)) {
+                this._rejectBinaryFile(file);
+                graphConfigFileInputElement.value = "";
+                return;
+            }
+
             const reader = new FileReader();
             reader.readAsText(file, "UTF-8");
             reader.onload = (evt) => {
