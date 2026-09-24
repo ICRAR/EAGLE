@@ -41,7 +41,6 @@ import { FileLocation } from "./FileLocation";
 import { GitHub } from './GitHub';
 import { GitLab } from './GitLab';
 import { GraphConfig } from "./GraphConfig";
-import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 import { GraphRenderer } from "./GraphRenderer";
 import { Hierarchy } from './Hierarchy';
 import { Id } from './Id';
@@ -3042,11 +3041,10 @@ export class Eagle {
     _loadGraphConfig = async (dataObject: JsonObject, file: RepositoryFile): Promise<void> => {
         const errorsWarnings: ErrorsWarnings = {"errors":[], "warnings":[]};
 
-        const graphConfig = GraphConfig.fromJson(dataObject, this.logicalGraph(), errorsWarnings);
+        let graphConfig = GraphConfig.fromJson(dataObject, this.logicalGraph(), errorsWarnings);
 
         const graphModified: boolean = this.logicalGraph().fileInfo().modified;
         let someGraphAlreadyLoaded: boolean = this.logicalGraph().fileInfo().name !== ""; // true if there is already a graph loaded
-        let graphAutoLoaded: boolean = false; // true if we auto-loaded a graph to match the graphConfig
 
         // check if graphConfig belongs to this graph
         let configMatch = FileLocation.match(graphConfig.fileInfo().graphLocation, this.logicalGraph().fileInfo().location);
@@ -3080,20 +3078,16 @@ export class Eagle {
 
             someGraphAlreadyLoaded = true;
             configMatch = true;
-            graphAutoLoaded = true;
+            // Rebind configuration nodes to the graph that was just loaded.
+            errorsWarnings.errors = [];
+            errorsWarnings.warnings = [];
+            graphConfig = GraphConfig.fromJson(dataObject, this.logicalGraph(), errorsWarnings);
         }
 
         // check if graphConfig already exists in this graph
         const configAlreadyExists: boolean = this.logicalGraph().getGraphConfigById(graphConfig.getId()) !== undefined;
 
         if (someGraphAlreadyLoaded && configMatch && configAlreadyExists){
-
-            // if we auto-loaded the graph, and it already contains the graphConfig we were trying to load, then just skip loading it again
-            if (graphAutoLoaded){
-                GraphConfigurationsTable.openTable();
-                return;
-            }
-
             const userOption = await Utils.requestUserOptions("Graph Config Already Exists", "A graph config with the same id already exists in this graph. Do you wish to overwrite it, or load the new one with a different name?", "Overwrite", "Load as Separate Config", "Cancel", 0);
 
             if (userOption === "Overwrite"){
