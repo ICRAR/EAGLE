@@ -612,11 +612,11 @@ export class KeyboardShortcut {
             run: (eagle): void => { eagle.selectAllInGraph();}
         }),
         new KeyboardShortcut({
-            id: "select_none_in_graph",
-            text: "Select none in graph",
+            id: "select_no_objects_in_graph",
+            text: "Select no objects in graph",
             keys: [new Key("Escape")],
             tags: ['deselect'],
-            run: (eagle): void => { eagle.selectNoneInGraph();}
+            run: (eagle): void => { eagle.selectNoObjectsInGraph();}
         }),
 
         // checking and fixing

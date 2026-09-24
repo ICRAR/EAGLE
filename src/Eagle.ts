@@ -3958,9 +3958,7 @@ export class Eagle {
         Eagle.selectedLocation(EagleFileType.Graph);
     }
 
-    selectNoneInGraph = () : void => {
-        console.log("selectNoneInGraph()");
-
+    selectNoObjectsInGraph = () : void => {
         this.selectedObjects([]);
     }
 
@@ -5733,7 +5731,38 @@ $( document ).ready(function() {
         }, EagleConfig.DROPDOWN_DISMISS_DELAY);
     })
 
-    //added to prevent console warnings caused by focused elements in a modal being hidden 
+    // Track the modal focus listener so it is attached only while a modal is open.
+    // Capture phase is required because graph/node handlers may stop propagation.
+    let modalFocusListenerAttached = false;
+    const modalFocusStateHandler = (event: MouseEvent): void => {
+        const modal = $('.modal.show').first();
+        if (modal.length === 0) {
+            return;
+        }
+
+        const target = $(event.target as Element);
+        if (target.closest('.modal-content').length > 0) {
+            modal.removeClass('modal-focus-away');
+        } else {
+            modal.addClass('modal-focus-away');
+        }
+    };
+
+    const attachModalFocusListener = (): void => {
+        if (!modalFocusListenerAttached) {
+            document.addEventListener('mousedown', modalFocusStateHandler, true);
+            modalFocusListenerAttached = true;
+        }
+    };
+
+    const detachModalFocusListener = (): void => {
+        if (modalFocusListenerAttached) {
+            document.removeEventListener('mousedown', modalFocusStateHandler, true);
+            modalFocusListenerAttached = false;
+        }
+    };
+
+    // Added to prevent console warnings caused by focused elements in a modal being hidden.
     $('.modal').on('hide.bs.modal',function(){
         if (document.activeElement) {
             $(document.activeElement).blur();
@@ -5747,9 +5776,17 @@ $( document ).ready(function() {
         //reset parameter table selection
         ParameterTable.resetSelection()
 
+        //remove the listener for modal focus state
+        $('.modal').removeClass('modal-focus-away')
+
         //reset the modal dialog pointer events so that the modal can be closed when clicked outside
         $('.modal').css({"pointerEvents":"auto"})
         $('.modal .modal-content').css({"pointerEvents":"auto"})
+
+        // Keep the listener alive if another modal is taking over during this transition.
+        if ($('.modal.show').length === 0) {
+            detachModalFocusListener();
+        }
     });  
 
     $('.modal').on('show.bs.modal',function(){
@@ -5765,6 +5802,10 @@ $( document ).ready(function() {
         //this event is called when a modal is done opening
         const modal = $(this);
 
+        // attach the modal focus listener when the modal is shown
+        attachModalFocusListener();
+        modal.removeClass('modal-focus-away');
+
         // modal draggable
         ($('.modal-dialog') as JQuery<HTMLElement>).draggable({
             handle: '.modal-header'
@@ -5772,6 +5813,7 @@ $( document ).ready(function() {
 
         //this is a system that allows graph interaction with a modal open, it triggers when the user clicks and drags the modal header
         $(event.target).find('.modal-header').on('mousedown', function(){
+            modal.removeClass('modal-focus-away')
             modal.css({"pointerEvents":"none"})
             modal.find('.modal-content').css({"pointerEvents":"all"})
             $('.modal-backdrop').remove()
