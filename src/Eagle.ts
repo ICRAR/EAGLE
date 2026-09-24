@@ -983,19 +983,19 @@ export class Eagle {
             const reader = new FileReader();
             reader.readAsText(file, "UTF-8");
             reader.onload = async (evt) => {
-                let data: string = evt.target?.result?.toString();
+                const data: string = evt.target?.result?.toString() ?? "";
 
                 if (!data) {
                     console.error("loadLocalGraphFile: file is empty or could not be read");
                     Utils.showUserMessage("Error", "File is empty or could not be read.");
-                    data = "";
+                    return;
                 }
 
-                await this._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
-                    this.logicalGraph(lg);
-
-                    this._postLoadGraph(new RepositoryFile(new Repository(RepositoryService.File, "", "", false), Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath)));
-                });
+                await this._loadGraphWithChoice(data, new RepositoryFile(
+                    new Repository(RepositoryService.File, "", "", false),
+                    Utils.getFilePathFromFullPath(fileFullPath),
+                    Utils.getFileNameFromFullPath(fileFullPath)
+                ));
             }
             reader.onerror = (evt) => {
                 console.error("error reading file", evt);
@@ -1004,6 +1004,56 @@ export class Eagle {
 
         // reset file selection element
         graphFileToLoadInputElement.value = "";
+    }
+
+    /**
+     * Loads a dropped graph, palette, or graph configuration by inspecting its JSON type.
+     * The existing type-specific loaders remain responsible for validation and UI updates.
+     */
+    loadDroppedFile = (file: File): void => {
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+            const data = evt.target?.result?.toString() ?? "";
+            if (data === "") {
+                Utils.showUserMessage("Error", "File is empty or could not be read.");
+                return;
+            }
+
+            let dataObject: any;
+            try {
+                dataObject = JSON.parse(data);
+            } catch (err) {
+                Utils.showUserMessage("Error parsing file JSON", Errors.UnknownToError(err));
+                return;
+            }
+
+            const fileType = Utils.determineFileType(dataObject);
+            const repositoryFile = new RepositoryFile(
+                new Repository(RepositoryService.File, "", "", false),
+                Utils.getFilePathFromFullPath(file.name),
+                Utils.getFileNameFromFullPath(file.name)
+            );
+            switch (fileType) {
+                case EagleFileType.Graph:
+                    void this._loadGraphWithChoice(data, repositoryFile);
+                    break;
+                case EagleFileType.Palette:
+                    this._loadPaletteJSON(data, file.name);
+                    break;
+                case EagleFileType.GraphConfig:
+                    void this._loadGraphConfig(
+                        dataObject,
+                        new RepositoryFile(Repository.placeholder(), "", Utils.getFileNameFromFullPath(file.name))
+                    );
+                    break;
+                default:
+                    Utils.showUserMessage("Error", "Unable to determine the dropped file type.");
+            }
+        };
+        reader.onerror = () => {
+            Utils.showUserMessage("Error", "File is empty or could not be read.");
+        };
+        reader.readAsText(file, "UTF-8");
     }
 
     /**
@@ -1098,7 +1148,7 @@ export class Eagle {
         return false;
     }
 
-    private _loadGraphJSON = async (data: string, fileFullPath: string, loadFunc: (lg: LogicalGraph) => void | Promise<void>) : Promise<void> => {
+    private _loadGraphJSON = async (data: string, fileFullPath: string, loadFunc: (lg: LogicalGraph) => void | Promise<void>) : Promise<boolean> => {
         let dataObject;
 
         // attempt to parse the JSON
@@ -1106,7 +1156,7 @@ export class Eagle {
             dataObject = JSON.parse(data);
         } catch(err){
             Utils.showUserMessage("Error parsing file JSON", Errors.UnknownToError(err));
-            return;
+            return false;
         }
 
         const fileType : EagleFileType = Utils.determineFileType(dataObject);
@@ -1114,13 +1164,14 @@ export class Eagle {
         // Only load graph files.
         if (fileType !== EagleFileType.Graph) {
             Utils.showUserMessage("Error", "This is not a graph file!");
-            return;
+            return false;
         }
 
         // attempt to determine schema version from FileInfo
         const schemaVersion: SchemaVersion = Utils.determineSchemaVersion(dataObject);
 
         const errorsWarnings: ErrorsWarnings = {errors: [], warnings: []};
+        let loaded = false;
 
         // use the correct parsing function based on schema version
         switch (schemaVersion){
@@ -1132,12 +1183,14 @@ export class Eagle {
                 }
 
                 await loadFunc(LogicalGraph.fromOJSJson(dataObject, "", errorsWarnings));
+                loaded = true;
                 break;
             case SchemaVersion.V4:
                 if (!this._validateV4GraphLoadJSON(dataObject as JsonObject, errorsWarnings)) {
                     break;
                 }
                 await loadFunc(LogicalGraph.fromV4Json(dataObject as V4GraphJson, "", errorsWarnings));
+                loaded = true;
                 break;
             default:
                 errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
@@ -1145,6 +1198,7 @@ export class Eagle {
         }
 
         this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), RepositoryService.File);
+        return loaded;
     }
 
     createSubgraphFromSelection = () : void => {
@@ -1159,7 +1213,6 @@ export class Eagle {
             return;
         }
 
-        // create new subgraph
         // look for similarly named node in palettes first, clone it
         // if not found in palettes, create a basic node from just the category
         let parentNode: Node;
@@ -2802,10 +2855,10 @@ export class Eagle {
                 if (Utils.newerEagleVersion(eagleVersion, eagleWindow.version ?? "")){
                     const confirmed = await Utils.requestUserConfirm("Newer EAGLE Version", "File " + file.name + " was written with EAGLE version " + eagleVersion + ", whereas the current EAGLE version is " + (eagleWindow.version ?? "") + ". Do you wish to load the file anyway?", "Yes", "No", undefined);
                     if (confirmed){
-                        await this._loadGraph(data, file);
+                        await this._loadGraphWithChoice(data, file);
                     }
                 } else {
-                    await this._loadGraph(data, file);
+                    await this._loadGraphWithChoice(data, file);
                 }
                 break;
             }
@@ -2837,13 +2890,66 @@ export class Eagle {
         this.resetEditor();
     };
 
+    private _loadGraphWithChoice = async (data: string, file: RepositoryFile): Promise<void> => {
+        const graphIsActive = this.logicalGraph().fileInfo().name !== "";
+        if (!graphIsActive) {
+            await this._loadGraph(data, file);
+            return;
+        }
+
+        const userOption = await Utils.requestUserOptions(
+            "Load Graph",
+            "A graph is already active. How would you like to load this graph?",
+            "Add as Subgraph",
+            "Replace Active Graph",
+            "Cancel",
+            1
+        );
+
+        // Cancel if the user chooses to cancel
+        if (userOption === "Cancel") {
+            return;
+        }
+
+        // Replace the active graph if the user chooses that option
+        if (userOption === "Replace Active Graph") {
+            await this._loadGraph(data, file);
+            return;
+        }
+
+
+        // Insert as subgraph
+        const errorsWarnings: ErrorsWarnings = {"errors": [], "warnings": []};
+        await this._loadGraphJSON(data, file.name, async (logicalGraph: LogicalGraph): Promise<void> => {
+            const parentNode = new Node(
+                logicalGraph.fileInfo().name,
+                logicalGraph.fileInfo().location.getText(),
+                "",
+                CategoryName.SubGraph
+            );
+
+            await this.insertGraph(
+                Array.from(logicalGraph.getNodes()),
+                Array.from(logicalGraph.getEdges()),
+                parentNode,
+                errorsWarnings
+            );
+
+            this.checkEagle();
+            this.undo().pushSnapshot(this, "Insert Logical Graph");
+            this.logicalGraph.valueHasMutated();
+        });
+    }
+
     _loadGraph = async (data: string, file: RepositoryFile) : Promise<void> => {
         // load graph
-        await this._loadGraphJSON(data, file.path, (lg: LogicalGraph) => {
+        const loaded = await this._loadGraphJSON(data, file.name, (lg: LogicalGraph) => {
             this.logicalGraph(lg);
         });
 
-        this._postLoadGraph(file);
+        if (loaded) {
+            this._postLoadGraph(file);
+        }
     }
 
     _postLoadGraph = (file: RepositoryFile) : void => {
@@ -4836,6 +4942,12 @@ export class Eagle {
     nodeDropLogicalGraph = (_eagle : Eagle, event: JQuery.TriggeredEvent) : void => {
         const e: DragEvent = event.originalEvent as DragEvent;
 
+        if (e.dataTransfer?.files.length) {
+            e.preventDefault();
+            this.loadDroppedFile(e.dataTransfer.files[0]);
+            return;
+        }
+
         // keep track of the drop location
         Eagle.nodeDropLocation = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(e.pageX),y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(e.pageY)}
 
@@ -4881,6 +4993,12 @@ export class Eagle {
     nodeDropPalette = (_eagle: Eagle, event: JQuery.TriggeredEvent) : void => {
         const sourceComponents : Node[] = [];
         const e: DragEvent = event.originalEvent as DragEvent;
+
+        if (e.dataTransfer?.files.length) {
+            e.preventDefault();
+            this.loadDroppedFile(e.dataTransfer.files[0]);
+            return;
+        }
 
         if(Eagle.nodeDragPaletteIndex === null || Eagle.nodeDragComponentId === null){
             return;
