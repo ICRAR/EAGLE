@@ -198,7 +198,7 @@ export class Repositories {
         } catch (_e) {
             response = responseStr;
         }
-        if (response.error) {
+        if (response != null && typeof response.error === "string" && response.error !== "") {
             throw new Error(response.error);
         }
 
@@ -223,7 +223,7 @@ export class Repositories {
         } catch (_e) {
             response = responseStr;
         }
-        if (response.error) {
+        if (response != null && typeof response.error === "string" && response.error !== "") {
             throw new Error(response.error);
         }
 

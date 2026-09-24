@@ -18,7 +18,7 @@ ko.bindingHandlers.eagleTooltip = {
             const tooltipElementId : string | null = element.getAttribute('aria-describedby');
 
             // if tooltip id is not null, remove the tooltip from the DOM
-            if (tooltipElementId?.startsWith('tooltip')){
+            if (tooltipElementId?.startsWith('tooltip') === true){
                 const tooltipElement = document.getElementById(tooltipElementId);
 
                 tooltipElement?.remove();

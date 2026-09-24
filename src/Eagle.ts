@@ -399,7 +399,7 @@ export class Eagle {
 
     // TODO: remove?
     flagActiveFileModified = () : void => {
-        if (this.logicalGraph()){
+        if (this.logicalGraph() !== undefined){
             this.logicalGraph().fileInfo().modified = true;
         }
     }
@@ -990,13 +990,13 @@ export class Eagle {
         const file = graphFileToLoadInputElement.files[0];
 
         // read the file
-        if (file) {
+        if (file !== undefined) {
             const reader = new FileReader();
             reader.readAsText(file, "UTF-8");
             reader.onload = async (evt) => {
                 let data: string | undefined = evt.target?.result?.toString();
 
-                if (!data) {
+                if (data == null || data === "") {
                     console.error("loadLocalGraphFile: file is empty or could not be read");
                     Utils.showUserMessage("Error", "File is empty or could not be read.");
                     data = "";
@@ -1040,13 +1040,13 @@ export class Eagle {
         const file = graphFileToInsertInputElement.files[0];
 
         // read the file
-        if (file) {
+        if (file !== undefined) {
             const reader = new FileReader();
             reader.readAsText(file, "UTF-8");
             reader.onload = async (evt) => {
                 let data: string | undefined = evt.target?.result?.toString();
 
-                if (!data) {
+                if (data == null || data === "") {
                     console.error("insertLocalGraphFile: file is empty or could not be read");
                     Utils.showUserMessage("Error", "File is empty or could not be read.");
                     data = "";
@@ -1444,7 +1444,7 @@ export class Eagle {
         }
 
         //used if we cant find space on the canvas, we then extend the search area for space and center the graph after adding to bring new nodes into view
-        if(parentNodePosition.extended){
+        if(parentNodePosition.extended === true){
             setTimeout(function(){
                 Eagle.getInstance().centerGraph()
             }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT)
@@ -1479,13 +1479,13 @@ export class Eagle {
         const file = paletteFileInputElement.files[0];
         
         // read the file
-        if (file) {
+        if (file !== undefined) {
             const reader = new FileReader();
             reader.readAsText(file, "UTF-8");
             reader.onload = (evt) => {
                 let data = evt.target?.result?.toString();
 
-                if (!data) {
+                if (data == null || data === "") {
                     console.error("loadLocalPaletteFile: file is empty or could not be read");
                     Utils.showUserMessage("Error", "File is empty or could not be read.");
                     data = "";
@@ -1559,13 +1559,13 @@ export class Eagle {
         const file = graphConfigFileInputElement.files[0];
         
         // read the file
-        if (file) {
+        if (file !== undefined) {
             const reader = new FileReader();
             reader.readAsText(file, "UTF-8");
             reader.onload = (evt) => {
                 let data = evt.target?.result?.toString();
 
-                if (!data) {
+                if (data == null || data === "") {
                     console.error("loadLocalGraphConfigFile: file is empty or could not be read");
                     Utils.showUserMessage("Error", "File is empty or could not be read.");
                     data = "";
@@ -1998,7 +1998,7 @@ export class Eagle {
         return runAsyncPromise(async(resolve, reject) => {
             try {
                 // Robust null/invalid check
-                if (!graphConfig || typeof graphConfig !== "object" || Object.keys(graphConfig).length === 0) {
+                if (Object.keys(graphConfig).length === 0) {
                     Utils.showNotification("Invalid Graph Config", "The graph configuration is missing or invalid. Please check your input and try again.", "danger");
                     reject(new Error("GraphConfig is null or invalid"));
                     return;
@@ -2332,7 +2332,7 @@ export class Eagle {
             // create default repository to supply to modal so that the modal is populated with useful defaults
             let defaultRepository: Repository = Repository.placeholder();
 
-            if (this.logicalGraph()){
+            if (this.logicalGraph() !== undefined){
                 // if the repository service is unknown (or file), probably because the graph hasn't been saved before, then
                 // just use any existing repo
                 if (fileInfo().location.repositoryService() === RepositoryService.Unknown || fileInfo().location.repositoryService() === RepositoryService.File){
@@ -4065,7 +4065,7 @@ export class Eagle {
             return;
         }
 
-            void this.addNodesToPalette(nodes);
+        void this.addNodesToPalette(nodes);
     }
 
     deleteSelection = async (rightClick: boolean, suppressUserConfirmationRequest: boolean, deleteChildren: boolean): Promise<void> => {

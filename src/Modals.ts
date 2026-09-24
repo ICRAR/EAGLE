@@ -53,7 +53,7 @@ export class Modals {
             switch (returnType){
                 case "string": {
                     const stringCallback: UserStringCallback = $('#inputModal').data('callback');
-                    if (stringCallback){
+                    if (typeof stringCallback === "function"){
                         stringCallback(completed, input);
                     } else {
                         console.error("No 'stringCallback' data attribute found on modal");
@@ -62,7 +62,7 @@ export class Modals {
                 }
                 case "number": {
                     const numberCallback : UserNumberCallback = $('#inputModal').data('callback');
-                    if (numberCallback){
+                    if (typeof numberCallback === "function"){
                         numberCallback(completed, parseInt(input, 10));
                     } else {
                         console.error("No 'numberCallback' data attribute found on modal");
@@ -110,7 +110,7 @@ export class Modals {
         $('#inputTextModal').on('hidden.bs.modal', function(){
             const callback: UserTextCallback = $('#inputTextModal').data('callback');
 
-            if (!callback){
+            if (typeof callback !== "function"){
                 console.log("No callback called when #inputTextModal hidden");
             } else {
                 const completed: boolean = $('#inputTextModal').data('completed');
@@ -148,7 +148,7 @@ export class Modals {
         $('#inputCodeModal').on('hidden.bs.modal', function(){
             const callback: UserStringCallback = $('#inputCodeModal').data('callback');
 
-            if (!callback){
+            if (typeof callback !== "function"){
                 console.log("No callback called when #inputCodeModal hidden");
             } else {
                 // get content of code editor - and return via callback
@@ -197,7 +197,7 @@ export class Modals {
         $('#inputMarkdownModal').on('hidden.bs.modal', function(){
             const callback: UserMarkdownCallback = $('#inputMarkdownModal').data('callback');
 
-            if (!callback){
+            if (typeof callback !== "function"){
                 console.log("No callback called when #inputMarkdownModal hidden");
             } else {
                 // get content of code editor - and return via callback
@@ -213,7 +213,7 @@ export class Modals {
 
         $('#inputMarkdownModal').on('shown.bs.modal', function(){
             const editor = $('#inputMarkdownModal').data('editor');
-            if (editor){
+            if (editor != null){
                 editor.refresh();
                 setTimeout(() => {
                     editor.focus();
@@ -232,7 +232,7 @@ export class Modals {
         });
         $('#choiceModal').on('hidden.bs.modal', function(){
             const callback: UserChoiceCallback = $('#choiceModal').data('callback');
-            if (!callback){
+            if (typeof callback !== "function"){
                 console.error("No 'callback' data attribute found on modal");
             } else {
                 const completed: boolean = $('#choiceModal').data('completed');
@@ -293,7 +293,7 @@ export class Modals {
         });
         $('#confirmModal').on('hidden.bs.modal', function(){
             const callback: UserConfirmCallback = $('#confirmModal').data('callback');
-            if (!callback){
+            if (typeof callback !== "function"){
                 console.error("No 'callback' data attribute found on modal");
             } else {
                 const completed: boolean = $('#confirmModal').data('completed');
@@ -309,7 +309,7 @@ export class Modals {
         // #optionsModal - requestUserOptions()
         $('#optionsModalOption0').on('click', function(){
             const callback: UserOptionsCallback = $('#optionsModal').data('callback');
-            if (callback){
+            if (typeof callback === "function"){
                 callback(0);
             } else {
                 console.error("No 'callback' data attribute found on modal");
@@ -320,7 +320,7 @@ export class Modals {
         });
         $('#optionsModalOption1').on('click', function(){
             const callback: UserOptionsCallback = $('#optionsModal').data('callback');
-            if (callback){
+            if (typeof callback === "function"){
                 callback(1);
             } else {
                 console.error("No 'callback' data attribute found on modal");
@@ -331,7 +331,7 @@ export class Modals {
         });
         $('#optionsModalOption2').on('click', function(){
             const callback: UserOptionsCallback = $('#optionsModal').data('callback');
-            if (callback){
+            if (typeof callback === "function"){
                 callback(2);
             } else {
                 console.error("No 'callback' data attribute found on modal");
@@ -362,7 +362,7 @@ export class Modals {
         $('#gitCommitModal').on('hidden.bs.modal', function(){
             const callback : GitCommitCallback = $('#gitCommitModal').data('callback');
 
-            if (!callback){
+            if (typeof callback !== "function"){
                 console.error("No 'callback' data attribute found on modal");
             } else {
                 // check if the modal was completed (user clicked OK), if not, return false
@@ -433,7 +433,7 @@ export class Modals {
         $('#gitCustomRepositoryModal').on('hidden.bs.modal', function(){
             const callback : GitCustomRepositoryCallback = $('#gitCustomRepositoryModal').data('callback');
 
-            if (!callback){
+            if (typeof callback !== "function"){
                 console.error("No 'callback' data attribute found on modal");
             } else {
                 // check if the modal was completed (user clicked OK), if not, return false
@@ -498,7 +498,7 @@ export class Modals {
         $('#editFieldModal').on('hidden.bs.modal', function(){
             const callback: UserFieldCallback = $('#editFieldModal').data('callback');
             
-            if (!callback){
+            if (typeof callback !== "function"){
                 console.error("No 'callback' data attribute found on modal");
             } else {
                 // check if the modal was completed (user clicked OK), if not, return false
@@ -541,7 +541,7 @@ export class Modals {
         $('#browseDockerHubModal').on('hidden.bs.modal', function(){
             const callback: UserDockerHubCallback = $('#browseDockerHubModal').data('callback');
 
-            if (!callback){
+            if (typeof callback !== "function"){
                 console.error("No 'callback' data attribute found on modal");
             } else {
                 const completed : boolean = $('#browseDockerHubModal').data('completed');

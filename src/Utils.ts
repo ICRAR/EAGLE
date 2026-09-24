@@ -472,7 +472,7 @@ export class Utils {
         } else {
             // check if response is JSON
             const header = xhr.getResponseHeader('content-type');
-            if (header && header.indexOf('application/json') !== -1){
+            if (header != null && header.indexOf('application/json') !== -1){
                 return xhr.responseText;
             } else {
                 return "Uncaught Error. " + xhr.responseText;
@@ -3200,7 +3200,7 @@ export class Utils {
 
     static copyInputCodeModalInput(): void {
         const editor = $('#inputCodeModal').data('editor');
-        if (editor){
+        if (editor != null){
             const content: string = editor.getValue();
             void navigator.clipboard.writeText(content);
         } else {
@@ -3210,7 +3210,7 @@ export class Utils {
 
     static copyInputMarkdownModalInput(): void {
         const editor = $('#inputMarkdownModal').data('editor');
-        if (editor){
+        if (editor != null){
             const content: string = editor.getValue();
             void navigator.clipboard.writeText(content);
         } else {

@@ -178,7 +178,7 @@ export class GitLab {
             const data = await Utils.httpPostJSON('/openRemoteGitlabFile', jsonData) as unknown as { credentialsIgnored?: boolean; data: string };
 
             // warn if credentials were ignored (bad token, fell back to anonymous access)
-            if (data.credentialsIgnored){
+            if (data.credentialsIgnored === true){
                 Utils.showNotification(
                     "GitLab Access Token",
                     "The GitLab access token is invalid and was ignored while loading " + repositoryName + " / " + repositoryBranch + " / " + fullFileName + ". The file was loaded from a public repository.",

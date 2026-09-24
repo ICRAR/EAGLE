@@ -699,7 +699,7 @@ export class ParameterTable {
         //open the bottom window
         SideWindow.setShown('bottom',true)
 
-        if(mode = EagleBottomWindowMode.NodeParameterTable){
+        if(mode === EagleBottomWindowMode.NodeParameterTable){
             setTimeout(() => {
                 //update the contents of the parameter table and its sorting arrow display
                 ParameterTable.updateContent(eagle.selectedNode())
@@ -885,7 +885,7 @@ export class ParameterTable {
             const fields = selectedNode.getFields()
 
             // TODO: do we need to check that fields exists, shouldn't it always exist?
-            if(fields){
+            if(fields !== undefined){
                 ParameterTable.copyFields(Array.from(fields)) 
             }
         }

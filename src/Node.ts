@@ -1301,7 +1301,7 @@ export class Node {
             }
             
             //check if field is a graph config field
-            if(activeConfig?.hasField(field)){
+            if(activeConfig?.hasField(field) === true){
                 configFields.push(field)
             }
         }

@@ -61,7 +61,7 @@ test('Undo after fixAll does not reintroduce fixed errors', async ({ page }) => 
     await page.evaluate(async (id: string) => {
         const eagle = (window as any).eagle;
         const node = eagle.logicalGraph().getNodeById(id);
-        if (node) {
+        if (node != null) {
             eagle.setSelection(node, (window as any).EagleFileType.Graph);
             await eagle.deleteSelection(false, true, false);
         }
@@ -72,7 +72,7 @@ test('Undo after fixAll does not reintroduce fixed errors', async ({ page }) => 
     await page.evaluate(async (id: string) => {
         const eagle = (window as any).eagle;
         const node = eagle.logicalGraph().getNodeById(id);
-        if (node) {
+        if (node != null) {
             eagle.setSelection(node, (window as any).EagleFileType.Graph);
             await eagle.deleteSelection(false, true, false);
         }

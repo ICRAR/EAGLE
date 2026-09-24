@@ -504,7 +504,7 @@ export class RightClick {
     // TODO: event var used in function is the deprecated global, we should get access to the event via some other method
     // TODO: perhaps break this function up into a top-level handler, that uses 'passedObjectClass' to call one of several sub-functions
     // TODO: make the passedObjectClass an enumerated type
-    // data can be a Edge, Node, Palette?, Eagle, Node[], and the passedObjectClass variable tells the function what to do with it
+    // TODO: data is any! data can be a Edge, Node, Palette?, Eagle, Node[], and the passedObjectClass variable tells the function what to do with it
     static requestCustomContextMenu = (data: any, passedObjectClass: "edgeDropCreate" | "rightClick_graphNode" | "rightClick_graphEdge" | "rightClick_hierarchyNode" | "rightClick_paletteComponent" | "rightClick_logicalGraph" | "addEmbeddedInputApp" | "addEmbeddedOutputApp" | "rightClick_textVisual" | "rightClick_groupVisual" | "rightClick_graphVisualEdge") : void => {
         // getting the mouse event for positioning the right click menu at the cursor location
         const eagle: Eagle = Eagle.getInstance();
@@ -697,14 +697,14 @@ export class RightClick {
 // graph node right click options
             }else if(passedObjectClass === 'rightClick_graphNode'){
                 $('#customContextMenu').append(RightClick.getNodeDescriptionDropdown())
-                if(data.hasFunc_code()){
+                if(data.hasFunc_code() === true){
                     //check if the node has a field for func code. if so we can add an option to quickly access its contents via the code editor
                     $('#customContextMenu').append('<a onclick=RightClick.editNodeFuncCode()>Edit Function Code</a>')
                 }
                 $('#customContextMenu').append('<a onclick="ParameterTable.openTable(EagleBottomWindowMode.NodeParameterTable, ParameterTableSelectType.RightClick)">Open Fields Table</a>')
                 $('#customContextMenu').append('<a onclick="eagle.editNodeDescription()">Open Description</a>')
                 $('#customContextMenu').append('<a onclick="eagle.editNodeComment()">Open Comment</a>')
-                if (data.isConstruct()){
+                if (data.isConstruct() === true){
                     $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,true)>Delete with children</a>')
                     $('#customContextMenu').append('<a onclick=GraphRenderer.centerConstruct(eagle.selectedNode(),eagle.logicalGraph().getNodes())>Center Around Children</a>')
                 }

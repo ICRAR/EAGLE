@@ -786,11 +786,11 @@ export class KeyboardShortcut {
             userAgent = navigator.platform.toLowerCase();
         }
 
-        if (userAgent.includes('win')) {
+        if (typeof userAgent === 'string' && userAgent.includes('win')) {
             return KeyboardShortcutPlatform.Windows;
-        } else if (userAgent.includes('mac')) {
+        } else if (typeof userAgent === 'string' && userAgent.includes('mac')) {
             return KeyboardShortcutPlatform.Mac;
-        } else if (userAgent.includes('linux')) {
+        } else if (typeof userAgent === 'string' && userAgent.includes('linux')) {
             return KeyboardShortcutPlatform.Linux;
         }
         return KeyboardShortcutPlatform.Unknown;

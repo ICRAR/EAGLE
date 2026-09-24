@@ -803,7 +803,7 @@ export class Field {
             changeable:field.changeable(),
             encoding:field.encoding(),
             id: field.id(),
-            parameterType: Daliuge.fieldTypeToDlgMap[field.parameterType()] || DLGFieldType.Unknown,
+            parameterType: Daliuge.fieldTypeToDlgMap[field.parameterType()] ?? DLGFieldType.Unknown,
             usage: field.usage(),
         };
     }
@@ -902,7 +902,7 @@ export class Field {
         }
 
         if (typeof data.parameterType !== 'undefined') {
-            parameterType = Daliuge.dlgToFieldTypeMap[<DLGFieldType>data.parameterType] || FieldType.Unknown;
+            parameterType = Daliuge.dlgToFieldTypeMap[<DLGFieldType>data.parameterType] ?? FieldType.Unknown;
         }
         if (typeof data.usage !== 'undefined') { usage = data.usage; }
         if (typeof data.event !== 'undefined') { isEvent = data.event; }

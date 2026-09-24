@@ -288,7 +288,7 @@ export class Hierarchy {
         return className
     }
     
-    static selectNode(node: Node, e : any) : void {
+    static selectNode(node: Node, e: KeyboardEvent) : void {
         const eagle: Eagle = Eagle.getInstance();
 
         if (node === null){

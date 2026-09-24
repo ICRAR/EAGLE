@@ -178,7 +178,7 @@ export class Setting {
         }
 
         // update the value
-        this.value(!this.value());
+        this.value(this.value() !== true);
         this.callEventFunc();
     }
 

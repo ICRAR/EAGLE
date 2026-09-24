@@ -56,7 +56,7 @@ async function finalizeInputModalAffirmative(page: Page): Promise<void> {
         const modal = $('#inputModal');
         const callback = modal.data('callback');
         const input = String($('#inputModalInput').val() ?? '');
-        if (callback) {
+        if (typeof callback === 'function') {
           callback(true, input);
         }
         modal.removeData(['callback', 'completed', 'returnType']);

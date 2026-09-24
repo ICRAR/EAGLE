@@ -1387,7 +1387,7 @@ export class GraphRenderer {
         const objects: (Node | Edge | Visual)[] = [];
 
         // depending on if its shift+ctrl or just shift we are either only adding or only removing nodes
-        if(!GraphRenderer.ctrlDrag){
+        if(GraphRenderer.ctrlDrag !== true){
             for (const node of selectObjects){
                 if (!eagle.objectIsSelected(node)){
                     objects.push(node);
@@ -1858,7 +1858,7 @@ export class GraphRenderer {
             if (parent === null){
                 continue;
             }
-            if(GraphRenderer.ctrlDrag && eagle.objectIsSelected(node) && !eagle.objectIsSelected(parent)){
+            if(GraphRenderer.ctrlDrag === true && eagle.objectIsSelected(node) && !eagle.objectIsSelected(parent)){
                 continue
             }
             if (parent.getId() === construct.getId()){
@@ -2197,13 +2197,13 @@ export class GraphRenderer {
     static showPort(object : Node | Visual, field?: Field) : boolean {
         const eagle = Eagle.getInstance();
         if(object instanceof Node){
-            if(!GraphRenderer.dragSelectionHandled()){
+            if(GraphRenderer.dragSelectionHandled() !== true){
                 return false
             }else if(object.isPeek()){
                 return true
             }else if(eagle.objectIsSelected(object)){
                 return true
-            }else if(field?.isInputPeek() || field?.isOutputPeek()){
+            }else if(field?.isInputPeek() === true || field?.isOutputPeek() === true){
                 return true
             }else{
                 return false

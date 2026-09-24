@@ -208,7 +208,7 @@ export class GitHub {
             const data = await Utils.httpPostJSON('/openRemoteGithubFile', jsonData) as unknown as { credentialsIgnored?: boolean; data: string };
 
             // warn if credentials were ignored (bad token, fell back to anonymous access)
-            if (data.credentialsIgnored){
+            if (data.credentialsIgnored === true){
                 Utils.showNotification(
                     "GitHub Access Token",
                     "The GitHub access token is invalid and was ignored while loading " + repositoryName + " / " + repositoryBranch + " / " + fullFileName + ". The file was loaded from a public repository.",

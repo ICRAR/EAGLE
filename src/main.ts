@@ -258,7 +258,7 @@ $(function(){
             console.log("no edge found with id:", edgeId);
             return
         }
-        if(!event.shiftKey){
+        if(event.shiftKey !== true){
             eagle.setSelection(selectEdge, EagleFileType.Graph);
         }else{
             eagle.editSelection(selectEdge, EagleFileType.Graph);

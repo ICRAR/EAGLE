@@ -155,14 +155,14 @@ export class TestHelpers {
                         }
 
                         case TestHelpers.TutorialStepType.Input: {
-                            if (stepInfo.testStepFunction) {
+                            if (typeof stepInfo.testStepFunction === 'function') {
                                 await TestHelpers.runTutorialCustomStep(page, stepInfo.testStepFunction);
                             } else {
                                 const inputText = TestHelpers.getTutorialInputText(stepInfo.title, stepInfo.expectedInput);
                                 const submittedToTarget = await TestHelpers.submitTutorialInputToTarget(page, inputText);
 
                                 // Fallback if tutorial target is unavailable.
-                                if (!submittedToTarget) {
+                                if (submittedToTarget !== true) {
                                     if (inputText.length > 0) {
                                         await page.keyboard.type(inputText);
                                     }
@@ -175,7 +175,7 @@ export class TestHelpers {
                         }
 
                         case TestHelpers.TutorialStepType.Condition: {
-                            if (!stepInfo.testStepFunction) {
+                            if (typeof stepInfo.testStepFunction !== 'function') {
                                 throw new Error(`Condition step '${stepInfo.title}' requires a test hook. Add .setTestStepFunction(...) in the tutorial definition.`);
                             }
 
@@ -338,7 +338,7 @@ export class TestHelpers {
         const clickPosition = await page.evaluate(() => {
             // Get the tutorial target element from the active step.
             const tutorialTarget = (window as any).TutorialSystem?.activeTutCurrentStep?.getTargetFunc?.();
-            if (!tutorialTarget || tutorialTarget.length === 0) {
+            if (tutorialTarget == null || tutorialTarget.length === 0) {
                 return null;
             }
 
@@ -406,12 +406,12 @@ export class TestHelpers {
             const tutStep = w.TutorialSystem?.activeTutCurrentStep;
             const targetFunc = tutStep?.getTargetFunc?.();
 
-            if (!targetFunc || targetFunc.length === 0) {
+            if (targetFunc == null || targetFunc.length === 0) {
                 return false;
             }
 
             const target = targetFunc.first();
-            if (!target || target.length === 0) {
+            if (target == null || target.length === 0) {
                 return false;
             }
 
@@ -474,7 +474,7 @@ export class TestHelpers {
             const graph = eagle?.logicalGraph?.();
             const node = graph?.findNodeByName?.(name);
 
-            if (!node) {
+            if (node == null) {
                 return null;
             }
 
@@ -483,7 +483,7 @@ export class TestHelpers {
             const graphToScreen = (window as any).GraphRenderer;
 
             let clickPos: { x: number; y: number } | null = null;
-            if (graphPosition && graphToScreen?.GRAPH_TO_SCREEN_POSITION_X && graphToScreen?.GRAPH_TO_SCREEN_POSITION_Y) {
+            if (graphPosition != null && typeof graphToScreen?.GRAPH_TO_SCREEN_POSITION_X === 'function' && typeof graphToScreen?.GRAPH_TO_SCREEN_POSITION_Y === 'function') {
                 clickPos = {
                     x: graphToScreen.GRAPH_TO_SCREEN_POSITION_X(graphPosition.x),
                     y: graphToScreen.GRAPH_TO_SCREEN_POSITION_Y(graphPosition.y),
@@ -523,18 +523,19 @@ export class TestHelpers {
 
         //check if the node is selected, if not throw an error with debug info
 
-        if (!(await isRequestedNodeSelected())) {
+        if ((await isRequestedNodeSelected()) !== true) {
             const debugInfo = await page.evaluate((name: string) => {
                 const eagle = (window as any).eagle;
                 const selected = eagle?.selectedNode?.();
-                const nodeNames = eagle?.logicalGraph?.()?.getNodes?.()
-                    ? Array.from(eagle.logicalGraph().getNodes()).map((node: any): string => node.getName() as string)
+                const graphNodes = eagle?.logicalGraph?.()?.getNodes?.();
+                const nodeNames = graphNodes != null
+                    ? Array.from(graphNodes).map((node: any): string => node.getName() as string)
                     : [];
 
                 const tutorialTarget = (window as any).TutorialSystem?.activeTutCurrentStep?.getTargetFunc?.();
-                const targetId = tutorialTarget && tutorialTarget.length > 0 ? tutorialTarget.get(0).id : null;
+                const targetId = tutorialTarget != null && tutorialTarget.length > 0 ? tutorialTarget.get(0).id : null;
 
-                const diagnostics = targetId ? {
+                const diagnostics = targetId != null ? {
                     nodeBodyMatches: document.querySelectorAll(`#logicalGraph .node[id="${targetId}"] .body`).length,
                     nodeMatches: document.querySelectorAll(`#logicalGraph .node[id="${targetId}"]`).length,
                     containerMatches: document.querySelectorAll(`#logicalGraph [id="${targetId}"].container`).length,
@@ -821,7 +822,7 @@ export class TestHelpers {
     // Check if an object is empty
     static isEmpty(o: Record<string, any>): boolean {
         for (const p in o) {
-        if (Object.hasOwn(o, p)) { return false; }
+        if (Object.hasOwn(o, p) === true) { return false; }
         }
         return true;
     }
@@ -832,13 +833,13 @@ export class TestHelpers {
         let rett: Record<string, any>;
         for (const i in obj2) {
         rett = {};
-        if (typeof obj2[i] === 'object' && typeof obj1 !== 'undefined') {
+        if (obj2[i] != null && typeof obj2[i] === 'object') {
             rett = TestHelpers.compareObj(obj1[i], obj2[i]);
-            if (!TestHelpers.isEmpty(rett)) {
+            if (TestHelpers.isEmpty(rett) === false) {
             ret[i] = rett;
             }
         } else {
-            if (!obj1 || !Object.hasOwn(obj1, i) || obj2[i] !== obj1[i]) {
+            if (Object.hasOwn(obj1, i) === false || (obj2[i] as unknown) !== (obj1[i] as unknown)) {
             ret[i] = obj2[i];
             }
         }
