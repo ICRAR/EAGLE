@@ -488,7 +488,7 @@ export class RightClick {
         if (typeof funcCodeField === 'undefined'){
             console.warn("editNodeFuncCode() could not find " + FieldName.FUNC_CODE + " field on node:", rightClickObject);
         } else {
-            ParameterTable.requestEditValueField(funcCodeField, false)
+            void ParameterTable.requestEditValueField(funcCodeField, false)
         }
     }
 

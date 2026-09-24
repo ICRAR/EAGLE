@@ -83,7 +83,7 @@ export class DockerHubBrowser {
     populate = (username: string, image: string, tag: string) : void => {
         this.username(username);
         this.hasFetchedImages(false);
-        this.fetchImages(image, tag);
+        void this.fetchImages(image, tag);
     }
 
     fetchImages = async (selectedImage: string | null, selectedTag: string | null): Promise<void> => {
@@ -132,7 +132,7 @@ export class DockerHubBrowser {
         this.selectedImage(this.images()[selectedImageIndex]);
 
         // go ahead and grab the tags for this image
-        this.fetchTags(selectedTag);
+        void this.fetchTags(selectedTag);
     }
 
     fetchTags = async (selectedTag: string | null): Promise<void> => {
@@ -191,12 +191,12 @@ export class DockerHubBrowser {
 
     onUsernameChange = () : void => {
         this.hasFetchedImages(false);
-        this.fetchImages(null, null);
+        void this.fetchImages(null, null);
     }
 
     onImageChange = () : void => {
         this.hasFetchedTags(false);
-        this.fetchTags(null);
+        void this.fetchTags(null);
     }
 
     onTagChange = () : void => {

@@ -152,13 +152,17 @@ $(function(){
     }
 
     // load the default palette
-    eagle.loadDefaultPalettes();
+    void eagle.loadDefaultPalettes().catch((error: unknown) => {
+        console.error("Unable to load default palettes:", error);
+    });
 
     // set other state based on settings values
     eagle.snapToGrid(Setting.findValue<boolean>(Setting.SNAP_TO_GRID, false));
 
     // load schemas
-    Utils.loadSchemas();
+    void Utils.loadSchemas().catch((error: unknown) => {
+        console.error("Unable to load schemas:", error);
+    });
 
     // enable bootstrap accordion collapse
     new bootstrap.Collapse('.collapse', {});
@@ -173,7 +177,9 @@ $(function(){
     document.onkeydown = KeyboardShortcut.processKey;
     document.onkeyup = KeyboardShortcut.processKey;
 
-    loadRepos();
+    void loadRepos().catch((error: unknown) => {
+        console.error("Unable to load repositories:", error);
+    });
 
     // we use tutorial=none in the url for unit tests, because pop ups can cause test failures
     const urlParams = new URLSearchParams(window.location.search);
@@ -291,7 +297,7 @@ async function loadRepos() {
 
     // Get the list of git repos
     if (UiModeSystem.getActiveUiMode().getName()==='Student'){
-        GitHub.loadStudentRepoList();
+        await GitHub.loadStudentRepoList();
     } else {
         const gh: Repository[] = await GitHub.loadRepoList();
         const gl: Repository[] = await GitLab.loadRepoList();
@@ -302,7 +308,7 @@ async function loadRepos() {
     }
 
     // auto load the file
-    autoLoad();
+    await autoLoad();
 }
 
 // NOTE: specify a URL like this:
@@ -341,7 +347,7 @@ async function autoLoad() {
 
     // decide what to do based on the url
     if (realService === RepositoryService.Url){
-        Repositories.selectFile(new RepositoryFile(new Repository(realService, "", "", false), "", url));
+        await Repositories.selectFile(new RepositoryFile(new Repository(realService, "", "", false), "", url));
     } else {
         if (filename === ""){
             // check if repository already exists
@@ -357,7 +363,7 @@ async function autoLoad() {
         } else {
             // load file
             console.log("Auto load file:", service, repository, branch, path, filename);
-            Repositories.selectFile(new RepositoryFile(new Repository(realService, repository, branch, false), path, filename));
+            await Repositories.selectFile(new RepositoryFile(new Repository(realService, repository, branch, false), path, filename));
         }
     }
 

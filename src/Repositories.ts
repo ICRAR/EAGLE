@@ -47,10 +47,10 @@ export class Repositories {
         if (isModified && confirmDiscardChanges){
             const confirmed = await Utils.requestUserConfirm("Discard changes?", "Opening a new file will discard changes. Continue?", "OK", "Cancel", confirmDiscardChangesSetting);
             if (confirmed){
-                eagle.openRemoteFile(file);
+                void eagle.openRemoteFile(file);
             }
         } else {
-            eagle.openRemoteFile(file);
+            void eagle.openRemoteFile(file);
         }
     }
     
@@ -99,7 +99,7 @@ export class Repositories {
             return;
         }
 
-        Repositories._addCustomRepository(customRepository.service, customRepository.name, customRepository.branch);
+        void Repositories._addCustomRepository(customRepository.service, customRepository.name, customRepository.branch);
     };
 
     static async _addCustomRepository(repositoryService: RepositoryService, repositoryName: string, repositoryBranch: string): Promise<Repository> {

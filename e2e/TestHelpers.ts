@@ -30,7 +30,7 @@ export class TestHelpers {
 
         // enable specified mode
         const uiModeSelect = page.getByPlaceholder('uiMode')
-        uiModeSelect.selectOption({value: mode})
+        await uiModeSelect.selectOption({value: mode})
 
         // close settings modal (wait is needed, bootstrap is not ready to close the modal again that quickly)
         await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);

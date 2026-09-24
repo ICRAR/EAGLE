@@ -3195,14 +3195,14 @@ export class Utils {
             return;
         }
 
-        navigator.clipboard.writeText(inputValue.toString());
+        void navigator.clipboard.writeText(inputValue.toString());
     }
 
     static copyInputCodeModalInput(): void {
         const editor = $('#inputCodeModal').data('editor');
         if (editor){
             const content: string = editor.getValue();
-            navigator.clipboard.writeText(content);
+            void navigator.clipboard.writeText(content);
         } else {
             console.error("No 'editor' data attribute found on modal");
         }
@@ -3212,7 +3212,7 @@ export class Utils {
         const editor = $('#inputMarkdownModal').data('editor');
         if (editor){
             const content: string = editor.getValue();
-            navigator.clipboard.writeText(content);
+            void navigator.clipboard.writeText(content);
         } else {
             console.error("No 'editor' data attribute found on modal");
         }
@@ -3285,8 +3285,8 @@ export class Utils {
         }
 
         // try to fetch the schema
-        _fetchSchema(Daliuge.OJS_GRAPH_SCHEMA_URL, 'ojsGraphSchema', _setOJSSchemas);
-        _fetchSchema(Daliuge.V4_GRAPH_SCHEMA_URL, 'v4GraphSchema', _setV4Schemas);
+        void _fetchSchema(Daliuge.OJS_GRAPH_SCHEMA_URL, 'ojsGraphSchema', _setOJSSchemas);
+        void _fetchSchema(Daliuge.V4_GRAPH_SCHEMA_URL, 'v4GraphSchema', _setV4Schemas);
     }
 
     static snapToGrid(coord: number, offset: number) : number {
