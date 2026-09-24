@@ -1345,7 +1345,8 @@ select.form-control{
 }
 
 .leftWindow .dropdown-menu a,
-#repositoryList .dropdown-menu a{
+#repositoryList .dropdown-menu a,
+#graphConfigurationsTable .dropdown-menu a{
     color: white;
     text-decoration: none;
     white-space: nowrap;
@@ -1353,7 +1354,8 @@ select.form-control{
 }
 
 .leftWindow .dropdown-menu span,
-#repositoryList .dropdown-menu span{
+#repositoryList .dropdown-menu span,
+#graphConfigurationsTable .dropdown-menu span{
     display: block;
     width: 100%;
     padding:0px 10px;
@@ -1377,13 +1379,15 @@ select.form-control{
 }
 
 .leftWindow .dropdown-menu span:hover,
-#repositoryList .dropdown-menu span:hover{
+#repositoryList .dropdown-menu span:hover,
+#graphConfigurationsTable .dropdown-menu span:hover{
     background-color: #001d3b;
     color: white;
 }
 
 .leftWindow .dropdown-menu a:hover,
-#repositoryList .dropdown-menu a:hover{
+#repositoryList .dropdown-menu a:hover,
+#graphConfigurationsTable .dropdown-menu a:hover{
     background-color: #001d3b;
     color: white;
 }
@@ -1805,8 +1809,9 @@ select.form-control{
     font-size: 22px;
 }
 
-#repositoryList .col.repo-file-actions, #repositoryList .col.repo-actions{
+#repositoryList .col.repo-file-actions, #repositoryList .col.repo-actions, #graphConfigurationsTable .repo-actions{
     overflow: visible;
+    top:3px;
 }
 
 #repositoryList > .row > .col{
@@ -1839,7 +1844,8 @@ select.form-control{
     visibility: visible;
 }
 
-#repositoryList .dropdown-menu{
+#repositoryList .dropdown-menu,
+#graphConfigurationsTable .dropdown-menu{
     position: absolute;
     right: 0px;
     top: 0px;
@@ -1849,6 +1855,13 @@ select.form-control{
     border-radius: 6px;
     pointer-events: auto;
     width: min-content;
+}
+
+#graphConfigurationsTable .repoTripleDot{
+    padding: 0px;
+    height: 20px;
+    width: 20px;
+    font-size:20px;
 }
 
 #nodeList ul.nodes {
