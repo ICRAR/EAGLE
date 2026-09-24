@@ -2928,6 +2928,20 @@ export class Eagle {
 
         // Replace the active graph if the user chooses that option
         if (userOption === "Replace Active Graph") {
+            if (this.logicalGraph().fileInfo().modified) {
+                const confirmed = await Utils.requestUserConfirm(
+                    "Graph Modified",
+                    "The current graph has unsaved changes. Loading a new graph will overwrite those changes. Do you wish to continue?",
+                    "Yes",
+                    "No",
+                    undefined
+                );
+
+                if (!confirmed) {
+                    return;
+                }
+            }
+
             await this._loadGraph(data, file);
             return;
         }
