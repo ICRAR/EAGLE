@@ -192,7 +192,7 @@ export class GitLab {
     static async deleteRemoteFile(repositoryService : RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string){
         const token = Utils.getServiceToken(RepositoryService.GitLab);
 
-            if (token === null || token === "") {
+            if (token === "") {
                 Utils.showUserMessage("Access Token", "The GitLab access token is not set! To open GitLab repositories, set the token via settings.");
                 return;
             }

@@ -143,7 +143,7 @@ export class DockerHubBrowser {
         }
 
         // if not image selected, abort
-        if (this.selectedImage() === "" || this.selectedImage() === undefined){
+        if (this.selectedImage() === ""){
             console.warn("Abort fetch of tags for empty image");
             return;
         }

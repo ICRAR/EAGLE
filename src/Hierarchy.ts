@@ -16,11 +16,6 @@ export class Hierarchy {
             node.setKeepExpanded(false);
         }
 
-        // TODO: should we move this up?
-        //return if the graph is not loaded yet
-        if(eagle.logicalGraph()=== null){
-            return
-        }
 
         //reset all selection relatives to false
         $(".positionPointer").remove()
@@ -88,11 +83,7 @@ export class Hierarchy {
                 let iterations = 0;
                 const MAX_ITERATIONS = 32;
     
-                if (element === null){
-                    return
-                }
-    
-                while (true){
+                while (element !== null){
                     if (iterations > MAX_ITERATIONS){
                         console.error("too many iterations in nodeRelativeForEach");
                         return
@@ -143,11 +134,12 @@ export class Hierarchy {
         const eagle: Eagle = Eagle.getInstance();
 
         let unique = true
-        hierarchyEdgeList.forEach(function(e:{edge:Edge , use:string, edgeSelected:boolean}){
+        for (const e of hierarchyEdgeList){
             if(e.edge.getId()===edge.getId()){
                 unique = false
+                break
             }
-        })
+        }
 
         if(eagle.objectIsSelected(edge)){
             if(!unique){
@@ -290,11 +282,6 @@ export class Hierarchy {
     
     static selectNode(node: Node, e: KeyboardEvent) : void {
         const eagle: Eagle = Eagle.getInstance();
-
-        if (node === null){
-            console.warn("Hierarchy.selectNode(): No node provided!");
-            return;
-        }
 
         if(!e.shiftKey && !e.altKey){
             eagle.setSelection(node, EagleFileType.Graph);

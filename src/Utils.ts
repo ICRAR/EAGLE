@@ -161,26 +161,7 @@ export class Utils {
 
     // TODO: check if this is even necessary. it may only have been necessary when we were setting keys (not ids)
     static setEmbeddedApplicationNodeIds(lg: LogicalGraph): void {
-        // loop through nodes, look for embedded nodes with null id, create new id
-        for (const node of lg.getNodes()){
-
-            const inputApplication = node.getInputApplication();
-            const outputApplication = node.getOutputApplication();
-
-            // if this node has inputApp, set the inputApp id
-            if (inputApplication !== null){
-                if (inputApplication.getId() === null){
-                    inputApplication.setId(Id.generateNodeId());
-                }
-            }
-
-            // if this node has outputApp, set the outputApp id
-            if (outputApplication !== null){
-                if (outputApplication.getId() === null){
-                    outputApplication.setId(Id.generateNodeId());
-                }
-            }
-        }
+        void lg;
     }
 
     // extracts a file name from the full path.
@@ -1059,9 +1040,7 @@ export class Utils {
 
             //
             let defaultRepositoryService: RepositoryService = RepositoryService.Unknown;
-            if (defaultRepository !== null){
-                defaultRepositoryService = defaultRepository.service;
-            }
+            defaultRepositoryService = defaultRepository.service;
 
             // remove existing options from the repository service select tag
             $('#gitCommitModalRepositoryServiceSelect').empty();
@@ -1410,7 +1389,7 @@ export class Utils {
     static getPaletteComponentByName(name: string, useCaseInsensitiveMatch: boolean = false) : Node | undefined {
         const eagle: Eagle = Eagle.getInstance();
 
-        if (name === null || typeof name === 'undefined' || name.trim() === ""){
+        if (name.trim() === ""){
             return undefined;
         }
 
@@ -1695,16 +1674,17 @@ export class Utils {
         }
 
         const modelData = data.modelData;
-        if (typeof modelData === 'object' && modelData !== null){
-            const eagleVersion = modelData.eagleVersion;
-            if (typeof eagleVersion === 'string' && eagleVersion.trim() !== ""){
-                return eagleVersion.trim();
-            }
+        if (modelData == null){
+            return "Unknown";
+        }
+        const eagleVersion = modelData.eagleVersion;
+        if (typeof eagleVersion === 'string' && eagleVersion.trim() !== ""){
+            return eagleVersion.trim();
+        }
 
-            const generatorVersion = modelData.generatorVersion;
-            if (typeof generatorVersion === 'string' && generatorVersion.trim() !== ""){
-                return generatorVersion.trim();
-            }
+        const generatorVersion = modelData.generatorVersion;
+        if (typeof generatorVersion === 'string' && generatorVersion.trim() !== ""){
+            return generatorVersion.trim();
         }
 
         return "Unknown";
@@ -2201,11 +2181,6 @@ export class Utils {
 
     static markdown2html(markdown: string) : string {
         // check that input is not undefined
-        if (typeof markdown === "undefined" || markdown === null){
-            console.warn("Could not convert markdown to html! Input:", markdown);
-            return "";
-        }
-
         const html = marked(markdown, { async: false }).replaceAll("<table>", "<table class='table'>");
 
         return Utils.sanitizeHtml(html);
@@ -2486,10 +2461,6 @@ export class Utils {
 
     static fixFieldType(_eagle: Eagle, field: Field){
         // fix for undefined value
-        if (field.getType() === undefined){
-            field.setType(DataType.Object);
-        }
-        
         // fix for 'Unknown' type
         if (field.getType() === DataType.Unknown){
             field.setType(DataType.Object);
@@ -2558,7 +2529,7 @@ export class Utils {
         }
 
         // determine a sensible type for the new source port
-        const srcPortType = destPort.getType() === undefined ? DataType.Object : destPort.getType();
+        const srcPortType = destPort.getType();
 
         // create new source port
         const srcPort = new Field(srcNode, edge.getSrcPort().getId(), destPort.getDisplayText(), "", "", "", false, srcPortType, false, [], false, FieldType.Application, FieldUsage.OutputPort);
@@ -2581,7 +2552,7 @@ export class Utils {
         }
 
         // determine a sensible type for the new destination port
-        const destPortType = srcPort.getType() === undefined ? DataType.Object : srcPort.getType();
+        const destPortType = srcPort.getType();
 
         // create new destination port
         const destPort = new Field(destNode, edge.getDestPort().getId(), srcPort.getDisplayText(), "", "", "", false, destPortType, false, [], false, FieldType.Application, FieldUsage.OutputPort);
@@ -2860,11 +2831,6 @@ export class Utils {
         $('#issuesDisplay').modal("hide");
 
         // check that we found the node
-        if (node === null){
-            console.warn("Could not show null node");
-            return;
-        }
-        
         eagle.setSelection(node, location);
     }
 
@@ -2908,11 +2874,6 @@ export class Utils {
 
     // only update result if it is worse that current result
     static worstEdgeError(errorsWarnings: ErrorsWarnings) : Validity {
-        if (errorsWarnings === null){
-            console.warn("errorsWarnings is null");
-            return Validity.Valid;
-        }
-
         if (errorsWarnings.warnings.length === 0 && errorsWarnings.errors.length === 0){
             return Validity.Valid;
         }

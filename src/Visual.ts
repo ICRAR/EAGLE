@@ -97,7 +97,7 @@ export class Visual {
 
     getContentHtml = () : string => {
         let contentHtml = this.content()
-        if (contentHtml === undefined || contentHtml === null || contentHtml === ""){
+        if (contentHtml === ""){
             contentHtml = "Click on edit icon to add comment";
         }
 

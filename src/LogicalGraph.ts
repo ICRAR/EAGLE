@@ -304,10 +304,6 @@ export class LogicalGraph {
 
             const newNode = Node.fromOJSJson(nodeData, errorsWarnings, false);
 
-            if (newNode === null){
-                continue;
-            }
-
             result.nodes().set(newNode.getId(), newNode);
             nodeDataIdToNodeId.set(nodeDataId, newNode.getId());
 
@@ -381,10 +377,6 @@ export class LogicalGraph {
             for (const visualData of dataObject.visualDataArray){       
                 const newVisual = Visual.fromJson(visualData, result, errorsWarnings);
 
-                if (newVisual === null){
-                    continue;
-                }
-
                 result.visuals().set(newVisual.getId(), newVisual);
                 result.visuals.valueHasMutated();
             }
@@ -423,17 +415,6 @@ export class LogicalGraph {
             // get references to actual source and destination nodes (from the keys)
             const sourceNode : Node = edge.getSrcNode();
             const destinationNode : Node = edge.getDestNode();
-
-            // check that source and destination nodes were found
-            if (sourceNode === null || destinationNode === null){
-                console.error("Could not find source (" + edge.getSrcNode().getId() + ") or destination (" + edge.getDestNode().getId() + ") node of edge " + edge.getId());
-                continue;
-            }
-
-            if (sourceNode === null || destinationNode === null){
-                console.warn("Can't find sourceNode or destinationNode for edge", edge.getId());
-                continue;
-            }
 
             // if source node or destination node is a construct, then something is wrong, constructs should not have ports
             if (sourceNode.getCategoryType() === CategoryType.Construct){
@@ -531,10 +512,6 @@ export class LogicalGraph {
             for (const [visualId, visualData] of Object.entries(dataObject.visuals)){
                 const visual = Visual.fromV4GraphJson(visualData, result, errorsWarnings);
 
-                if (visual === null){
-                    continue;
-                }
-
                 result.visuals().set(visualId as VisualId, visual);
                 result.visuals.valueHasMutated();
             }
@@ -549,7 +526,7 @@ export class LogicalGraph {
         result.graphConfigs.valueHasMutated();
 
         // check for missing name
-        if (result.fileInfo().name === "" && filename !== null){
+        if (result.fileInfo().name === ""){
             const error : string = "FileInfo.name is empty. Setting name to " + filename;
             errorsWarnings.warnings.push(Errors.Message(error));
 
@@ -900,10 +877,6 @@ export class LogicalGraph {
         // ask the user to choose from the eligibleTypes
         const userChoice: string = await Utils.requestUserChoice("Add Data Component", "Select data component type", eligibleComponentNames, 0, false, "");
         
-        if (userChoice === null){
-            throw new Error("No data component was selected");
-        }
-
         // find choice withing eligibleComponents
         for (const ec of eligibleComponents){
             if (ec.getName() === userChoice){
@@ -1127,11 +1100,6 @@ export class LogicalGraph {
     }
 
     removeFieldFromNodeById = (node : Node, fieldId: FieldId) : void => {
-        if (node === null){
-            console.warn("Could not remove port from null node");
-            return;
-        }
-
         // remove port
         node.removeFieldById(fieldId);
 
@@ -1181,30 +1149,29 @@ export class LogicalGraph {
     }
 
     findMultiplicity = (node : Node) : number => {
-        let n : Node | null = node;
+        let n : Node = node;
         let result : number = 1;
         let iterations : number = 0;
         const MAX_ITERATIONS = 10;
 
-        while (true){
-            if (iterations > MAX_ITERATIONS){
-                console.error("too many iterations in findMultiplicity()");
-                break;
-            }
-
+        while (iterations <= MAX_ITERATIONS){
             iterations += 1;
 
             if (n.getParent() === null){
                 break;
             }
 
-            n = n.getParent();
-
-            if (n === null){
+            const parent = n.getParent();
+            if (parent === null){
                 break;
             }
 
+            n = parent;
             result *= n.getLocalMultiplicity();
+        }
+
+        if (iterations > MAX_ITERATIONS){
+            console.error("too many iterations in findMultiplicity()");
         }
 
         return result;
@@ -1319,7 +1286,7 @@ export class LogicalGraph {
 
         for (const [_nodeId, node] of this.nodes()){
             const parent = node.getParent();
-            if ((id === null && parent === null) || (parent !== null && parent.getId() === id)){
+            if (parent !== null && parent.getId() === id){
                 result.push(node);
             }
         }
@@ -1522,25 +1489,6 @@ export class LogicalGraph {
             }
         }
 
-        // check that active graph config id actually refers to a graph config in the graphConfigs dict
-        if (graph.activeGraphConfigId() !== null){
-            if (graph.getActiveGraphConfig() === null){
-                const issue = Errors.Fix(
-                    "Active Graph Config Id (" + graph.activeGraphConfigId() + ") does not match a known graph config",
-                    function(){
-                        // if there are no graph config, set active id to undefined
-                        // otherwise, just set the active id to the id of the first graph config in the list
-                        if (graph.graphConfigs().size === 0){
-                            graph.setActiveGraphConfig(null);
-                        } else {
-                            graph.setActiveGraphConfig(Array.from(graph.graphConfigs().values())[0].getId());
-                        }
-                    },
-                    "Make first graph config active, or set undefined if no graph configs present"
-                );
-                graph.issues.push({issue : issue, validity : Validity.Error})
-            }
-        }
 
         // check that all fields, in all nodes, in all graph configs are actually present in the graph
         for (const graphConfig of graph.getGraphConfigs()){

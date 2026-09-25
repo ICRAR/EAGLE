@@ -803,7 +803,7 @@ export class Field {
             changeable:field.changeable(),
             encoding:field.encoding(),
             id: field.id(),
-            parameterType: Daliuge.fieldTypeToDlgMap[field.parameterType()] ?? DLGFieldType.Unknown,
+            parameterType: Daliuge.fieldTypeToDlgMap[field.parameterType()],
             usage: field.usage(),
         };
     }
@@ -902,7 +902,7 @@ export class Field {
         }
 
         if (typeof data.parameterType !== 'undefined') {
-            parameterType = Daliuge.dlgToFieldTypeMap[<DLGFieldType>data.parameterType] ?? FieldType.Unknown;
+            parameterType = Daliuge.dlgToFieldTypeMap[<DLGFieldType>data.parameterType];
         }
         if (typeof data.usage !== 'undefined') { usage = data.usage; }
         if (typeof data.event !== 'undefined') { isEvent = data.event; }
@@ -1038,8 +1038,6 @@ export class Field {
                 }
                 field.issues().push({issue:issue,validity:Validity.Warning})
             }
-
-
         }
 
         // checks for output ports
@@ -1064,12 +1062,10 @@ export class Field {
                 }
                 field.issues().push({issue:issue,validity:Validity.Warning})
             }
-
-
         }
 
         //check that the field has an id
-        if (field.getId() === "" || field.getId() === null){
+        if (field.getId() === ""){
             const issue = Errors.ShowFix("Node (" + node.getName() + ") has field (" + field.getDisplayText() + ") with no id", function(){Utils.showField(eagle, location, node, field);}, function(){Utils.fixFieldId(eagle, field)}, "Generate id for field");
                 field.issues().push({issue:issue,validity:Validity.Error})
         }

@@ -167,9 +167,9 @@ export class Edge {
         const srcPort = this.getSrcPort();
         const destPort = this.getDestPort();
 
-        if(srcPort?.getEncoding() === Encoding.Path){
+        if(srcPort.getEncoding() === Encoding.Path){
             return true
-        }else if(destPort?.getEncoding() === Encoding.Path){
+        }else if(destPort.getEncoding() === Encoding.Path){
             return true
         }
 
@@ -417,18 +417,6 @@ export class Edge {
             edge.issues([]);   
         }
 
-        if (sourcePortId === null){
-            const issue = Errors.Message("Source port id is null");
-            Edge.isValidLog(edge, draggingPortMode, Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
-            return Validity.Impossible;
-        }
-
-        if (destinationPortId === null){
-            const issue = Errors.Message("Destination port id is null");
-            Edge.isValidLog(edge, draggingPortMode, Validity.Impossible, issue, showNotification, showConsole, errorsWarnings);
-            return Validity.Impossible;
-        }
-
         // check that we are not connecting a node to itself
         if (sourceNodeId === destinationNodeId){
             Edge.isValidLog(edge, draggingPortMode, Validity.Impossible, Errors.Show("Source node and destination node are the same", function(){Utils.showEdge(eagle, edge);}), showNotification, showConsole, errorsWarnings);
@@ -518,11 +506,9 @@ export class Edge {
             impossibleEdge = true;
         }
 
-        if (sourcePort !== null && destinationPort !== null){
-            // check that source and destination port are both event, or both not event
-            if ((sourcePort.getIsEvent() && !destinationPort.getIsEvent()) || (!sourcePort.getIsEvent() && destinationPort.getIsEvent())){
-                Edge.isValidLog(edge, draggingPortMode, Validity.Error, Errors.Show("Source port and destination port are mix of event and non-event ports", function(){ Utils.showEdge(eagle, edge); }), showNotification, showConsole, errorsWarnings);
-            }
+        // check that source and destination port are both event, or both not event
+        if ((sourcePort.getIsEvent() && !destinationPort.getIsEvent()) || (!sourcePort.getIsEvent() && destinationPort.getIsEvent())){
+            Edge.isValidLog(edge, draggingPortMode, Validity.Error, Errors.Show("Source port and destination port are mix of event and non-event ports", function(){ Utils.showEdge(eagle, edge); }), showNotification, showConsole, errorsWarnings);
         }
 
         // check relationship of destination Node in relation to source node
@@ -536,20 +522,18 @@ export class Edge {
         let associatedConstructIsLoop : boolean = false; // whether the associated parent construct (if any) is a Loop
 
         //these checks are to see if the source or destination node are embedded apps whose parent is a sibling of the other source or destination node
-        const destPortIsEmbeddedAppOfSibling : boolean = sourceParent !== null && destinationEmbed !== null && sourceParent.getId() === destinationEmbed?.getParent()?.getId();
-        const srcPortIsEmbeddedAppOfSibling : boolean = destinationParent !== null && sourceEmbed !== null && destinationParent.getId() === sourceEmbed?.getParent()?.getId();
+        const destPortIsEmbeddedAppOfSibling : boolean = sourceParent !== null && destinationEmbed !== null && sourceParent.getId() === destinationEmbed.getParent()?.getId();
+        const srcPortIsEmbeddedAppOfSibling : boolean = destinationParent !== null && sourceEmbed !== null && destinationParent.getId() === sourceEmbed.getParent()?.getId();
 
         // determine if parent construct (if any) is a Loop
         if(!isSibling){
             associatedConstructIsLoop = Edge.isAssociatedConstructLoop(sourceNode, destinationNode);
         }
 
-        if (sourcePort !== null && destinationPort !== null){
-            // abort if source port and destination port have different data types
-            if (!Utils.portsMatch(sourcePort, destinationPort)){
-                const x = Errors.ShowFix("Source and destination ports don't match data types: sourcePort (" + sourcePort.getDisplayText() + ":" + sourcePort.getType() + ") destinationPort (" + destinationPort.getDisplayText() + ":" + destinationPort.getType() + ")", function(){Utils.showEdge(eagle, edge);}, function(){Utils.fixPortType(eagle, sourcePort, destinationPort);}, "Overwrite destination port type with source port type");
-                Edge.isValidLog(edge, draggingPortMode, Validity.Error, x, showNotification, showConsole, errorsWarnings);
-            }
+        // abort if source port and destination port have different data types
+        if (!Utils.portsMatch(sourcePort, destinationPort)){
+            const x = Errors.ShowFix("Source and destination ports don't match data types: sourcePort (" + sourcePort.getDisplayText() + ":" + sourcePort.getType() + ") destinationPort (" + destinationPort.getDisplayText() + ":" + destinationPort.getType() + ")", function(){Utils.showEdge(eagle, edge);}, function(){Utils.fixPortType(eagle, sourcePort, destinationPort);}, "Overwrite destination port type with source port type");
+            Edge.isValidLog(edge, draggingPortMode, Validity.Error, x, showNotification, showConsole, errorsWarnings);
         }
 
         //checking if the edge is un-necessarily loopAware
@@ -676,10 +660,10 @@ export class Edge {
         // add log message to correct location(s)
         if (showNotification) { Utils.showNotification(title, message, type); }
         if (showConsole) { consoleFunction(title + ":" + message); }
-        if (type === "danger" && errorsWarnings !== null){
+        if (type === "danger"){
             errorsWarnings.errors.push(issue);
         }
-        if (type === "warning" && errorsWarnings !== null){
+        if (type === "warning"){
             errorsWarnings.warnings.push(issue);
         }
 

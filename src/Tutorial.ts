@@ -229,7 +229,7 @@ export class Tutorial {
 
         if (direction === TutorialStepDirection.Next) {
             preFunction = tutStep.getPreFunc()
-        } else if (direction === TutorialStepDirection.Prev) {
+        } else {
             preFunction = tutStep.getBackPreFunc()
         }
 
@@ -468,10 +468,6 @@ export class Tutorial {
         // check that values are valid
         if (coords === undefined) {
             console.warn('Tutorial.highlightStepTarget(): target element has no offset');
-            return;
-        }
-        if (docWidth === undefined) {
-            console.warn('Tutorial.highlightStepTarget(): document has no width');
             return;
         }
         if (targetOuterWidth === undefined) {
@@ -722,7 +718,7 @@ export class Tutorial {
             return;
         }
 
-        if(tutStep.getExpectedInput() === ''||tutStep.getExpectedInput() === null){
+        if(tutStep.getExpectedInput() === ''){
             if(event.key === "Enter"){
                 event.preventDefault()
                 event.stopImmediatePropagation()

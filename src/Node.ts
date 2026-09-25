@@ -870,7 +870,7 @@ export class Node {
     getCommentNodeHtml = () : string => {
         if (this.isComment()){
             let commentHtml = this.comment()
-            if (commentHtml === undefined || commentHtml === null || commentHtml === ""){
+            if (commentHtml === ""){
                 commentHtml = "Click on edit icon to add comment";
             }
 
@@ -983,7 +983,7 @@ export class Node {
     }
 
     hasPortWithDisplayText = (displayText : string, input : boolean, local : boolean) : boolean => {
-        return this.findPortByDisplayText(displayText, input, local) !== null;
+        return this.findPortByDisplayText(displayText, input, local) !== undefined;
     }
 
     addField = (field : Field) : Node => {
@@ -1463,9 +1463,7 @@ export class Node {
 
         // if category is not known, then add error
         if (!Utils.isKnownCategory(category)){
-            if (errorsWarnings !== null){
-                errorsWarnings.errors.push(Errors.Message("Node with name " + name + " has unknown category: " + category));
-            }
+            errorsWarnings.errors.push(Errors.Message("Node with name " + name + " has unknown category: " + category));
         }
 
         const node : Node = new Node(name, "", "", category);
@@ -2171,29 +2169,16 @@ export class Node {
         // check if this category of node is a legacy node
         const updatedCategory = Utils.getLegacyCategoryUpdate(node);
         if (typeof updatedCategory !== 'undefined'){
-            let updateMessage: string;
-            let updatedCategoryType: CategoryType = CategoryType.Unknown;
-            let issue;
-
-            if (updatedCategory === null){
-                updateMessage = "Consider updating to a more modern node category.";
-            } else {
-                updateMessage = "Please update the component to use the new category (" + updatedCategory + ").";
-                updatedCategoryType = CategoryData.getCategoryInfo(updatedCategory).categoryType;
-            }
-
+            const updateMessage: string = "Please update the component to use the new category (" + updatedCategory + ").";
+            const updatedCategoryType: CategoryType = CategoryData.getCategoryInfo(updatedCategory).categoryType;
             const message: string = "Node (" + node.getName() + ") has a legacy category (" + node.getCategory() + "). " + updateMessage;
+            const issue = Errors.ShowFix(
+                message,
+                function(){Utils.showNode(eagle, location, node)},
+                function(){Utils.fixNodeCategory(eagle, node, updatedCategory, updatedCategoryType)},
+                "Change node category from " + node.getCategory() + " to " + updatedCategory
+            );
 
-            if (updatedCategory === null){
-                issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
-            } else {
-                issue = Errors.ShowFix(
-                    message,
-                    function(){Utils.showNode(eagle, location, node)},
-                    function(){Utils.fixNodeCategory(eagle, node, updatedCategory, updatedCategoryType)},
-                    "Change node category from " + node.getCategory() + " to " + updatedCategory
-                );
-            }
             node.issues().push({issue:issue,validity:Validity.Warning})
         }
 

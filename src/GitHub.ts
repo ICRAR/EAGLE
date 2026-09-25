@@ -222,7 +222,7 @@ export class GitHub {
     static async deleteRemoteFile(repositoryService : RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string){
         const token = Utils.getServiceToken(RepositoryService.GitHub);
 
-            if (token === null || token === "") {
+            if (token === "") {
                 Utils.showUserMessage("Access Token", "The GitHub access token is not set! To open GitHub repositories, set the token via settings.");
                 return;
             }

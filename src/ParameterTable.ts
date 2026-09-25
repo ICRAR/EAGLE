@@ -298,9 +298,6 @@ export class ParameterTable {
             }
             return selectedNode.isLocked()
         }else{
-            if(field.getNode() === null){
-                return false
-            }
             return field.getNode().isLocked()
         }
     }
@@ -585,7 +582,7 @@ export class ParameterTable {
         }
 
         //TODO: can we use: const configField = currentField.getGraphConfigField();
-        const configField: GraphConfigField | undefined = activeGraphConfig?.getNodeById(currentNode.getId())?.getFieldById(currentField.getId());
+        const configField: GraphConfigField | undefined = activeGraphConfig.getNodeById(currentNode.getId())?.getFieldById(currentField.getId());
 
         if (typeof configField === 'undefined'){
             console.warn("Could not find configuration field to edit comment in");
@@ -817,11 +814,6 @@ export class ParameterTable {
 
     static getCurrentParamReadonly = (field: Field) : boolean => {
         // check that we actually found the right field, otherwise abort
-        if (field === null){
-            console.warn("Supplied field is null");
-            return false;
-        }
-
         if(Eagle.selectedLocation() === EagleFileType.Palette){
             if(Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false)){
                 return false;
@@ -839,11 +831,6 @@ export class ParameterTable {
 
     static getCurrentParamValueReadonly = (field : Field) : boolean => {
         // check that we actually found the right field, otherwise abort
-        if (field === null || !(field instanceof Field)){
-            console.warn("Supplied field is null or invalid");
-            return true;
-        }
-
         if(Eagle.selectedLocation() === EagleFileType.Palette && Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false)){
             return false;
         }
@@ -859,12 +846,7 @@ export class ParameterTable {
         if(valueEditingPermissions === ValueEditingPermission.Normal){
             return field.isReadonly();
         }
-        if(valueEditingPermissions === ValueEditingPermission.ConfigOnly){
-            return field.isReadonly();
-        }
-        
-        console.warn("something in value readonly permissions has gone wrong!");
-        return true
+        return field.isReadonly();
     }
 
     // make a "shallow" copy of the node fields, as opposed to a "deep" clone
@@ -884,10 +866,7 @@ export class ParameterTable {
         if(eagle.selectedObjects().length === 1 && selectedNode instanceof Node){
             const fields = selectedNode.getFields()
 
-            // TODO: do we need to check that fields exists, shouldn't it always exist?
-            if(fields !== undefined){
-                ParameterTable.copyFields(Array.from(fields)) 
-            }
+            ParameterTable.copyFields(Array.from(fields))
         }
     }
 
@@ -1133,8 +1112,7 @@ export class ColumnVisibilities {
 
         const columnVisibilitiesObjArray : any[] = JSON.parse(columnVisibilities)
         const that = ParameterTable.getActiveColumnVisibility()
-        if(columnVisibilitiesObjArray !== null){
-            columnVisibilitiesObjArray.forEach(function(columnVisibility){
+        columnVisibilitiesObjArray.forEach(function(columnVisibility){
 
                 const columnVisActual = that.getModeByName(columnVisibility.name)
 
@@ -1183,8 +1161,7 @@ export class ColumnVisibilities {
                 if(columnVisibility.actions != null){
                     columnVisActual.setActions(columnVisibility.actions)
                 }
-            })
-        }
+        })
     }
 }
 

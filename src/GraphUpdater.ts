@@ -303,12 +303,6 @@ export class GraphUpdater {
         // get source repository
         const srcRepoIndex = parseInt($('#graphUpdaterModalSourceRepositorySelect').val() as string, 10);
         const srcRepo = Repositories.repositories()[srcRepoIndex];
-        if (srcRepo === null){
-            Utils.showNotification("Error", "Source repository not found", "danger");
-            this.state(GraphUpdaterStatus.Start);
-            return;
-        }
-
         // set the source repository
         this.sourceRepository = srcRepo;
 
@@ -485,11 +479,6 @@ export class GraphUpdater {
             this.destinationRepository = Repositories.repositories()[destRepoIndex];
         }
 
-        // check that we have a valid destination repository at this point
-        if (this.destinationRepository === null){
-            Utils.showNotification("Error", "Destination repository not found", "danger");
-            return;
-        }
 
         // get the users github/gitlab token from the settings
         let repoToken: string;

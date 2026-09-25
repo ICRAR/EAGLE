@@ -38,11 +38,8 @@ export class SideWindow {
             Setting.toggle(Setting.LEFT_WINDOW_VISIBLE);
         }else if (window === 'right'){
             Setting.toggle(Setting.RIGHT_WINDOW_VISIBLE);
-        }else if (window === 'bottom'){
-            Setting.toggle(Setting.BOTTOM_WINDOW_VISIBLE);
         }else{
-            console.warn("toggleShown(): Unknown window:", window);
-            return;
+            Setting.toggle(Setting.BOTTOM_WINDOW_VISIBLE);
         }
         UiModeSystem.saveToLocalStorage()
     }
@@ -54,11 +51,8 @@ export class SideWindow {
             Setting.setValue(Setting.LEFT_WINDOW_VISIBLE, value);
         }else if(window === 'right'){
             Setting.setValue(Setting.RIGHT_WINDOW_VISIBLE, value);
-        }else if (window === 'bottom'){
-            Setting.setValue(Setting.BOTTOM_WINDOW_VISIBLE, value);
         }else{
-            console.warn("setShown(): Unknown window:", window);
-            return;
+            Setting.setValue(Setting.BOTTOM_WINDOW_VISIBLE, value);
         }
         UiModeSystem.saveToLocalStorage()
     }

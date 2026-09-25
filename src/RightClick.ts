@@ -211,7 +211,7 @@ export class RightClick {
 
         if(mode === 'addAndConnect'){
             //this mode is for when dropping an edge onto the graph, this means we are filtering out some options based on if they are fitting to the node or not
-            collectionOfNodes.forEach(function(node){
+            for (const node of collectionOfNodes){
                 for(const filteredNode of compatibleNodesList){
                     if(node === filteredNode){
                         if(node.isData()){
@@ -230,9 +230,9 @@ export class RightClick {
                         continue
                     }
                 }
-            })
+            }
         }else if(mode === 'addNode'){
-            collectionOfNodes.forEach(function(node){
+            for (const node of collectionOfNodes){
                 //this mode is the simplest version for right click adding a node on the graph canvas
                 if(node.isData()){
                     dataHtml = dataHtml+`<a id='rightclickNode_`+node.getId()+`' onclick='eagle.addNodeToLogicalGraph(null,"`+node.getId()+`",EagleAddNodeMode.ContextMenu, null)' class='contextMenuDropdownOption rightClickPaletteNode `+originClass+`'>`+node.getName()+'</a>'
@@ -245,9 +245,9 @@ export class RightClick {
                     otherFound = true
                 }
                 nodeFound = true
-            })
-        }else if(mode === 'embedNode'){
-            collectionOfNodes.forEach(function(node){
+            }
+        }else{
+            for (const node of collectionOfNodes){
                 //this mode is used when right clicking a socket of a construct node to add an embedded app to it.
                 if(node.isData()){
                     dataHtml = dataHtml+`<a id='rightclickNode_`+node.getId()+`' onclick='GraphRenderer.setNewEmbeddedApp("`+node.getId()+`","`+embedMode+`")' class='contextMenuDropdownOption rightClickPaletteNode `+originClass+`'>`+node.getName()+'</a>'
@@ -260,9 +260,7 @@ export class RightClick {
                     otherFound = true
                 }
                 nodeFound = true
-            })
-        }else{
-            console.warn('cannot find this mode: ',mode)
+            }
         }
 
         if(dataFound){
@@ -559,11 +557,11 @@ export class RightClick {
         let rightClickObjectInSelection = false
         if (selectedObjectAmount > 1){
             //if more than one node is selected
-            eagle.selectedObjects().forEach(function(selectedObject){
+            for (const selectedObject of eagle.selectedObjects()){
                 if (selectedObject === data){
                     rightClickObjectInSelection = true
                 }
-            })
+            }
         }
 
         if(rightClickObjectInSelection){
@@ -739,7 +737,7 @@ export class RightClick {
                 $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,false)>Delete</a>')
 
 //graph visual edge right click options
-            }else if(passedObjectClass === 'rightClick_graphVisualEdge'){
+            }else{
                 $('#customContextMenu').append('<a onclick=RightClick.rightClickDeleteTextVisualConnection()>Delete</a>')
             }
         }

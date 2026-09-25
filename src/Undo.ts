@@ -279,18 +279,7 @@ export class Undo {
         for (let i = Undo.MEMORY_SIZE - 1 ; i >= 0 ; i--){
             const snapshot = eagle.undo().memory()[i];
 
-            if (snapshot === null){
-                continue;
-            }
-
-            if (snapshot.data() === null){
-                tableData.push({
-                    "current": realCurrent === i ? "->" : "",
-                    "description": snapshot.description(),
-                    "buffer position": i,
-                    "nodes": "N/A",
-                    "edges": "N/A"
-                });
+            if (snapshot == null){
                 continue;
             }
 
