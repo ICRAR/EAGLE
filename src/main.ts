@@ -60,13 +60,9 @@ import { TutorialSystem } from "./Tutorial";
 import { UiModeSystem } from './UiModes';
 import { Utils } from './Utils';
 
-import * as quickStart from './tutorials/quickStart'
-import * as graphBuilding from './tutorials/graphBuilding'
-import * as graphConfigs from './tutorials/graphConfigs'
-
-console.assert(quickStart != null) //this is needed to run the tutorial file
-console.assert(graphBuilding != null) //this is needed to run the tutorial file
-console.assert(graphConfigs != null) //this is needed to run the tutorial file
+import './tutorials/quickStart'
+import './tutorials/graphBuilding'
+import './tutorials/graphConfigs'
 
 let eagle : Eagle;
 
