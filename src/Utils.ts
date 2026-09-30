@@ -515,13 +515,13 @@ export class Utils {
 
         console.log("showErrorsModal() errors:", errors.length, "warnings:", warnings.length);
 
-        $('#issuesDisplayTitle').text(title);
+        $('#issuesModalTitle').text(title);
 
         // hide whole errors or warnings sections if none are found
-        $('#issuesDisplayErrorsAccordionItem').toggle(errors.length > 0);
-        $('#issuesDisplayWarningsAccordionItem').toggle(warnings.length > 0);
+        $('#issuesModalErrorsAccordionItem').toggle(errors.length > 0);
+        $('#issuesModalWarningsAccordionItem').toggle(warnings.length > 0);
 
-        $('#issuesDisplay').modal("show");
+        $('#issuesModal').modal("show");
     }
 
     /**
