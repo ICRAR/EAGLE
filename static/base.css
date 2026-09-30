@@ -1108,6 +1108,13 @@ select.form-control{
     width: 100%;
     z-index: 112;
     border: none;
+    transition: background-color 120ms ease, color 120ms ease, opacity 120ms ease;
+}
+
+.modal.modal-focus-away .modal-header{
+    background-color: rgba(108, 117, 125, 0.78);
+    color: #f8f9fa;
+    opacity: 0.72;
 }
 
 .modal-content{
