@@ -14,19 +14,13 @@ const GRAPHS = [
 
 test('Validating Graphs', async ({ page }) => {
   for (const graphUrl of GRAPHS){
-    await page.goto('http://localhost:8888/?tutorial=none&service=Url&url='+graphUrl);
-
-    // wait for the 'graph load success' notification to be shown, then dismiss it
-    await TestHelpers.waitForNotificationAndDismiss(page);
-
-    // navigate menus and click the "validate" item
-    await TestHelpers.openGraphMenuAndSelect(page, 'validateGraph');
-
-    // wait for the validation
-    await page.locator('div[data-notify="container"]').waitFor({state: 'attached'});
-
-    // check result in notification
-    await expect(page.locator('span[data-notify="message"]')).toContainText(" valid ");
+    await test.step(`Validate graph: ${graphUrl}`, async () => {
+      await page.goto('http://localhost:8888/?tutorial=none&service=Url&url='+graphUrl);
+      await TestHelpers.waitForNotificationAndDismiss(page);
+      await TestHelpers.openGraphMenuAndSelect(page, 'validateGraph');
+      await page.locator('div[data-notify="container"]').waitFor({state: 'attached'});
+      await expect(page.locator('span[data-notify="message"]')).toContainText(" valid ");
+    });
   }
 
   //closing the browser
