@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { TestHelpers } from './TestHelpers';
+import { TestHelpers } from '../TestHelpers';
 
 test('LogicalGraph.clone() does not share references with original', async ({ page }) => {
     await page.goto('http://localhost:8888/?tutorial=none');
