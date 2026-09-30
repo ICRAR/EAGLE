@@ -160,14 +160,9 @@ ko.bindingHandlers.graphRendererPortPosition = {
         switch(dataType){
             case 'inputPort':
                 for(const edge of eagle.logicalGraph().getEdges()){
-                    if(field != null && field.getId()===edge.getDestPort().getId()){
+                    if(field.getId()===edge.getDestPort().getId()){
                         const adjacentNode: Node = edge.getSrcNode();
                         
-                        if (adjacentNode === null){
-                            console.warn("Edge (" + edge.getId() + ") source node is null");
-                            return;
-                        }
-
                         connectedField=true
                         adjacentNodes.push(adjacentNode);
                     }
@@ -176,13 +171,8 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
             case 'outputPort':
                 for(const edge of eagle.logicalGraph().getEdges()){
-                    if(field != null && field.getId()===edge.getSrcPort().getId()){
+                    if(field.getId()===edge.getSrcPort().getId()){
                         const adjacentNode: Node = edge.getDestNode();
-
-                        if (adjacentNode === null){
-                            console.warn("Edge (" + edge.getId() + ") destination node is null");
-                            return;
-                        }
 
                         connectedField=true
                         adjacentNodes.push(adjacentNode);
@@ -213,7 +203,7 @@ ko.bindingHandlers.graphRendererPortPosition = {
 
             if (dataType === 'inputPort'){
                 field.setInputAngle(averageAngle)
-            } else if (dataType === 'outputPort'){
+            } else {
                 field.setOutputAngle(averageAngle)
             }
         }else{
@@ -292,8 +282,8 @@ export class GraphRenderer {
     static portMatchCloseEnough :ko.Observable<boolean> = ko.observable(false);
 
     static draggingTextVisualPort : ko.Observable<boolean> = ko.observable(false);
-    static textVisualPortDragSource : ko.Observable<Visual> = ko.observable(null);
-    static textVisualPortDragTarget : ko.Observable<Node | Edge | Visual> = ko.observable(null);
+    static textVisualPortDragSource : ko.Observable<Visual | null> = ko.observable(null);
+    static textVisualPortDragTarget : ko.Observable<Node | Edge | Visual | null> = ko.observable(null);
 
     //node drag handler globals
     static nodeParentRadiusPreDrag : number | null = null;
@@ -326,7 +316,7 @@ export class GraphRenderer {
     //visual resize handler globals
     static isResizingVisual : ko.Observable<boolean> = ko.observable(false);
     static visualResizeCurrentPos : {x:number,y:number} = {x:0,y:0};
-    static visualBeingResized : Visual = null;
+    static visualBeingResized : Visual | null = null;
 
     static readonly Y_AXIS_PIXEL_OFFSET = 83.77;
 
@@ -365,8 +355,10 @@ export class GraphRenderer {
     static calculateTextVisualPortPosition(visual:Visual, angle:number) : {x:number, y:number} {
         const isGroup : boolean = visual.isGroup()
         const portRadius = isGroup ? 0:6  // we need to add or subtract half of the width of the port sometimes to center it on the edge
-        //the height of text visuals is automatic based on content using css, so we need to get the height of the element here
-        const halfHeight = $('#' + visual.getId()+ ' .body').height() / 2 + portRadius;
+
+        // the height of text visuals is automatic based on content using css, so we need to get the height of the element here
+        const bodyElement = $('#' + visual.getId()+ ' .body');
+        const halfHeight = (bodyElement.height() ?? 0) / 2 + portRadius;
 
         const visualPos = visual.getPosition()
 
@@ -581,7 +573,7 @@ export class GraphRenderer {
 
         //checking max angle
         while(noMatch && circles<MAX_CIRCLES){
-            const collidingPortAngle:number = GraphRenderer.checkForPortUsingAngle(node,currentAngle,minPortDistance, field,mode)
+            const collidingPortAngle:number | null = GraphRenderer.checkForPortUsingAngle(node,currentAngle,minPortDistance, field,mode)
             if(collidingPortAngle === null){
                 maxAngle = currentAngle // we've found our closest gap when adding to our angle
                 noMatch = false
@@ -605,7 +597,7 @@ export class GraphRenderer {
 
         //checking min angle
         while(noMatch && circles<MAX_CIRCLES){
-            const collidingPortAngle:number = GraphRenderer.checkForPortUsingAngle(node,currentAngle,minPortDistance, field,mode)
+            const collidingPortAngle:number | null = GraphRenderer.checkForPortUsingAngle(node,currentAngle,minPortDistance, field,mode)
             if(collidingPortAngle === null){
                 minAngle = currentAngle // we've found our closest gap when adding to our angle
                 noMatch = false
@@ -965,9 +957,6 @@ export class GraphRenderer {
     static getPath(edge: Edge) : string {
         const srcNode: Node = edge.getSrcNode();
         const destNode: Node = edge.getDestNode();
-        if(srcNode===null||destNode===null){
-            return ''
-        }
         const srcField: Field = edge.getSrcPort();
         const destField: Field = edge.getDestPort();
 
@@ -989,8 +978,8 @@ export class GraphRenderer {
             const destX: number = GraphRenderer.mousePosX();
             const destY: number = GraphRenderer.mousePosY();
 
-            const srcField: Field = GraphRenderer.portDragSourcePort();
-            const destField: Field = null;
+            const srcField: Field | null = GraphRenderer.portDragSourcePort();
+            const destField: Field | null = null;
 
             //if we are dragging from an input port well pass the dragSrcPort(the input port) as the destination of edge. this is so the flow arrow on the edge is point in the correct direction in terms of graph flow
             if(GraphRenderer.portDragSourcePortIsInput){
@@ -1004,6 +993,9 @@ export class GraphRenderer {
             }
 
             const visual = GraphRenderer.textVisualPortDragSource();
+            if (visual === null){
+                return '';
+            }
             const destX: number = GraphRenderer.mousePosX();
             const destY: number = GraphRenderer.mousePosY();
 
@@ -1044,11 +1036,6 @@ export class GraphRenderer {
     }, this);
 
     static _getPath(edge:Edge, srcNode: Node, destNode: Node, srcField: Field, destField: Field) : string {
-        if (srcNode === null || destNode === null){
-            console.warn("Cannot getPath between null nodes. srcNode:", srcNode, "destNode:", destNode);
-            return "";
-        }
-
         const srcNodeRadius = srcNode.getRadius()
         const destNodeRadius = destNode.getRadius()
 
@@ -1112,13 +1099,18 @@ export class GraphRenderer {
     }
 
     static startDrag(object: Node | Visual, event: MouseEvent) : void {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) {
+            return;
+        }
+
         //if we click on the title of a node, cancel the drag handler
-        if($(event.target).parent().parent().hasClass('header') || $(event.target).parent().hasClass('edgeComments') || $(event.target).parent().hasClass('commentIcons')){
+        if($(target).parent().parent().hasClass('header') || $(target).parent().hasClass('edgeComments') || $(target).parent().hasClass('commentIcons')){
             event.preventDefault()
             event.stopPropagation()
             return
         }else if(GraphRenderer.editNodeName){
-            if(!$(event.target).hasClass('changingHeader')){
+            if(!$(target).hasClass('changingHeader')){
                 GraphRenderer.closeEditTitleInGraph()
             }
         }
@@ -1134,7 +1126,7 @@ export class GraphRenderer {
         GraphRenderer.dragCurrentPosition = {x:event.pageX,y:event.pageY}
 
         // if no node is selected, or we are dragging using middle mouse, then we are dragging the background
-        if(object === null || event.button === 1){
+        if(event.button === 1){
             GraphRenderer.dragSelectionHandled(true)
             GraphRenderer.isDragging(true);
             
@@ -1147,7 +1139,7 @@ export class GraphRenderer {
             GraphRenderer.dragStartPosition = {x:event.pageX,y:event.pageY}
             
             //checking if the node is inside of a construct, if so, fetching it's parent
-            if(object instanceof Node && object.getParent() !== null){
+            if(object instanceof Node){
                 const parentNode = object.getParent();
                 if (parentNode !== null){
                     $('#'+parentNode.getId()).removeClass('transition')
@@ -1157,11 +1149,11 @@ export class GraphRenderer {
         }
 
         // select handlers
-        if(object !== null && event.button !== 1 && !event.shiftKey){
+        if(event.button !== 1 && !event.shiftKey){
             //double click and alt + clicking has highest priority
             if(GraphRenderer.dragSelectionDoubleClick || event.altKey) {
                 eagle.setSelection(object, EagleFileType.Graph);
-            } else if(object instanceof Node && event.button !== 2 && !event.altKey && object.isGroup() && !eagle.objectIsSelected(object)){
+            } else if(object instanceof Node && event.button !== 2 && object.isGroup() && !eagle.objectIsSelected(object)){
                 //check that we are not alt + clicking, add the target node and its children to the selection
                 GraphRenderer.selectNodeAndChildren(object,GraphRenderer.shiftSelect)
             } else if(!eagle.objectIsSelected(object)) {
@@ -1199,16 +1191,17 @@ export class GraphRenderer {
 
         //ive found that using the event.movementX and Y mouse tracking we were using, is not accurate when browser level zoom is applied. so i am calculating the movement per tick myself
         //this is done by comparing the current position, with the position recorded by the previous tick of this function
-        let moveDistance: position2d = {x:0,y:0}
-        if(GraphRenderer.dragCurrentPosition){
-            moveDistance = {x:e.pageX - GraphRenderer.dragCurrentPosition?.x, y: e.pageY - GraphRenderer.dragCurrentPosition?.y}
+        let moveDistance = {x:0,y:0}
+        const dragCurrentPosition = GraphRenderer.dragCurrentPosition;
+        if(dragCurrentPosition){
+            moveDistance = {x:e.pageX - dragCurrentPosition.x, y: e.pageY - dragCurrentPosition.y}
         }
         
         GraphRenderer.dragCurrentPosition = {x:e.pageX,y:e.pageY}
 
         if (GraphRenderer.isDragging() && !GraphRenderer.isResizingVisual()){
             if (GraphRenderer.draggingObject() !== null && !GraphRenderer.isDraggingSelectionRegion ){
-                const dragStartPos = GraphRenderer.dragStartPosition ? GraphRenderer.dragStartPosition : {x:0,y:0}
+                const dragStartPos = GraphRenderer.dragStartPosition ?? {x:0,y:0}
 
                 //check and note if the mouse has moved
                 GraphRenderer.simpleSelect = Math.abs(e.pageX - dragStartPos.x) < 5 && Math.abs(e.pageY - dragStartPos.y) < 5
@@ -1243,17 +1236,21 @@ export class GraphRenderer {
         }else if(GraphRenderer.draggingTextVisualPort()){
             GraphRenderer.textVisualPortDragging()
         }else if(GraphRenderer.isResizingVisual()){
-            moveDistance = {x:e.pageX - GraphRenderer.visualResizeCurrentPos?.x, y: e.pageY - GraphRenderer.visualResizeCurrentPos?.y}
+            const visualBeingResized = GraphRenderer.visualBeingResized;
+            if (visualBeingResized === null){
+                return;
+            }
+            moveDistance = {x:e.pageX - GraphRenderer.visualResizeCurrentPos.x, y: e.pageY - GraphRenderer.visualResizeCurrentPos.y}
             GraphRenderer.visualResizeCurrentPos = {x:e.pageX,y:e.pageY}
             
-            GraphRenderer.visualBeingResized.changeSize((moveDistance.x/eagle.globalScale()), (moveDistance.y/eagle.globalScale()))
+            visualBeingResized.changeSize((moveDistance.x/eagle.globalScale()), (moveDistance.y/eagle.globalScale()))
 
             //we change the position of the visual because of the way the renderer centers nodes. if we did not do this, the scaling would happen in both directions around the center of the node.
-            if(GraphRenderer.visualBeingResized.isText()){
+            if(visualBeingResized.isText()){
                 //text visuals only scale on the x axis since their y scaling is based on content.
-                GraphRenderer.visualBeingResized.changePosition((moveDistance.x/eagle.globalScale()/2), 0)
+                visualBeingResized.changePosition((moveDistance.x/eagle.globalScale()/2), 0)
             }else{
-                GraphRenderer.visualBeingResized.changePosition((moveDistance.x/eagle.globalScale()/2), (moveDistance.y/eagle.globalScale())/2)
+                visualBeingResized.changePosition((moveDistance.x/eagle.globalScale()/2), (moveDistance.y/eagle.globalScale())/2)
             }
         }
     }
@@ -1293,11 +1290,11 @@ export class GraphRenderer {
         }
 
         // if we aren't multi selecting and the node has moved by a larger amount
-        if (!GraphRenderer.isDraggingSelectionRegion && !GraphRenderer.simpleSelect){
+        if (!GraphRenderer.simpleSelect){
             // check if moving whole graph, or just a single node
-            if (object !== null && object instanceof Node){
+            if (object instanceof Node){
                 eagle.undo().pushSnapshot(eagle, "Move '" + object.getName() + "' node");
-            }else if(object !== null && object instanceof Visual){
+            }else if(object instanceof Visual){
                 eagle.undo().pushSnapshot(eagle, "Move '" + object.getType() + "' visual. id: " + object.getId());
             }
         }
@@ -1372,7 +1369,7 @@ export class GraphRenderer {
         const objects: (Node | Edge | Visual)[] = [];
 
         // depending on if its shift+ctrl or just shift we are either only adding or only removing nodes
-        if(!GraphRenderer.ctrlDrag){
+        if(GraphRenderer.ctrlDrag !== true){
             for (const node of selectObjects){
                 if (!eagle.objectIsSelected(node)){
                     objects.push(node);
@@ -1415,7 +1412,7 @@ export class GraphRenderer {
 
     static getVisualEdgePath(textVisual: Visual) : string {
         const srcVisual: Visual = textVisual;
-        const destObject: Node | Edge | Visual = textVisual.getTarget();
+        const destObject = textVisual.getTarget();
 
         //if the visual is not connected to anything we don't need to render an edge
         if(destObject === null){
@@ -1562,7 +1559,7 @@ export class GraphRenderer {
 
             //text visuals scale in height automatically using css, we have to grab the real height from the html element
             if(visual.isText()){
-                height = $('#'+visual.getId()).height()/2
+                height = ($('#'+visual.getId()).height() ?? 0)/2
             }
 
             //checking if the node is fully inside the selection box
@@ -1592,7 +1589,7 @@ export class GraphRenderer {
         while(constructs.length > i){
             const construct = constructs[i]
             for (const node of eagle.logicalGraph().getNodes()){
-                if(node.getParent()?.getId() === construct?.getId()){
+                if(node.getParent()?.getId() === construct.getId()){
                     eagle.editSelection(node, EagleFileType.Graph);
 
                     if(node.isGroup()){
@@ -1632,17 +1629,14 @@ export class GraphRenderer {
         return result;
     }
 
-    // TODO: does this do nothing when construct !== null ? (maybe the first parameter isn't required?) (maybe move to LogicalGraph.ts?)
     // TODO: the graphNodes parameter probably should be a LogicalGraph
-    static centerConstructs(construct:Node, graphNodes:Node[]) : void {
+    static centerConstructs(graphNodes:Node[]) : void {
         const constructsList : Node[]=[]
-        if(construct === null){
-            graphNodes.forEach(function(node){
-                if(node.isGroup()){
-                    constructsList.push(node)
-                }
-            })
-        }
+        graphNodes.forEach(function(node){
+            if(node.isGroup()){
+                constructsList.push(node)
+            }
+        })
         let findConstructId
         const orderedConstructList:Node[] = []
 
@@ -1761,10 +1755,8 @@ export class GraphRenderer {
 
         if(mode==='addEmbeddedOutputApp'){
             parentNode.setOutputApplication(newNode)
-        }else if(mode === 'addEmbeddedInputApp'){
-            parentNode.setInputApplication(newNode)
         }else{
-            console.warn('mode is not supported: ',mode)
+            parentNode.setInputApplication(newNode)
         }
     }
 
@@ -1830,10 +1822,6 @@ export class GraphRenderer {
     // NOTE: does not move the construct
     // TODO: redo once we have node.children
     static resizeConstruct = (construct: Node): void => {
-        if(construct === null){
-            return
-        }
-
         const eagle = Eagle.getInstance();
         let maxDistance = 0;
 
@@ -1843,7 +1831,7 @@ export class GraphRenderer {
             if (parent === null){
                 continue;
             }
-            if(GraphRenderer.ctrlDrag && eagle.objectIsSelected(node) && !eagle.objectIsSelected(parent)){
+            if(GraphRenderer.ctrlDrag === true && eagle.objectIsSelected(node) && !eagle.objectIsSelected(parent)){
                 continue
             }
             if (parent.getId() === construct.getId()){
@@ -1894,6 +1882,10 @@ export class GraphRenderer {
             GraphRenderer.renderDraggingPortEdge(true);
             
         }else{
+            if (port === undefined){
+                console.error("Unable to start port drag because the source port is undefined.");
+                return;
+            }
 
             //preparing necessary port info
             GraphRenderer.draggingPort = true
@@ -1913,7 +1905,7 @@ export class GraphRenderer {
             }
 
             // build the list of all ports in the graph that are a valid end-point for an edge starting at this port
-            GraphRenderer.createEdgeSuggestedPorts = GraphRenderer.findMatchingPorts(GraphRenderer.portDragSourceNode(), GraphRenderer.portDragSourcePort());
+            GraphRenderer.createEdgeSuggestedPorts = GraphRenderer.findMatchingPorts(port.getNode(), port);
         }
     }
 
@@ -1973,18 +1965,27 @@ export class GraphRenderer {
 
         //here
         if(GraphRenderer.draggingPort){
+            const portDragStartPos = GraphRenderer.portDragStartPos;
+            const portDragSourceNode = GraphRenderer.portDragSourceNode();
+            const portDragSourcePort = GraphRenderer.portDragSourcePort();
+            if (portDragStartPos === null || portDragSourceNode === null || portDragSourcePort === null){
+                console.error("Unable to end port drag because the source state is incomplete.");
+                GraphRenderer.clearEdgeVars();
+                return;
+            }
+
             //for node port drag events
-            if(Math.abs(GraphRenderer.portDragStartPos.x - GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null))+Math.abs(GraphRenderer.portDragStartPos.y - GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null))<3){
+            if(Math.abs(portDragStartPos.x - GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(null))+Math.abs(portDragStartPos.y - GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(null))<3){
                 //identify a click, if we click a port, we will open the parameter table and highlight the port
-                ParameterTable.openTableAndSelectField(GraphRenderer.portDragSourceNode(), GraphRenderer.portDragSourcePort())
+                ParameterTable.openTableAndSelectField(portDragSourceNode, portDragSourcePort)
                 GraphRenderer.clearEdgeVars();
             }else{
                 if ((GraphRenderer.destinationPort !== null || GraphRenderer.portDragSuggestedField() !== null) && GraphRenderer.portMatchCloseEnough()){
-                    const srcNode: Node = GraphRenderer.portDragSourceNode();
-                    const srcPort: Field = GraphRenderer.portDragSourcePort();
+                    const srcNode: Node | null = GraphRenderer.portDragSourceNode();
+                    const srcPort: Field | null = GraphRenderer.portDragSourcePort();
         
-                    let destNode: Node = null;
-                    let destPort: Field = null;
+                    let destNode: Node | null = null;
+                    let destPort: Field | null = null;
         
                     if (GraphRenderer.destinationPort !== null){
                         destNode = GraphRenderer.destinationNode;
@@ -1994,6 +1995,11 @@ export class GraphRenderer {
                         destPort = GraphRenderer.portDragSuggestedField();
                     }
         
+                    if (srcNode === null || srcPort === null || destNode === null || destPort === null){
+                        console.error("Unable to create edge. One or more of the nodes or ports involved in the edge creation are null.");
+                        return;
+                    }
+
                     GraphRenderer.createEdge(srcNode, srcPort, destNode, destPort);
         
                 } else {
@@ -2001,11 +2007,16 @@ export class GraphRenderer {
                         GraphRenderer.showUserNodeSelectionContextMenu();
                     } else {
                         // connect to destination port
-                        const srcNode: Node = GraphRenderer.portDragSourceNode();
-                        const srcPort: Field = GraphRenderer.portDragSourcePort();
-                        const destNode: Node = GraphRenderer.destinationNode;
-                        const destPort: Field = GraphRenderer.destinationPort;
+                        const srcNode: Node | null = GraphRenderer.portDragSourceNode();
+                        const srcPort: Field | null = GraphRenderer.portDragSourcePort();
+                        const destNode: Node | null = GraphRenderer.destinationNode;
+                        const destPort: Field | null = GraphRenderer.destinationPort;
         
+                        if (srcNode === null || srcPort === null || destNode === null){
+                            console.error("Unable to create edge. One or more of the nodes or ports involved in the edge creation are null.");
+                            return;
+                        }
+
                         GraphRenderer.createEdge(srcNode, srcPort, destNode, destPort);
                     }
                 }
@@ -2015,8 +2026,14 @@ export class GraphRenderer {
         }else{
             //for text visual port drag events
             if(GraphRenderer.textVisualPortDragTarget() !== null && (GraphRenderer.textVisualPortDragTarget() instanceof Node || GraphRenderer.textVisualPortDragTarget() instanceof Edge || GraphRenderer.textVisualPortDragTarget() instanceof Visual)){
-                const visual: Visual = GraphRenderer.textVisualPortDragSource();
+                const visual: Visual | null = GraphRenderer.textVisualPortDragSource();
                 const target = GraphRenderer.textVisualPortDragTarget();
+
+                if (visual === null) {
+                    console.error("Unable to set text visual target because the source visual is null.");
+                    return;
+                }
+
                 const oldTarget = visual.getTarget()
 
                 //if the old target was a group visual, we need to update the target on that side as well. 
@@ -2073,9 +2090,9 @@ export class GraphRenderer {
         const allowInvalidEdges = Setting.findValue<boolean>(Setting.ALLOW_INVALID_EDGES, false);
         if ((allowInvalidEdges && linkValid === Validity.Error) || linkValid === Validity.Valid || linkValid === Validity.Warning || linkValid === Validity.Fixable){
             if (linkValid === Validity.Warning){
-                GraphRenderer.addEdge(realSourceNode, realSourcePort, realDestinationNode, realDestinationPort, true, false);
+                void GraphRenderer.addEdge(realSourceNode, realSourcePort, realDestinationNode, realDestinationPort, true, false);
             } else {
-                GraphRenderer.addEdge(realSourceNode, realSourcePort, realDestinationNode, realDestinationPort, false, false);
+                void GraphRenderer.addEdge(realSourceNode, realSourcePort, realDestinationNode, realDestinationPort, false, false);
             }
         } else {
             console.warn("link not valid, result", linkValid);
@@ -2153,13 +2170,13 @@ export class GraphRenderer {
     static showPort(object : Node | Visual, field?: Field) : boolean {
         const eagle = Eagle.getInstance();
         if(object instanceof Node){
-            if(!GraphRenderer.dragSelectionHandled()){
+            if(GraphRenderer.dragSelectionHandled() !== true){
                 return false
             }else if(object.isPeek()){
                 return true
             }else if(eagle.objectIsSelected(object)){
                 return true
-            }else if(field.isInputPeek() || field.isOutputPeek()){
+            }else if(field?.isInputPeek() === true || field?.isOutputPeek() === true){
                 return true
             }else{
                 return false
@@ -2199,7 +2216,7 @@ export class GraphRenderer {
         $('#logicalGraphParent').off('mouseup.visualResize')
     }
 
-    static SCREEN_TO_GRAPH_POSITION_X(x:number) : number {
+    static SCREEN_TO_GRAPH_POSITION_X(x:number | null) : number {
         const eagle = Eagle.getInstance();
         if(x===null){
             if (GraphRenderer.dragCurrentPosition !== null){
@@ -2298,7 +2315,7 @@ export class GraphRenderer {
             node = GraphRenderer.findNodeWithId(nodeParent!.getId(), nodes);
 
             if (typeof node === "undefined"){
-                console.error("Node", nodeId, "has parent", nodeParent ? nodeParent.getName() : null, "but call to findNodeWithId(", nodeParent.getId(), ") returned null");
+                console.error("Node", nodeId, "has parent", nodeParent ? nodeParent.getName() : null, "but call to findNodeWithId(", nodeParent?.getId(), ") returned null");
                 return depth;
             }
 
@@ -2320,10 +2337,6 @@ export class GraphRenderer {
 
     // TODO: can we just use LogicalGraph.findNodeById() instead of this function
     static findNodeWithId(id: NodeId, nodes: Node[]) : Node | undefined{
-        if (id === null){
-            return undefined;
-        }
-
         for (const node of nodes){
             if (node.getId() === id){
                 return node;
@@ -2563,12 +2576,10 @@ export class GraphRenderer {
 
     static selectEdge(edge: Edge, event: MouseEvent){
         const eagle = Eagle.getInstance();
-        if (edge !== null){
-            if (event.shiftKey){
-                eagle.editSelection(edge, EagleFileType.Graph);
-            } else {
-                eagle.setSelection(edge, EagleFileType.Graph);
-            }
+        if (event.shiftKey){
+            eagle.editSelection(edge, EagleFileType.Graph);
+        } else {
+            eagle.setSelection(edge, EagleFileType.Graph);
         }
     }
 
@@ -2605,18 +2616,10 @@ export class GraphRenderer {
         const outputPort = edge.getDestPort()
         
         // if the input port found, set peek
-        if (inputPort !== null){
-            inputPort.setOutputPeek(value);
-        } else {
-            console.warn("Could not find input port of edge. Unable to set peek.")
-        }
+        inputPort.setOutputPeek(value);
 
         // if the output port found, set peek
-        if (outputPort !== null){
-            outputPort.setInputPeek(value);
-        } else {
-            console.warn("Could not find output port of edge. Unable to set peek.")
-        }
+        outputPort.setInputPeek(value);
     }
 
     static edgeGetStrokeColor(edge: Edge) : string {
@@ -2627,15 +2630,10 @@ export class GraphRenderer {
         let selectedColor: string = EagleConfig.getColor('edgeDefaultSelected');
 
         // check if source node is an event, if so, draw in blue
-        const srcNode : Node = edge.getSrcNode();
-
-        if (srcNode !== null){
-            const srcPort : Field = edge.getSrcPort();
-
-            if (srcPort !== null && srcPort.getIsEvent()){
+        const srcPort : Field = edge.getSrcPort();
+        if (srcPort.getIsEvent()){
                 normalColor = EagleConfig.getColor('edgeEvent');
                 selectedColor = EagleConfig.getColor('edgeEventSelected');
-            }
         }
 
         // check if link has a warning or is invalid

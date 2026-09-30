@@ -23,8 +23,8 @@ test('Load/Save JSON Match', async ({ page }) => {
   const result1 = TestHelpers.compareObj(obj2, obj1);
 
   // !!!!!!!!!!!!! CHECK FOR MATCH
-  await expect(JSON.stringify(result0)).toBe("{}");
-  await expect(JSON.stringify(result1)).toBe("{}");
+  expect(JSON.stringify(result0)).toBe("{}");
+  expect(JSON.stringify(result1)).toBe("{}");
 
   //closing the browser
   await page.close();

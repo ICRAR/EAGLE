@@ -34,6 +34,7 @@
     "@types/jquery-migrate": "^3.3.3",
     "@types/jqueryui": "^1.12.24",
     "@types/node": "^14.0.11",
+    "@types/requirejs": "^2.1.37",
     "ajv": "^8.17.1",
     "bootstrap": "^5.1.1",
     "easy-pie-chart": "^2.1.7",

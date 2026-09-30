@@ -33,9 +33,15 @@ export class RightClick {
         $(menuElement).find('.contextMenuDropdown').hide()
     }
 
-    // TODO: global event
-    static checkSearchField() : void {
-        const searchField = $((event as InputEvent).target)
+    static checkSearchField(inputEvent?: Event) : void {
+        const searchFieldTarget = inputEvent?.target ?? document.getElementById('rightClickSearchBar')
+
+        if (!(searchFieldTarget instanceof HTMLInputElement)) {
+            console.warn('Search field not found in checkSearchField()');
+            return;
+        }
+
+        const searchField = $(searchFieldTarget)
 
         if (typeof searchField === 'undefined') {
             console.warn('Search field not found in checkSearchField()');
@@ -205,7 +211,7 @@ export class RightClick {
 
         if(mode === 'addAndConnect'){
             //this mode is for when dropping an edge onto the graph, this means we are filtering out some options based on if they are fitting to the node or not
-            collectionOfNodes.forEach(function(node){
+            for (const node of collectionOfNodes){
                 for(const filteredNode of compatibleNodesList){
                     if(node === filteredNode){
                         if(node.isData()){
@@ -224,9 +230,9 @@ export class RightClick {
                         continue
                     }
                 }
-            })
+            }
         }else if(mode === 'addNode'){
-            collectionOfNodes.forEach(function(node){
+            for (const node of collectionOfNodes){
                 //this mode is the simplest version for right click adding a node on the graph canvas
                 if(node.isData()){
                     dataHtml = dataHtml+`<a id='rightclickNode_`+node.getId()+`' onclick='eagle.addNodeToLogicalGraph(null,"`+node.getId()+`",EagleAddNodeMode.ContextMenu, null)' class='contextMenuDropdownOption rightClickPaletteNode `+originClass+`'>`+node.getName()+'</a>'
@@ -239,9 +245,9 @@ export class RightClick {
                     otherFound = true
                 }
                 nodeFound = true
-            })
-        }else if(mode === 'embedNode'){
-            collectionOfNodes.forEach(function(node){
+            }
+        }else{
+            for (const node of collectionOfNodes){
                 //this mode is used when right clicking a socket of a construct node to add an embedded app to it.
                 if(node.isData()){
                     dataHtml = dataHtml+`<a id='rightclickNode_`+node.getId()+`' onclick='GraphRenderer.setNewEmbeddedApp("`+node.getId()+`","`+embedMode+`")' class='contextMenuDropdownOption rightClickPaletteNode `+originClass+`'>`+node.getName()+'</a>'
@@ -254,9 +260,7 @@ export class RightClick {
                     otherFound = true
                 }
                 nodeFound = true
-            })
-        }else{
-            console.warn('cannot find this mode: ',mode)
+            }
         }
 
         if(dataFound){
@@ -482,7 +486,7 @@ export class RightClick {
         if (typeof funcCodeField === 'undefined'){
             console.warn("editNodeFuncCode() could not find " + FieldName.FUNC_CODE + " field on node:", rightClickObject);
         } else {
-            ParameterTable.requestEditValueField(funcCodeField, false)
+            void ParameterTable.requestEditValueField(funcCodeField, false)
         }
     }
 
@@ -498,7 +502,7 @@ export class RightClick {
     // TODO: event var used in function is the deprecated global, we should get access to the event via some other method
     // TODO: perhaps break this function up into a top-level handler, that uses 'passedObjectClass' to call one of several sub-functions
     // TODO: make the passedObjectClass an enumerated type
-    // data can be a Edge, Node, Palette?, Eagle, Node[], and the passedObjectClass variable tells the function what to do with it
+    // TODO: data is any! data can be a Edge, Node, Palette?, Eagle, Node[], and the passedObjectClass variable tells the function what to do with it
     static requestCustomContextMenu = (data: any, passedObjectClass: "edgeDropCreate" | "rightClick_graphNode" | "rightClick_graphEdge" | "rightClick_hierarchyNode" | "rightClick_paletteComponent" | "rightClick_logicalGraph" | "addEmbeddedInputApp" | "addEmbeddedOutputApp" | "rightClick_textVisual" | "rightClick_groupVisual" | "rightClick_graphVisualEdge") : void => {
         // getting the mouse event for positioning the right click menu at the cursor location
         const eagle: Eagle = Eagle.getInstance();
@@ -525,8 +529,8 @@ export class RightClick {
         const minXMargin = 390 // this is the minimum amount of room we need on the right side of the click location to draw the context menu
         const minYMargin = 430 // this is the minimum amount of room we need on the bottom side of the click location to draw the context menu
 
-        const innerWidth = $(document).innerWidth() || 0
-        const innerHeight = $(document).innerHeight() || 0
+        const innerWidth = $(document).innerWidth() ?? 0
+        const innerHeight = $(document).innerHeight() ?? 0
 
         //checking for screen real estate to the right and bottom, if we are too close to the edges of the window, we expand left, up or both
         if(innerWidth-mouseX<minXMargin){
@@ -553,11 +557,11 @@ export class RightClick {
         let rightClickObjectInSelection = false
         if (selectedObjectAmount > 1){
             //if more than one node is selected
-            eagle.selectedObjects().forEach(function(selectedObject){
+            for (const selectedObject of eagle.selectedObjects()){
                 if (selectedObject === data){
                     rightClickObjectInSelection = true
                 }
-            })
+            }
         }
 
         if(rightClickObjectInSelection){
@@ -580,7 +584,7 @@ export class RightClick {
                         <a onclick="RightClick.clearSearchField()">
                             <i class="material-symbols-outlined md-18 searchBarIconClose">close</i>
                         </a>
-                        <input id="rightClickSearchBar" autocomplete="off" type="text" placeholder="Search" oninput="RightClick.checkSearchField()" >
+                        <input id="rightClickSearchBar" autocomplete="off" type="text" placeholder="Search" oninput="RightClick.checkSearchField(event)" >
                     </div>` 
 
 //canvas right click options
@@ -691,14 +695,14 @@ export class RightClick {
 // graph node right click options
             }else if(passedObjectClass === 'rightClick_graphNode'){
                 $('#customContextMenu').append(RightClick.getNodeDescriptionDropdown())
-                if(data.hasFunc_code()){
+                if(data.hasFunc_code() === true){
                     //check if the node has a field for func code. if so we can add an option to quickly access its contents via the code editor
                     $('#customContextMenu').append('<a onclick=RightClick.editNodeFuncCode()>Edit Function Code</a>')
                 }
                 $('#customContextMenu').append('<a onclick="ParameterTable.openTable(EagleBottomWindowMode.NodeParameterTable, ParameterTableSelectType.RightClick)">Open Fields Table</a>')
                 $('#customContextMenu').append('<a onclick="eagle.editNodeDescription()">Open Description</a>')
                 $('#customContextMenu').append('<a onclick="eagle.editNodeComment()">Open Comment</a>')
-                if (data.isConstruct()){
+                if (data.isConstruct() === true){
                     $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,true)>Delete with children</a>')
                     $('#customContextMenu').append('<a onclick=GraphRenderer.centerConstruct(eagle.selectedNode(),eagle.logicalGraph().getNodes())>Center Around Children</a>')
                 }
@@ -733,12 +737,11 @@ export class RightClick {
                 $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,false)>Delete</a>')
 
 //graph visual edge right click options
-            }else if(passedObjectClass === 'rightClick_graphVisualEdge'){
+            }else{
                 $('#customContextMenu').append('<a onclick=RightClick.rightClickDeleteTextVisualConnection()>Delete</a>')
             }
         }
         // adding a listener to function options that closes the menu if an option is clicked
-        // TODO: get event from somewhere instead of global
-        $('#customContextMenu a').on('click',function(){if($((thisEvent).target).parents('.searchBarContainer').length){return}RightClick.closeCustomContextMenu(true)})
+        $('#customContextMenu a').on('click',function(event){if($(event.target).parents('.searchBarContainer').length){return}RightClick.closeCustomContextMenu(true)})
     }
 }

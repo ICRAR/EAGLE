@@ -55,17 +55,11 @@ export class UiModeSystem {
     }
 
     static setActiveUiModeByName = (newUiModeName:string) : void => {
-        let uiModeSet = false
         UiModeSystem.getUiModes().forEach(function(uiModeElem:UiMode){
             if(uiModeElem.getName() === newUiModeName){
                 UiModeSystem.setActiveUiMode(uiModeElem)
-                uiModeSet = true
             }
         })
-        if(!uiModeSet){
-            console.warn('active ui mode: "'+newUiModeName+'" not found, setting ui mode to default.')
-            UiModeSystem.setActiveUiMode(UiModes[2])
-        }
     }
 
     static initialise() : void {
@@ -132,10 +126,6 @@ export class UiModeSystem {
         }
 
         const uiModesObj : any[] = JSON.parse(uiModesString);
-
-        if(uiModesObj === null){
-            return
-        }
 
         uiModesObj.forEach(function(uiModeObj){
             let destUiMode = UiModeSystem.getUiModeByName(uiModeObj.name)
@@ -219,7 +209,8 @@ export class UiMode {
     getSettingByKey = (key:string) : void => {
         for(const setting of this.getSettings()){
             if(setting.getKey() === key){
-                return setting.getValue()
+                setting.getValue();
+                return;
             }
         }
     }

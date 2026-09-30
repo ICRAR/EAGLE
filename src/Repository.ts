@@ -126,7 +126,7 @@ export class Repository {
         const pathParts: string[] = path.split('/').filter((pathPart) => pathPart !== "");
 
         for (const pathPart of pathParts){
-            const folders = pointer === null ? this.folders() : pointer.folders();
+            const folders : RepositoryFolder[] = pointer === null ? this.folders() : pointer.folders();
             const nextPointer = folders.find((folder) => folder.name === pathPart) ?? null;
 
             if (nextPointer === null){
@@ -141,30 +141,24 @@ export class Repository {
 
     // expand all the directories along a given path
     expandPath = async (path: string) : Promise<void> => {
-        return new Promise(async(resolve, reject) => {
-            if (path === ""){
-                resolve();
-                return;
-            }
-            let pointer: RepositoryFolder | null = null;
-            const pathParts: string[] = path.split('/').filter((pathPart) => pathPart !== "");
+        if (path === ""){
+            return;
+        }
+        let pointer: RepositoryFolder | null = null;
+        const pathParts: string[] = path.split('/').filter((pathPart) => pathPart !== "");
 
-            for (const pathPart of pathParts){
-                const folders = pointer === null ? this.folders() : pointer.folders();
-                const nextPointer = folders.find((folder) => folder.name === pathPart) ?? null;
+        for (const pathPart of pathParts){
+            const folders : RepositoryFolder[] = pointer === null ? this.folders() : pointer.folders();
+            const nextPointer = folders.find((folder) => folder.name === pathPart) ?? null;
 
-                if (nextPointer === null){
-                    const pointerName = pointer === null ? this.name : pointer.name;
-                    reject(new Error("Could not find path part (" + pathPart + "), pointer is at " + pointerName));
-                    return;
-                }
-
-                pointer = nextPointer;
-                await pointer.select();
+            if (nextPointer === null){
+                const pointerName = pointer === null ? this.name : pointer.name;
+                throw new Error("Could not find path part (" + pathPart + "), pointer is at " + pointerName);
             }
 
-            resolve();
-        });
+            pointer = nextPointer;
+            await pointer.select();
+        }
     }
 
     // expand all the directories
@@ -236,27 +230,23 @@ export class Repository {
 
     // refresh all the directories along a given path
     refreshPath = async (path: string) : Promise<void> => {
-        return new Promise(async(resolve, reject) => {
             await this.refresh();
             let pointer: RepositoryFolder | null = null;
             const pathParts: string[] = path.split('/').filter((pathPart) => pathPart !== "");
 
             for (const pathPart of pathParts){
-                const folders = pointer === null ? this.folders() : pointer.folders();
+                const folders : RepositoryFolder[] = pointer === null ? this.folders() : pointer.folders();
                 const nextPointer = folders.find((folder) => folder.name === pathPart) ?? null;
 
                 if (nextPointer === null){
                     const pointerName = pointer === null ? this.name : pointer.name;
-                    reject(new Error("Could not find path part (" + pathPart + "), pointer is at " + pointerName));
-                    return;
+                    throw new Error("Could not find path part (" + pathPart + "), pointer is at " + pointerName);
                 }
 
                 pointer = nextPointer;
                 await pointer.refresh();
             }
 
-            resolve();
-        });
     }
 
     deleteFile = (file: RepositoryFile) : void => {
@@ -276,7 +266,7 @@ export class Repository {
         let parentPointer: RepositoryFolder | null = null;
 
         for (const pathPart of pathParts){
-            const folders = pointer === null ? this.folders() : pointer.folders();
+            const folders : RepositoryFolder[] = pointer === null ? this.folders() : pointer.folders();
             const nextPointer = folders.find((folder) => folder.name === pathPart) ?? null;
 
             if (nextPointer === null){
@@ -362,7 +352,7 @@ export class Repository {
         result.name = repository.name;
         result.branch = repository.branch;
 
-        return result;
+        return result as object;
     }
 
     public static async fetch(repository: Repository, path: string) : Promise<void> {

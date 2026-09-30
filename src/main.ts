@@ -60,20 +60,16 @@ import { TutorialSystem } from "./Tutorial";
 import { UiModeSystem } from './UiModes';
 import { Utils } from './Utils';
 
-import * as quickStart from './tutorials/quickStart'
-import * as graphBuilding from './tutorials/graphBuilding'
-import * as graphConfigs from './tutorials/graphConfigs'
-
-console.assert(quickStart != null) //this is needed to run the tutorial file
-console.assert(graphBuilding != null) //this is needed to run the tutorial file
-console.assert(graphConfigs != null) //this is needed to run the tutorial file
+import './tutorials/quickStart'
+import './tutorials/graphBuilding'
+import './tutorials/graphConfigs'
 
 let eagle : Eagle;
 
 $(function(){
     //Check if the user is a first time visitor to the site
     const firstTimeVisit = localStorage.getItem('activeUiMode') === null;
-    const lastSeenVersion = localStorage.getItem('lastSeenVersion') || "0.0.0";
+    const lastSeenVersion = localStorage.getItem('lastSeenVersion') ?? "0.0.0";
     const showWhatsNew = Utils.compareVersions((<any>window).version, lastSeenVersion) > 0;
 
     // Global variables.
@@ -152,13 +148,17 @@ $(function(){
     }
 
     // load the default palette
-    eagle.loadDefaultPalettes();
+    void eagle.loadDefaultPalettes().catch((error: unknown) => {
+        console.error("Unable to load default palettes:", error);
+    });
 
     // set other state based on settings values
     eagle.snapToGrid(Setting.findValue<boolean>(Setting.SNAP_TO_GRID, false));
 
     // load schemas
-    Utils.loadSchemas();
+    void Utils.loadSchemas().catch((error: unknown) => {
+        console.error("Unable to load schemas:", error);
+    });
 
     // enable bootstrap accordion collapse
     new bootstrap.Collapse('.collapse', {});
@@ -173,7 +173,9 @@ $(function(){
     document.onkeydown = KeyboardShortcut.processKey;
     document.onkeyup = KeyboardShortcut.processKey;
 
-    loadRepos();
+    void loadRepos().catch((error: unknown) => {
+        console.error("Unable to load repositories:", error);
+    });
 
     // we use tutorial=none in the url for unit tests, because pop ups can cause test failures
     const urlParams = new URLSearchParams(window.location.search);
@@ -252,7 +254,7 @@ $(function(){
             console.log("no edge found with id:", edgeId);
             return
         }
-        if(!event.shiftKey){
+        if(event.shiftKey !== true){
             eagle.setSelection(selectEdge, EagleFileType.Graph);
         }else{
             eagle.editSelection(selectEdge, EagleFileType.Graph);
@@ -291,7 +293,7 @@ async function loadRepos() {
 
     // Get the list of git repos
     if (UiModeSystem.getActiveUiMode().getName()==='Student'){
-        GitHub.loadStudentRepoList();
+        await GitHub.loadStudentRepoList();
     } else {
         const gh: Repository[] = await GitHub.loadRepoList();
         const gl: Repository[] = await GitLab.loadRepoList();
@@ -302,7 +304,7 @@ async function loadRepos() {
     }
 
     // auto load the file
-    autoLoad();
+    await autoLoad();
 }
 
 // NOTE: specify a URL like this:
@@ -341,7 +343,7 @@ async function autoLoad() {
 
     // decide what to do based on the url
     if (realService === RepositoryService.Url){
-        Repositories.selectFile(new RepositoryFile(new Repository(realService, "", "", false), "", url));
+        await Repositories.selectFile(new RepositoryFile(new Repository(realService, "", "", false), "", url));
     } else {
         if (filename === ""){
             // check if repository already exists
@@ -357,7 +359,7 @@ async function autoLoad() {
         } else {
             // load file
             console.log("Auto load file:", service, repository, branch, path, filename);
-            Repositories.selectFile(new RepositoryFile(new Repository(realService, repository, branch, false), path, filename));
+            await Repositories.selectFile(new RepositoryFile(new Repository(realService, repository, branch, false), path, filename));
         }
     }
 

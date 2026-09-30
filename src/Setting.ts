@@ -178,7 +178,7 @@ export class Setting {
         }
 
         // update the value
-        this.value(!this.value());
+        this.value(this.value() !== true);
         this.callEventFunc();
     }
 
@@ -254,7 +254,7 @@ export class Setting {
             return;
         }
 
-        return setting.value(value);
+        setting.value(value);
     }
 
     static toggle(key : string) : void {

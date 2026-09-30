@@ -86,8 +86,8 @@ export class GraphUpdaterFile {
         this.preFixNumWarnings = ko.observable(0);
         this.postFixNumErrors = ko.observable(0);
         this.postFixNumWarnings = ko.observable(0);
-        this.updatedFileUrl = ko.observable(null);
-        this.updatedPathAndName = ko.observable(null);
+        this.updatedFileUrl = ko.observable("");
+        this.updatedPathAndName = ko.observable("");
     }
 }
 
@@ -99,8 +99,8 @@ export class GraphUpdater {
 
     static autoFix: ko.Observable<boolean> = ko.observable(true);
 
-    static sourceRepository: Repository = null;
-    static destinationRepository: Repository = null;
+    static sourceRepository: Repository | null = null;
+    static destinationRepository: Repository | null = null;
     static updatedLogicalGraphs: ko.ObservableArray<GraphUpdaterFile> = ko.observableArray([]);
 
     // NOTE: for use in translation of OJS object to internal graph representation
@@ -303,12 +303,6 @@ export class GraphUpdater {
         // get source repository
         const srcRepoIndex = parseInt($('#graphUpdaterModalSourceRepositorySelect').val() as string, 10);
         const srcRepo = Repositories.repositories()[srcRepoIndex];
-        if (srcRepo === null){
-            Utils.showNotification("Error", "Source repository not found", "danger");
-            this.state(GraphUpdaterStatus.Start);
-            return;
-        }
-
         // set the source repository
         this.sourceRepository = srcRepo;
 
@@ -328,6 +322,12 @@ export class GraphUpdater {
     }
 
     static async update(): Promise<void> {
+        if (this.sourceRepository === null){
+            Utils.showNotification("Error", "Source repository not set", "danger");
+            this.state(GraphUpdaterStatus.Start);
+            return;
+        }
+
         this.state(GraphUpdaterStatus.Updating);
 
         // determine the correct function to load the file(s), based on the source repository service
@@ -443,6 +443,12 @@ export class GraphUpdater {
     }
 
     static async push(): Promise<void> {
+        if (this.sourceRepository === null){
+            Utils.showNotification("Error", "Source repository not set", "danger");
+            GraphUpdater.state(GraphUpdaterStatus.Start);
+            return;
+        }
+
         // get destination repository or handle custom option
         const destRepoValue = $('#graphUpdaterModalDestinationRepositorySelect').val() as string;
 
@@ -473,11 +479,6 @@ export class GraphUpdater {
             this.destinationRepository = Repositories.repositories()[destRepoIndex];
         }
 
-        // check that we have a valid destination repository at this point
-        if (this.destinationRepository === null){
-            Utils.showNotification("Error", "Destination repository not found", "danger");
-            return;
-        }
 
         // get the users github/gitlab token from the settings
         let repoToken: string;
@@ -534,11 +535,12 @@ export class GraphUpdater {
            await eagle.saveFilesToRemote(this.destinationRepository, JSON.stringify(commitJson));
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
-            const errorJSON = JSON.parse(errorMessage);
+            const errorJSON: { error?: string } = JSON.parse(errorMessage) as { error?: string };
 
-            Utils.showUserMessage("Error", errorJSON.error + "<br/><br/>NOTE: These error messages provided by " + this.destinationRepository.service + " are not very helpful. Please contact EAGLE admin to help with further investigation.");
-            console.error("Error: " + errorJSON.error);
-            return errorJSON.error;
+            const errorText = errorJSON.error ?? errorMessage;
+            Utils.showUserMessage("Error", errorText + "<br/><br/>NOTE: These error messages provided by " + this.destinationRepository.service + " are not very helpful. Please contact EAGLE admin to help with further investigation.");
+            console.error("Error: " + errorText);
+            return;
         }
 
         GraphUpdater.state(GraphUpdaterStatus.Pushed);

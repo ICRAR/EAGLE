@@ -35,7 +35,7 @@ test('findEdgesContainedByNodes handles graph iterators and partial selections',
 
         return {
             graphEdgeCount: edges.length,
-            allSelectedIds: allSelected.map((edge: any) => edge.getId()),
+            allSelectedIds: allSelected.map((edge: any) => edge.getId() as string),
             oneSelectedCount: oneSelected.length,
         };
     });

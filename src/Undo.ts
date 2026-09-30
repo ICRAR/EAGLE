@@ -260,7 +260,7 @@ export class Undo {
         for (const id of objectIds){
             const node = eagle.logicalGraph().getNodeById(id as NodeId);
             const edge = eagle.logicalGraph().getEdgeById(id as EdgeId);
-            const object = node || edge;
+            const object = node ?? edge;
 
             // abort if no edge or node exists fot that id
             if (typeof object === 'undefined'){
@@ -279,18 +279,7 @@ export class Undo {
         for (let i = Undo.MEMORY_SIZE - 1 ; i >= 0 ; i--){
             const snapshot = eagle.undo().memory()[i];
 
-            if (snapshot === null){
-                continue;
-            }
-
-            if (snapshot.data() === null){
-                tableData.push({
-                    "current": realCurrent === i ? "->" : "",
-                    "description": snapshot.description(),
-                    "buffer position": i,
-                    "nodes": "N/A",
-                    "edges": "N/A"
-                });
+            if (snapshot == null){
                 continue;
             }
 

@@ -16,11 +16,6 @@ export class Hierarchy {
             node.setKeepExpanded(false);
         }
 
-        // TODO: should we move this up?
-        //return if the graph is not loaded yet
-        if(eagle.logicalGraph()=== null){
-            return
-        }
 
         //reset all selection relatives to false
         $(".positionPointer").remove()
@@ -72,7 +67,7 @@ export class Hierarchy {
         }
 
         //using a called async function here to wait for changes to the hierarchy to finish before drawing the edges
-        hierarchyDraw()
+        void hierarchyDraw()
 
         //an array of edges is used as we have to ensure there are no duplicate edges drawn.
         async function hierarchyDraw() {
@@ -88,11 +83,7 @@ export class Hierarchy {
                 let iterations = 0;
                 const MAX_ITERATIONS = 32;
     
-                if (element === null){
-                    return
-                }
-    
-                while (true){
+                while (element !== null){
                     if (iterations > MAX_ITERATIONS){
                         console.error("too many iterations in nodeRelativeForEach");
                         return
@@ -129,9 +120,9 @@ export class Hierarchy {
             const innerItem = $('.hierarchy .hierarchyNodeIsSelected')
             const parentDiv = $('.hierarchy')
             if(innerItem.length > 0 && parentDiv.length > 0){
-                const parentDivScrollTop = parentDiv.scrollTop() || 0;
-                const parentDivHeight = parentDiv.height() || 0;
-                const innerItemHeight = innerItem.height() || 0;
+                const parentDivScrollTop = parentDiv.scrollTop() ?? 0;
+                const parentDivHeight = parentDiv.height() ?? 0;
+                const innerItemHeight = innerItem.height() ?? 0;
 
                 parentDiv.scrollTop(parentDivScrollTop + innerItem.position().top - parentDivHeight/2 + innerItemHeight/2)
             }
@@ -143,11 +134,12 @@ export class Hierarchy {
         const eagle: Eagle = Eagle.getInstance();
 
         let unique = true
-        hierarchyEdgeList.forEach(function(e:{edge:Edge , use:string, edgeSelected:boolean}){
+        for (const e of hierarchyEdgeList){
             if(e.edge.getId()===edge.getId()){
                 unique = false
+                break
             }
-        })
+        }
 
         if(eagle.objectIsSelected(edge)){
             if(!unique){
@@ -288,13 +280,8 @@ export class Hierarchy {
         return className
     }
     
-    static selectNode(node: Node, e : any) : void {
+    static selectNode(node: Node, e: KeyboardEvent) : void {
         const eagle: Eagle = Eagle.getInstance();
-
-        if (node === null){
-            console.warn("Hierarchy.selectNode(): No node provided!");
-            return;
-        }
 
         if(!e.shiftKey && !e.altKey){
             eagle.setSelection(node, EagleFileType.Graph);

@@ -19,8 +19,8 @@ test('Undo duplicate snapshot detection', async ({ page }) => {
     await page.waitForTimeout(500);
 
     // record the undo front pointer after adding the node
-    const frontAfterAdd = await page.evaluate(() => {
-        return (window as any).eagle.undo().front();
+    const frontAfterAdd = await page.evaluate<number>(() => {
+        return (window as any).eagle.undo().front() as number;
     });
 
     // push a snapshot with no graph change — should be a duplicate and aborted
@@ -29,24 +29,24 @@ test('Undo duplicate snapshot detection', async ({ page }) => {
         eagle.undo().pushSnapshot(eagle, 'duplicate push attempt');
     });
 
-    const frontAfterDuplicatePush = await page.evaluate(() => {
-        return (window as any).eagle.undo().front();
+    const frontAfterDuplicatePush = await page.evaluate<number>(() => {
+        return (window as any).eagle.undo().front() as number;
     });
 
     // front pointer must not have advanced — duplicate was detected
-    await expect(frontAfterDuplicatePush).toBe(frontAfterAdd);
+    expect(frontAfterDuplicatePush).toBe(frontAfterAdd);
 
     // now add a File node to genuinely change the graph
     await page.locator('#palette_0_File').scrollIntoViewIfNeeded();
     await page.locator('#addPaletteNodeFile').click();
     await page.waitForTimeout(500);
 
-    const frontAfterFileAdd = await page.evaluate(() => {
-        return (window as any).eagle.undo().front();
+    const frontAfterFileAdd = await page.evaluate<number>(() => {
+        return (window as any).eagle.undo().front() as number;
     });
 
     // front pointer must have advanced — the change was real
-    await expect(frontAfterFileAdd).not.toBe(frontAfterAdd);
+    expect(frontAfterFileAdd).not.toBe(frontAfterAdd);
 
     await page.close();
 });
