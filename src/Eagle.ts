@@ -1145,22 +1145,20 @@ export class Eagle {
     }
 
     private _handleLoadingErrors = (errorsWarnings: ErrorsWarnings, fileName: string, service: RepositoryService) : void => {
-        const showErrors: boolean = Setting.findValue<boolean>(Setting.SHOW_FILE_LOADING_ERRORS, false);
+        const showIssues: boolean = Setting.findValue<boolean>(Setting.SHOW_FILE_LOADING_WARNINGS, false);
         this.hideEagleIsLoading()
 
-        // show errors (if found)
-        if (Errors.hasErrors(errorsWarnings) || Errors.hasWarnings(errorsWarnings)){
-            if (showErrors){
+        // errors are always shown in the issues modal; the setting only controls warnings
+        const hasErrors: boolean = Errors.hasErrors(errorsWarnings);
+        const hasWarnings: boolean = showIssues && Errors.hasWarnings(errorsWarnings);
 
-                // add warnings/errors to the arrays
-                this.loadingErrors(errorsWarnings.errors);
-                this.loadingWarnings(errorsWarnings.warnings);
+        if (hasErrors || hasWarnings){
+            // add errors/warnings to the arrays (warnings only if the setting is on)
+            this.loadingErrors(hasErrors ? errorsWarnings.errors : []);
+            this.loadingWarnings(hasWarnings ? errorsWarnings.warnings : []);
 
-                this.errorsMode(Mode.Loading);
-                Utils.showErrorsModal("Loading File");
-            } else {
-                Utils.showNotification("Warning", "File (" + fileName + ") loaded successfully from " + service + " but contains one or more warnings or errors.", "warning");
-            }
+            this.errorsMode(Mode.Loading);
+            Utils.showErrorsModal("Loading File");
         } else {
             Utils.showNotification("Success", fileName + " has been loaded from " + service + ".", "success");
         }
@@ -1508,7 +1506,7 @@ export class Eagle {
             const closesLoop = edge.isClosesLoop();
 
             if (typeof srcNode === "undefined" || typeof srcPort === "undefined" || typeof destNode === "undefined" || typeof destPort === "undefined"){
-                errorsWarnings.warnings.push(Errors.Message("Unable to insert edge " + edge.getId() + " source node or destination node could not be found."));
+                errorsWarnings.errors.push(Errors.Message("Unable to insert edge " + edge.getId() + " source node or destination node could not be found."));
                 continue;
             }
 
@@ -2690,13 +2688,17 @@ export class Eagle {
             {name:Palette.BUILTIN_PALETTE_NAME, filename:Daliuge.PALETTE_URL, readonly:true, expanded: builtinPaletteExpanded}
         ]);
         
-        const showErrors: boolean = Setting.findValue<boolean>(Setting.SHOW_FILE_LOADING_ERRORS, false);
+        const showIssues: boolean = Setting.findValue<boolean>(Setting.SHOW_FILE_LOADING_WARNINGS, false);
 
-        // display of errors if setting is true
-        if (showErrors && (Errors.hasErrors(errorsWarnings) || Errors.hasWarnings(errorsWarnings))){
-            // add warnings/errors to the arrays
-            this.loadingErrors(errorsWarnings.errors);
-            this.loadingWarnings(errorsWarnings.warnings);
+        // errors are always shown in the issues modal; the setting only controls warnings
+        const hasErrors: boolean = Errors.hasErrors(errorsWarnings);
+        const hasWarnings: boolean = showIssues && Errors.hasWarnings(errorsWarnings);
+
+        // display of errors (always) and warnings (if the setting is on)
+        if (hasErrors || hasWarnings){
+            // add errors/warnings to the arrays (warnings only if the setting is on)
+            this.loadingErrors(hasErrors ? errorsWarnings.errors : []);
+            this.loadingWarnings(hasWarnings ? errorsWarnings.warnings : []);
 
             this.errorsMode(Mode.Loading);
             Utils.showErrorsModal("Loading File");

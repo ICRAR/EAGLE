@@ -266,22 +266,22 @@ export class Edge {
         let destPortId: FieldId | null = null;
 
         if (typeof linkData.from === 'undefined'){
-            errorsWarnings.warnings.push(Errors.Message("Edge is missing a 'from' attribute"));
+            errorsWarnings.errors.push(Errors.Message("Edge is missing a 'from' attribute"));
         } else {
             srcNodeId = linkData.from;
         }
         if (typeof linkData.fromPort === 'undefined'){
-            errorsWarnings.warnings.push(Errors.Message("Edge is missing a 'fromPort' attribute"));
+            errorsWarnings.errors.push(Errors.Message("Edge is missing a 'fromPort' attribute"));
         } else {
             srcPortId = linkData.fromPort;
         }
         if (typeof linkData.to === 'undefined'){
-            errorsWarnings.warnings.push(Errors.Message("Edge is missing a 'to' attribute"));
+            errorsWarnings.errors.push(Errors.Message("Edge is missing a 'to' attribute"));
         } else {
             destNodeId = linkData.to;
         }
         if (typeof linkData.toPort === 'undefined'){
-            errorsWarnings.warnings.push(Errors.Message("Edge is missing a 'toPort' attribute"));
+            errorsWarnings.errors.push(Errors.Message("Edge is missing a 'toPort' attribute"));
         } else {
             destPortId = linkData.toPort;
         }
@@ -341,22 +341,22 @@ export class Edge {
 
         // check if source and destination nodes and ports were found
         if (typeof srcNode === 'undefined'){
-            errorsWarnings.warnings.push(Errors.Message("Could not find source node for edge"));
+            errorsWarnings.errors.push(Errors.Message("Could not find source node for edge"));
             console.warn("Could not find source node for edge. srcNodeId:", srcNodeId, "linkData:", linkData);
             return null;
         }
         if (typeof destNode === 'undefined'){
-            errorsWarnings.warnings.push(Errors.Message("Could not find destination node for edge"));
+            errorsWarnings.errors.push(Errors.Message("Could not find destination node for edge"));
             console.warn("Could not find destination node for edge. destNodeId:", destNodeId, "linkData:", linkData);
             return null;
         }
         if (typeof srcPort === 'undefined'){
-            errorsWarnings.warnings.push(Errors.Message("Could not find source port for edge"));
+            errorsWarnings.errors.push(Errors.Message("Could not find source port for edge"));
             console.warn("Could not find source port for edge. srcPortId:", srcPortId, "linkData:", linkData);
             return null;
         }
         if (typeof destPort === 'undefined'){
-            errorsWarnings.warnings.push(Errors.Message("Could not find destination port for edge"));
+            errorsWarnings.errors.push(Errors.Message("Could not find destination port for edge"));
             console.warn("Could not find destination port for edge. destPortId:", destPortId, "linkData:", linkData);
             return null;
         }
@@ -374,10 +374,10 @@ export class Edge {
         const destNode: Node | undefined = lg.getNodeById(edgeData.destNodeId as NodeId);
 
         if (typeof srcNode === 'undefined'){
-            errorsWarnings.warnings.push(Errors.Message("edge (" + edgeData.id + ") source node (" + edgeData.srcNodeId + ") could not be found, skipping"));
+            errorsWarnings.errors.push(Errors.Message("edge (" + edgeData.id + ") source node (" + edgeData.srcNodeId + ") could not be found, skipping"));
         }
         if (typeof destNode === 'undefined'){
-            errorsWarnings.warnings.push(Errors.Message("edge (" + edgeData.id + ") destination node (" + edgeData.destNodeId + ") could not be found, skipping"));
+            errorsWarnings.errors.push(Errors.Message("edge (" + edgeData.id + ") destination node (" + edgeData.destNodeId + ") could not be found, skipping"));
         }
         if (typeof srcNode === 'undefined' || typeof destNode === 'undefined'){
             return null;
@@ -387,10 +387,10 @@ export class Edge {
         const destPort: Field | undefined = destNode.getFieldById(edgeData.destPortId as FieldId);
 
         if (typeof srcPort === 'undefined'){
-            errorsWarnings.warnings.push(Errors.Message("edge (" + edgeData.id + ") source port (" + edgeData.srcPortId + ") could not be found, skipping"));
+            errorsWarnings.errors.push(Errors.Message("edge (" + edgeData.id + ") source port (" + edgeData.srcPortId + ") could not be found, skipping"));
         }
         if (typeof destPort === 'undefined'){
-            errorsWarnings.warnings.push(Errors.Message("edge (" + edgeData.id + ") destination port (" + edgeData.destPortId + ") could not be found, skipping"));
+            errorsWarnings.errors.push(Errors.Message("edge (" + edgeData.id + ") destination port (" + edgeData.destPortId + ") could not be found, skipping"));
         }
         if (typeof srcPort === 'undefined' || typeof destPort === 'undefined'){
             return null;
