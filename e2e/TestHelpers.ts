@@ -70,7 +70,6 @@ export class TestHelpers {
             await page.locator('#tutorialInfoPopUp').waitFor({ state: 'attached', timeout: TestHelpers.LONG_TIMEOUT });
         });
 
-        console.log(`[tutorial] started: ${tutorialName}`);
         const stepAttempts = new Map<string, number>();
 
         while (true) {

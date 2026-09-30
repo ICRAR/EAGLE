@@ -5,26 +5,23 @@ const INPUT_GRAPH_LOCATION: string = "data/LoopWithBranch.graph";
 //const INPUT_GRAPH_LOCATION: string = "https://raw.githubusercontent.com/ICRAR/EAGLE-graph-repo/refs/heads/master/graph_patterns/LoopWithBranch.graph";
 
 test('Load/Save JSON Match', async ({ page }) => {
-  //const graphJSON = await fetchGraph(graph);
   const graphJSON = await TestHelpers.readGraph(INPUT_GRAPH_LOCATION);
+  let outputJSON: string;
 
-  await page.goto('http://localhost:8888/?tutorial=none');
+  await test.step('Load and save the graph', async () => {
+    await page.goto('http://localhost:8888/?tutorial=none');
+    await TestHelpers.loadGraphFromString(page, graphJSON);
+    outputJSON = await TestHelpers.saveGraphToString(page);
+  });
 
-  // load graph from string
-  await TestHelpers.loadGraphFromString(page, graphJSON);
-
-  // save graph to string
-  const outputJSON: string = await TestHelpers.saveGraphToString(page);
-  
-  const obj1 = JSON.parse(graphJSON);
-  const obj2 = JSON.parse(outputJSON);
-
-  const result0 = TestHelpers.compareObj(obj1, obj2);
-  const result1 = TestHelpers.compareObj(obj2, obj1);
-
-  // !!!!!!!!!!!!! CHECK FOR MATCH
-  await expect(JSON.stringify(result0)).toBe("{}");
-  await expect(JSON.stringify(result1)).toBe("{}");
+  await test.step('Compare the saved JSON', async () => {
+    const obj1 = JSON.parse(graphJSON);
+    const obj2 = JSON.parse(outputJSON);
+    const result0 = TestHelpers.compareObj(obj1, obj2);
+    const result1 = TestHelpers.compareObj(obj2, obj1);
+    await expect(JSON.stringify(result0)).toBe("{}");
+    await expect(JSON.stringify(result1)).toBe("{}");
+  });
 
   //closing the browser
   await page.close();
