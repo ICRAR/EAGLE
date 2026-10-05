@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { TestHelpers } from './TestHelpers';
+import { TestHelpers } from '../TestHelpers';
 
 const GRAPHS = [
   // SDP Pipelines
@@ -16,10 +16,15 @@ test('Validating Graphs', async ({ page }) => {
   for (const graphUrl of GRAPHS){
     await test.step(`Validate graph: ${graphUrl}`, async () => {
       await page.goto('http://localhost:8888/?tutorial=none&service=Url&url='+graphUrl);
+      // wait for this graph's load notification and dismiss it before opening the menu
       await TestHelpers.waitForNotificationAndDismiss(page);
       await TestHelpers.openGraphMenuAndSelect(page, 'validateGraph');
       await page.locator('div[data-notify="container"]').waitFor({state: 'attached'});
       await expect(page.locator('span[data-notify="message"]')).toContainText(" valid ");
+      // dismiss the validation result so the next iteration's load notification wait
+      // does not pick up this stale validation notification instead
+      await page.locator('button[data-notify="dismiss"]').first().click();
+      await page.locator('div[data-notify="container"]').first().waitFor({state: 'detached'});
     });
   }
 

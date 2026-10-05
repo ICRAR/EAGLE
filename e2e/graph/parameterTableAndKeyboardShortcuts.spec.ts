@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { TestHelpers } from './TestHelpers';
+import { TestHelpers } from '../TestHelpers';
 
 test('Parameter Tables and keyboard Shortcuts', async ({ page }) => {
   await test.step('Set up a graph with an editable node', async () => {

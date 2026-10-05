@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { TestHelpers } from './TestHelpers';
+import { TestHelpers } from '../TestHelpers';
 
 // Regression test for: fix all issues, do other actions, undo — previously fixed
 // errors/warnings must NOT reappear.
@@ -34,7 +34,9 @@ test('Undo after fixAll does not reintroduce fixed errors', async ({ page }) => 
         await page.locator('div[data-notify="container"]').waitFor({ state: 'attached' });
         await page.locator('button[data-notify="dismiss"]').click();
         await page.locator('div[data-notify="container"]').waitFor({ state: 'detached' });
-        await expect.poll(async () => await TestHelpers.getNumWarningsErrors(page)).toBeLessThanOrEqual(initialCount);
+        // the fixture is expected to contain fixable issues, so the count must strictly decrease.
+        // A strict check catches a broken fix-all that does nothing (which <= would pass).
+        await expect.poll(async () => await TestHelpers.getNumWarningsErrors(page)).toBeLessThan(initialCount);
         postFixCount = await TestHelpers.getNumWarningsErrors(page);
         console.log('Post-fix warnings+errors:', postFixCount);
     });

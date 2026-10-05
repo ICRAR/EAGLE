@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { TestHelpers } from './TestHelpers';
+import { TestHelpers } from '../TestHelpers';
 
 const INPUT_GRAPH_LOCATION: string = "data/LoopWithBranch.graph";
 
