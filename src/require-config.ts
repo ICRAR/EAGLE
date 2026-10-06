@@ -41,6 +41,7 @@ require.config({
         "Edge": "./static/built/Edge",
         "Visual": "./static/built/Visual",
         "FileInfo": "./static/built/FileInfo",
+        "FileIO": "./static/built/FileIO",
         "Setting": "./static/built/Setting",
         "UiModes": "./static/built/UiModes",
         "Tutorial": "./static/built/Tutorial",
