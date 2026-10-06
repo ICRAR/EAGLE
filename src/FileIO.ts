@@ -31,9 +31,10 @@
  *    click-throughs, drag-and-drop, and the FileReader plumbing.
  *
  * The parsing/loading pipeline (_loadGraphJSON, _loadPaletteJSON, _loadGraphWithChoice,
- * _loadGraphConfig, ...) still lives on Eagle and is reached through the eagle instance.
- * Eagle keeps thin forwarders for the public entry points so the existing UI bindings
- * (knockout data-bind attributes, keyboard shortcuts, right-click menus) keep working.
+ * _loadGraphConfig, insertGraph, ...) now lives on GraphLoader and is reached through
+ * the thin forwarders that Eagle keeps on itself. Eagle keeps those forwarders for the
+ * public entry points so the existing UI bindings (knockout data-bind attributes,
+ * keyboard shortcuts, right-click menus) keep working.
  */
 
 "use strict";

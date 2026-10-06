@@ -42,6 +42,7 @@ require.config({
         "Visual": "./static/built/Visual",
         "FileInfo": "./static/built/FileInfo",
         "FileIO": "./static/built/FileIO",
+        "GraphLoader": "./static/built/GraphLoader",
         "Setting": "./static/built/Setting",
         "UiModes": "./static/built/UiModes",
         "Tutorial": "./static/built/Tutorial",
