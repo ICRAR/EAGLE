@@ -199,15 +199,6 @@ $(function(){
         localStorage.setItem('lastSeenVersion', (<any>window).version);
     }
 
-    $('.modal').on('hidden.bs.modal', function () {
-        $('.modal-dialog').css({"left":"0px", "top":"0px"})
-        $("#editFieldModal textarea").attr('style','')
-        $("#issuesDisplayAccordion").parent().parent().attr('style','')
-
-        //reset parameter table selection
-        ParameterTable.resetSelection()
-    });
-
     //increased click bubble for edit modal flag booleans
     $(".componentCheckbox").on("click",function(event: JQuery.TriggeredEvent){
         $(event.target).find("input").trigger("click")

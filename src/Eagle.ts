@@ -948,7 +948,21 @@ export class Eagle {
     /**
      * Uploads a file from a local file location.
      */
-    loadLocalGraphFile = () : void => {
+    private _isTextFile = async (file: File): Promise<boolean> => {
+        try {
+            const data = new TextDecoder("utf-8", {fatal: true}).decode(await file.arrayBuffer());
+            return !/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/.test(data);
+        } catch (_error) {
+            return false;
+        }
+    }
+
+    private _rejectBinaryFile = (file: File): void => {
+        console.warn("Rejected binary upload", file.name);
+        Utils.showUserMessage("Error", "The requested file is not a valid text file.");
+    }
+
+    loadLocalGraphFile = async () : Promise<void> => {
         const graphFileToLoadInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("graphFileToLoad");
         const fileFullPath : string = graphFileToLoadInputElement.value;
 
@@ -965,38 +979,107 @@ export class Eagle {
 
         // get reference to file from the html element
         const file = graphFileToLoadInputElement.files[0];
-        const reader = new FileReader();
-        reader.readAsText(file, "UTF-8");
-        reader.onload = async (evt) => {
-            let data: string | undefined = evt.target?.result?.toString();
+        if (!file) {
+            console.error("loadLocalGraphFile: no file found in input element");
+            return;
+        }
 
-            if (data == null || data === "") {
+        if (!await this._isTextFile(file)) {
+            this._rejectBinaryFile(file);
+            graphFileToLoadInputElement.value = "";
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = async (evt) => {
+            const data = evt.target?.result?.toString() ?? "";
+            if (data === "") {
                 console.error("loadLocalGraphFile: file is empty or could not be read");
                 Utils.showUserMessage("Error", "File is empty or could not be read.");
-                data = "";
+                return;
             }
 
-            await this._loadGraphJSON(data, fileFullPath, (lg: LogicalGraph) : void => {
-                this.logicalGraph(lg);
-
-                this._postLoadGraph(new RepositoryFile(new Repository(RepositoryService.File, "", "", false), Utils.getFilePathFromFullPath(fileFullPath), Utils.getFileNameFromFullPath(fileFullPath)));
-            });
-        }
+            await this._loadGraphWithChoice(data, new RepositoryFile(
+                new Repository(RepositoryService.File, "", "", false),
+                Utils.getFilePathFromFullPath(fileFullPath),
+                Utils.getFileNameFromFullPath(fileFullPath)
+            ));
+        };
         reader.onerror = (evt) => {
             console.error("error reading file", evt);
-        }
+        };
+        reader.readAsText(file, "UTF-8");
 
         // reset file selection element
         graphFileToLoadInputElement.value = "";
     }
 
     /**
+     * Loads a dropped graph, palette, or graph configuration by inspecting its JSON type.
+     * The existing type-specific loaders remain responsible for validation and UI updates.
+     */
+    loadDroppedFile = async (file: File): Promise<void> => {
+        if (!await this._isTextFile(file)) {
+            this._rejectBinaryFile(file);
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = async (evt) => {
+            try {
+                const data = evt.target?.result?.toString() ?? "";
+                if (data === "") {
+                    Utils.showUserMessage("Error", "File is empty or could not be read.");
+                    return;
+                }
+
+                let dataObject: any;
+                try {
+                    dataObject = JSON.parse(data);
+                } catch (err) {
+                    Utils.showUserMessage("Error parsing file JSON", Errors.UnknownToError(err));
+                    return;
+                }
+
+                const fileType = Utils.determineFileType(dataObject);
+                const repositoryFile = new RepositoryFile(
+                    new Repository(RepositoryService.File, "", "", false),
+                    Utils.getFilePathFromFullPath(file.name),
+                    Utils.getFileNameFromFullPath(file.name)
+                );
+                switch (fileType) {
+                    case EagleFileType.Graph:
+                        await this._loadGraphWithChoice(data, repositoryFile);
+                        break;
+                    case EagleFileType.Palette:
+                        this._loadPaletteJSON(data, file.name);
+                        break;
+                    case EagleFileType.GraphConfig:
+                        await this._loadGraphConfig(
+                            dataObject,
+                            new RepositoryFile(Repository.placeholder(), "", Utils.getFileNameFromFullPath(file.name))
+                        );
+                        break;
+                    default:
+                        Utils.showUserMessage("Error", "Unable to determine the dropped file type.");
+                }
+            } catch (err) {
+                console.error("Error loading dropped file", err);
+                Utils.showUserMessage("Error", "Unable to load dropped file: " + Errors.UnknownToError(err));
+            }
+        };
+        reader.onerror = () => {
+            Utils.showUserMessage("Error", "File is empty or could not be read.");
+        };
+        reader.readAsText(file, "UTF-8");
+    }
+
+    /**
      * Uploads a file from a local file location. File will be "insert"ed into the current graph
      */
-    insertLocalGraphFile = () : void => {
+    insertLocalGraphFile = async () : Promise<void> => {
         const graphFileToInsertInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("graphFileToInsert");
         const fileFullPath : string = graphFileToInsertInputElement.value;
-        const errorsWarnings : ErrorsWarnings = {"errors":[], "warnings":[]};
 
         // abort if value is empty string
         if (fileFullPath === ""){
@@ -1011,54 +1094,59 @@ export class Eagle {
 
         // get reference to file from the html element
         const file = graphFileToInsertInputElement.files[0];
-        const reader = new FileReader();
-        reader.readAsText(file, "UTF-8");
-        reader.onload = async (evt) => {
-            let data: string | undefined = evt.target?.result?.toString();
+        if (!file) {
+            console.error("insertLocalGraphFile: no file found in input element");
+            return;
+        }
 
-            if (data == null || data === "") {
+        if (!await this._isTextFile(file)) {
+            this._rejectBinaryFile(file);
+            graphFileToInsertInputElement.value = "";
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = async (evt) => {
+            const data = evt.target?.result?.toString() ?? "";
+            if (data === "") {
                 console.error("insertLocalGraphFile: file is empty or could not be read");
                 Utils.showUserMessage("Error", "File is empty or could not be read.");
-                data = "";
+                return;
             }
 
-            await this._loadGraphJSON(data, fileFullPath, async (lg: LogicalGraph) : Promise<void> => {
+            await this._loadGraphJSON(data, fileFullPath, async (lg: LogicalGraph, errorsWarnings: ErrorsWarnings) : Promise<void> => {
                 const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().location.getText(), "", CategoryName.SubGraph);
-
                 await this.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges()), parentNode, errorsWarnings);
-
-                // TODO: handle errors and warnings
 
                 this.checkEagle();
                 this.undo().pushSnapshot(this, "Insert Logical Graph");
                 this.logicalGraph.valueHasMutated();
             });
-        }
+        };
         reader.onerror = (evt) => {
             console.error("error reading file", evt);
-        }
+        };
+        reader.readAsText(file, "UTF-8");
 
         // reset file selection element
         graphFileToInsertInputElement.value = "";
     }
 
     private _handleLoadingErrors = (errorsWarnings: ErrorsWarnings, fileName: string, service: RepositoryService) : void => {
-        const showErrors: boolean = Setting.findValue<boolean>(Setting.SHOW_FILE_LOADING_ERRORS, false);
+        const showIssues: boolean = Setting.findValue<boolean>(Setting.SHOW_FILE_LOADING_WARNINGS, false);
         this.hideEagleIsLoading()
 
-        // show errors (if found)
-        if (Errors.hasErrors(errorsWarnings) || Errors.hasWarnings(errorsWarnings)){
-            if (showErrors){
+        // errors are always shown in the issues modal; the setting only controls warnings
+        const hasErrors: boolean = Errors.hasErrors(errorsWarnings);
+        const hasWarnings: boolean = showIssues && Errors.hasWarnings(errorsWarnings);
 
-                // add warnings/errors to the arrays
-                this.loadingErrors(errorsWarnings.errors);
-                this.loadingWarnings(errorsWarnings.warnings);
+        if (hasErrors || hasWarnings){
+            // add errors/warnings to the arrays (warnings only if the setting is on)
+            this.loadingErrors(hasErrors ? errorsWarnings.errors : []);
+            this.loadingWarnings(hasWarnings ? errorsWarnings.warnings : []);
 
-                this.errorsMode(Mode.Loading);
-                Utils.showErrorsModal("Loading File");
-            } else {
-                Utils.showNotification("Warning", "File (" + fileName + ") loaded successfully from " + service + " but contains one or more warnings or errors.", "warning");
-            }
+            this.errorsMode(Mode.Loading);
+            Utils.showErrorsModal("Loading File");
         } else {
             Utils.showNotification("Success", fileName + " has been loaded from " + service + ".", "success");
         }
@@ -1078,7 +1166,7 @@ export class Eagle {
         return false;
     }
 
-    private _loadGraphJSON = async (data: string, fileFullPath: string, loadFunc: (lg: LogicalGraph) => void | Promise<void>) : Promise<void> => {
+    private _loadGraphJSON = async (data: string, fileFullPath: string, loadFunc: (lg: LogicalGraph, errorsWarnings: ErrorsWarnings) => void | Promise<void>) : Promise<boolean> => {
         let dataObject;
 
         // attempt to parse the JSON
@@ -1086,7 +1174,7 @@ export class Eagle {
             dataObject = JSON.parse(data);
         } catch(err){
             Utils.showUserMessage("Error parsing file JSON", Errors.UnknownToError(err));
-            return;
+            return false;
         }
 
         const fileType : EagleFileType = Utils.determineFileType(dataObject);
@@ -1094,13 +1182,14 @@ export class Eagle {
         // Only load graph files.
         if (fileType !== EagleFileType.Graph) {
             Utils.showUserMessage("Error", "This is not a graph file!");
-            return;
+            return false;
         }
 
         // attempt to determine schema version from FileInfo
         const schemaVersion: SchemaVersion = Utils.determineSchemaVersion(dataObject);
 
         const errorsWarnings: ErrorsWarnings = {errors: [], warnings: []};
+        let loaded = false;
 
         // use the correct parsing function based on schema version
         switch (schemaVersion){
@@ -1111,13 +1200,15 @@ export class Eagle {
                     GraphUpdater.updateKeysToIds(dataObject);
                 }
 
-                await loadFunc(LogicalGraph.fromOJSJson(dataObject, "", errorsWarnings));
+                await loadFunc(LogicalGraph.fromOJSJson(dataObject, "", errorsWarnings), errorsWarnings);
+                loaded = true;
                 break;
             case SchemaVersion.V4:
                 if (!this._validateV4GraphLoadJSON(dataObject as JsonObject, errorsWarnings)) {
                     break;
                 }
-                await loadFunc(LogicalGraph.fromV4Json(dataObject as V4GraphJson, "", errorsWarnings));
+                await loadFunc(LogicalGraph.fromV4Json(dataObject as V4GraphJson, "", errorsWarnings), errorsWarnings);
+                loaded = true;
                 break;
             default:
                 errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
@@ -1125,6 +1216,7 @@ export class Eagle {
         }
 
         this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), RepositoryService.File);
+        return loaded;
     }
 
     createSubgraphFromSelection = () : void => {
@@ -1139,7 +1231,6 @@ export class Eagle {
             return;
         }
 
-        // create new subgraph
         // look for similarly named node in palettes first, clone it
         // if not found in palettes, create a basic node from just the category
         let parentNode: Node;
@@ -1403,7 +1494,7 @@ export class Eagle {
             const closesLoop = edge.isClosesLoop();
 
             if (typeof srcNode === "undefined" || typeof srcPort === "undefined" || typeof destNode === "undefined" || typeof destPort === "undefined"){
-                errorsWarnings.warnings.push(Errors.Message("Unable to insert edge " + edge.getId() + " source node or destination node could not be found."));
+                errorsWarnings.errors.push(Errors.Message("Unable to insert edge " + edge.getId() + " source node or destination node could not be found."));
                 continue;
             }
 
@@ -1429,7 +1520,7 @@ export class Eagle {
     /**
      * Loads a custom palette from a file.
      */
-    loadLocalPaletteFile = () : void => {
+    loadLocalPaletteFile = async () : Promise<void> => {
         const paletteFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("paletteFileToLoad");
         const fileFullPath : string = paletteFileInputElement.value;
 
@@ -1446,25 +1537,35 @@ export class Eagle {
 
         // get a reference to the file in the html element
         const file = paletteFileInputElement.files[0];
-        const reader = new FileReader();
-        reader.readAsText(file, "UTF-8");
-        reader.onload = (evt) => {
-            let data = evt.target?.result?.toString();
+        if (!file) {
+            console.error("loadLocalPaletteFile: no file found in input element");
+            return;
+        }
 
-            if (data == null || data === "") {
+        if (!await this._isTextFile(file)) {
+            this._rejectBinaryFile(file);
+            paletteFileInputElement.value = "";
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+            const data = evt.target?.result?.toString() ?? "";
+            if (data === "") {
                 console.error("loadLocalPaletteFile: file is empty or could not be read");
                 Utils.showUserMessage("Error", "File is empty or could not be read.");
-                data = "";
+                return;
             }
 
             this._loadPaletteJSON(data, fileFullPath);
-
             this.palettes()[0].fileInfo().location.repositoryService(RepositoryService.File);
             this.palettes()[0].fileInfo.valueHasMutated();
-        }
+        };
         reader.onerror = (evt) => {
             console.error("error reading file", evt);
-        }
+        };
+        reader.readAsText(file, "UTF-8");
+
         // reset file selection element
         paletteFileInputElement.value = "";
     }
@@ -1504,7 +1605,7 @@ export class Eagle {
     /**
      * Loads a custom graph config from a file.
      */
-    loadLocalGraphConfigFile = () : void => {
+    loadLocalGraphConfigFile = async () : Promise<void> => {
         const graphConfigFileInputElement : HTMLInputElement = <HTMLInputElement> document.getElementById("graphConfigFileToLoad");
         const fileFullPath : string = graphConfigFileInputElement.value;
 
@@ -1521,19 +1622,27 @@ export class Eagle {
 
         // get a reference to the file in the html element
         const file = graphConfigFileInputElement.files[0];
-        const reader = new FileReader();
-        reader.readAsText(file, "UTF-8");
-        reader.onload = (evt) => {
-            let data = evt.target?.result?.toString();
+        if (!file) {
+            console.error("loadLocalGraphConfigFile: no file found in input element");
+            return;
+        }
 
-            if (data == null || data === "") {
+        if (!await this._isTextFile(file)) {
+            this._rejectBinaryFile(file);
+            graphConfigFileInputElement.value = "";
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+            const data = evt.target?.result?.toString() ?? "";
+            if (data === "") {
                 console.error("loadLocalGraphConfigFile: file is empty or could not be read");
                 Utils.showUserMessage("Error", "File is empty or could not be read.");
-                data = "";
+                return;
             }
 
             let dataObject;
-
             try {
                 dataObject = JSON.parse(data);
             } catch(err){
@@ -1542,10 +1651,12 @@ export class Eagle {
             }
 
             void this._loadGraphConfig(dataObject, new RepositoryFile(Repository.placeholder(), "", Utils.getFileNameFromFullPath(fileFullPath)));
-        }
+        };
         reader.onerror = (evt) => {
             console.error("error reading file", evt);
-        }
+        };
+        reader.readAsText(file, "UTF-8");
+
         // reset file selection element
         graphConfigFileInputElement.value = "";
     }
@@ -2530,13 +2641,17 @@ export class Eagle {
             {name:Palette.BUILTIN_PALETTE_NAME, filename:Daliuge.PALETTE_URL, readonly:true, expanded: builtinPaletteExpanded}
         ]);
         
-        const showErrors: boolean = Setting.findValue<boolean>(Setting.SHOW_FILE_LOADING_ERRORS, false);
+        const showIssues: boolean = Setting.findValue<boolean>(Setting.SHOW_FILE_LOADING_WARNINGS, false);
 
-        // display of errors if setting is true
-        if (showErrors && (Errors.hasErrors(errorsWarnings) || Errors.hasWarnings(errorsWarnings))){
-            // add warnings/errors to the arrays
-            this.loadingErrors(errorsWarnings.errors);
-            this.loadingWarnings(errorsWarnings.warnings);
+        // errors are always shown in the issues modal; the setting only controls warnings
+        const hasErrors: boolean = Errors.hasErrors(errorsWarnings);
+        const hasWarnings: boolean = showIssues && Errors.hasWarnings(errorsWarnings);
+
+        // display of errors (always) and warnings (if the setting is on)
+        if (hasErrors || hasWarnings){
+            // add errors/warnings to the arrays (warnings only if the setting is on)
+            this.loadingErrors(hasErrors ? errorsWarnings.errors : []);
+            this.loadingWarnings(hasWarnings ? errorsWarnings.warnings : []);
 
             this.errorsMode(Mode.Loading);
             Utils.showErrorsModal("Loading File");
@@ -2643,7 +2758,7 @@ export class Eagle {
         });
     }
 
-    openRemoteFile = async (file : RepositoryFile): Promise<void> => {
+    openRemoteFile = async (file : RepositoryFile, replaceActiveGraph: boolean = false): Promise<void> => {
         // flag file as being fetched
         file.isFetching(true);
 
@@ -2676,7 +2791,9 @@ export class Eagle {
                 openRemoteFileFunc = Utils.openRemoteFileFromUrl;
                 break;
             default:
-                console.warn("Unsure how to fetch file with unknown service ", file.repository.service);
+                const message = "Unable to load '" + file.name + "': repository service '" + file.repository.service + "' is not supported for remote loading.";
+                console.warn(message);
+                Utils.showUserMessage("Error", message);
                 return;
         }
 
@@ -2739,10 +2856,18 @@ export class Eagle {
                 if (Utils.newerEagleVersion(eagleVersion, eagleWindow.version ?? "")){
                     const confirmed = await Utils.requestUserConfirm("Newer EAGLE Version", "File " + file.name + " was written with EAGLE version " + eagleVersion + ", whereas the current EAGLE version is " + (eagleWindow.version ?? "") + ". Do you wish to load the file anyway?", "Yes", "No", undefined);
                     if (confirmed){
-                        await this._loadGraph(data, file);
+                        if (replaceActiveGraph) {
+                            await this._loadGraph(data, file);
+                        } else {
+                            await this._loadGraphWithChoice(data, file);
+                        }
                     }
                 } else {
-                    await this._loadGraph(data, file);
+                    if (replaceActiveGraph) {
+                        await this._loadGraph(data, file);
+                    } else {
+                        await this._loadGraphWithChoice(data, file);
+                    }
                 }
                 break;
             }
@@ -2774,13 +2899,79 @@ export class Eagle {
         this.resetEditor();
     };
 
+    private _loadGraphWithChoice = async (data: string, file: RepositoryFile): Promise<void> => {
+        const graphIsActive = this.logicalGraph().fileInfo().name !== "";
+        if (!graphIsActive) {
+            await this._loadGraph(data, file);
+            return;
+        }
+
+        const userOption = await Utils.requestUserOptions(
+            "Load Graph",
+            "A graph is already active. How would you like to load this graph?",
+            "Add as Subgraph",
+            "Replace Active Graph",
+            "Cancel",
+            1
+        );
+
+        // Cancel if the user chooses to cancel
+        if (userOption === "Cancel") {
+            return;
+        }
+
+        // Replace the active graph if the user chooses that option
+        if (userOption === "Replace Active Graph") {
+            if (this.logicalGraph().fileInfo().modified) {
+                const confirmed = await Utils.requestUserConfirm(
+                    "Graph Modified",
+                    "The current graph has unsaved changes. Loading a new graph will overwrite those changes. Do you wish to continue?",
+                    "Yes",
+                    "No",
+                    undefined
+                );
+
+                if (!confirmed) {
+                    return;
+                }
+            }
+
+            await this._loadGraph(data, file);
+            return;
+        }
+
+
+        // Insert as subgraph
+        await this._loadGraphJSON(data, file.name, async (logicalGraph: LogicalGraph, errorsWarnings: ErrorsWarnings): Promise<void> => {
+            const parentNode = new Node(
+                logicalGraph.fileInfo().name,
+                logicalGraph.fileInfo().location.getText(),
+                "",
+                CategoryName.SubGraph
+            );
+
+            await this.insertGraph(
+                Array.from(logicalGraph.getNodes()),
+                Array.from(logicalGraph.getEdges()),
+                parentNode,
+                errorsWarnings
+            );
+
+            this.checkEagle();
+            this.undo().pushSnapshot(this, "Insert Logical Graph");
+            this.logicalGraph.valueHasMutated();
+        });
+    }
+
     _loadGraph = async (data: string, file: RepositoryFile) : Promise<void> => {
         // load graph
-        await this._loadGraphJSON(data, file.path, (lg: LogicalGraph) => {
+        const loaded = await this._loadGraphJSON(data, file.name, (lg: LogicalGraph) => {
             this.logicalGraph(lg);
         });
 
-        this._postLoadGraph(file);
+        if (loaded) {
+            this._postLoadGraph(file);
+        }
     }
 
     _postLoadGraph = (file: RepositoryFile) : void => {
@@ -2801,11 +2992,11 @@ export class Eagle {
     _loadGraphConfig = async (dataObject: JsonObject, file: RepositoryFile): Promise<void> => {
         const errorsWarnings: ErrorsWarnings = {"errors":[], "warnings":[]};
 
-        const graphConfig = GraphConfig.fromJson(dataObject, this.logicalGraph(), errorsWarnings);
+        let graphConfig = GraphConfig.fromJson(dataObject, this.logicalGraph(), errorsWarnings);
 
         const graphModified: boolean = this.logicalGraph().fileInfo().modified;
         let someGraphAlreadyLoaded: boolean = this.logicalGraph().fileInfo().name !== ""; // true if there is already a graph loaded
-        let graphAutoLoaded: boolean = false; // true if we auto-loaded a graph to match the graphConfig
+        let graphAutoLoaded = false;
 
         // check if graphConfig belongs to this graph
         let configMatch = FileLocation.match(graphConfig.fileInfo().graphLocation, this.logicalGraph().fileInfo().location);
@@ -2825,20 +3016,32 @@ export class Eagle {
             const repositoryFile = new RepositoryFile(repository, graphConfig.fileInfo().graphLocation.repositoryPath(), graphConfig.fileInfo().graphLocation.repositoryFileName());
             repositoryFile.type = EagleFileType.Graph;
 
-            // load graph first
-            await this.openRemoteFile(repositoryFile);
+            // if the associated graph is a local file, we cannot load the graph config remotely
+            if (repository.service === RepositoryService.File) {
+                Utils.showUserMessage(
+                    "Error",
+                    "Unable to load graph config '" + file.name + "': its associated graph is a local file. Load the associated graph first, then load the graph config."
+                );
+                return;
+            }
 
+            // load graph first
+            await this.openRemoteFile(repositoryFile, true);
+
+            graphAutoLoaded = true;
             someGraphAlreadyLoaded = true;
             configMatch = true;
-            graphAutoLoaded = true;
+            // Rebind configuration nodes to the graph that was just loaded.
+            errorsWarnings.errors = [];
+            errorsWarnings.warnings = [];
+            graphConfig = GraphConfig.fromJson(dataObject, this.logicalGraph(), errorsWarnings);
         }
 
         // check if graphConfig already exists in this graph
         const configAlreadyExists: boolean = this.logicalGraph().getGraphConfigById(graphConfig.getId()) !== undefined;
 
         if (configAlreadyExists){
-
-            // if we auto-loaded the graph, and it already contains the graphConfig we were trying to load, then just skip loading it again
+            // If the associated graph was loaded just now, its existing config is already the requested one.
             if (graphAutoLoaded){
                 GraphConfigurationsTable.openTable();
                 return;
@@ -3889,9 +4092,7 @@ export class Eagle {
         Eagle.selectedLocation(EagleFileType.Graph);
     }
 
-    selectNoneInGraph = () : void => {
-        console.log("selectNoneInGraph()");
-
+    selectNoObjectsInGraph = () : void => {
         this.selectedObjects([]);
     }
 
@@ -4751,6 +4952,12 @@ export class Eagle {
     nodeDropLogicalGraph = (_eagle : Eagle, event: JQuery.TriggeredEvent) : void => {
         const e: DragEvent = event.originalEvent as DragEvent;
 
+        if (e.dataTransfer?.files.length) {
+            e.preventDefault();
+            this.loadDroppedFile(e.dataTransfer.files[0]);
+            return;
+        }
+
         // keep track of the drop location
         Eagle.nodeDropLocation = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(e.pageX),y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(e.pageY)}
 
@@ -4796,6 +5003,12 @@ export class Eagle {
     nodeDropPalette = (_eagle: Eagle, event: JQuery.TriggeredEvent) : void => {
         const sourceComponents : Node[] = [];
         const e: DragEvent = event.originalEvent as DragEvent;
+
+        if (e.dataTransfer?.files.length) {
+            e.preventDefault();
+            this.loadDroppedFile(e.dataTransfer.files[0]);
+            return;
+        }
 
         if(Eagle.nodeDragPaletteIndex === null || Eagle.nodeDragComponentId === null){
             return;
@@ -5619,7 +5832,38 @@ $( document ).ready(function() {
         }, EagleConfig.DROPDOWN_DISMISS_DELAY);
     })
 
-    //added to prevent console warnings caused by focused elements in a modal being hidden 
+    // Track the modal focus listener so it is attached only while a modal is open.
+    // Capture phase is required because graph/node handlers may stop propagation.
+    let modalFocusListenerAttached = false;
+    const modalFocusStateHandler = (event: MouseEvent): void => {
+        const modal = $('.modal.show').first();
+        if (modal.length === 0) {
+            return;
+        }
+
+        const target = $(event.target as Element);
+        if (target.closest('.modal-content').length > 0) {
+            modal.removeClass('modal-focus-away');
+        } else {
+            modal.addClass('modal-focus-away');
+        }
+    };
+
+    const attachModalFocusListener = (): void => {
+        if (!modalFocusListenerAttached) {
+            document.addEventListener('mousedown', modalFocusStateHandler, true);
+            modalFocusListenerAttached = true;
+        }
+    };
+
+    const detachModalFocusListener = (): void => {
+        if (modalFocusListenerAttached) {
+            document.removeEventListener('mousedown', modalFocusStateHandler, true);
+            modalFocusListenerAttached = false;
+        }
+    };
+
+    // Added to prevent console warnings caused by focused elements in a modal being hidden.
     $('.modal').on('hide.bs.modal',function(){
         if (document.activeElement) {
             $(document.activeElement).blur();
@@ -5627,15 +5871,31 @@ $( document ).ready(function() {
     })
 
     $('.modal').on('hidden.bs.modal', function () {
-        $('.modal-dialog').css({"left":"0px", "top":"0px"})
-        $("#editFieldModal textarea").attr('style','')
-        $("#issuesDisplayAccordion").parent().parent().attr('style','')
+        const modal = $(this);
+        const dialog = modal.find('.modal-dialog') as JQuery<HTMLElement>;
+
+        //destroy any previous draggable instance on the modal dialog
+        dialog.draggable('destroy');
+        modal.find('.modal-header').off('mousedown.modalDrag');
+
+        //reset modal dialog position and styles
+        dialog.css({"left":"0px", "top":"0px"})
+        modal.find("#editFieldModal textarea").attr('style','')
+        modal.find("#issuesDisplayAccordion").parent().parent().attr('style','')
         //reset parameter table selection
         ParameterTable.resetSelection()
 
+        //remove the listener for modal focus state
+        $('.modal').removeClass('modal-focus-away')
+
         //reset the modal dialog pointer events so that the modal can be closed when clicked outside
-        $('.modal').css({"pointerEvents":"auto"})
-        $('.modal .modal-content').css({"pointerEvents":"auto"})
+        modal.css({"pointerEvents":"auto"})
+        modal.find('.modal-content').css({"pointerEvents":"auto"})    
+
+        // Keep the listener alive if another modal is taking over during this transition.
+        if ($('.modal.show').length === 0) {
+            detachModalFocusListener();
+        }
     });  
 
     $('.modal').on('show.bs.modal',function(){
@@ -5651,18 +5911,22 @@ $( document ).ready(function() {
         //this event is called when a modal is done opening
         const modal = $(this);
 
+        // attach the modal focus listener when the modal is shown
+        attachModalFocusListener();
+        modal.removeClass('modal-focus-away');
+
         // modal draggable
-        ($('.modal-dialog') as JQuery<HTMLElement>).draggable({
+        (modal.find('.modal-dialog') as JQuery<HTMLElement>).draggable({
             handle: '.modal-header'
         });
 
         //this is a system that allows graph interaction with a modal open, it triggers when the user clicks and drags the modal header
-        $(event.target).find('.modal-header').on('mousedown', function(){
+        $(event.target).find('.modal-header').on('mousedown.modalDrag', function(){
+            modal.removeClass('modal-focus-away')
             modal.css({"pointerEvents":"none"})
             modal.find('.modal-content').css({"pointerEvents":"all"})
             $('.modal-backdrop').remove()
         })
-
     })
 
     $(".translationDefault").on("click",function(event: JQuery.TriggeredEvent){
