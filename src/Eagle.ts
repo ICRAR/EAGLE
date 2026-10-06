@@ -978,7 +978,7 @@ export class Eagle {
         }
 
         // get reference to file from the html element
-        const file = graphFileToLoadInputElement.files[0];
+        const file = graphFileToLoadInputElement.files.item(0);
         if (!file) {
             console.error("loadLocalGraphFile: no file found in input element");
             return;
@@ -1093,7 +1093,7 @@ export class Eagle {
         }
 
         // get reference to file from the html element
-        const file = graphFileToInsertInputElement.files[0];
+        const file = graphFileToInsertInputElement.files.item(0);
         if (!file) {
             console.error("insertLocalGraphFile: no file found in input element");
             return;
@@ -1536,7 +1536,7 @@ export class Eagle {
         }
 
         // get a reference to the file in the html element
-        const file = paletteFileInputElement.files[0];
+        const file = paletteFileInputElement.files.item(0);
         if (!file) {
             console.error("loadLocalPaletteFile: no file found in input element");
             return;
@@ -1621,7 +1621,7 @@ export class Eagle {
         }
 
         // get a reference to the file in the html element
-        const file = graphConfigFileInputElement.files[0];
+        const file = graphConfigFileInputElement.files.item(0);
         if (!file) {
             console.error("loadLocalGraphConfigFile: no file found in input element");
             return;
@@ -4951,10 +4951,11 @@ export class Eagle {
 
     nodeDropLogicalGraph = (_eagle : Eagle, event: JQuery.TriggeredEvent) : void => {
         const e: DragEvent = event.originalEvent as DragEvent;
+        const files = e.dataTransfer?.files;
 
-        if (e.dataTransfer?.files.length) {
+        if (files !== undefined && files.length > 0) {
             e.preventDefault();
-            this.loadDroppedFile(e.dataTransfer.files[0]);
+            void this.loadDroppedFile(files[0]);
             return;
         }
 
@@ -5003,10 +5004,11 @@ export class Eagle {
     nodeDropPalette = (_eagle: Eagle, event: JQuery.TriggeredEvent) : void => {
         const sourceComponents : Node[] = [];
         const e: DragEvent = event.originalEvent as DragEvent;
+        const files = e.dataTransfer?.files;
 
-        if (e.dataTransfer?.files.length) {
+        if (files !== undefined && files.length > 0) {
             e.preventDefault();
-            this.loadDroppedFile(e.dataTransfer.files[0]);
+            void this.loadDroppedFile(files[0]);
             return;
         }
 
