@@ -30,12 +30,16 @@ import * as bootstrap from 'bootstrap';
 import { CategoryName, CategoryType } from './Category';
 import { CategoryData } from "./CategoryData";
 import { ComponentUpdater } from './ComponentUpdater';
-import { Daliuge, DataType, FieldName, FieldUsage } from './Daliuge';
+import { DataType, FieldName } from './Daliuge';
 import { DockerHubBrowser } from "./DockerHubBrowser";
+import { EagleFileType } from "./EagleEnums";
+import type { EagleAddNodeMode } from "./EagleEnums";
+export { EagleAddNodeMode, EagleFileType } from "./EagleEnums";
 import { EagleConfig } from "./EagleConfig";
+import { EditorOperations } from "./EditorOperations";
 import { Edge } from './Edge';
 import { Errors, type ErrorsWarnings, type Issue, Mode } from './Errors';
-import { Field } from './Field';
+import type { Field } from './Field';
 import type { FileInfo } from './FileInfo';
 import { FileLocation } from "./FileLocation";
 import { FileLoader, FileSaver } from "./FileIO";
@@ -43,7 +47,6 @@ import { GraphLoader } from "./GraphLoader";
 import type { GraphConfig } from "./GraphConfig";
 import { GraphRenderer } from "./GraphRenderer";
 import { Hierarchy } from './Hierarchy';
-import { Id } from './Id';
 import type { KeyboardShortcut } from './KeyboardShortcut';
 import { LogicalGraph } from './LogicalGraph';
 import { Modals } from "./Modals";
@@ -87,20 +90,6 @@ export enum EagleBottomWindowMode {
     EagleErrors = "EagleErrors"
 }
 
-export enum EagleAddNodeMode {
-    ContextMenu = "ContextMenu",
-    Default = "Default"
-}
-
-export enum EagleFileType {
-    Graph = "Graph",
-    GraphConfig = "GraphConfig",
-    Palette = "Palette",
-    JSON = "JSON",
-    Markdown = "Markdown",
-    Unknown = "Unknown"
-}
-
 export enum EagleDirection {
     Up = "Up",
     Down = "Down",
@@ -137,6 +126,9 @@ export class Eagle {
     // file loading/saving, see FileIO.ts (thin forwarders on Eagle keep the UI bindings working)
     fileIO : FileLoader;
     fileSaver : FileSaver;
+
+    // interactive graph editing operations
+    editorOperations: EditorOperations;
 
     // graph/palette/config loading, see GraphLoader.ts
     graphLoader : GraphLoader;
@@ -200,6 +192,15 @@ export class Eagle {
         this.undo = ko.observable(new Undo());
 
         this.graphLoader = new GraphLoader(this);
+        this.editorOperations = new EditorOperations(this, {
+            selectedLocation: Eagle.selectedLocation,
+            selectedRightClickLocation: Eagle.selectedRightClickLocation,
+            selectedRightClickObject: Eagle.selectedRightClickObject,
+            getSelectedRightClickPosition: () => Eagle.selectedRightClickPosition,
+            getNodeDropLocation: () => Eagle.nodeDropLocation,
+            setNodeDropLocation: (position) => { Eagle.nodeDropLocation = position; },
+            getNodeDragInfo: () => ({paletteIndex: Eagle.nodeDragPaletteIndex, componentId: Eagle.nodeDragComponentId})
+        });
         this.fileIO = new FileLoader(this);
         this.fileSaver = new FileSaver(this);
         
@@ -806,38 +807,7 @@ export class Eagle {
     }
 
     editSelection = (selection : Node | Edge | Visual, selectedLocation: EagleFileType) : void => {
-        // check that location is the same, otherwise default back to set
-        if (selectedLocation !== Eagle.selectedLocation() && this.selectedObjects().length > 0){
-            Utils.showNotification("Selection Error", "Can't add object from " + selectedLocation + " to existing selected objects in " + Eagle.selectedLocation(), "warning");
-            return;
-        } else {
-            Eagle.selectedLocation(selectedLocation);
-        }
-
-        // check if object is already selected
-        let alreadySelected = false;
-        let index = -1;
-        for (let i = 0 ; i < this.selectedObjects().length ; i++){
-            if (selection === this.selectedObjects()[i]){
-                alreadySelected = true;
-                index = i;
-                break;
-            }
-        }
-
-        // add or remove the new selection from the list of selected objects as appropriate
-        if (alreadySelected){
-            // remove
-            this.selectedObjects.splice(index,1);
-
-        } else {
-            // add
-            this.selectedObjects.push(selection);
-        }
-
-        if( selection instanceof Edge){
-            GraphRenderer.setPortPeekForEdge(selection,!alreadySelected)
-        }
+        this.editorOperations.editSelection(selection, selectedLocation);
     }
 
     getInspectorCollapseState : ko.PureComputed<boolean> = ko.pureComputed(() => {
@@ -1071,54 +1041,7 @@ export class Eagle {
 
 
     createSubgraphFromSelection = () : void => {
-        const eagle = Eagle.getInstance()
-        if(eagle.selectedObjects().length === 0){
-            Utils.showNotification('Error','At least one node must be selected!', 'warning')
-            return
-        }
-
-        if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
-            Utils.notifyUserOfEditingIssue(EagleFileType.Graph, "Create Subgraph From Selection");
-            return;
-        }
-
-        // look for similarly named node in palettes first, clone it
-        // if not found in palettes, create a basic node from just the category
-        let parentNode: Node;
-        const paletteComponent = Utils.getPaletteComponentByName(CategoryName.SubGraph);
-        if (typeof paletteComponent !== 'undefined'){
-            parentNode = paletteComponent.clone();
-        } else {
-            parentNode = new Node(CategoryName.SubGraph, "", "", CategoryName.SubGraph);
-        }
-
-        // add the parent node to the logical graph
-        this.logicalGraph().addNodeComplete(parentNode);
-
-        // switch items in selection to be children of subgraph
-        for (const node of this.selectedObjects()){
-            if (!(node instanceof Node)){
-                continue;
-            }
-
-            // if already parented to a node in this selection, skip
-            const nodeParent = node.getParent();
-            if (nodeParent !== null && this.objectIsSelected(nodeParent)){
-                continue;
-            }
-
-            // update selection
-            node.setParent(parentNode);
-        }
-        
-        // center parent around children
-        GraphRenderer.centerConstruct(parentNode, Array.from(eagle.logicalGraph().getNodes()))
-
-        // flag graph as changed
-        this.flagActiveFileModified();
-        this.checkEagle();
-        this.undo().pushSnapshot(this, "Create Subgraph from Selection");
-        this.logicalGraph.valueHasMutated();
+        this.editorOperations.createSubgraphFromSelection();
     }
 
     checkErrorModalShowError = (data:any) :void =>{
@@ -1126,55 +1049,7 @@ export class Eagle {
     }
 
     createConstructFromSelection = async () => {
-        const eagle = Eagle.getInstance()
-        if(eagle.selectedObjects().length === 0){
-            Utils.showNotification('Error','At least one node must be selected', 'warning')
-            return
-        }
-
-        if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
-            Utils.notifyUserOfEditingIssue(EagleFileType.Graph, "Create Construct From Selection");
-            return;
-        }
-
-        const constructs : string[] = Utils.buildComponentList((cData: ReturnType<typeof CategoryData.getCategoryInfo>) => {
-            return cData.categoryType === CategoryType.Construct;
-        });
-
-        // ask the user what type of construct to use
-        const userChoice: string = await Utils.requestUserChoice("Choose Construct", "Please choose a construct type to contain the selection", constructs, 0, false, "");
-
-        // create instance of construct chosen by user
-        // look for similarly named node in palettes first, clone it
-        // if not found in palettes, create a basic node from just the category
-        let parentNode: Node;
-        const paletteComponent = Utils.getPaletteComponentByName(userChoice);
-        if (typeof paletteComponent !== 'undefined'){
-            parentNode = paletteComponent.clone();
-        } else {
-            parentNode = new Node(userChoice, "", "", userChoice as CategoryName);
-        }
-
-        // add the parent node to the logical graph
-        this.logicalGraph().addNodeComplete(parentNode);
-
-        // switch items in selection to be children of subgraph
-        for (const node of this.selectedObjects()){
-            if (!(node instanceof Node)){
-                continue;
-            }
-
-            node.setParent(parentNode);
-        }
-
-        // center parent around children
-        GraphRenderer.centerConstruct(parentNode, Array.from(eagle.logicalGraph().getNodes()))
-
-        // flag graph as changed
-        this.flagActiveFileModified();
-        this.checkEagle();
-        this.undo().pushSnapshot(this, "Add Selection to Construct");
-        this.logicalGraph.valueHasMutated();
+        await this.editorOperations.createConstructFromSelection();
     }
 
     triggerShortcut = (shortcut: (eagle: Eagle) => void) :void => {
@@ -1429,292 +1304,32 @@ export class Eagle {
     }
 
     duplicateSelection = async (mode: "normal"|"contextMenuRequest") => {
-        if(mode === 'normal' && this.selectedObjects().length === 0){
-            Utils.showNotification('Unable to duplicate selection','No nodes are selected','warning')
-            return
-        }
-        
-        let location: string;
-        let incomingNodes: (Node | Edge | Visual)[] = [];
-
-        if(mode === 'normal'){
-            location = Eagle.selectedLocation()
-            incomingNodes = this.selectedObjects()
-        }else{
-            location = Eagle.selectedRightClickLocation()
-
-            const selectedRightClickObject = Eagle.selectedRightClickObject()
-
-            if(selectedRightClickObject === null){
-                Utils.showNotification('Unable to duplicate selection','No node or edge was right-clicked','warning')
-                return
-            }
-            incomingNodes.push(selectedRightClickObject)
-        }
-
-        switch(location){
-            case EagleFileType.Graph:
-                {
-                    // check that graph editing is allowed
-                    if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
-                        Utils.notifyUserOfEditingIssue(EagleFileType.Graph, "Duplicate Selection");
-                        return;
-                    }
-
-                    const nodes : Node[] = [];
-                    const edges : Edge[] = [];
-                    const visuals : Visual[] = [];
-                    const errorsWarnings : ErrorsWarnings = {"errors":[], "warnings":[]};
-
-                    // split objects into nodes and edges
-                    for (const object of incomingNodes){
-                        if (object instanceof Node){
-                            nodes.push(object);
-                        }
-
-                        if (object instanceof Edge){
-                            edges.push(object);
-                        }
-
-                        if (object instanceof Visual){
-                            visuals.push(object);
-                        }
-                    }
-
-                    // remove embedded nodes that are already selected
-                    // this is to prevent copying the same embedded node multiple times
-                    const nodesToDuplicate: Node[] = this._removeAlreadySelectedEmbeddedNodes(nodes);
-
-                    // duplicate nodes and edges
-                    await this.insertGraph(nodesToDuplicate, edges, null, errorsWarnings);
-                    // duplicate visuals
-                    for (const visual of visuals){
-                        const visualClone = visual.clone();
-                        //offset the new clone a bit so it is visible
-                        visualClone.changePosition(visualClone.getWidth()/4, visualClone.getHeight()/4)
-                        this.logicalGraph().addVisual(visualClone);
-                    }
-
-                    // re-check graph, set undo snapshot and trigger re-render
-                    this.checkEagle();
-                    this.undo().pushSnapshot(this, "Duplicate selection");
-                    this.logicalGraph.valueHasMutated();
-                }
-                break;
-            case EagleFileType.Palette:
-                {
-                    // check that palette editing is allowed
-                    if (!Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false)){
-                        Utils.showNotification("Unable to Duplicate Selection", "Palette Editing is disabled", "danger");
-                        return;
-                    }
-
-                    const nodes: Node[] = [];
-
-                    for (const object of incomingNodes){
-                        if (object instanceof Node){
-                            nodes.push(object);
-                        }
-                    }
-
-                    this.addNodesToPalette(nodes);
-                }
-                break;
-            default:
-                console.error("Unknown selectedLocation", Eagle.selectedLocation());
-                break;
-        }
+        await this.editorOperations.duplicateSelection(mode);
     }
 
     // TODO: currently only works when copying from the LG, doesn't work when copying from a palette!
     copySelectionToClipboard = (copyChildren: boolean) : void => {
-        console.log("copySelectionToClipboard()");
-
-        const nodes: Node[] = [];
-        const edges: Edge[] = [];
-
-        // add all items in selection to the set of objects to copy
-        // if copyChildren is true, add children of selected items too
-        for (const object of this.selectedObjects()){
-            if (object instanceof Node){
-                if (copyChildren){
-                    this._addNodeAndChildren(object, nodes);
-                } else {
-                    this._addUniqueNode(nodes, object);
-                }
-            }
-
-            if (object instanceof Edge){
-                edges.push(object);
-            }
-        }
-
-        // remove any embedded nodes that are already selected
-        // this is to prevent copying the same embedded node multiple times
-        const nodesToCopy: Node[] = this._removeAlreadySelectedEmbeddedNodes(nodes);
-
-        // if copyChildren, add all edges adjacent to the nodes in the list objects
-        if (copyChildren){
-            for (const edge of this.logicalGraph().getEdges()){
-                for (const node of nodes){
-                    if (node.getId() === edge.getSrcNode().getId() || node.getId() === edge.getDestNode().getId()){
-                        this._addUniqueEdge(edges, edge);
-                    }
-                }
-            }
-        }
-
-        // TODO: serialise nodes and edges
-        const serialisedNodes = [];
-        for (const node of nodesToCopy){
-            serialisedNodes.push(Node.toOJSGraphJson(node));
-        }
-        const serialisedEdges = [];
-        for (const edge of edges){
-            serialisedEdges.push(Edge.toOJSJson(edge));
-        }
-
-        const clipboard = {
-            nodes: serialisedNodes,
-            edges: serialisedEdges
-        };
-        
-        // write to clipboard
-        navigator.clipboard.writeText(JSON.stringify(clipboard, null, EagleConfig.JSON_INDENT)).then(
-            () => {
-                // success
-                Utils.showNotification("Copied to clipboard", "Copied " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
-            },
-            () => {
-                // error
-                Utils.showNotification("Unable to copy to clipboard", "Your browser does not allow access to the clipboard for security reasons", "danger");
-            }
-        );
+        this.editorOperations.copySelectionToClipboard(copyChildren);
     }
 
-    // given a list of nodes, remove any embedded nodes that are already selected
     _removeAlreadySelectedEmbeddedNodes = (nodes: Node[]) : Node[] => {
-        const newNodes: Node[] = [];
-        for (const node of nodes){
-            const nodeEmbed = node.getEmbed();
-
-            if (nodeEmbed !== null && this.objectIsSelected(nodeEmbed)){
-                continue; // skip this node, as it is already selected
-            }
-            newNodes.push(node);
-        }
-        return newNodes;
+        return this.editorOperations._removeAlreadySelectedEmbeddedNodes(nodes);
     }
 
-    // NOTE: support func for copySelectionToKeyboard() above
-    // TODO: move to LogicalGraph.ts?
     _addNodeAndChildren = (node: Node, output: Node[]) : void => {
-        this._addUniqueNode(output, node);
-
-        for (const child of node.getChildren()){
-            this._addNodeAndChildren(child, output);
-        }
+        this.editorOperations._addNodeAndChildren(node, output);
     }
 
-    // NOTE: support func for copySelectionToKeyboard() above
-    // TODO: move to LogicalGraph.ts?
-    // only add the new node to the nodes list if it is not already present
     _addUniqueNode = (nodes: Node[], newNode: Node): void => {
-        for (const node of nodes){
-            if (node.getId() === newNode.getId()){
-                return;
-            }
-        }
-
-        nodes.push(newNode);
+        this.editorOperations._addUniqueNode(nodes, newNode);
     }
 
-    // NOTE: support func for copySelectionToKeyboard() above
-    // TODO: move to LogicalGraph.ts?
-    // only add the new edge to the edges list if it is not already present
     _addUniqueEdge = (edges: Edge[], newEdge: Edge): void => {
-        for (const edge of edges){
-            if (edge.getId() === newEdge.getId()){
-                return;
-            }
-        }
-
-        edges.push(newEdge);
+        this.editorOperations._addUniqueEdge(edges, newEdge);
     }
 
     pasteFromClipboard = async () => {
-        console.log("pasteFromClipboard()");
-
-        // check that graph editing is allowed
-        if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
-            Utils.notifyUserOfEditingIssue(EagleFileType.Graph, "Paste from Clipboard");
-            return;
-        }
-
-        // check if browser supports reading text from clipboard, if not, explain to user
-        if (typeof navigator.clipboard.readText === "undefined"){
-            Utils.showNotification("Unable to paste data", "Your browser does not allow access to the clipboard for security reasons. Workaround this issue using the 'Graph > New > Add to Graph from JSON' menu item and pasting your clipboard manually", "danger");
-            return;
-        }
-
-        let clipboard = null;
-
-        try {
-            clipboard = JSON.parse(await navigator.clipboard.readText());
-        } catch(e) {
-            const errorName = e instanceof Error ? e.name : "Unknown";
-            const errorMessage = e instanceof Error ? e.message : String(e);
-            Utils.showNotification("Unable to paste data", errorName + ": " + errorMessage, "danger");
-            return;
-        }
-
-        const errorsWarnings: ErrorsWarnings = {"errors":[], "warnings":[]};
-        const nodes : Node[] = [];
-        const edges : Edge[] = [];
-
-        for (const n of clipboard.nodes){
-            const node = Node.fromOJSJson(n, errorsWarnings, false);
-
-            nodes.push(node);
-        }
-
-        for (const e of clipboard.edges){
-            const edge = Edge.fromOJSJson(e, nodes, errorsWarnings);
-
-            if (edge !== null){
-                edges.push(edge);
-            }
-        }
-
-        // set parent links
-        for (const n of clipboard.nodes){
-            const nodeId = Node.determineNodeId(n);
-            const parentId = Node.determineNodeParentId(n);
-
-            const node = nodes.find((n) => n.getId() === nodeId);
-            const parentNode = nodes.find((n) => n.getId() === parentId);
-
-            if (node === undefined){
-                console.warn("pasteFromClipboard(): node with id", nodeId, "not found in clipboard nodes");
-                continue;
-            }
-
-            if (parentNode !== undefined){
-                node.setParent(parentNode);
-            }
-        }
-
-        await this.insertGraph(nodes, edges, null, errorsWarnings);
-
-        // display notification to user
-        if (!Errors.hasErrors(errorsWarnings) && !Errors.hasWarnings(errorsWarnings)){
-            Utils.showNotification("Pasted from clipboard", "Pasted " + clipboard.nodes.length + " nodes and " + clipboard.edges.length + " edges.", "info");
-        }
-
-        // ensure changes are reflected in display
-        this.checkEagle();
-        this.undo().pushSnapshot(this, "Paste from Clipboard");
-        this.logicalGraph.valueHasMutated();
+        await this.editorOperations.pasteFromClipboard();
     }
 
     selectAllInGraph = () : void => {
@@ -2064,218 +1679,11 @@ export class Eagle {
     }
 
     addNodeToLogicalGraphAndConnect = async (newNodeId: NodeId) => {
-        const nodes: Node[] = await this.addNodeToLogicalGraph(undefined, newNodeId, EagleAddNodeMode.ContextMenu);
-
-        const realSourceNode: Node | null = RightClick.edgeDropSrcNode;
-        const realSourcePort: Field | null = RightClick.edgeDropSrcPort;
-        const realDestNode: Node = nodes[0];
-
-        // abort if we don't have sourceNode or sourcePort
-        if (realSourceNode === null || realSourcePort === null){
-            Utils.showNotification("Error", "Unable to create edge: missing source node or port", "danger");
-            return;
-        }
-
-        const usages: FieldUsage[] = [RightClick.edgeDropSrcIsInput ? FieldUsage.OutputPort : FieldUsage.InputPort, FieldUsage.InputOutput];
-        let realDestPort: Field | null = realDestNode.findPortByMatchingType(realSourcePort.getType(), usages);
-
-        // if no dest port was found, just use first input port on dest node
-        if (realDestPort === null){
-            realDestPort = realDestNode.findPortOfAnyType(true);
-        }
-
-        // abort if we don't have destNode or destPort
-        if (realDestNode === null || realDestPort === null){
-            Utils.showNotification("Error", "Unable to create edge: missing destination node or port", "danger");
-            return;
-        }
-
-        // create edge (in correct direction)
-        let edge: Edge;
-        if (!RightClick.edgeDropSrcIsInput){
-            edge = await this.addEdge(realSourceNode, realSourcePort, realDestNode, realDestPort, false, false, true);
-        } else {
-            edge = await this.addEdge(realDestNode, realDestPort, realSourceNode, realSourcePort, false, false, true);
-
-        }
-
-        // check, undo, modified etc
-        this.checkEagle();
-        this.undo().pushSnapshot(this, "Add edge " + edge.getId());
-        this.logicalGraph().fileInfo().modified = true;
-        this.logicalGraph.valueHasMutated();
+        return this.editorOperations.addNodeToLogicalGraphAndConnect(newNodeId);
     }
 
     addNodeToLogicalGraph = (node: Node | undefined, nodeId: NodeId | null, mode: EagleAddNodeMode): Promise<Node[]> => {
-        return new Promise(async(resolve, reject) => {
-            const result: Node[] = [];
-            let pos : {x:number, y:number};
-            pos = {x:0,y:0}
-            let searchAreaExtended = false; //used if we cant find space on the canvas, we then extend the search area for space and center the graph after adding to bring new nodes into view
-
-            // check that graph editing is allowed
-            if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
-                reject("Unable to Add Component. Graph Editing is disabled");
-                return;
-            }
-
-            if(mode === EagleAddNodeMode.ContextMenu){
-                // when addNodeToLogicalGraph is called from the ContextMenu, we expect node to be null. The node is specified by the nodeId instead
-                console.assert(node === null);
-
-                // check that nodeId is not null
-                if (nodeId === null){
-                    reject(new Error("nodeId is null"));
-                    return;
-                }
-
-                // try to find the node (by nodeId) in the palettes
-                node = Utils.getPaletteComponentById(nodeId);
-
-                // if node not found yet, try find in the graph
-                if (typeof node === 'undefined'){
-                    node = this.logicalGraph().getNodeById(nodeId);
-
-                    // abort if node is still undefined
-                    if (typeof node === 'undefined'){
-                        // if we still can't find the node, reject with an error
-                        reject(new Error("Unable to find node with specified id (" + nodeId + ") in palette(s) or graph."));
-                        return;
-                    }
-                }
-
-                // use the position where the right click occurred
-                pos = Eagle.selectedRightClickPosition;
-
-                RightClick.closeCustomContextMenu(true);
-            }
-
-            // abort if node is still undefined
-            if (typeof node === 'undefined'){
-                reject(new Error("Node is undefined"));
-                return;
-            }
-
-            // if node is a construct, set width and height a little larger
-            if (node.isGroup()){
-                node.setRadius(EagleConfig.MINIMUM_CONSTRUCT_RADIUS);
-            }
-
-            //if pos is 0 0 then we are not using drop location nor right click location. so we try to determine a logical place to put it
-            if(pos.x === 0 && pos.y === 0){
-                // get new position for node
-                if (Eagle.nodeDropLocation.x === 0 && Eagle.nodeDropLocation.y === 0){
-                    const result = this.getNewNodePosition(node.getRadius());
-                    searchAreaExtended = result.extended
-                    pos = {x:result.x,y:result.y}
-                } else {
-                    pos = Eagle.nodeDropLocation;
-                }
-            }
-
-            // check for parent before adding the node
-            const parent : Node | null = this.logicalGraph().checkForNodeAt(pos.x, pos.y, EagleConfig.MINIMUM_CONSTRUCT_RADIUS, true);
-
-            // add the node
-            const newNode: Node = await this.addNode(node, pos.x, pos.y);
-            result.push(newNode);
-
-            // set parent (if the node was dropped on something)
-            newNode.setParent(parent);
-
-            // if the node is a construct, add the input and output applications, if they exist
-            if (node.isGroup()){
-                const inputApplication = node.getInputApplication();
-                const outputApplication = node.getOutputApplication();
-
-                // check if the node has an input application, if so, add it
-                if (inputApplication !== null){
-                    // add the input application to the logical graph
-                    const inputApp: Node = await this.addNode(inputApplication, 0, 0);
-                    newNode.setInputApplication(inputApp);
-                    result.push(inputApp);
-                }
-                // check if the node has an output application, if so, add it
-                if (outputApplication !== null){
-                    // add the output application to the logical graph
-                    const outputApp: Node = await this.addNode(outputApplication, 0, 0);
-                    newNode.setOutputApplication(outputApp);
-                    result.push(outputApp);
-                }
-            }
-
-            // determine whether we should also generate an object data drop along with this node
-            const generateObjectDataDrop: boolean = Daliuge.isPythonInitialiser(newNode);
-
-            // optionally generate a new PythonObject node
-            if (generateObjectDataDrop){
-                // determine a name for the new node
-                let poName: string = FieldName.SELF; // use this as a fall-back default
-
-                // use the dataType of the self field
-                const selfField = newNode.findFieldByDisplayText(FieldName.SELF);
-                if (typeof selfField !== 'undefined'){
-                    poName = selfField.getType();
-                }
-
-                // get name of the "base" class from the PythonMemberFunction node,
-                const baseNameField = newNode.findFieldByDisplayText(FieldName.BASE_NAME);
-                if (typeof baseNameField !== 'undefined'){
-                    const value = baseNameField.getValue();
-                    if (value !== null){
-                        poName = value;
-                    }
-                }
-
-                // create node
-                const poNode: Node = new Node(poName, "Instance of " + poName, "", CategoryName.PythonObject);
-
-                // add node to LogicalGraph
-                const OBJECT_OFFSET_X = 100;
-                const OBJECT_OFFSET_Y = 100;
-                const pythonObjectNode: Node = await this.addNode(poNode, pos.x + OBJECT_OFFSET_X, pos.y + OBJECT_OFFSET_Y);
-                // set parent to same as PythonMemberFunction
-                pythonObjectNode.setParent(newNode);
-
-                // add the PythonObject node to the result
-                result.push(pythonObjectNode);
-
-                // copy all fields from a "PythonObject" node in the palette
-                Utils.copyFieldsFromPrototype(pythonObjectNode, Palette.BUILTIN_PALETTE_NAME, CategoryName.PythonObject);
-
-                // find the "object" port on the PythonMemberFunction
-                let sourcePort = newNode.findPortByDisplayText(FieldName.SELF, false, false);
-
-                // make sure we can find a port on the PythonMemberFunction
-                if (typeof sourcePort === 'undefined'){
-                    sourcePort = Daliuge.selfFieldComponent.clone().setId(Id.generateFieldId());
-                    newNode.addField(sourcePort);
-                    Utils.showNotification("Component Warning", "The PythonMemberFunction does not have a '" + FieldName.SELF + "' port. Added this port to enable connection.", "warning");
-                }
-
-                // create a new input/output "object" port on the PythonObject
-                const inputOutputPort: Field = Daliuge.selfFieldComponent.clone().setId(Id.generateFieldId()).setType(sourcePort.getType());
-                pythonObjectNode.addField(inputOutputPort);
-
-                // add edge to Logical Graph (connecting the PythonMemberFunction and the automatically-generated PythonObject)
-                this.addEdge(newNode, sourcePort, pythonObjectNode, inputOutputPort, false, false, true);
-            }
-
-            // select the new node
-            this.setSelection(newNode, EagleFileType.Graph);
-
-            this.checkEagle();
-            this.undo().pushSnapshot(this, "Add node " + newNode.getName());
-            this.logicalGraph.valueHasMutated();
-
-            resolve(result);
-
-            if(searchAreaExtended){
-                setTimeout(function(){
-                    Eagle.getInstance().centerGraph()
-                }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT);
-            }
-        });
+        return this.editorOperations.addNodeToLogicalGraph(node, nodeId, mode);
     }
 
     // TODO: how much is this different to addNodesToPalette? can we merge them?
@@ -2392,49 +1800,7 @@ export class Eagle {
     }
 
     addVisualToLogicalGraph = async (type: VisualType, mode: EagleAddNodeMode) : Promise<Visual> => {
-        return new Promise(async(resolve, reject) => {
-
-            let pos : {x:number, y:number};
-            pos = {x:0,y:0}
-
-            // check that graph editing is allowed
-            if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
-                reject("Unable to Add Component. Graph Editing is disabled");
-                return;
-            }
-
-            // create a new visual of the requested type
-            const newVisual = new Visual(type, '');
-
-            if(mode === EagleAddNodeMode.ContextMenu){
-                // use the position where the right click occurred
-                pos = Eagle.selectedRightClickPosition;
-
-                RightClick.closeCustomContextMenu(true);
-            }
-            
-            //if pos is 0 0 then we are not using drop location nor right click location. so we try to determine a logical place to put it
-            if(pos.x === 0 && pos.y === 0){
-                // get new position for node
-                if (Eagle.nodeDropLocation.x === 0 && Eagle.nodeDropLocation.y === 0){
-                    const result = this.getNewNodePosition(newVisual.getWidth());
-                    pos = {x:result.x,y:result.y}
-                } else {
-                    pos = Eagle.nodeDropLocation;
-                }
-            }
-            
-            newVisual.setPosition(pos.x, pos.y);
-
-            // add the visual to the logical graph (routes through addVisual() for consistency)
-            const addedVisual = await this.addVisual(newVisual);
-
-            // select the new visual in the graph so it is easy to spot
-            this.setSelection(addedVisual, EagleFileType.Graph)
-            this.logicalGraph.valueHasMutated();
-
-            resolve(addedVisual);
-        });
+        return this.editorOperations.addVisualToLogicalGraph(type, mode);
     }
 
     fetchDockerHTML = () : void => {
@@ -2487,27 +1853,7 @@ export class Eagle {
     }
 
     tableDropdownClick = (newType: DataType, field: Field) : void => {
-        // if the field contains no options, then it's value will be immediately set to undefined
-        // therefore, we add at least one option, so the value remains well defined
-        if (newType === DataType.Select){
-            if (field.getOptions().length === 0){
-                const value = field.getValue();
-                const defaultValue = field.getDefaultValue();
-
-                if (value !== null){
-                    field.addOption(value);
-                }
-                if (defaultValue !== null){
-                    field.addOption(defaultValue);
-                }
-            }
-        }
-
-        // update the type of the field
-        field.setType(newType);
-
-        // re-check the graph
-        this.checkEagle();
+        this.editorOperations.tableDropdownClick(newType, field);
     }
 
     graphEditComment = (object:Node | Edge): void => {
@@ -2607,131 +1953,15 @@ export class Eagle {
     }
 
     nodeDropLogicalGraph = (_eagle : Eagle, event: JQuery.TriggeredEvent) : void => {
-        const e: DragEvent = event.originalEvent as DragEvent;
-
-        if (e.dataTransfer?.files.length) {
-            e.preventDefault();
-            this.loadDroppedFile(e.dataTransfer.files[0]);
-            return;
-        }
-
-        // keep track of the drop location
-        Eagle.nodeDropLocation = {x:GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(e.pageX),y:GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(e.pageY)}
-
-        // determine dropped node
-        const sourceComponents : Node[] = [];
-
-        if(Eagle.nodeDragPaletteIndex === null || Eagle.nodeDragComponentId === null){
-            return;
-        }
-
-        // if some node in the graph is selected, ignore it and used the node that was dragged from the palette
-        if (Eagle.selectedLocation() === EagleFileType.Graph || Eagle.selectedLocation() === EagleFileType.Unknown){
-            const component = this.palettes()[Eagle.nodeDragPaletteIndex].getNodeById(Eagle.nodeDragComponentId);
-            if (typeof component === 'undefined'){
-                console.error("Unable to find dragged component in palette");
-                return;
-            }
-            sourceComponents.push(component);
-        }
-
-        // if a node or nodes in the palette are selected, then assume those are being moved to the destination
-        if (Eagle.selectedLocation() === EagleFileType.Palette){
-            for (const object of this.selectedObjects()){
-                if (object instanceof Node){
-                    sourceComponents.push(object);
-                }
-            }
-        }
-
-        // add each of the nodes we are moving
-        for (const sourceComponent of sourceComponents){
-            this.addNodeToLogicalGraph(sourceComponent, null, EagleAddNodeMode.Default);
-
-            // to avoid placing all the selected nodes on top of each other at the same spot, we increment the nodeDropLocation after each node
-            Eagle.nodeDropLocation.x += EagleConfig.DUPLICATE_OFFSET;
-            Eagle.nodeDropLocation.y += EagleConfig.DUPLICATE_OFFSET;
-        }
-
-        // then reset the nodeDropLocation after all have been placed
-        Eagle.nodeDropLocation = {x:0, y:0};
+        this.editorOperations.nodeDropLogicalGraph(_eagle, event);
     }
 
     nodeDropPalette = (_eagle: Eagle, event: JQuery.TriggeredEvent) : void => {
-        const sourceComponents : Node[] = [];
-        const e: DragEvent = event.originalEvent as DragEvent;
-
-        if (e.dataTransfer?.files.length) {
-            e.preventDefault();
-            this.loadDroppedFile(e.dataTransfer.files[0]);
-            return;
-        }
-
-        if(Eagle.nodeDragPaletteIndex === null || Eagle.nodeDragComponentId === null){
-            return;
-        }
-
-        // if some node in the graph is selected, ignore it and used the node that was dragged from the palette
-        if (Eagle.selectedLocation() === EagleFileType.Graph || Eagle.selectedLocation() === EagleFileType.Unknown){
-            const component = this.palettes()[Eagle.nodeDragPaletteIndex].getNodeById(Eagle.nodeDragComponentId);
-
-            if (typeof component === 'undefined'){
-                console.error("Unable to find dragged component in palette");
-                return;
-            }
-
-            sourceComponents.push(component);
-        }
-
-        // if a node or nodes in the palette are selected, then assume those are being moved to the destination
-        if (Eagle.selectedLocation() === EagleFileType.Palette){
-            for (const object of this.selectedObjects()){
-                if (object instanceof Node){
-                    sourceComponents.push(object);
-                }
-            }
-        }
-
-        // determine destination palette
-        const target = e.currentTarget as HTMLElement;
-        const targetPaletteIndexData = target.getAttribute('data-palette-index');
-        if (targetPaletteIndexData === null){
-            console.error("Unable to determine destination palette index from drop target");
-            return;
-        }
-        const destinationPaletteIndex : number = parseInt(targetPaletteIndexData, 10);
-        const destinationPalette: Palette = this.palettes()[destinationPaletteIndex];
-
-        const allowReadonlyPaletteEditing = Setting.findValue<boolean>(Setting.ALLOW_READONLY_PALETTE_EDITING, false);
-
-        // check user can write to destination palette
-        if (destinationPalette.fileInfo().readonly && !allowReadonlyPaletteEditing){
-            Utils.showUserMessage("Error", "Unable to copy component(s) to readonly palette.");
-            return;
-        }
-
-        // copy all nodes that we are moving
-        for (const sourceComponent of sourceComponents){
-            // check that the destination palette does not already contain this exact node
-            if (destinationPalette.findNodeById(sourceComponent.getId()) !== null){
-                Utils.showUserMessage("Error", "Palette already contains an identical component.");
-                return;
-            }
-
-            // add to destination palette
-            destinationPalette.addNode(sourceComponent, true);
-            destinationPalette.fileInfo().modified = true;
-        }
+        this.editorOperations.nodeDropPalette(_eagle, event);
     }
 
     paletteComponentClick = (node: Node, event: JQuery.TriggeredEvent) : void => {
-        const e: PointerEvent = event.originalEvent as PointerEvent;
-        
-        if (e && e.shiftKey){
-            this.editSelection(node, EagleFileType.Palette);
-        }else{
-            this.setSelection(node, EagleFileType.Palette);
-        }
+        this.editorOperations.paletteComponentClick(node, event);
     }
 
     selectInputApplicationNode = () : void => {
@@ -2753,119 +1983,11 @@ export class Eagle {
     }
 
     editField = async (field: Field): Promise<void> => {
-        // check that field exists
-        if (field === null || typeof field === 'undefined'){
-            console.error("No field to edit");
-            return;
-        }
-
-        // get field names list from the logical graph
-        const allFields: Field[] = Utils.getUniqueFieldsOfType(this.logicalGraph(), field.getParameterType());
-        const allFieldNames: string[] = [];
-
-        // once done, sort fields and then collect names into the allFieldNames list
-        allFields.sort(Field.sortFunc);
-        for (const field of allFields){
-            allFieldNames.push(field.getDisplayText() + " (" + field.getType() + ")");
-        }
-
-        // check that there is a node selected
-        const selectedNode = this.selectedNode();
-        if (selectedNode === null){
-            console.error("No node selected while trying to edit field");
-            return;
-        }
-
-        // build modal header text
-        const title = selectedNode.getName() + " - " + field.getDisplayText() + " : " + Field.getHtmlTitleText(field.getParameterType(), field.getUsage());
-
-        try {
-            await Utils.requestUserEditField(this, field, title, allFieldNames);
-        } catch (error){
-            console.error(error);
-            return;
-        }
-
-        this.checkEagle();
-        this.undo().pushSnapshot(this, "Edit Field");
-
-        // now that we are done, re-open the params table
-        Utils.showField(this, Eagle.selectedLocation(), field.getNode(), field);
+        await this.editorOperations.editField(field);
     };
 
     getNewNodePosition = (radius: number) : {x:number, y:number, extended:boolean} => {
-        const MARGIN = 100; // buffer to keep new nodes away from the maxX and maxY sides of the LG display area
-        const navBarHeight = 84
-        let suitablePositionFound = false;
-        let numIterations = 0;
-        let increaseSearchArea = false
-        const MAX_ITERATIONS_NARROW_SEARCH = 80;
-        const MAX_ITERATIONS_WIDE_SEARCH = 150;
-        const SEARCH_AREA_INCREASE = 300; // when we increase the search area, how much do we increase it by (in pixels)
-        let x = 0;
-        let y = 0;
-        
-        while (!suitablePositionFound && numIterations <= MAX_ITERATIONS_WIDE_SEARCH){
-            const leftWindowVisible = Setting.findValue<boolean>(Setting.LEFT_WINDOW_VISIBLE, false);
-            const rightWindowVisible = Setting.findValue<boolean>(Setting.RIGHT_WINDOW_VISIBLE, false);
-            const bottomWindowVisible = Setting.findValue<boolean>(Setting.BOTTOM_WINDOW_VISIBLE, false);
-
-            // get logical graph display area dimensions
-            const logicalGraphParentWidth = Utils.getUIValue('#logicalGraphParent', 'width', 0);
-            const logicalGraphParentHeight = Utils.getUIValue('#logicalGraphParent', 'height', 0);
-            const bottomWindowHeight = Utils.getUIValue('#bottomWindow', 'height', 0);
-
-            // get visible screen size
-            let minX = leftWindowVisible ? this.leftWindow().size()+MARGIN: 0+MARGIN;
-            let maxX = rightWindowVisible ? logicalGraphParentWidth - this.rightWindow().size() - MARGIN : logicalGraphParentWidth - MARGIN;
-            let minY = 0 + navBarHeight + MARGIN;
-            //using jquery here to get the bottom window height because it is internally saved in VH (percentage screen height). Doing it this way means we don't have to convert it to pixels
-            let maxY = logicalGraphParentHeight - MARGIN + navBarHeight;
-
-            if(bottomWindowVisible){
-                maxY = logicalGraphParentHeight - bottomWindowHeight - MARGIN + navBarHeight;
-            }
-
-            if(increaseSearchArea){
-                minX = minX - SEARCH_AREA_INCREASE
-                maxX = maxX + SEARCH_AREA_INCREASE
-                minY = minY - SEARCH_AREA_INCREASE
-                maxY = maxY + SEARCH_AREA_INCREASE
-            }
-
-            let randomX
-            let randomY
-
-            if (this.logicalGraph().getNumNodes() === 0){
-                //if there are no nodes in the graph we will put the new node to the left of the center of the canvas
-                randomX = minX + (maxX - minX)/4
-                randomY = minY + (maxY - minY)/2
-            }else{
-                // choose random position within minimums and maximums determined above
-                randomX = Math.floor(Math.random() * (maxX - minX + 1) + minX);
-                randomY = Math.floor(Math.random() * (maxY - minY + 1) + minY);
-            }
-
-            // translate the chosen randomised position into graph co-ordinates
-            x = GraphRenderer.SCREEN_TO_GRAPH_POSITION_X(randomX)
-            y = GraphRenderer.SCREEN_TO_GRAPH_POSITION_Y(randomY)
-
-            // check position is suitable, doesn't collide with any existing nodes
-            const collision = this.logicalGraph().checkForNodeAt(x, y, radius, false);
-            suitablePositionFound = collision === null;
-
-            numIterations += 1;
-            if(numIterations > MAX_ITERATIONS_NARROW_SEARCH){
-                increaseSearchArea = true;
-            }
-        }
-
-        // if we tried to find a suitable position too many times, just print a console message
-        if (numIterations > MAX_ITERATIONS_WIDE_SEARCH){
-            console.warn("Tried to find suitable position for new node", numIterations, "times and failed, using the last try by default.");
-        }
-
-        return {x:x, y:y, extended:increaseSearchArea};
+        return this.editorOperations.getNewNodePosition(radius);
     }
 
     copyGraphUrl = (): void => {
@@ -2918,110 +2040,11 @@ export class Eagle {
     }
 
     addEdge = async (srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean, forceAutoRename: boolean = false): Promise<Edge> => {
-        return new Promise(async(resolve, reject) => {
-            // check that none of the supplied nodes and ports are null
-            if (srcNode === null){
-                reject("addEdge(): srcNode is null");
-                return;
-            }
-            if (srcPort === null){
-                reject("addEdge(): srcPort is null");
-                return;
-            }
-            if (destNode === null){
-                reject("addEdge(): destNode is null");
-                return;
-            }
-            if (destPort === null){
-                reject("addEdge(): destPort is null");
-                return;
-            }
-
-            // check that graph editing is allowed
-            if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
-                reject("Unable to Add Edge: Graph Editing is disabled");
-                return;
-            }
-
-            const edgeConnectsTwoApplications : boolean =
-                (srcNode.isApplication() || srcNode.isGroup()) &&
-                (destNode.isApplication() || destNode.isGroup());
-
-            const twoEventPorts : boolean = srcPort.getIsEvent() && destPort.getIsEvent();
-
-            // if edge DOES NOT connect two applications, process normally
-            // if edge connects two event ports, process normally
-            if (!edgeConnectsTwoApplications || twoEventPorts){
-                const edge : Edge = new Edge('', srcNode, srcPort, destNode, destPort, loopAware, closesLoop, false);
-                this.logicalGraph().addEdgeComplete(edge);
-
-                // re-name node and port according to the port name of the Application node
-                //force auto rename use used when we are adding in a new node. When dragging an edge to empty space or connecting two application nodes.
-                if (!Setting.findValue<boolean>(Setting.DISABLE_RENAME_ON_EDGE_CONNECT, false) || forceAutoRename){
-                    if (srcNode.isApplication()){
-                        const newName = srcPort.getDisplayText();
-                        const newDescription = srcPort.getDescription();
-                        destNode.setName(newName);
-
-                        if (destPort.isChangeable()){
-                            destPort.setDisplayText(newName);
-                            destPort.setDescription(newDescription);
-                        }
-                    } else {
-                        const newName = destPort.getDisplayText();
-                        const newDescription = destPort.getDescription();
-                        srcNode.setName(newName);
-
-                        if (srcPort.isChangeable()){
-                            srcPort.setDisplayText(newName);
-                            srcPort.setDescription(newDescription);
-                        }
-                    }
-                }
-
-                setTimeout(() => {
-                    this.setSelection(edge,EagleFileType.Graph)
-                }, EagleConfig.STANDARD_UI_TINY_TIMEOUT);
-                resolve(edge);
-                return;
-            }
-
-            const firstEdge = Utils.addIntermediateDataNodeForAppToAppEdge(this.logicalGraph(), srcNode, srcPort, destNode, destPort, loopAware, closesLoop);
-            if (firstEdge === null){
-                Utils.showNotification("Add Edge Error", "Unable to find suitable port on intermediary component", "danger");
-                reject("Unable to find suitable port on intermediary component");
-                return;
-            }
-
-            // reply with one of the edges
-            resolve(firstEdge);
-        });
+        return this.editorOperations.addEdge(srcNode, srcPort, destNode, destPort, loopAware, closesLoop, forceAutoRename);
     }
 
     addVisual = async (visual: Visual): Promise<Visual> => {
-        return new Promise(async(resolve, reject) => {
-            // check that graph editing is allowed
-            if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
-                reject("Unable to Add Visual: Graph Editing is disabled");
-                return;
-            }
-
-            // check if visual will be added to an empty graph, if so prompt user to specify graph name
-            try {
-                await Utils.ensureGraphIsInitialized(this.logicalGraph());
-            } catch (error){
-                console.warn(error);
-                reject(error);
-                return;
-            }
-
-            this.logicalGraph().addVisual(visual);
-            this.checkEagle();
-            this.undo().pushSnapshot(this, "Add Visual");
-            this.logicalGraph().fileInfo().modified = true;
-            this.logicalGraph.valueHasMutated();
-            resolve(visual);
-        });
+        return this.editorOperations.addVisual(visual);
     }
 
     editShortDescription = async(fileInfo: FileInfo): Promise<void> => {
@@ -3242,25 +2265,7 @@ export class Eagle {
     // NOTE: clones the node internally
     // NOTE: does not add the node's input or output applications to the logical graph
     addNode = async (node : Node, x: number, y: number): Promise<Node> => {
-        // copy node
-        // TODO: could replace with node.copy() ?
-        const newNode: Node = Utils.duplicateNode(node);
-
-        // check if node will be added to an empty graph, if so prompt user to specify graph name
-        try {
-            await Utils.ensureGraphIsInitialized(this.logicalGraph());
-        } catch (error){
-            console.warn(error);
-        }
-
-        newNode.setPosition(x, y);
-        this.logicalGraph().addNodeComplete(newNode);
-
-        // flag that the logical graph has been modified
-        this.logicalGraph().fileInfo().modified = true;
-        this.logicalGraph().fileInfo.valueHasMutated();
-
-        return newNode;
+        return this.editorOperations.addNode(node, x, y);
     }
 
     checkForComponentUpdates = () => {

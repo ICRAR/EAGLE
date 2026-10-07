@@ -23,6 +23,8 @@ require.config({
         "GitLab": "./static/built/GitLab",
         "GraphConfig": "./static/built/GraphConfig",
         "Eagle": "./static/built/Eagle",
+        "EagleEnums": "./static/built/EagleEnums",
+        "EditorOperations": "./static/built/EditorOperations",
         "EagleConfig": "./static/built/EagleConfig",
         "EagleStorage": "./static/built/EagleStorage",
         "Id": "./static/built/Id",
