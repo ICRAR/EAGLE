@@ -25,7 +25,7 @@ test('Add graph nodes to a new custom palette', async ({ page }) => {
             const eagle = (window as any).eagle;
             for (const palette of eagle.palettes()) {
                 if (palette.fileInfo().name === 'myTestPalette.palette') {
-                    return palette.getNumNodes();
+                    return palette.getNumNodes() as number;
                 }
             }
             return -1;

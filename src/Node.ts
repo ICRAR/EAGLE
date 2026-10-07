@@ -870,7 +870,7 @@ export class Node {
     getCommentNodeHtml = () : string => {
         if (this.isComment()){
             let commentHtml = this.comment()
-            if (commentHtml === undefined || commentHtml === null || commentHtml === ""){
+            if (commentHtml === ""){
                 commentHtml = "Click on edit icon to add comment";
             }
 
@@ -983,7 +983,7 @@ export class Node {
     }
 
     hasPortWithDisplayText = (displayText : string, input : boolean, local : boolean) : boolean => {
-        return this.findPortByDisplayText(displayText, input, local) !== null;
+        return this.findPortByDisplayText(displayText, input, local) !== undefined;
     }
 
     addField = (field : Field) : Node => {
@@ -1301,7 +1301,7 @@ export class Node {
             }
             
             //check if field is a graph config field
-            if(activeConfig?.hasField(field)){
+            if(activeConfig?.hasField(field) === true){
                 configFields.push(field)
             }
         }
@@ -1463,9 +1463,7 @@ export class Node {
 
         // if category is not known, then add error
         if (!Utils.isKnownCategory(category)){
-            if (errorsWarnings !== null){
-                errorsWarnings.errors.push(Errors.Message("Node with name " + name + " has unknown category: " + category));
-            }
+            errorsWarnings.errors.push(Errors.Message("Node with name " + name + " has unknown category: " + category));
         }
 
         const node : Node = new Node(name, "", "", category);
@@ -1907,7 +1905,7 @@ export class Node {
             result.outputApplicationComment = "";
         }
 
-        return result;
+        return result as object;
     }
 
     static toOJSGraphJson(node : Node) : object {
@@ -1994,7 +1992,7 @@ export class Node {
             result.outputApplicationComment = "";
         }
 
-        return result;
+        return result as object;
     }
 
     static toV4GraphJson(node: Node) : V4NodeJson {
@@ -2027,7 +2025,7 @@ export class Node {
             result.fields[field.getId()] = Field.toV4Json(field);
         }
 
-        return result;
+        return result as V4NodeJson;
     }
 
     static createEmbeddedApplicationNode(name : string, category: CategoryName, description: string, comment: string, embed: Node) : Node {
@@ -2052,7 +2050,7 @@ export class Node {
         }
 
         // check that all fields present in the original (palette) component have the changeable property set correctly (to false)
-        const originalComponent = Utils.getPaletteComponentByName(node.getName()) || Utils.getPaletteComponentByName(node.getCategory());
+        const originalComponent = Utils.getPaletteComponentByName(node.getName()) ?? Utils.getPaletteComponentByName(node.getCategory());
         if (typeof originalComponent !== 'undefined'){
             for (const originalField of originalComponent.getFields()){
                 const nodeField = node.findFieldByDisplayText(originalField.getDisplayText());
@@ -2097,7 +2095,7 @@ export class Node {
         // check that children have this as the parent
         for (const child of node.children().values()){
             const childParent = child.parent();
-            if (childParent === null || childParent.getId() !== node.getId()){
+            if (childParent?.getId() !== node.getId()){
                 const message: string = "Node (" + node.getName() + ") has child (" + child.getName() + "), but is not that node's parent.";
                 const issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
                 node.issues().push({issue:issue, validity:Validity.Error});
@@ -2171,29 +2169,16 @@ export class Node {
         // check if this category of node is a legacy node
         const updatedCategory = Utils.getLegacyCategoryUpdate(node);
         if (typeof updatedCategory !== 'undefined'){
-            let updateMessage: string;
-            let updatedCategoryType: CategoryType = CategoryType.Unknown;
-            let issue;
-
-            if (updatedCategory === null){
-                updateMessage = "Consider updating to a more modern node category.";
-            } else {
-                updateMessage = "Please update the component to use the new category (" + updatedCategory + ").";
-                updatedCategoryType = CategoryData.getCategoryInfo(updatedCategory).categoryType;
-            }
-
+            const updateMessage: string = "Please update the component to use the new category (" + updatedCategory + ").";
+            const updatedCategoryType: CategoryType = CategoryData.getCategoryInfo(updatedCategory).categoryType;
             const message: string = "Node (" + node.getName() + ") has a legacy category (" + node.getCategory() + "). " + updateMessage;
+            const issue = Errors.ShowFix(
+                message,
+                function(){Utils.showNode(eagle, location, node)},
+                function(){Utils.fixNodeCategory(eagle, node, updatedCategory, updatedCategoryType)},
+                "Change node category from " + node.getCategory() + " to " + updatedCategory
+            );
 
-            if (updatedCategory === null){
-                issue = Errors.Show(message, function(){Utils.showNode(eagle, location, node)});
-            } else {
-                issue = Errors.ShowFix(
-                    message,
-                    function(){Utils.showNode(eagle, location, node)},
-                    function(){Utils.fixNodeCategory(eagle, node, updatedCategory, updatedCategoryType)},
-                    "Change node category from " + node.getCategory() + " to " + updatedCategory
-                );
-            }
             node.issues().push({issue:issue,validity:Validity.Warning})
         }
 
@@ -2304,30 +2289,30 @@ export class Node {
     // helper functions used when loading graphs from JSON
     static determineNodeId(nodeData: any): NodeId | null {
         if (typeof nodeData.oid !== 'undefined'){
-            return nodeData.oid;
+            return nodeData.oid as NodeId;
         }
         if (typeof nodeData.id !== 'undefined'){
-            return nodeData.id;
+            return nodeData.id as NodeId;
         }
         return null;
     }
 
     static determineNodeParentId(nodeData: any): NodeId | null {
         if (typeof nodeData.parentId !== 'undefined'){
-            return nodeData.parentId;
+            return nodeData.parentId as NodeId;
         }
         if (typeof nodeData.group !== 'undefined'){
-            return nodeData.group;
+            return nodeData.group as NodeId;
         }
         return null;
     }
 
     static determineNodeSubjectId(nodeData: any): NodeId | null {
         if (typeof nodeData.subjectId !== 'undefined'){
-            return nodeData.subjectId;
+            return nodeData.subjectId as NodeId;
         }
         if (typeof nodeData.subject !== 'undefined'){
-            return nodeData.subject;
+            return nodeData.subject as NodeId;
         }
         return null;
     }

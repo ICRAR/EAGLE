@@ -10,7 +10,7 @@ export class EagleStorage {
     public static db: IDBDatabase;
 
     static async init(): Promise<void>{
-        return new Promise(async(resolve, reject) => {
+        return new Promise((resolve, reject) => {
 
             const request = indexedDB.open(EagleStorage.DATABASE_NAME);
             request.onerror = (_event) => {
@@ -52,7 +52,7 @@ export class EagleStorage {
     }
 
     static async listCustomRepositories(service: RepositoryService): Promise<Repository[]> {
-        return new Promise(async(resolve, reject) => {
+        return new Promise((resolve, reject) => {
             const customRepositories: Repository[] = [];
 
             if (typeof EagleStorage.db === "undefined"){

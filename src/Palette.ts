@@ -188,7 +188,7 @@ export class Palette {
         // add links (none in a palette)
         result.linkDataArray = [];
 
-        return result;
+        return result as object;
     }
 
     static toV4Json(palette: Palette) : object {
@@ -216,7 +216,7 @@ export class Palette {
             }
         }
 
-        return result;
+        return result as object;
     }
 
     static toOJSJsonString(palette: Palette) : string {
@@ -410,7 +410,7 @@ export class Palette {
             }
 
             // delete the input application
-            if (inputApplication && inputApplication.getId() === id){
+            if (inputApplication?.getId() === id){
                 this.nodes().delete(inputApplication.getId());
                 this.nodes.valueHasMutated();
                 node.setInputApplication(null);
@@ -418,7 +418,7 @@ export class Palette {
             }
 
             // delete the output application
-            if (outputApplication && outputApplication.getId() === id){
+            if (outputApplication?.getId() === id){
                 this.nodes().delete(outputApplication.getId());
                 this.nodes.valueHasMutated();
                 node.setOutputApplication(null);
@@ -455,7 +455,7 @@ export class Palette {
         const palette_url = FileLocation.generateUrl(fileInfo.location);
 
         // copy to clipboard
-        navigator.clipboard.writeText(palette_url);
+        void navigator.clipboard.writeText(palette_url);
 
         // notification
         Utils.showNotification("Palette URL", "Copied to clipboard", "success");

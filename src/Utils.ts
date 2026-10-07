@@ -161,26 +161,7 @@ export class Utils {
 
     // TODO: check if this is even necessary. it may only have been necessary when we were setting keys (not ids)
     static setEmbeddedApplicationNodeIds(lg: LogicalGraph): void {
-        // loop through nodes, look for embedded nodes with null id, create new id
-        for (const node of lg.getNodes()){
-
-            const inputApplication = node.getInputApplication();
-            const outputApplication = node.getOutputApplication();
-
-            // if this node has inputApp, set the inputApp id
-            if (inputApplication !== null){
-                if (inputApplication.getId() === null){
-                    inputApplication.setId(Id.generateNodeId());
-                }
-            }
-
-            // if this node has outputApp, set the outputApp id
-            if (outputApplication !== null){
-                if (outputApplication.getId() === null){
-                    outputApplication.setId(Id.generateNodeId());
-                }
-            }
-        }
+        void lg;
     }
 
     // extracts a file name from the full path.
@@ -208,30 +189,22 @@ export class Utils {
      * Create a new diagram (graph, palette, config).
      */
     static async requestDiagramFilename(fileType : EagleFileType): Promise<string> {
-        return new Promise(async(resolve, reject) => {
-            const defaultName: string = Utils.generateName(fileType);
+        const defaultName: string = Utils.generateName(fileType);
 
-            let userString;
-            try {
-                userString = await Utils.requestUserString(
-                    "New " + fileType,
-                    "Enter " + fileType + " name",
-                    defaultName,
-                    false,
-                    Utils.nonEmptyStringValidator(fileType + " name")
-                );
-            } catch(error) {
-                reject(error);
-                return;
-            }
+        const userString = await Utils.requestUserString(
+            "New " + fileType,
+            "Enter " + fileType + " name",
+            defaultName,
+            false,
+            Utils.nonEmptyStringValidator(fileType + " name")
+        );
 
-            // Adding file extension to the title if it does not have it.
-            if (!Utils.verifyFileExtension(userString)) {
-                userString = userString + "." + Utils.getDiagramExtension(fileType);
-            }
+        // Adding file extension to the title if it does not have it.
+        if (!Utils.verifyFileExtension(userString)) {
+            return userString + "." + Utils.getDiagramExtension(fileType);
+        }
 
-            resolve(userString);
-        });
+        return userString;
     }
 
     /**
@@ -285,7 +258,7 @@ export class Utils {
         }
     }
 
-    static translateStringToFileType(fileType : string) : EagleFileType {
+    static translateStringToFileType(fileType: string | undefined) : EagleFileType {
         // check input parameter is a string
         if (typeof fileType !== 'string'){
             console.warn("Can't determine file type, not a string");
@@ -480,7 +453,7 @@ export class Utils {
         } else {
             // check if response is JSON
             const header = xhr.getResponseHeader('content-type');
-            if (header && header.indexOf('application/json') !== -1){
+            if (header != null && header.indexOf('application/json') !== -1){
                 return xhr.responseText;
             } else {
                 return "Uncaught Error. " + xhr.responseText;
@@ -753,7 +726,7 @@ export class Utils {
     }
 
     static requestUserString(title : string, message : string, defaultString: string, isPassword: boolean, validator?: UserStringValidator): Promise<string> {
-        return new Promise(async(resolve, reject) => {
+        return new Promise((resolve, reject) => {
             $('#inputModalTitle').text(title);
             $('#inputModalMessage').html(Utils.markdown2html(message));
             $('#inputModalInput').attr('type', isPassword ? 'password' : 'text');
@@ -813,11 +786,11 @@ export class Utils {
     }
 
     static requestUserText(title : string, message : string, defaultText: string | null, readonly: boolean = false) : Promise<string> {
-        return new Promise(async(resolve, reject) => {
+        return new Promise((resolve, reject) => {
             $('#inputTextModalTitle').text(title);
             $('#inputTextModalMessage').html(Utils.markdown2html(message));
 
-            $('#inputTextModalInput').val(defaultText ? defaultText : '');
+            $('#inputTextModalInput').val(defaultText ?? '');
             $('#inputTextModalInput').prop('readonly', readonly);
 
             // store the callback, result on the modal HTML element
@@ -837,7 +810,7 @@ export class Utils {
     }
 
     static requestUserCode(language: "json"|"python"|"text", title: string, defaultText: string | null, readonly: boolean = false): Promise<string> {
-        return new Promise(async(resolve, reject) => {
+        return new Promise((resolve, reject) => {
             // set title
             $('#inputCodeModalTitle').text(title);
 
@@ -862,7 +835,7 @@ export class Utils {
             const editor = $('#inputCodeModal').data('editor');
             editor.setOption('readOnly', readonly);
             editor.setOption('mode', mode);
-            editor.setValue(defaultText ? defaultText : '');
+            editor.setValue(defaultText ?? '');
 
             // store the callback, result on the modal HTML element
             // so that the info is available to event handlers
@@ -882,7 +855,7 @@ export class Utils {
     }
 
     static requestUserMarkdown(title: string, defaultText: string, editMode: boolean = false): Promise<string> {
-        return new Promise(async(resolve, reject) => {
+        return new Promise((resolve, reject) => {
             $('#inputMarkdownModalTitle').text(title);
 
             // show or hide sections based on editMode
@@ -913,7 +886,7 @@ export class Utils {
     }
 
     static requestUserNumber(title : string, message : string, defaultNumber: number) : Promise<number> {
-        return new Promise(async(resolve, reject) => {
+        return new Promise((resolve, reject) => {
             $('#inputModalTitle').text(title);
             $('#inputModalMessage').html(Utils.markdown2html(message));
             $('#inputModalInput').val(defaultNumber);
@@ -938,7 +911,7 @@ export class Utils {
 
     // , callback : (completed : boolean, userChoiceIndex : number, userCustomString : string) => void
     static async requestUserChoice(title : string, message : string, choices : string[], selectedChoiceIndex : number, allowCustomChoice : boolean, customChoiceText : string): Promise<string> {
-        return new Promise(async(resolve, reject) => {
+        return new Promise((resolve, reject) => {
             $('#choiceModalTitle').text(title);
             $('#choiceModalMessage').html(Utils.markdown2html(message));
             $('#choiceModalCustomChoiceText').text(customChoiceText);
@@ -991,7 +964,7 @@ export class Utils {
     }
 
     static async requestUserConfirm(title : string, message : string, affirmativeAnswer : string, negativeAnswer : string, confirmSetting: Setting | undefined): Promise<boolean> {
-        return new Promise(async(resolve, _reject) => {
+        return new Promise((resolve, _reject) => {
             $('#confirmModalTitle').text(title);
             $('#confirmModalMessage').html(Utils.markdown2html(message));
             $('#confirmModalAffirmativeAnswer').text(affirmativeAnswer);
@@ -1023,7 +996,7 @@ export class Utils {
     }
 
     static async requestUserOptions(title: string, message: string, option0: string, option1: string, option2: string, defaultOptionIndex: number): Promise<string> {
-        return new Promise(async(resolve, _reject) => {
+        return new Promise((resolve, _reject) => {
             $('#optionsModalTitle').text(title);
             $('#optionsModalMessage').html(Utils.markdown2html(message));
             $('#optionsModalOption0').text(option0);
@@ -1049,7 +1022,7 @@ export class Utils {
 
     // , callback : (completed : boolean, repositoryService : RepositoryService, repositoryName : string, repositoryBranch : string, filePath : string, fileName : string, commitMessage : string) => void ) : void {
     static async requestUserGitCommit(defaultRepository : Repository, repositories: Repository[], filePath: string, fileName: string, fileType: EagleFileType): Promise<RepositoryCommit> {
-        return new Promise(async(resolve, _reject) => {
+        return new Promise((resolve, _reject) => {
             $('#gitCommitModal').data('completed', false);
             $('#gitCommitModal').data('fileType', fileType);
 
@@ -1067,9 +1040,7 @@ export class Utils {
 
             //
             let defaultRepositoryService: RepositoryService = RepositoryService.Unknown;
-            if (defaultRepository !== null){
-                defaultRepositoryService = defaultRepository.service;
-            }
+            defaultRepositoryService = defaultRepository.service;
 
             // remove existing options from the repository service select tag
             $('#gitCommitModalRepositoryServiceSelect').empty();
@@ -1097,7 +1068,7 @@ export class Utils {
     }
 
     static requestUserEditField(eagle: Eagle, field: Field, title: string, choices: string[]): Promise<Field | null> {
-        return new Promise(async(resolve, _reject) => {
+        return new Promise((resolve, _reject) => {
             // set the currently edited field
             eagle.currentField(field);
 
@@ -1114,7 +1085,7 @@ export class Utils {
     }
 
     static requestUserAddCustomRepository(): Promise<Repository> {
-        return new Promise(async(resolve, reject) => {
+        return new Promise((resolve, reject) => {
             $('#gitCustomRepositoryModalRepositorySlugInput').val("");
             $('#gitCustomRepositoryModalRepositoryBranchInput').val("");
 
@@ -1418,7 +1389,7 @@ export class Utils {
     static getPaletteComponentByName(name: string, useCaseInsensitiveMatch: boolean = false) : Node | undefined {
         const eagle: Eagle = Eagle.getInstance();
 
-        if (name === null || typeof name === 'undefined' || name.trim() === ""){
+        if (name.trim() === ""){
             return undefined;
         }
 
@@ -1551,7 +1522,7 @@ export class Utils {
             const dropClassField = node.findFieldByDisplayText(FieldName.DROP_CLASS);
 
             // by default, update PythonApp to a DALiuGEApp, unless dropclass field value indicates it is a PyFuncApp
-            if (dropClassField && dropClassField.getValue() === Daliuge.DEFAULT_PYFUNCAPP_DROPCLASS_VALUE){
+            if (dropClassField?.getValue() === Daliuge.DEFAULT_PYFUNCAPP_DROPCLASS_VALUE){
                 return CategoryName.PyFuncApp;
             } else {
                 return CategoryName.DALiuGEApp;
@@ -1703,16 +1674,17 @@ export class Utils {
         }
 
         const modelData = data.modelData;
-        if (typeof modelData === 'object' && modelData !== null){
-            const eagleVersion = modelData.eagleVersion;
-            if (typeof eagleVersion === 'string' && eagleVersion.trim() !== ""){
-                return eagleVersion.trim();
-            }
+        if (modelData == null){
+            return "Unknown";
+        }
+        const eagleVersion = modelData.eagleVersion;
+        if (typeof eagleVersion === 'string' && eagleVersion.trim() !== ""){
+            return eagleVersion.trim();
+        }
 
-            const generatorVersion = modelData.generatorVersion;
-            if (typeof generatorVersion === 'string' && generatorVersion.trim() !== ""){
-                return generatorVersion.trim();
-            }
+        const generatorVersion = modelData.generatorVersion;
+        if (typeof generatorVersion === 'string' && generatorVersion.trim() !== ""){
+            return generatorVersion.trim();
         }
 
         return "Unknown";
@@ -1755,8 +1727,9 @@ export class Utils {
         if (typeof data.modelData !== 'undefined'){
             if (typeof data.modelData.schemaVersion !== 'undefined'){
                 // check whether the value of data.modelData.schemaVersion is a valid SchemaVersion enum value
-                if (Object.values(SchemaVersion).includes(data.modelData.schemaVersion)){
-                    return data.modelData.schemaVersion;
+                const schemaVersion = data.modelData.schemaVersion as SchemaVersion;
+                if (Object.values(SchemaVersion).includes(schemaVersion)){
+                    return schemaVersion;
                 } else {
                     console.warn("Unknown schema version:", data.modelData.schemaVersion);
                     return SchemaVersion.Unknown;
@@ -2104,7 +2077,7 @@ export class Utils {
     }
 
     static async downloadFile(data : string, fileName : string) : Promise<void> {
-        return new Promise(async(resolve) => {
+        return new Promise((resolve) => {
             // NOTE: this stuff is a hacky way of saving a file locally
             const blob = new Blob([data]);
             const link = document.createElement('a');
@@ -2175,20 +2148,10 @@ export class Utils {
     }
 
     static async userChoosePalette(paletteNames : string[]) : Promise<string> {
-        return new Promise<string>(async (resolve, reject) => {
+        // ask user to select a palette
+        const userChoice = await Utils.requestUserChoice("Choose Palette", "Please select the palette you'd like to save", paletteNames, 0, false, "");
 
-            // ask user to select a palette
-            let userChoice: string;
-            try {
-                userChoice = await Utils.requestUserChoice("Choose Palette", "Please select the palette you'd like to save", paletteNames, 0, false, "");
-            } catch (error) {
-                reject(error);
-                return;
-            }
-
-            // resolve with chosen palette name
-            resolve(userChoice);
-        });
+        return userChoice;
     }
 
     static async userEnterCommitMessage(modalMessage: string) : Promise<string> {
@@ -2218,11 +2181,6 @@ export class Utils {
 
     static markdown2html(markdown: string) : string {
         // check that input is not undefined
-        if (typeof markdown === "undefined" || markdown === null){
-            console.warn("Could not convert markdown to html! Input:", markdown);
-            return "";
-        }
-
         const html = marked(markdown, { async: false }).replaceAll("<table>", "<table class='table'>");
 
         return Utils.sanitizeHtml(html);
@@ -2503,10 +2461,6 @@ export class Utils {
 
     static fixFieldType(_eagle: Eagle, field: Field){
         // fix for undefined value
-        if (field.getType() === undefined){
-            field.setType(DataType.Object);
-        }
-        
         // fix for 'Unknown' type
         if (field.getType() === DataType.Unknown){
             field.setType(DataType.Object);
@@ -2575,7 +2529,7 @@ export class Utils {
         }
 
         // determine a sensible type for the new source port
-        const srcPortType = destPort.getType() === undefined ? DataType.Object : destPort.getType();
+        const srcPortType = destPort.getType();
 
         // create new source port
         const srcPort = new Field(srcNode, edge.getSrcPort().getId(), destPort.getDisplayText(), "", "", "", false, srcPortType, false, [], false, FieldType.Application, FieldUsage.OutputPort);
@@ -2598,7 +2552,7 @@ export class Utils {
         }
 
         // determine a sensible type for the new destination port
-        const destPortType = srcPort.getType() === undefined ? DataType.Object : srcPort.getType();
+        const destPortType = srcPort.getType();
 
         // create new destination port
         const destPort = new Field(destNode, edge.getDestPort().getId(), srcPort.getDisplayText(), "", "", "", false, destPortType, false, [], false, FieldType.Application, FieldUsage.OutputPort);
@@ -2877,11 +2831,6 @@ export class Utils {
         $('#issuesDisplay').modal("hide");
 
         // check that we found the node
-        if (node === null){
-            console.warn("Could not show null node");
-            return;
-        }
-        
         eagle.setSelection(node, location);
     }
 
@@ -2925,11 +2874,6 @@ export class Utils {
 
     // only update result if it is worse that current result
     static worstEdgeError(errorsWarnings: ErrorsWarnings) : Validity {
-        if (errorsWarnings === null){
-            console.warn("errorsWarnings is null");
-            return Validity.Valid;
-        }
-
         if (errorsWarnings.warnings.length === 0 && errorsWarnings.errors.length === 0){
             return Validity.Valid;
         }
@@ -3212,14 +3156,14 @@ export class Utils {
             return;
         }
 
-        navigator.clipboard.writeText(inputValue.toString());
+        void navigator.clipboard.writeText(inputValue.toString());
     }
 
     static copyInputCodeModalInput(): void {
         const editor = $('#inputCodeModal').data('editor');
-        if (editor){
+        if (editor != null){
             const content: string = editor.getValue();
-            navigator.clipboard.writeText(content);
+            void navigator.clipboard.writeText(content);
         } else {
             console.error("No 'editor' data attribute found on modal");
         }
@@ -3227,9 +3171,9 @@ export class Utils {
 
     static copyInputMarkdownModalInput(): void {
         const editor = $('#inputMarkdownModal').data('editor');
-        if (editor){
+        if (editor != null){
             const content: string = editor.getValue();
-            navigator.clipboard.writeText(content);
+            void navigator.clipboard.writeText(content);
         } else {
             console.error("No 'editor' data attribute found on modal");
         }
@@ -3302,8 +3246,8 @@ export class Utils {
         }
 
         // try to fetch the schema
-        _fetchSchema(Daliuge.OJS_GRAPH_SCHEMA_URL, 'ojsGraphSchema', _setOJSSchemas);
-        _fetchSchema(Daliuge.V4_GRAPH_SCHEMA_URL, 'v4GraphSchema', _setV4Schemas);
+        void _fetchSchema(Daliuge.OJS_GRAPH_SCHEMA_URL, 'ojsGraphSchema', _setOJSSchemas);
+        void _fetchSchema(Daliuge.V4_GRAPH_SCHEMA_URL, 'v4GraphSchema', _setV4Schemas);
     }
 
     static snapToGrid(coord: number, offset: number) : number {
@@ -3328,17 +3272,9 @@ export class Utils {
     }
 
     static async openRemoteFileFromUrl(_repositoryService : RepositoryService, _repositoryName : string, _repositoryBranch : string, _filePath : string, fileName : string): Promise<string> {
-        return new Promise(async(resolve, reject) => {
-            let data;
-            try {
-                data = await Utils.httpGet(fileName);
-            } catch (error) {
-                reject(error);
-                return;
-            }
+        const data = await Utils.httpGet(fileName);
 
-            resolve(data);
-        });
+        return data;
     }
 
     static copyFieldsFromPrototype(node: Node, paletteName: string, category: CategoryName) : void {
@@ -3529,16 +3465,14 @@ export class Utils {
     // check if graph is named, if not, prompt user to specify graph name
     // creates a default graph config and shows notification if graph was unnamed
     static async ensureGraphIsInitialized(logicalGraph: LogicalGraph){
-        return new Promise<string>(async (resolve, reject) => {
-            if (logicalGraph.fileInfo().name === ""){
-                let filename: string;
-                try {
-                    filename = await Utils.requestDiagramFilename(EagleFileType.Graph);
-                } catch (error){
-                    console.warn(error);
-                    reject("User cancelled filename input");
-                    return;
-                }
+        if (logicalGraph.fileInfo().name === ""){
+            let filename: string;
+            try {
+                filename = await Utils.requestDiagramFilename(EagleFileType.Graph);
+            } catch (error){
+                console.warn(error);
+                throw new Error("User cancelled filename input");
+            }
 
                 const eagle: Eagle = Eagle.getInstance();
                 logicalGraph.fileInfo().name = filename;
@@ -3553,11 +3487,9 @@ export class Utils {
                 eagle.undo().pushSnapshot(eagle, "Specify Logical Graph name");
                 eagle.logicalGraph.valueHasMutated();
                 Utils.showNotification("Graph named", filename, "success");
-                resolve(filename);
-                return;
-            }
-            resolve(logicalGraph.fileInfo().name);
-        });
+            return filename;
+        }
+        return logicalGraph.fileInfo().name;
     }
 
     // a wait/delay for a given number of milliseconds (used for debugging)

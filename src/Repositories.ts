@@ -33,7 +33,7 @@ export class Repositories {
                 break;
             case EagleFileType.Palette: {
                 const palette = eagle.findPalette(file.name, false);
-                isModified = typeof palette !== "undefined" && palette.fileInfo().modified;
+                isModified = palette?.fileInfo().modified ?? false;
                 break;
             }
             case EagleFileType.JSON:
@@ -47,10 +47,10 @@ export class Repositories {
         if (isModified && confirmDiscardChanges){
             const confirmed = await Utils.requestUserConfirm("Discard changes?", "Opening a new file will discard changes. Continue?", "OK", "Cancel", confirmDiscardChangesSetting);
             if (confirmed){
-                eagle.openRemoteFile(file);
+                void eagle.openRemoteFile(file);
             }
         } else {
-            eagle.openRemoteFile(file);
+            void eagle.openRemoteFile(file);
         }
     }
     
@@ -99,7 +99,7 @@ export class Repositories {
             return;
         }
 
-        Repositories._addCustomRepository(customRepository.service, customRepository.name, customRepository.branch);
+        void Repositories._addCustomRepository(customRepository.service, customRepository.name, customRepository.branch);
     };
 
     static async _addCustomRepository(repositoryService: RepositoryService, repositoryName: string, repositoryBranch: string): Promise<Repository> {
@@ -198,7 +198,7 @@ export class Repositories {
         } catch (_e) {
             response = responseStr;
         }
-        if (response.error) {
+        if (response != null && typeof response.error === "string" && response.error !== "") {
             throw new Error(response.error);
         }
 
@@ -223,7 +223,7 @@ export class Repositories {
         } catch (_e) {
             response = responseStr;
         }
-        if (response.error) {
+        if (response != null && typeof response.error === "string" && response.error !== "") {
             throw new Error(response.error);
         }
 

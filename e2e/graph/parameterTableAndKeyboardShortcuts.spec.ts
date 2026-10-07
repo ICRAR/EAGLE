@@ -37,7 +37,7 @@ test('Parameter Tables and keyboard Shortcuts', async ({ page }) => {
     const countBefore = await page.getByRole('row').count();
     await page.getByRole('row').last().locator('.delete').click();
     const countAfter = await page.getByRole('row').count();
-    await expect(countBefore - countAfter === 1).toBeTruthy();
+    expect(countBefore - countAfter === 1).toBeTruthy();
     await expect(page.getByRole('row').last().locator('.column_DisplayText input')).not.toHaveValue('test parameter copy');
     await page.getByRole('row').last().locator('.column_DisplayText').hover();
     await page.getByRole('row').last().locator('.column_DisplayText button').click();
@@ -48,7 +48,7 @@ test('Parameter Tables and keyboard Shortcuts', async ({ page }) => {
     await page.locator('.closeBottomWindowBtn button').click();
     await page.locator('#openGraphConfigurationTable').click();
     await page.waitForTimeout(500);
-    await expect(await page.locator('.parameterTable tbody').getByRole('row').count()===0).toBeFalsy();
+    expect(await page.locator('.parameterTable tbody').getByRole('row').count()===0).toBeFalsy();
   });
 
   await page.close();

@@ -14,53 +14,49 @@ export async function enableMouseCursor(page: Page){
 
 export async function moveMouseCursor(page: Page, targetElement: Locator){
   //this is a function used to move the fake mouse cursor svg to a target element on the page. this is used for tutorial videos to show where the user should click.
-  return new Promise<void>(async function(resolve){
-    //readying the new position elements. we cant pass the element itself into the evaluate function.
-    let newPos = null;
+  //readying the new position elements. we cant pass the element itself into the evaluate function.
+  let newPos = null;
 
-    // UI animations and modals can briefly detach or hide elements; retry before giving up.
-    for (let i = 0; i < 12; i++) {
-      try {
-        if (typeof targetElement.scrollIntoViewIfNeeded === 'function') {
-          await targetElement.scrollIntoViewIfNeeded();
-        }
-        newPos = await targetElement.boundingBox({ timeout: 1000 });
-        if (newPos !== null) {
-          break;
-        }
-            } catch {
-        // keep retrying
+  // UI animations and modals can briefly detach or hide elements; retry before giving up.
+  for (let i = 0; i < 12; i++) {
+    try {
+      if (typeof targetElement.scrollIntoViewIfNeeded === 'function') {
+        await targetElement.scrollIntoViewIfNeeded();
       }
-
-      const shouldContinue = await safeWait(page, 150);
-      if (!shouldContinue) {
+      newPos = await targetElement.boundingBox({ timeout: 1000 });
+      if (newPos !== null) {
         break;
       }
+    } catch {
+      // keep retrying
     }
 
-    if (newPos === null) {
-      console.warn('moveMouseCursor: targetElement had no bounding box; skipping cursor move for this step.');
-      resolve();
-      return;
+    const shouldContinue = await safeWait(page, 150);
+    if (!shouldContinue) {
+      break;
     }
+  }
 
-    const newX = newPos.x + newPos.width / 2
-    const newY = newPos.y + newPos.height / 2
+  if (newPos === null) {
+    console.warn('moveMouseCursor: targetElement had no bounding box; skipping cursor move for this step.');
+    return;
+  }
+
+  const newX = newPos.x + newPos.width / 2
+  const newY = newPos.y + newPos.height / 2
   
-    await page.evaluate(({newX, newY}) => {
-      //getting the fake cursor element note* the document is only reachable in the evaluate function
-      const cursor =  document.getElementById('videoArrowContainer');
+  await page.evaluate(({newX, newY}) => {
+    //getting the fake cursor element note* the document is only reachable in the evaluate function
+    const cursor =  document.getElementById('videoArrowContainer');
   
-      //setting the new position on screen
-      if(cursor){
-        cursor.style.top = newY + 'px';
-        cursor.style.left = newX + 'px';
-      }
-    },{newX, newY})
+    //setting the new position on screen
+    if(cursor){
+      cursor.style.top = newY + 'px';
+      cursor.style.left = newX + 'px';
+    }
+  },{newX, newY})
     
-    await page.waitForTimeout(700);
-    resolve()
-  })
+  await page.waitForTimeout(700);
 }
 
 async function safeWait(page: Page, ms: number): Promise<boolean> {

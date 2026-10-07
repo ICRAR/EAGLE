@@ -41,6 +41,7 @@ import { FileLocation } from "./FileLocation";
 import { GitHub } from './GitHub';
 import { GitLab } from './GitLab';
 import { GraphConfig } from "./GraphConfig";
+import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 import { GraphRenderer } from "./GraphRenderer";
 import { Hierarchy } from './Hierarchy';
 import { Id } from './Id';
@@ -55,6 +56,17 @@ import { Repository, type RepositoryCommit, RepositoryService } from './Reposito
 import { RepositoryFile } from './RepositoryFile';
 import { RightClick } from "./RightClick";
 import { SchemaVersion, Setting, type SettingsGroup } from './Setting';
+
+type AsyncPromiseExecutor<T> = (
+    resolve: (value?: T | PromiseLike<T>) => void,
+    reject: (reason?: unknown) => void
+) => Promise<void>;
+
+function runAsyncPromise<T>(executor: AsyncPromiseExecutor<T>): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+        void executor((value) => resolve(value as T | PromiseLike<T>), reject);
+    });
+}
 import { SideWindow } from './SideWindow';
 import { Translator } from './Translator';
 import type { Tutorial} from './Tutorial';
@@ -229,10 +241,6 @@ export class Eagle {
         this.selectedObjects.subscribe(function(){
             // abort if logicalGraph is null
             const lg = this.logicalGraph();
-            if (lg === null){
-                return;
-            }
-
             //TODO check if the selectedObjects array has changed, if not, abort
             GraphRenderer.nodeData = GraphRenderer.depthFirstTraversalOfNodes(lg);
             Hierarchy.updateDisplay()
@@ -387,24 +395,14 @@ export class Eagle {
 
     // TODO: remove?
     flagActiveFileModified = () : void => {
-        if (this.logicalGraph()){
-            this.logicalGraph().fileInfo().modified = true;
-        }
+        this.logicalGraph().fileInfo().modified = true;
     }
 
     getTabTitle : ko.PureComputed<string> = ko.pureComputed(() => {
         // Adding a star symbol in front of the title if file is modified.
         let mod = '';
 
-        if (this.logicalGraph() === null){
-            return "";
-        }
-
         const fileInfo : FileInfo = this.logicalGraph().fileInfo();
-
-        if (fileInfo === null){
-            return "";
-        }
 
         if (fileInfo.modified){
             mod = '*';
@@ -440,16 +438,7 @@ export class Eagle {
     }
 
     repositoryFileName : ko.PureComputed<string> = ko.pureComputed(() => {
-        if (this.logicalGraph() === null){
-            return "";
-        }
-
         const fileInfo : FileInfo = this.logicalGraph().fileInfo();
-
-        // if no FileInfo is available, return empty string
-        if (fileInfo === null){
-            return "";
-        }
 
         return fileInfo.location.getHtml();
     }, this);
@@ -728,7 +717,7 @@ export class Eagle {
     }, this);
 
     // if selectedObjects contains nothing but one node, return the node, else null
-    selectedVisual : ko.PureComputed<Visual> = ko.pureComputed(() : Visual => {
+    selectedVisual : ko.PureComputed<Visual | null> = ko.pureComputed(() : Visual | null => {
         if (this.selectedObjects().length !== 1){
             return null;
         }
@@ -989,37 +978,37 @@ export class Eagle {
         }
 
         // get reference to file from the html element
-        const file = graphFileToLoadInputElement.files[0];
+        const file = graphFileToLoadInputElement.files.item(0);
+        if (!file) {
+            console.error("loadLocalGraphFile: no file found in input element");
+            return;
+        }
 
-        // read the file
-        if (file) {
-            if (!await this._isTextFile(file)) {
-                this._rejectBinaryFile(file);
-                graphFileToLoadInputElement.value = "";
+        if (!await this._isTextFile(file)) {
+            this._rejectBinaryFile(file);
+            graphFileToLoadInputElement.value = "";
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = async (evt) => {
+            const data = evt.target?.result?.toString() ?? "";
+            if (data === "") {
+                console.error("loadLocalGraphFile: file is empty or could not be read");
+                Utils.showUserMessage("Error", "File is empty or could not be read.");
                 return;
             }
 
-            const reader = new FileReader();
-            reader.readAsText(file, "UTF-8");
-            reader.onload = async (evt) => {
-                const data: string = evt.target?.result?.toString() ?? "";
-
-                if (!data) {
-                    console.error("loadLocalGraphFile: file is empty or could not be read");
-                    Utils.showUserMessage("Error", "File is empty or could not be read.");
-                    return;
-                }
-
-                await this._loadGraphWithChoice(data, new RepositoryFile(
-                    new Repository(RepositoryService.File, "", "", false),
-                    Utils.getFilePathFromFullPath(fileFullPath),
-                    Utils.getFileNameFromFullPath(fileFullPath)
-                ));
-            }
-            reader.onerror = (evt) => {
-                console.error("error reading file", evt);
-            }
-        }
+            await this._loadGraphWithChoice(data, new RepositoryFile(
+                new Repository(RepositoryService.File, "", "", false),
+                Utils.getFilePathFromFullPath(fileFullPath),
+                Utils.getFileNameFromFullPath(fileFullPath)
+            ));
+        };
+        reader.onerror = (evt) => {
+            console.error("error reading file", evt);
+        };
+        reader.readAsText(file, "UTF-8");
 
         // reset file selection element
         graphFileToLoadInputElement.value = "";
@@ -1104,41 +1093,40 @@ export class Eagle {
         }
 
         // get reference to file from the html element
-        const file = graphFileToInsertInputElement.files[0];
+        const file = graphFileToInsertInputElement.files.item(0);
+        if (!file) {
+            console.error("insertLocalGraphFile: no file found in input element");
+            return;
+        }
 
-        // read the file
-        if (file) {
-            if (!await this._isTextFile(file)) {
-                this._rejectBinaryFile(file);
-                graphFileToInsertInputElement.value = "";
+        if (!await this._isTextFile(file)) {
+            this._rejectBinaryFile(file);
+            graphFileToInsertInputElement.value = "";
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = async (evt) => {
+            const data = evt.target?.result?.toString() ?? "";
+            if (data === "") {
+                console.error("insertLocalGraphFile: file is empty or could not be read");
+                Utils.showUserMessage("Error", "File is empty or could not be read.");
                 return;
             }
 
-            const reader = new FileReader();
-            reader.readAsText(file, "UTF-8");
-            reader.onload = async (evt) => {
-                let data: string = evt.target?.result?.toString();
+            await this._loadGraphJSON(data, fileFullPath, async (lg: LogicalGraph, errorsWarnings: ErrorsWarnings) : Promise<void> => {
+                const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().location.getText(), "", CategoryName.SubGraph);
+                await this.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges()), parentNode, errorsWarnings);
 
-                if (!data) {
-                    console.error("insertLocalGraphFile: file is empty or could not be read");
-                    Utils.showUserMessage("Error", "File is empty or could not be read.");
-                    data = "";
-                }
-
-                await this._loadGraphJSON(data, fileFullPath, async (lg: LogicalGraph, errorsWarnings: ErrorsWarnings) : Promise<void> => {
-                    const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().location.getText(), "", CategoryName.SubGraph);
-    
-                    await this.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges()), parentNode, errorsWarnings);
-    
-                    this.checkEagle();
-                    this.undo().pushSnapshot(this, "Insert Logical Graph");
-                    this.logicalGraph.valueHasMutated();
-                });
-            }
-            reader.onerror = (evt) => {
-                console.error("error reading file", evt);
-            }
-        }
+                this.checkEagle();
+                this.undo().pushSnapshot(this, "Insert Logical Graph");
+                this.logicalGraph.valueHasMutated();
+            });
+        };
+        reader.onerror = (evt) => {
+            console.error("error reading file", evt);
+        };
+        reader.readAsText(file, "UTF-8");
 
         // reset file selection element
         graphFileToInsertInputElement.value = "";
@@ -1516,7 +1504,7 @@ export class Eagle {
         }
 
         //used if we cant find space on the canvas, we then extend the search area for space and center the graph after adding to bring new nodes into view
-        if(parentNodePosition.extended){
+        if(parentNodePosition.extended === true){
             setTimeout(function(){
                 Eagle.getInstance().centerGraph()
             }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT)
@@ -1548,37 +1536,36 @@ export class Eagle {
         }
 
         // get a reference to the file in the html element
-        const file = paletteFileInputElement.files[0];
-        
-        // read the file
-        if (file) {
-            if (!await this._isTextFile(file)) {
-                this._rejectBinaryFile(file);
-                paletteFileInputElement.value = "";
+        const file = paletteFileInputElement.files.item(0);
+        if (!file) {
+            console.error("loadLocalPaletteFile: no file found in input element");
+            return;
+        }
+
+        if (!await this._isTextFile(file)) {
+            this._rejectBinaryFile(file);
+            paletteFileInputElement.value = "";
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+            const data = evt.target?.result?.toString() ?? "";
+            if (data === "") {
+                console.error("loadLocalPaletteFile: file is empty or could not be read");
+                Utils.showUserMessage("Error", "File is empty or could not be read.");
                 return;
             }
 
-            const reader = new FileReader();
-            reader.readAsText(file, "UTF-8");
-            reader.onload = (evt) => {
-                let data: string = evt.target?.result?.toString();
+            this._loadPaletteJSON(data, fileFullPath);
+            this.palettes()[0].fileInfo().location.repositoryService(RepositoryService.File);
+            this.palettes()[0].fileInfo.valueHasMutated();
+        };
+        reader.onerror = (evt) => {
+            console.error("error reading file", evt);
+        };
+        reader.readAsText(file, "UTF-8");
 
-                if (!data) {
-                    console.error("loadLocalPaletteFile: file is empty or could not be read");
-                    Utils.showUserMessage("Error", "File is empty or could not be read.");
-                    data = "";
-                }
-
-                this._loadPaletteJSON(data, fileFullPath);
-
-                this.palettes()[0].fileInfo().location.repositoryService(RepositoryService.File);
-                this.palettes()[0].fileInfo.valueHasMutated();
-            }
-            reader.onerror = (evt) => {
-                console.error("error reading file", evt);
-            }
-        }
-        
         // reset file selection element
         paletteFileInputElement.value = "";
     }
@@ -1634,43 +1621,42 @@ export class Eagle {
         }
 
         // get a reference to the file in the html element
-        const file = graphConfigFileInputElement.files[0];
-        
-        // read the file
-        if (file) {
-            if (!await this._isTextFile(file)) {
-                this._rejectBinaryFile(file);
-                graphConfigFileInputElement.value = "";
+        const file = graphConfigFileInputElement.files.item(0);
+        if (!file) {
+            console.error("loadLocalGraphConfigFile: no file found in input element");
+            return;
+        }
+
+        if (!await this._isTextFile(file)) {
+            this._rejectBinaryFile(file);
+            graphConfigFileInputElement.value = "";
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+            const data = evt.target?.result?.toString() ?? "";
+            if (data === "") {
+                console.error("loadLocalGraphConfigFile: file is empty or could not be read");
+                Utils.showUserMessage("Error", "File is empty or could not be read.");
                 return;
             }
 
-            const reader = new FileReader();
-            reader.readAsText(file, "UTF-8");
-            reader.onload = (evt) => {
-                let data: string = evt.target?.result?.toString();
-
-                if (!data) {
-                    console.error("loadLocalGraphConfigFile: file is empty or could not be read");
-                    Utils.showUserMessage("Error", "File is empty or could not be read.");
-                    data = "";
-                }
-
-                let dataObject;
-
-                try {
-                    dataObject = JSON.parse(data);
-                } catch(err){
-                    Utils.showUserMessage("Error parsing file JSON", Errors.UnknownToError(err));
-                    return;
-                }
-
-                void this._loadGraphConfig(dataObject, new RepositoryFile(Repository.placeholder(), "", Utils.getFileNameFromFullPath(fileFullPath)));
+            let dataObject;
+            try {
+                dataObject = JSON.parse(data);
+            } catch(err){
+                Utils.showUserMessage("Error parsing file JSON", Errors.UnknownToError(err));
+                return;
             }
-            reader.onerror = (evt) => {
-                console.error("error reading file", evt);
-            }
-        }
-        
+
+            void this._loadGraphConfig(dataObject, new RepositoryFile(Repository.placeholder(), "", Utils.getFileNameFromFullPath(fileFullPath)));
+        };
+        reader.onerror = (evt) => {
+            console.error("error reading file", evt);
+        };
+        reader.readAsText(file, "UTF-8");
+
         // reset file selection element
         graphConfigFileInputElement.value = "";
     }
@@ -1838,7 +1824,7 @@ export class Eagle {
         }
 
         try {
-            Repositories.selectFile(new RepositoryFile(new Repository(RepositoryService.Url, "", "", false), "", url));
+            void Repositories.selectFile(new RepositoryFile(new Repository(RepositoryService.Url, "", "", false), "", url));
         } catch(error){
             console.error(error);
         }
@@ -1863,7 +1849,7 @@ export class Eagle {
                 return;
         }
 
-        Utils.requestUserCode("json", "Display " + fileType + " as JSON", jsonString, true);
+        void Utils.requestUserCode("json", "Display " + fileType + " as JSON", jsonString, true);
     }
 
     displayNodeAsJson = (node: Node) : void => {
@@ -1883,7 +1869,7 @@ export class Eagle {
                 break;
         }
 
-        Utils.requestUserCode("json", "Display Node as JSON", jsonString, true);
+        void Utils.requestUserCode("json", "Display Node as JSON", jsonString, true);
     }
 
     /**
@@ -1945,10 +1931,10 @@ export class Eagle {
     /**
      * Reloads a previously loaded palette.
      */
-     reloadPalette = async (palette: Palette, index: number): Promise<void> => {
-         const fileInfo : FileInfo = palette.fileInfo();
-         // remove palette
-         this.closePalette(palette);
+    reloadPalette = async (palette: Palette, index: number): Promise<void> => {
+        const fileInfo : FileInfo = palette.fileInfo();
+        // remove palette
+        void this.closePalette(palette);
 
          switch (fileInfo.location.repositoryService()){
              case RepositoryService.File:
@@ -1957,7 +1943,7 @@ export class Eagle {
                 break;
             case RepositoryService.GitLab:
             case RepositoryService.GitHub:
-                Repositories.selectFile(new RepositoryFile(new Repository(fileInfo.location.repositoryService(), fileInfo.location.repositoryName(), fileInfo.location.repositoryBranch(), false), fileInfo.location.repositoryPath(), fileInfo.location.repositoryFileName()));
+                void Repositories.selectFile(new RepositoryFile(new Repository(fileInfo.location.repositoryService(), fileInfo.location.repositoryName(), fileInfo.location.repositoryBranch(), false), fileInfo.location.repositoryPath(), fileInfo.location.repositoryFileName()));
                 break;
             case RepositoryService.Url:
                 const {palettes} = await this.loadPalettes([
@@ -1965,9 +1951,7 @@ export class Eagle {
                 ]);
 
                 for (const palette of palettes){
-                    if (palette !== null){
-                        this.palettes.splice(index, 0, palette);
-                    }
+                    this.palettes.splice(index, 0, palette);
                 }
                 break;
             default:
@@ -2011,7 +1995,7 @@ export class Eagle {
     }
 
     saveGraph = async () : Promise<void> => {
-        return new Promise(async(resolve, reject) => {
+        return runAsyncPromise(async(resolve, reject) => {
             const eagle: Eagle = Eagle.getInstance();
 
             switch (eagle.logicalGraph().fileInfo().location.repositoryService()){
@@ -2047,27 +2031,23 @@ export class Eagle {
     }
 
     saveGraphAs = async () : Promise<void> => {
-        return new Promise(async(resolve, reject) => {
+        return runAsyncPromise(async(resolve, reject) => {
             const isLocalFile = this.logicalGraph().fileInfo().location.repositoryService() === RepositoryService.File;
 
             const userChoice: string = await Utils.requestUserChoice("Save Graph As", "Please choose where to save the graph", ["Local File", "Remote Git Repository"], isLocalFile?0:1, false, "");
-
-            if (userChoice === null){
-                return;
-            }
 
             const fileType = this.logicalGraph().fileInfo().type;
 
             if (userChoice === "Local File"){
                 try {
-                    this.saveAsFileToLocal(fileType);
+                    await this.saveAsFileToLocal(fileType);
                 } catch (error) {
                     reject(error);
                     return;
                 }
             } else {
                 try {
-                    this.commitToGitAs(fileType);
+                    await this.commitToGitAs(fileType);
                 } catch(error) {
                     reject(error);
                     return;
@@ -2079,10 +2059,10 @@ export class Eagle {
     }
 
     saveGraphConfigAs = async (graphConfig: GraphConfig) : Promise<void> => {
-        return new Promise(async(resolve, reject) => {
+        return runAsyncPromise(async(resolve, reject) => {
             try {
                 // Robust null/invalid check
-                if (!graphConfig || typeof graphConfig !== "object" || Object.keys(graphConfig).length === 0) {
+                if (Object.keys(graphConfig).length === 0) {
                     Utils.showNotification("Invalid Graph Config", "The graph configuration is missing or invalid. Please check your input and try again.", "danger");
                     reject(new Error("GraphConfig is null or invalid"));
                     return;
@@ -2100,15 +2080,9 @@ export class Eagle {
 
                 const userChoice: string = await Utils.requestUserChoice("Save Graph Configuration As", "Please choose where to save the graph configuration", ["Local File", "Remote Git Repository"], isLocalFile?0:1, false, "");
 
-                if (userChoice === null){
-                    Utils.showNotification("Save Cancelled", "No save location was selected.", "danger");
-                    reject(new Error("User cancelled save"));
-                    return;
-                }
-
                 if (userChoice === "Local File"){
                     try {
-                        this.saveAsFileToLocal(EagleFileType.GraphConfig, graphConfig);
+                        await this.saveAsFileToLocal(EagleFileType.GraphConfig, graphConfig);
                         resolve();
                     } catch (error) {
                         Utils.showNotification("Save Failed", "Failed to save graph config locally: " + Errors.UnknownToError(error), "danger");
@@ -2116,7 +2090,7 @@ export class Eagle {
                     }
                 } else {
                     try {
-                        this.commitToGitAs(EagleFileType.GraphConfig, graphConfig);
+                        await this.commitToGitAs(EagleFileType.GraphConfig, graphConfig);
                         resolve();
                     } catch(error) {
                         Utils.showNotification("Save Failed", "Failed to save graph config to remote repository: " + Errors.UnknownToError(error), "danger");
@@ -2145,7 +2119,7 @@ export class Eagle {
      * Saves the file to a local download folder.
      */
     saveFileToLocal = async (fileType : EagleFileType, graphConfig: GraphConfig | null = null) : Promise<void> => {
-        return new Promise(async(resolve, reject) => {
+        return runAsyncPromise(async(resolve, reject) => {
             switch (fileType){
                 case EagleFileType.Graph:
                     try {
@@ -2201,7 +2175,7 @@ export class Eagle {
     }
 
     saveAsFileToLocal = async (fileType: EagleFileType, graphConfig: GraphConfig | null = null): Promise<void> => {
-        return new Promise(async(resolve, reject) => {
+        return runAsyncPromise(async(resolve, reject) => {
             switch (fileType){
                 case EagleFileType.Graph:
                     try {
@@ -2261,7 +2235,7 @@ export class Eagle {
      * Saves a file to the remote server repository.
      */
     saveFileToRemote = async (file: RepositoryFile, fileInfo: ko.Observable<FileInfo>, jsonString : string): Promise<void> => {
-        return new Promise(async(resolve, reject) => {
+        return runAsyncPromise(async(resolve, reject) => {
             let url : string;
 
             switch (file.repository.service){
@@ -2322,7 +2296,7 @@ export class Eagle {
      * the repository service and URL.
      */
     saveFilesToRemote = async (repository: Repository, jsonString : string): Promise<void> => {
-        return new Promise(async(resolve, reject) => {
+        return runAsyncPromise(async(resolve, reject) => {
             let url : string;
 
             switch (repository.service){
@@ -2374,7 +2348,7 @@ export class Eagle {
      * Performs a Git commit of a graph/palette. Asks user for a file name before saving.
      */
     commitToGitAs = async (fileType : EagleFileType, graphConfig: GraphConfig | null = null) : Promise<void> => {
-        return new Promise(async(resolve, reject) => {
+        return runAsyncPromise(async(resolve, reject) => {
             let fileInfo : ko.Observable<FileInfo>;
             let obj : LogicalGraph | Palette | GraphConfig;
 
@@ -2416,8 +2390,7 @@ export class Eagle {
             // create default repository to supply to modal so that the modal is populated with useful defaults
             let defaultRepository: Repository = Repository.placeholder();
 
-            if (this.logicalGraph()){
-                // if the repository service is unknown (or file), probably because the graph hasn't been saved before, then
+            // if the repository service is unknown (or file), probably because the graph hasn't been saved before, then
                 // just use any existing repo
                 if (fileInfo().location.repositoryService() === RepositoryService.Unknown || fileInfo().location.repositoryService() === RepositoryService.File){
                     const gitHubRepoList : Repository[] = Repositories.getList(RepositoryService.GitHub);
@@ -2439,7 +2412,6 @@ export class Eagle {
                 } else {
                     defaultRepository = new Repository(fileInfo().location.repositoryService(), fileInfo().location.repositoryName(), fileInfo().location.repositoryBranch(), false);
                 }
-            }
 
             // determine a default filename
             let defaultFilename: string = fileInfo().location.repositoryFileName();
@@ -2472,7 +2444,7 @@ export class Eagle {
             // TODO: a bit of a kludge here to have to create a new RepositoryFile object just to pass to _commit()
             const file: RepositoryFile = new RepositoryFile(repository, commit.location.repositoryPath(), commit.location.repositoryFileName());
             file.type = fileType;
-            this._commit(file, fileInfo, commit.message, obj);
+            await this._commit(file, fileInfo, commit.message, obj);
 
             resolve();
         });
@@ -2482,7 +2454,7 @@ export class Eagle {
      * Performs a Git commit of a graph/palette.
      */
     commitToGit = async (fileType : EagleFileType) : Promise<void> => {
-        return new Promise(async(resolve, reject) => {
+        return runAsyncPromise(async(resolve, reject) => {
             let fileInfo : ko.Observable<FileInfo> | undefined;
             let obj : LogicalGraph | Palette | GraphConfig | undefined;
 
@@ -2527,7 +2499,7 @@ export class Eagle {
 
             // if there is no git repository or filename defined for this file. Please use 'save as' instead!
             if (
-                [RepositoryService.Unknown, RepositoryService.File, RepositoryService.Url].includes(fileInfo().location.repositoryService()) || fileInfo().location.repositoryName() === null
+                [RepositoryService.Unknown, RepositoryService.File, RepositoryService.Url].includes(fileInfo().location.repositoryService())
             ) {
                 await this.commitToGitAs(fileType);
                 return;
@@ -2545,15 +2517,10 @@ export class Eagle {
 
             // request commit message from the user, abort if none entered
             const commitMessage = await Utils.userEnterCommitMessage("Enter a commit message for this " + fileType);
-            if (commitMessage === null){
-                return;
-            }
-
             // set the EAGLE version etc according to this running version
             fileInfo().updateEagleInfo();
 
             const repository = Repositories.getByLocation(fileInfo().location);
-            // abort if repository could not be found
             if (repository === null){
                 reject("Repository not found: " + fileInfo().location.repositoryName());
                 return;
@@ -2574,19 +2541,7 @@ export class Eagle {
     }
 
     _commit = async (file: RepositoryFile, fileInfo: ko.Observable<FileInfo>, commitMessage: string, obj: LogicalGraph | Palette | GraphConfig) : Promise<void> => {
-        return new Promise(async(resolve, reject) => {
-            // check that repository was found, if not try "save as"!
-            if (file.repository === null){
-                try {
-                    await this.commitToGitAs(file.type);
-                } catch (error){
-                    reject(error);
-                    return;
-                }
-                resolve();
-                return;
-            }
-
+        return runAsyncPromise(async(resolve, reject) => {
             try {
                 await this.saveDiagramToGit(file, fileInfo, commitMessage, obj);
             } catch (error) {
@@ -2601,7 +2556,7 @@ export class Eagle {
      * Saves a graph/palette file to the GitHub repository.
      */
     saveDiagramToGit = (file: RepositoryFile, fileInfo: ko.Observable<FileInfo>, commitMessage : string, obj: LogicalGraph | Palette | GraphConfig) : Promise<void> => {
-        return new Promise(async(resolve, reject) => {
+        return runAsyncPromise(async(resolve, reject) => {
             console.log("saveDiagramToGit() repositoryName", file.repository.name, "fileType", file.type, "filePath", file.path, "fileName", file.name, "commitMessage", commitMessage);
 
             // get version (hoisted for OJS format check)
@@ -2640,7 +2595,7 @@ export class Eagle {
     }
 
     _saveDiagramToGit = async (file: RepositoryFile, fileInfo: ko.Observable<FileInfo>, commitMessage : string, jsonString: string, version: SchemaVersion) : Promise<void> => {
-        return new Promise(async(resolve, reject) => {
+        return runAsyncPromise(async(resolve, reject) => {
             // generate filename
             const fullFileName : string = Utils.joinPath(file.path, file.name);
 
@@ -2655,7 +2610,7 @@ export class Eagle {
             }
 
             // check that access token is defined
-            if (token === null || token === "") {
+            if (token === "") {
                 reject("The GitHub access token is not set! To save files on GitHub, set the access token.");
                 return;
             }
@@ -2678,10 +2633,8 @@ export class Eagle {
 
     loadDefaultPalettes = async (): Promise<void> => {
         // get collapsed/expanded state of palettes from html local storage
-        let templatePaletteExpanded: boolean = Setting.findValue<boolean>(Setting.OPEN_TEMPLATE_PALETTE, false);
-        let builtinPaletteExpanded: boolean = Setting.findValue<boolean>(Setting.OPEN_BUILTIN_PALETTE, false);
-        templatePaletteExpanded = templatePaletteExpanded === null ? false : templatePaletteExpanded;
-        builtinPaletteExpanded = builtinPaletteExpanded === null ? false : builtinPaletteExpanded;
+        const templatePaletteExpanded: boolean = Setting.findValue<boolean>(Setting.OPEN_TEMPLATE_PALETTE, false);
+        const builtinPaletteExpanded: boolean = Setting.findValue<boolean>(Setting.OPEN_BUILTIN_PALETTE, false);
 
         const {errorsWarnings} = await this.loadPalettes([
             {name:Palette.TEMPLATE_PALETTE_NAME, filename:Daliuge.TEMPLATE_URL, readonly:true, expanded: templatePaletteExpanded},
@@ -2706,7 +2659,7 @@ export class Eagle {
     }
 
     loadPalettes = async (paletteList: {name:string, filename:string, readonly:boolean, expanded:boolean}[]): Promise<{palettes: Palette[], errorsWarnings: ErrorsWarnings}> => {
-        return new Promise(async(resolve) => {
+        return runAsyncPromise(async(resolve) => {
             const destinationPalettes: Palette[] = [];
             const errorsWarnings: ErrorsWarnings = {"errors":[], "warnings":[]};
 
@@ -2812,7 +2765,7 @@ export class Eagle {
         // check palette is not already loaded
         const alreadyLoadedPalette = this.findPaletteByFile(file);
         if (typeof alreadyLoadedPalette !== 'undefined'){
-            this.closePalette(alreadyLoadedPalette);
+            void this.closePalette(alreadyLoadedPalette);
         }
 
         // if this is a palette, create the destination palette and add to list of palettes so that it shows in the UI
@@ -2924,7 +2877,7 @@ export class Eagle {
                     Utils.showUserMessage("Error", "Destination palette is null when loading remote palette.");
                     return;
                 }
-                this._remotePaletteLoaded(file, data, destinationPalette);
+                void this._remotePaletteLoaded(file, data, destinationPalette);
                 break;
 
             case EagleFileType.GraphConfig:
@@ -2932,7 +2885,7 @@ export class Eagle {
                     Utils.showUserMessage("Error", "GraphConfig JSON payload is empty or invalid.");
                     return;
                 }
-                this._loadGraphConfig(dataObject, file);
+                void this._loadGraphConfig(dataObject, file);
                 break;
 
             case EagleFileType.Markdown:
@@ -3043,6 +2996,7 @@ export class Eagle {
 
         const graphModified: boolean = this.logicalGraph().fileInfo().modified;
         let someGraphAlreadyLoaded: boolean = this.logicalGraph().fileInfo().name !== ""; // true if there is already a graph loaded
+        let graphAutoLoaded = false;
 
         // check if graphConfig belongs to this graph
         let configMatch = FileLocation.match(graphConfig.fileInfo().graphLocation, this.logicalGraph().fileInfo().location);
@@ -3074,6 +3028,7 @@ export class Eagle {
             // load graph first
             await this.openRemoteFile(repositoryFile, true);
 
+            graphAutoLoaded = true;
             someGraphAlreadyLoaded = true;
             configMatch = true;
             // Rebind configuration nodes to the graph that was just loaded.
@@ -3085,7 +3040,13 @@ export class Eagle {
         // check if graphConfig already exists in this graph
         const configAlreadyExists: boolean = this.logicalGraph().getGraphConfigById(graphConfig.getId()) !== undefined;
 
-        if (someGraphAlreadyLoaded && configMatch && configAlreadyExists){
+        if (configAlreadyExists){
+            // If the associated graph was loaded just now, its existing config is already the requested one.
+            if (graphAutoLoaded){
+                GraphConfigurationsTable.openTable();
+                return;
+            }
+
             const userOption = await Utils.requestUserOptions("Graph Config Already Exists", "A graph config with the same id already exists in this graph. Do you wish to overwrite it, or load the new one with a different name?", "Overwrite", "Load as Separate Config", "Cancel", 0);
 
             if (userOption === "Overwrite"){
@@ -3094,12 +3055,10 @@ export class Eagle {
                 graphConfig.fileInfo().name = graphConfig.fileInfo().name + " (copy)";
                 graphConfig.setId(Id.generateGraphConfigId());
                 this.logicalGraph().addGraphConfig(graphConfig);
-            } else {
-                // do nothing
             }
         }
 
-        if (someGraphAlreadyLoaded && configMatch && !configAlreadyExists){
+        if (!configAlreadyExists){
             this.logicalGraph().addGraphConfig(graphConfig);
         }
 
@@ -3207,7 +3166,7 @@ export class Eagle {
         // request confirmation from user
         const confirmed = await Utils.requestUserConfirm("Delete?", "Are you sure you wish to delete '" + file.name + "' from this repository?", "Yes", "No", Setting.find(Setting.CONFIRM_DELETE_FILES));
         if (confirmed){
-            this._deleteRemoteFile(file);
+            void this._deleteRemoteFile(file);
         }
     }
 
@@ -3249,8 +3208,8 @@ export class Eagle {
 
     private _reloadPalette = (file : RepositoryFile, data : string, palette : Palette) : void => {
         // close the existing version of the open palette
-        if (palette !== null && !palette.isFetching()){
-            this.closePalette(palette);
+        if (!palette.isFetching()){
+            void this.closePalette(palette);
         }
 
         // determine schema version from FileInfo
@@ -3334,10 +3293,6 @@ export class Eagle {
     }
 
     getParentNameAndId = (parentId: NodeId) : string => {
-        if(parentId === null){
-            return ""
-        }
-
         // TODO: temporary fix while we get lots of warnings about missing nodes
         const parentNode = this.logicalGraph().getNodeById(parentId);
 
@@ -3362,9 +3317,9 @@ export class Eagle {
 
     // TODO: shares some code with saveFileToLocal(), we should try to factor out the common stuff at some stage
     savePaletteToDisk = async (palette : Palette, fileName: string) : Promise<void> => {
-        return new Promise(async (resolve, reject) => {
+        return runAsyncPromise(async (resolve, reject) => {
             // generate a fileName, if the supplied filename is null or empty
-            if (fileName === null || fileName === ""){
+            if (fileName === ""){
                 const rawName = palette.fileInfo().name;
                 const sanitizedName = Utils.sanitizeFileName(rawName);
                 fileName = sanitizedName.length > 0 ? sanitizedName : "palette";
@@ -3397,7 +3352,7 @@ export class Eagle {
                 return;
             }
 
-            Utils.downloadFile(data, fileName);
+            void Utils.downloadFile(data, fileName);
 
             // since changes are now stored locally, the file will have become out of sync with the GitHub repository, so the association should be broken
             // clear the modified flag
@@ -3417,7 +3372,7 @@ export class Eagle {
      * Saves the file to a local download folder.
      */
     saveGraphToDisk = async (graph : LogicalGraph, fileName: string): Promise<void> => {
-        return new Promise(async(resolve, reject) => {
+        return runAsyncPromise(async(resolve, reject) => {
             console.log("saveGraphToDisk()", fileName);
 
             // check that the fileType has been set for the logicalGraph
@@ -3479,7 +3434,7 @@ export class Eagle {
     }
 
     saveGraphConfigToDisk = async (graphConfig: GraphConfig, fileName: string): Promise<void> => {
-        return new Promise(async(resolve, reject) => {
+        return runAsyncPromise(async(resolve, reject) => {
             console.log("saveGraphConfigToDisk()", fileName);
 
             // get version
@@ -3533,13 +3488,13 @@ export class Eagle {
 
         switch(file.fileInfo().type){
             case EagleFileType.Graph:
-                this.saveGraphToDisk(file as LogicalGraph, userString);
+                void this.saveGraphToDisk(file as LogicalGraph, userString);
                 break;
             case EagleFileType.GraphConfig:
-                this.saveGraphConfigToDisk(file as GraphConfig, userString);
+                void this.saveGraphConfigToDisk(file as GraphConfig, userString);
                 break;
             case EagleFileType.Palette:
-                this.savePaletteToDisk(file as Palette, userString);
+                void this.savePaletteToDisk(file as Palette, userString);
                 break;
             default:
                 console.warn("saveAsFileToDisk(): fileType", file.fileInfo().type, "not implemented, aborting.");
@@ -3584,7 +3539,7 @@ export class Eagle {
         }
 
         // check that access token is defined
-        if (token === null || token === "") {
+        if (token === "") {
             Utils.showUserMessage("Error", "The GitHub access token is not set! To save files on GitHub, set the access token.");
             return;
         }
@@ -3912,7 +3867,7 @@ export class Eagle {
                         }
                     }
 
-                    this.addNodesToPalette(nodes);
+                    void this.addNodesToPalette(nodes);
                 }
                 break;
             default:
@@ -4151,10 +4106,6 @@ export class Eagle {
         // ask user to select the destination node
         const userChoice = await Utils.requestUserChoice("Destination Palette", "Please select the palette to which you'd like to add the node(s)", paletteNames, 0, true, "New Palette Name");
 
-        if (userChoice === null){
-            return;
-        }
-
         // if user made custom choice
         let userString: string = userChoice;
 
@@ -4231,7 +4182,7 @@ export class Eagle {
             return;
         }
 
-        this.addNodesToPalette(nodes);
+        void this.addNodesToPalette(nodes);
     }
 
     deleteSelection = async (rightClick: boolean, suppressUserConfirmationRequest: boolean, deleteChildren: boolean): Promise<void> => {
@@ -4475,12 +4426,10 @@ export class Eagle {
         let realDestPort: Field | null = realDestNode.findPortByMatchingType(realSourcePort.getType(), usages);
 
         // if no dest port was found, just use first input port on dest node
-        if (realDestPort === null){
-            realDestPort = realDestNode.findPortOfAnyType(true);
-        }
+        realDestPort ??= realDestNode.findPortOfAnyType(true);
 
         // abort if we don't have destNode or destPort
-        if (realDestNode === null || realDestPort === null){
+        if (realDestPort === null){
             Utils.showNotification("Error", "Unable to create edge: missing destination node or port", "danger");
             return;
         }
@@ -4502,7 +4451,7 @@ export class Eagle {
     }
 
     addNodeToLogicalGraph = (node: Node | undefined, nodeId: NodeId | null, mode: EagleAddNodeMode): Promise<Node[]> => {
-        return new Promise(async(resolve, reject) => {
+        return runAsyncPromise(async(resolve, reject) => {
             const result: Node[] = [];
             let pos : {x:number, y:number};
             pos = {x:0,y:0}
@@ -4516,8 +4465,6 @@ export class Eagle {
 
             if(mode === EagleAddNodeMode.ContextMenu){
                 // when addNodeToLogicalGraph is called from the ContextMenu, we expect node to be null. The node is specified by the nodeId instead
-                console.assert(node === null);
-
                 // check that nodeId is not null
                 if (nodeId === null){
                     reject(new Error("nodeId is null"));
@@ -4653,7 +4600,7 @@ export class Eagle {
                 pythonObjectNode.addField(inputOutputPort);
 
                 // add edge to Logical Graph (connecting the PythonMemberFunction and the automatically-generated PythonObject)
-                this.addEdge(newNode, sourcePort, pythonObjectNode, inputOutputPort, false, false, true);
+                void this.addEdge(newNode, sourcePort, pythonObjectNode, inputOutputPort, false, false, true);
             }
 
             // select the new node
@@ -4693,10 +4640,6 @@ export class Eagle {
         // ask user to select the destination node
         const userChoice = await Utils.requestUserChoice("Destination Palette", "Please select the palette to which you'd like to add the nodes", paletteNames, 0, true, "New Palette Name");
         // abort if the user aborted
-        if (userChoice === null){
-            return;
-        }
-
         let userString: string = userChoice;
 
         // if the userString is empty, then abort, we should not allow empty palette names
@@ -4796,7 +4739,7 @@ export class Eagle {
     }
 
     addVisualToLogicalGraph = async (type: VisualType, mode: EagleAddNodeMode) : Promise<Visual> => {
-        return new Promise(async(resolve, reject) => {
+        return runAsyncPromise(async(resolve, reject) => {
 
             let pos : {x:number, y:number};
             pos = {x:0,y:0}
@@ -4860,10 +4803,10 @@ export class Eagle {
 
         // set values for the fields
         if (typeof imageField !== 'undefined'){
-            image = imageField.getValue() || "";
+            image = imageField.getValue() ?? "";
         }
         if (typeof tagField !== 'undefined'){
-            tag = tagField.getValue() || "";
+            tag = tagField.getValue() ?? "";
         }
 
         Modals.showBrowseDockerHub(image, tag, (completed: boolean) => {
@@ -4919,9 +4862,9 @@ export class Eagle {
         
         setTimeout(() => {
             if (object instanceof Node){
-                this.editNodeComment()
+                void this.editNodeComment()
             }else {
-                this.editEdgeComment()
+                void this.editEdgeComment()
             }
         }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT);
     };
@@ -4982,10 +4925,6 @@ export class Eagle {
         // ask user to choose a parent
         const userChoice: string = await Utils.requestUserChoice("Node Parent Id", "Select a parent node", nodeList, selectedChoiceIndex, false, "");
         
-        if (userChoice === null){
-            return;
-        }
-
         const choice: string = userChoice;
 
         // change the parent
@@ -5012,10 +4951,11 @@ export class Eagle {
 
     nodeDropLogicalGraph = (_eagle : Eagle, event: JQuery.TriggeredEvent) : void => {
         const e: DragEvent = event.originalEvent as DragEvent;
+        const files = e.dataTransfer?.files;
 
-        if (e.dataTransfer?.files.length) {
+        if (files !== undefined && files.length > 0) {
             e.preventDefault();
-            this.loadDroppedFile(e.dataTransfer.files[0]);
+            void this.loadDroppedFile(files[0]);
             return;
         }
 
@@ -5050,7 +4990,7 @@ export class Eagle {
 
         // add each of the nodes we are moving
         for (const sourceComponent of sourceComponents){
-            this.addNodeToLogicalGraph(sourceComponent, null, EagleAddNodeMode.Default);
+            void this.addNodeToLogicalGraph(sourceComponent, null, EagleAddNodeMode.Default);
 
             // to avoid placing all the selected nodes on top of each other at the same spot, we increment the nodeDropLocation after each node
             Eagle.nodeDropLocation.x += EagleConfig.DUPLICATE_OFFSET;
@@ -5064,10 +5004,11 @@ export class Eagle {
     nodeDropPalette = (_eagle: Eagle, event: JQuery.TriggeredEvent) : void => {
         const sourceComponents : Node[] = [];
         const e: DragEvent = event.originalEvent as DragEvent;
+        const files = e.dataTransfer?.files;
 
-        if (e.dataTransfer?.files.length) {
+        if (files !== undefined && files.length > 0) {
             e.preventDefault();
-            this.loadDroppedFile(e.dataTransfer.files[0]);
+            void this.loadDroppedFile(files[0]);
             return;
         }
 
@@ -5116,12 +5057,6 @@ export class Eagle {
 
         // copy all nodes that we are moving
         for (const sourceComponent of sourceComponents){
-            // check that the destination palette does not already contain this exact node
-            if (destinationPalette.findNodeById(sourceComponent.getId()) !== null){
-                Utils.showUserMessage("Error", "Palette already contains an identical component.");
-                return;
-            }
-
             // add to destination palette
             destinationPalette.addNode(sourceComponent, true);
             destinationPalette.fileInfo().modified = true;
@@ -5131,7 +5066,7 @@ export class Eagle {
     paletteComponentClick = (node: Node, event: JQuery.TriggeredEvent) : void => {
         const e: PointerEvent = event.originalEvent as PointerEvent;
         
-        if (e && e.shiftKey){
+        if (e.shiftKey){
             this.editSelection(node, EagleFileType.Palette);
         }else{
             this.setSelection(node, EagleFileType.Palette);
@@ -5158,11 +5093,6 @@ export class Eagle {
 
     editField = async (field: Field): Promise<void> => {
         // check that field exists
-        if (field === null || typeof field === 'undefined'){
-            console.error("No field to edit");
-            return;
-        }
-
         // get field names list from the logical graph
         const allFields: Field[] = Utils.getUniqueFieldsOfType(this.logicalGraph(), field.getParameterType());
         const allFieldNames: string[] = [];
@@ -5287,7 +5217,7 @@ export class Eagle {
         const graph_url: string = FileLocation.generateUrl(fileInfo.location);
  
         // copy to clipboard
-        navigator.clipboard.writeText(graph_url);
+        void navigator.clipboard.writeText(graph_url);
 
         // notification
         Utils.showNotification("Graph URL", "Copied to clipboard", "success");
@@ -5322,25 +5252,7 @@ export class Eagle {
     }
 
     addEdge = async (srcNode: Node, srcPort: Field, destNode: Node, destPort: Field, loopAware: boolean, closesLoop: boolean, forceAutoRename: boolean = false): Promise<Edge> => {
-        return new Promise(async(resolve, reject) => {
-            // check that none of the supplied nodes and ports are null
-            if (srcNode === null){
-                reject("addEdge(): srcNode is null");
-                return;
-            }
-            if (srcPort === null){
-                reject("addEdge(): srcPort is null");
-                return;
-            }
-            if (destNode === null){
-                reject("addEdge(): destNode is null");
-                return;
-            }
-            if (destPort === null){
-                reject("addEdge(): destPort is null");
-                return;
-            }
-
+        return runAsyncPromise(async(resolve, reject) => {
             // check that graph editing is allowed
             if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
                 reject("Unable to Add Edge: Graph Editing is disabled");
@@ -5403,7 +5315,7 @@ export class Eagle {
     }
 
     addVisual = async (visual: Visual): Promise<Visual> => {
-        return new Promise(async(resolve, reject) => {
+        return runAsyncPromise(async(resolve, reject) => {
             // check that graph editing is allowed
             if (!Setting.findValue<boolean>(Setting.ALLOW_GRAPH_EDITING, false)){
                 reject("Unable to Add Visual: Graph Editing is disabled");
@@ -5468,7 +5380,7 @@ export class Eagle {
 
     editNodeDescription = async (node?: Node): Promise<void> => {
         const markdownEditingEnabled: boolean = Setting.findValue<boolean>(Setting.MARKDOWN_EDITING_ENABLED, false);
-        const targetNode = node || this.selectedNode();
+        const targetNode = node ?? this.selectedNode();
 
         // abort if no node is selected AND no node was passed in
         if (targetNode === null) {
@@ -5489,7 +5401,7 @@ export class Eagle {
 
     editNodeComment = async (node? : Node): Promise<void> => {
         const markdownEditingEnabled: boolean = Setting.findValue<boolean>(Setting.MARKDOWN_EDITING_ENABLED, false);
-        const targetNode = node || this.selectedNode();
+        const targetNode = node ?? this.selectedNode();
 
         // abort if no node is selected
         if (targetNode === null || !(targetNode instanceof Node)) {
@@ -5499,7 +5411,7 @@ export class Eagle {
 
         let nodeComment: string;
         try {
-            nodeComment = await Utils.requestUserMarkdown(targetNode.getDisplayName() + " - Comment", targetNode?.getComment(), markdownEditingEnabled);
+            nodeComment = await Utils.requestUserMarkdown(targetNode.getDisplayName() + " - Comment", targetNode.getComment(), markdownEditingEnabled);
         } catch (error) {
             console.error(error);
             return;
@@ -5520,7 +5432,7 @@ export class Eagle {
 
         let edgeComment: string;
         try {
-            edgeComment = await Utils.requestUserMarkdown("Edge Comment", edge?.getComment(), markdownEditingEnabled);
+            edgeComment = await Utils.requestUserMarkdown("Edge Comment", edge.getComment(), markdownEditingEnabled);
         } catch (error) {
             console.error(error);
             return;
@@ -5531,7 +5443,7 @@ export class Eagle {
 
     editTextVisualContent = async (visual ?: Visual): Promise<void> => {
         const markdownEditingEnabled: boolean = Setting.findValue<boolean>(Setting.MARKDOWN_EDITING_ENABLED, false);
-        const thisVisual : Visual = visual || this.selectedVisual();
+        const thisVisual = visual ?? this.selectedVisual();
 
         // abort if no node is selected
         if (thisVisual === null) {
@@ -5541,7 +5453,7 @@ export class Eagle {
 
         let visualContent: string;
         try {
-            visualContent = await Utils.requestUserMarkdown("Text Visual - Content", thisVisual?.getContent(), markdownEditingEnabled);
+            visualContent = await Utils.requestUserMarkdown("Text Visual - Content", thisVisual.getContent(), markdownEditingEnabled);
         } catch (error) {
             console.error(error);
             return;
@@ -6070,10 +5982,6 @@ $( document ).ready(function() {
     $(document).on('click', '.hierarchyEdgeExtra', function(event: JQuery.TriggeredEvent){
         const e: MouseEvent = event.originalEvent as MouseEvent;
         const target = e.target as HTMLElement;
-        if (target === null){
-            console.error("No event target for hierarchyEdgeExtra click");
-            return;
-        }
         const selectedEdgeId: EdgeId = $(target).attr("id") as EdgeId;
 
         const eagle: Eagle = Eagle.getInstance();

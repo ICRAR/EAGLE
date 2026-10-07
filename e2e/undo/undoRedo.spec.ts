@@ -9,7 +9,7 @@ test('Undo', async ({ page }) => {
 
     // check that number of nodes is 0
     const nodeCount = await TestHelpers.getNodeCount(page);
-    await expect(nodeCount).toBe(0);
+    expect(nodeCount).toBe(0);
 
     // expand the 'Builtin Components' palette
     await TestHelpers.expandPalette(page, 0);
@@ -25,7 +25,7 @@ test('Undo', async ({ page }) => {
 
     // check that number of nodes is 1
     const nodeCount2 = await TestHelpers.getNodeCount(page);
-    await expect(nodeCount2).toBe(1);
+    expect(nodeCount2).toBe(1);
 
     // scroll the file node into view in the palette
     await page.locator('#palette_0_File').scrollIntoViewIfNeeded()
@@ -33,42 +33,42 @@ test('Undo', async ({ page }) => {
 
     // check that number of nodes is 2
     const nodeCount3 = await TestHelpers.getNodeCount(page);
-    await expect(nodeCount3).toBe(2);
+    expect(nodeCount3).toBe(2);
 
     // undo the last action (adding the file node)
     await TestHelpers.undo(page);
 
     // check that number of nodes is 1
     const nodeCount4 = await TestHelpers.getNodeCount(page);
-    await expect(nodeCount4).toBe(1);
+    expect(nodeCount4).toBe(1);
 
     // redo the last action (adding the file node)
     await TestHelpers.redo(page);
 
     // check that number of nodes is 2
     const nodeCount5 = await TestHelpers.getNodeCount(page);
-    await expect(nodeCount5).toBe(2);
+    expect(nodeCount5).toBe(2);
 
     // undo the last action (adding the file node)
     await TestHelpers.undo(page);
 
     // check that number of nodes is 1
     const nodeCount6 = await TestHelpers.getNodeCount(page);
-    await expect(nodeCount6).toBe(1);
+    expect(nodeCount6).toBe(1);
 
     // undo the last action (adding the hello world node)
     await TestHelpers.undo(page);
 
     // check that number of nodes is 0
     const nodeCount7 = await TestHelpers.getNodeCount(page);
-    await expect(nodeCount7).toBe(0);
+    expect(nodeCount7).toBe(0);
 
     // redo the last action (adding the hello world node)
     await TestHelpers.redo(page);
 
     // check that number of nodes is 1
     const nodeCount8 = await TestHelpers.getNodeCount(page);
-    await expect(nodeCount8).toBe(1);
+    expect(nodeCount8).toBe(1);
 
     // close the browser
     await page.close();
@@ -81,7 +81,7 @@ test('Undo recomputes navbar graph issues state', async ({ page }) => {
         await TestHelpers.createNewGraph(page);
         await TestHelpers.setShortDescription(page, 'Undo regression graph');
         await TestHelpers.setDetailedDescription(page, 'Graph used to verify navbar issue recomputation after undo.');
-        await expect.poll(async () => await TestHelpers.getNumWarningsErrors(page)).toBe(0);
+        await expect.poll(() => TestHelpers.getNumWarningsErrors(page)).toBe(0);
         await expect(page.locator('#checkEagleDone')).toBeVisible();
     });
 
@@ -94,7 +94,7 @@ test('Undo recomputes navbar graph issues state', async ({ page }) => {
     });
 
     await test.step('Verify the issue state is restored', async () => {
-        await expect.poll(async () => await TestHelpers.getNumWarningsErrors(page)).toBe(0);
+        await expect.poll(() => TestHelpers.getNumWarningsErrors(page)).toBe(0);
         await expect(page.locator('#checkEagleDone')).toBeVisible();
         await expect(page.locator('#checkEagleWarnings')).toBeHidden();
     });

@@ -36,7 +36,7 @@ test('Undo after fixAll does not reintroduce fixed errors', async ({ page }) => 
         await page.locator('div[data-notify="container"]').waitFor({ state: 'detached' });
         // the fixture is expected to contain fixable issues, so the count must strictly decrease.
         // A strict check catches a broken fix-all that does nothing (which <= would pass).
-        await expect.poll(async () => await TestHelpers.getNumWarningsErrors(page)).toBeLessThan(initialCount);
+        await expect.poll(() => TestHelpers.getNumWarningsErrors(page)).toBeLessThan(initialCount);
         postFixCount = await TestHelpers.getNumWarningsErrors(page);
         console.log('Post-fix warnings+errors:', postFixCount);
     });
@@ -53,18 +53,18 @@ test('Undo after fixAll does not reintroduce fixed errors', async ({ page }) => 
             await page.evaluate(async (id: string) => {
                 const eagle = (window as any).eagle;
                 const node = eagle.logicalGraph().getNodeById(id);
-                if (node) {
+                if (node != null) {
                     eagle.setSelection(node, (window as any).EagleFileType.Graph);
                     await eagle.deleteSelection(false, true, false);
                 }
             }, nodeId);
         }
-        await expect.poll(async () => await TestHelpers.getNodeCount(page)).toBe(nodeCount - 2);
+        await expect.poll(() => TestHelpers.getNodeCount(page)).toBe(nodeCount - 2);
     });
 
     await test.step('Undo one deletion and verify fixed issues remain fixed', async () => {
         await TestHelpers.undo(page);
-        await expect.poll(async () => await TestHelpers.getNodeCount(page)).toBe(nodeCount - 1);
+        await expect.poll(() => TestHelpers.getNodeCount(page)).toBe(nodeCount - 1);
         const countAfterUndo = await TestHelpers.getNumWarningsErrors(page);
         console.log('Warnings+errors after undo:', countAfterUndo);
         expect(countAfterUndo).toBe(postFixCount);

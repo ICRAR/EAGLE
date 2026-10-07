@@ -34,7 +34,7 @@ test('Creating a Simple Graph', async ({ page }) => {
 
   await test.step('Delete a node and verify the graph state', async () => {
     const numNodesPreDelete = await TestHelpers.getNodeCount(page);
-    await expect(numNodesPreDelete).toBe(2);
+    expect(numNodesPreDelete).toBe(2);
     await page.locator('#palette_0_File').scrollIntoViewIfNeeded();
     await page.locator('#addPaletteNodeFile').click();
     await page.waitForTimeout(500);
@@ -43,7 +43,7 @@ test('Creating a Simple Graph', async ({ page }) => {
     await page.locator('#confirmModalAffirmativeAnswer').click();
     await page.waitForTimeout(500);
     const numNodesPostDelete = await TestHelpers.getNodeCount(page);
-    await expect(numNodesPostDelete).toBe(2);
+    expect(numNodesPostDelete).toBe(2);
   });
 
   await page.close();

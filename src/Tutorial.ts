@@ -141,7 +141,7 @@ export class TutorialSystem {
 
     static initiateSimpleFindGraphNodeIdByNodeName(name:string) : string {
         const nodeId = Eagle.getInstance().logicalGraph().findNodeIdByName(name)
-        return nodeId === null ? "<name not found" : nodeId;
+        return nodeId ?? "<name not found";
     }
 
     static isRequestedNodeSelected(name:string) : boolean {
@@ -229,7 +229,7 @@ export class Tutorial {
 
         if (direction === TutorialStepDirection.Next) {
             preFunction = tutStep.getPreFunc()
-        } else if (direction === TutorialStepDirection.Prev) {
+        } else {
             preFunction = tutStep.getBackPreFunc()
         }
 
@@ -241,7 +241,7 @@ export class Tutorial {
             this.initiateStep(TutorialSystem.activeTutCurrentStep, null)
         } else if (tutStep.getWaitType() === TutorialStepWait.Delay) {
             //if a delay amount is not specified we will default to 4ms
-            const delay: number = TutorialSystem.activeTutCurrentStep.getDelayAmount() || 400;
+            const delay: number = TutorialSystem.activeTutCurrentStep.getDelayAmount() ?? 400;
 
             setTimeout(() => {
                 this.initiateStep(TutorialSystem.activeTutCurrentStep, null)
@@ -468,10 +468,6 @@ export class Tutorial {
         // check that values are valid
         if (coords === undefined) {
             console.warn('Tutorial.highlightStepTarget(): target element has no offset');
-            return;
-        }
-        if (docWidth === undefined) {
-            console.warn('Tutorial.highlightStepTarget(): document has no width');
             return;
         }
         if (targetOuterWidth === undefined) {
@@ -722,7 +718,7 @@ export class Tutorial {
             return;
         }
 
-        if(tutStep.getExpectedInput() === ''||tutStep.getExpectedInput() === null){
+        if(tutStep.getExpectedInput() === ''){
             if(event.key === "Enter"){
                 event.preventDefault()
                 event.stopImmediatePropagation()
