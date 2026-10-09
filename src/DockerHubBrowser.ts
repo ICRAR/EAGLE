@@ -115,7 +115,7 @@ export class DockerHubBrowser {
         // build list of image strings
         this.images([]);
         for (let i = 0; i < data.results.length ; i++){
-            const result = data.results[i];
+            const result = data.results[i] as {namespace: string, name: string};
             const imageName = result.namespace + "/" + result.name;
             this.images.push(imageName);
 
@@ -170,7 +170,7 @@ export class DockerHubBrowser {
         this.tags([]);
         this.digests([]);
         for (let i = 0 ; i < data.results.length ; i++){
-            const result = data.results[i];
+            const result = data.results[i] as {name: string, images: {digest: string}[]};
             this.tags.push(result.name);
             this.digests.push(result.images[0].digest);
 

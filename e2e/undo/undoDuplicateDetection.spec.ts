@@ -18,7 +18,7 @@ test('Undo duplicate snapshot detection', async ({ page }) => {
 
     await test.step('Reject a duplicate snapshot', async () => {
         await page.evaluate(() => {
-            const eagle = (window as any).eagle;
+            const eagle = (window as any).eagle as { undo: () => { pushSnapshot: (e: unknown, name: string) => void } };
             eagle.undo().pushSnapshot(eagle, 'duplicate push attempt');
         });
         const frontAfterDuplicatePush = await page.evaluate<number>(() => (window as any).eagle.undo().front() as number);

@@ -88,7 +88,7 @@ export class Node {
 
         this.parent = ko.observable(null);
         this.embed = ko.observable(null);
-        this.children = ko.observable(new Map());
+        this.children = ko.observable(new Map<NodeId, Node>());
 
         this.inputApplication = ko.observable(null);
         this.outputApplication = ko.observable(null);
@@ -1436,10 +1436,10 @@ export class Node {
 
         let name = "";
         if (typeof nodeData.name !== 'undefined'){
-            name = nodeData.name;
+            name = nodeData.name as string;
         } else {
             if (typeof nodeData.text !== 'undefined'){
-                name = nodeData.text;
+                name = nodeData.text as string;
             } else {
                 errorsWarnings.errors.push(Errors.Message("Node " + nodeData.key + " has undefined text and name " + nodeData + "!"));
             }
@@ -1452,14 +1452,14 @@ export class Node {
             y = parseInt(nodeData.loc.substring(nodeData.loc.indexOf(' ')), 10);
         }
         if (typeof nodeData.x !== 'undefined'){
-            x = nodeData.x;
+            x = nodeData.x as number;
         }
         if (typeof nodeData.y !== 'undefined'){
-            y = nodeData.y;
+            y = nodeData.y as number;
         }
 
         // translate categories if required
-        const category: CategoryName = nodeData.category;
+        const category: CategoryName = nodeData.category as CategoryName;
 
         // if category is not known, then add error
         if (!Utils.isKnownCategory(category)){
@@ -1503,34 +1503,34 @@ export class Node {
         let outputApplicationComment: string = "";
 
         if (typeof nodeData.inputAppName !== 'undefined'){
-            inputApplicationName = nodeData.inputAppName;
+            inputApplicationName = nodeData.inputAppName as string;
         }
         if (typeof nodeData.inputApplicationName !== 'undefined'){
-            inputApplicationName = nodeData.inputApplicationName;
+            inputApplicationName = nodeData.inputApplicationName as string;
         }
         if (typeof nodeData.inputApplicationType !== 'undefined'){
-            inputApplicationType = nodeData.inputApplicationType;
+            inputApplicationType = nodeData.inputApplicationType as CategoryName;
         }
         if (typeof nodeData.inputApplicationDescription !== 'undefined'){
-            inputApplicationDescription = nodeData.inputApplicationDescription;
+            inputApplicationDescription = nodeData.inputApplicationDescription as string;
         }
         if (typeof nodeData.inputApplicationComment !== 'undefined'){
-            inputApplicationComment = nodeData.inputApplicationComment;
+            inputApplicationComment = nodeData.inputApplicationComment as string;
         }
         if (typeof nodeData.outputAppName !== 'undefined'){
-            outputApplicationName = nodeData.outputAppName;
+            outputApplicationName = nodeData.outputAppName as string;
         }
         if (typeof nodeData.outputApplicationName !== 'undefined'){
-            outputApplicationName = nodeData.outputApplicationName;
+            outputApplicationName = nodeData.outputApplicationName as string;
         }
         if (typeof nodeData.outputApplicationType !== 'undefined'){
-            outputApplicationType = nodeData.outputApplicationType;
+            outputApplicationType = nodeData.outputApplicationType as CategoryName;
         }
         if (typeof nodeData.outputApplicationDescription !== 'undefined'){
-            outputApplicationDescription = nodeData.outputApplicationDescription;
+            outputApplicationDescription = nodeData.outputApplicationDescription as string;
         }
         if (typeof nodeData.outputApplicationComment !== 'undefined'){
-            outputApplicationComment = nodeData.outputApplicationComment;
+            outputApplicationComment = nodeData.outputApplicationComment as string;
         }
 
         // these next six if statements are covering old versions of nodes, that

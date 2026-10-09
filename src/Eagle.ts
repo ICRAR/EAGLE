@@ -1033,9 +1033,9 @@ export class Eagle {
                     return;
                 }
 
-                let dataObject: any;
+                let dataObject: JsonObject;
                 try {
-                    dataObject = JSON.parse(data);
+                    dataObject = JSON.parse(data) as JsonObject;
                 } catch (err) {
                     Utils.showUserMessage("Error parsing file JSON", Errors.UnknownToError(err));
                     return;
@@ -1167,11 +1167,11 @@ export class Eagle {
     }
 
     private _loadGraphJSON = async (data: string, fileFullPath: string, loadFunc: (lg: LogicalGraph, errorsWarnings: ErrorsWarnings) => void | Promise<void>) : Promise<boolean> => {
-        let dataObject;
+        let dataObject: JsonObject;
 
         // attempt to parse the JSON
         try {
-            dataObject = JSON.parse(data);
+            dataObject = JSON.parse(data) as JsonObject;
         } catch(err){
             Utils.showUserMessage("Error parsing file JSON", Errors.UnknownToError(err));
             return false;
@@ -1329,8 +1329,8 @@ export class Eagle {
     // NOTE: parentNode would be null if we are duplicating a selection of objects
     insertGraph = async (nodes: Node[], edges: Edge[], parentNode: Node | null, errorsWarnings: ErrorsWarnings) => {
         // create map of inserted graph keys to final graph nodes, and of inserted port ids to final graph ports
-        const nodeMap: Map<NodeId, Node> = new Map();
-        const portMap: Map<FieldId, Field> = new Map();
+        const nodeMap: Map<NodeId, Node> = new Map<NodeId, Node>();
+        const portMap: Map<FieldId, Field> = new Map<FieldId, Field>();
         let parentNodePosition;
 
         // add the parent node to the logical graph
@@ -1571,11 +1571,11 @@ export class Eagle {
     }
 
     private _loadPaletteJSON = (data: string, fileFullPath: string) => {
-        let dataObject;
+        let dataObject: JsonObject;
 
         // attempt to parse the JSON
         try {
-            dataObject = JSON.parse(data);
+            dataObject = JSON.parse(data) as JsonObject;
         } catch(err){
             Utils.showUserMessage("Error parsing file JSON", Errors.UnknownToError(err));
             return;
@@ -1642,9 +1642,9 @@ export class Eagle {
                 return;
             }
 
-            let dataObject;
+            let dataObject: JsonObject;
             try {
-                dataObject = JSON.parse(data);
+                dataObject = JSON.parse(data) as JsonObject;
             } catch(err){
                 Utils.showUserMessage("Error parsing file JSON", Errors.UnknownToError(err));
                 return;
@@ -1799,7 +1799,7 @@ export class Eagle {
         }
 
         // parse JSON
-        const dataObject = JSON.parse(userCode);
+        const dataObject = JSON.parse(userCode) as JsonObject;
 
         // read as LogicalGraph
         const errorsWarnings: ErrorsWarnings = {errors: [], warnings: []};
@@ -2819,7 +2819,7 @@ export class Eagle {
         if (fileExtension !== "md"){
             // attempt to parse the JSON
             try {
-                const parsed = JSON.parse(data);
+                const parsed: unknown = JSON.parse(data);
 
                 if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)){
                     Utils.showUserMessage("Error parsing file JSON", "Top-level JSON must be an object");
@@ -3098,9 +3098,9 @@ export class Eagle {
         }
 
         // attempt to parse the JSON
-        let dataObject;
+        let dataObject: JsonObject;
         try {
-            dataObject = JSON.parse(data);
+            dataObject = JSON.parse(data) as JsonObject;
         } catch(err){
             Utils.showUserMessage("Error parsing file JSON", Errors.UnknownToError(err));
             return;
@@ -3574,9 +3574,9 @@ export class Eagle {
         const jsonString: string = LogicalGraph.toJsonString(lg, true, version);
 
         // parse output JSON
-        let jsonObject;
+        let jsonObject: JsonObject;
         try {
-            jsonObject = JSON.parse(jsonString);
+            jsonObject = JSON.parse(jsonString) as JsonObject;
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
             Utils.showNotification("Error", "Could not parse JSON Output before validation: " + errorMessage, "danger");
@@ -3600,7 +3600,8 @@ export class Eagle {
             return;
         }
 
-        const mediaDevices = navigator.mediaDevices as any; //workaround to prevent a Typescript issue with giving getDisplayMedia function an option
+        //workaround to prevent a Typescript issue with giving getDisplayMedia function an option
+        const mediaDevices = navigator.mediaDevices as MediaDevices & { getDisplayMedia(options: object): Promise<MediaStream> };
         const stream:MediaStream = await mediaDevices.getDisplayMedia({preferCurrentTab: true,selfBrowserSurface: 'include'});
 
         //prepare the graph for a screenshot
@@ -4007,10 +4008,10 @@ export class Eagle {
             return;
         }
 
-        let clipboard = null;
+        let clipboard: { nodes: unknown[]; edges: unknown[] };
 
         try {
-            clipboard = JSON.parse(await navigator.clipboard.readText());
+            clipboard = JSON.parse(await navigator.clipboard.readText()) as { nodes: unknown[]; edges: unknown[] };
         } catch(e) {
             const errorName = e instanceof Error ? e.name : "Unknown";
             const errorMessage = e instanceof Error ? e.message : String(e);
@@ -5803,7 +5804,7 @@ export class Eagle {
     }
 
     slowScroll = (_data:any, event: JQuery.TriggeredEvent) : void => {
-        const target = event.currentTarget;//gets the element that has the event binding
+        const target = event.currentTarget as EventTarget;//gets the element that has the event binding
         const scrollTop = $(target).scrollTop();
 
         if (scrollTop === undefined) {
@@ -5821,7 +5822,7 @@ $( document ).ready(function() {
     // jquery event listeners start here
 
     $('body').on('mouseout','.dropdown-area',function(event){
-        const targetElement = event.currentTarget
+        const targetElement = event.currentTarget as EventTarget;
         //we are using a timeout stored in a global variable so we have only one timeout that resets when another mouseout is called.
         //if we don't do this we end up with several timeouts conflicting.
         clearTimeout(Eagle.getInstance().dropdownMenuHoverTimeout)

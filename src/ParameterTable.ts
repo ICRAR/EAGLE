@@ -20,6 +20,23 @@ export enum ParameterTableSelectType {
     RightClick = "RightClick",
 }
 
+type StoredColumnVisibility = {
+    name: string;
+    keyAttribute?: boolean | null;
+    displayText?: boolean | null;
+    fieldId?: boolean | null;
+    value?: boolean | null;
+    readOnly?: boolean | null;
+    defaultValue?: boolean | null;
+    description?: boolean | null;
+    type?: boolean | null;
+    parameterType?: boolean | null;
+    usage?: boolean | null;
+    encoding?: boolean | null;
+    flags?: boolean | null;
+    actions?: boolean | null;
+};
+
 export class ParameterTable {
     static selectionParent : ko.Observable<Field | null>; // row in the parameter table that is currently selected
     static selectionParentIndex : ko.Observable<number> // id of the selected field
@@ -625,7 +642,7 @@ export class ParameterTable {
             tableWidth = parseInt(window.getComputedStyle($('.paramsTableWrapper')[0]).width,10)
 
             // Get the current mouse position
-            x = e.clientX;
+            x = e.clientX as number;
 
             // Calculate the current width of column
             const styles = window.getComputedStyle(upcol);
@@ -1110,7 +1127,7 @@ export class ColumnVisibilities {
             return;
         }
 
-        const columnVisibilitiesObjArray : any[] = JSON.parse(columnVisibilities)
+        const columnVisibilitiesObjArray = JSON.parse(columnVisibilities) as StoredColumnVisibility[];
         const that = ParameterTable.getActiveColumnVisibility()
         columnVisibilitiesObjArray.forEach(function(columnVisibility){
 

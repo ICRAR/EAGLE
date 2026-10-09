@@ -32,6 +32,7 @@ import { Errors, type ErrorsWarnings } from './Errors';
 import { FileInfo } from './FileInfo';
 import { FileLocation } from "./FileLocation";
 import { Node } from './Node';
+import type { JsonObject } from './JsonLoadTypes';
 import type { RepositoryFile } from './RepositoryFile';
 import { SchemaVersion, Setting } from "./Setting";
 import { Utils } from './Utils';
@@ -60,7 +61,7 @@ export class Palette {
 
     static fromOJSJson(data: string, file: RepositoryFile, errorsWarnings: ErrorsWarnings) : Palette {
         // parse the JSON first
-        const dataObject : any = JSON.parse(data);
+        const dataObject = JSON.parse(data) as { modelData: JsonObject; nodeDataArray: JsonObject[] };
         const result : Palette = new Palette();
 
         // copy modelData into fileInfo
@@ -115,7 +116,7 @@ export class Palette {
 
     static fromV4Json(data: string, file: RepositoryFile, errorsWarnings: ErrorsWarnings): Palette {
         // parse the JSON first
-        const dataObject : any = JSON.parse(data);
+        const dataObject = JSON.parse(data) as { modelData: JsonObject; nodes: Record<string, JsonObject> };
         const result : Palette = new Palette();
 
         // copy modelData into fileInfo
@@ -201,7 +202,7 @@ export class Palette {
         result.nodes = {};
         for (const [id, node] of palette.nodes()){
             const nodeData : any = Node.toV4GraphJson(node);
-            result.nodes[id] = nodeData;
+            result.nodes[id] = nodeData as object;
 
             const inputApplication = node.getInputApplication();
             const outputApplication = node.getOutputApplication();

@@ -3,6 +3,7 @@ import https from 'https';
 import type http from 'http';
 import path from 'path';
 import { test, expect, type Page } from '@playwright/test';
+import type * as CodeMirrorTypes from 'codemirror';
 
 export class TestHelpers {
     //How many times we will attempt to run a tutorial step before failing the test.
@@ -78,17 +79,17 @@ export class TestHelpers {
             // Snapshot all step fields together (including testStepFunction) because the active tutorial step can
             // advance while Playwright awaits; this keeps one coherent current-step view, not mixed next-step data.
             const stepInfo = await page.evaluate(() => {
-                const tutSystem = (window as any).TutorialSystem;
+                const tutSystem = (window as any).TutorialSystem as { activeTut: unknown; activeTutCurrentStep?: { getTitle?: () => string; getType?: () => string; getExpectedInput?: () => string; getTestStepFunction?: () => (() => boolean) | null } | null; activeTutCurrentStepIndex?: number; activeTutNumSteps?: number } | undefined;
                 const currentStep = tutSystem?.activeTutCurrentStep;
 
                 return {
-                    hasActiveTutorial: tutSystem?.activeTut !== null,
-                    title: currentStep?.getTitle?.() ?? '',
-                    stepType: currentStep?.getType?.(),
-                    expectedInput: currentStep?.getExpectedInput?.() ?? '',
-                    testStepFunction: currentStep?.getTestStepFunction?.() ?? null,
-                    index: tutSystem?.activeTutCurrentStepIndex ?? -1,
-                    total: tutSystem?.activeTutNumSteps ?? -1,
+                    hasActiveTutorial: (tutSystem?.activeTut !== null) as boolean,
+                    title: (currentStep?.getTitle?.() ?? '') as string,
+                    stepType: currentStep?.getType?.() as string | null | undefined,
+                    expectedInput: (currentStep?.getExpectedInput?.() ?? '') as string,
+                    testStepFunction: (currentStep?.getTestStepFunction?.() ?? null) as (() => boolean) | null,
+                    index: (tutSystem?.activeTutCurrentStepIndex ?? -1) as number,
+                    total: (tutSystem?.activeTutNumSteps ?? -1) as number,
                 };
             });
 
@@ -336,7 +337,7 @@ export class TestHelpers {
     private static async clickTutorialPressTarget(page: Page): Promise<boolean> {
         const clickPosition = await page.evaluate(() => {
             // Get the tutorial target element from the active step.
-            const tutorialTarget = (window as any).TutorialSystem?.activeTutCurrentStep?.getTargetFunc?.();
+            const tutorialTarget = (window as any).TutorialSystem?.activeTutCurrentStep?.getTargetFunc?.() as { length: number; first: () => { get: (n: number) => Element | undefined } } | null | undefined;
             if (tutorialTarget == null || tutorialTarget.length === 0) {
                 return null;
             }
@@ -401,16 +402,16 @@ export class TestHelpers {
 
     private static async submitTutorialInputToTarget(page: Page, value: string): Promise<boolean> {
         return page.evaluate((inputValue: string) => {
-            const w = window as any;
-            const tutStep = w.TutorialSystem?.activeTutCurrentStep;
+            const w = window as { TutorialSystem?: { activeTutCurrentStep?: { getTargetFunc?: () => unknown } } };
+            const tutStep = w.TutorialSystem?.activeTutCurrentStep as { getTargetFunc?: () => { length: number; first: () => { length?: number; get: (n: number) => HTMLElement | undefined } } | null } | undefined;
             const targetFunc = tutStep?.getTargetFunc?.();
 
-            if (targetFunc == null || targetFunc.length === 0) {
+            if (targetFunc.length === 0) {
                 return false;
             }
 
-            const target = targetFunc.first();
-            if (target == null || target.length === 0) {
+            const target = targetFunc.first() as { length: number; get: (n: number) => HTMLElement | undefined };
+            if (target.length === 0) {
                 return false;
             }
 
@@ -446,16 +447,16 @@ export class TestHelpers {
     private static async selectNodeByName(page: Page, nodeName: string): Promise<void> {
         const isRequestedNodeSelected = async (): Promise<boolean> => {
             return page.evaluate((name: string) => {
-                const selectedNode = (window as any).eagle?.selectedNode?.();
-                return selectedNode !== null && selectedNode?.getName?.() === name;
+                const selectedNode = (window as any).eagle?.selectedNode?.() as { getName?: () => string } | null;
+                return selectedNode !== null && selectedNode.getName?.() === name;
             }, nodeName);
         };
 
         const waitForRequestedSelection = async (): Promise<boolean> => {
             try {
                 await page.waitForFunction((name: string) => {
-                    const selectedNode = (window as any).eagle?.selectedNode?.();
-                    return selectedNode !== null && selectedNode?.getName?.() === name;
+                    const selectedNode = (window as any).eagle?.selectedNode?.() as { getName?: () => string } | null;
+                    return selectedNode !== null && selectedNode.getName?.() === name;
                 }, nodeName, { timeout: TestHelpers.SHORT_TIMEOUT });
                 return true;
             } catch {
@@ -469,7 +470,7 @@ export class TestHelpers {
 
         // Primary path: use Eagle graph data to resolve node id, then click the rendered node element via Playwright.
         const nodeInfo = await page.evaluate((name: string) => {
-            const eagle = (window as any).eagle;
+            const eagle = (window as any).eagle as { logicalGraph?: () => { findNodeByName?: (name: string) => { getId?: () => string; getName?: () => string; getPosition?: () => { x: number; y: number } } | null }; selectedNode?: () => { getName?: () => string } | null } | undefined;
             const graph = eagle?.logicalGraph?.();
             const node = graph?.findNodeByName?.(name);
 
@@ -477,12 +478,12 @@ export class TestHelpers {
                 return null;
             }
 
-            const nodeId = node.getId?.();
-            const graphPosition = node?.getPosition?.();
-            const graphToScreen = (window as any).GraphRenderer;
+            const nodeId = node.getId?.() as string | undefined;
+            const graphPosition = (node.getPosition?.() ?? undefined) as { x: number; y: number } | undefined;
+            const graphToScreen = (window as any).GraphRenderer as { GRAPH_TO_SCREEN_POSITION_X?: (x: number) => number; GRAPH_TO_SCREEN_POSITION_Y?: (y: number) => number } | undefined;
 
             let clickPos: { x: number; y: number } | null = null;
-            if (graphPosition != null && typeof graphToScreen?.GRAPH_TO_SCREEN_POSITION_X === 'function' && typeof graphToScreen?.GRAPH_TO_SCREEN_POSITION_Y === 'function') {
+            if (graphPosition != null && typeof graphToScreen?.GRAPH_TO_SCREEN_POSITION_X === 'function' && typeof graphToScreen.GRAPH_TO_SCREEN_POSITION_Y === 'function') {
                 clickPos = {
                     x: graphToScreen.GRAPH_TO_SCREEN_POSITION_X(graphPosition.x),
                     y: graphToScreen.GRAPH_TO_SCREEN_POSITION_Y(graphPosition.y),
@@ -524,15 +525,15 @@ export class TestHelpers {
 
         if ((await isRequestedNodeSelected()) !== true) {
             const debugInfo = await page.evaluate((name: string) => {
-                const eagle = (window as any).eagle;
-                const selected = eagle?.selectedNode?.();
-                const graphNodes = eagle?.logicalGraph?.()?.getNodes?.();
+                const eagle = (window as any).eagle as { logicalGraph?: () => { getNodes?: () => Map<string, { getName: () => string }> | undefined; } | undefined; selectedNode?: () => { getName?: () => string } | null } | undefined;
+                const selected = eagle?.selectedNode?.() as { getName?: () => string } | null;
+                const graphNodes = eagle?.logicalGraph?.()?.getNodes?.() as Map<string, { getName: () => string }> | undefined;
                 const nodeNames = graphNodes != null
                     ? Array.from(graphNodes).map((node: any): string => node.getName() as string)
                     : [];
 
-                const tutorialTarget = (window as any).TutorialSystem?.activeTutCurrentStep?.getTargetFunc?.();
-                const targetId = tutorialTarget != null && tutorialTarget.length > 0 ? tutorialTarget.get(0).id : null;
+                const tutorialTarget = (window as any).TutorialSystem?.activeTutCurrentStep?.getTargetFunc?.() as { length: number; get?: (n: number) => { id?: string } } | null | undefined;
+                const targetId = (tutorialTarget != null && tutorialTarget.length > 0 ? (tutorialTarget.get?.(0).id ?? null) : null) as string | null;
 
                 const diagnostics = targetId != null ? {
                     nodeBodyMatches: document.querySelectorAll(`#logicalGraph .node[id="${targetId}"] .body`).length,
@@ -665,25 +666,25 @@ export class TestHelpers {
     }
 
     static setMarkdownModalContent(content: string): void {
-        const editor = ($('#inputMarkdownModal') as JQuery<HTMLElement>).data('editor');
+        const editor = ($('#inputMarkdownModal') as JQuery<HTMLElement>).data('editor') as CodeMirrorTypes.Editor;
         editor.setValue(content);
     }
 
     static getMarkdownModalContent(): string {
-        const editor = ($('#inputMarkdownModal') as JQuery<HTMLElement>).data('editor');
-        return editor.getValue() as string;
+        const editor = ($('#inputMarkdownModal') as JQuery<HTMLElement>).data('editor') as CodeMirrorTypes.Editor;
+        return editor.getValue();
     }
 
     // Set the content of the editor in the modal
     static setCodeModalContent(content: string): void {
-        const editor = ($('#inputCodeModal') as JQuery<HTMLElement>).data('editor');
+        const editor = ($('#inputCodeModal') as JQuery<HTMLElement>).data('editor') as CodeMirrorTypes.Editor;
         editor.setValue(content);
     }
 
     // Get the content of the editor in the modal
     static getCodeModalContent(): string {
-        const editor = ($('#inputCodeModal') as JQuery<HTMLElement>).data('editor');
-        return editor.getValue() as string;
+        const editor = ($('#inputCodeModal') as JQuery<HTMLElement>).data('editor') as CodeMirrorTypes.Editor;
+        return editor.getValue();
     }
 
     // Read a graph file from disk
@@ -839,7 +840,7 @@ export class TestHelpers {
             }
         } else {
             if (Object.hasOwn(obj1, i) === false || (obj2[i] as unknown) !== (obj1[i] as unknown)) {
-            ret[i] = obj2[i];
+            ret[i] = obj2[i] as unknown;
             }
         }
         }
@@ -938,7 +939,7 @@ export class TestHelpers {
 
         if (await inputModal.isVisible()) {
             await page.evaluate(() => {
-                const $ = (window as any).$;
+                const $ = (window as any).$ as (sel: string) => { data: (k: string, v: unknown) => void; modal: (m: string) => void };
                 const modal = $('#inputModal');
                 modal.data('completed', false);
                 modal.modal('hide');
@@ -951,7 +952,7 @@ export class TestHelpers {
 
             if (await inputModal.isVisible().catch(() => false)) {
                 await page.evaluate(() => {
-                    const $ = (window as any).$;
+                    const $ = (window as any).$ as (sel: string) => { data: (k: string, v: unknown) => void; modal: (m: string) => void };
                     const modal = $('#inputModal');
                     modal.data('completed', false);
                     modal.modal('hide');

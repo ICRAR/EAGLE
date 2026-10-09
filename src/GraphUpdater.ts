@@ -28,6 +28,7 @@ import type { ErrorsWarnings } from './Errors';
 import { GitHub } from './GitHub';
 import { GitLab } from './GitLab';
 import { Id } from './Id';
+import type { JsonObject } from './JsonLoadTypes';
 import { LogicalGraph } from './LogicalGraph';
 import { Repositories } from './Repositories';
 import { type Repository, RepositoryService } from './Repository';
@@ -369,7 +370,7 @@ export class GraphUpdater {
             }
 
             // determine if graph is OJS or V4
-            const graphObject = JSON.parse(fileData);
+            const graphObject = JSON.parse(fileData) as JsonObject;
             const schemaVersion: SchemaVersion = Utils.determineSchemaVersion(graphObject);
 
             // check if we need to update the graph from keys to ids

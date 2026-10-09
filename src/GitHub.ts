@@ -134,7 +134,7 @@ export class GitHub {
             location.files.removeAll();
             location.folders.removeAll();
 
-            const fileNames : string[] = data.files[""];
+            const fileNames : string[] = data.files[""] as string[];
 
             // sort the fileNames
             fileNames.sort(Repository.fileSortFunc);
@@ -164,7 +164,7 @@ export class GitHub {
         const folderName : string = path.substring(path.lastIndexOf('/') + 1);
         const folder = new RepositoryFolder(folderName, repository, path);
 
-        const fileNames : string[] = data[""];
+        const fileNames : string[] = data[""] as string[];
 
         // sort the fileNames
         fileNames.sort(Repository.fileSortFunc);

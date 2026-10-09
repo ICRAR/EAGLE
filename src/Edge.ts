@@ -256,7 +256,7 @@ export class Edge {
         let comment = ''
         // get comment (if exists)
         if (typeof linkData.comment !== 'undefined'){
-            comment = linkData.comment;
+            comment = linkData.comment as string;
         }
 
         // try to read source and destination nodes and ports
@@ -268,22 +268,22 @@ export class Edge {
         if (typeof linkData.from === 'undefined'){
             errorsWarnings.errors.push(Errors.Message("Edge is missing a 'from' attribute"));
         } else {
-            srcNodeId = linkData.from;
+            srcNodeId = linkData.from as NodeId;
         }
         if (typeof linkData.fromPort === 'undefined'){
             errorsWarnings.errors.push(Errors.Message("Edge is missing a 'fromPort' attribute"));
         } else {
-            srcPortId = linkData.fromPort;
+            srcPortId = linkData.fromPort as FieldId;
         }
         if (typeof linkData.to === 'undefined'){
             errorsWarnings.errors.push(Errors.Message("Edge is missing a 'to' attribute"));
         } else {
-            destNodeId = linkData.to;
+            destNodeId = linkData.to as NodeId;
         }
         if (typeof linkData.toPort === 'undefined'){
             errorsWarnings.errors.push(Errors.Message("Edge is missing a 'toPort' attribute"));
         } else {
-            destPortId = linkData.toPort;
+            destPortId = linkData.toPort as FieldId;
         }
         
         if (srcNodeId === null || srcPortId === null || destNodeId === null || destPortId === null){
@@ -297,13 +297,13 @@ export class Edge {
             loopAware = linkData.loop_aware !== "0";
         }
         if (typeof linkData.loopAware !== 'undefined'){
-            loopAware = linkData.loopAware;
+            loopAware = linkData.loopAware as boolean;
         }
 
         // try to read the closesLoop attribute
         let closesLoop: boolean = false;
         if (typeof linkData.closesLoop !== 'undefined'){
-            closesLoop = linkData.closesLoop;
+            closesLoop = linkData.closesLoop as boolean;
         }
 
         let srcNode: Node | undefined;
