@@ -95,8 +95,7 @@ export const lgGraphV4Schema = {
                     "$ref": "#/$defs/scalarValue"
                 },
                 "comment": {
-                    "type": "string",
-                    "default": ""
+                    "type": "string"
                 }
             },
             "required": [],
@@ -106,8 +105,7 @@ export const lgGraphV4Schema = {
             "type": "object",
             "properties": {
                 "name": {
-                    "type": "string",
-                    "default": ""
+                    "type": "string"
                 },
                 "value": {
                     "$ref": "#/$defs/scalarValue"
@@ -116,30 +114,25 @@ export const lgGraphV4Schema = {
                     "$ref": "#/$defs/scalarValue"
                 },
                 "description": {
-                    "type": "string",
-                    "default": ""
+                    "type": "string"
                 },
                 "readonly": {
-                    "type": "boolean",
-                    "default": false
+                    "type": "boolean"
                 },
                 "type": {
                     "type": "string"
                 },
                 "precious": {
-                    "type": "boolean",
-                    "default": false
+                    "type": "boolean"
                 },
                 "options": {
                     "type": "array",
                     "items": {
                         "$ref": "#/$defs/scalarValue"
-                    },
-                    "default": []
+                    }
                 },
                 "positional": {
-                    "type": "boolean",
-                    "default": false
+                    "type": "boolean"
                 },
                 "encoding": {
                     "type": "string",
@@ -153,8 +146,7 @@ export const lgGraphV4Schema = {
                         "dataurl",
                         "binary",
                         "raw"
-                    ],
-                    "default": "dill"
+                    ]
                 },
                 "id": {
                     "$ref": "#/$defs/eagleId"
@@ -167,8 +159,7 @@ export const lgGraphV4Schema = {
                         "Constraint",
                         "Construct",
                         "Unknown"
-                    ],
-                    "default": "Component"
+                    ]
                 },
                 "usage": {
                     "type": "string",
@@ -177,8 +168,7 @@ export const lgGraphV4Schema = {
                         "InputPort",
                         "OutputPort",
                         "InputOutput"
-                    ],
-                    "default": "NoPort"
+                    ]
                 },
                 "changeable": {
                     "type": "boolean",
@@ -188,8 +178,7 @@ export const lgGraphV4Schema = {
                     "type": "array",
                     "items": {
                         "$ref": "#/$defs/eagleId"
-                    },
-                    "default": []
+                    }
                 }
             },
             "required": [],
@@ -199,20 +188,16 @@ export const lgGraphV4Schema = {
             "type": "object",
             "properties": {
                 "category": {
-                    "type": "string",
-                    "default": ""
+                    "type": "string"
                 },
                 "categoryType": {
-                    "type": "string",
-                    "default": ""
+                    "type": "string"
                 },
                 "commitHash": {
-                    "type": "string",
-                    "default": ""
+                    "type": "string"
                 },
                 "dataHash": {
-                    "type": "string",
-                    "default": ""
+                    "type": "string"
                 },
                 "embedId": {
                     "$ref": "#/$defs/eagleId"
@@ -221,32 +206,25 @@ export const lgGraphV4Schema = {
                     "$ref": "#/$defs/eagleId"
                 },
                 "name": {
-                    "type": "string",
-                    "default": ""
+                    "type": "string"
                 },
                 "description": {
-                    "type": "string",
-                    "default": ""
+                    "type": "string"
                 },
                 "x": {
-                    "type": "number",
-                    "default": 0
+                    "type": "number"
                 },
                 "y": {
-                    "type": "number",
-                    "default": 0
+                    "type": "number"
                 },
                 "comment": {
-                    "type": "string",
-                    "default": ""
+                    "type": "string"
                 },
                 "paletteDownloadUrl": {
-                    "type": "string",
-                    "default": ""
+                    "type": "string"
                 },
                 "repositoryUrl": {
-                    "type": "string",
-                    "default": ""
+                    "type": "string"
                 },
                 "fields": {
                     "type": "object",
@@ -255,8 +233,7 @@ export const lgGraphV4Schema = {
                             "$ref": "#/$defs/field"
                         }
                     },
-                    "additionalProperties": false,
-                    "default": {}
+                    "additionalProperties": false
                 },
                 "parentId": {
                     "$ref": "#/$defs/eagleId"
@@ -278,8 +255,7 @@ export const lgGraphV4Schema = {
                     "$ref": "#/$defs/eagleId"
                 },
                 "closesLoop": {
-                    "type": "boolean",
-                    "default": false
+                    "type": "boolean"
                 },
                 "srcNodeId": {
                     "$ref": "#/$defs/eagleId"
@@ -294,12 +270,10 @@ export const lgGraphV4Schema = {
                     "$ref": "#/$defs/eagleId"
                 },
                 "loopAware": {
-                    "type": "boolean",
-                    "default": false
+                    "type": "boolean"
                 },
                 "comment": {
-                    "type": "string",
-                    "default": ""
+                    "type": "string"
                 }
             },
             "required": [],
@@ -312,32 +286,25 @@ export const lgGraphV4Schema = {
                     "$ref": "#/$defs/eagleId"
                 },
                 "x": {
-                    "type": "number",
-                    "default": 0
+                    "type": "number"
                 },
                 "y": {
-                    "type": "number",
-                    "default": 0
+                    "type": "number"
                 },
                 "width": {
-                    "type": "number",
-                    "default": 0
+                    "type": "number"
                 },
                 "height": {
-                    "type": "number",
-                    "default": 0
+                    "type": "number"
                 },
                 "type": {
-                    "type": "string",
-                    "default": "Text"
+                    "type": "string"
                 },
                 "content": {
-                    "type": "string",
-                    "default": ""
+                    "type": "string"
                 },
                 "color": {
-                    "type": "string",
-                    "default": ""
+                    "type": "string"
                 },
                 "targetId": {
                     "$ref": "#/$defs/eagleId"
@@ -372,12 +339,10 @@ export const lgGraphV4Schema = {
             "type": "object",
             "properties": {
                 "readonly": {
-                    "type": "boolean",
-                    "default": false
+                    "type": "boolean"
                 },
                 "name": {
-                    "type": "string",
-                    "default": ""
+                    "type": "string"
                 },
                 "type": {
                     "type": "string",
@@ -388,52 +353,40 @@ export const lgGraphV4Schema = {
                         "JSON",
                         "Markdown",
                         "Unknown"
-                    ],
-                    "default": "Graph"
+                    ]
                 },
                 "generatorVersion": {
-                    "type": "string",
-                    "default": ""
+                    "type": "string"
                 },
                 "generatorCommitHash": {
-                    "type": "string",
-                    "default": ""
+                    "type": "string"
                 },
                 "generatorName": {
-                    "type": "string",
-                    "default": ""
+                    "type": "string"
                 },
                 "schemaVersion": {
-                    "type": "string",
-                    "default": ""
+                    "type": "string"
                 },
                 "lastModifiedName": {
-                    "type": "string",
-                    "default": ""
+                    "type": "string"
                 },
                 "lastModifiedEmail": {
-                    "type": "string",
-                    "default": ""
+                    "type": "string"
                 },
                 "lastModifiedDatetime": {
-                    "type": "number",
-                    "default": 0
+                    "type": "number"
                 },
                 "repositoryUrl": {
-                    "type": "string",
-                    "default": ""
+                    "type": "string"
                 },
                 "signature": {
-                    "type": "string",
-                    "default": ""
+                    "type": "string"
                 },
                 "shortDescription": {
-                    "type": "string",
-                    "default": ""
+                    "type": "string"
                 },
                 "detailedDescription": {
-                    "type": "string",
-                    "default": ""
+                    "type": "string"
                 },
                 "location": {
                     "$ref": "#/$defs/fileLocation"
@@ -442,8 +395,7 @@ export const lgGraphV4Schema = {
                     "$ref": "#/$defs/fileLocation"
                 },
                 "numLGNodes": {
-                    "type": "number",
-                    "default": 0
+                    "type": "number"
                 }
             },
             "required": [],
