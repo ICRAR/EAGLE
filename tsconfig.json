@@ -24,7 +24,7 @@
         "module": "umd",
         "moduleResolution": "node",
         "target": "es2021",
-        "lib": ["es2021", "dom"],
+        "lib": ["es2022", "dom"],
         "esModuleInterop": true,
         "isolatedModules": true,
         "allowJs": false,

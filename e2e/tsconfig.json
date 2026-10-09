@@ -4,7 +4,7 @@
         "module": "commonjs",
         "moduleResolution": "node",
         "target": "es2019",
-        "lib": ["es2021", "dom"],
+        "lib": ["es2022", "dom"],
         "types": ["node", "jquery"],
         "skipLibCheck": true,
         "noImplicitAny": true,
