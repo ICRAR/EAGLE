@@ -364,44 +364,58 @@ export class TestHelpers {
      * 4. Use Playwright mouse.click() to trigger real pointer events
      */
     private static async clickTutorialPressTarget(page: Page): Promise<boolean> {
-        const clickPosition = await page.evaluate(() => {
-            // Get the tutorial target element from the active step.
-            const tutorialTarget = (window as any).TutorialSystem as TutorialSystemView;
-            const stepView = tutorialTarget.activeTutCurrentStep;
-            const getTargetFunc = stepView?.getTargetFunc;
-            const targetFn = getTargetFunc?.();
-            const targetJQuery = targetFn?.();
-            const firstTarget = targetJQuery?.first();
-            const targetEl = firstTarget?.get(0) as HTMLElement | undefined;
-            if (!targetEl) {
-                return null;
+        // The tutorial's darkening overlay (.tutorialHighlight) animates into place after each step starts and can
+        // briefly cover the target, so keep retrying until the point we click is actually the target.
+        const deadline = Date.now() + TestHelpers.SHORT_TIMEOUT;
+
+        while (true) {
+            const clickPosition = await page.evaluate(() => {
+                // Get the tutorial target element from the active step.
+                const tutorialTarget = (window as any).TutorialSystem as TutorialSystemView;
+                const stepView = tutorialTarget.activeTutCurrentStep;
+                const getTargetFunc = stepView?.getTargetFunc;
+                const targetFn = getTargetFunc?.();
+                const targetJQuery = targetFn?.();
+                const firstTarget = targetJQuery?.first();
+                const targetEl = firstTarget?.get(0) as HTMLElement | undefined;
+                if (!targetEl) {
+                    return null;
+                }
+
+                // Prefer native interactive elements (buttons, links, inputs) or graph nodes (.body)
+                // over the container itself, as these are what a user would actually click.
+                const preferredClickable = targetEl.querySelector('button, a, input, textarea, select, .body') as HTMLElement | null;
+                const clickable = preferredClickable ?? targetEl;
+                const rect = clickable.getBoundingClientRect();
+
+                // Ensure the element is visible and has dimensions.
+                if (rect.width <= 0 || rect.height <= 0) {
+                    return null;
+                }
+
+                // Center point in viewport coordinates for Playwright mouse interaction.
+                const x = rect.left + rect.width / 2;
+                const y = rect.top + rect.height / 2;
+                const hit = document.elementFromPoint(x, y);
+                const covered = hit == null || (hit !== clickable && !clickable.contains(hit));
+                return { x, y, covered };
+            });
+
+            if (!clickPosition) {
+                return false;
             }
 
-            // Prefer native interactive elements (buttons, links, inputs) or graph nodes (.body)
-            // over the container itself, as these are what a user would actually click.
-            const preferredClickable = targetEl.querySelector('button, a, input, textarea, select, .body') as HTMLElement | null;
-            const clickable = preferredClickable ?? targetEl;
-            const rect = clickable.getBoundingClientRect();
-
-            // Ensure the element is visible and has dimensions.
-            if (rect.width <= 0 || rect.height <= 0) {
-                return null;
+            if (!clickPosition.covered) {
+                // Use Playwright's mouse API to dispatch real pointer events.
+                await page.mouse.click(clickPosition.x, clickPosition.y);
+                return true;
             }
 
-            // Return center point in viewport coordinates for Playwright mouse interaction.
-            return {
-                x: rect.left + rect.width / 2,
-                y: rect.top + rect.height / 2,
-            };
-        });
-
-        if (!clickPosition) {
-            return false;
+            if (Date.now() >= deadline) {
+                return false;
+            }
+            await page.waitForTimeout(100);
         }
-
-        // Use Playwright's mouse API to dispatch real pointer events.
-        await page.mouse.click(clickPosition.x, clickPosition.y);
-        return true;
     }
 
     private static async clickElementBoundingRectCenter(page: Page, selector: string): Promise<boolean> {
