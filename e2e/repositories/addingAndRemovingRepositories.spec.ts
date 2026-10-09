@@ -79,7 +79,7 @@ async function finalizeConfirmModalAffirmative(page: Page): Promise<void> {
     await page.waitForTimeout(100);
     if (await page.locator('#confirmModal').isVisible()) {
       await page.evaluate(() => {
-        const $ = (window as any).$ as (sel: string) => unknown;
+        const $ = (window as any).$ as (sel: string) => JQuery<HTMLElement>;
         const modal = $('#confirmModal');
         modal.removeClass('show').attr('aria-hidden', 'true').css('display', 'none');
         $('.modal-backdrop').remove();
