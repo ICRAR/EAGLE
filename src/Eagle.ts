@@ -1140,14 +1140,26 @@ export class Eagle {
         const hasErrors: boolean = Errors.hasErrors(errorsWarnings);
         const hasWarnings: boolean = showIssues && Errors.hasWarnings(errorsWarnings);
 
-        if (hasErrors || hasWarnings){
-            // add errors/warnings to the arrays (warnings only if the setting is on)
-            this.loadingErrors(hasErrors ? errorsWarnings.errors : []);
+        if (hasErrors){
+            // load failed (errors) -> show the issues modal; no "loaded" notification
+            this.loadingErrors(errorsWarnings.errors);
             this.loadingWarnings(hasWarnings ? errorsWarnings.warnings : []);
 
             this.errorsMode(Mode.Loading);
             Utils.showErrorsModal("Loading File");
+        } else if (hasWarnings){
+            // loaded with warnings (setting on) -> show modal and an honest notification
+            this.loadingWarnings(errorsWarnings.warnings);
+
+            this.errorsMode(Mode.Loading);
+            Utils.showErrorsModal("Loading File");
+
+            Utils.showNotification("Success", fileName + " has been loaded from " + service + " with " + errorsWarnings.warnings.length + " warning(s).", "success");
+        } else if (Errors.hasWarnings(errorsWarnings)){
+            // loaded with warnings (setting off) -> no modal, but still say so
+            Utils.showNotification("Success", fileName + " has been loaded from " + service + " with " + errorsWarnings.warnings.length + " warning(s).", "success");
         } else {
+            // clean load, no issues
             Utils.showNotification("Success", fileName + " has been loaded from " + service + ".", "success");
         }
     }
