@@ -52,7 +52,7 @@ async function finalizeInputModalAffirmative(page: Page): Promise<void> {
     await page.waitForTimeout(100);
     if (await page.locator('#inputModal').isVisible()) {
       await page.evaluate(() => {
-        const $ = (window as any).$ as (sel: string) => { data: (k: string, v: unknown) => void; modal: (m: string) => void; val?: () => string | null };
+        const $ = (window as any).$ as (sel: string) => JQuery<HTMLElement>;
         const modal = $('#inputModal');
         const callback = modal.data('callback') as ((completed: boolean, input: string) => void) | undefined;
         const input = String($('#inputModalInput').val() ?? '');
