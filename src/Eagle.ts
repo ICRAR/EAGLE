@@ -50,6 +50,7 @@ import { LogicalGraph } from './LogicalGraph';
 import { Modals } from "./Modals";
 import { Node } from './Node';
 import { Palette } from './Palette';
+import { isStructuralV4Error } from './SchemaLoadClassifier';
 import { ParameterTable } from './ParameterTable';
 import { Repositories } from './Repositories';
 import { Repository, type RepositoryCommit, RepositoryService } from './Repository';
@@ -1140,14 +1141,26 @@ export class Eagle {
         const hasErrors: boolean = Errors.hasErrors(errorsWarnings);
         const hasWarnings: boolean = showIssues && Errors.hasWarnings(errorsWarnings);
 
-        if (hasErrors || hasWarnings){
-            // add errors/warnings to the arrays (warnings only if the setting is on)
-            this.loadingErrors(hasErrors ? errorsWarnings.errors : []);
+        if (hasErrors){
+            // load failed (errors) -> show the issues modal; no "loaded" notification
+            this.loadingErrors(errorsWarnings.errors);
             this.loadingWarnings(hasWarnings ? errorsWarnings.warnings : []);
 
             this.errorsMode(Mode.Loading);
             Utils.showErrorsModal("Loading File");
+        } else if (hasWarnings){
+            // loaded with warnings (setting on) -> show modal and an honest notification
+            this.loadingWarnings(errorsWarnings.warnings);
+
+            this.errorsMode(Mode.Loading);
+            Utils.showErrorsModal("Loading File");
+
+            Utils.showNotification("Success", fileName + " has been loaded from " + service + " with " + errorsWarnings.warnings.length + " warning(s).", "success");
+        } else if (Errors.hasWarnings(errorsWarnings)){
+            // loaded with warnings (setting off) -> no modal, but still say so
+            Utils.showNotification("Success", fileName + " has been loaded from " + service + " with " + errorsWarnings.warnings.length + " warning(s).", "success");
         } else {
+            // clean load, no issues
             Utils.showNotification("Success", fileName + " has been loaded from " + service + ".", "success");
         }
     }
@@ -1157,13 +1170,32 @@ export class Eagle {
             return true;
         }
 
-        const validatorResult = Utils._validateJSON(dataObject, SchemaVersion.V4, EagleFileType.Graph);
+        const validatorResult = Utils._validateJSONDetailed(dataObject, SchemaVersion.V4, EagleFileType.Graph);
         if (validatorResult.valid) {
             return true;
         }
 
-        errorsWarnings.errors.push(Errors.Message("V4 graph JSON failed schema validation: " + validatorResult.errors));
-        return false;
+        // classify validation failures:
+        // - structural (missing/invalid top-level modelData or nodes) -> error, block loading
+        // - anything else (missing/invalid edges, visuals, graph configs, or per-object attributes)
+        //   -> warning; the parser applies defaults/skips so the graph can still load
+        // See SchemaLoadClassifier for the classification rules (ajv path semantics).
+        let hasStructuralError: boolean = false;
+
+        for (const error of validatorResult.errors){
+            const displayPath: string = error.dataPath === "" ? "<root>" : error.dataPath.replace(/^\//, "");
+            const issue: Issue = Errors.Message("Schema validation: " + displayPath + " " + error.message +
+                (typeof error.missingProperty !== "undefined" ? " (" + error.missingProperty + ")" : ""));
+
+            if (isStructuralV4Error(error)){
+                hasStructuralError = true;
+                errorsWarnings.errors.push(issue);
+            } else {
+                errorsWarnings.warnings.push(issue);
+            }
+        }
+
+        return !hasStructuralError;
     }
 
     private _loadGraphJSON = async (data: string, fileFullPath: string, loadFunc: (lg: LogicalGraph, errorsWarnings: ErrorsWarnings) => void | Promise<void>) : Promise<boolean> => {
@@ -1192,27 +1224,35 @@ export class Eagle {
         let loaded = false;
 
         // use the correct parsing function based on schema version
-        switch (schemaVersion){
-            case SchemaVersion.OJS:
-            case SchemaVersion.Unknown:
-                // check if we need to update the graph from keys to ids
-                if (GraphUpdater.usesNodeKeys(dataObject)){
-                    GraphUpdater.updateKeysToIds(dataObject);
-                }
+        try {
+            switch (schemaVersion){
+                case SchemaVersion.OJS:
+                case SchemaVersion.Unknown:
+                    // check if we need to update the graph from keys to ids
+                    if (GraphUpdater.usesNodeKeys(dataObject)){
+                        GraphUpdater.updateKeysToIds(dataObject);
+                    }
 
-                await loadFunc(LogicalGraph.fromOJSJson(dataObject, "", errorsWarnings), errorsWarnings);
-                loaded = true;
-                break;
-            case SchemaVersion.V4:
-                if (!this._validateV4GraphLoadJSON(dataObject as JsonObject, errorsWarnings)) {
+                    await loadFunc(LogicalGraph.fromOJSJson(dataObject, "", errorsWarnings), errorsWarnings);
+                    loaded = true;
                     break;
-                }
-                await loadFunc(LogicalGraph.fromV4Json(dataObject as V4GraphJson, "", errorsWarnings), errorsWarnings);
-                loaded = true;
-                break;
-            default:
-                errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
-                break;
+                case SchemaVersion.V4:
+                    if (!this._validateV4GraphLoadJSON(dataObject as JsonObject, errorsWarnings)) {
+                        break;
+                    }
+                    await loadFunc(LogicalGraph.fromV4Json(dataObject as V4GraphJson, "", errorsWarnings), errorsWarnings);
+                    loaded = true;
+                    break;
+                default:
+                    errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
+                    break;
+            }
+        } catch (error){
+            // a parse/load failure mid-way must not leave the graph half-loaded
+            // (the parse builds the full graph object before any mutation, so abort here)
+            console.error("Error loading graph file:", error);
+            errorsWarnings.errors.push(Errors.Message("Failed to load graph file: " + Errors.UnknownToError(error)));
+            loaded = false;
         }
 
         this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), RepositoryService.File);

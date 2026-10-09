@@ -533,8 +533,8 @@ export class FileInfo {
         return result;
     }
 
-    static fromV4Json(modelData: V4FileInfoJson | JsonObject, errorsWarnings: ErrorsWarnings): FileInfo{
-        const typedModelData = modelData as LegacyV4FileInfoJson;
+    static fromV4Json(modelData: V4FileInfoJson | JsonObject | undefined, errorsWarnings: ErrorsWarnings): FileInfo{
+        const typedModelData = (modelData ?? {}) as LegacyV4FileInfoJson;
         const defaultLocation: V4FileLocationJson = {
             repositoryService: RepositoryService.Unknown,
             repositoryBranch: "",

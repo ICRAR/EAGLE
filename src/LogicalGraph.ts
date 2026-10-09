@@ -35,7 +35,7 @@ import { FileInfo } from './FileInfo';
 import { FileLocation } from "./FileLocation";
 import { GraphConfig } from './GraphConfig';
 import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
-import type { JsonObject, V4GraphJson, V4FileInfoJson } from './JsonLoadTypes';
+import type { JsonObject, V4GraphJson, V4FileInfoJson, V4NodeJson, V4EdgeJson, V4VisualLoadJson, V4GraphConfigJson } from './JsonLoadTypes';
 import { Node } from './Node';
 import { SchemaVersion, Setting } from './Setting';
 import { Utils } from './Utils';
@@ -180,18 +180,18 @@ export class LogicalGraph {
         // NOTE: we do not skip close loop edges
         for (const [id, edge] of graph.edges()){
             const edgeData = Edge.toV4Json(edge);
-            result.edges[id] = edgeData;
+            result.edges![id] = edgeData;
         }
 
         // visuals
         for (const [id, visual] of graph.visuals()){
             const visualData = Visual.toJson(visual);
-            result.visuals[id] = visualData;
+            result.visuals![id] = visualData;
         }
 
         // add graph configurations
         for (const gc of graph.graphConfigs().values()){
-            result.graphConfigurations[gc.getId()] = GraphConfig.toJson(gc);
+            result.graphConfigurations![gc.getId()] = GraphConfig.toJson(gc);
         }
 
         // saving the id of the active graph configuration
@@ -455,8 +455,13 @@ export class LogicalGraph {
         result.fileInfo(FileInfo.fromV4Json(dataObject.modelData, errorsWarnings));
 
         // add nodes
-        for (const [nodeId, nodeData] of Object.entries(dataObject.nodes)){
-            const node = Node.fromV4Json(nodeData, errorsWarnings, false);
+        const nodesData = Utils.asObjectMap(dataObject.nodes, "nodes", errorsWarnings);
+        for (const [nodeId, nodeData] of Object.entries(nodesData)){
+            if (nodeData === null || typeof nodeData !== 'object' || Array.isArray(nodeData)){
+                errorsWarnings.errors.push(Errors.Message("Node (" + nodeId + ") has invalid JSON (not an object), skipping"));
+                continue;
+            }
+            const node = Node.fromV4Json(nodeData as V4NodeJson, errorsWarnings, false);
 
             result.nodes().set(nodeId as NodeId, node);
             result.nodes.valueHasMutated();
@@ -464,7 +469,7 @@ export class LogicalGraph {
 
         // second pass through the nodes
         // used to set parent, embed, subject, inputApplication, outputApplication
-        for (const [nodeId, nodeData] of Object.entries(dataObject.nodes)){
+        for (const [nodeId, nodeData] of Object.entries(nodesData)){
             const embed = result.getNodeById(nodeData.embedId as NodeId);
             const parent = result.getNodeById(nodeData.parentId as NodeId);
             const inputApplication = result.getNodeById(nodeData.inputApplicationId as NodeId);
@@ -492,8 +497,13 @@ export class LogicalGraph {
         }
 
         // add edges
-        for (const [edgeId, edgeData] of Object.entries(dataObject.edges)){
-            const edge = Edge.fromV4Json(edgeData, result, errorsWarnings);
+        const edgesData = Utils.asObjectMap(dataObject.edges, "edges", errorsWarnings);
+        for (const [edgeId, edgeData] of Object.entries(edgesData)){
+            if (edgeData === null || typeof edgeData !== 'object' || Array.isArray(edgeData)){
+                errorsWarnings.errors.push(Errors.Message("Edge (" + edgeId + ") has invalid JSON (not an object), skipping"));
+                continue;
+            }
+            const edge = Edge.fromV4Json(edgeData as V4EdgeJson, result, errorsWarnings);
 
             if (edge === null){
                 continue;
@@ -508,18 +518,26 @@ export class LogicalGraph {
         }
 
         // add visuals
-        if (typeof dataObject.visuals !== 'undefined'){
-            for (const [visualId, visualData] of Object.entries(dataObject.visuals)){
-                const visual = Visual.fromV4GraphJson(visualData, result, errorsWarnings);
-
-                result.visuals().set(visualId as VisualId, visual);
-                result.visuals.valueHasMutated();
+        const visualsData = Utils.asObjectMap(dataObject.visuals, "visuals", errorsWarnings);
+        for (const [visualId, visualData] of Object.entries(visualsData)){
+            if (visualData === null || typeof visualData !== 'object' || Array.isArray(visualData)){
+                errorsWarnings.errors.push(Errors.Message("Visual (" + visualId + ") has invalid JSON (not an object), skipping"));
+                continue;
             }
+            const visual = Visual.fromV4GraphJson(visualData as V4VisualLoadJson, result, errorsWarnings);
+
+            result.visuals().set(visualId as VisualId, visual);
+            result.visuals.valueHasMutated();
         }
 
         // load configs
-        for (const [gcId, gcData] of Object.entries(dataObject.graphConfigurations)){
-            const gc = GraphConfig.fromV4GraphJson(gcData, result, errorsWarnings);
+        const graphConfigsData = Utils.asObjectMap(dataObject.graphConfigurations, "graphConfigurations", errorsWarnings);
+        for (const [gcId, gcData] of Object.entries(graphConfigsData)){
+            if (gcData === null || typeof gcData !== 'object' || Array.isArray(gcData)){
+                errorsWarnings.errors.push(Errors.Message("GraphConfig (" + gcId + ") has invalid JSON (not an object), skipping"));
+                continue;
+            }
+            const gc = GraphConfig.fromV4GraphJson(gcData as V4GraphConfigJson, result, errorsWarnings);
             gc.setId(gcId as GraphConfigId);
             result.graphConfigs().set(gcId as GraphConfigId, gc);
         }

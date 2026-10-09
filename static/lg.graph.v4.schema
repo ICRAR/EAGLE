@@ -2,16 +2,24 @@
     "$schema": "http://json-schema.org/schema#",
     "$defs": {
         "scalarValue": {
-            "type": ["string", "boolean", "number", "null"]
+            "type": [
+                "string",
+                "boolean",
+                "number",
+                "null"
+            ]
         },
         "eagleId": {
-            "type": ["string", "null"],
+            "type": [
+                "string",
+                "null"
+            ],
             "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
         },
         "fileLocation": {
             "type": "object",
             "properties": {
-                "repositoryService":{
+                "repositoryService": {
                     "type": "string"
                 },
                 "repositoryBranch": {
@@ -49,7 +57,7 @@
                     "additionalProperties": false
                 }
             },
-            "required": ["fields"],
+            "required": [],
             "additionalProperties": false
         },
         "graphConfigField": {
@@ -62,7 +70,7 @@
                     "type": "string"
                 }
             },
-            "required": ["value", "comment"],
+            "required": [],
             "additionalProperties": false
         },
         "field": {
@@ -96,29 +104,47 @@
                     }
                 },
                 "positional": {
-                    "type": "boolean",
-                    "default": false
+                    "type": "boolean"
                 },
                 "encoding": {
                     "type": "string",
-                    "enum": ["dill", "pickle", "npy", "path", "utf-8", "eval", "dataurl", "binary", "raw"],
-                    "default": "dill"
+                    "enum": [
+                        "dill",
+                        "pickle",
+                        "npy",
+                        "path",
+                        "utf-8",
+                        "eval",
+                        "dataurl",
+                        "binary",
+                        "raw"
+                    ]
                 },
                 "id": {
                     "$ref": "#/$defs/eagleId"
                 },
                 "parameterType": {
                     "type": "string",
-                    "enum": ["Application", "Component", "Constraint", "Construct", "Unknown"],
-                    "default": "Component"
+                    "enum": [
+                        "Application",
+                        "Component",
+                        "Constraint",
+                        "Construct",
+                        "Unknown"
+                    ]
                 },
                 "usage": {
                     "type": "string",
-                    "enum": ["NoPort", "InputPort", "OutputPort", "InputOutput"],
-                    "default": "NoPort"
+                    "enum": [
+                        "NoPort",
+                        "InputPort",
+                        "OutputPort",
+                        "InputOutput"
+                    ]
                 },
                 "changeable": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "default": true
                 },
                 "edgeIds": {
                     "type": "array",
@@ -127,23 +153,7 @@
                     }
                 }
             },
-            "required": [
-                "description",
-                "name",
-                "value",
-                "defaultValue",
-                "readonly",
-                "type",
-                "precious",
-                "options",
-                "positional",
-                "id",
-                "parameterType",
-                "usage",
-                "changeable",
-                "encoding",
-                "edgeIds"
-            ],
+            "required": [],
             "additionalProperties": false
         },
         "node": {
@@ -207,24 +217,7 @@
                     "$ref": "#/$defs/eagleId"
                 }
             },
-            "required": [
-                "category",
-                "categoryType",
-                "commitHash",
-                "dataHash",
-                "description",
-                "embedId",
-                "fields",
-                "id",
-                "inputApplicationId",
-                "name",
-                "outputApplicationId",
-                "paletteDownloadUrl",
-                "parentId",
-                "repositoryUrl",
-                "x",
-                "y"
-            ],
+            "required": [],
             "additionalProperties": false
         },
         "edge": {
@@ -255,15 +248,7 @@
                     "type": "string"
                 }
             },
-            "required": [
-                "id",
-                "srcNodeId",
-                "srcPortId",
-                "destNodeId",
-                "destPortId",
-                "loopAware",
-                "closesLoop"
-            ],
+            "required": [],
             "additionalProperties": false
         },
         "visual": {
@@ -297,7 +282,7 @@
                     "$ref": "#/$defs/eagleId"
                 }
             },
-            "required": ["id", "x", "y", "width", "height", "type", "content", "color", "targetId"],
+            "required": [],
             "additionalProperties": false
         },
         "graphConfig": {
@@ -319,7 +304,7 @@
                     "additionalProperties": false
                 }
             },
-            "required": ["id", "modelData", "nodes"],
+            "required": [],
             "additionalProperties": false
         },
         "modelData": {
@@ -333,8 +318,14 @@
                 },
                 "type": {
                     "type": "string",
-                    "enum": ["Graph", "GraphConfig", "Palette", "JSON", "Markdown", "Unknown"],
-                    "default": "Graph"
+                    "enum": [
+                        "Graph",
+                        "GraphConfig",
+                        "Palette",
+                        "JSON",
+                        "Markdown",
+                        "Unknown"
+                    ]
                 },
                 "generatorVersion": {
                     "type": "string"
@@ -379,25 +370,7 @@
                     "type": "number"
                 }
             },
-            "required": [
-                "name",
-                "type",
-                "readonly",
-                "generatorVersion",
-                "generatorCommitHash",
-                "generatorName",
-                "schemaVersion",
-                "lastModifiedName",
-                "lastModifiedEmail",
-                "lastModifiedDatetime",
-                "repositoryUrl",
-                "signature",
-                "shortDescription",
-                "detailedDescription",
-                "location",
-                "graphLocation",
-                "numLGNodes"
-            ],
+            "required": [],
             "additionalProperties": false
         }
     },
@@ -443,16 +416,12 @@
             "additionalProperties": false
         },
         "activeGraphConfigId": {
-             "$ref": "#/$defs/eagleId"
+            "$ref": "#/$defs/eagleId"
         }
     },
     "required": [
         "modelData",
-        "nodes",
-        "edges",
-        "visuals",
-        "graphConfigurations",
-        "activeGraphConfigId"
+        "nodes"
     ],
     "additionalProperties": false
 }

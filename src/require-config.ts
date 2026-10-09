@@ -63,7 +63,8 @@ require.config({
         "Repositories": "./static/built/Repositories",
         "ParameterTable": "./static/built/ParameterTable",
         "GraphConfigurationsTable": "./static/built/GraphConfigurationsTable",
-        "FileLocation": "./static/built/FileLocation"
+        "FileLocation": "./static/built/FileLocation",
+        "SchemaLoadClassifier": "./static/built/SchemaLoadClassifier"
     },
     shim: {
         "bootstrap": {

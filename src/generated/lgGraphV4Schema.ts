@@ -85,9 +85,7 @@ export const lgGraphV4Schema = {
                     "additionalProperties": false
                 }
             },
-            "required": [
-                "fields"
-            ],
+            "required": [],
             "additionalProperties": false
         },
         "graphConfigField": {
@@ -100,10 +98,7 @@ export const lgGraphV4Schema = {
                     "type": "string"
                 }
             },
-            "required": [
-                "value",
-                "comment"
-            ],
+            "required": [],
             "additionalProperties": false
         },
         "field": {
@@ -137,8 +132,7 @@ export const lgGraphV4Schema = {
                     }
                 },
                 "positional": {
-                    "type": "boolean",
-                    "default": false
+                    "type": "boolean"
                 },
                 "encoding": {
                     "type": "string",
@@ -152,8 +146,7 @@ export const lgGraphV4Schema = {
                         "dataurl",
                         "binary",
                         "raw"
-                    ],
-                    "default": "dill"
+                    ]
                 },
                 "id": {
                     "$ref": "#/$defs/eagleId"
@@ -166,8 +159,7 @@ export const lgGraphV4Schema = {
                         "Constraint",
                         "Construct",
                         "Unknown"
-                    ],
-                    "default": "Component"
+                    ]
                 },
                 "usage": {
                     "type": "string",
@@ -176,11 +168,11 @@ export const lgGraphV4Schema = {
                         "InputPort",
                         "OutputPort",
                         "InputOutput"
-                    ],
-                    "default": "NoPort"
+                    ]
                 },
                 "changeable": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "default": true
                 },
                 "edgeIds": {
                     "type": "array",
@@ -189,23 +181,7 @@ export const lgGraphV4Schema = {
                     }
                 }
             },
-            "required": [
-                "description",
-                "name",
-                "value",
-                "defaultValue",
-                "readonly",
-                "type",
-                "precious",
-                "options",
-                "positional",
-                "id",
-                "parameterType",
-                "usage",
-                "changeable",
-                "encoding",
-                "edgeIds"
-            ],
+            "required": [],
             "additionalProperties": false
         },
         "node": {
@@ -269,24 +245,7 @@ export const lgGraphV4Schema = {
                     "$ref": "#/$defs/eagleId"
                 }
             },
-            "required": [
-                "category",
-                "categoryType",
-                "commitHash",
-                "dataHash",
-                "description",
-                "embedId",
-                "fields",
-                "id",
-                "inputApplicationId",
-                "name",
-                "outputApplicationId",
-                "paletteDownloadUrl",
-                "parentId",
-                "repositoryUrl",
-                "x",
-                "y"
-            ],
+            "required": [],
             "additionalProperties": false
         },
         "edge": {
@@ -317,15 +276,7 @@ export const lgGraphV4Schema = {
                     "type": "string"
                 }
             },
-            "required": [
-                "id",
-                "srcNodeId",
-                "srcPortId",
-                "destNodeId",
-                "destPortId",
-                "loopAware",
-                "closesLoop"
-            ],
+            "required": [],
             "additionalProperties": false
         },
         "visual": {
@@ -359,17 +310,7 @@ export const lgGraphV4Schema = {
                     "$ref": "#/$defs/eagleId"
                 }
             },
-            "required": [
-                "id",
-                "x",
-                "y",
-                "width",
-                "height",
-                "type",
-                "content",
-                "color",
-                "targetId"
-            ],
+            "required": [],
             "additionalProperties": false
         },
         "graphConfig": {
@@ -391,11 +332,7 @@ export const lgGraphV4Schema = {
                     "additionalProperties": false
                 }
             },
-            "required": [
-                "id",
-                "modelData",
-                "nodes"
-            ],
+            "required": [],
             "additionalProperties": false
         },
         "modelData": {
@@ -416,8 +353,7 @@ export const lgGraphV4Schema = {
                         "JSON",
                         "Markdown",
                         "Unknown"
-                    ],
-                    "default": "Graph"
+                    ]
                 },
                 "generatorVersion": {
                     "type": "string"
@@ -462,25 +398,7 @@ export const lgGraphV4Schema = {
                     "type": "number"
                 }
             },
-            "required": [
-                "name",
-                "type",
-                "readonly",
-                "generatorVersion",
-                "generatorCommitHash",
-                "generatorName",
-                "schemaVersion",
-                "lastModifiedName",
-                "lastModifiedEmail",
-                "lastModifiedDatetime",
-                "repositoryUrl",
-                "signature",
-                "shortDescription",
-                "detailedDescription",
-                "location",
-                "graphLocation",
-                "numLGNodes"
-            ],
+            "required": [],
             "additionalProperties": false
         }
     },
@@ -531,11 +449,7 @@ export const lgGraphV4Schema = {
     },
     "required": [
         "modelData",
-        "nodes",
-        "edges",
-        "visuals",
-        "graphConfigurations",
-        "activeGraphConfigId"
+        "nodes"
     ],
     "additionalProperties": false
 } as const satisfies ExtendedJSONSchema;
