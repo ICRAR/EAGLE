@@ -5,6 +5,35 @@ import path from 'path';
 import { test, expect, type Page } from '@playwright/test';
 import type * as CodeMirrorTypes from 'codemirror';
 
+// Minimal mirror of the TutorialTestHook type from src/Tutorial.ts (we can't import app code into e2e tests).
+type TutorialTestHook = { command: string; args?: string[] };
+
+// The view of the active tutorial step that runTutorialByName snapshots from the page.
+interface TutorialStepInfo {
+    hasActiveTutorial: boolean;
+    title: string;
+    stepType: string | null | undefined;
+    expectedInput: string;
+    testStepFunction: TutorialTestHook | null;
+    index: number;
+    total: number;
+}
+
+// Minimal view of the window.TutorialSystem object needed by the e2e helpers
+// (we can't import app code into e2e tests).
+interface TutorialSystemView {
+    activeTut: unknown;
+    activeTutCurrentStep?: {
+        getTitle?: () => string;
+        getType?: () => string | null | undefined;
+        getExpectedInput?: () => string;
+        getTestStepFunction?: () => TutorialTestHook | null;
+        getTargetFunc?: () => (() => JQuery<HTMLElement>) | null;
+    } | null;
+    activeTutCurrentStepIndex?: number;
+    activeTutNumSteps?: number;
+}
+
 export class TestHelpers {
     //How many times we will attempt to run a tutorial step before failing the test.
     private static readonly MAX_ATTEMPTS_PER_STEP = 5;
@@ -78,18 +107,18 @@ export class TestHelpers {
         while (true) {
             // Snapshot all step fields together (including testStepFunction) because the active tutorial step can
             // advance while Playwright awaits; this keeps one coherent current-step view, not mixed next-step data.
-            const stepInfo = await page.evaluate(() => {
-                const tutSystem = (window as any).TutorialSystem as { activeTut: unknown; activeTutCurrentStep?: { getTitle?: () => string; getType?: () => string; getExpectedInput?: () => string; getTestStepFunction?: () => (() => boolean) | null } | null; activeTutCurrentStepIndex?: number; activeTutNumSteps?: number } | undefined;
-                const currentStep = tutSystem?.activeTutCurrentStep;
+            const stepInfo = await page.evaluate<TutorialStepInfo>(() => {
+                const tutSystem = (window as any).TutorialSystem as TutorialSystemView;
+                const currentStep = tutSystem.activeTutCurrentStep;
 
                 return {
-                    hasActiveTutorial: (tutSystem?.activeTut !== null) as boolean,
+                    hasActiveTutorial: (tutSystem.activeTut !== null) as boolean,
                     title: (currentStep?.getTitle?.() ?? '') as string,
                     stepType: currentStep?.getType?.() as string | null | undefined,
                     expectedInput: (currentStep?.getExpectedInput?.() ?? '') as string,
-                    testStepFunction: (currentStep?.getTestStepFunction?.() ?? null) as (() => boolean) | null,
-                    index: (tutSystem?.activeTutCurrentStepIndex ?? -1) as number,
-                    total: (tutSystem?.activeTutNumSteps ?? -1) as number,
+                    testStepFunction: (currentStep?.getTestStepFunction?.() ?? null) as TutorialTestHook | null,
+                    index: (tutSystem.activeTutCurrentStepIndex ?? -1) as number,
+                    total: (tutSystem.activeTutNumSteps ?? -1) as number,
                 };
             });
 
@@ -204,7 +233,7 @@ export class TestHelpers {
         }
     }
 
-    private static async runTutorialCustomStep(page: Page, testStepFunction: { command: string; args?: string[] }): Promise<void> {
+    private static async runTutorialCustomStep(page: Page, testStepFunction: TutorialTestHook): Promise<void> {
 
         const command = testStepFunction.command;
         const args = testStepFunction.args ?? [];
@@ -337,12 +366,13 @@ export class TestHelpers {
     private static async clickTutorialPressTarget(page: Page): Promise<boolean> {
         const clickPosition = await page.evaluate(() => {
             // Get the tutorial target element from the active step.
-            const tutorialTarget = (window as any).TutorialSystem?.activeTutCurrentStep?.getTargetFunc?.() as { length: number; first: () => { get: (n: number) => Element | undefined } } | null | undefined;
-            if (tutorialTarget == null || tutorialTarget.length === 0) {
-                return null;
-            }
-
-            const targetEl = tutorialTarget.first().get(0) as HTMLElement | undefined;
+            const tutorialTarget = (window as any).TutorialSystem as TutorialSystemView;
+            const stepView = tutorialTarget.activeTutCurrentStep;
+            const getTargetFunc = stepView?.getTargetFunc;
+            const targetFn = getTargetFunc?.();
+            const targetJQuery = targetFn?.();
+            const firstTarget = targetJQuery?.first();
+            const targetEl = firstTarget?.get(0) as HTMLElement | undefined;
             if (!targetEl) {
                 return null;
             }
@@ -402,16 +432,14 @@ export class TestHelpers {
 
     private static async submitTutorialInputToTarget(page: Page, value: string): Promise<boolean> {
         return page.evaluate((inputValue: string) => {
-            const w = window as { TutorialSystem?: { activeTutCurrentStep?: { getTargetFunc?: () => unknown } } };
-            const tutStep = w.TutorialSystem?.activeTutCurrentStep as { getTargetFunc?: () => { length: number; first: () => { length?: number; get: (n: number) => HTMLElement | undefined } } | null } | undefined;
-            const targetFunc = tutStep?.getTargetFunc?.();
+            const tutSystem = (window as any).TutorialSystem as TutorialSystemView;
+            const currentStep = tutSystem.activeTutCurrentStep;
+            const getTargetFunc = currentStep?.getTargetFunc;
+            const targetFn = getTargetFunc?.();
+            const targetJQuery = targetFn?.();
+            const target = targetJQuery?.first();
 
-            if (targetFunc.length === 0) {
-                return false;
-            }
-
-            const target = targetFunc.first() as { length: number; get: (n: number) => HTMLElement | undefined };
-            if (target.length === 0) {
+            if (target == null || target.length === 0) {
                 return false;
             }
 
@@ -532,8 +560,13 @@ export class TestHelpers {
                     ? Array.from(graphNodes).map((node: any): string => node.getName() as string)
                     : [];
 
-                const tutorialTarget = (window as any).TutorialSystem?.activeTutCurrentStep?.getTargetFunc?.() as { length: number; get?: (n: number) => { id?: string } } | null | undefined;
-                const targetId = (tutorialTarget != null && tutorialTarget.length > 0 ? (tutorialTarget.get?.(0).id ?? null) : null) as string | null;
+                const tutSystemView = (window as any).TutorialSystem as TutorialSystemView;
+                const stepView = tutSystemView.activeTutCurrentStep;
+                const getTargetFunc = stepView?.getTargetFunc;
+                const targetFn = getTargetFunc?.();
+                const targetJQuery = targetFn?.();
+                const firstTarget = targetJQuery?.first();
+                const targetId = (firstTarget != null && firstTarget.length > 0 ? firstTarget.get(0)?.id ?? null : null) as string | null;
 
                 const diagnostics = targetId != null ? {
                     nodeBodyMatches: document.querySelectorAll(`#logicalGraph .node[id="${targetId}"] .body`).length,
