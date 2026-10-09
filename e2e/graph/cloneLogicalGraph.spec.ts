@@ -37,8 +37,10 @@ test('LogicalGraph.clone() does not share references with original', async ({ pa
 
     // clone the graph and verify no shared references
     const result = await page.evaluate(() => {
-        const eagle = (<any>window).eagle;
-        const original = eagle.logicalGraph();
+        const eagle = (<any>window).eagle as { logicalGraph: () => { clone: () => unknown } };
+        type CloneEdge = { getId: () => string; getSrcNode: () => unknown; getDestNode: () => unknown; getSrcPort: () => unknown; getDestPort: () => unknown };
+        type CloneGraph = { clone: () => CloneGraph; getNumNodes: () => number; getNumEdges: () => number; getNodes: () => Map<string, unknown>; getEdges: () => CloneEdge[] };
+        const original = eagle.logicalGraph() as CloneGraph;
         const cloned = original.clone();
 
         const issues: string[] = [];

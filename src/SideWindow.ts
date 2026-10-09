@@ -78,16 +78,17 @@ export class SideWindow {
     // drag drop
     static nodeDragStart = (_node: Node, e: JQuery.TriggeredEvent) : boolean => {
         const eagle: Eagle = Eagle.getInstance();
+        const target = e.target as Element;
 
         //for hiding any tooltips while dragging and preventing them from showing
         GraphRenderer.draggingPaletteNode = true;
-        $(e.target).find('.input-group').tooltip('hide');
+        $(target).find('.input-group').tooltip('hide');
 
         // retrieve data about the node being dragged
-        // NOTE: I found that using $(e.target).data('palette-index'), using JQuery, sometimes retrieved a cached copy of the attribute value, which broke this functionality
+        // NOTE: I found that using $(target).data('palette-index'), using JQuery, sometimes retrieved a cached copy of the attribute value, which broke this functionality
         //       Using the native javascript works better, it always fetches the current value of the attribute
-        const componentId = e.target.getAttribute('data-component-id');
-        const paletteIndex = e.target.getAttribute('data-palette-index');
+        const componentId = target.getAttribute('data-component-id') as NodeId | null;
+        const paletteIndex = target.getAttribute('data-palette-index');
 
         if (componentId === null || paletteIndex === null){
             console.warn("SideWindow.nodeDragStart(): data-component-id or data-palette-index is null!");
@@ -107,7 +108,7 @@ export class SideWindow {
             }
 
             if(!eagle.objectIsSelected(draggedNode)){
-                $(e.target).find("div").trigger("click")
+                $(target).find("div").trigger("click")
             }
         }
 

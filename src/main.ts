@@ -134,7 +134,7 @@ $(function(){
     eagle.undo().pushSnapshot(eagle, "EAGLE Startup");
 
     // set UI Mode
-    const user_interface_mode = (<any>window).mode;
+    const user_interface_mode = (<any>window).mode as string;
     if (typeof user_interface_mode !== 'undefined' && user_interface_mode !== ""){
         // make sure that the specified user interface mode is a known mode
         if (UiModeSystem.getFullUiModeNamesList().includes(user_interface_mode)){
@@ -301,12 +301,12 @@ async function loadRepos() {
 // NOTE: specify a URL like this:
 //     http://localhost:8888/?service=Url&url=https://raw.githubusercontent.com/ICRAR/EAGLE-graph-repo/refs/heads/master/EAGLE-1302/simple-arrays.graph
 async function autoLoad() {
-    const service    = (<any>window).auto_load_service;
-    const repository = (<any>window).auto_load_repository;
-    const branch     = (<any>window).auto_load_branch;
-    const path       = (<any>window).auto_load_path;
-    const filename   = (<any>window).auto_load_filename;
-    const url        = (<any>window).auto_load_url;
+    const service    = (<any>window).auto_load_service as RepositoryService;
+    const repository = (<any>window).auto_load_repository as string;
+    const branch     = (<any>window).auto_load_branch as string;
+    const path       = (<any>window).auto_load_path as string;
+    const filename   = (<any>window).auto_load_filename as string;
+    const url        = (<any>window).auto_load_url as string;
 
     // cast the service string to an enum
     const realService: RepositoryService = Repositories.translateStringToService(service);

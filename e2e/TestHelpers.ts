@@ -3,10 +3,42 @@ import https from 'https';
 import type http from 'http';
 import path from 'path';
 import { test, expect, type Page } from '@playwright/test';
+import type * as CodeMirrorTypes from 'codemirror';
+
+// Minimal mirror of the TutorialTestHook type from src/Tutorial.ts (we can't import app code into e2e tests).
+type TutorialTestHook = { command: string; args?: string[] };
+
+// The view of the active tutorial step that runTutorialByName snapshots from the page.
+interface TutorialStepInfo {
+    hasActiveTutorial: boolean;
+    title: string;
+    stepType: string | null | undefined;
+    expectedInput: string;
+    testStepFunction: TutorialTestHook | null;
+    index: number;
+    total: number;
+}
+
+// Minimal view of the window.TutorialSystem object needed by the e2e helpers
+// (we can't import app code into e2e tests).
+interface TutorialSystemView {
+    activeTut: unknown;
+    activeTutCurrentStep?: {
+        getTitle?: () => string;
+        getType?: () => string | null | undefined;
+        getExpectedInput?: () => string;
+        getTestStepFunction?: () => TutorialTestHook | null;
+        getTargetFunc?: () => (() => JQuery<HTMLElement>) | null;
+    } | null;
+    activeTutCurrentStepIndex?: number;
+    activeTutNumSteps?: number;
+}
 
 export class TestHelpers {
     //How many times we will attempt to run a tutorial step before failing the test.
     private static readonly MAX_ATTEMPTS_PER_STEP = 5;
+    //How long to wait for the tutorial to advance after a Press-step click before retrying.
+    private static readonly STEP_ADVANCE_TIMEOUT = 1500;
     public static readonly UI_SETTLE_TIMEOUT = 500;
     public static readonly UI_SETTLE_TIMEOUT_LONG = 1000;
     public static readonly SHORT_TIMEOUT = 5000;
@@ -77,18 +109,18 @@ export class TestHelpers {
         while (true) {
             // Snapshot all step fields together (including testStepFunction) because the active tutorial step can
             // advance while Playwright awaits; this keeps one coherent current-step view, not mixed next-step data.
-            const stepInfo = await page.evaluate(() => {
-                const tutSystem = (window as any).TutorialSystem;
-                const currentStep = tutSystem?.activeTutCurrentStep;
+            const stepInfo = await page.evaluate<TutorialStepInfo>(() => {
+                const tutSystem = (window as any).TutorialSystem as TutorialSystemView;
+                const currentStep = tutSystem.activeTutCurrentStep;
 
                 return {
-                    hasActiveTutorial: tutSystem?.activeTut !== null,
-                    title: currentStep?.getTitle?.() ?? '',
-                    stepType: currentStep?.getType?.(),
-                    expectedInput: currentStep?.getExpectedInput?.() ?? '',
-                    testStepFunction: currentStep?.getTestStepFunction?.() ?? null,
-                    index: tutSystem?.activeTutCurrentStepIndex ?? -1,
-                    total: tutSystem?.activeTutNumSteps ?? -1,
+                    hasActiveTutorial: (tutSystem.activeTut !== null) as boolean,
+                    title: (currentStep?.getTitle?.() ?? '') as string,
+                    stepType: currentStep?.getType?.() as string | null | undefined,
+                    expectedInput: (currentStep?.getExpectedInput?.() ?? '') as string,
+                    testStepFunction: (currentStep?.getTestStepFunction?.() ?? null) as TutorialTestHook | null,
+                    index: (tutSystem.activeTutCurrentStepIndex ?? -1) as number,
+                    total: (tutSystem.activeTutNumSteps ?? -1) as number,
                 };
             });
 
@@ -203,7 +235,7 @@ export class TestHelpers {
         }
     }
 
-    private static async runTutorialCustomStep(page: Page, testStepFunction: { command: string; args?: string[] }): Promise<void> {
+    private static async runTutorialCustomStep(page: Page, testStepFunction: TutorialTestHook): Promise<void> {
 
         const command = testStepFunction.command;
         const args = testStepFunction.args ?? [];
@@ -334,43 +366,72 @@ export class TestHelpers {
      * 4. Use Playwright mouse.click() to trigger real pointer events
      */
     private static async clickTutorialPressTarget(page: Page): Promise<boolean> {
-        const clickPosition = await page.evaluate(() => {
-            // Get the tutorial target element from the active step.
-            const tutorialTarget = (window as any).TutorialSystem?.activeTutCurrentStep?.getTargetFunc?.();
-            if (tutorialTarget == null || tutorialTarget.length === 0) {
-                return null;
+        // The tutorial's darkening overlay (.tutorialHighlight) animates into place after each step starts and can
+        // briefly cover the target, so keep retrying until the point we click is actually the target.
+        const deadline = Date.now() + TestHelpers.SHORT_TIMEOUT;
+
+        while (true) {
+            const clickPosition = await page.evaluate(() => {
+                // Get the tutorial target element from the active step.
+                const tutorialTarget = (window as any).TutorialSystem as TutorialSystemView;
+                const stepView = tutorialTarget.activeTutCurrentStep;
+                const getTargetFunc = stepView?.getTargetFunc;
+                const targetFn = getTargetFunc?.();
+                const targetJQuery = targetFn?.();
+                const firstTarget = targetJQuery?.first();
+                const targetEl = firstTarget?.get(0) as HTMLElement | undefined;
+                if (!targetEl) {
+                    return null;
+                }
+
+                // Prefer native interactive elements (buttons, links, inputs) or graph nodes (.body)
+                // over the container itself, as these are what a user would actually click.
+                const preferredClickable = targetEl.querySelector('button, a, input, textarea, select, .body') as HTMLElement | null;
+                const clickable = preferredClickable ?? targetEl;
+                const rect = clickable.getBoundingClientRect();
+
+                // Ensure the element is visible and has dimensions.
+                if (rect.width <= 0 || rect.height <= 0) {
+                    return null;
+                }
+
+                // Center point in viewport coordinates for Playwright mouse interaction.
+                const x = rect.left + rect.width / 2;
+                const y = rect.top + rect.height / 2;
+                const hit = document.elementFromPoint(x, y);
+                const covered = hit == null || (hit !== clickable && !clickable.contains(hit));
+                return { x, y, covered };
+            });
+
+            if (!clickPosition) {
+                return false;
             }
 
-            const targetEl = tutorialTarget.first().get(0) as HTMLElement | undefined;
-            if (!targetEl) {
-                return null;
+            if (!clickPosition.covered) {
+                // Only report success once the tutorial has actually advanced; a click that landed on the overlay
+                // (or a click the tutorial ignored) must be retried or left to the caller's fallback.
+                const stepBefore = await TestHelpers.getTutorialStepIndex(page);
+                // Use Playwright's mouse API to dispatch real pointer events.
+                await page.mouse.click(clickPosition.x, clickPosition.y);
+                const advanced = await page.waitForFunction(
+                    (idx: number) => ((window as any).TutorialSystem?.activeTutCurrentStepIndex ?? -1) !== idx,
+                    stepBefore,
+                    { timeout: TestHelpers.STEP_ADVANCE_TIMEOUT },
+                ).then(() => true, () => false);
+                if (advanced) {
+                    return true;
+                }
             }
 
-            // Prefer native interactive elements (buttons, links, inputs) or graph nodes (.body)
-            // over the container itself, as these are what a user would actually click.
-            const preferredClickable = targetEl.querySelector('button, a, input, textarea, select, .body') as HTMLElement | null;
-            const clickable = preferredClickable ?? targetEl;
-            const rect = clickable.getBoundingClientRect();
-
-            // Ensure the element is visible and has dimensions.
-            if (rect.width <= 0 || rect.height <= 0) {
-                return null;
+            if (Date.now() >= deadline) {
+                return false;
             }
-
-            // Return center point in viewport coordinates for Playwright mouse interaction.
-            return {
-                x: rect.left + rect.width / 2,
-                y: rect.top + rect.height / 2,
-            };
-        });
-
-        if (!clickPosition) {
-            return false;
+            await page.waitForTimeout(100);
         }
+    }
 
-        // Use Playwright's mouse API to dispatch real pointer events.
-        await page.mouse.click(clickPosition.x, clickPosition.y);
-        return true;
+    private static async getTutorialStepIndex(page: Page): Promise<number> {
+        return page.evaluate(() => ((window as any).TutorialSystem?.activeTutCurrentStepIndex ?? -1) as number);
     }
 
     private static async clickElementBoundingRectCenter(page: Page, selector: string): Promise<boolean> {
@@ -401,15 +462,13 @@ export class TestHelpers {
 
     private static async submitTutorialInputToTarget(page: Page, value: string): Promise<boolean> {
         return page.evaluate((inputValue: string) => {
-            const w = window as any;
-            const tutStep = w.TutorialSystem?.activeTutCurrentStep;
-            const targetFunc = tutStep?.getTargetFunc?.();
+            const tutSystem = (window as any).TutorialSystem as TutorialSystemView;
+            const currentStep = tutSystem.activeTutCurrentStep;
+            const getTargetFunc = currentStep?.getTargetFunc;
+            const targetFn = getTargetFunc?.();
+            const targetJQuery = targetFn?.();
+            const target = targetJQuery?.first();
 
-            if (targetFunc == null || targetFunc.length === 0) {
-                return false;
-            }
-
-            const target = targetFunc.first();
             if (target == null || target.length === 0) {
                 return false;
             }
@@ -446,16 +505,16 @@ export class TestHelpers {
     private static async selectNodeByName(page: Page, nodeName: string): Promise<void> {
         const isRequestedNodeSelected = async (): Promise<boolean> => {
             return page.evaluate((name: string) => {
-                const selectedNode = (window as any).eagle?.selectedNode?.();
-                return selectedNode !== null && selectedNode?.getName?.() === name;
+                const selectedNode = (window as any).eagle?.selectedNode?.() as { getName?: () => string } | null;
+                return selectedNode !== null && selectedNode.getName?.() === name;
             }, nodeName);
         };
 
         const waitForRequestedSelection = async (): Promise<boolean> => {
             try {
                 await page.waitForFunction((name: string) => {
-                    const selectedNode = (window as any).eagle?.selectedNode?.();
-                    return selectedNode !== null && selectedNode?.getName?.() === name;
+                    const selectedNode = (window as any).eagle?.selectedNode?.() as { getName?: () => string } | null;
+                    return selectedNode !== null && selectedNode.getName?.() === name;
                 }, nodeName, { timeout: TestHelpers.SHORT_TIMEOUT });
                 return true;
             } catch {
@@ -469,7 +528,7 @@ export class TestHelpers {
 
         // Primary path: use Eagle graph data to resolve node id, then click the rendered node element via Playwright.
         const nodeInfo = await page.evaluate((name: string) => {
-            const eagle = (window as any).eagle;
+            const eagle = (window as any).eagle as { logicalGraph?: () => { findNodeByName?: (name: string) => { getId?: () => string; getName?: () => string; getPosition?: () => { x: number; y: number } } | null }; selectedNode?: () => { getName?: () => string } | null } | undefined;
             const graph = eagle?.logicalGraph?.();
             const node = graph?.findNodeByName?.(name);
 
@@ -477,12 +536,12 @@ export class TestHelpers {
                 return null;
             }
 
-            const nodeId = node.getId?.();
-            const graphPosition = node?.getPosition?.();
-            const graphToScreen = (window as any).GraphRenderer;
+            const nodeId = node.getId?.() as string | undefined;
+            const graphPosition = (node.getPosition?.() ?? undefined) as { x: number; y: number } | undefined;
+            const graphToScreen = (window as any).GraphRenderer as { GRAPH_TO_SCREEN_POSITION_X?: (x: number) => number; GRAPH_TO_SCREEN_POSITION_Y?: (y: number) => number } | undefined;
 
             let clickPos: { x: number; y: number } | null = null;
-            if (graphPosition != null && typeof graphToScreen?.GRAPH_TO_SCREEN_POSITION_X === 'function' && typeof graphToScreen?.GRAPH_TO_SCREEN_POSITION_Y === 'function') {
+            if (graphPosition != null && typeof graphToScreen?.GRAPH_TO_SCREEN_POSITION_X === 'function' && typeof graphToScreen.GRAPH_TO_SCREEN_POSITION_Y === 'function') {
                 clickPos = {
                     x: graphToScreen.GRAPH_TO_SCREEN_POSITION_X(graphPosition.x),
                     y: graphToScreen.GRAPH_TO_SCREEN_POSITION_Y(graphPosition.y),
@@ -524,15 +583,20 @@ export class TestHelpers {
 
         if ((await isRequestedNodeSelected()) !== true) {
             const debugInfo = await page.evaluate((name: string) => {
-                const eagle = (window as any).eagle;
-                const selected = eagle?.selectedNode?.();
-                const graphNodes = eagle?.logicalGraph?.()?.getNodes?.();
+                const eagle = (window as any).eagle as { logicalGraph?: () => { getNodes?: () => Map<string, { getName: () => string }> | undefined; } | undefined; selectedNode?: () => { getName?: () => string } | null } | undefined;
+                const selected = eagle?.selectedNode?.() as { getName?: () => string } | null;
+                const graphNodes = eagle?.logicalGraph?.()?.getNodes?.() as Map<string, { getName: () => string }> | undefined;
                 const nodeNames = graphNodes != null
                     ? Array.from(graphNodes).map((node: any): string => node.getName() as string)
                     : [];
 
-                const tutorialTarget = (window as any).TutorialSystem?.activeTutCurrentStep?.getTargetFunc?.();
-                const targetId = tutorialTarget != null && tutorialTarget.length > 0 ? tutorialTarget.get(0).id : null;
+                const tutSystemView = (window as any).TutorialSystem as TutorialSystemView;
+                const stepView = tutSystemView.activeTutCurrentStep;
+                const getTargetFunc = stepView?.getTargetFunc;
+                const targetFn = getTargetFunc?.();
+                const targetJQuery = targetFn?.();
+                const firstTarget = targetJQuery?.first();
+                const targetId = (firstTarget != null && firstTarget.length > 0 ? firstTarget.get(0)?.id ?? null : null) as string | null;
 
                 const diagnostics = targetId != null ? {
                     nodeBodyMatches: document.querySelectorAll(`#logicalGraph .node[id="${targetId}"] .body`).length,
@@ -665,25 +729,25 @@ export class TestHelpers {
     }
 
     static setMarkdownModalContent(content: string): void {
-        const editor = ($('#inputMarkdownModal') as JQuery<HTMLElement>).data('editor');
+        const editor = ($('#inputMarkdownModal') as JQuery<HTMLElement>).data('editor') as CodeMirrorTypes.Editor;
         editor.setValue(content);
     }
 
     static getMarkdownModalContent(): string {
-        const editor = ($('#inputMarkdownModal') as JQuery<HTMLElement>).data('editor');
-        return editor.getValue() as string;
+        const editor = ($('#inputMarkdownModal') as JQuery<HTMLElement>).data('editor') as CodeMirrorTypes.Editor;
+        return editor.getValue();
     }
 
     // Set the content of the editor in the modal
     static setCodeModalContent(content: string): void {
-        const editor = ($('#inputCodeModal') as JQuery<HTMLElement>).data('editor');
+        const editor = ($('#inputCodeModal') as JQuery<HTMLElement>).data('editor') as CodeMirrorTypes.Editor;
         editor.setValue(content);
     }
 
     // Get the content of the editor in the modal
     static getCodeModalContent(): string {
-        const editor = ($('#inputCodeModal') as JQuery<HTMLElement>).data('editor');
-        return editor.getValue() as string;
+        const editor = ($('#inputCodeModal') as JQuery<HTMLElement>).data('editor') as CodeMirrorTypes.Editor;
+        return editor.getValue();
     }
 
     // Read a graph file from disk
@@ -839,7 +903,7 @@ export class TestHelpers {
             }
         } else {
             if (Object.hasOwn(obj1, i) === false || (obj2[i] as unknown) !== (obj1[i] as unknown)) {
-            ret[i] = obj2[i];
+            ret[i] = obj2[i] as unknown;
             }
         }
         }
@@ -938,7 +1002,7 @@ export class TestHelpers {
 
         if (await inputModal.isVisible()) {
             await page.evaluate(() => {
-                const $ = (window as any).$;
+                const $ = (window as any).$ as (sel: string) => { data: (k: string, v: unknown) => void; modal: (m: string) => void };
                 const modal = $('#inputModal');
                 modal.data('completed', false);
                 modal.modal('hide');
@@ -951,7 +1015,7 @@ export class TestHelpers {
 
             if (await inputModal.isVisible().catch(() => false)) {
                 await page.evaluate(() => {
-                    const $ = (window as any).$;
+                    const $ = (window as any).$ as (sel: string) => { data: (k: string, v: unknown) => void; modal: (m: string) => void };
                     const modal = $('#inputModal');
                     modal.data('completed', false);
                     modal.modal('hide');
