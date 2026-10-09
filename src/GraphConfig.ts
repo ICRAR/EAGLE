@@ -199,7 +199,7 @@ export class GraphConfig {
         const result: GraphConfig = new GraphConfig();
 
         result.fileInfo(FileInfo.fromV4Json(data.modelData, errorsWarnings));
-        result.id((data.id as GraphConfigId) ?? Id.generateGraphConfigId());
+        result.id((data.id as GraphConfigId | undefined) ?? Id.generateGraphConfigId());
 
         // guard against missing attributes (older files may omit them; defaults applied below)
         const nodesData = Utils.asObjectMap(data.nodes, "nodes (in graph config " + data.id + ")", errorsWarnings);

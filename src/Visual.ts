@@ -228,8 +228,9 @@ export class Visual {
                 lg.getVisualById(targetId as VisualId)
             ) : null) ?? null;
 
-        return new Visual((visualData.type as VisualType) ?? VisualType.Text, visualData.content ?? "")
-            .setId((visualData.id as VisualId) ?? Id.generateVisualId())
+        // NOTE: default an unknown/missing type to Text (VisualType is a string enum)
+        return new Visual((visualData.type as VisualType | undefined) ?? VisualType.Text, visualData.content ?? "")
+            .setId((visualData.id ?? "") as VisualId)
             .setPosition(visualData.x ?? 0, visualData.y ?? 0)
             .setWidth(visualData.width ?? 0)
             .setHeight(visualData.height ?? 0)

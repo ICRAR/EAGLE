@@ -297,7 +297,7 @@ export class Utils {
             }
             return {};
         }
-        return data;
+        return data as Record<string, any>;
     }
 
     static dataTypePrefix(dataType: string): string {
@@ -2141,10 +2141,10 @@ export class Utils {
 
         const valid = ajv.validate(schema, json) as boolean;
         const errors = (ajv.errors ?? []).map((e) => ({
-            dataPath: e.instancePath ?? "",
+            dataPath: e.instancePath,
             message: e.message ?? "",
             // the missing property name for 'required' errors lives in params.missingProperty
-            missingProperty: (e.params as { missingProperty?: string })?.missingProperty
+            missingProperty: (e.params as { missingProperty?: string }).missingProperty
         }));
 
         return {valid: valid, errors: errors};
