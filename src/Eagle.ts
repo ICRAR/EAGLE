@@ -1157,13 +1157,46 @@ export class Eagle {
             return true;
         }
 
-        const validatorResult = Utils._validateJSON(dataObject, SchemaVersion.V4, EagleFileType.Graph);
+        const validatorResult = Utils._validateJSONDetailed(dataObject, SchemaVersion.V4, EagleFileType.Graph);
         if (validatorResult.valid) {
             return true;
         }
 
-        errorsWarnings.errors.push(Errors.Message("V4 graph JSON failed schema validation: " + validatorResult.errors));
-        return false;
+        // classify validation failures:
+        // - structural (missing/invalid top-level modelData or nodes) -> error, block loading
+        // - anything else (missing/invalid edges, visuals, graph configs, or per-object attributes)
+        //   -> warning; the parser applies defaults/skips so the graph can still load
+        // NOTE: ajv reports a leading-slash JSON pointer (e.g. "/modelData", "/nodes"), or "" for the root.
+        // A missing top-level property is reported at the root with a missingProperty; a present-but-
+        // wrong-type property is reported at its own path.
+        const structuralKeys: string[] = ["modelData", "nodes"];
+        let hasStructuralError: boolean = false;
+
+        for (const error of validatorResult.errors){
+            const dataPath: string = error.dataPath;
+            const isStructural: boolean =
+                // wrong-type top-level property: reported at /modelData or /nodes
+                structuralKeys.some((key: string) =>
+                    dataPath === "/" + key || dataPath.startsWith("/" + key + "/")
+                ) ||
+                // missing top-level property: reported at the root with a missingProperty
+                (dataPath === "" &&
+                    typeof error.missingProperty !== "undefined" &&
+                    structuralKeys.includes(error.missingProperty));
+
+            const displayPath: string = dataPath === "" ? "<root>" : dataPath.replace(/^\//, "");
+            const issue: Issue = Errors.Message("Schema validation: " + displayPath + " " + error.message +
+                (typeof error.missingProperty !== "undefined" ? " (" + error.missingProperty + ")" : ""));
+
+            if (isStructural){
+                hasStructuralError = true;
+                errorsWarnings.errors.push(issue);
+            } else {
+                errorsWarnings.warnings.push(issue);
+            }
+        }
+
+        return !hasStructuralError;
     }
 
     private _loadGraphJSON = async (data: string, fileFullPath: string, loadFunc: (lg: LogicalGraph, errorsWarnings: ErrorsWarnings) => void | Promise<void>) : Promise<boolean> => {
@@ -1192,27 +1225,35 @@ export class Eagle {
         let loaded = false;
 
         // use the correct parsing function based on schema version
-        switch (schemaVersion){
-            case SchemaVersion.OJS:
-            case SchemaVersion.Unknown:
-                // check if we need to update the graph from keys to ids
-                if (GraphUpdater.usesNodeKeys(dataObject)){
-                    GraphUpdater.updateKeysToIds(dataObject);
-                }
+        try {
+            switch (schemaVersion){
+                case SchemaVersion.OJS:
+                case SchemaVersion.Unknown:
+                    // check if we need to update the graph from keys to ids
+                    if (GraphUpdater.usesNodeKeys(dataObject)){
+                        GraphUpdater.updateKeysToIds(dataObject);
+                    }
 
-                await loadFunc(LogicalGraph.fromOJSJson(dataObject, "", errorsWarnings), errorsWarnings);
-                loaded = true;
-                break;
-            case SchemaVersion.V4:
-                if (!this._validateV4GraphLoadJSON(dataObject as JsonObject, errorsWarnings)) {
+                    await loadFunc(LogicalGraph.fromOJSJson(dataObject, "", errorsWarnings), errorsWarnings);
+                    loaded = true;
                     break;
-                }
-                await loadFunc(LogicalGraph.fromV4Json(dataObject as V4GraphJson, "", errorsWarnings), errorsWarnings);
-                loaded = true;
-                break;
-            default:
-                errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
-                break;
+                case SchemaVersion.V4:
+                    if (!this._validateV4GraphLoadJSON(dataObject as JsonObject, errorsWarnings)) {
+                        break;
+                    }
+                    await loadFunc(LogicalGraph.fromV4Json(dataObject as V4GraphJson, "", errorsWarnings), errorsWarnings);
+                    loaded = true;
+                    break;
+                default:
+                    errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
+                    break;
+            }
+        } catch (error){
+            // a parse/load failure mid-way must not leave the graph half-loaded
+            // (the parse builds the full graph object before any mutation, so abort here)
+            console.error("Error loading graph file:", error);
+            errorsWarnings.errors.push(Errors.Message("Failed to load graph file: " + Errors.UnknownToError(error)));
+            loaded = false;
         }
 
         this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), RepositoryService.File);
