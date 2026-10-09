@@ -180,7 +180,8 @@ export const lgGraphV4Schema = {
                     "default": "NoPort"
                 },
                 "changeable": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "default": true
                 },
                 "edgeIds": {
                     "type": "array",
@@ -202,7 +203,6 @@ export const lgGraphV4Schema = {
                 "id",
                 "parameterType",
                 "usage",
-                "changeable",
                 "encoding",
                 "edgeIds"
             ],
