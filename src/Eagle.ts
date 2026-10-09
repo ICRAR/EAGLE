@@ -50,6 +50,7 @@ import { LogicalGraph } from './LogicalGraph';
 import { Modals } from "./Modals";
 import { Node } from './Node';
 import { Palette } from './Palette';
+import { isStructuralV4Error } from './SchemaLoadClassifier';
 import { ParameterTable } from './ParameterTable';
 import { Repositories } from './Repositories';
 import { Repository, type RepositoryCommit, RepositoryService } from './Repository';
@@ -1178,29 +1179,15 @@ export class Eagle {
         // - structural (missing/invalid top-level modelData or nodes) -> error, block loading
         // - anything else (missing/invalid edges, visuals, graph configs, or per-object attributes)
         //   -> warning; the parser applies defaults/skips so the graph can still load
-        // NOTE: ajv reports a leading-slash JSON pointer (e.g. "/modelData", "/nodes"), or "" for the root.
-        // A missing top-level property is reported at the root with a missingProperty; a present-but-
-        // wrong-type property is reported at its own path.
-        const structuralKeys: string[] = ["modelData", "nodes"];
+        // See SchemaLoadClassifier for the classification rules (ajv path semantics).
         let hasStructuralError: boolean = false;
 
         for (const error of validatorResult.errors){
-            const dataPath: string = error.dataPath;
-            const isStructural: boolean =
-                // wrong-type top-level property: reported at /modelData or /nodes
-                structuralKeys.some((key: string) =>
-                    dataPath === "/" + key || dataPath.startsWith("/" + key + "/")
-                ) ||
-                // missing top-level property: reported at the root with a missingProperty
-                (dataPath === "" &&
-                    typeof error.missingProperty !== "undefined" &&
-                    structuralKeys.includes(error.missingProperty));
-
-            const displayPath: string = dataPath === "" ? "<root>" : dataPath.replace(/^\//, "");
+            const displayPath: string = error.dataPath === "" ? "<root>" : error.dataPath.replace(/^\//, "");
             const issue: Issue = Errors.Message("Schema validation: " + displayPath + " " + error.message +
                 (typeof error.missingProperty !== "undefined" ? " (" + error.missingProperty + ")" : ""));
 
-            if (isStructural){
+            if (isStructuralV4Error(error)){
                 hasStructuralError = true;
                 errorsWarnings.errors.push(issue);
             } else {
