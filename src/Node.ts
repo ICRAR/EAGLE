@@ -32,7 +32,7 @@ import { EagleConfig } from "./EagleConfig";
 import { Errors, type ErrorsWarnings, type Issue, Validity } from './Errors';
 import { Field } from './Field';
 import { Id } from './Id';
-import type { V4NodeJson } from './JsonLoadTypes';
+import type { V4NodeJson, V4FieldJson } from './JsonLoadTypes';
 import type { LogicalGraph } from './LogicalGraph';
 import { Setting, ShowErrorsMode } from './Setting';
 import { Utils } from './Utils';
@@ -1744,31 +1744,40 @@ export class Node {
     }
 
     static fromV4Json(nodeData : V4NodeJson, errorsWarnings: ErrorsWarnings, isPaletteNode: boolean) : Node {
+        // guard against missing attributes (older files may omit them; defaults applied below)
+        const nodeId: NodeId = (nodeData.id ?? Id.generateNodeId()) as NodeId;
+        const name: string = nodeData.name ?? "";
+
         // translate categories if required
         const category: CategoryName = nodeData.category as CategoryName;
 
         // if category is not known, then add error
         if (!Utils.isKnownCategory(category)){
-            errorsWarnings.errors.push(Errors.Message("Node with name " + nodeData.name + " has unknown category: " + category));
+            errorsWarnings.errors.push(Errors.Message("Node with name " + name + " has unknown category: " + category));
         }
 
-        const node : Node = new Node(nodeData.name, "", "", category);
+        const node : Node = new Node(name, "", "", category);
         const categoryData: ReturnType<typeof CategoryData.getCategoryInfo> = CategoryData.getCategoryInfo(category);
 
-        node.setId(nodeData.id as NodeId);
+        node.setId(nodeId);
 
         // set position
-        node.setPosition(nodeData.x, nodeData.y);
+        node.setPosition(nodeData.x ?? 0, nodeData.y ?? 0);
 
         // set categoryType based on the category
         node.categoryType(categoryData.categoryType);
 
         // get description
-        node.description(nodeData.description);
+        node.description(nodeData.description ?? "");
 
         // add fields
-        for (const [_id, fieldData] of Object.entries(nodeData.fields)){
-            const field = Field.fromV4Json(fieldData, node, !isPaletteNode);
+        const fieldsData = Utils.asObjectMap(nodeData.fields, "fields (in node " + name + ")", errorsWarnings);
+        for (const [_id, fieldData] of Object.entries(fieldsData)){
+            if (fieldData === null || typeof fieldData !== 'object' || Array.isArray(fieldData)){
+                errorsWarnings.errors.push(Errors.Message("Node (" + name + ") field (" + _id + ") has invalid JSON (not an object), skipping"));
+                continue;
+            }
+            const field = Field.fromV4Json(fieldData as V4FieldJson, node, !isPaletteNode);
             node.addField(field);
         }
 
@@ -2022,7 +2031,7 @@ export class Node {
 
         // add fields
         for (const field of node.fields().values()){
-            result.fields[field.getId()] = Field.toV4Json(field);
+            result.fields![field.getId()] = Field.toV4Json(field);
         }
 
         return result as V4NodeJson;

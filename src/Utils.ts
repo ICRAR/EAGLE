@@ -285,6 +285,21 @@ export class Utils {
         return EagleFileType.Unknown;
     }
 
+    // helper for V4 JSON loading: returns the given container as an object map,
+    // or an empty object if it is missing/null/not an object.
+    // Missing containers are a known case in older files, so this is a non-fatal warning.
+    static asObjectMap(data: any, attributeName: string, errorsWarnings: ErrorsWarnings) : Record<string, any> {
+        if (data === null || typeof data !== 'object' || Array.isArray(data)){
+            if (data === undefined || data === null){
+                errorsWarnings.warnings.push(Errors.Message("Missing attribute: '" + attributeName + "'. Treating as empty."));
+            } else {
+                errorsWarnings.warnings.push(Errors.Message("Attribute '" + attributeName + "' is not an object (" + typeof data + "). Treating as empty."));
+            }
+            return {};
+        }
+        return data;
+    }
+
     static dataTypePrefix(dataType: string): string {
         if (typeof dataType === 'undefined'){
             return DataType.Unknown;
