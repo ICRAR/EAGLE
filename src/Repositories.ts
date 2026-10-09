@@ -193,13 +193,14 @@ export class Repositories {
             newBranch: branchName,
             token: token
         });
-        let response: JsonObject | string;
+        // JSON.parse can yield null (for a JSON "null" body), so the parsed value must be treated as nullable.
+        let response: JsonObject | string | null;
         try {
-            response = typeof responseStr === "string" ? JSON.parse(responseStr) as JsonObject : responseStr;
+            response = typeof responseStr === "string" ? JSON.parse(responseStr) as JsonObject | null : responseStr;
         } catch (_e) {
             response = responseStr;
         }
-        if (typeof response === "object" && typeof response.error === "string" && response.error !== "") {
+        if (response != null && typeof response === "object" && typeof response.error === "string" && response.error !== "") {
             throw new Error(response.error);
         }
 
@@ -218,13 +219,14 @@ export class Repositories {
             branchToDelete: repository.branch,
             token: token
         });
-        let response: JsonObject | string;
+        // JSON.parse can yield null (for a JSON "null" body), so the parsed value must be treated as nullable.
+        let response: JsonObject | string | null;
         try {
-            response = typeof responseStr === "string" ? JSON.parse(responseStr) as JsonObject : responseStr;
+            response = typeof responseStr === "string" ? JSON.parse(responseStr) as JsonObject | null : responseStr;
         } catch (_e) {
             response = responseStr;
         }
-        if (typeof response === "object" && typeof response.error === "string" && response.error !== "") {
+        if (response != null && typeof response === "object" && typeof response.error === "string" && response.error !== "") {
             throw new Error(response.error);
         }
 

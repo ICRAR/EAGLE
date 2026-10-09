@@ -37,6 +37,8 @@ interface TutorialSystemView {
 export class TestHelpers {
     //How many times we will attempt to run a tutorial step before failing the test.
     private static readonly MAX_ATTEMPTS_PER_STEP = 5;
+    //How long to wait for the tutorial to advance after a Press-step click before retrying.
+    private static readonly STEP_ADVANCE_TIMEOUT = 1500;
     public static readonly UI_SETTLE_TIMEOUT = 500;
     public static readonly UI_SETTLE_TIMEOUT_LONG = 1000;
     public static readonly SHORT_TIMEOUT = 5000;
@@ -406,9 +408,19 @@ export class TestHelpers {
             }
 
             if (!clickPosition.covered) {
+                // Only report success once the tutorial has actually advanced; a click that landed on the overlay
+                // (or a click the tutorial ignored) must be retried or left to the caller's fallback.
+                const stepBefore = await TestHelpers.getTutorialStepIndex(page);
                 // Use Playwright's mouse API to dispatch real pointer events.
                 await page.mouse.click(clickPosition.x, clickPosition.y);
-                return true;
+                const advanced = await page.waitForFunction(
+                    (idx: number) => ((window as any).TutorialSystem?.activeTutCurrentStepIndex ?? -1) !== idx,
+                    stepBefore,
+                    { timeout: TestHelpers.STEP_ADVANCE_TIMEOUT },
+                ).then(() => true, () => false);
+                if (advanced) {
+                    return true;
+                }
             }
 
             if (Date.now() >= deadline) {
@@ -416,6 +428,10 @@ export class TestHelpers {
             }
             await page.waitForTimeout(100);
         }
+    }
+
+    private static async getTutorialStepIndex(page: Page): Promise<number> {
+        return page.evaluate(() => ((window as any).TutorialSystem?.activeTutCurrentStepIndex ?? -1) as number);
     }
 
     private static async clickElementBoundingRectCenter(page: Page, selector: string): Promise<boolean> {
