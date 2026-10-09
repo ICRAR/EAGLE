@@ -2091,6 +2091,65 @@ export class Utils {
         return {valid: valid, errors: ajv.errorsText(ajv.errors)};
     }
 
+    // like _validateJSON, but returns the individual validation errors (dataPath/message)
+    // so the caller can classify them (e.g. structural vs attribute-level)
+    static _validateJSONDetailed(json: any, version: SchemaVersion, fileType: EagleFileType) : {valid: boolean, errors: {dataPath: string, message: string, missingProperty?: string}[]} {
+        const ajv = new Ajv();
+        let schema: object | null = null;
+
+        switch(version){
+            case SchemaVersion.OJS:
+                switch(fileType){
+                    case EagleFileType.Graph:
+                        schema = Utils.ojsGraphSchema;
+                        break;
+                    case EagleFileType.Palette:
+                        schema = Utils.ojsPaletteSchema;
+                        break;
+                    case EagleFileType.GraphConfig:
+                        schema = Utils.ojsGraphConfigSchema;
+                        break;
+                    default:
+                        console.warn("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");
+                        break;
+                }
+                break;
+            case SchemaVersion.V4:
+                switch(fileType){
+                    case EagleFileType.Graph:
+                        schema = Utils.v4GraphSchema;
+                        break;
+                    case EagleFileType.Palette:
+                        schema = Utils.v4PaletteSchema;
+                        break;
+                    case EagleFileType.GraphConfig:
+                        schema = Utils.v4GraphConfigSchema;
+                        break;
+                    default:
+                        console.warn("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");
+                        break;
+                }
+                break;
+            default:
+                console.warn("Unknown format for validation (" + version + ")");
+                break;
+        }
+
+        if (schema === null){
+            return {valid: true, errors: []};
+        }
+
+        const valid = ajv.validate(schema, json) as boolean;
+        const errors = (ajv.errors ?? []).map((e) => ({
+            dataPath: e.instancePath ?? "",
+            message: e.message ?? "",
+            // the missing property name for 'required' errors lives in params.missingProperty
+            missingProperty: (e.params as { missingProperty?: string })?.missingProperty
+        }));
+
+        return {valid: valid, errors: errors};
+    }
+
     static async downloadFile(data : string, fileName : string) : Promise<void> {
         return new Promise((resolve) => {
             // NOTE: this stuff is a hacky way of saving a file locally
