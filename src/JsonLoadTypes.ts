@@ -36,7 +36,8 @@ export type V4GraphJson = FromSchema<typeof v4GraphLoadSchema>;
 // containers are optional in the load schema (older files may omit edges/visuals/etc),
 // so the element types are asserted non-undefined here.
 export type V4NodeJson = NonNullable<V4GraphJson["nodes"]>[string];
-export type V4FieldJson = NonNullable<V4NodeJson["fields"]>[string];
+type V4FieldSchemaJson = NonNullable<V4NodeJson["fields"]>[string];
+export type V4FieldJson = Omit<V4FieldSchemaJson, "changeable"> & {changeable?: boolean};
 export type V4EdgeJson = NonNullable<V4GraphJson["edges"]>[string];
 export type V4VisualLoadJson = NonNullable<V4GraphJson["visuals"]>[string];
 export type V4GraphConfigJson = NonNullable<V4GraphJson["graphConfigurations"]>[string];
