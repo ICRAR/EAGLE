@@ -59,13 +59,14 @@ const tmpDir = mkdtempSync(path.join(tmpdir(), "eagle-classifier-"));
 const classifierJsPath = path.join(tmpDir, "classifier.js");
 writeFileSync(classifierJsPath, classifierJs);
 const classifier = await import("file://" + classifierJsPath);
-const { isStructuralV4Error, hasStructuralError, classifyV4Errors } = classifier;
+const { isStructuralV4Error, hasStructuralError, appendV4ValidationIssues } = classifier;
 const STRUCTURAL_KEYS = classifier.STRUCTURAL_KEYS;
 
 function run() {
     const schema = JSON.parse(readFileSync(path.join(repoRoot, "static", "lg.graph.v4.schema"), "utf8"));
 
-    // replicate Utils._validateJSONDetailed + Eagle's classification
+    // Run the production warning/error collector with detailed Ajv output, just as
+    // Eagle._validateV4GraphLoadJSON does after Utils._validateJSONDetailed.
     function classify(dataObject) {
         const ajv = new Ajv({ strict: false, logger: false, allErrors: true });
         const valid = ajv.validate(schema, dataObject);
@@ -74,13 +75,14 @@ function run() {
             message: e.message ?? "",
             missingProperty: e.params && e.params.missingProperty,
         }));
-        if (valid) return { valid: true, structural: false, errors: 0, warnings: 0 };
-        const classified = classifyV4Errors(errors);
+        const issues = { errors: [], warnings: [] };
+        const canLoad = appendV4ValidationIssues(errors, issues, (message) => ({message}));
         return {
-            valid: false,
-            structural: classified.structuralErrors.length > 0,
-            errors: classified.structuralErrors.length,
-            warnings: classified.warnings.length,
+            valid,
+            structural: !canLoad,
+            errors: issues.errors.length,
+            warnings: issues.warnings.length,
+            warningMessages: issues.warnings.map((issue) => issue.message),
             totalErrors: errors.length,
         };
     }
@@ -124,7 +126,7 @@ function run() {
 
     let m = clone(chilies); delete m.nodes; m.edges = [];
     r = classify(m);
-    check("missing nodes remains structural despite earlier invalid edges", !r.valid && r.structural && r.warnings > 0, JSON.stringify(r));
+    check("missing nodes remains structural despite earlier invalid edges", !r.valid && r.structural && r.warningMessages.some((message) => message.includes("edges")), JSON.stringify(r));
 
     m = clone(chilies); delete m.modelData;
     r = classify(m);
@@ -142,19 +144,19 @@ function run() {
     // classification function used by Eagle's real load-validation path.
     m = clone(chilies); m.edges = [];
     r = classify(m);
-    check("invalid edges -> warning, not structural", !r.structural && r.warnings > 0, JSON.stringify(r));
+    check("invalid edges -> warning, not structural", !r.structural && r.warningMessages.some((message) => message.includes("edges")), JSON.stringify(r));
 
     m = clone(chilies); m.visuals = [];
     r = classify(m);
-    check("invalid visuals -> warning, not structural", !r.structural && r.warnings > 0, JSON.stringify(r));
+    check("invalid visuals -> warning, not structural", !r.structural && r.warningMessages.some((message) => message.includes("visuals")), JSON.stringify(r));
 
     m = clone(chilies); m.graphConfigurations = [];
     r = classify(m);
-    check("invalid graph configs -> warning, not structural", !r.structural && r.warnings > 0, JSON.stringify(r));
+    check("invalid graph configs -> warning, not structural", !r.structural && r.warningMessages.some((message) => message.includes("graphConfigurations")), JSON.stringify(r));
 
     m = clone(chilies); m.activeGraphConfigId = 5;
     r = classify(m);
-    check("invalid active graph config id -> warning, not structural", !r.structural && r.warnings > 0, JSON.stringify(r));
+    check("invalid active graph config id -> warning, not structural", !r.structural && r.warningMessages.some((message) => message.includes("activeGraphConfigId")), JSON.stringify(r));
 
     // Missing changeable is accepted and defaults in the parser; a wrong type is a warning.
     m = clone(chilies);
@@ -166,7 +168,7 @@ function run() {
 
     m.nodes[firstNodeId].fields[firstFieldId].changeable = "yes";
     r = classify(m);
-    check("invalid field attribute -> warning, not structural", !r.structural && r.warnings > 0, JSON.stringify(r));
+    check("invalid field attribute -> warning, not structural", !r.structural && r.warningMessages.some((message) => message.includes("changeable")), JSON.stringify(r));
 
     console.log("\n" + passed + " passed, " + failed + " failed");
     if (failed > 0) {
