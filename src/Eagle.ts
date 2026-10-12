@@ -50,7 +50,7 @@ import { LogicalGraph } from './LogicalGraph';
 import { Modals } from "./Modals";
 import { Node } from './Node';
 import { Palette } from './Palette';
-import { isStructuralV4Error } from './SchemaLoadClassifier';
+import { classifyV4Errors } from './SchemaLoadClassifier';
 import { ParameterTable } from './ParameterTable';
 import { Repositories } from './Repositories';
 import { Repository, type RepositoryCommit, RepositoryService } from './Repository';
@@ -1133,32 +1133,38 @@ export class Eagle {
         graphFileToInsertInputElement.value = "";
     }
 
-    private _handleLoadingErrors = (errorsWarnings: ErrorsWarnings, fileName: string, service: RepositoryService) : void => {
+    private _handleLoadingErrors = (errorsWarnings: ErrorsWarnings, fileName: string, service: RepositoryService, loadSucceeded: boolean = false) : void => {
         const showIssues: boolean = Setting.findValue<boolean>(Setting.SHOW_FILE_LOADING_WARNINGS, false);
         this.hideEagleIsLoading()
 
-        // errors are always shown in the issues modal; the setting only controls warnings
-        const hasErrors: boolean = Errors.hasErrors(errorsWarnings);
-        const hasWarnings: boolean = showIssues && Errors.hasWarnings(errorsWarnings);
+        // Parser diagnostics may be stored as errors even when malformed individual
+        // entries were safely skipped and the graph was successfully loaded.
+        const displayedIssues: ErrorsWarnings = loadSucceeded ? {
+            errors: [],
+            warnings: [...errorsWarnings.warnings, ...errorsWarnings.errors]
+        } : errorsWarnings;
+        const hasErrors: boolean = Errors.hasErrors(displayedIssues);
+        const hasWarnings: boolean = showIssues && Errors.hasWarnings(displayedIssues);
 
         if (hasErrors){
             // load failed (errors) -> show the issues modal; no "loaded" notification
-            this.loadingErrors(errorsWarnings.errors);
-            this.loadingWarnings(hasWarnings ? errorsWarnings.warnings : []);
+            this.loadingErrors(displayedIssues.errors);
+            this.loadingWarnings(hasWarnings ? displayedIssues.warnings : []);
 
             this.errorsMode(Mode.Loading);
             Utils.showErrorsModal("Loading File");
         } else if (hasWarnings){
             // loaded with warnings (setting on) -> show modal and an honest notification
-            this.loadingWarnings(errorsWarnings.warnings);
+            this.loadingErrors([]);
+            this.loadingWarnings(displayedIssues.warnings);
 
             this.errorsMode(Mode.Loading);
             Utils.showErrorsModal("Loading File");
 
-            Utils.showNotification("Success", fileName + " has been loaded from " + service + " with " + errorsWarnings.warnings.length + " warning(s).", "success");
-        } else if (Errors.hasWarnings(errorsWarnings)){
+            Utils.showNotification("Success", fileName + " has been loaded from " + service + " with " + displayedIssues.warnings.length + " warning(s).", "success");
+        } else if (Errors.hasWarnings(displayedIssues)){
             // loaded with warnings (setting off) -> no modal, but still say so
-            Utils.showNotification("Success", fileName + " has been loaded from " + service + " with " + errorsWarnings.warnings.length + " warning(s).", "success");
+            Utils.showNotification("Success", fileName + " has been loaded from " + service + " with " + displayedIssues.warnings.length + " warning(s).", "success");
         } else {
             // clean load, no issues
             Utils.showNotification("Success", fileName + " has been loaded from " + service + ".", "success");
@@ -1180,22 +1186,16 @@ export class Eagle {
         // - anything else (missing/invalid edges, visuals, graph configs, or per-object attributes)
         //   -> warning; the parser applies defaults/skips so the graph can still load
         // See SchemaLoadClassifier for the classification rules (ajv path semantics).
-        let hasStructuralError: boolean = false;
-
-        for (const error of validatorResult.errors){
+        const classification = classifyV4Errors(validatorResult.errors);
+        const toIssue = (error: typeof validatorResult.errors[number]): Issue => {
             const displayPath: string = error.dataPath === "" ? "<root>" : error.dataPath.replace(/^\//, "");
-            const issue: Issue = Errors.Message("Schema validation: " + displayPath + " " + error.message +
+            return Errors.Message("Schema validation: " + displayPath + " " + error.message +
                 (typeof error.missingProperty !== "undefined" ? " (" + error.missingProperty + ")" : ""));
+        };
+        errorsWarnings.errors.push(...classification.structuralErrors.map(toIssue));
+        errorsWarnings.warnings.push(...classification.warnings.map(toIssue));
 
-            if (isStructuralV4Error(error)){
-                hasStructuralError = true;
-                errorsWarnings.errors.push(issue);
-            } else {
-                errorsWarnings.warnings.push(issue);
-            }
-        }
-
-        return !hasStructuralError;
+        return classification.structuralErrors.length === 0;
     }
 
     private _loadGraphJSON = async (data: string, fileFullPath: string, loadFunc: (lg: LogicalGraph, errorsWarnings: ErrorsWarnings) => void | Promise<void>) : Promise<boolean> => {
@@ -1222,6 +1222,7 @@ export class Eagle {
 
         const errorsWarnings: ErrorsWarnings = {errors: [], warnings: []};
         let loaded = false;
+        const graphBeforeLoad = this.logicalGraph().clone();
 
         // use the correct parsing function based on schema version
         try {
@@ -1251,11 +1252,12 @@ export class Eagle {
             // a parse/load failure mid-way must not leave the graph half-loaded
             // (the parse builds the full graph object before any mutation, so abort here)
             console.error("Error loading graph file:", error);
+            this.logicalGraph(graphBeforeLoad);
             errorsWarnings.errors.push(Errors.Message("Failed to load graph file: " + Errors.UnknownToError(error)));
             loaded = false;
         }
 
-        this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), RepositoryService.File);
+        this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), RepositoryService.File, loaded);
         return loaded;
     }
 
@@ -1368,6 +1370,8 @@ export class Eagle {
 
     // NOTE: parentNode would be null if we are duplicating a selection of objects
     insertGraph = async (nodes: Node[], edges: Edge[], parentNode: Node | null, errorsWarnings: ErrorsWarnings) => {
+        const graphBeforeInsert = this.logicalGraph().clone();
+        try {
         // create map of inserted graph keys to final graph nodes, and of inserted port ids to final graph ports
         const nodeMap: Map<NodeId, Node> = new Map<NodeId, Node>();
         const portMap: Map<FieldId, Field> = new Map<FieldId, Field>();
@@ -1548,6 +1552,10 @@ export class Eagle {
             setTimeout(function(){
                 Eagle.getInstance().centerGraph()
             }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT)
+        }
+        } catch (error){
+            this.logicalGraph(graphBeforeInsert);
+            throw error;
         }
     }
 
@@ -3103,7 +3111,7 @@ export class Eagle {
         }
 
         // show errors/warnings
-        this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
+        this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service, true);
     }
 
     insertRemoteFile = async (file : RepositoryFile): Promise<void> => {
@@ -3199,7 +3207,7 @@ export class Eagle {
         this.checkEagle();
 
         // show errors/warnings
-        this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
+        this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service, true);
     };
 
     deleteRemoteFile = async (file : RepositoryFile): Promise<void> => {

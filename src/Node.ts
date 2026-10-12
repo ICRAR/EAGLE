@@ -1743,9 +1743,9 @@ export class Node {
         return node;
     }
 
-    static fromV4Json(nodeData : V4NodeJson, errorsWarnings: ErrorsWarnings, isPaletteNode: boolean) : Node {
+    static fromV4Json(nodeData : V4NodeJson, errorsWarnings: ErrorsWarnings, isPaletteNode: boolean, fallbackId?: NodeId) : Node {
         // guard against missing attributes (older files may omit them; defaults applied below)
-        const nodeId: NodeId = (nodeData.id ?? Id.generateNodeId()) as NodeId;
+        const nodeId: NodeId = (nodeData.id ?? fallbackId ?? Id.generateNodeId()) as NodeId;
         const name: string = nodeData.name ?? "";
 
         // translate categories if required
@@ -1772,12 +1772,12 @@ export class Node {
 
         // add fields
         const fieldsData = Utils.asObjectMap(nodeData.fields, "fields (in node " + name + ")", errorsWarnings);
-        for (const [_id, fieldData] of Object.entries(fieldsData)){
+        for (const [fieldId, fieldData] of Object.entries(fieldsData)){
             if (fieldData === null || typeof fieldData !== 'object' || Array.isArray(fieldData)){
-                errorsWarnings.errors.push(Errors.Message("Node (" + name + ") field (" + _id + ") has invalid JSON (not an object), skipping"));
+                errorsWarnings.errors.push(Errors.Message("Node (" + name + ") field (" + fieldId + ") has invalid JSON (not an object), skipping"));
                 continue;
             }
-            const field = Field.fromV4Json(fieldData as V4FieldJson, node, !isPaletteNode);
+            const field = Field.fromV4Json(fieldData as V4FieldJson, node, !isPaletteNode, fieldId as FieldId);
             node.addField(field);
         }
 

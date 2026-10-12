@@ -59,7 +59,7 @@ const tmpDir = mkdtempSync(path.join(tmpdir(), "eagle-classifier-"));
 const classifierJsPath = path.join(tmpDir, "classifier.js");
 writeFileSync(classifierJsPath, classifierJs);
 const classifier = await import("file://" + classifierJsPath);
-const { isStructuralV4Error, hasStructuralError } = classifier;
+const { isStructuralV4Error, hasStructuralError, classifyV4Errors } = classifier;
 const STRUCTURAL_KEYS = classifier.STRUCTURAL_KEYS;
 
 function run() {
@@ -67,7 +67,7 @@ function run() {
 
     // replicate Utils._validateJSONDetailed + Eagle's classification
     function classify(dataObject) {
-        const ajv = new Ajv({ strict: false, logger: false });
+        const ajv = new Ajv({ strict: false, logger: false, allErrors: true });
         const valid = ajv.validate(schema, dataObject);
         const errors = (ajv.errors ?? []).map((e) => ({
             dataPath: e.instancePath ?? "",
@@ -75,16 +75,14 @@ function run() {
             missingProperty: e.params && e.params.missingProperty,
         }));
         if (valid) return { valid: true, structural: false, errors: 0, warnings: 0 };
-        let structural = false;
-        let warnings = 0;
-        for (const error of errors) {
-            if (isStructuralV4Error(error)) {
-                structural = true;
-            } else {
-                warnings++;
-            }
-        }
-        return { valid: false, structural, warnings, totalErrors: errors.length };
+        const classified = classifyV4Errors(errors);
+        return {
+            valid: false,
+            structural: classified.structuralErrors.length > 0,
+            errors: classified.structuralErrors.length,
+            warnings: classified.warnings.length,
+            totalErrors: errors.length,
+        };
     }
 
     const clone = (o) => JSON.parse(JSON.stringify(o));
@@ -124,9 +122,9 @@ function run() {
     r = classify(clone(chilies)); // no structural keys touched, but missing edges/visuals are allowed now
     check("chilies as-is -> valid", r.valid === true);
 
-    let m = clone(chilies); delete m.nodes;
+    let m = clone(chilies); delete m.nodes; m.edges = [];
     r = classify(m);
-    check("missing nodes -> structural (blocks)", !r.valid && r.structural, JSON.stringify(r));
+    check("missing nodes remains structural despite earlier invalid edges", !r.valid && r.structural && r.warnings > 0, JSON.stringify(r));
 
     m = clone(chilies); delete m.modelData;
     r = classify(m);
@@ -140,27 +138,35 @@ function run() {
     r = classify(m);
     check("modelData wrong type -> structural (blocks)", !r.valid && r.structural, JSON.stringify(r));
 
-    // non-structural: these should NOT block (no structural error). They may or may not be valid
-    // depending on whether the schema still requires them; the key guarantee is "not structural".
-    m = clone(chilies); delete m.edges;
+    // Non-structural schema violations must be reported as warnings by the same
+    // classification function used by Eagle's real load-validation path.
+    m = clone(chilies); m.edges = [];
     r = classify(m);
-    check("missing edges -> not structural", !r.structural, JSON.stringify(r));
+    check("invalid edges -> warning, not structural", !r.structural && r.warnings > 0, JSON.stringify(r));
 
-    m = clone(chilies); delete m.visuals;
+    m = clone(chilies); m.visuals = [];
     r = classify(m);
-    check("missing visuals -> not structural", !r.structural, JSON.stringify(r));
+    check("invalid visuals -> warning, not structural", !r.structural && r.warnings > 0, JSON.stringify(r));
 
-    m = clone(chilies); delete m.graphConfigurations; delete m.activeGraphConfigId;
+    m = clone(chilies); m.graphConfigurations = [];
     r = classify(m);
-    check("missing graph configs -> not structural", !r.structural, JSON.stringify(r));
+    check("invalid graph configs -> warning, not structural", !r.structural && r.warnings > 0, JSON.stringify(r));
 
-    // per-object attribute missing (changeable on a field) -> not structural
+    m = clone(chilies); m.activeGraphConfigId = 5;
+    r = classify(m);
+    check("invalid active graph config id -> warning, not structural", !r.structural && r.warnings > 0, JSON.stringify(r));
+
+    // Missing changeable is accepted and defaults in the parser; a wrong type is a warning.
     m = clone(chilies);
     const firstNodeId = Object.keys(m.nodes)[0];
     const firstFieldId = Object.keys(m.nodes[firstNodeId].fields)[0];
     delete m.nodes[firstNodeId].fields[firstFieldId].changeable;
     r = classify(m);
-    check("field missing changeable -> not structural", !r.structural, JSON.stringify(r));
+    check("field missing changeable is accepted", r.valid === true, JSON.stringify(r));
+
+    m.nodes[firstNodeId].fields[firstFieldId].changeable = "yes";
+    r = classify(m);
+    check("invalid field attribute -> warning, not structural", !r.structural && r.warnings > 0, JSON.stringify(r));
 
     console.log("\n" + passed + " passed, " + failed + " failed");
     if (failed > 0) {

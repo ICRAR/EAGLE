@@ -1753,6 +1753,13 @@ export class Utils {
             }
         }
 
+        // Older V4 graph documents may omit schemaVersion. Their explicit V4
+        // modelData.type and graph container shape are sufficient to route them
+        // through the backwards-compatible V4 parser (rather than the OJS parser).
+        if (typeof data.modelData?.type === "string" && data.modelData.type.toLowerCase() === "graph"){
+            return SchemaVersion.V4;
+        }
+
         return SchemaVersion.Unknown;
     }
 
@@ -2095,7 +2102,7 @@ export class Utils {
     // like _validateJSON, but returns the individual validation errors (dataPath/message)
     // so the caller can classify them (e.g. structural vs attribute-level)
     static _validateJSONDetailed(json: any, version: SchemaVersion, fileType: EagleFileType) : {valid: boolean, errors: {dataPath: string, message: string, missingProperty?: string}[]} {
-        const ajv = new Ajv();
+        const ajv = new Ajv({allErrors: true});
         let schema: object | null = null;
 
         switch(version){

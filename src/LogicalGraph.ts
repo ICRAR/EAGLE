@@ -461,7 +461,7 @@ export class LogicalGraph {
                 errorsWarnings.errors.push(Errors.Message("Node (" + nodeId + ") has invalid JSON (not an object), skipping"));
                 continue;
             }
-            const node = Node.fromV4Json(nodeData as V4NodeJson, errorsWarnings, false);
+            const node = Node.fromV4Json(nodeData as V4NodeJson, errorsWarnings, false, nodeId as NodeId);
 
             result.nodes().set(nodeId as NodeId, node);
             result.nodes.valueHasMutated();
@@ -470,6 +470,9 @@ export class LogicalGraph {
         // second pass through the nodes
         // used to set parent, embed, subject, inputApplication, outputApplication
         for (const [nodeId, nodeData] of Object.entries(nodesData)){
+            if (nodeData === null || typeof nodeData !== 'object' || Array.isArray(nodeData)){
+                continue;
+            }
             const embed = result.getNodeById(nodeData.embedId as NodeId);
             const parent = result.getNodeById(nodeData.parentId as NodeId);
             const inputApplication = result.getNodeById(nodeData.inputApplicationId as NodeId);
@@ -503,7 +506,7 @@ export class LogicalGraph {
                 errorsWarnings.errors.push(Errors.Message("Edge (" + edgeId + ") has invalid JSON (not an object), skipping"));
                 continue;
             }
-            const edge = Edge.fromV4Json(edgeData as V4EdgeJson, result, errorsWarnings);
+            const edge = Edge.fromV4Json(edgeData as V4EdgeJson, result, errorsWarnings, edgeId as EdgeId);
 
             if (edge === null){
                 continue;
@@ -524,7 +527,7 @@ export class LogicalGraph {
                 errorsWarnings.errors.push(Errors.Message("Visual (" + visualId + ") has invalid JSON (not an object), skipping"));
                 continue;
             }
-            const visual = Visual.fromV4GraphJson(visualData as V4VisualLoadJson, result, errorsWarnings);
+            const visual = Visual.fromV4GraphJson(visualData as V4VisualLoadJson, result, errorsWarnings, visualId as VisualId);
 
             result.visuals().set(visualId as VisualId, visual);
             result.visuals.valueHasMutated();

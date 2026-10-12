@@ -171,8 +171,7 @@ export const lgGraphV4Schema = {
                     ]
                 },
                 "changeable": {
-                    "type": "boolean",
-                    "default": true
+                    "type": "boolean"
                 },
                 "edgeIds": {
                     "type": "array",
