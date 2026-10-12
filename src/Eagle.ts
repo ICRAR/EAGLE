@@ -50,7 +50,7 @@ import { LogicalGraph } from './LogicalGraph';
 import { Modals } from "./Modals";
 import { Node } from './Node';
 import { Palette } from './Palette';
-import { classifyV4Errors } from './SchemaLoadClassifier';
+import { appendV4ValidationIssues } from './SchemaLoadClassifier';
 import { ParameterTable } from './ParameterTable';
 import { Repositories } from './Repositories';
 import { Repository, type RepositoryCommit, RepositoryService } from './Repository';
@@ -1186,16 +1186,7 @@ export class Eagle {
         // - anything else (missing/invalid edges, visuals, graph configs, or per-object attributes)
         //   -> warning; the parser applies defaults/skips so the graph can still load
         // See SchemaLoadClassifier for the classification rules (ajv path semantics).
-        const classification = classifyV4Errors(validatorResult.errors);
-        const toIssue = (error: typeof validatorResult.errors[number]): Issue => {
-            const displayPath: string = error.dataPath === "" ? "<root>" : error.dataPath.replace(/^\//, "");
-            return Errors.Message("Schema validation: " + displayPath + " " + error.message +
-                (typeof error.missingProperty !== "undefined" ? " (" + error.missingProperty + ")" : ""));
-        };
-        errorsWarnings.errors.push(...classification.structuralErrors.map(toIssue));
-        errorsWarnings.warnings.push(...classification.warnings.map(toIssue));
-
-        return classification.structuralErrors.length === 0;
+        return appendV4ValidationIssues(validatorResult.errors, errorsWarnings, Errors.Message);
     }
 
     private _loadGraphJSON = async (data: string, fileFullPath: string, loadFunc: (lg: LogicalGraph, errorsWarnings: ErrorsWarnings) => void | Promise<void>) : Promise<boolean> => {

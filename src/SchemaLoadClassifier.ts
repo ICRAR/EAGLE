@@ -68,6 +68,24 @@ export function classifyV4Errors(errors: SchemaValidationError[]): {structuralEr
     return {structuralErrors, warnings};
 }
 
+// Append classified validation issues to the same arrays consumed by Eagle's
+// loading UI. The issue factory keeps this helper independent of browser code.
+export function appendV4ValidationIssues<T>(
+    errors: SchemaValidationError[],
+    errorsWarnings: {errors: T[], warnings: T[]},
+    makeIssue: (message: string) => T
+): boolean {
+    const classification = classifyV4Errors(errors);
+    const toIssue = (error: SchemaValidationError): T => {
+        const displayPath = error.dataPath === "" ? "<root>" : (error.dataPath.startsWith("/") ? error.dataPath.slice(1) : error.dataPath);
+        return makeIssue("Schema validation: " + displayPath + " " + error.message +
+            (typeof error.missingProperty !== "undefined" ? " (" + error.missingProperty + ")" : ""));
+    };
+    errorsWarnings.errors.push(...classification.structuralErrors.map(toIssue));
+    errorsWarnings.warnings.push(...classification.warnings.map(toIssue));
+    return classification.structuralErrors.length === 0;
+}
+
 // Returns true if any of the validation errors is structural (i.e. should block loading).
 export function hasStructuralError(errors: SchemaValidationError[]): boolean {
     return classifyV4Errors(errors).structuralErrors.length > 0;
