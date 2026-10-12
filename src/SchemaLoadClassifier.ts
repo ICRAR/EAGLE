@@ -57,7 +57,18 @@ export function isStructuralV4Error(error: SchemaValidationError): boolean {
     );
 }
 
+// Split detailed validator output the same way the loader does, so both the
+// production validation path and its schema tests verify warning classification.
+export function classifyV4Errors(errors: SchemaValidationError[]): {structuralErrors: SchemaValidationError[], warnings: SchemaValidationError[]} {
+    const structuralErrors: SchemaValidationError[] = [];
+    const warnings: SchemaValidationError[] = [];
+    for (const error of errors){
+        (isStructuralV4Error(error) ? structuralErrors : warnings).push(error);
+    }
+    return {structuralErrors, warnings};
+}
+
 // Returns true if any of the validation errors is structural (i.e. should block loading).
 export function hasStructuralError(errors: SchemaValidationError[]): boolean {
-    return errors.some(isStructuralV4Error);
+    return classifyV4Errors(errors).structuralErrors.length > 0;
 }

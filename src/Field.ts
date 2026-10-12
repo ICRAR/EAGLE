@@ -939,7 +939,7 @@ export class Field {
         return f;
     }
 
-    static fromV4Json(data: V4FieldJson, node: Node, changeable: boolean): Field {
+    static fromV4Json(data: V4FieldJson, node: Node, changeable: boolean, fallbackId?: FieldId): Field {
         let id: FieldId = Id.generateFieldId();
         let name: string = "";
         let value: string | null = "";
@@ -957,7 +957,7 @@ export class Field {
         let encoding: Encoding = Encoding.Pickle;
         let fieldChangeable: boolean = changeable;
 
-        if (typeof data.id !== 'undefined') { id = data.id as FieldId; }
+        if (typeof data.id !== 'undefined') { id = data.id as FieldId; } else if (typeof fallbackId !== 'undefined') { id = fallbackId; }
         if (typeof data.name !== 'undefined') { name = data.name; }
         if (typeof data.value !== 'undefined') {
             if (data.value !== null){

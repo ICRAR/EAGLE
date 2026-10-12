@@ -218,7 +218,7 @@ export class Visual {
         .setColor(color)
     }
 
-    static fromV4GraphJson(visualData: V4VisualLoadJson, lg: LogicalGraph, _errorsWarnings: ErrorsWarnings) : Visual {
+    static fromV4GraphJson(visualData: V4VisualLoadJson, lg: LogicalGraph, _errorsWarnings: ErrorsWarnings, fallbackId?: VisualId) : Visual {
         // guard against missing attributes (older files may omit them; defaults applied below)
         const targetId = visualData.targetId ?? null;
         const target : Node | Edge | Visual | null =
@@ -229,13 +229,20 @@ export class Visual {
             ) : null) ?? null;
 
         // NOTE: default an unknown/missing type to Text (VisualType is a string enum)
-        return new Visual((visualData.type as VisualType | undefined) ?? VisualType.Text, visualData.content ?? "")
-            .setId((visualData.id ?? "") as VisualId)
+        const visual = new Visual((visualData.type as VisualType | undefined) ?? VisualType.Text, visualData.content ?? "")
+            .setId((visualData.id ?? fallbackId ?? Id.generateVisualId()) as VisualId)
             .setPosition(visualData.x ?? 0, visualData.y ?? 0)
-            .setWidth(visualData.width ?? 0)
-            .setHeight(visualData.height ?? 0)
             .setTarget(target)
             .setColor(visualData.color ?? "");
+
+        if (typeof visualData.width !== 'undefined'){
+            visual.setWidth(visualData.width);
+        }
+        if (typeof visualData.height !== 'undefined'){
+            visual.setHeight(visualData.height);
+        }
+
+        return visual;
     }
 
     static toJson(visual: Visual) : V4VisualLoadJson {

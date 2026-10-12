@@ -364,9 +364,9 @@ export class Edge {
         return new Edge(comment, srcNode, srcPort, destNode, destPort, loopAware, closesLoop, false);
     }
 
-    static fromV4Json(edgeData: V4EdgeJson, lg: LogicalGraph, errorsWarnings: ErrorsWarnings) : Edge | null {
+    static fromV4Json(edgeData: V4EdgeJson, lg: LogicalGraph, errorsWarnings: ErrorsWarnings, fallbackId?: EdgeId) : Edge | null {
         // guard against missing attributes (older files may omit them; defaults applied below)
-        const edgeId: EdgeId = (edgeData.id ?? Id.generateEdgeId()) as EdgeId;
+        const edgeId: EdgeId = (edgeData.id ?? fallbackId ?? Id.generateEdgeId()) as EdgeId;
         const comment: string = edgeData.comment ?? '';
         const loopAware: boolean = edgeData.loopAware ?? false;
         const closesLoop: boolean = edgeData.closesLoop ?? false;
