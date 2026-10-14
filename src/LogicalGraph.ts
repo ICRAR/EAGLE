@@ -456,6 +456,11 @@ export class LogicalGraph {
 
         // add nodes
         const nodesData = Utils.asObjectMap(dataObject.nodes, "nodes", errorsWarnings);
+        const nodesContainer: unknown = (dataObject as {nodes?: unknown}).nodes;
+        if (nodesContainer !== null && typeof nodesContainer === 'object'
+            && !Array.isArray(nodesContainer) && Object.keys(nodesData).length === 0){
+            errorsWarnings.warnings.push(Errors.Message("The graph contains no nodes."));
+        }
         for (const [nodeId, nodeData] of Object.entries(nodesData)){
             if (nodeData === null || typeof nodeData !== 'object' || Array.isArray(nodeData)){
                 errorsWarnings.errors.push(Errors.Message("Node (" + nodeId + ") has invalid JSON (not an object), skipping"));
