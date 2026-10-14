@@ -1374,7 +1374,7 @@ export class Eagle {
 
     // NOTE: parentNode would be null if we are duplicating a selection of objects
     insertGraph = async (nodes: Node[], edges: Edge[], parentNode: Node | null, errorsWarnings: ErrorsWarnings) => {
-        const graphBeforeInsert = this.logicalGraph().clone();
+        const graphBeforeInsert = this.logicalGraph().createRollbackSnapshot();
         try {
         // create map of inserted graph keys to final graph nodes, and of inserted port ids to final graph ports
         const nodeMap: Map<NodeId, Node> = new Map<NodeId, Node>();
@@ -1558,7 +1558,7 @@ export class Eagle {
             }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT)
         }
         } catch (error){
-            this.logicalGraph(graphBeforeInsert);
+            this.logicalGraph().restoreRollbackSnapshot(graphBeforeInsert);
             throw error;
         }
     }
