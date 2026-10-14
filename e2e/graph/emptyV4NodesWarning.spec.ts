@@ -1,17 +1,16 @@
 import { test, expect } from '@playwright/test';
-import { TestHelpers } from '../TestHelpers';
-
-const INPUT_GRAPH_LOCATION = "data/chilies_daliuge_split_organised.graph";
 
 test('An empty V4 nodes container loads with a warning', async ({ page }) => {
     await page.goto('http://localhost:8888/?tutorial=none');
 
-    const graphData = JSON.parse(await TestHelpers.readGraph(INPUT_GRAPH_LOCATION));
-    graphData.nodes = {};
-    graphData.edges = {};
-    graphData.visuals = {};
-    graphData.graphConfigurations = {};
-    graphData.activeGraphConfigId = null;
+    const graphData = {
+        modelData: { type: 'Graph', schemaVersion: 'V4', name: 'empty graph' },
+        nodes: {},
+        edges: {},
+        visuals: {},
+        graphConfigurations: {},
+        activeGraphConfigId: null,
+    };
 
     const result = await page.evaluate(async (data: object) => {
         const eagle = (window as any).eagle;
