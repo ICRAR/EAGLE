@@ -807,6 +807,54 @@ export class LogicalGraph {
         this.activeGraphConfigId(null)
     }
 
+    /**
+     * Capture the current graph collections for transactional rollback. Unlike clone(),
+     * this keeps the original graph objects so their parent/embed/config references stay
+     * wired to the graph they belong to.
+     */
+    createRollbackSnapshot = (): LogicalGraph => {
+        const snapshot = new LogicalGraph();
+        snapshot.fileInfo(this.fileInfo().clone());
+
+        for (const [id, node] of this.nodes()){
+            snapshot.nodes().set(id, node);
+        }
+        for (const [id, edge] of this.edges()){
+            snapshot.edges().set(id, edge);
+        }
+        for (const [id, visual] of this.visuals()){
+            snapshot.visuals().set(id, visual);
+        }
+        for (const [id, graphConfig] of this.graphConfigs()){
+            snapshot.graphConfigs().set(id, graphConfig);
+        }
+        snapshot.activeGraphConfigId(this.activeGraphConfigId());
+
+        return snapshot;
+    }
+
+    /** Restore a rollback snapshot without replacing this graph or its observable maps. */
+    restoreRollbackSnapshot = (snapshot: LogicalGraph): void => {
+        this.fileInfo(snapshot.fileInfo().clone());
+
+        const restoreMap = <K, V>(target: Map<K, V>, source: Map<K, V>): void => {
+            target.clear();
+            for (const [key, value] of source){
+                target.set(key, value);
+            }
+        };
+
+        restoreMap(this.nodes(), snapshot.nodes());
+        this.nodes.valueHasMutated();
+        restoreMap(this.edges(), snapshot.edges());
+        this.edges.valueHasMutated();
+        restoreMap(this.visuals(), snapshot.visuals());
+        this.visuals.valueHasMutated();
+        restoreMap(this.graphConfigs(), snapshot.graphConfigs());
+        this.graphConfigs.valueHasMutated();
+        this.activeGraphConfigId(snapshot.activeGraphConfigId());
+    }
+
     clone = () : LogicalGraph => {
         const result : LogicalGraph = new LogicalGraph();
 
