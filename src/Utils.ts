@@ -2101,7 +2101,7 @@ export class Utils {
 
     // like _validateJSON, but returns the individual validation errors (dataPath/message)
     // so the caller can classify them (e.g. structural vs attribute-level)
-    static _validateJSONDetailed(json: any, version: SchemaVersion, fileType: EagleFileType) : {valid: boolean, errors: {dataPath: string, message: string, missingProperty?: string}[]} {
+    static _validateJSONDetailed(json: any, version: SchemaVersion, fileType: EagleFileType) : {valid: boolean, errors: {dataPath: string, message: string, keyword?: string, params?: Record<string, unknown>, missingProperty?: string}[]} {
         const ajv = new Ajv({allErrors: true});
         let schema: object | null = null;
 
@@ -2149,9 +2149,12 @@ export class Utils {
 
         const valid = ajv.validate(schema, json) as boolean;
         const errors = (ajv.errors ?? []).map((e) => ({
-            dataPath: e.instancePath ?? ((e as {dataPath?: string}).dataPath ?? "").replace(/^\./, "/"),
+            dataPath: (e as {instancePath?: string}).instancePath ?? ((e as {dataPath?: string}).dataPath ?? "").replace(/^\./, "/"),
             message: e.message ?? "",
-            // the missing property name for 'required' errors lives in params.missingProperty
+            keyword: e.keyword,
+            params: e.params as unknown as Record<string, unknown>,
+            // Keep the convenience property for existing classifier callers; the full Ajv
+            // params are also retained above (including additionalProperty).
             missingProperty: (e.params as { missingProperty?: string }).missingProperty
         }));
 

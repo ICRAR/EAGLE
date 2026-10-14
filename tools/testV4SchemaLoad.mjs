@@ -74,6 +74,8 @@ function run() {
         const errors = (ajv.errors ?? []).map((e) => ({
             dataPath: e.instancePath ?? "",
             message: e.message ?? "",
+            keyword: e.keyword,
+            params: e.params,
             missingProperty: e.params && e.params.missingProperty,
         }));
         const issues = { errors: [], warnings: [] };
@@ -84,6 +86,7 @@ function run() {
             errors: issues.errors.length,
             warnings: issues.warnings.length,
             warningMessages: issues.warnings.map((issue) => issue.message),
+            validationErrors: errors,
             totalErrors: errors.length,
         };
     }
@@ -115,7 +118,12 @@ function run() {
     check("/modelData (wrong type) is structural", isStructuralV4Error({ dataPath: "/modelData", message: "" }));
     check("/edges (wrong type) is structural", isStructuralV4Error({ dataPath: "/edges", message: "" }));
     check("/activeGraphConfigId (wrong type) is structural", isStructuralV4Error({ dataPath: "/activeGraphConfigId", message: "" }));
-    check("root additionalProperties (unsupported top-level key) is structural", isStructuralV4Error({ dataPath: "", message: "must NOT have additional properties" }));
+    check("root additionalProperties (unsupported top-level key) is structural", isStructuralV4Error({
+        dataPath: "",
+        message: "must NOT have additional properties",
+        keyword: "additionalProperties",
+        params: { additionalProperty: "unexpected" },
+    }));
     check("hasStructuralError true when one structural", hasStructuralError([{ dataPath: "" }, { dataPath: "", missingProperty: "nodes" }]));
     check("hasStructuralError false when none", !hasStructuralError([{ dataPath: "", missingProperty: "visuals" }]));
 
@@ -171,6 +179,10 @@ function run() {
     m = clone(chilies); m.unknownTopLevelKey = 1;
     r = classify(m);
     check("unsupported top-level key -> structural", !r.valid && r.structural, JSON.stringify(r));
+    check("unsupported top-level key retains Ajv keyword and params",
+        r.validationErrors.some((error) => error.dataPath === ""
+            && error.keyword === "additionalProperties"
+            && error.params.additionalProperty === "unknownTopLevelKey"), JSON.stringify(r.validationErrors));
 
     // Missing changeable is accepted and defaults in the parser; a wrong type is a warning.
     m = clone(chilies);

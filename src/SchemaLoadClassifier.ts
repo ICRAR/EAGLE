@@ -31,6 +31,8 @@
 export type SchemaValidationError = {
     dataPath: string;
     message: string;
+    keyword?: string;
+    params?: Record<string, unknown>;
     missingProperty?: string;
 };
 
@@ -62,7 +64,14 @@ export const STRUCTURAL_KEYS: string[] = ["modelData", "nodes"];
 //  - Missing (optional) per-object attributes, which the parsers default/skip.
 export function isStructuralV4Error(error: SchemaValidationError): boolean {
     const path = error.dataPath;
-    const missing = error.missingProperty;
+    const missing = error.missingProperty ?? error.params?.missingProperty as string | undefined;
+
+    // Unexpected keys are structural even at the root, where Ajv reports an empty
+    // dataPath and no missingProperty. Keep the keyword/params so this does not rely
+    // on interpreting Ajv's human-readable message.
+    if (error.keyword === "additionalProperties"){
+        return true;
+    }
 
     // a violation of something that is present and wrong -> structural
     if (path !== "" || typeof missing === "undefined"){
