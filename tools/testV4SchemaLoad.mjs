@@ -184,13 +184,15 @@ function run() {
             && error.keyword === "additionalProperties"
             && error.params.additionalProperty === "unknownTopLevelKey"), JSON.stringify(r.validationErrors));
 
-    // Missing changeable is accepted and defaults in the parser; a wrong type is a warning.
+    // These checks cover only schema/classifier behavior. The actual parser default
+    // and load result for an omitted changeable property are covered by
+    // e2e/graph/v4FieldChangeableDefault.spec.ts.
     m = clone(chilies);
     const firstNodeId = Object.keys(m.nodes)[0];
     const firstFieldId = Object.keys(m.nodes[firstNodeId].fields)[0];
     delete m.nodes[firstNodeId].fields[firstFieldId].changeable;
     r = classify(m);
-    check("field missing changeable is accepted", r.valid === true, JSON.stringify(r));
+    check("Ajv accepts field with missing changeable", r.valid === true, JSON.stringify(r));
 
     m = clone(chilies);
     m.nodes[firstNodeId].fields[firstFieldId].changeable = "yes";
