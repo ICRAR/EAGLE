@@ -24,12 +24,13 @@
 
 // Node test for V4 graph schema loading classification.
 //
-// Verifies the behaviour introduced by the "treat non-structural schema
-// failures as warnings" change:
+// Verifies the V4 load validation classification:
 //   - a valid V4 graph (including one missing the changeable attribute) loads
-//   - missing/invalid non-structural top-level keys (edges, visuals, configs,
-//     activeGraphConfigId) or any per-object attribute -> warnings (load)
-//   - missing/wrong-type modelData or nodes -> structural error (block)
+//   - missing (optional) top-level keys or missing per-object attributes ->
+//     the graph still loads (parsers apply defaults)
+//   - wrong-type/other violations of ANY attribute (top-level or per-object,
+//     e.g. changeable: "false", string coords, invalid activeGraphConfigId)
+//     and unsupported top-level keys -> structural error (block)
 //
 // The classifier lives in src/SchemaLoadClassifier.ts (pure, no deps). We
 // transpile that single file to CJS on the fly with the bundled TypeScript and
@@ -108,12 +109,15 @@ function run() {
     check("STRUCTURAL_KEYS == [modelData, nodes]", JSON.stringify(STRUCTURAL_KEYS) === JSON.stringify(["modelData", "nodes"]));
     check("root missingProperty=nodes is structural", isStructuralV4Error({ dataPath: "", message: "", missingProperty: "nodes" }));
     check("root missingProperty=edges is NOT structural", !isStructuralV4Error({ dataPath: "", message: "", missingProperty: "edges" }));
+    check("root missingProperty=activeGraphConfigId is NOT structural", !isStructuralV4Error({ dataPath: "", message: "", missingProperty: "activeGraphConfigId" }));
     check("/nodes (wrong type) is structural", isStructuralV4Error({ dataPath: "/nodes", message: "" }));
-    check("/nodes/xxx (deep) is NOT structural", !isStructuralV4Error({ dataPath: "/nodes/1/fields", message: "" }));
+    check("/nodes/xxx/attribute (wrong type) is structural", isStructuralV4Error({ dataPath: "/nodes/1/fields/2/changeable", message: "" }));
     check("/modelData (wrong type) is structural", isStructuralV4Error({ dataPath: "/modelData", message: "" }));
-    check("/edges (wrong type) is NOT structural", !isStructuralV4Error({ dataPath: "/edges", message: "" }));
+    check("/edges (wrong type) is structural", isStructuralV4Error({ dataPath: "/edges", message: "" }));
+    check("/activeGraphConfigId (wrong type) is structural", isStructuralV4Error({ dataPath: "/activeGraphConfigId", message: "" }));
+    check("root additionalProperties (unsupported top-level key) is structural", isStructuralV4Error({ dataPath: "", message: "must NOT have additional properties" }));
     check("hasStructuralError true when one structural", hasStructuralError([{ dataPath: "" }, { dataPath: "", missingProperty: "nodes" }]));
-    check("hasStructuralError false when none", !hasStructuralError([{ dataPath: "/edges" }, { dataPath: "", missingProperty: "visuals" }]));
+    check("hasStructuralError false when none", !hasStructuralError([{ dataPath: "", missingProperty: "visuals" }]));
 
     // --- end-to-end against the real schema ---
     console.log("\nSchema classification (real lg.graph.v4.schema):");
@@ -124,9 +128,13 @@ function run() {
     r = classify(clone(chilies)); // no structural keys touched, but missing edges/visuals are allowed now
     check("chilies as-is -> valid", r.valid === true);
 
-    let m = clone(chilies); delete m.nodes; m.edges = [];
+    let m = clone(chilies); delete m.nodes;
     r = classify(m);
-    check("missing nodes remains structural despite earlier invalid edges", !r.valid && r.structural && r.warningMessages.some((message) => message.includes("edges")), JSON.stringify(r));
+    check("missing nodes -> structural despite other missing optional keys", !r.valid && r.structural, JSON.stringify(r));
+
+    m = clone(chilies); delete m.edges;
+    r = classify(m);
+    check("missing optional edges -> loads (edges is not required)", r.valid === true && !r.structural, JSON.stringify(r));
 
     m = clone(chilies); delete m.modelData;
     r = classify(m);
@@ -142,21 +150,27 @@ function run() {
 
     // Non-structural schema violations must be reported as warnings by the same
     // classification function used by Eagle's real load-validation path.
+    // Wrong-type (or other) violations of any attribute are structural: the
+    // parsers must never receive invalid values.
     m = clone(chilies); m.edges = [];
     r = classify(m);
-    check("invalid edges -> warning, not structural", !r.structural && r.warningMessages.some((message) => message.includes("edges")), JSON.stringify(r));
+    check("invalid edges (wrong type) -> structural", !r.valid && r.structural, JSON.stringify(r));
 
     m = clone(chilies); m.visuals = [];
     r = classify(m);
-    check("invalid visuals -> warning, not structural", !r.structural && r.warningMessages.some((message) => message.includes("visuals")), JSON.stringify(r));
+    check("invalid visuals (wrong type) -> structural", !r.valid && r.structural, JSON.stringify(r));
 
     m = clone(chilies); m.graphConfigurations = [];
     r = classify(m);
-    check("invalid graph configs -> warning, not structural", !r.structural && r.warningMessages.some((message) => message.includes("graphConfigurations")), JSON.stringify(r));
+    check("invalid graph configs (wrong type) -> structural", !r.valid && r.structural, JSON.stringify(r));
 
     m = clone(chilies); m.activeGraphConfigId = 5;
     r = classify(m);
-    check("invalid active graph config id -> warning, not structural", !r.structural && r.warningMessages.some((message) => message.includes("activeGraphConfigId")), JSON.stringify(r));
+    check("invalid active graph config id -> structural", !r.valid && r.structural, JSON.stringify(r));
+
+    m = clone(chilies); m.unknownTopLevelKey = 1;
+    r = classify(m);
+    check("unsupported top-level key -> structural", !r.valid && r.structural, JSON.stringify(r));
 
     // Missing changeable is accepted and defaults in the parser; a wrong type is a warning.
     m = clone(chilies);
@@ -166,9 +180,15 @@ function run() {
     r = classify(m);
     check("field missing changeable is accepted", r.valid === true, JSON.stringify(r));
 
+    m = clone(chilies);
     m.nodes[firstNodeId].fields[firstFieldId].changeable = "yes";
     r = classify(m);
-    check("invalid field attribute -> warning, not structural", !r.structural && r.warningMessages.some((message) => message.includes("changeable")), JSON.stringify(r));
+    check("invalid field attribute (changeable) -> structural", !r.valid && r.structural, JSON.stringify(r));
+
+    m = clone(chilies);
+    m.nodes[firstNodeId].x = "not-a-number";
+    r = classify(m);
+    check("invalid node attribute (x) -> structural", !r.valid && r.structural, JSON.stringify(r));
 
     console.log("\n" + passed + " passed, " + failed + " failed");
     if (failed > 0) {

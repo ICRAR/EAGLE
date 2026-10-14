@@ -34,27 +34,44 @@ export type SchemaValidationError = {
     missingProperty?: string;
 };
 
-// The only top-level keys whose absence/type-mismatch makes a V4 graph un-loadable.
-// Everything else (edges, visuals, graphConfigurations, activeGraphConfigId, and any
-// per-node/edge/field/visual attribute) is treated as a non-fatal warning, because the
-// parsers are total for those inputs.
+// The top-level keys whose absence, wrong type, or unsupported extra presence
+// makes a V4 graph un-loadable.
 export const STRUCTURAL_KEYS: string[] = ["modelData", "nodes"];
 
 // ajv reports an (empty-leading-slash) JSON pointer as the dataPath, e.g. "/modelData",
 // "/nodes", or "" for the root.
-//  - A missing top-level property is reported at the ROOT with params.missingProperty.
-//  - A present-but-wrong-type top-level property is reported at its own path (/modelData).
+//
+// Errors are STRUCTURAL (block loading) when they would leave the parsers with
+// un-parseable data, so they must be classified as such BEFORE the data reaches
+// the parsers:
+//  - Missing/wrong-type structural top-level key ("modelData", "nodes"): missing is
+//    reported at the ROOT with params.missingProperty; a present-but-wrong-type
+//    value is reported at its own path (/modelData).
+//  - Any top-level key at all, when it is invalid: an unsupported key hits the root
+//    "additionalProperties" constraint (reported at the root), while an invalid
+//    supported key (e.g. non-string activeGraphConfigId, or edges/visuals that are
+//    not objects) is reported at its own path. Loading a graph with unknown/invalid
+//    top-level data is unsafe, so the load fails instead of silently dropping it.
+//  - Any wrong-type (or other) violation of a per-node/edge/field/visual attribute
+//    (e.g. "changeable: \"false\"", a string coordinate, an object value in a
+//    scalar-valued field): the parsers would then read invalid values into the
+//    graph, so the load fails instead of continuing with a corrupted graph.
+//
+// Non-fatal WARNINGS are therefore only:
+//  - Missing (optional) top-level keys, which the parsers default.
+//  - Missing (optional) per-object attributes, which the parsers default/skip.
 export function isStructuralV4Error(error: SchemaValidationError): boolean {
-    return (
-        // wrong-type top-level property: reported exactly at /modelData or /nodes.
-        // (Deeper paths like /nodes/<id>/fields are per-object attribute issues, not structural.)
-        error.dataPath === "/modelData" ||
-        error.dataPath === "/nodes" ||
-        // missing top-level property: reported at the root with a missingProperty
-        (error.dataPath === "" &&
-            typeof error.missingProperty !== "undefined" &&
-            STRUCTURAL_KEYS.includes(error.missingProperty))
-    );
+    const path = error.dataPath;
+    const missing = error.missingProperty;
+
+    // a violation of something that is present and wrong -> structural
+    if (path !== "" || typeof missing === "undefined"){
+        return true;
+    }
+
+    // missing-property errors are reported at the root with params.missingProperty:
+    // missing structural keys block loading, missing optional keys are a warning
+    return STRUCTURAL_KEYS.includes(missing);
 }
 
 // Split detailed validator output the same way the loader does, so both the
