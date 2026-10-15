@@ -43,25 +43,19 @@ export const STRUCTURAL_KEYS: string[] = ["modelData", "nodes"];
 // ajv reports an (empty-leading-slash) JSON pointer as the dataPath, e.g. "/modelData",
 // "/nodes", or "" for the root.
 //
-// Errors are STRUCTURAL (block loading) when they would leave the parsers with
-// un-parseable data, so they must be classified as such BEFORE the data reaches
-// the parsers:
-//  - Missing/wrong-type structural top-level key ("modelData", "nodes"): missing is
-//    reported at the ROOT with params.missingProperty; a present-but-wrong-type
-//    value is reported at its own path (/modelData).
-//  - Any top-level key at all, when it is invalid: an unsupported key hits the root
-//    "additionalProperties" constraint (reported at the root), while an invalid
-//    supported key (e.g. non-string activeGraphConfigId, or edges/visuals that are
-//    not objects) is reported at its own path. Loading a graph with unknown/invalid
-//    top-level data is unsafe, so the load fails instead of silently dropping it.
-//  - Any wrong-type (or other) violation of a per-node/edge/field/visual attribute
-//    (e.g. "changeable: \"false\"", a string coordinate, an object value in a
-//    scalar-valued field): the parsers would then read invalid values into the
-//    graph, so the load fails instead of continuing with a corrupted graph.
+// Errors are STRUCTURAL (block loading) when the parsers cannot safely recover:
+//  - Missing/wrong-type structural top-level keys ("modelData", "nodes"). Missing
+//    keys are reported at the ROOT with params.missingProperty; wrong types are
+//    reported at their own paths.
+//  - Unsupported keys (the schema's additionalProperties violations).
+//  - Wrong-type/other violations within node, edge, field, and visual data, where
+//    invalid values would otherwise enter the graph model.
 //
-// Non-fatal WARNINGS are therefore only:
-//  - Missing (optional) top-level keys, which the parsers default.
-//  - Missing (optional) per-object attributes, which the parsers default/skip.
+// Missing optional top-level keys/attributes are WARNINGS. Wrong-type values for
+// the optional top-level containers/selector "edges", "visuals",
+// "graphConfigurations", and "activeGraphConfigId" are also WARNINGS: their
+// parsers treat malformed containers as empty and default an invalid active
+// graph configuration id to null.
 export function isStructuralV4Error(error: SchemaValidationError): boolean {
     const path = error.dataPath;
     const missing = error.missingProperty ?? error.params?.missingProperty as string | undefined;
@@ -73,9 +67,9 @@ export function isStructuralV4Error(error: SchemaValidationError): boolean {
         return true;
     }
 
-    // a violation of something that is present and wrong -> structural
-    if (error.keyword !== "additionalProperties"
-        && ["/edges", "/visuals", "/graphConfigurations", "/activeGraphConfigId"].includes(path)){
+    // These optional top-level containers/selector have parser fallbacks: malformed
+    // containers become empty maps and an invalid active id becomes null.
+    if (["/edges", "/visuals", "/graphConfigurations", "/activeGraphConfigId"].includes(path)){
         return false;
     }
     if (path !== "" || typeof missing === "undefined"){

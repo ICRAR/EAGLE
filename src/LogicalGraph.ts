@@ -560,11 +560,12 @@ export class LogicalGraph {
             result.fileInfo().location.repositoryFileName(filename);
         }
 
-        //if the saved 'activeGraphConfigId' is empty or missing, we use the last one in the array, else we set the saved one as active                
-        if(typeof dataObject.activeGraphConfigId === 'undefined' || dataObject.activeGraphConfigId === ''){
-            result.activeGraphConfigId(null);
-        }else{
+        // The active config is optional. Malformed values are recoverable (the V4
+        // schema reports them as warnings), so fall back to no active config.
+        if (typeof dataObject.activeGraphConfigId === 'string' && dataObject.activeGraphConfigId !== ''){
             result.activeGraphConfigId(dataObject.activeGraphConfigId as GraphConfigId);
+        } else {
+            result.activeGraphConfigId(null);
         }
 
         return result;
