@@ -74,6 +74,10 @@ export function isStructuralV4Error(error: SchemaValidationError): boolean {
     }
 
     // a violation of something that is present and wrong -> structural
+    if (error.keyword !== "additionalProperties"
+        && ["/edges", "/visuals", "/graphConfigurations", "/activeGraphConfigId"].includes(path)){
+        return false;
+    }
     if (path !== "" || typeof missing === "undefined"){
         return true;
     }
