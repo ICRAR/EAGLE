@@ -28,9 +28,10 @@
 //   - a valid V4 graph (including one missing the changeable attribute) loads
 //   - missing (optional) top-level keys or missing per-object attributes ->
 //     the graph still loads (parsers apply defaults)
-//   - wrong-type/other violations of ANY attribute (top-level or per-object,
-//     e.g. changeable: "false", string coords, invalid activeGraphConfigId)
-//     and unsupported top-level keys -> structural error (block)
+//   - wrong-type/other violations of structural top-level keys or per-object
+//     attributes (e.g. changeable: "false", string coords) -> structural error
+//     (block); malformed optional top-level containers/selectors are warnings
+//     and use parser fallbacks; unsupported top-level keys -> structural error.
 //
 // The classifier lives in src/SchemaLoadClassifier.ts (pure, no deps). We
 // transpile that single file to CJS on the fly with the bundled TypeScript and
@@ -116,8 +117,10 @@ function run() {
     check("/nodes (wrong type) is structural", isStructuralV4Error({ dataPath: "/nodes", message: "" }));
     check("/nodes/xxx/attribute (wrong type) is structural", isStructuralV4Error({ dataPath: "/nodes/1/fields/2/changeable", message: "" }));
     check("/modelData (wrong type) is structural", isStructuralV4Error({ dataPath: "/modelData", message: "" }));
-    check("/edges (wrong type) is structural", isStructuralV4Error({ dataPath: "/edges", message: "" }));
-    check("/activeGraphConfigId (wrong type) is structural", isStructuralV4Error({ dataPath: "/activeGraphConfigId", message: "" }));
+    check("/edges (wrong type) is recoverable", !isStructuralV4Error({ dataPath: "/edges", message: "" }));
+    check("/visuals (wrong type) is recoverable", !isStructuralV4Error({ dataPath: "/visuals", message: "" }));
+    check("/graphConfigurations (wrong type) is recoverable", !isStructuralV4Error({ dataPath: "/graphConfigurations", message: "" }));
+    check("/activeGraphConfigId (wrong type) is recoverable", !isStructuralV4Error({ dataPath: "/activeGraphConfigId", message: "" }));
     check("root additionalProperties (unsupported top-level key) is structural", isStructuralV4Error({
         dataPath: "",
         message: "must NOT have additional properties",
@@ -156,25 +159,25 @@ function run() {
     r = classify(m);
     check("modelData wrong type -> structural (blocks)", !r.valid && r.structural, JSON.stringify(r));
 
-    // Non-structural schema violations must be reported as warnings by the same
-    // classification function used by Eagle's real load-validation path.
-    // Wrong-type (or other) violations of any attribute are structural: the
-    // parsers must never receive invalid values.
+    // Recoverable violations are reported as warnings by the same classification
+    // function used by Eagle's real load-validation path. Malformed optional
+    // top-level containers/selectors have parser fallbacks; malformed graph object
+    // attributes remain structural.
     m = clone(chilies); m.edges = [];
     r = classify(m);
-    check("invalid edges (wrong type) -> structural", !r.valid && r.structural, JSON.stringify(r));
+    check("invalid edges (wrong type) -> warning and recoverable", !r.valid && !r.structural && r.warnings > 0, JSON.stringify(r));
 
     m = clone(chilies); m.visuals = [];
     r = classify(m);
-    check("invalid visuals (wrong type) -> structural", !r.valid && r.structural, JSON.stringify(r));
+    check("invalid visuals (wrong type) -> warning and recoverable", !r.valid && !r.structural && r.warnings > 0, JSON.stringify(r));
 
     m = clone(chilies); m.graphConfigurations = [];
     r = classify(m);
-    check("invalid graph configs (wrong type) -> structural", !r.valid && r.structural, JSON.stringify(r));
+    check("invalid graph configs (wrong type) -> warning and recoverable", !r.valid && !r.structural && r.warnings > 0, JSON.stringify(r));
 
     m = clone(chilies); m.activeGraphConfigId = 5;
     r = classify(m);
-    check("invalid active graph config id -> structural", !r.valid && r.structural, JSON.stringify(r));
+    check("invalid active graph config id -> warning and recoverable", !r.valid && !r.structural && r.warnings > 0, JSON.stringify(r));
 
     m = clone(chilies); m.unknownTopLevelKey = 1;
     r = classify(m);

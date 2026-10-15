@@ -1182,10 +1182,11 @@ export class Eagle {
         }
 
         // classify validation failures:
-        // - structural (missing/invalid modelData or nodes, invalid or unsupported
-        //   top-level keys such as activeGraphConfigId/edges, or any wrong-type
-        //   per-object attribute) -> error, block loading
-        // - missing optional keys/attributes -> warning; the parsers apply defaults
+        // - structural (missing/invalid modelData or nodes, unsupported top-level
+        //   keys, or invalid per-object attributes) -> error, block loading
+        // - missing optional keys/attributes and malformed optional top-level values
+        //   (edges, visuals, graphConfigurations, activeGraphConfigId) -> warning;
+        //   the parsers apply safe defaults
         // See SchemaLoadClassifier for the classification rules (ajv path semantics).
         return appendV4ValidationIssues(validatorResult.errors, errorsWarnings, Errors.Message);
     }
