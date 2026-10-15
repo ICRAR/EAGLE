@@ -199,9 +199,16 @@ export class GraphConfig {
         const result: GraphConfig = new GraphConfig();
 
         result.fileInfo(FileInfo.fromV4Json(data.modelData, errorsWarnings));
-        result.id(data.id as GraphConfigId);
+        result.id((data.id as GraphConfigId | undefined) ?? Id.generateGraphConfigId());
 
-        for (const [nodeId, nodeData] of Object.entries(data.nodes)){
+        // guard against missing attributes (older files may omit them; defaults applied below)
+        const nodesData = Utils.asObjectMap(data.nodes, "nodes (in graph config " + data.id + ")", errorsWarnings);
+        for (const [nodeId, nodeData] of Object.entries(nodesData)){
+            if (nodeData === null || typeof nodeData !== 'object' || Array.isArray(nodeData)){
+                console.warn("GraphConfig.fromV4GraphJson(): invalid node data (not an object), skipping", nodeId);
+                errorsWarnings.errors.push(Errors.Message("GraphConfig.fromV4GraphJson(): invalid node data for node " + nodeId + ", skipping"));
+                continue;
+            }
             const lgNode = lg.getNodeById(nodeId as NodeId);
             if (typeof lgNode === 'undefined'){
                 console.warn("GraphConfig.fromV4GraphJson(): Could not find node", nodeId);
@@ -209,7 +216,7 @@ export class GraphConfig {
                 continue;
             }
 
-            const newNode: GraphConfigNode = GraphConfigNode.fromV4GraphJson(nodeData, lgNode, errorsWarnings);
+            const newNode: GraphConfigNode = GraphConfigNode.fromV4GraphJson(nodeData as V4GraphConfigNodeJson, lgNode, errorsWarnings);
             newNode.setNode(lgNode);
             result.nodes().set(nodeId as NodeId, newNode);
             result.nodes.valueHasMutated();
@@ -341,7 +348,14 @@ export class GraphConfigNode {
     static fromV4GraphJson(data: V4GraphConfigNodeJson, node: Node, errorsWarnings: ErrorsWarnings): GraphConfigNode {
         const result = new GraphConfigNode(node);
 
-        for (const [fieldId, fieldData] of Object.entries(data.fields)){
+        // guard against missing attributes (older files may omit them; defaults applied below)
+        const fieldsData = Utils.asObjectMap(data.fields, "fields (in graph config for node " + node.getName() + ")", errorsWarnings);
+        for (const [fieldId, fieldData] of Object.entries(fieldsData)){
+            if (fieldData === null || typeof fieldData !== 'object' || Array.isArray(fieldData)){
+                console.warn("GraphConfigNode.fromV4GraphJson(): invalid field data (not an object), skipping", fieldId);
+                errorsWarnings.errors.push(Errors.Message("GraphConfigNode.fromV4GraphJson(): invalid field data for field " + fieldId + ", skipping"));
+                continue;
+            }
             const lgField = node.getFieldById(fieldId as FieldId);
 
             if (typeof lgField === 'undefined'){
@@ -452,8 +466,9 @@ export class GraphConfigField {
     static fromV4GraphJson(data: V4GraphConfigFieldJson, field: Field, _errorsWarnings: ErrorsWarnings): GraphConfigField {
         const result = new GraphConfigField(field);
 
-        result.value(Utils.scalarLoadValueToString(data.value));
-        result.comment(data.comment);
+        // guard against missing attributes (older files may omit them; defaults applied below)
+        result.value(Utils.scalarLoadValueToString(data.value ?? null));
+        result.comment(data.comment ?? "");
 
         return result;
     }

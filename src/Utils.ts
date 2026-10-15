@@ -285,6 +285,21 @@ export class Utils {
         return EagleFileType.Unknown;
     }
 
+    // helper for V4 JSON loading: returns the given container as an object map,
+    // or an empty object if it is missing/null/not an object.
+    // Missing containers are a known case in older files, so this is a non-fatal warning.
+    static asObjectMap(data: any, attributeName: string, errorsWarnings: ErrorsWarnings) : Record<string, any> {
+        if (data === null || typeof data !== 'object' || Array.isArray(data)){
+            if (data === undefined || data === null){
+                errorsWarnings.warnings.push(Errors.Message("Missing attribute: '" + attributeName + "'. Treating as empty."));
+            } else {
+                errorsWarnings.warnings.push(Errors.Message("Attribute '" + attributeName + "' is not an object (" + typeof data + "). Treating as empty."));
+            }
+            return {};
+        }
+        return data as Record<string, any>;
+    }
+
     static dataTypePrefix(dataType: string): string {
         if (typeof dataType === 'undefined'){
             return DataType.Unknown;
@@ -1737,6 +1752,13 @@ export class Utils {
             }
         }
 
+        // Older V4 graph documents may omit schemaVersion. Their explicit V4
+        // modelData.type and graph container shape are sufficient to route them
+        // through the backwards-compatible V4 parser (rather than the OJS parser).
+        if (typeof data.modelData?.type === "string" && data.modelData.type.toLowerCase() === "graph"){
+            return SchemaVersion.V4;
+        }
+
         return SchemaVersion.Unknown;
     }
 
@@ -2074,6 +2096,68 @@ export class Utils {
         }
 
         return {valid: valid, errors: ajv.errorsText(ajv.errors)};
+    }
+
+    // like _validateJSON, but returns the individual validation errors (dataPath/message)
+    // so the caller can classify them (e.g. structural vs attribute-level)
+    static _validateJSONDetailed(json: any, version: SchemaVersion, fileType: EagleFileType) : {valid: boolean, errors: {dataPath: string, message: string, keyword?: string, params?: Record<string, unknown>, missingProperty?: string}[]} {
+        const ajv = new Ajv({allErrors: true});
+        let schema: object | null = null;
+
+        switch(version){
+            case SchemaVersion.OJS:
+                switch(fileType){
+                    case EagleFileType.Graph:
+                        schema = Utils.ojsGraphSchema;
+                        break;
+                    case EagleFileType.Palette:
+                        schema = Utils.ojsPaletteSchema;
+                        break;
+                    case EagleFileType.GraphConfig:
+                        schema = Utils.ojsGraphConfigSchema;
+                        break;
+                    default:
+                        console.warn("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");
+                        break;
+                }
+                break;
+            case SchemaVersion.V4:
+                switch(fileType){
+                    case EagleFileType.Graph:
+                        schema = Utils.v4GraphSchema;
+                        break;
+                    case EagleFileType.Palette:
+                        schema = Utils.v4PaletteSchema;
+                        break;
+                    case EagleFileType.GraphConfig:
+                        schema = Utils.v4GraphConfigSchema;
+                        break;
+                    default:
+                        console.warn("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");
+                        break;
+                }
+                break;
+            default:
+                console.warn("Unknown format for validation (" + version + ")");
+                break;
+        }
+
+        if (schema === null){
+            return {valid: true, errors: []};
+        }
+
+        const valid = ajv.validate(schema, json) as boolean;
+        const errors = (ajv.errors ?? []).map((e) => ({
+            dataPath: (e as {instancePath?: string}).instancePath ?? ((e as {dataPath?: string}).dataPath ?? "").replace(/^\./, "/"),
+            message: e.message ?? "",
+            keyword: e.keyword,
+            params: e.params as unknown as Record<string, unknown>,
+            // Keep the convenience property for existing classifier callers; the full Ajv
+            // params are also retained above (including additionalProperty).
+            missingProperty: (e.params as { missingProperty?: string }).missingProperty
+        }));
+
+        return {valid: valid, errors: errors};
     }
 
     static async downloadFile(data : string, fileName : string) : Promise<void> {

@@ -50,6 +50,7 @@ import { LogicalGraph } from './LogicalGraph';
 import { Modals } from "./Modals";
 import { Node } from './Node';
 import { Palette } from './Palette';
+import { appendV4ValidationIssues } from './SchemaLoadClassifier';
 import { ParameterTable } from './ParameterTable';
 import { Repositories } from './Repositories';
 import { Repository, type RepositoryCommit, RepositoryService } from './Repository';
@@ -1132,22 +1133,40 @@ export class Eagle {
         graphFileToInsertInputElement.value = "";
     }
 
-    private _handleLoadingErrors = (errorsWarnings: ErrorsWarnings, fileName: string, service: RepositoryService) : void => {
+    private _handleLoadingErrors = (errorsWarnings: ErrorsWarnings, fileName: string, service: RepositoryService, loadSucceeded: boolean = false) : void => {
         const showIssues: boolean = Setting.findValue<boolean>(Setting.SHOW_FILE_LOADING_WARNINGS, false);
         this.hideEagleIsLoading()
 
-        // errors are always shown in the issues modal; the setting only controls warnings
-        const hasErrors: boolean = Errors.hasErrors(errorsWarnings);
-        const hasWarnings: boolean = showIssues && Errors.hasWarnings(errorsWarnings);
+        // Parser diagnostics may be stored as errors even when malformed individual
+        // entries were safely skipped and the graph was successfully loaded.
+        const displayedIssues: ErrorsWarnings = loadSucceeded ? {
+            errors: [],
+            warnings: [...errorsWarnings.warnings, ...errorsWarnings.errors]
+        } : errorsWarnings;
+        const hasErrors: boolean = Errors.hasErrors(displayedIssues);
+        const hasWarnings: boolean = showIssues && Errors.hasWarnings(displayedIssues);
 
-        if (hasErrors || hasWarnings){
-            // add errors/warnings to the arrays (warnings only if the setting is on)
-            this.loadingErrors(hasErrors ? errorsWarnings.errors : []);
-            this.loadingWarnings(hasWarnings ? errorsWarnings.warnings : []);
+        if (hasErrors){
+            // load failed (errors) -> show the issues modal; no "loaded" notification
+            this.loadingErrors(displayedIssues.errors);
+            this.loadingWarnings(hasWarnings ? displayedIssues.warnings : []);
 
             this.errorsMode(Mode.Loading);
             Utils.showErrorsModal("Loading File");
+        } else if (hasWarnings){
+            // loaded with warnings (setting on) -> show modal and an honest notification
+            this.loadingErrors([]);
+            this.loadingWarnings(displayedIssues.warnings);
+
+            this.errorsMode(Mode.Loading);
+            Utils.showErrorsModal("Loading File");
+
+            Utils.showNotification("Success", fileName + " has been loaded from " + service + " with " + displayedIssues.warnings.length + " warning(s).", "success");
+        } else if (Errors.hasWarnings(displayedIssues)){
+            // loaded with warnings (setting off) -> no modal, but still say so
+            Utils.showNotification("Success", fileName + " has been loaded from " + service + " with " + displayedIssues.warnings.length + " warning(s).", "success");
         } else {
+            // clean load, no issues
             Utils.showNotification("Success", fileName + " has been loaded from " + service + ".", "success");
         }
     }
@@ -1157,13 +1176,19 @@ export class Eagle {
             return true;
         }
 
-        const validatorResult = Utils._validateJSON(dataObject, SchemaVersion.V4, EagleFileType.Graph);
+        const validatorResult = Utils._validateJSONDetailed(dataObject, SchemaVersion.V4, EagleFileType.Graph);
         if (validatorResult.valid) {
             return true;
         }
 
-        errorsWarnings.errors.push(Errors.Message("V4 graph JSON failed schema validation: " + validatorResult.errors));
-        return false;
+        // classify validation failures:
+        // - structural (missing/invalid modelData or nodes, unsupported top-level
+        //   keys, or invalid per-object attributes) -> error, block loading
+        // - missing optional keys/attributes and malformed optional top-level values
+        //   (edges, visuals, graphConfigurations, activeGraphConfigId) -> warning;
+        //   the parsers apply safe defaults
+        // See SchemaLoadClassifier for the classification rules (ajv path semantics).
+        return appendV4ValidationIssues(validatorResult.errors, errorsWarnings, Errors.Message);
     }
 
     private _loadGraphJSON = async (data: string, fileFullPath: string, loadFunc: (lg: LogicalGraph, errorsWarnings: ErrorsWarnings) => void | Promise<void>) : Promise<boolean> => {
@@ -1190,32 +1215,42 @@ export class Eagle {
 
         const errorsWarnings: ErrorsWarnings = {errors: [], warnings: []};
         let loaded = false;
+        const graphBeforeLoad = this.logicalGraph().clone();
 
         // use the correct parsing function based on schema version
-        switch (schemaVersion){
-            case SchemaVersion.OJS:
-            case SchemaVersion.Unknown:
-                // check if we need to update the graph from keys to ids
-                if (GraphUpdater.usesNodeKeys(dataObject)){
-                    GraphUpdater.updateKeysToIds(dataObject);
-                }
+        try {
+            switch (schemaVersion){
+                case SchemaVersion.OJS:
+                case SchemaVersion.Unknown:
+                    // check if we need to update the graph from keys to ids
+                    if (GraphUpdater.usesNodeKeys(dataObject)){
+                        GraphUpdater.updateKeysToIds(dataObject);
+                    }
 
-                await loadFunc(LogicalGraph.fromOJSJson(dataObject, "", errorsWarnings), errorsWarnings);
-                loaded = true;
-                break;
-            case SchemaVersion.V4:
-                if (!this._validateV4GraphLoadJSON(dataObject as JsonObject, errorsWarnings)) {
+                    await loadFunc(LogicalGraph.fromOJSJson(dataObject, "", errorsWarnings), errorsWarnings);
+                    loaded = true;
                     break;
-                }
-                await loadFunc(LogicalGraph.fromV4Json(dataObject as V4GraphJson, "", errorsWarnings), errorsWarnings);
-                loaded = true;
-                break;
-            default:
-                errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
-                break;
+                case SchemaVersion.V4:
+                    if (!this._validateV4GraphLoadJSON(dataObject as JsonObject, errorsWarnings)) {
+                        break;
+                    }
+                    await loadFunc(LogicalGraph.fromV4Json(dataObject as V4GraphJson, "", errorsWarnings), errorsWarnings);
+                    loaded = true;
+                    break;
+                default:
+                    errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
+                    break;
+            }
+        } catch (error){
+            // a parse/load failure mid-way must not leave the graph half-loaded
+            // (the parse builds the full graph object before any mutation, so abort here)
+            console.error("Error loading graph file:", error);
+            this.logicalGraph(graphBeforeLoad);
+            errorsWarnings.errors.push(Errors.Message("Failed to load graph file: " + Errors.UnknownToError(error)));
+            loaded = false;
         }
 
-        this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), RepositoryService.File);
+        this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), RepositoryService.File, loaded);
         return loaded;
     }
 
@@ -1328,6 +1363,8 @@ export class Eagle {
 
     // NOTE: parentNode would be null if we are duplicating a selection of objects
     insertGraph = async (nodes: Node[], edges: Edge[], parentNode: Node | null, errorsWarnings: ErrorsWarnings) => {
+        const graphBeforeInsert = this.logicalGraph().createRollbackSnapshot();
+        try {
         // create map of inserted graph keys to final graph nodes, and of inserted port ids to final graph ports
         const nodeMap: Map<NodeId, Node> = new Map();
         const portMap: Map<FieldId, Field> = new Map();
@@ -1414,11 +1451,6 @@ export class Eagle {
                 for (let j = 0 ; j < oldInputApplication.getOutputPorts().length; j++){
                     portMap.set(oldInputApplication.getOutputPorts()[j].getId(), newInputApplication.getOutputPorts()[j]);
                 }
-
-                // clear edge lists within fields of the old input application
-                for (const field of oldInputApplication.getFields()){
-                    field.clearEdges();
-                }
             }
 
 
@@ -1444,11 +1476,6 @@ export class Eagle {
                 // save mapping for output ports
                 for (let j = 0 ; j < oldOutputApplication.getOutputPorts().length; j++){
                     portMap.set(oldOutputApplication.getOutputPorts()[j].getId(), newOutputApplication.getOutputPorts()[j]);
-                }
-
-                // clear edge lists within fields of the old output application
-                for (const field of oldOutputApplication.getFields()){
-                    field.clearEdges();
                 }
             }
         }
@@ -1508,6 +1535,10 @@ export class Eagle {
             setTimeout(function(){
                 Eagle.getInstance().centerGraph()
             }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT)
+        }
+        } catch (error){
+            this.logicalGraph().restoreRollbackSnapshot(graphBeforeInsert);
+            throw error;
         }
     }
 
@@ -3063,7 +3094,7 @@ export class Eagle {
         }
 
         // show errors/warnings
-        this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
+        this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service, true);
     }
 
     insertRemoteFile = async (file : RepositoryFile): Promise<void> => {
@@ -3159,7 +3190,7 @@ export class Eagle {
         this.checkEagle();
 
         // show errors/warnings
-        this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
+        this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service, true);
     };
 
     deleteRemoteFile = async (file : RepositoryFile): Promise<void> => {

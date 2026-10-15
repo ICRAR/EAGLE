@@ -218,21 +218,31 @@ export class Visual {
         .setColor(color)
     }
 
-    static fromV4GraphJson(visualData: V4VisualLoadJson, lg: LogicalGraph, _errorsWarnings: ErrorsWarnings) : Visual {
-        const targetId = visualData.targetId;
+    static fromV4GraphJson(visualData: V4VisualLoadJson, lg: LogicalGraph, _errorsWarnings: ErrorsWarnings, fallbackId?: VisualId) : Visual {
+        // guard against missing attributes (older files may omit them; defaults applied below)
+        const targetId = visualData.targetId ?? null;
         const target : Node | Edge | Visual | null =
-            lg.getNodeById(targetId as NodeId) ??
-            lg.getEdgeById(targetId as EdgeId) ??
-            lg.getVisualById(targetId as VisualId) ??
-            null;
+            (targetId !== null ? (
+                lg.getNodeById(targetId as NodeId) ??
+                lg.getEdgeById(targetId as EdgeId) ??
+                lg.getVisualById(targetId as VisualId)
+            ) : null) ?? null;
 
-        return new Visual(visualData.type as VisualType, visualData.content)
-            .setId(visualData.id as VisualId)
-            .setPosition(visualData.x, visualData.y)
-            .setWidth(visualData.width)
-            .setHeight(visualData.height)
+        // NOTE: default an unknown/missing type to Text (VisualType is a string enum)
+        const visual = new Visual((visualData.type as VisualType | undefined) ?? VisualType.Text, visualData.content ?? "")
+            .setId((visualData.id ?? fallbackId ?? Id.generateVisualId()) as VisualId)
+            .setPosition(visualData.x ?? 0, visualData.y ?? 0)
             .setTarget(target)
-            .setColor(visualData.color);
+            .setColor(visualData.color ?? "");
+
+        if (typeof visualData.width !== 'undefined'){
+            visual.setWidth(visualData.width);
+        }
+        if (typeof visualData.height !== 'undefined'){
+            visual.setHeight(visualData.height);
+        }
+
+        return visual;
     }
 
     static toJson(visual: Visual) : V4VisualLoadJson {
