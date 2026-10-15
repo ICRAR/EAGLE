@@ -1450,11 +1450,6 @@ export class Eagle {
                 for (let j = 0 ; j < oldInputApplication.getOutputPorts().length; j++){
                     portMap.set(oldInputApplication.getOutputPorts()[j].getId(), newInputApplication.getOutputPorts()[j]);
                 }
-
-                // clear edge lists within fields of the old input application
-                for (const field of oldInputApplication.getFields()){
-                    field.clearEdges();
-                }
             }
 
 
@@ -1480,11 +1475,6 @@ export class Eagle {
                 // save mapping for output ports
                 for (let j = 0 ; j < oldOutputApplication.getOutputPorts().length; j++){
                     portMap.set(oldOutputApplication.getOutputPorts()[j].getId(), newOutputApplication.getOutputPorts()[j]);
-                }
-
-                // clear edge lists within fields of the old output application
-                for (const field of oldOutputApplication.getFields()){
-                    field.clearEdges();
                 }
             }
         }
