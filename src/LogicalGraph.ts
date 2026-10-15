@@ -560,10 +560,11 @@ export class LogicalGraph {
             result.fileInfo().location.repositoryFileName(filename);
         }
 
-        // The active config is optional. Malformed values are recoverable (the V4
-        // schema reports them as warnings), so fall back to no active config.
-        if (typeof dataObject.activeGraphConfigId === 'string' && dataObject.activeGraphConfigId !== ''){
-            result.activeGraphConfigId(dataObject.activeGraphConfigId as GraphConfigId);
+        const activeGraphConfigId = dataObject.activeGraphConfigId;
+        if (typeof activeGraphConfigId === 'string'
+            && activeGraphConfigId !== ''
+            && result.graphConfigs().has(activeGraphConfigId as GraphConfigId)) {
+            result.activeGraphConfigId(activeGraphConfigId as GraphConfigId);
         } else {
             result.activeGraphConfigId(null);
         }
