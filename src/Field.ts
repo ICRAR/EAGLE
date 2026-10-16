@@ -845,29 +845,29 @@ export class Field {
         let encoding: Encoding = Encoding.Pickle;
         let fieldChangeable: boolean = changeable;
 
-        if (typeof data.id !== 'undefined') { id = data.id; }   
-        if (typeof data.name !== 'undefined') { name = data.name; }
-        if (typeof data.description !== 'undefined') { description = data.description; }
-        if (typeof data.readonly !== 'undefined') { readonly = data.readonly; }
+        if (typeof data.id !== 'undefined') { id = data.id as FieldId; }   
+        if (typeof data.name !== 'undefined') { name = data.name as string; }
+        if (typeof data.description !== 'undefined') { description = data.description as string; }
+        if (typeof data.readonly !== 'undefined') { readonly = data.readonly as boolean; }
         if (typeof data.type !== 'undefined'){
             if (data.type === "Event"){
                 isEvent = true;
                 type = DataType.Unknown;
             } else {
                 isEvent = false;
-                type = data.type;
+                type = data.type as DataType;
             }
         }
         if (typeof data.value !== 'undefined' && data.value !== null) {
-            value = data.value.toString();
+            value = data.value.toString() as string;
         }
         if (typeof data.defaultValue !== 'undefined' && data.defaultValue !== null) {
-            defaultValue = data.defaultValue.toString();
+            defaultValue = data.defaultValue.toString() as string;
         }
-        if (typeof data.precious !== 'undefined') { precious = data.precious; }
-        if (typeof data.options !== 'undefined') { options = data.options; }
-        if (typeof data.positional !== 'undefined') { positional = data.positional; }
-        if (typeof data.changeable !== 'undefined') { fieldChangeable = data.changeable; }
+        if (typeof data.precious !== 'undefined') { precious = data.precious as boolean; }
+        if (typeof data.options !== 'undefined') { options = data.options as string[]; }
+        if (typeof data.positional !== 'undefined') { positional = data.positional as boolean; }
+        if (typeof data.changeable !== 'undefined') { fieldChangeable = data.changeable as boolean; }
 
         // handle legacy fieldType
         if (typeof data.fieldType !== 'undefined'){
@@ -904,9 +904,9 @@ export class Field {
         if (typeof data.parameterType !== 'undefined') {
             parameterType = Daliuge.dlgToFieldTypeMap[<DLGFieldType>data.parameterType];
         }
-        if (typeof data.usage !== 'undefined') { usage = data.usage; }
-        if (typeof data.event !== 'undefined') { isEvent = data.event; }
-        if (typeof data.encoding !== 'undefined') { encoding = data.encoding; }
+        if (typeof data.usage !== 'undefined') { usage = data.usage as FieldUsage; }
+        if (typeof data.event !== 'undefined') { isEvent = data.event as boolean; }
+        if (typeof data.encoding !== 'undefined') { encoding = data.encoding as Encoding; }
         const result = new Field(node, id, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage);
         result.isEvent(isEvent);
         result.encoding(encoding);
@@ -921,15 +921,15 @@ export class Field {
         let description: string = "";
         let encoding: Encoding = Encoding.Pickle;
 
-        if (typeof data.name !== 'undefined') { name = data.name; }
-        if (typeof data.event !== 'undefined') { event = data.event; }
-        if (typeof data.type !== 'undefined') { type = data.type; }
-        if (typeof data.description !== 'undefined') { description = data.description; }
-        if (typeof data.encoding !== 'undefined') { encoding = data.encoding; }
+        if (typeof data.name !== 'undefined') { name = data.name as string; }
+        if (typeof data.event !== 'undefined') { event = data.event as boolean; }
+        if (typeof data.type !== 'undefined') { type = data.type as DataType; }
+        if (typeof data.description !== 'undefined') { description = data.description as string; }
+        if (typeof data.encoding !== 'undefined') { encoding = data.encoding as Encoding; }
 
         // avoid empty text fields if we can
         if (name === ""){
-            name = data.IdText;
+            name = data.IdText as string;
         }
      
         const f = new Field(node, data.Id, name, "", "", description, false, type, false, [], false, FieldType.Unknown, FieldUsage.NoPort);
@@ -958,7 +958,7 @@ export class Field {
         let fieldChangeable: boolean = changeable;
 
         if (typeof data.id !== 'undefined') { id = data.id as FieldId; }
-        if (typeof data.name !== 'undefined') { name = data.name; }
+        if (typeof data.name !== 'undefined') { name = data.name as string; }
         if (typeof data.value !== 'undefined') {
             if (data.value !== null){
                 value = data.value.toString();

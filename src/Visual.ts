@@ -198,14 +198,14 @@ export class Visual {
 
     static fromJson(visualData: any, lg: LogicalGraph, _errorsWarnings: ErrorsWarnings) : Visual {
         const id: VisualId = visualData.id as VisualId;
-        const x: number = visualData.x;
-        const y: number = visualData.y;
-        const width: number = visualData.width;
-        const height: number = visualData.height;
-        const type: VisualType = visualData.type;
-        const content: string = visualData.content ?? '';
-        const color: string = visualData.color;
-        const targetId: string | null = visualData.targetId ?? null;
+        const x: number = visualData.x as number;
+        const y: number = visualData.y as number;
+        const width: number = visualData.width as number;
+        const height: number = visualData.height as number;
+        const type: VisualType = visualData.type as VisualType;
+        const content: string = (visualData.content ?? '') as string;
+        const color: string = visualData.color as string;
+        const targetId: string | null = visualData.targetId as string | null ?? null;
 
         const target : Node | Edge | Visual | null = lg.getNodeById(targetId as NodeId) ?? lg.getEdgeById(targetId as EdgeId) ?? lg.getVisualById(targetId as VisualId) ?? null;
 

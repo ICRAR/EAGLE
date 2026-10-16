@@ -46,12 +46,12 @@ test('Undo after fixAll does not reintroduce fixed errors', async ({ page }) => 
         nodeCount = await TestHelpers.getNodeCount(page);
         expect(nodeCount).toBeGreaterThan(1);
         const nodeIds: string[] = await page.evaluate(() => {
-            const eagle = (window as any).eagle;
+            const eagle = (window as any).eagle as { logicalGraph: () => { nodes: () => Map<string, unknown> } };
             return Array.from(eagle.logicalGraph().nodes().keys()) as string[];
         });
         for (const nodeId of nodeIds.slice(0, 2)) {
             await page.evaluate(async (id: string) => {
-                const eagle = (window as any).eagle;
+                const eagle = (window as any).eagle as { logicalGraph: () => { getNodeById: (id: string) => { toString: () => string } | null }; setSelection: (n: unknown, t: unknown) => void; deleteSelection: (a: boolean, b: boolean, c: boolean) => Promise<void> };
                 const node = eagle.logicalGraph().getNodeById(id);
                 if (node != null) {
                     eagle.setSelection(node, (window as any).EagleFileType.Graph);

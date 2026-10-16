@@ -45,16 +45,16 @@ async function addCustomRepository(page: Page, name: string, branch: string): Pr
 async function finalizeInputModalAffirmative(page: Page): Promise<void> {
   if (await page.locator('#inputModal').isVisible()) {
     await page.evaluate(() => {
-      const modal = (window as any).$('#inputModal');
+      const modal = (window as any).$('#inputModal') as { data: (k: string, v: unknown) => void; modal: (m: string) => void };
       modal.data('completed', true);
       modal.modal('hide');
     });
     await page.waitForTimeout(100);
     if (await page.locator('#inputModal').isVisible()) {
       await page.evaluate(() => {
-        const $ = (window as any).$;
+        const $ = (window as any).$ as (sel: string) => JQuery<HTMLElement>;
         const modal = $('#inputModal');
-        const callback = modal.data('callback');
+        const callback = modal.data('callback') as ((completed: boolean, input: string) => void) | undefined;
         const input = String($('#inputModalInput').val() ?? '');
         if (typeof callback === 'function') {
           callback(true, input);
@@ -71,7 +71,7 @@ async function finalizeInputModalAffirmative(page: Page): Promise<void> {
 async function finalizeConfirmModalAffirmative(page: Page): Promise<void> {
   if (await page.locator('#confirmModal').isVisible()) {
     await page.evaluate(() => {
-      const modal = (window as any).$('#confirmModal');
+      const modal = (window as any).$('#confirmModal') as { data: (k: string, v: unknown) => void; modal: (m: string) => void };
       modal.data('completed', true);
       modal.data('confirmed', true);
       modal.modal('hide');
@@ -79,7 +79,7 @@ async function finalizeConfirmModalAffirmative(page: Page): Promise<void> {
     await page.waitForTimeout(100);
     if (await page.locator('#confirmModal').isVisible()) {
       await page.evaluate(() => {
-        const $ = (window as any).$;
+        const $ = (window as any).$ as (sel: string) => JQuery<HTMLElement>;
         const modal = $('#confirmModal');
         modal.removeClass('show').attr('aria-hidden', 'true').css('display', 'none');
         $('.modal-backdrop').remove();

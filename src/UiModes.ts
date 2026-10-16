@@ -3,6 +3,12 @@ import { ParameterTable } from './ParameterTable';
 import { Setting } from './Setting';
 import * as ko from "knockout";
 
+type StoredUiMode = {
+    name: string;
+    description: string;
+    settingValues: { key: string; value: unknown }[];
+};
+
 export class UiModeSystem {
     static activeUiMode : UiMode;
     static localStorageUpdateCoolDown : boolean = false;
@@ -105,7 +111,7 @@ export class UiModeSystem {
                     uiMode.getSettings().forEach(function(setting:SettingData){
                         const settingObj = {
                             key : setting.getKey(),
-                            value : setting.getValue()
+                            value : setting.getValue() as unknown
                         }
                         uiModeObj.settingValues.push(settingObj)
                     })
@@ -125,7 +131,7 @@ export class UiModeSystem {
             return
         }
 
-        const uiModesObj : any[] = JSON.parse(uiModesString);
+        const uiModesObj = JSON.parse(uiModesString) as StoredUiMode[];
 
         uiModesObj.forEach(function(uiModeObj){
             let destUiMode = UiModeSystem.getUiModeByName(uiModeObj.name)

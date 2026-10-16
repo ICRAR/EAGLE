@@ -25,8 +25,8 @@ test('Palette loading continues after an unavailable palette', async ({ page }) 
   });
 
   const result = await test.step('Load palettes with a failed request', async () => page.evaluate(async () => {
-    const eagle = (window as any).eagle;
-    const utils = (window as any).Utils;
+    const eagle = (window as any).eagle as { loadPalettes: (paletteList: {name:string, filename:string, readonly:boolean, expanded:boolean}[]) => Promise<{palettes: {fileInfo: () => {name: string}}[], errorsWarnings: unknown}> };
+    const utils = (window as any).Utils as { httpPostJSON: (url: string, request: { url: string }) => Promise<string> };
 
     // keep track of the original httpPostJSON so we can restore it later
     const originalHttpPostJSON = utils.httpPostJSON;
@@ -54,7 +54,7 @@ test('Palette loading continues after an unavailable palette', async ({ page }) 
         new Promise((_, reject) => {
           setTimeout(() => reject(new Error('palette loading timed out')), 1000);
         })
-      ]);
+      ]) as Promise<{palettes: {fileInfo: () => {name: string}}[], errorsWarnings: unknown}>;
 
       // The failed first request must not prevent the later palette from loading.
       const firstFailureResult = await loadWithTimeout([
