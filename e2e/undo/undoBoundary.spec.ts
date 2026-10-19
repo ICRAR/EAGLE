@@ -26,7 +26,7 @@ test('Undo exhausted history warns on first boundary keypress', async ({ page })
 
     await test.step('Verify metadata and history boundaries', async () => {
         await page.evaluate(() => {
-            const $ = (window as any).$;
+            const $ = (window as any).$ as (sel: string) => { remove: () => void };
             $('[data-notify="container"]').remove();
         });
         await TestHelpers.undo(page);
@@ -71,7 +71,7 @@ test('Undo still works after add undo add branch', async ({ page }) => {
 
     await test.step('Verify metadata undo and the final boundary', async () => {
         await page.evaluate(() => {
-            const $ = (window as any).$;
+            const $ = (window as any).$ as (sel: string) => { remove: () => void };
             $('[data-notify="container"]').remove();
         });
         await TestHelpers.undo(page);

@@ -41,14 +41,14 @@ import { Visual } from "./Visual";
 ko.bindingHandlers.nodeRenderHandler = {
     // TODO: element any (more around)
     init: function(element:any, valueAccessor) {
-        const node: Node = ko.unwrap(valueAccessor())
+        const node: Node = ko.unwrap(valueAccessor()) as Node;
         
         if(node.isData() || node.isGlobal()){
             $(element).find('.body').css('background-color:#575757','color:white')
         }
     },
     update: function (element:any, valueAccessor) {
-        const node: Node = ko.unwrap(valueAccessor());
+        const node: Node = ko.unwrap(valueAccessor()) as Node;
 
         // set size
         $(element).css({'height':node.getRadius()*2+'px','width':node.getRadius()*2+'px'});
@@ -79,8 +79,9 @@ ko.bindingHandlers.nodeRenderHandler = {
 
 ko.bindingHandlers.embeddedAppPosition = {
     update: function (element:any, valueAccessor) {
-        const applicationNode: Node = ko.utils.unwrapObservable(valueAccessor()).applicationNode;
-        const input: boolean = ko.utils.unwrapObservable(valueAccessor()).input;
+        const bindingValue = ko.utils.unwrapObservable(valueAccessor()) as { applicationNode: Node; input: boolean };
+        const applicationNode = bindingValue.applicationNode;
+        const input = bindingValue.input;
 
         // find the node in which the applicationNode has been embedded
         const parentNode = applicationNode.getEmbed();
@@ -147,8 +148,9 @@ ko.bindingHandlers.graphRendererPortPosition = {
         //this handler is for a PORT position, meaning it will run twice for a field that has both input and output ports
         //the update function is called initially and then whenever a change to a utilised observable occurs
         const eagle : Eagle = Eagle.getInstance();
-        const f: Field = ko.utils.unwrapObservable(valueAccessor()).f;
-        const dataType: "inputPort" | "outputPort" = ko.utils.unwrapObservable(valueAccessor()).type;
+        const bindingValue = ko.utils.unwrapObservable(valueAccessor()) as { f: Field; type: "inputPort" | "outputPort" };
+        const f = bindingValue.f;
+        const dataType = bindingValue.type;
         // determine the 'node' and 'field' attributes (for this way of using this binding)
         const node : Node = f.getNode();
         const field : Field = f;
@@ -1073,7 +1075,7 @@ export class GraphRenderer {
 
     static editNodeTitleInGraph (_data:Node,event: JQuery.TriggeredEvent) : void {
         GraphRenderer.editNodeName = true //used to prevent other drag functions if this feature is active
-        const target = event.target
+        const target = event.target as EventTarget;
         $(target).hide()
         const input = $(target).parent().find('.header-input')
         input.show().trigger('focus').addClass('changingHeader').trigger('select')
@@ -1945,7 +1947,7 @@ export class GraphRenderer {
         const elements = document.elementsFromPoint(posX, posY);
         let target: Node | Edge | Visual | null = null;
         for (const element of elements) {
-            const data = ko.dataFor(element);
+            const data: unknown = ko.dataFor(element) as unknown;
             if (data instanceof Node || data instanceof Edge || data instanceof Visual) {
                 target = data;
                 break;

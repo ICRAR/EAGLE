@@ -24,7 +24,7 @@ export class GraphConfig {
         this.fileInfo().readonly = false;
         this.fileInfo().builtIn = false;
         this.id = ko.observable(Id.generateGraphConfigId());
-        this.nodes = ko.observable(new Map());
+        this.nodes = ko.observable(new Map<NodeId, GraphConfigNode>());
     }
 
     clone = () : GraphConfig => {
@@ -255,7 +255,7 @@ export class GraphConfigNode {
 
     constructor(node: Node){
         this.node = ko.observable(node);
-        this.fields = ko.observable(new Map());
+        this.fields = ko.observable(new Map<FieldId, GraphConfigField>());
     }
 
     getNumFields = (): number => {
