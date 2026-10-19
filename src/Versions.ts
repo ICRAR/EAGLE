@@ -1,5 +1,24 @@
 export const versions = [
   {
+    version: 'v7.1.0',
+    date: new Date("2026-10-15"),
+    changes: [
+      `Fixed some graph errors not showing and some being mis-labelled as warnings`,
+      `Support for loading files by drag-and-drop onto EAGLE`,
+      `Grey-out modals when open but not focussed`,
+      `Graph Configuration table cleanup`,
+      `Fix for 'graph zero zoom' bug`,
+      `Fixes for 'Insert Graph' behaviour`,
+      `Fix for failing palette loading`,
+      `Added 'Delete Branch', 'Show on GitHub/GitLab' actions to Repository context menu`,
+      `New Repository file context menu with 'Copy URL', 'Open in New Window' actions`,
+      `Better input validators for all data entry fields in the UI`,
+      `Improvements to ReadTheDocs documentation`,
+      `Improvements to unit tests`,
+      `Improvements to Undo system`
+    ]
+  },
+  {
     version: 'v7.0.1',
     date: new Date("2026-06-25"),
     changes: [
