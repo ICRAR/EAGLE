@@ -28,10 +28,10 @@
 //   - a valid V4 graph (including one missing the changeable attribute) loads
 //   - missing (optional) top-level keys or missing per-object attributes ->
 //     the graph still loads (parsers apply defaults)
-//   - wrong-type/other violations of structural top-level keys or per-object
-//     attributes (e.g. changeable: "false", string coords) -> structural error
-//     (block); malformed optional top-level containers/selectors are warnings
-//     and use parser fallbacks; unsupported top-level keys -> structural error.
+//   - wrong-type/other violations of structural top-level keys or modelData
+//     attributes -> structural error (block); malformed graph object attributes
+//     -> warning and sanitize to parser defaults/skip behavior; malformed optional
+//     top-level containers/selectors use parser fallbacks; unsupported keys block.
 //
 // The classifier lives in src/SchemaLoadClassifier.ts (pure, no deps). We
 // transpile that single file to CJS on the fly with the bundled TypeScript and
@@ -61,7 +61,7 @@ const tmpDir = mkdtempSync(path.join(tmpdir(), "eagle-classifier-"));
 const classifierJsPath = path.join(tmpDir, "classifier.js");
 writeFileSync(classifierJsPath, classifierJs);
 const classifier = await import("file://" + classifierJsPath);
-const { isStructuralV4Error, hasStructuralError, appendV4ValidationIssues } = classifier;
+const { isStructuralV4Error, hasStructuralError, appendV4ValidationIssues, sanitizeRecoverableV4Errors } = classifier;
 const STRUCTURAL_KEYS = classifier.STRUCTURAL_KEYS;
 
 function run() {
@@ -115,7 +115,9 @@ function run() {
     check("root missingProperty=edges is NOT structural", !isStructuralV4Error({ dataPath: "", message: "", missingProperty: "edges" }));
     check("root missingProperty=activeGraphConfigId is NOT structural", !isStructuralV4Error({ dataPath: "", message: "", missingProperty: "activeGraphConfigId" }));
     check("/nodes (wrong type) is structural", isStructuralV4Error({ dataPath: "/nodes", message: "" }));
-    check("/nodes/xxx/attribute (wrong type) is structural", isStructuralV4Error({ dataPath: "/nodes/1/fields/2/changeable", message: "" }));
+    check("/nodes/id/field/changeable (wrong type) is recoverable", !isStructuralV4Error({ dataPath: "/nodes/1/fields/2/changeable", message: "" }));
+    check("/edges/id/comment (wrong type) is recoverable", !isStructuralV4Error({ dataPath: "/edges/1/comment", message: "" }));
+    check("/visuals/id/content (wrong type) is recoverable", !isStructuralV4Error({ dataPath: "/visuals/1/content", message: "" }));
     check("/modelData (wrong type) is structural", isStructuralV4Error({ dataPath: "/modelData", message: "" }));
     check("/edges (wrong type) is recoverable", !isStructuralV4Error({ dataPath: "/edges", message: "" }));
     check("/visuals (wrong type) is recoverable", !isStructuralV4Error({ dataPath: "/visuals", message: "" }));
@@ -160,9 +162,8 @@ function run() {
     check("modelData wrong type -> structural (blocks)", !r.valid && r.structural, JSON.stringify(r));
 
     // Recoverable violations are reported as warnings by the same classification
-    // function used by Eagle's real load-validation path. Malformed optional
-    // top-level containers/selectors have parser fallbacks; malformed graph object
-    // attributes remain structural.
+    // function used by Eagle's real load-validation path. Malformed graph object
+    // attributes are removed before parsing so parser defaults or skip behavior apply.
     m = clone(chilies); m.edges = [];
     r = classify(m);
     check("invalid edges (wrong type) -> warning and recoverable", !r.valid && !r.structural && r.warnings > 0, JSON.stringify(r));
@@ -200,12 +201,16 @@ function run() {
     m = clone(chilies);
     m.nodes[firstNodeId].fields[firstFieldId].changeable = "yes";
     r = classify(m);
-    check("invalid field attribute (changeable) -> structural", !r.valid && r.structural, JSON.stringify(r));
+    check("invalid field attribute (changeable) -> warning and recoverable", !r.valid && !r.structural && r.warnings > 0, JSON.stringify(r));
+    sanitizeRecoverableV4Errors(m, r.validationErrors);
+    check("invalid field attribute is removed for parser default", typeof m.nodes[firstNodeId].fields[firstFieldId].changeable === "undefined", JSON.stringify(m.nodes[firstNodeId].fields[firstFieldId]));
 
     m = clone(chilies);
     m.nodes[firstNodeId].x = "not-a-number";
     r = classify(m);
-    check("invalid node attribute (x) -> structural", !r.valid && r.structural, JSON.stringify(r));
+    check("invalid node attribute (x) -> warning and recoverable", !r.valid && !r.structural && r.warnings > 0, JSON.stringify(r));
+    sanitizeRecoverableV4Errors(m, r.validationErrors);
+    check("invalid node attribute is removed for parser default", typeof m.nodes[firstNodeId].x === "undefined", JSON.stringify(m.nodes[firstNodeId]));
 
     console.log("\n" + passed + " passed, " + failed + " failed");
     if (failed > 0) {

@@ -48,14 +48,14 @@ export const STRUCTURAL_KEYS: string[] = ["modelData", "nodes"];
 //    keys are reported at the ROOT with params.missingProperty; wrong types are
 //    reported at their own paths.
 //  - Unsupported keys (the schema's additionalProperties violations).
-//  - Wrong-type/other violations within node, edge, field, and visual data, where
-//    invalid values would otherwise enter the graph model.
+//  - Invalid modelData attributes, which define graph identity and metadata.
 //
-// Missing optional top-level keys/attributes are WARNINGS. Wrong-type values for
-// the optional top-level containers/selector "edges", "visuals",
-// "graphConfigurations", and "activeGraphConfigId" are also WARNINGS: their
-// parsers treat malformed containers as empty and default an invalid active
-// graph configuration id to null.
+// Missing optional top-level keys/attributes and malformed values within graph
+// object maps (nodes, edges, visuals, and graphConfigurations) are WARNINGS. The
+// corresponding invalid property or map entry is removed before parsing, allowing
+// parsers to apply defaults or skip that entry. Wrong-type values for the optional
+// top-level containers/selector "edges", "visuals", "graphConfigurations", and
+// "activeGraphConfigId" are also WARNINGS and use parser defaults.
 export function isStructuralV4Error(error: SchemaValidationError): boolean {
     const path = error.dataPath;
     const missing = error.missingProperty ?? error.params?.missingProperty as string | undefined;
@@ -69,7 +69,8 @@ export function isStructuralV4Error(error: SchemaValidationError): boolean {
 
     // These optional top-level containers/selector have parser fallbacks: malformed
     // containers become empty maps and an invalid active id becomes null.
-    if (["/edges", "/visuals", "/graphConfigurations", "/activeGraphConfigId"].includes(path)){
+    if (["/edges", "/visuals", "/graphConfigurations", "/activeGraphConfigId"].includes(path)
+        || ["/nodes/", "/edges/", "/visuals/", "/graphConfigurations/"].some((prefix) => path.startsWith(prefix))){
         return false;
     }
     if (path !== "" || typeof missing === "undefined"){
@@ -79,6 +80,49 @@ export function isStructuralV4Error(error: SchemaValidationError): boolean {
     // missing-property errors are reported at the root with params.missingProperty:
     // missing structural keys block loading, missing optional keys are a warning
     return STRUCTURAL_KEYS.includes(missing);
+}
+
+// Strip malformed values reported at recoverable paths so parser defaults and
+// skip behavior remain safe. Array entries are replaced with null; supported V4
+// array fields accept null or otherwise normalize it to their empty/default value.
+export function sanitizeRecoverableV4Errors(dataObject: Record<string, unknown>, errors: SchemaValidationError[]): void {
+    for (const error of errors){
+        if (isStructuralV4Error(error) || error.keyword === "required" || error.dataPath === ""){
+            continue;
+        }
+
+        const segments = error.dataPath.split("/").slice(1).map((segment) => segment.replace(/~1/g, "/").replace(/~0/g, "~"));
+        if (segments.length === 0){
+            continue;
+        }
+
+        let parent: unknown = dataObject;
+        for (const segment of segments.slice(0, -1)){
+            if (Array.isArray(parent)){
+                const index = Number(segment);
+                if (!Number.isInteger(index) || index < 0 || index >= parent.length){
+                    parent = null;
+                    break;
+                }
+                parent = parent[index];
+            } else if (typeof parent === "object" && parent !== null){
+                parent = (parent as Record<string, unknown>)[segment];
+            } else {
+                parent = null;
+                break;
+            }
+        }
+
+        const leaf = segments[segments.length - 1];
+        if (Array.isArray(parent)){
+            const index = Number(leaf);
+            if (Number.isInteger(index) && index >= 0 && index < parent.length){
+                parent[index] = null;
+            }
+        } else if (typeof parent === "object" && parent !== null){
+            delete (parent as Record<string, unknown>)[leaf];
+        }
+    }
 }
 
 // Split detailed validator output the same way the loader does, so both the

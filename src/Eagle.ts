@@ -50,7 +50,7 @@ import { LogicalGraph } from './LogicalGraph';
 import { Modals } from "./Modals";
 import { Node } from './Node';
 import { Palette } from './Palette';
-import { appendV4ValidationIssues } from './SchemaLoadClassifier';
+import { appendV4ValidationIssues, sanitizeRecoverableV4Errors } from './SchemaLoadClassifier';
 import { ParameterTable } from './ParameterTable';
 import { Repositories } from './Repositories';
 import { Repository, type RepositoryCommit, RepositoryService } from './Repository';
@@ -1181,14 +1181,12 @@ export class Eagle {
             return true;
         }
 
-        // classify validation failures:
-        // - structural (missing/invalid modelData or nodes, unsupported top-level
-        //   keys, or invalid per-object attributes) -> error, block loading
-        // - missing optional keys/attributes and malformed optional top-level values
-        //   (edges, visuals, graphConfigurations, activeGraphConfigId) -> warning;
-        //   the parsers apply safe defaults
+        // Classify structural failures as blocking errors. Recoverable invalid object
+        // attributes are warned about and removed so parser defaults/skip behavior apply.
         // See SchemaLoadClassifier for the classification rules (ajv path semantics).
-        return appendV4ValidationIssues(validatorResult.errors, errorsWarnings, Errors.Message);
+        const canLoad = appendV4ValidationIssues(validatorResult.errors, errorsWarnings, Errors.Message);
+        sanitizeRecoverableV4Errors(dataObject, validatorResult.errors);
+        return canLoad;
     }
 
     private _loadGraphJSON = async (data: string, fileFullPath: string, loadFunc: (lg: LogicalGraph, errorsWarnings: ErrorsWarnings) => void | Promise<void>) : Promise<boolean> => {
