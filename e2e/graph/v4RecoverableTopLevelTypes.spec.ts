@@ -102,6 +102,7 @@ test('A V4 graph with null modelData reports a blocking validation error', async
             { modelData: null },
             { modelData: null, nodes: {} },
             { nodes: {} },
+            { modelData: {type: 'Graph', schemaVersion: 5}, nodes: {} },
         ];
         const results: InvalidLoadResult[] = [];
 
@@ -123,6 +124,7 @@ test('A V4 graph with null modelData reports a blocking validation error', async
     }
     expect(results[0].errors.some((error) => error.includes('modelData'))).toBe(true);
     expect(results[1].errors.some((error) => error.includes('modelData'))).toBe(true);
+    expect(results[3].errors.some((error) => error.includes('schemaVersion'))).toBe(true);
 
     await page.close();
 });

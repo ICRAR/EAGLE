@@ -1769,6 +1769,8 @@ export class Utils {
     static determineSchemaVersion(data: unknown): SchemaVersion {
         const dataObject = asObjectRecord(data);
         const modelData = asObjectRecord(dataObject?.modelData);
+        const isV4Graph = typeof modelData?.type === "string" && modelData.type.toLowerCase() === "graph";
+
         if (typeof modelData?.schemaVersion !== 'undefined'){
             // check whether the value of data.modelData.schemaVersion is a valid SchemaVersion enum value
             const schemaVersion = modelData.schemaVersion as SchemaVersion;
@@ -1776,13 +1778,13 @@ export class Utils {
                 return schemaVersion;
             }
             console.warn("Unknown schema version:", modelData.schemaVersion);
-            return SchemaVersion.Unknown;
+            return isV4Graph ? SchemaVersion.V4 : SchemaVersion.Unknown;
         }
 
         // Older V4 graph documents may omit schemaVersion. Their explicit V4
         // modelData.type and graph container shape are sufficient to route them
         // through the backwards-compatible V4 parser (rather than the OJS parser).
-        if (typeof modelData?.type === "string" && modelData.type.toLowerCase() === "graph"){
+        if (isV4Graph){
             return SchemaVersion.V4;
         }
 
