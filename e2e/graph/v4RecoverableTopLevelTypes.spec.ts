@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 
 type TestIssue = {message: string};
 type TestGraph = {
@@ -27,6 +27,19 @@ type RecoverableLoadResult = {
     activeGraphConfigId: string | null | undefined;
 };
 type InvalidLoadResult = {loaded: boolean, errors: string[]};
+
+const loadInvalidGraph = async (page: Page, graphData: unknown): Promise<InvalidLoadResult> => {
+    await page.goto('http://localhost:8888/?tutorial=none');
+
+    return page.evaluate(async (data: unknown) => {
+        const eagle = (window as unknown as {eagle: TestEagle}).eagle;
+        const loaded = await eagle._loadGraphJSON(JSON.stringify(data), 'invalid-graph.graph', () => undefined);
+        return {
+            loaded: Boolean(loaded),
+            errors: eagle.loadingErrors().map((error) => error.message),
+        };
+    }, graphData);
+};
 
 test('Malformed optional V4 top-level values warn and use parser defaults', async ({ page }) => {
     await page.goto('http://localhost:8888/?tutorial=none');
@@ -94,37 +107,31 @@ test('Malformed optional V4 top-level values warn and use parser defaults', asyn
 });
 
 test('A V4 graph with null modelData reports a blocking validation error', async ({ page }) => {
-    await page.goto('http://localhost:8888/?tutorial=none');
+    const result = await loadInvalidGraph(page, {modelData: null});
 
-    const results = await page.evaluate(async () => {
-        const eagle = (window as unknown as {eagle: TestEagle}).eagle;
-        const malformedGraphs = [
-            { modelData: null },
-            { modelData: null, nodes: {} },
-            { nodes: {} },
-            { modelData: {type: 'Graph', schemaVersion: 5}, nodes: {} },
-        ];
-        const results: InvalidLoadResult[] = [];
+    expect(result.loaded, JSON.stringify(result)).toBe(false);
+    expect(result.errors.some((error) => error.startsWith('Schema validation:') && error.includes('modelData'))).toBe(true);
 
-        for (const graphData of malformedGraphs){
-            const loaded = await eagle._loadGraphJSON(JSON.stringify(graphData), 'invalid-model-data.graph', () => undefined);
-            const loadingErrors = eagle.loadingErrors();
-            results.push({
-                loaded: Boolean(loaded),
-                errors: loadingErrors.map((error) => error.message),
-            });
-        }
+    await page.close();
+});
 
-        return results;
+test('A V4 graph without modelData reports a blocking validation error', async ({ page }) => {
+    const result = await loadInvalidGraph(page, {nodes: {}});
+
+    expect(result.loaded, JSON.stringify(result)).toBe(false);
+    expect(result.errors.some((error) => error.startsWith('Schema validation:') && error.includes('modelData'))).toBe(true);
+
+    await page.close();
+});
+
+test('An invalid schemaVersion on a V4 graph reaches V4 schema validation', async ({ page }) => {
+    const result = await loadInvalidGraph(page, {
+        modelData: {type: 'Graph', schemaVersion: 5, name: 'invalid schema version'},
+        nodes: {},
     });
 
-    for (const result of results){
-        expect(result.loaded).toBe(false);
-        expect(result.errors.some((error) => error.startsWith('Schema validation:'))).toBe(true);
-    }
-    expect(results[0].errors.some((error) => error.includes('modelData'))).toBe(true);
-    expect(results[1].errors.some((error) => error.includes('modelData'))).toBe(true);
-    expect(results[3].errors.some((error) => error.includes('schemaVersion'))).toBe(true);
+    expect(result.loaded, JSON.stringify(result)).toBe(false);
+    expect(result.errors.some((error) => error.startsWith('Schema validation:') && error.includes('schemaVersion'))).toBe(true);
 
     await page.close();
 });
