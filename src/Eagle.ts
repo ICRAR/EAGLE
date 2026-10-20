@@ -1202,23 +1202,33 @@ export class Eagle {
             return false;
         }
 
-        const fileType : EagleFileType = Utils.determineFileType(dataObject);
-
-        // Only load graph files.
-        if (fileType !== EagleFileType.Graph) {
-            Utils.showUserMessage("Error", "This is not a graph file!");
-            return false;
-        }
-
-        // attempt to determine schema version from FileInfo
-        const schemaVersion: SchemaVersion = Utils.determineSchemaVersion(dataObject);
-
         const errorsWarnings: ErrorsWarnings = {errors: [], warnings: []};
         let loaded = false;
         const graphBeforeLoad = this.logicalGraph().clone();
 
         // use the correct parsing function based on schema version
         try {
+            const fileType: EagleFileType = Utils.determineFileType(dataObject);
+            const isV4GraphCandidate = typeof dataObject === 'object' && dataObject !== null && (
+                'nodes' in dataObject || ('modelData' in dataObject && (
+                    dataObject.modelData === null || typeof dataObject.modelData !== 'object' || Array.isArray(dataObject.modelData)
+                ))
+            );
+
+            // A V4 graph with missing or malformed modelData is still recognizable
+            // from its nodes container or malformed modelData, allowing schema
+            // validation to report structural errors instead of rejecting it as unknown.
+            if (fileType !== EagleFileType.Graph && !(fileType === EagleFileType.Unknown && isV4GraphCandidate)) {
+                Utils.showUserMessage("Error", "This is not a graph file!");
+                return false;
+            }
+
+            // attempt to determine schema version from FileInfo; use V4 validation
+            // for graph-shaped documents whose malformed modelData hides the version.
+            const schemaVersion: SchemaVersion = fileType === EagleFileType.Unknown && isV4GraphCandidate
+                ? SchemaVersion.V4
+                : Utils.determineSchemaVersion(dataObject);
+
             switch (schemaVersion){
                 case SchemaVersion.OJS:
                 case SchemaVersion.Unknown:
