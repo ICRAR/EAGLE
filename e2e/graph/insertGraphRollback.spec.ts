@@ -35,7 +35,15 @@ type TestGraph = {
 };
 
 type TestEagle = {
-    logicalGraph: () => TestGraph;
+    logicalGraph: {
+        (): TestGraph;
+        (graph: TestGraph): void;
+    };
+    _loadGraphJSON: (
+        json: string,
+        fileName: string,
+        loadCallback: (graph: TestGraph) => void
+    ) => Promise<boolean>;
     insertGraph: (
         nodes: (TestNode | null)[],
         edges: TestEdge[],
@@ -46,7 +54,14 @@ type TestEagle = {
 
 test('Failed graph insertion preserves existing graph relationships', async ({ page }) => {
     await page.goto('http://localhost:8888/?tutorial=none');
-    await TestHelpers.loadGraphFromString(page, await TestHelpers.readGraph(INPUT_GRAPH_LOCATION));
+    const fixtureGraph = await TestHelpers.readGraph(INPUT_GRAPH_LOCATION);
+    const graphLoaded = await page.evaluate(async (json: string) => {
+        const eagle = (window as unknown as {eagle: TestEagle}).eagle;
+        return eagle._loadGraphJSON(json, 'rollback-fixture.graph', (graph) => {
+            eagle.logicalGraph(graph);
+        });
+    }, fixtureGraph);
+    expect(graphLoaded).toBe(true);
 
     const result = await page.evaluate(async () => {
         const testWindow = window as unknown as {
