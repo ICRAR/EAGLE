@@ -199,6 +199,7 @@ export class GraphConfig {
         const result: GraphConfig = new GraphConfig();
 
         result.fileInfo(FileInfo.fromV4Json(data.modelData, errorsWarnings));
+        result.fileInfo().type = EagleFileType.GraphConfig;
         result.id((data.id as GraphConfigId | undefined) ?? Id.generateGraphConfigId());
 
         // guard against missing attributes (older files may omit them; defaults applied below)
