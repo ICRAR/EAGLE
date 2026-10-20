@@ -1202,7 +1202,7 @@ export class Eagle {
 
         const errorsWarnings: ErrorsWarnings = {errors: [], warnings: []};
         let loaded = false;
-        const graphBeforeLoad = this.logicalGraph().clone();
+        const graphBeforeLoad = this.logicalGraph().createRollbackSnapshot();
 
         // use the correct parsing function based on schema version
         try {
@@ -1256,7 +1256,7 @@ export class Eagle {
             // a parse/load failure mid-way must not leave the graph half-loaded
             // (the parse builds the full graph object before any mutation, so abort here)
             console.error("Error loading graph file:", error);
-            this.logicalGraph(graphBeforeLoad);
+            this.logicalGraph().restoreRollbackSnapshot(graphBeforeLoad);
             errorsWarnings.errors.push(Errors.Message("Failed to load graph file: " + Errors.UnknownToError(error)));
             loaded = false;
         }
