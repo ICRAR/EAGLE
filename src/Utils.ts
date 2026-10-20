@@ -1663,15 +1663,21 @@ export class Utils {
     }
 
     static determineFileType(data: any): EagleFileType {
-        if (typeof data.modelData !== 'undefined'){
+        if (typeof data !== 'object' || data === null){
+            console.warn("Can't determine filetype");
+            return EagleFileType.Unknown;
+        }
+
+        const modelData = data.modelData;
+        if (typeof modelData === 'object' && modelData !== null){
             // find type of OJS files
-            if (typeof data.modelData.fileType !== 'undefined'){
-                return Utils.translateStringToFileType(data.modelData.fileType);
+            if (typeof modelData.fileType !== 'undefined'){
+                return Utils.translateStringToFileType(modelData.fileType);
             }
 
             // find type of V4 files
-            if (typeof data.modelData.type !== 'undefined'){
-                return Utils.translateStringToFileType(data.modelData.type);
+            if (typeof modelData.type !== 'undefined'){
+                return Utils.translateStringToFileType(modelData.type);
             }
         }
 
@@ -1739,10 +1745,11 @@ export class Utils {
     }
 
     static determineSchemaVersion(data: any): SchemaVersion {
-        if (typeof data.modelData !== 'undefined'){
-            if (typeof data.modelData.schemaVersion !== 'undefined'){
+        const modelData = typeof data === 'object' && data !== null ? data.modelData : null;
+        if (typeof modelData === 'object' && modelData !== null){
+            if (typeof modelData.schemaVersion !== 'undefined'){
                 // check whether the value of data.modelData.schemaVersion is a valid SchemaVersion enum value
-                const schemaVersion = data.modelData.schemaVersion as SchemaVersion;
+                const schemaVersion = modelData.schemaVersion as SchemaVersion;
                 if (Object.values(SchemaVersion).includes(schemaVersion)){
                     return schemaVersion;
                 } else {
@@ -1755,7 +1762,7 @@ export class Utils {
         // Older V4 graph documents may omit schemaVersion. Their explicit V4
         // modelData.type and graph container shape are sufficient to route them
         // through the backwards-compatible V4 parser (rather than the OJS parser).
-        if (typeof data.modelData?.type === "string" && data.modelData.type.toLowerCase() === "graph"){
+        if (typeof modelData?.type === "string" && modelData.type.toLowerCase() === "graph"){
             return SchemaVersion.V4;
         }
 

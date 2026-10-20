@@ -58,3 +58,37 @@ test('Malformed optional V4 top-level values warn and use parser defaults', asyn
 
     await page.close();
 });
+
+test('A V4 graph with null modelData reports a blocking validation error', async ({ page }) => {
+    await page.goto('http://localhost:8888/?tutorial=none');
+
+    const results = await page.evaluate(async () => {
+        const eagle = (window as any).eagle;
+        const malformedGraphs = [
+            { modelData: null },
+            { modelData: null, nodes: {} },
+            { nodes: {} },
+        ];
+        const results = [];
+
+        for (const graphData of malformedGraphs){
+            const loaded = await eagle._loadGraphJSON(JSON.stringify(graphData), 'invalid-model-data.graph', () => undefined);
+            const loadingErrors = eagle.loadingErrors() as {message: string}[];
+            results.push({
+                loaded: Boolean(loaded),
+                errors: loadingErrors.map((error) => error.message),
+            });
+        }
+
+        return results;
+    });
+
+    for (const result of results){
+        expect(result.loaded).toBe(false);
+        expect(result.errors.some((error) => error.startsWith('Schema validation:'))).toBe(true);
+    }
+    expect(results[0].errors.some((error) => error.includes('modelData'))).toBe(true);
+    expect(results[1].errors.some((error) => error.includes('modelData'))).toBe(true);
+
+    await page.close();
+});
