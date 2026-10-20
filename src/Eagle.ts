@@ -1238,13 +1238,16 @@ export class Eagle {
                     await loadFunc(LogicalGraph.fromOJSJson(dataObject, "", errorsWarnings), errorsWarnings);
                     loaded = true;
                     break;
-                case SchemaVersion.V4:
+                case SchemaVersion.V4: {
                     if (!this._validateV4GraphLoadJSON(dataObject as JsonObject, errorsWarnings)) {
                         break;
                     }
-                    await loadFunc(LogicalGraph.fromV4Json(dataObject as V4GraphJson, "", errorsWarnings), errorsWarnings);
+                    const graph = LogicalGraph.fromV4Json(dataObject as V4GraphJson, "", errorsWarnings);
+                    graph.fileInfo().type = EagleFileType.Graph;
+                    await loadFunc(graph, errorsWarnings);
                     loaded = true;
                     break;
+                }
                 default:
                     errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
                     break;
