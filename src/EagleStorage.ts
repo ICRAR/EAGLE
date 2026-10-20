@@ -1,6 +1,13 @@
 import { Repository, type RepositoryService } from "./Repository";
 import { Utils } from "./Utils";
 
+type StoredRepository = {
+    id: RepositoryId;
+    service: RepositoryService;
+    name: string;
+    branch: string;
+};
+
 export class EagleStorage {
 
     public static readonly DATABASE_NAME = "EAGLE";
@@ -16,19 +23,20 @@ export class EagleStorage {
             request.onerror = (_event) => {
                 reject("IndexedDB not available, or access refused");
             };
-            request.onsuccess = (event) => {
-                EagleStorage.db = (<any>event.target).result;
+            request.onsuccess = () => {
+                EagleStorage.db = request.result;
 
                 EagleStorage.db.onerror = (event) => {
                     // generic error handler for all errors targeted at this database's requests!
-                    reject(`Database error: ${(<any>event.target).error?.message}`);
+                    const error = event.target instanceof IDBRequest ? event.target.error : null;
+                    reject(`Database error: ${error?.message}`);
                 };
 
                 resolve();
             };
 
-            request.onupgradeneeded = (event) => {
-                const db = (<any>event.target).result;
+            request.onupgradeneeded = (_event) => {
+                const db = request.result;
     
                 // create an objectStore for this database
                 const objectStore = db.createObjectStore(EagleStorage.OBJECT_STORE_NAME, {keyPath: "id"});
@@ -63,14 +71,14 @@ export class EagleStorage {
             // query IndexedDB
             const repositoriesObjectStore = EagleStorage.db.transaction(EagleStorage.TRANSACTION_NAME).objectStore(EagleStorage.OBJECT_STORE_NAME);
 
-            const request = repositoriesObjectStore.getAll();
+            const request = repositoriesObjectStore.getAll() as IDBRequest<StoredRepository[]>;
             
-            request.onerror = (event) => {
-                reject(`ObjectStore request error: ${(<any>event.target).error?.message}`);
+            request.onerror = () => {
+                reject(`ObjectStore request error: ${request.error?.message}`);
             };
 
-            request.onsuccess = (event) => {
-                const repos: {id: RepositoryId, service: RepositoryService, name: string, branch: string}[] = (<any>event.target).result;
+            request.onsuccess = () => {
+                const repos = request.result;
 
                 repos.forEach((repo) => {
                     if (repo.service !== service){

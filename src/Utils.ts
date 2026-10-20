@@ -23,6 +23,7 @@
 */
 
 import Ajv from "ajv";
+import type * as CodeMirrorTypes from "codemirror";
 import { marked } from "marked";
 import { markedHighlight } from "marked-highlight";
 import hljs from "highlight.js";
@@ -847,7 +848,7 @@ export class Utils {
                     break;
             }
 
-            const editor = $('#inputCodeModal').data('editor');
+            const editor = $('#inputCodeModal').data('editor') as CodeMirrorTypes.Editor;
             editor.setOption('readOnly', readonly);
             editor.setOption('mode', mode);
             editor.setValue(defaultText ?? '');
@@ -877,7 +878,7 @@ export class Utils {
             Modals.toggleMarkdownEditMode(editMode);
 
             // initialise editor
-            const editor = $('#inputMarkdownModal').data('editor');
+            const editor = $('#inputMarkdownModal').data('editor') as CodeMirrorTypes.Editor;
             editor.setOption('readOnly', false);
             editor.setOption('mode', "markdown");
             editor.setValue(defaultText);
@@ -2050,7 +2051,7 @@ export class Utils {
             return;
         }
 
-        const jsonObject = JSON.parse(jsonString);
+        const jsonObject: unknown = JSON.parse(jsonString);
         const validatorResult : {valid: boolean, errors: string} = Utils._validateJSON(jsonObject, version, fileType);
         if (!validatorResult.valid){
             Utils.showNotification("Error",  "JSON Output failed validation against internal JSON schema, saving anyway<br/>" + validatorResult.errors, "danger", true);
@@ -3251,7 +3252,7 @@ export class Utils {
     }
 
     static copyInputCodeModalInput(): void {
-        const editor = $('#inputCodeModal').data('editor');
+        const editor = $('#inputCodeModal').data('editor') as CodeMirrorTypes.Editor | null | undefined;
         if (editor != null){
             const content: string = editor.getValue();
             void navigator.clipboard.writeText(content);
@@ -3261,7 +3262,7 @@ export class Utils {
     }
 
     static copyInputMarkdownModalInput(): void {
-        const editor = $('#inputMarkdownModal').data('editor');
+        const editor = $('#inputMarkdownModal').data('editor') as CodeMirrorTypes.Editor | null | undefined;
         if (editor != null){
             const content: string = editor.getValue();
             void navigator.clipboard.writeText(content);
@@ -3310,12 +3311,12 @@ export class Utils {
         }
 
         const _fetchSchema = async function(url: string, localStorageKey: string, setFunc: (schema: object) => void){
-            let data;
-            let dataObject;
+            let data: string;
+            let dataObject: object | undefined;
 
             try {
                 data = await Utils.httpGet(url);
-                dataObject = JSON.parse(data);
+                dataObject = JSON.parse(data) as object;
             } catch (error) {
                 const schemaData = localStorage.getItem(localStorageKey);
 
@@ -3323,7 +3324,7 @@ export class Utils {
                     console.warn("Unable to fetch graph schema (" + url + "). Error:" + error + ". Schema also unavailable from localStorage (" + localStorageKey + ").");
                 } else {
                     console.warn("Unable to fetch graph schema (" + url + "). Error:" + error + ". Schema loaded from localStorage (" + localStorageKey + ").");
-                    setFunc(JSON.parse(schemaData));
+                    setFunc(JSON.parse(schemaData) as object);
                 }
             }
 

@@ -25,8 +25,8 @@ test('V4 Format JSON Match', async ({ page }) => {
   });
 
   await test.step('Compare the round-tripped graph', async () => {
-    const obj1 = JSON.parse(inputOJS);
-    const obj2 = JSON.parse(outputOJS);
+    const obj1 = JSON.parse(inputOJS) as Record<string, unknown>;
+    const obj2 = JSON.parse(outputOJS) as Record<string, unknown>;
     const result0 = TestHelpers.compareObj(obj1, obj2);
     const result1 = TestHelpers.compareObj(obj2, obj1);
     expect(JSON.stringify(result0)).toBe("{}");

@@ -288,7 +288,7 @@ export class LogicalGraph {
     static fromOJSJson(dataObject : any, filename: string | null, errorsWarnings : ErrorsWarnings) : LogicalGraph {
         // create new logical graph object
         const result : LogicalGraph = new LogicalGraph();
-        const nodeDataIdToNodeId: Map<string, NodeId> = new Map();
+        const nodeDataIdToNodeId: Map<string, NodeId> = new Map<string, NodeId>();
 
         // copy modelData into fileInfo
         const fileInfo: FileInfo = FileInfo.fromOJSJson(dataObject.modelData, errorsWarnings);
@@ -326,7 +326,7 @@ export class LogicalGraph {
 
         // make sure to set parent for all nodes
         for (let i = 0 ; i < dataObject.nodeDataArray.length ; i++){
-            const nodeData = dataObject.nodeDataArray[i];
+            const nodeData = dataObject.nodeDataArray[i] as JsonObject;
             const parentDataId = Node.determineNodeParentId(nodeData);
 
             // if parentId cannot be found, skip this node
@@ -385,7 +385,7 @@ export class LogicalGraph {
         // load configs (if present)
         if (typeof dataObject.graphConfigurations !== 'undefined'){
             for (const gcId in dataObject["graphConfigurations"]){
-                const gco = dataObject["graphConfigurations"][gcId];
+                const gco = dataObject["graphConfigurations"][gcId] as JsonObject;
                 const gc = GraphConfig.fromJson(gco, result, errorsWarnings);
                 gc.setId(gcId as GraphConfigId);
                 result.graphConfigs().set(gcId as GraphConfigId, gc);

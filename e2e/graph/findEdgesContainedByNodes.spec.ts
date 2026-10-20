@@ -18,24 +18,24 @@ test('findEdgesContainedByNodes handles graph iterators and partial selections',
     await TestHelpers.dragEdge(page, 'HelloWorldApp', 'File');
 
     const result = await page.evaluate(() => {
-        const eagle = (window as any).eagle;
+        const eagle = (window as any).eagle as { logicalGraph: () => { getNodes: () => Map<string, unknown>; getEdges: () => unknown[] } };
         const graph = eagle.logicalGraph();
         const nodes = Array.from(graph.getNodes());
         const edges = Array.from(graph.getEdges());
-        const graphRenderer = (window as any).GraphRenderer;
+        const graphRenderer = (window as any).GraphRenderer as { findEdgesContainedByNodes: (edges: unknown[], nodes: unknown[] | unknown[]) => { getId: () => string }[] };
 
         const allSelected = graphRenderer.findEdgesContainedByNodes(
-            graph.getEdges(),
-            graph.getNodes(),
+            graph.getEdges() as unknown[],
+            graph.getNodes() as unknown[],
         );
         const oneSelected = graphRenderer.findEdgesContainedByNodes(
-            graph.getEdges(),
-            [nodes[0]],
+            graph.getEdges() as unknown[],
+            [nodes[0]] as unknown[],
         );
 
         return {
             graphEdgeCount: edges.length,
-            allSelectedIds: allSelected.map((edge: any) => edge.getId() as string),
+            allSelectedIds: allSelected.map((edge) => edge.getId()),
             oneSelectedCount: oneSelected.length,
         };
     });
@@ -66,7 +66,7 @@ test('findDepthOfNode follows nested parents', async ({ page }) => {
     await page.waitForTimeout(500);
 
     const depth = await page.evaluate(() => {
-        const eagle = (window as any).eagle;
+        const eagle = (window as any).eagle as { logicalGraph: () => { getNodes: () => Map<string, unknown>; getNodeByIndex: (i: number) => { setParent: (n: unknown) => void; getDrawOrderHint: () => number } }; setSelection: (a: null, b: string) => void };
         const graph = eagle.logicalGraph();
         eagle.setSelection(null, 'Graph');
         const nodes = Array.from(graph.getNodes());
@@ -84,7 +84,7 @@ test('findDepthOfNode follows nested parents', async ({ page }) => {
         ) / 10;
 
         return {
-            actual: (window as any).GraphRenderer.findDepthOfNode(0, nodes),
+            actual: (window as any).GraphRenderer.findDepthOfNode(0, nodes) as number,
             expected: expectedDepth,
         };
     });

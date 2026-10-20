@@ -15,8 +15,8 @@ test('Load/Save JSON Match', async ({ page }) => {
   });
 
   await test.step('Compare the saved JSON', async () => {
-    const obj1 = JSON.parse(graphJSON);
-    const obj2 = JSON.parse(outputJSON);
+    const obj1 = JSON.parse(graphJSON) as Record<string, unknown>;
+    const obj2 = JSON.parse(outputJSON) as Record<string, unknown>;
     const result0 = TestHelpers.compareObj(obj1, obj2);
     const result1 = TestHelpers.compareObj(obj2, obj1);
     expect(JSON.stringify(result0)).toBe("{}");

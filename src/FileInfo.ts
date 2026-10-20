@@ -473,11 +473,11 @@ export class FileInfo {
 
         const fileName = Utils.getFileNameFromFullPath(modelData.filePath);
         const filePath = Utils.getFilePathFromFullPath(modelData.filePath);
-        const repoService = modelData.repoService ?? RepositoryService.Unknown;
+        const repoService = (modelData.repoService ?? RepositoryService.Unknown) as RepositoryService;
 
         result.name = fileName;
-        result.shortDescription = modelData.shortDescription ?? "";
-        result.detailedDescription = modelData.detailedDescription ?? "";
+        result.shortDescription = (modelData.shortDescription ?? "") as string;
+        result.detailedDescription = (modelData.detailedDescription ?? "") as string;
 
         // if shortDescription is not set, and detailed description is set, then use first sentence of detailed as the short
         // NOTE: doesn't actually do any semantic analysis of text, just grabs everything before the first '.' in the detailed description
@@ -486,8 +486,8 @@ export class FileInfo {
         }
 
         result.type = Utils.translateStringToFileType(modelData.fileType);
-        result.schemaVersion = modelData.schemaVersion ?? "";
-        result.readonly = modelData.readonly ?? true;
+        result.schemaVersion = (modelData.schemaVersion ?? SchemaVersion.Unknown) as SchemaVersion;
+        result.readonly = (modelData.readonly ?? true) as boolean;
 
         result.location.repositoryService(repoService);
         result.location.repositoryBranch(modelData.repoBranch ?? "");
@@ -497,7 +497,7 @@ export class FileInfo {
         // keep repositoryPath empty. This matches updateFileInfo() behavior and
         // keeps graphLocation comparisons stable across undo reloads.
         if (repoService === RepositoryService.Url){
-            const url = modelData.downloadUrl ?? modelData.filePath ?? "";
+            const url = (modelData.downloadUrl ?? modelData.filePath ?? "") as string;
             result.location.repositoryPath("");
             result.location.repositoryFileName(url);
         } else {
@@ -508,19 +508,19 @@ export class FileInfo {
         result.location.downloadUrl(modelData.downloadUrl ?? "");
 
         // look for deprecated attributes (eagleVersion and eagleCommitHash) too
-        result.generatorVersion = modelData.generatorVersion ?? modelData.eagleVersion ?? "";
-        result.generatorCommitHash = modelData.generatorCommitHash ?? modelData.eagleCommitHash ?? "";
-        result.generatorName = modelData.generatorName ?? "";
+        result.generatorVersion = (modelData.generatorVersion ?? modelData.eagleVersion ?? "") as string;
+        result.generatorCommitHash = (modelData.generatorCommitHash ?? modelData.eagleCommitHash ?? "") as string;
+        result.generatorName = (modelData.generatorName ?? "") as string;
 
-        result.repositoryUrl = modelData.repositoryUrl ?? "";
+        result.repositoryUrl = (modelData.repositoryUrl ?? "") as string;
 
         // NOTE: no info for result.graphLocation
 
-        result.signature = modelData.signature ?? "";
+        result.signature = (modelData.signature ?? "") as string;
 
-        result.lastModifiedName = modelData.lastModifiedName ?? "";
-        result.lastModifiedEmail = modelData.lastModifiedEmail ?? "";
-        result.lastModifiedDatetime = modelData.lastModifiedDatetime ?? 0;
+        result.lastModifiedName = (modelData.lastModifiedName ?? "") as string;
+        result.lastModifiedEmail = (modelData.lastModifiedEmail ?? "") as string;
+        result.lastModifiedDatetime = (modelData.lastModifiedDatetime ?? 0) as number;
 
         // check that lastModifiedDatetime is a Number, if not correct
         if (typeof result.lastModifiedDatetime !== 'number'){
@@ -528,7 +528,7 @@ export class FileInfo {
             errorsWarnings.errors.push(Errors.Message("Last Modified Datetime contains string instead of number, resetting to default (0). Please save this graph to update lastModifiedDatetime to a correct value."));
         }
 
-        result.numLGNodes = modelData.numLGNodes ?? 0;
+        result.numLGNodes = (modelData.numLGNodes ?? 0) as number;
 
         return result;
     }

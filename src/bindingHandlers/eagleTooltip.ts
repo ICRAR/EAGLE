@@ -6,6 +6,13 @@ import {Eagle} from '../Eagle';
 import { EagleConfig } from "../EagleConfig";
 import { Node } from "../Node";
 
+type TooltipBindingValue = string | {
+    content?: string;
+    size?: string;
+    buttonAction?: string;
+    node?: unknown;
+};
+
 ko.bindingHandlers.eagleTooltip = {
     init: function(element) {
         
@@ -15,7 +22,7 @@ ko.bindingHandlers.eagleTooltip = {
 
             // read the aria-describedby parameter of the current element, the
             // value of this element is the id of the tooltip
-            const tooltipElementId : string | null = element.getAttribute('aria-describedby');
+            const tooltipElementId: string | null = element.getAttribute('aria-describedby') as string | null;
 
             // if tooltip id is not null, remove the tooltip from the DOM
             if (tooltipElementId?.startsWith('tooltip') === true){
@@ -45,7 +52,7 @@ ko.bindingHandlers.eagleTooltip = {
                 jQueryElement.attr("data-bs-placement", "right");
             }
 
-            const html = ko.unwrap(valueAccessor())
+            const html = ko.unwrap(valueAccessor()) as TooltipBindingValue | undefined;
             let result = ''
             let size = EagleConfig.EAGLE_TOOLTIP_DEFAULT_MAX_WIDTH + 'px' //default size
             let content = ''
@@ -61,6 +68,7 @@ ko.bindingHandlers.eagleTooltip = {
             }else{
                 content = html
             }
+            const tooltipOptions = typeof html === 'object' ? html : undefined;
 
             // when surrounding text in a tooltip with |||, that section will be excluded from the markdown conversion. 
             if(content.includes('|||')){
@@ -87,12 +95,12 @@ ko.bindingHandlers.eagleTooltip = {
             let buttonRequirements : boolean = false
 
             //if a button is requested and all necessary info is supplied we will insert it here.
-            if(typeof html.buttonAction != 'undefined'){
+            if(typeof tooltipOptions?.buttonAction != 'undefined'){
 
-                if(html.buttonAction === 'descriptionEdit' && html.node instanceof Node ){
+                if(tooltipOptions.buttonAction === 'descriptionEdit' && tooltipOptions.node instanceof Node ){
                     buttonRequirements = true
                 }else{
-                    console.warn('requested description button function: '+ html.buttonAction +' isnt supported or description button wasnt provided with its required arguments')
+                    console.warn('requested description button function: '+ tooltipOptions.buttonAction +' isnt supported or description button wasnt provided with its required arguments')
                 }
 
                 if(buttonRequirements){
@@ -114,8 +122,9 @@ ko.bindingHandlers.eagleTooltip = {
                 //bootstrap will not let us place databinds or click events on our custom button itself, so we need to add an event listener to the button after the tooltip is shown
                 jQueryElement.on('shown.bs.tooltip', function () {
                     $('.tooltip .tooltipBtn').on('click', function(){
-                        if(html.buttonAction === 'descriptionEdit'){
-                            void eagle.editNodeDescription(html.node)
+                        const tooltipNode = tooltipOptions?.node;
+                        if(tooltipOptions?.buttonAction === 'descriptionEdit' && tooltipNode instanceof Node){
+                            void eagle.editNodeDescription(tooltipNode)
                         }
                     })
                 });
