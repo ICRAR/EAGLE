@@ -88,6 +88,21 @@ const asObjectRecord = (value: unknown): Record<string, unknown> | null => {
     return value as Record<string, unknown>;
 };
 
+const normalizeAjvDataPath = (path: string): string => {
+    if (path === "" || path.startsWith("/")){
+        return path;
+    }
+
+    const segments: string[] = [];
+    const segmentPattern = /\.([^.[\]]+)|\[['"]([^'"]+)['"]\]|\[(\d+)\]/g;
+    let match: RegExpExecArray | null;
+    while ((match = segmentPattern.exec(path)) !== null){
+        const segment = match[1] || match[2] || match[3];
+        segments.push(segment.replace(/~/g, "~0").replace(/\//g, "~1"));
+    }
+    return segments.length > 0 ? "/" + segments.join("/") : path;
+};
+
 export class Utils {
     // Allowed file extensions
     static readonly FILE_EXTENSIONS : string[] = [
@@ -2160,7 +2175,7 @@ export class Utils {
 
         const valid = ajv.validate(schema, json) as boolean;
         const errors = (ajv.errors ?? []).map((e) => ({
-            dataPath: (e as {instancePath?: string}).instancePath ?? ((e as {dataPath?: string}).dataPath ?? "").replace(/^\./, "/"),
+            dataPath: normalizeAjvDataPath((e as {instancePath?: string}).instancePath ?? (e as {dataPath?: string}).dataPath ?? ""),
             message: e.message ?? "",
             keyword: e.keyword,
             params: e.params as unknown as Record<string, unknown>,
