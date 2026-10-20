@@ -1225,7 +1225,7 @@ export class Eagle {
             // for graph-shaped documents whose malformed modelData hides the version.
             const schemaVersion: SchemaVersion = fileType === EagleFileType.Unknown && isV4GraphCandidate
                 ? SchemaVersion.V4
-                : Utils.determineSchemaVersion(dataObject);
+                : Utils.determineGraphSchemaVersion(dataObject);
 
             switch (schemaVersion){
                 case SchemaVersion.OJS:
@@ -3165,7 +3165,7 @@ export class Eagle {
         }
 
         // attempt to determine schema version from FileInfo
-        const schemaVersion: SchemaVersion = Utils.determineSchemaVersion(dataObject);
+        const schemaVersion: SchemaVersion = Utils.determineGraphSchemaVersion(dataObject);
 
         // check if we need to update the graph from keys to ids
         if (GraphUpdater.usesNodeKeys(dataObject)){
