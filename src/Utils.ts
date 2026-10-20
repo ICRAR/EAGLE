@@ -81,7 +81,12 @@ export type ValidationResult = {
     message?: string;
 };
 
-
+const asObjectRecord = (value: unknown): Record<string, unknown> | null => {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)){
+        return null;
+    }
+    return value as Record<string, unknown>;
+};
 
 export class Utils {
     // Allowed file extensions
@@ -1663,26 +1668,27 @@ export class Utils {
         return result;
     }
 
-    static determineFileType(data: any): EagleFileType {
-        if (typeof data !== 'object' || data === null){
+    static determineFileType(data: unknown): EagleFileType {
+        const dataObject = asObjectRecord(data);
+        if (dataObject === null){
             console.warn("Can't determine filetype");
             return EagleFileType.Unknown;
         }
 
-        const modelData = data.modelData;
-        if (typeof modelData === 'object' && modelData !== null){
+        const modelData = asObjectRecord(dataObject.modelData);
+        if (modelData !== null){
             // find type of OJS files
             if (typeof modelData.fileType !== 'undefined'){
-                return Utils.translateStringToFileType(modelData.fileType);
+                return Utils.translateStringToFileType(typeof modelData.fileType === 'string' ? modelData.fileType : undefined);
             }
 
             // find type of V4 files
             if (typeof modelData.type !== 'undefined'){
-                return Utils.translateStringToFileType(modelData.type);
+                return Utils.translateStringToFileType(typeof modelData.type === 'string' ? modelData.type : undefined);
             }
         }
 
-        if (typeof data.DALiuGEGraph !== 'undefined'){
+        if (typeof dataObject.DALiuGEGraph !== 'undefined'){
             return EagleFileType.Graph;
         }
 
@@ -1745,19 +1751,17 @@ export class Utils {
         )
     }
 
-    static determineSchemaVersion(data: any): SchemaVersion {
-        const modelData = typeof data === 'object' && data !== null ? data.modelData : null;
-        if (typeof modelData === 'object' && modelData !== null){
-            if (typeof modelData.schemaVersion !== 'undefined'){
-                // check whether the value of data.modelData.schemaVersion is a valid SchemaVersion enum value
-                const schemaVersion = modelData.schemaVersion as SchemaVersion;
-                if (Object.values(SchemaVersion).includes(schemaVersion)){
-                    return schemaVersion;
-                } else {
-                    console.warn("Unknown schema version:", data.modelData.schemaVersion);
-                    return SchemaVersion.Unknown;
-                }
+    static determineSchemaVersion(data: unknown): SchemaVersion {
+        const dataObject = asObjectRecord(data);
+        const modelData = asObjectRecord(dataObject?.modelData);
+        if (typeof modelData?.schemaVersion !== 'undefined'){
+            // check whether the value of data.modelData.schemaVersion is a valid SchemaVersion enum value
+            const schemaVersion = modelData.schemaVersion as SchemaVersion;
+            if (Object.values(SchemaVersion).includes(schemaVersion)){
+                return schemaVersion;
             }
+            console.warn("Unknown schema version:", modelData.schemaVersion);
+            return SchemaVersion.Unknown;
         }
 
         // Older V4 graph documents may omit schemaVersion. Their explicit V4

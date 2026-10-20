@@ -24,19 +24,28 @@ test('A V4 field without changeable loads and defaults to changeable', async ({ 
     };
 
     const result = await page.evaluate(async (data: object) => {
-        const eagle = (window as any).eagle;
+        const eagle = (window as unknown as {eagle: {
+            _loadGraphJSON: (
+                json: string,
+                fileName: string,
+                loadCallback: (graph: {
+                    getNumNodes: () => number;
+                    getNodeById: (id: string) => {getFieldById: (id: string) => {isChangeable: () => boolean} | undefined} | undefined;
+                }, errorsWarnings: {warnings: {message: string}[], errors: {message: string}[]}) => void
+            ) => Promise<boolean>;
+        }}).eagle;
         let nodeCount: number | null = null;
         let fieldChangeable: boolean | null = null;
         let warnings: string[] = [];
         let errors: string[] = [];
 
-        const loaded = await eagle._loadGraphJSON(JSON.stringify(data), 'field-default.graph', (graph: any, errorsWarnings: any) => {
+        const loaded = await eagle._loadGraphJSON(JSON.stringify(data), 'field-default.graph', (graph, errorsWarnings) => {
             nodeCount = graph.getNumNodes();
             const node = graph.getNodeById('00000000-0000-4000-8000-000000000001');
             const field = node?.getFieldById('00000000-0000-4000-8000-000000000002');
             fieldChangeable = field?.isChangeable() ?? null;
-            warnings = (errorsWarnings.warnings as {message: string}[]).map((warning) => warning.message);
-            errors = (errorsWarnings.errors as {message: string}[]).map((error) => error.message);
+            warnings = errorsWarnings.warnings.map((warning) => warning.message);
+            errors = errorsWarnings.errors.map((error) => error.message);
         });
 
         return { loaded: Boolean(loaded), nodeCount, fieldChangeable, warnings, errors };

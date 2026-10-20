@@ -1192,11 +1192,11 @@ export class Eagle {
     }
 
     private _loadGraphJSON = async (data: string, fileFullPath: string, loadFunc: (lg: LogicalGraph, errorsWarnings: ErrorsWarnings) => void | Promise<void>) : Promise<boolean> => {
-        let dataObject: JsonObject;
+        let dataObject: unknown;
 
         // attempt to parse the JSON
         try {
-            dataObject = JSON.parse(data) as JsonObject;
+            dataObject = JSON.parse(data);
         } catch(err){
             Utils.showUserMessage("Error parsing file JSON", Errors.UnknownToError(err));
             return false;

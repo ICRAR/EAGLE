@@ -1,5 +1,33 @@
 import { test, expect } from '@playwright/test';
 
+type TestIssue = {message: string};
+type TestGraph = {
+    getNumNodes: () => number;
+    getNumEdges: () => number;
+    getNumVisuals: () => number;
+    getNumGraphConfigs: () => number;
+    activeGraphConfigId: () => string | null;
+};
+type TestErrorsWarnings = {errors: TestIssue[], warnings: TestIssue[]};
+type TestEagle = {
+    _loadGraphJSON: (
+        json: string,
+        fileName: string,
+        loadCallback: (graph: TestGraph, errorsWarnings: TestErrorsWarnings) => void | Promise<void>
+    ) => Promise<boolean>;
+    loadingErrors: () => TestIssue[];
+};
+type RecoverableLoadResult = {
+    key: string;
+    loaded: boolean;
+    warnings: string[];
+    edgeCount: number | undefined;
+    visualCount: number | undefined;
+    graphConfigCount: number | undefined;
+    activeGraphConfigId: string | null | undefined;
+};
+type InvalidLoadResult = {loaded: boolean, errors: string[]};
+
 test('Malformed optional V4 top-level values warn and use parser defaults', async ({ page }) => {
     await page.goto('http://localhost:8888/?tutorial=none');
 
@@ -11,8 +39,8 @@ test('Malformed optional V4 top-level values warn and use parser defaults', asyn
     ];
 
     const results = await page.evaluate(async (loadCases: {key: string, value: unknown}[]) => {
-        const eagle = (window as any).eagle;
-        const results = [];
+        const eagle = (window as unknown as {eagle: TestEagle}).eagle;
+        const results: RecoverableLoadResult[] = [];
 
         for (const loadCase of loadCases){
             const graphData: Record<string, unknown> = {
@@ -25,21 +53,27 @@ test('Malformed optional V4 top-level values warn and use parser defaults', asyn
             };
             graphData[loadCase.key] = loadCase.value;
 
-            let parsedGraph: any = null;
             let warnings: string[] = [];
-            const loaded = await eagle._loadGraphJSON(JSON.stringify(graphData), 'recoverable-values.graph', (graph: any, errorsWarnings: any) => {
-                parsedGraph = graph;
-                warnings = errorsWarnings.warnings.map((warning: {message: string}) => warning.message);
+            let edgeCount: number | undefined;
+            let visualCount: number | undefined;
+            let graphConfigCount: number | undefined;
+            let activeGraphConfigId: string | null | undefined;
+            const loaded = await eagle._loadGraphJSON(JSON.stringify(graphData), 'recoverable-values.graph', (graph, errorsWarnings) => {
+                edgeCount = graph.getNumEdges();
+                visualCount = graph.getNumVisuals();
+                graphConfigCount = graph.getNumGraphConfigs();
+                activeGraphConfigId = graph.activeGraphConfigId();
+                warnings = errorsWarnings.warnings.map((warning) => warning.message);
             });
 
             results.push({
                 key: loadCase.key,
                 loaded: Boolean(loaded),
                 warnings,
-                edgeCount: parsedGraph?.getNumEdges(),
-                visualCount: parsedGraph?.getNumVisuals(),
-                graphConfigCount: parsedGraph?.getNumGraphConfigs(),
-                activeGraphConfigId: parsedGraph?.activeGraphConfigId(),
+                edgeCount,
+                visualCount,
+                graphConfigCount,
+                activeGraphConfigId,
             });
         }
 
@@ -63,17 +97,17 @@ test('A V4 graph with null modelData reports a blocking validation error', async
     await page.goto('http://localhost:8888/?tutorial=none');
 
     const results = await page.evaluate(async () => {
-        const eagle = (window as any).eagle;
+        const eagle = (window as unknown as {eagle: TestEagle}).eagle;
         const malformedGraphs = [
             { modelData: null },
             { modelData: null, nodes: {} },
             { nodes: {} },
         ];
-        const results = [];
+        const results: InvalidLoadResult[] = [];
 
         for (const graphData of malformedGraphs){
             const loaded = await eagle._loadGraphJSON(JSON.stringify(graphData), 'invalid-model-data.graph', () => undefined);
-            const loadingErrors = eagle.loadingErrors() as {message: string}[];
+            const loadingErrors = eagle.loadingErrors();
             results.push({
                 loaded: Boolean(loaded),
                 errors: loadingErrors.map((error) => error.message),

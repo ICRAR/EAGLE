@@ -13,12 +13,18 @@ test('An empty V4 nodes container loads with a warning', async ({ page }) => {
     };
 
     const result = await page.evaluate(async (data: object) => {
-        const eagle = (window as any).eagle;
+        const eagle = (window as unknown as {eagle: {
+            _loadGraphJSON: (
+                json: string,
+                fileName: string,
+                loadCallback: (graph: {getNumNodes: () => number}, errorsWarnings: {warnings: {message: string}[]}) => void
+            ) => Promise<boolean>;
+        }}).eagle;
         let parsedNodeCount: number | null = null;
         let parserWarnings: string[] = [];
-        const loaded = await eagle._loadGraphJSON(JSON.stringify(data), "empty-nodes.graph", (graph: any, errorsWarnings: any) => {
+        const loaded = await eagle._loadGraphJSON(JSON.stringify(data), "empty-nodes.graph", (graph, errorsWarnings) => {
             parsedNodeCount = graph.getNumNodes();
-            parserWarnings = (errorsWarnings.warnings as {message: string}[]).map((warning) => warning.message);
+            parserWarnings = errorsWarnings.warnings.map((warning) => warning.message);
         });
 
         return { loaded: Boolean(loaded), parsedNodeCount, parserWarnings };
