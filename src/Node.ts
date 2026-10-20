@@ -1749,7 +1749,7 @@ export class Node {
         const name: string = nodeData.name ?? "";
 
         // translate categories if required
-        const category: CategoryName = nodeData.category as CategoryName;
+        const category: CategoryName = (nodeData.category ?? CategoryName.Unknown) as CategoryName;
 
         // if category is not known, then add error
         if (!Utils.isKnownCategory(category)){
