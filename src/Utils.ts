@@ -1778,7 +1778,7 @@ export class Utils {
                 return schemaVersion;
             }
             console.warn("Unknown schema version:", modelData.schemaVersion);
-            return isV4Graph ? SchemaVersion.V4 : SchemaVersion.Unknown;
+            return SchemaVersion.Unknown;
         }
 
         // Older V4 graph documents may omit schemaVersion. Their explicit V4
