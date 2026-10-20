@@ -1791,6 +1791,22 @@ export class Utils {
         return SchemaVersion.Unknown;
     }
 
+    // Graph loading has a strict validator that can report an invalid schemaVersion.
+    // Preserve Unknown for generic callers, but route malformed V4 graph metadata
+    // through that validator instead of allowing the OJS parser to receive it.
+    static determineGraphSchemaVersion(data: unknown): SchemaVersion {
+        const dataObject = asObjectRecord(data);
+        const modelData = asObjectRecord(dataObject?.modelData);
+        const schemaVersion = Utils.determineSchemaVersion(data);
+        if (schemaVersion !== SchemaVersion.Unknown || typeof modelData?.schemaVersion === 'undefined'){
+            return schemaVersion;
+        }
+
+        const hasKnownSchemaVersion = Object.values(SchemaVersion).some((value) => value === modelData.schemaVersion);
+        const isV4Graph = typeof modelData.type === "string" && modelData.type.toLowerCase() === "graph";
+        return isV4Graph && !hasKnownSchemaVersion ? SchemaVersion.V4 : schemaVersion;
+    }
+
     static portsMatch(port0: Field, port1: Field){
         return Utils.typesMatch(port0.getType(), port1.getType());
     }
