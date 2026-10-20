@@ -232,9 +232,11 @@ export class Visual {
         const visual = new Visual((visualData.type as VisualType | undefined) ?? VisualType.Text, visualData.content ?? "")
             .setId((visualData.id ?? fallbackId ?? Id.generateVisualId()) as VisualId)
             .setPosition(visualData.x ?? 0, visualData.y ?? 0)
-            .setTarget(target)
-            .setColor(visualData.color ?? "");
+            .setTarget(target);
 
+        if (typeof visualData.color !== 'undefined'){
+            visual.setColor(visualData.color);
+        }
         if (typeof visualData.width !== 'undefined'){
             visual.setWidth(visualData.width);
         }
