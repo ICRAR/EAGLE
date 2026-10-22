@@ -1257,7 +1257,7 @@ export class GraphRenderer {
         }
     }
 
-    static endDrag(object: Node | Visual) : void {
+    static endDrag(object: Node | Visual | null) : void {
         const eagle = Eagle.getInstance();
 
         // if we dragged a selection region
@@ -1273,7 +1273,10 @@ export class GraphRenderer {
                     if(!GraphRenderer.altSelect && object instanceof Node){
                         GraphRenderer.selectNodeAndChildren(object,GraphRenderer.shiftSelect)
                     }
-                    eagle.editSelection(object, EagleFileType.Graph);
+                    // a null object means the empty canvas was clicked, there is nothing to toggle
+                    if(object !== null){
+                        eagle.editSelection(object, EagleFileType.Graph);
+                    }
                 }else{
                     GraphRenderer.selectInRegion(nodes);
                 }
