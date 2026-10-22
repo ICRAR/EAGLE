@@ -1167,7 +1167,7 @@ export class GraphRenderer {
             const bottomWindowMode = Setting.findValue<EagleBottomWindowMode>(Setting.BOTTOM_WINDOW_MODE, EagleBottomWindowMode.None);
 
             //switch back to the node parameter table if a node is selected
-            if(bottomWindowVisible && bottomWindowMode !== EagleBottomWindowMode.NodeParameterTable){
+            if(object !== null && bottomWindowVisible && bottomWindowMode !== EagleBottomWindowMode.NodeParameterTable){
                 ParameterTable.openTable(EagleBottomWindowMode.NodeParameterTable, ParameterTableSelectType.Normal)
             }
         }else{
