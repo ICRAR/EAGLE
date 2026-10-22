@@ -35,6 +35,11 @@ test('Dragging the Canvas Background', async ({ page }) => {
     }));
     const transformBefore = await page.locator('#logicalGraph').getAttribute('style');
 
+    const nodePositionBefore = await page.evaluate(() => {
+        const [node] = (window as any).eagle.logicalGraph().nodes().values();
+        return node.getPosition();
+    });
+
     // drag from the lower-left of the canvas, where the background is guaranteed
     // to be empty (the node sits near the center) and away from other UI overlays
     const startX = box.x + box.width * 0.7;
@@ -60,6 +65,11 @@ test('Dragging the Canvas Background', async ({ page }) => {
 
     // the drag must not have moved the node itself
     expect(await TestHelpers.getNodeCount(page)).toBe(1);
+    const nodePositionAfter = await page.evaluate(() => {
+        const node = (window as any).eagle.logicalGraph().findNodeByName('HelloWorldApp');
+        return node.getPosition();
+    });
+    expect(nodePositionAfter).toEqual(nodePositionBefore);
   });
 
   await test.step('Clicking the empty background clears the selection without console errors', async () => {
