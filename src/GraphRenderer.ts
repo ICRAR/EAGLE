@@ -1128,7 +1128,7 @@ export class GraphRenderer {
         GraphRenderer.dragCurrentPosition = {x:event.pageX,y:event.pageY}
 
         // if we clicked on the empty canvas or we are dragging using middle mouse, then we are dragging the background
-        if(object === null || event.button === 1){
+        if(object === null && event.button !== 2 || event.button === 1){
             GraphRenderer.dragSelectionHandled(true)
             GraphRenderer.isDragging(true);
             
