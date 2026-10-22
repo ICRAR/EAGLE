@@ -1,12 +1,20 @@
 import { test, expect } from '@playwright/test';
+import type { Page } from '@playwright/test';
 import { TestHelpers } from '../TestHelpers';
+
+async function firstNodePosition(page: Page): Promise<{ x: number; y: number }> {
+  return page.evaluate(() => {
+    const nodes = (window as any).eagle.logicalGraph().nodes().values() as Iterable<{ getPosition(): { x: number; y: number } }>;
+    const [node] = nodes;
+    return node.getPosition();
+  });
+}
 
 test('Dragging the Canvas Background', async ({ page }) => {
   const consoleErrors: string[] = [];
   page.on('console', (msg) => {
-    const text = msg.text();
-    if (msg.type() === 'error' && text.includes('unknown type')) {
-      consoleErrors.push(text);
+    if (msg.type() === 'error') {
+      consoleErrors.push(msg.text());
     }
   });
 
@@ -35,10 +43,7 @@ test('Dragging the Canvas Background', async ({ page }) => {
     }));
     const transformBefore = await page.locator('#logicalGraph').getAttribute('style');
 
-    const nodePositionBefore = await page.evaluate(() => {
-        const [node] = (window as any).eagle.logicalGraph().nodes().values();
-        return node.getPosition();
-    });
+    const nodePositionBefore = await firstNodePosition(page);
 
     // drag from the lower-left of the canvas, where the background is guaranteed
     // to be empty (the node sits near the center) and away from other UI overlays
@@ -65,10 +70,7 @@ test('Dragging the Canvas Background', async ({ page }) => {
 
     // the drag must not have moved the node itself
     expect(await TestHelpers.getNodeCount(page)).toBe(1);
-    const nodePositionAfter = await page.evaluate(() => {
-        const node = (window as any).eagle.logicalGraph().findNodeByName('HelloWorldApp');
-        return node.getPosition();
-    });
+    const nodePositionAfter = await firstNodePosition(page);
     expect(nodePositionAfter).toEqual(nodePositionBefore);
   });
 
