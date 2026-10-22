@@ -1100,7 +1100,7 @@ export class GraphRenderer {
         event?.stopPropagation()
     }
 
-    static startDrag(object: Node | Visual, event: MouseEvent) : void {
+    static startDrag(object: Node | Visual | null, event: MouseEvent) : void {
         const target = event.target;
         if (!(target instanceof HTMLElement)) {
             return;
@@ -1127,8 +1127,8 @@ export class GraphRenderer {
         GraphRenderer.shiftSelect = event.shiftKey
         GraphRenderer.dragCurrentPosition = {x:event.pageX,y:event.pageY}
 
-        // if no node is selected, or we are dragging using middle mouse, then we are dragging the background
-        if(event.button === 1){
+        // if we clicked on the empty canvas or we are dragging using middle mouse, then we are dragging the background
+        if(object === null || event.button === 1){
             GraphRenderer.dragSelectionHandled(true)
             GraphRenderer.isDragging(true);
             
@@ -1158,7 +1158,7 @@ export class GraphRenderer {
             } else if(object instanceof Node && event.button !== 2 && object.isGroup() && !eagle.objectIsSelected(object)){
                 //check that we are not alt + clicking, add the target node and its children to the selection
                 GraphRenderer.selectNodeAndChildren(object,GraphRenderer.shiftSelect)
-            } else if(!eagle.objectIsSelected(object)) {
+            } else if(object === null || !eagle.objectIsSelected(object)) {
                 //normal node selection
                 eagle.setSelection(object, EagleFileType.Graph);
             }
