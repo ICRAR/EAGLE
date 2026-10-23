@@ -149,7 +149,7 @@ module.exports = [
             "@typescript-eslint/ban-ts-comment": ["error", { "ts-ignore": true, "ts-nocheck": true, "ts-check": false, "ts-expect-error": "allow-with-description", "minimumDescriptionLength": 5 }],
             "@typescript-eslint/no-unsafe-assignment": "error",
             //"@typescript-eslint/no-unsafe-member-access": "error",
-            //"@typescript-eslint/no-unsafe-call": "error",
+            "@typescript-eslint/no-unsafe-call": "error",
             //"@typescript-eslint/no-unsafe-argument": "error",
             "@typescript-eslint/no-unsafe-return": "error"
         },

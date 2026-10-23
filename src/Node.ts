@@ -1448,8 +1448,9 @@ export class Node {
         let x = 0;
         let y = 0;
         if (typeof nodeData.loc !== 'undefined'){
-            x = parseInt(nodeData.loc.substring(0, nodeData.loc.indexOf(' ')), 10);
-            y = parseInt(nodeData.loc.substring(nodeData.loc.indexOf(' ')), 10);
+            const loc = nodeData.loc as string;
+            x = parseInt(loc.substring(0, loc.indexOf(' ')), 10);
+            y = parseInt(loc.substring(loc.indexOf(' ')), 10);
         }
         if (typeof nodeData.x !== 'undefined'){
             x = nodeData.x as number;
@@ -1592,13 +1593,13 @@ export class Node {
 
         // handle obsolete 'precious' attribute, add it as a 'persist' field
         if (typeof nodeData.precious !== 'undefined'){
-            const persistField = Daliuge.persistField.clone().setId(Id.generateFieldId()).setValue(nodeData.precious.toString());
+            const persistField = Daliuge.persistField.clone().setId(Id.generateFieldId()).setValue(String(nodeData.precious));
             node.addField(persistField);
         }
 
         // handle obsolete 'streaming' attribute, add it as a 'streaming' field
         if (typeof nodeData.streaming !== 'undefined'){
-            const streamingField = Daliuge.streamingField.clone().setId(Id.generateFieldId()).setValue(nodeData.streaming.toString());
+            const streamingField = Daliuge.streamingField.clone().setId(Id.generateFieldId()).setValue(String(nodeData.streaming));
             node.addField(streamingField);
         }
 
@@ -1853,29 +1854,32 @@ export class Node {
         }
 
         // add fields
-        result.fields = [];
+        const fields : object[] = [];
         for (const field of node.fields().values()){
-            result.fields.push(Field.toOJSJson(field));
+            fields.push(Field.toOJSJson(field));
         }
+        result.fields = fields;
 
         const inputApplication = node.inputApplication();
         const outputApplication = node.outputApplication();
 
         // add fields from inputApplication
-        result.inputAppFields = [];
+        const inputAppFields : object[] = [];
         if (inputApplication !== null){
             for (const field of inputApplication.fields().values()){
-                result.inputAppFields.push(Field.toOJSJson(field));
+                inputAppFields.push(Field.toOJSJson(field));
             }
         }
+        result.inputAppFields = inputAppFields;
 
         // add fields from outputApplication
-        result.outputAppFields = [];
+        const outputAppFields : object[] = [];
         if (outputApplication !== null){
             for (const field of outputApplication.fields().values()){
-                result.outputAppFields.push(Field.toOJSJson(field));
+                outputAppFields.push(Field.toOJSJson(field));
             }
         }
+        result.outputAppFields = outputAppFields;
 
         // write application names and types
         if (inputApplication !== null){
@@ -1940,29 +1944,32 @@ export class Node {
         }
 
         // add fields
-        result.fields = [];
+        const fields : object[] = [];
         for (const field of node.fields().values()){
-            result.fields.push(Field.toOJSJson(field));
+            fields.push(Field.toOJSJson(field));
         }
+        result.fields = fields;
 
         const inputApplication = node.inputApplication();
         const outputApplication = node.outputApplication();
 
         // add fields from inputApplication
-        result.inputAppFields = [];
+        const inputAppFields : object[] = [];
         if (inputApplication !== null){
             for (const field of inputApplication.fields().values()){
-                result.inputAppFields.push(Field.toOJSJson(field));
+                inputAppFields.push(Field.toOJSJson(field));
             }
         }
+        result.inputAppFields = inputAppFields;
 
         // add fields from outputApplication
-        result.outputAppFields = [];
+        const outputAppFields : object[] = [];
         if (outputApplication !== null){
             for (const field of outputApplication.fields().values()){
-                result.outputAppFields.push(Field.toOJSJson(field));
+                outputAppFields.push(Field.toOJSJson(field));
             }
         }
+        result.outputAppFields = outputAppFields;
 
         // write application names and types
         if (inputApplication !== null){

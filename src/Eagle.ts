@@ -1270,8 +1270,10 @@ export class Eagle {
         this.logicalGraph.valueHasMutated();
     }
 
-    checkErrorModalShowError = (data:any) :void =>{
-        data.show()
+    checkErrorModalShowError = (data:Issue) :void =>{
+        if (data.show !== null){
+            data.show();
+        }
     }
 
     createConstructFromSelection = async () => {
@@ -3749,7 +3751,7 @@ export class Eagle {
         window.open("https://github.com/ICRAR/EAGLE/issues/new?body="+bodyText, "_blank");
     }
 
-    statusBarScroll = (_data:any, e:any) : void => {
+    statusBarScroll = (_data:any, e:{ preventDefault: () => void; originalEvent: { deltaY: number } }) : void => {
         e.preventDefault();
         const leftPos = Utils.getUIValue('#statusBar', 'scrollLeft', 0);
         $('#statusBar').scrollLeft(leftPos + e.originalEvent.deltaY)

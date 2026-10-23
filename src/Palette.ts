@@ -181,10 +181,11 @@ export class Palette {
         result.modelData.numLGNodes = palette.nodes().size;
 
         // add nodes
-        result.nodeDataArray = [];
+        const nodeDataArray : object[] = [];
         for (const node of palette.nodes().values()){
-            result.nodeDataArray.push(Node.toOJSPaletteJson(node));
+            nodeDataArray.push(Node.toOJSPaletteJson(node));
         }
+        result.nodeDataArray = nodeDataArray;
 
         // add links (none in a palette)
         result.linkDataArray = [];

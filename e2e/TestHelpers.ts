@@ -4,9 +4,9 @@ import type http from 'http';
 import path from 'path';
 import { test, expect, type Page } from '@playwright/test';
 import type * as CodeMirrorTypes from 'codemirror';
-
-// Minimal mirror of the TutorialTestHook type from src/Tutorial.ts (we can't import app code into e2e tests).
-type TutorialTestHook = { command: string; args?: string[] };
+import type { Eagle } from '../src/Eagle';
+import type { GraphRenderer } from '../src/GraphRenderer';
+import type { TutorialSystem, TutorialTestHook } from '../src/Tutorial';
 
 // The view of the active tutorial step that runTutorialByName snapshots from the page.
 interface TutorialStepInfo {
@@ -17,21 +17,6 @@ interface TutorialStepInfo {
     testStepFunction: TutorialTestHook | null;
     index: number;
     total: number;
-}
-
-// Minimal view of the window.TutorialSystem object needed by the e2e helpers
-// (we can't import app code into e2e tests).
-interface TutorialSystemView {
-    activeTut: unknown;
-    activeTutCurrentStep?: {
-        getTitle?: () => string;
-        getType?: () => string | null | undefined;
-        getExpectedInput?: () => string;
-        getTestStepFunction?: () => TutorialTestHook | null;
-        getTargetFunc?: () => (() => JQuery<HTMLElement>) | null;
-    } | null;
-    activeTutCurrentStepIndex?: number;
-    activeTutNumSteps?: number;
 }
 
 export class TestHelpers {
@@ -99,7 +84,8 @@ export class TestHelpers {
         //.step is creating a test step. this is so we know exactly where we failed if something goes wrong.
         await test.step(`Start tutorial: ${tutorialName}`, async () => {
             await page.evaluate((name: string) => {
-                (window as any).TutorialSystem.initiateTutorial(name);
+                const tutorialSystem = (window as any).TutorialSystem as typeof TutorialSystem | undefined;
+                tutorialSystem?.initiateTutorial(name);
             }, tutorialName);
             await page.locator('#tutorialInfoPopUp').waitFor({ state: 'attached', timeout: TestHelpers.LONG_TIMEOUT });
         });
@@ -110,17 +96,17 @@ export class TestHelpers {
             // Snapshot all step fields together (including testStepFunction) because the active tutorial step can
             // advance while Playwright awaits; this keeps one coherent current-step view, not mixed next-step data.
             const stepInfo = await page.evaluate<TutorialStepInfo>(() => {
-                const tutSystem = (window as any).TutorialSystem as TutorialSystemView;
+                const tutSystem = (window as any).TutorialSystem as typeof TutorialSystem;
                 const currentStep = tutSystem.activeTutCurrentStep;
 
                 return {
-                    hasActiveTutorial: (tutSystem.activeTut !== null) as boolean,
-                    title: (currentStep?.getTitle?.() ?? '') as string,
-                    stepType: currentStep?.getType?.() as string | null | undefined,
-                    expectedInput: (currentStep?.getExpectedInput?.() ?? '') as string,
-                    testStepFunction: (currentStep?.getTestStepFunction?.() ?? null) as TutorialTestHook | null,
-                    index: (tutSystem.activeTutCurrentStepIndex ?? -1) as number,
-                    total: (tutSystem.activeTutNumSteps ?? -1) as number,
+                    hasActiveTutorial: tutSystem.activeTut !== null,
+                    title: currentStep.getTitle(),
+                    stepType: currentStep.getType(),
+                    expectedInput: currentStep.getExpectedInput(),
+                    testStepFunction: currentStep.getTestStepFunction(),
+                    index: tutSystem.activeTutCurrentStepIndex,
+                    total: tutSystem.activeTutNumSteps,
                 };
             });
 
@@ -373,11 +359,9 @@ export class TestHelpers {
         while (true) {
             const clickPosition = await page.evaluate(() => {
                 // Get the tutorial target element from the active step.
-                const tutorialTarget = (window as any).TutorialSystem as TutorialSystemView;
+                const tutorialTarget = (window as any).TutorialSystem as typeof TutorialSystem;
                 const stepView = tutorialTarget.activeTutCurrentStep;
-                const getTargetFunc = stepView?.getTargetFunc;
-                const targetFn = getTargetFunc?.();
-                const targetJQuery = targetFn?.();
+                const targetJQuery = stepView.getTargetFunc()?.();
                 const firstTarget = targetJQuery?.first();
                 const targetEl = firstTarget?.get(0) as HTMLElement | undefined;
                 if (!targetEl) {
@@ -462,11 +446,9 @@ export class TestHelpers {
 
     private static async submitTutorialInputToTarget(page: Page, value: string): Promise<boolean> {
         return page.evaluate((inputValue: string) => {
-            const tutSystem = (window as any).TutorialSystem as TutorialSystemView;
+            const tutSystem = (window as any).TutorialSystem as typeof TutorialSystem;
             const currentStep = tutSystem.activeTutCurrentStep;
-            const getTargetFunc = currentStep?.getTargetFunc;
-            const targetFn = getTargetFunc?.();
-            const targetJQuery = targetFn?.();
+            const targetJQuery = currentStep.getTargetFunc()?.();
             const target = targetJQuery?.first();
 
             if (target == null || target.length === 0) {
@@ -505,16 +487,18 @@ export class TestHelpers {
     private static async selectNodeByName(page: Page, nodeName: string): Promise<void> {
         const isRequestedNodeSelected = async (): Promise<boolean> => {
             return page.evaluate((name: string) => {
-                const selectedNode = (window as any).eagle?.selectedNode?.() as { getName?: () => string } | null;
-                return selectedNode !== null && selectedNode.getName?.() === name;
+                const eagle = (window as any).eagle as Eagle | undefined;
+                const selectedNode = eagle?.selectedNode();
+                return selectedNode?.getName() === name;
             }, nodeName);
         };
 
         const waitForRequestedSelection = async (): Promise<boolean> => {
             try {
                 await page.waitForFunction((name: string) => {
-                    const selectedNode = (window as any).eagle?.selectedNode?.() as { getName?: () => string } | null;
-                    return selectedNode !== null && selectedNode.getName?.() === name;
+                    const eagle = (window as any).eagle as Eagle | undefined;
+                    const selectedNode = eagle?.selectedNode();
+                    return selectedNode?.getName() === name;
                 }, nodeName, { timeout: TestHelpers.SHORT_TIMEOUT });
                 return true;
             } catch {
@@ -528,20 +512,20 @@ export class TestHelpers {
 
         // Primary path: use Eagle graph data to resolve node id, then click the rendered node element via Playwright.
         const nodeInfo = await page.evaluate((name: string) => {
-            const eagle = (window as any).eagle as { logicalGraph?: () => { findNodeByName?: (name: string) => { getId?: () => string; getName?: () => string; getPosition?: () => { x: number; y: number } } | null }; selectedNode?: () => { getName?: () => string } | null } | undefined;
-            const graph = eagle?.logicalGraph?.();
-            const node = graph?.findNodeByName?.(name);
+            const eagle = (window as any).eagle as Eagle | undefined;
+            const graph = eagle?.logicalGraph();
+            const node = graph?.findNodeByName(name);
 
             if (node == null) {
                 return null;
             }
 
-            const nodeId = node.getId?.() as string | undefined;
-            const graphPosition = (node.getPosition?.() ?? undefined) as { x: number; y: number } | undefined;
-            const graphToScreen = (window as any).GraphRenderer as { GRAPH_TO_SCREEN_POSITION_X?: (x: number) => number; GRAPH_TO_SCREEN_POSITION_Y?: (y: number) => number } | undefined;
+            const nodeId = node.getId() as string;
+            const graphPosition = node.getPosition();
+            const graphToScreen = (window as any).GraphRenderer as typeof GraphRenderer | undefined;
 
             let clickPos: { x: number; y: number } | null = null;
-            if (graphPosition != null && typeof graphToScreen?.GRAPH_TO_SCREEN_POSITION_X === 'function' && typeof graphToScreen.GRAPH_TO_SCREEN_POSITION_Y === 'function') {
+            if (typeof graphToScreen?.GRAPH_TO_SCREEN_POSITION_X === 'function' && typeof graphToScreen.GRAPH_TO_SCREEN_POSITION_Y === 'function') {
                 clickPos = {
                     x: graphToScreen.GRAPH_TO_SCREEN_POSITION_X(graphPosition.x),
                     y: graphToScreen.GRAPH_TO_SCREEN_POSITION_Y(graphPosition.y),
@@ -583,17 +567,16 @@ export class TestHelpers {
 
         if ((await isRequestedNodeSelected()) !== true) {
             const debugInfo = await page.evaluate((name: string) => {
-                const eagle = (window as any).eagle as { logicalGraph?: () => { getNodes?: () => Map<string, { getName: () => string }> | undefined; } | undefined; selectedNode?: () => { getName?: () => string } | null } | undefined;
-                const selected = eagle?.selectedNode?.() as { getName?: () => string } | null;
-                const graphNodes = eagle?.logicalGraph?.()?.getNodes?.() as Map<string, { getName: () => string }> | undefined;
+                const eagle = (window as any).eagle as Eagle | undefined;
+                const selected = eagle?.selectedNode();
+                const graphNodes = eagle?.logicalGraph()?.getNodes();
                 const nodeNames = graphNodes != null
-                    ? Array.from(graphNodes).map((node: any): string => node.getName() as string)
+                    ? Array.from(graphNodes).map((node) => node.getName())
                     : [];
 
-                const tutSystemView = (window as any).TutorialSystem as TutorialSystemView;
+                const tutSystemView = (window as any).TutorialSystem as typeof TutorialSystem;
                 const stepView = tutSystemView.activeTutCurrentStep;
-                const getTargetFunc = stepView?.getTargetFunc;
-                const targetFn = getTargetFunc?.();
+                const targetFn = stepView.getTargetFunc();
                 const targetJQuery = targetFn?.();
                 const firstTarget = targetJQuery?.first();
                 const targetId = (firstTarget != null && firstTarget.length > 0 ? firstTarget.get(0)?.id ?? null : null) as string | null;
@@ -606,7 +589,7 @@ export class TestHelpers {
 
                 return {
                     requestedName: name,
-                    selectedName: selected?.getName?.() ?? null,
+                    selectedName: selected?.getName() ?? null,
                     graphNodeNames: nodeNames,
                     targetId,
                     diagnostics,
@@ -864,13 +847,15 @@ export class TestHelpers {
 
     static async getNodeCount(page: Page): Promise<number> {
         return page.evaluate<number>(() => {
-            return (window as any).eagle.logicalGraph().nodes().size as number;
+            const eagle = (window as any).eagle as Eagle | undefined;
+            return eagle?.logicalGraph().nodes().size as number;
         });
     }
 
     static async getEdgeCount(page: Page): Promise<number> {
         return page.evaluate<number>(() => {
-            return (window as any).eagle.logicalGraph().getNumEdges() as number;
+            const eagle = (window as any).eagle as Eagle | undefined;
+            return eagle?.logicalGraph().getNumEdges() as number;
         });
     }
 
@@ -961,9 +946,11 @@ export class TestHelpers {
         await expect(srcPort, 'source port should be visible before dragging').toBeVisible();
         await expect(destPort, 'destination port should be visible before dragging').toBeVisible();
     
-        const requireBox = (box: { width: number; height: number } | null, message: string) => {
-            expect(box, message).not.toBeNull();
-            return box as { width: number; height: number };
+        const requireBox = (box: Awaited<ReturnType<typeof srcPort.boundingBox>>, message: string) => {
+            if (box === null) {
+                throw new Error(message);
+            }
+            return box;
         };
     
         const [srcPortBox, destPortBox] = [

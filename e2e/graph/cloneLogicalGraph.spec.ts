@@ -1,5 +1,10 @@
 import { test, expect } from '@playwright/test';
 import { TestHelpers } from '../TestHelpers';
+import type { Edge } from '../../src/Edge';
+import type { Eagle } from '../../src/Eagle';
+import type { Field } from '../../src/Field';
+import type { LogicalGraph } from '../../src/LogicalGraph';
+import type { Node } from '../../src/Node';
 
 test('LogicalGraph.clone() does not share references with original', async ({ page }) => {
     await page.goto('http://localhost:8888/?tutorial=none');
@@ -37,10 +42,8 @@ test('LogicalGraph.clone() does not share references with original', async ({ pa
 
     // clone the graph and verify no shared references
     const result = await page.evaluate(() => {
-        const eagle = (<any>window).eagle as { logicalGraph: () => { clone: () => unknown } };
-        type CloneEdge = { getId: () => string; getSrcNode: () => unknown; getDestNode: () => unknown; getSrcPort: () => unknown; getDestPort: () => unknown };
-        type CloneGraph = { clone: () => CloneGraph; getNumNodes: () => number; getNumEdges: () => number; getNodes: () => Map<string, unknown>; getEdges: () => CloneEdge[] };
-        const original = eagle.logicalGraph() as CloneGraph;
+        const eagle = (window as any).eagle as Eagle;
+        const original: LogicalGraph = eagle.logicalGraph();
         const cloned = original.clone();
 
         const issues: string[] = [];
@@ -54,8 +57,8 @@ test('LogicalGraph.clone() does not share references with original', async ({ pa
         }
 
         // collect original node and port object references
-        const originalNodeRefs = new Set<any>();
-        const originalPortRefs = new Set<any>();
+        const originalNodeRefs = new Set<Node>();
+        const originalPortRefs = new Set<Field>();
         for (const node of original.getNodes()) {
             originalNodeRefs.add(node);
             for (const field of node.getFields()) {
@@ -77,7 +80,7 @@ test('LogicalGraph.clone() does not share references with original', async ({ pa
         }
 
         // collect original edge object references
-        const originalEdgeRefs = new Set<any>();
+        const originalEdgeRefs = new Set<Edge>();
         for (const edge of original.getEdges()) {
             originalEdgeRefs.add(edge);
         }

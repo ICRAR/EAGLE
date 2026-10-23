@@ -117,7 +117,7 @@ export class SideWindow {
         $(".navbar").addClass("noDropTarget");
 
         // grab and set the node's icon and sets it as drag image.
-        const drag = e.target.getElementsByClassName('input-group-prepend')[0] as HTMLElement;
+        const drag = target.getElementsByClassName('input-group-prepend')[0] as HTMLElement;
         const dataTransfer = (e.originalEvent as DragEvent).dataTransfer;
 
         if (dataTransfer === null){

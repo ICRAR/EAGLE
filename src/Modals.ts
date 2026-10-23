@@ -10,7 +10,7 @@ import { TutorialSystem } from './Tutorial';
 import { UiModeSystem } from './UiModes';
 import { Utils, type ValidationResult } from './Utils';
 
-declare const CodeMirror: any;
+declare const CodeMirror: (element: Element, config: unknown) => CodeMirrorTypes.Editor;
 
 export type UserStringCallback = (completed: boolean, userString: string) => void;
 export type UserStringValidator = (userString: string) => ValidationResult;
