@@ -185,7 +185,7 @@ export class Repositories {
         const token = Utils.getServiceToken(repository.service);
 
         // call eagleServer to create branch
-        const response = await Utils.httpPostJSON<{ error?: string }>("/createBranch", {
+        const response = await Utils.httpPostJSON<{ error?: string } | null>("/createBranch", {
             service: repository.service,
             repository: repository.name,
             sourceBranch: repository.branch,
@@ -205,7 +205,7 @@ export class Repositories {
         const token = Utils.getServiceToken(repository.service);
 
         // call eagleServer to delete branch
-        const response = await Utils.httpPostJSON<{ error?: string }>("/deleteBranch", {
+        const response = await Utils.httpPostJSON<{ error?: string } | null>("/deleteBranch", {
             service: repository.service,
             repository: repository.name,
             branchToDelete: repository.branch,
