@@ -2746,14 +2746,14 @@ export class Eagle {
 
                 // palette fetched successfully
                 const repositoryFile = new RepositoryFile(new Repository(RepositoryService.Url, "", "", false), "", paletteList[i].name);
-                const palette: Palette = Palette.fromOJSJson(data, repositoryFile, errorsWarnings);
+                const palette: Palette = Palette.fromOJSJson(data as string, repositoryFile, errorsWarnings);
                 Utils.preparePalette(palette, paletteList[index]);
 
                 // copy loaded palette into the destination palette that is already in the list of palettes
                 destinationPalettes[index].copy(palette);
 
                 // save to localStorage
-                localStorage.setItem(paletteList[index].filename, data);
+                localStorage.setItem(paletteList[index].filename, data as string);
 
                 _checkAllPalettesComplete();
             }
@@ -3354,7 +3354,7 @@ export class Eagle {
                 return;
             }
 
-            void Utils.downloadFile(data, fileName);
+            void Utils.downloadFile(data as string, fileName);
 
             // since changes are now stored locally, the file will have become out of sync with the GitHub repository, so the association should be broken
             // clear the modified flag
@@ -3415,7 +3415,7 @@ export class Eagle {
             }
 
             try {
-                await Utils.downloadFile(data, fileName);
+                await Utils.downloadFile(data as string, fileName);
             } catch (error){
                 reject(error);
                 return;

@@ -91,7 +91,7 @@ export class GitLab {
             // check for errors that were handled correctly and passed to the client to display
             if (typeof data.error !== 'undefined'){
                 console.log("error", data.error);
-                Utils.showUserMessage("Error", data.error);
+                Utils.showUserMessage("Error", data.error as string);
                 throw data.error;
             }
 

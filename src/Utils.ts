@@ -336,7 +336,7 @@ export class Utils {
                 reject(Utils.parseAjaxError(xhr, textStatus));
             })
             .done((data) => {
-                resolve(data);
+                resolve(data as string);
             });
         });
     }
@@ -353,7 +353,7 @@ export class Utils {
                 reject(Utils.parseAjaxError(xhr, textStatus));
             })
             .done((data) => {
-                resolve(data);
+                resolve(data as object);
             });
         });
     }
@@ -371,7 +371,7 @@ export class Utils {
                 reject(Utils.parseAjaxError(xhr, textStatus));
             })
             .done((data) => {
-                resolve(data);
+                resolve(data as string);
             });
         });
     }
@@ -388,7 +388,7 @@ export class Utils {
                 reject(Utils.parseAjaxError(xhr, textStatus));
             })
             .done((data) => {
-                resolve(data);
+                resolve(data as string);
             });
         });
     }
@@ -414,7 +414,7 @@ export class Utils {
                 reject(Utils.parseAjaxError(xhr, textStatus));
             })
             .done((data) => {
-                resolve(data);
+                resolve(data as string);
             });
         });
     }
@@ -432,7 +432,7 @@ export class Utils {
                 reject(Utils.parseAjaxError(xhr, textStatus));
             })
             .done((data) => {
-                resolve(data);
+                resolve(data as string);
             });
         });
     }
@@ -1652,12 +1652,12 @@ export class Utils {
         if (typeof data.modelData !== 'undefined'){
             // find type of OJS files
             if (typeof data.modelData.fileType !== 'undefined'){
-                return Utils.translateStringToFileType(data.modelData.fileType);
+                return Utils.translateStringToFileType(data.modelData.fileType as string | undefined);
             }
 
             // find type of V4 files
             if (typeof data.modelData.type !== 'undefined'){
-                return Utils.translateStringToFileType(data.modelData.type);
+                return Utils.translateStringToFileType(data.modelData.type as string | undefined);
             }
         }
 
@@ -2129,10 +2129,10 @@ export class Utils {
         }
 
         // write the header row
-        s += Object.keys(table[0]).join(",") + "\n";
+        s += Object.keys(table[0] as object).join(",") + "\n";
 
         for (const row of table){
-            s += Object.values(row).join(",") + "\n";
+            s += Object.values(row as Record<string, unknown>).join(",") + "\n";
         }
         return s;
     }

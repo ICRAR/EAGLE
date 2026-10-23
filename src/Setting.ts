@@ -37,7 +37,7 @@ export class SettingsGroup {
     }
 }
 
-type validValueTypes = string | number | boolean;
+export type validValueTypes = string | number | boolean;
 
 export enum SettingType {
     String,
@@ -274,7 +274,7 @@ export class Setting {
 
     resetDefault() : void {
         const activeUIModeName: string = UiModeSystem.getActiveUiMode().getName();
-        let value: any = this.graphDefaultValue;
+        let value: validValueTypes = this.graphDefaultValue;
 
         switch (activeUIModeName){
             case "Student":
