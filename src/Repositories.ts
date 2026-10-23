@@ -192,7 +192,7 @@ export class Repositories {
             newBranch: branchName,
             token: token
         });
-        if (typeof response.error === "string" && response.error !== "") {
+        if (response != null && typeof response.error === "string" && response.error !== "") {
             throw new Error(response.error);
         }
 
@@ -211,7 +211,7 @@ export class Repositories {
             branchToDelete: repository.branch,
             token: token
         });
-        if (typeof response.error === "string" && response.error !== "") {
+        if (response != null && typeof response.error === "string" && response.error !== "") {
             throw new Error(response.error);
         }
 
