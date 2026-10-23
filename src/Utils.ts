@@ -376,7 +376,11 @@ export class Utils {
         });
     }
 
-    static async httpPostJSON(url : string, json : object): Promise<string> {
+    /**
+     * POSTs a JSON body to an endpoint that responds with raw text (e.g. file contents).
+     * The response body is returned verbatim as a string.
+     */
+    static async httpPostText(url : string, json : object): Promise<string> {
         return new Promise((resolve, reject) => {
             $.ajax({
                 url: url,
@@ -389,6 +393,28 @@ export class Utils {
             })
             .done((data) => {
                 resolve(data as string);
+            });
+        });
+    }
+
+    /**
+     * POSTs a JSON body to an endpoint that responds with a JSON object.
+     * The caller declares the response shape via the type parameter, so the parsed
+     * object is returned already typed instead of as `any`/`string`.
+     */
+    static async httpPostJSON<T>(url : string, json : object): Promise<T> {
+        return new Promise<T>((resolve, reject) => {
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: JSON.stringify(json),
+                contentType: 'application/json'
+            })
+            .fail((xhr, textStatus) => {
+                reject(Utils.parseAjaxError(xhr, textStatus));
+            })
+            .done((data) => {
+                resolve(data as T);
             });
         });
     }

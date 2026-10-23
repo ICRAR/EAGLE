@@ -105,7 +105,7 @@ export class GitHub {
                 path: path
             };
 
-            let data: any;
+            let data: { files: Record<string, string[]>; error?: string } = { files: {} };
             try {
                 data = await Utils.httpPostJSON('/getGitHubFilesAll', jsonData);
             } catch (error) {
@@ -122,7 +122,7 @@ export class GitHub {
             // check for errors that were handled correctly and passed to the client to display
             if (typeof data.error !== 'undefined'){
                 console.log("error", data.error);
-                Utils.showUserMessage("Error", data.error as string);
+                Utils.showUserMessage("Error", data.error);
                 throw data.error;
             }
 
@@ -134,7 +134,7 @@ export class GitHub {
             location.files.removeAll();
             location.folders.removeAll();
 
-            const fileNames : string[] = data.files[""] as string[];
+            const fileNames : string[] = data.files[""];
 
             // sort the fileNames
             fileNames.sort(Repository.fileSortFunc);
@@ -205,7 +205,7 @@ export class GitHub {
                 filename: fullFileName
             };
 
-            const data = await Utils.httpPostJSON('/openRemoteGithubFile', jsonData) as unknown as { credentialsIgnored?: boolean; data: string };
+            const data = await Utils.httpPostJSON<{ credentialsIgnored?: boolean; data: string }>('/openRemoteGithubFile', jsonData);
 
             // warn if credentials were ignored (bad token, fell back to anonymous access)
             if (data.credentialsIgnored === true){
@@ -238,7 +238,7 @@ export class GitHub {
                 filename: fullFileName
             };
 
-            const data: unknown = await Utils.httpPostJSON('/deleteRemoteGithubFile', jsonData);
+            const data = await Utils.httpPostJSON('/deleteRemoteGithubFile', jsonData);
         return data;
     }
 }

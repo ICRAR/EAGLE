@@ -2697,10 +2697,10 @@ export class Eagle {
                 const index = i;
                 const postData = {url: paletteList[i].filename};
 
-                let data: any;
+                let data: string | null = null;
                 let fetchFailed = false;
                 try {
-                    data = await Utils.httpPostJSON("/openRemoteUrlFile", postData);
+                    data = await Utils.httpPostText("/openRemoteUrlFile", postData);
                 } catch (error){
                     fetchFailed = true;
                     // an error occurred when fetching the palette
@@ -2739,21 +2739,21 @@ export class Eagle {
                     destinationPalettes[index].expanded(paletteList[index].expanded);
                 }
 
-                if (fetchFailed){
+                if (fetchFailed || data === null){
                     _checkAllPalettesComplete();
                     continue;
                 }
 
                 // palette fetched successfully
                 const repositoryFile = new RepositoryFile(new Repository(RepositoryService.Url, "", "", false), "", paletteList[i].name);
-                const palette: Palette = Palette.fromOJSJson(data as string, repositoryFile, errorsWarnings);
+                const palette: Palette = Palette.fromOJSJson(data, repositoryFile, errorsWarnings);
                 Utils.preparePalette(palette, paletteList[index]);
 
                 // copy loaded palette into the destination palette that is already in the list of palettes
                 destinationPalettes[index].copy(palette);
 
                 // save to localStorage
-                localStorage.setItem(paletteList[index].filename, data as string);
+                localStorage.setItem(paletteList[index].filename, data);
 
                 _checkAllPalettesComplete();
             }
@@ -3344,7 +3344,7 @@ export class Eagle {
             // validate json
             Utils.validateJSON(jsonString, EagleFileType.Palette, version);
 
-            let data: any;
+            let data: string;
             try {
                 data = await Utils.httpPostJSONString('/saveFileToLocal', jsonString);
             } catch (error){
@@ -3354,7 +3354,7 @@ export class Eagle {
                 return;
             }
 
-            void Utils.downloadFile(data as string, fileName);
+            void Utils.downloadFile(data, fileName);
 
             // since changes are now stored locally, the file will have become out of sync with the GitHub repository, so the association should be broken
             // clear the modified flag
@@ -3406,7 +3406,7 @@ export class Eagle {
             // validate json
             Utils.validateJSON(jsonString, EagleFileType.Graph, version);
 
-            let data: any;
+            let data: string;
             try {
                 data = await Utils.httpPostJSONString('/saveFileToLocal', jsonString);
             } catch (error){
@@ -3415,7 +3415,7 @@ export class Eagle {
             }
 
             try {
-                await Utils.downloadFile(data as string, fileName);
+                await Utils.downloadFile(data, fileName);
             } catch (error){
                 reject(error);
                 return;

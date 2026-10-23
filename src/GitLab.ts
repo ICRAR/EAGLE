@@ -77,7 +77,7 @@ export class GitLab {
                 path: path
             };
 
-            let data: any;
+            let data: { files: Record<string, string[]>; error?: string } = { files: {} };
             try {
                 data = await Utils.httpPostJSON('/getGitLabFilesAll', jsonData);
             } catch (error) {
@@ -91,7 +91,7 @@ export class GitLab {
             // check for errors that were handled correctly and passed to the client to display
             if (typeof data.error !== 'undefined'){
                 console.log("error", data.error);
-                Utils.showUserMessage("Error", data.error as string);
+                Utils.showUserMessage("Error", data.error);
                 throw data.error;
             }
 
@@ -103,7 +103,7 @@ export class GitLab {
             location.files.removeAll();
             location.folders.removeAll();
 
-            const fileNames : string[] = data.files[""] as string[];
+            const fileNames : string[] = data.files[""];
 
             // sort the fileNames
             fileNames.sort(Repository.fileSortFunc);
@@ -175,7 +175,7 @@ export class GitLab {
                 filename: fullFileName
             };
 
-            const data = await Utils.httpPostJSON('/openRemoteGitlabFile', jsonData) as unknown as { credentialsIgnored?: boolean; data: string };
+            const data = await Utils.httpPostJSON<{ credentialsIgnored?: boolean; data: string }>('/openRemoteGitlabFile', jsonData);
 
             // warn if credentials were ignored (bad token, fell back to anonymous access)
             if (data.credentialsIgnored === true){
@@ -208,7 +208,7 @@ export class GitLab {
                 filename: fullFileName
             };
 
-            const data: unknown = await Utils.httpPostJSON('/deleteRemoteGitlabFile', jsonData);
+            const data = await Utils.httpPostJSON('/deleteRemoteGitlabFile', jsonData);
         return data;
     }
 }
