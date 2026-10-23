@@ -72,18 +72,19 @@ export class LogicalGraph {
         result.modelData.numLGNodes = graph.getNumNodes();
 
         // add nodes
-        result.nodeDataArray = [];
+        const nodeDataArray : object[] = [];
         for (const node of graph.nodes().values()){
             if (node.isEmbedded()){
                 continue;
             }
 
-            const nodeData : any = Node.toOJSGraphJson(node);
-            result.nodeDataArray.push(nodeData);
+            const nodeData = Node.toOJSGraphJson(node);
+            nodeDataArray.push(nodeData);
         }
+        result.nodeDataArray = nodeDataArray;
 
         // add links
-        result.linkDataArray = [];
+        const linkDataArray : object[] = [];
         for (const edge of graph.edges().values()){
 
             // depending on the settings and purpose, skip close-loop edges
@@ -93,7 +94,7 @@ export class LogicalGraph {
                 }
             }
 
-            const linkData : any = Edge.toOJSJson(edge);
+            const linkData = Edge.toOJSJson(edge) as { from?: string; to?: string };
 
             let srcId = edge.getSrcNode().getId();
             let destId = edge.getDestNode().getId();
@@ -124,15 +125,17 @@ export class LogicalGraph {
             linkData.from = srcId;
             linkData.to   = destId;
 
-            result.linkDataArray.push(linkData);
+            linkDataArray.push(linkData);
         }
+        result.linkDataArray = linkDataArray;
 
         // add visuals
-        result.visualDataArray = [];
+        const visualDataArray : object[] = [];
         for (const visual of graph.visuals().values()){
-            const visualData : any = Visual.toJson(visual);
-            result.visualDataArray.push(visualData);
+            const visualData = Visual.toJson(visual);
+            visualDataArray.push(visualData);
         }
+        result.visualDataArray = visualDataArray;
 
         // add graph configurations
         result.graphConfigurations = {};

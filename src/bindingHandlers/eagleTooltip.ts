@@ -14,7 +14,7 @@ type TooltipBindingValue = string | {
 };
 
 ko.bindingHandlers.eagleTooltip = {
-    init: function(element) {
+    init: function(element: Element) {
         
         ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
             // This will be called when the element is removed by Knockout or

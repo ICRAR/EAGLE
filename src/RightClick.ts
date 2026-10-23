@@ -695,18 +695,19 @@ export class RightClick {
 // graph node right click options
             }else if(passedObjectClass === 'rightClick_graphNode'){
                 $('#customContextMenu').append(RightClick.getNodeDescriptionDropdown())
-                if(data.hasFunc_code() === true){
+                const node = data as Node;
+                if(node.hasFunc_code() === true){
                     //check if the node has a field for func code. if so we can add an option to quickly access its contents via the code editor
                     $('#customContextMenu').append('<a onclick=RightClick.editNodeFuncCode()>Edit Function Code</a>')
                 }
                 $('#customContextMenu').append('<a onclick="ParameterTable.openTable(EagleBottomWindowMode.NodeParameterTable, ParameterTableSelectType.RightClick)">Open Fields Table</a>')
                 $('#customContextMenu').append('<a onclick="eagle.editNodeDescription()">Open Description</a>')
                 $('#customContextMenu').append('<a onclick="eagle.editNodeComment()">Open Comment</a>')
-                if (data.isConstruct() === true){
+                if (node.isConstruct() === true){
                     $('#customContextMenu').append('<a onclick=eagle.deleteSelection(true,false,true)>Delete with children</a>')
                     $('#customContextMenu').append('<a onclick=GraphRenderer.centerConstruct(eagle.selectedNode(),eagle.logicalGraph().getNodes())>Center Around Children</a>')
                 }
-                if(data.getCategory() === CategoryName.Docker){
+                if(node.getCategory() === CategoryName.Docker){
                     $('#customContextMenu').append('<a onclick=eagle.fetchDockerHTML()>Browse DockerHub</a>')
                 }
                 if(Setting.findValue<boolean>(Setting.ALLOW_PALETTE_EDITING, false)){

@@ -859,10 +859,10 @@ export class Field {
             }
         }
         if (typeof data.value !== 'undefined' && data.value !== null) {
-            value = data.value.toString() as string;
+            value = (data.value as { toString: () => string }).toString();
         }
         if (typeof data.defaultValue !== 'undefined' && data.defaultValue !== null) {
-            defaultValue = data.defaultValue.toString() as string;
+            defaultValue = (data.defaultValue as { toString: () => string }).toString();
         }
         if (typeof data.precious !== 'undefined') { precious = data.precious as boolean; }
         if (typeof data.options !== 'undefined') { options = data.options as string[]; }

@@ -1,5 +1,6 @@
 // import { test } from '@playwright/test';
 import { test, expect } from '@playwright/test';
+import type { Locator } from '@playwright/test';
 import { enableMouseCursor, explainElement, moveMouseCursor, textNotification } from '../playwrightHelpers';
 import { TestHelpers } from '../e2e/TestHelpers';
 
@@ -20,7 +21,7 @@ test.use({
 test('Hello World Tutorial Video', async ({ page }) => {
 
   //used throughout the test to store the target element
-  let clickTarget:any = null;
+  let clickTarget: Locator = null as unknown as Locator;
 
   //over write the test timeout limit. these tutorials are way longer than normal tests.
   test.setTimeout(900000);
@@ -31,7 +32,10 @@ test('Hello World Tutorial Video', async ({ page }) => {
   });
 
   await page.goto('http://localhost:8888/?tutorial=none');
-  await page.waitForFunction(() => (window as any).eagle?.eagleIsReady?.() === true, { timeout: 30000 });
+  await page.waitForFunction(() => {
+    const eagle = (window as any).eagle as { eagleIsReady?: () => boolean } | undefined;
+    return eagle?.eagleIsReady?.() === true;
+  }, { timeout: 30000 });
 
   // Some environments auto-start the welcome tutorial; dismiss it so it does not block scripted clicks.
   const tutExitButton = page.locator('#tutorialInfoPopUp .tutEndBtn');
