@@ -932,7 +932,7 @@ export class Field {
             name = data.IdText as string;
         }
      
-        const f = new Field(node, data.Id, name, "", "", description, false, type, false, [], false, FieldType.Unknown, FieldUsage.NoPort);
+        const f = new Field(node, data.Id as FieldId, name, "", "", description, false, type, false, [], false, FieldType.Unknown, FieldUsage.NoPort);
         f.isEvent(event);
         f.encoding(encoding);
         f.changeable(changeable);

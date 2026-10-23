@@ -117,7 +117,7 @@ test('LogicalGraph.clone() does not share references with original', async ({ pa
             for (const field of node.getFields()) {
                 const edgeIds: string[] = [];
                 for (const edge of field.getEdges()) {
-                    edgeIds.push(edge.getId());
+                    edgeIds.push(edge.getId() as string);
                 }
                 const uniqueIds = new Set(edgeIds);
                 if (edgeIds.length !== uniqueIds.size) {

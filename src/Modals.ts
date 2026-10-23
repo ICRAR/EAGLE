@@ -580,7 +580,7 @@ export class Modals {
             return;
         }
 
-        const value: any = $(eventTarget).val();
+        const value = $(eventTarget).val() as string;
         const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
 
         // only validate Json fields

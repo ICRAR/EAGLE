@@ -471,8 +471,9 @@ export class FileInfo {
     static fromOJSJson(modelData : any, errorsWarnings: ErrorsWarnings) : FileInfo {
         const result : FileInfo = new FileInfo();
 
-        const fileName = Utils.getFileNameFromFullPath(modelData.filePath);
-        const filePath = Utils.getFilePathFromFullPath(modelData.filePath);
+        const filePathValue: string = (modelData.filePath ?? "") as string;
+        const fileName = Utils.getFileNameFromFullPath(filePathValue);
+        const filePath = Utils.getFilePathFromFullPath(filePathValue);
         const repoService = (modelData.repoService ?? RepositoryService.Unknown) as RepositoryService;
 
         result.name = fileName;
@@ -485,13 +486,13 @@ export class FileInfo {
             result.shortDescription = result.detailedDescription.split('. ', 1)[0];
         }
 
-        result.type = Utils.translateStringToFileType(modelData.fileType);
+        result.type = Utils.translateStringToFileType(modelData.fileType as string | undefined);
         result.schemaVersion = (modelData.schemaVersion ?? SchemaVersion.Unknown) as SchemaVersion;
         result.readonly = (modelData.readonly ?? true) as boolean;
 
         result.location.repositoryService(repoService);
-        result.location.repositoryBranch(modelData.repoBranch ?? "");
-        result.location.repositoryName(modelData.repo ?? "");
+        result.location.repositoryBranch((modelData.repoBranch ?? "") as string);
+        result.location.repositoryName((modelData.repo ?? "") as string);
 
         // For URL-backed graphs we store the full URL in repositoryFileName and
         // keep repositoryPath empty. This matches updateFileInfo() behavior and
@@ -504,8 +505,8 @@ export class FileInfo {
             result.location.repositoryPath(filePath);
             result.location.repositoryFileName(fileName);
         }
-        result.location.commitHash(modelData.commitHash ?? "");
-        result.location.downloadUrl(modelData.downloadUrl ?? "");
+        result.location.commitHash((modelData.commitHash ?? "") as string);
+        result.location.downloadUrl((modelData.downloadUrl ?? "") as string);
 
         // look for deprecated attributes (eagleVersion and eagleCommitHash) too
         result.generatorVersion = (modelData.generatorVersion ?? modelData.eagleVersion ?? "") as string;

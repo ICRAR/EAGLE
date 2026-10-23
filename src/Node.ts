@@ -1480,17 +1480,17 @@ export class Node {
 
         // get description (if exists)
         if (typeof nodeData.description !== 'undefined'){
-            node.description(nodeData.description);
+            node.description(nodeData.description as string);
         }
 
         // get comment (if exists)
         if (typeof nodeData.comment !== 'undefined'){
-            node.comment(nodeData.comment);
+            node.comment(nodeData.comment as string);
         }
 
         // drawOrderHint
         if (typeof nodeData.drawOrderHint !== 'undefined'){
-            node.drawOrderHint(nodeData.drawOrderHint);
+            node.drawOrderHint(nodeData.drawOrderHint as number);
         }
 
         // read embedded application data from node
@@ -1571,7 +1571,7 @@ export class Node {
                 errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
             } else {
                 // TODO: should this use node.setInputApplication() instead?
-                node.inputApplication(Node.createEmbeddedApplicationNode(nodeData.application, category, "", "", node));
+                node.inputApplication(Node.createEmbeddedApplicationNode(nodeData.application as string, category, "", "", node));
             }
         }
 
@@ -1729,16 +1729,16 @@ export class Node {
 
         // add git url and hash
         if (typeof nodeData.repositoryUrl !== 'undefined'){
-            node.repositoryUrl(nodeData.repositoryUrl);
+            node.repositoryUrl(nodeData.repositoryUrl as string);
         }
         if (typeof nodeData.commitHash !== 'undefined'){
-            node.commitHash(nodeData.commitHash);
+            node.commitHash(nodeData.commitHash as string);
         }
         if (typeof nodeData.paletteDownloadUrl != 'undefined'){
-            node.paletteDownloadUrl(nodeData.paletteDownloadUrl);
+            node.paletteDownloadUrl(nodeData.paletteDownloadUrl as string);
         }
         if (typeof nodeData.dataHash !== 'undefined'){
-            node.dataHash(nodeData.dataHash);
+            node.dataHash(nodeData.dataHash as string);
         }
 
         return node;
