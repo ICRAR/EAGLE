@@ -1176,6 +1176,14 @@ export class Eagle {
             return true;
         }
 
+        // The V4 schema is fetched asynchronously; while it is still empty,
+        // validation would accept any document. Block the load rather than
+        // silently skipping classification and sanitization.
+        if (Object.keys(Utils.v4GraphSchema).length === 0) {
+            errorsWarnings.errors.push(Errors.Message("Schema validation: V4 graph schema not yet loaded; cannot validate."));
+            return false;
+        }
+
         const validatorResult = Utils._validateJSONDetailed(dataObject, SchemaVersion.V4, EagleFileType.Graph);
         if (validatorResult.valid) {
             return true;
