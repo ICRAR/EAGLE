@@ -3,28 +3,92 @@ import { TestHelpers } from '../TestHelpers';
 
 const INPUT_GRAPH_LOCATION = "data/LoopWithBranch.graph";
 
+type TestNode = {
+    getChildren: () => Iterable<TestNode>;
+    getParent: () => TestNode | null;
+    getEmbed: () => TestNode | null;
+    getInputApplication: () => TestNode | null;
+    getOutputApplication: () => TestNode | null;
+    getId: () => string;
+    clone: () => TestNode;
+    setId: (id: string) => TestNode;
+};
+
+type TestEdge = object;
+
+type TestGraphConfigNode = {
+    getNode: () => TestNode;
+};
+
+type TestGraphConfig = {
+    addNode: (node: TestNode) => TestGraphConfigNode;
+    getId: () => string;
+    getNodeById: (id: string) => TestGraphConfigNode | undefined;
+};
+
+type TestGraph = {
+    getNodes: () => Iterable<TestNode>;
+    getEdges: () => Iterable<TestEdge>;
+    getGraphConfigs: () => Iterable<TestGraphConfig>;
+    addGraphConfig: (config: TestGraphConfig, markChanged: boolean) => void;
+    getNodeById: (id: string) => TestNode | undefined;
+};
+
+type TestEagle = {
+    logicalGraph: {
+        (): TestGraph;
+        (graph: TestGraph): void;
+    };
+    _loadGraphJSON: (
+        json: string,
+        fileName: string,
+        loadCallback: (graph: TestGraph) => void
+    ) => Promise<boolean>;
+    insertGraph: (
+        nodes: (TestNode | null)[],
+        edges: TestEdge[],
+        parent: TestNode | null,
+        errorsWarnings: {errors: unknown[], warnings: unknown[]}
+    ) => Promise<void>;
+};
+
 test('Failed graph insertion preserves existing graph relationships', async ({ page }) => {
     await page.goto('http://localhost:8888/?tutorial=none');
-    await TestHelpers.loadGraphFromString(page, await TestHelpers.readGraph(INPUT_GRAPH_LOCATION));
+    const fixtureGraph = await TestHelpers.readGraph(INPUT_GRAPH_LOCATION);
+    const graphLoaded = await page.evaluate(async (json: string) => {
+        const eagle = (window as unknown as {eagle: TestEagle}).eagle;
+        return eagle._loadGraphJSON(json, 'rollback-fixture.graph', (graph) => {
+            eagle.logicalGraph(graph);
+        });
+    }, fixtureGraph);
+    expect(graphLoaded).toBe(true);
 
     const result = await page.evaluate(async () => {
-        const eagle = (window as any).eagle;
+        const testWindow = window as unknown as {
+            eagle: TestEagle;
+            GraphConfig: new () => TestGraphConfig;
+        };
+        const eagle = testWindow.eagle;
         const graph = eagle.logicalGraph();
-        const nodes: any[] = Array.from(graph.getNodes());
-        const parent = nodes.find((node: any) => Array.from(node.getChildren()).length > 0);
+        const nodes = Array.from(graph.getNodes());
+        const parent = nodes.find((node) => Array.from(node.getChildren()).length > 0);
         if (parent === undefined) {
-            return { setupError: 'Fixture does not contain a parent-child relationship' };
+            throw new Error('Fixture does not contain a parent-child relationship');
         }
 
-        const child: any = Array.from(parent.getChildren())[0];
-        const graphConfig = new (window as any).GraphConfig();
+        const child = Array.from(parent.getChildren()).at(0);
+        if (child === undefined) {
+            throw new Error('Fixture parent does not contain a child');
+        }
+
+        const graphConfig = new testWindow.GraphConfig();
         graphConfig.addNode(parent);
         graph.addGraphConfig(graphConfig, false);
 
-        const originalNodes: any[] = Array.from(graph.getNodes());
-        const originalEdges: any[] = Array.from(graph.getEdges());
-        const originalConfigs: any[] = Array.from(graph.getGraphConfigs());
-        const originalRelationships = originalNodes.map((node: any) => ({
+        const originalNodes = Array.from(graph.getNodes());
+        const originalEdges = Array.from(graph.getEdges());
+        const originalConfigs = Array.from(graph.getGraphConfigs());
+        const originalRelationships = originalNodes.map((node) => ({
             node,
             parent: node.getParent(),
             embed: node.getEmbed(),
@@ -32,6 +96,9 @@ test('Failed graph insertion preserves existing graph relationships', async ({ p
             outputApplication: node.getOutputApplication(),
         }));
         const configNode = graphConfig.getNodeById(parent.getId());
+        if (configNode === undefined) {
+            throw new Error('Graph config did not retain its parent node');
+        }
 
         // The parent is added first; normaliseNodes then throws on the invalid node,
         // exercising rollback after the graph has already been partially mutated.
@@ -44,29 +111,29 @@ test('Failed graph insertion preserves existing graph relationships', async ({ p
         }
 
         const restoredGraph = eagle.logicalGraph();
-        const restoredNodes: any[] = Array.from(restoredGraph.getNodes());
-        const restoredEdges: any[] = Array.from(restoredGraph.getEdges());
-        const restoredConfigs: any[] = Array.from(restoredGraph.getGraphConfigs());
-        const relationshipsIntact = originalRelationships.every((relationship: any) => {
+        const restoredNodes = Array.from(restoredGraph.getNodes());
+        const restoredEdges = Array.from(restoredGraph.getEdges());
+        const restoredConfigs = Array.from(restoredGraph.getGraphConfigs());
+        const relationshipsIntact = originalRelationships.every((relationship) => {
             return relationship.node.getParent() === relationship.parent
                 && relationship.node.getEmbed() === relationship.embed
                 && relationship.node.getInputApplication() === relationship.inputApplication
                 && relationship.node.getOutputApplication() === relationship.outputApplication;
         });
-        const restoredParent = restoredNodes.find((node: any) => node.getId() === parent.getId());
-        const restoredChild = restoredNodes.find((node: any) => node.getId() === child.getId());
-        const restoredConfig = restoredConfigs.find((config: any) => config.getId() === graphConfig.getId());
+        const restoredParent = restoredNodes.find((node) => node.getId() === parent.getId());
+        const restoredChild = restoredNodes.find((node) => node.getId() === child.getId());
+        const restoredConfig = restoredConfigs.find((config) => config.getId() === graphConfig.getId());
         const restoredConfigNode = restoredConfig?.getNodeById(parent.getId());
 
         return {
             insertionFailed,
             sameGraph: restoredGraph === graph,
             sameNodes: restoredNodes.length === originalNodes.length
-                && originalNodes.every((node: any, index: number) => restoredNodes[index] === node),
+                && originalNodes.every((node, index) => restoredNodes[index] === node),
             sameEdges: restoredEdges.length === originalEdges.length
-                && originalEdges.every((edge: any, index: number) => restoredEdges[index] === edge),
+                && originalEdges.every((edge, index) => restoredEdges[index] === edge),
             sameConfigs: restoredConfigs.length === originalConfigs.length
-                && originalConfigs.every((config: any, index: number) => restoredConfigs[index] === config),
+                && originalConfigs.every((config, index) => restoredConfigs[index] === config),
             relationshipsIntact,
             childStillReferencesParent: child.getParent() === parent,
             restoredChildReferencesRestoredParent: restoredChild?.getParent() === restoredParent,
