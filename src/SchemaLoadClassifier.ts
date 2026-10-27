@@ -58,7 +58,7 @@ export const STRUCTURAL_KEYS: string[] = ["modelData", "nodes"];
 // "activeGraphConfigId" are also WARNINGS and use parser defaults.
 export function isStructuralV4Error(error: SchemaValidationError): boolean {
     const path = error.dataPath;
-    const missing = error.missingProperty ?? error.params?.missingProperty as string | undefined;
+    const missing: string | undefined = error.missingProperty ?? error.params?.missingProperty;
 
     // Unexpected keys are structural even at the root, where Ajv reports an empty
     // dataPath and no missingProperty. Keep the keyword/params so this does not rely
