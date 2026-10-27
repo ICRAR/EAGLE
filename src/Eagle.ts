@@ -1222,7 +1222,7 @@ export class Eagle {
 
         const errorsWarnings: ErrorsWarnings = {errors: [], warnings: []};
         let loaded = false;
-        const graphBeforeLoad = this.logicalGraph().clone();
+        let graphBeforeLoad: LogicalGraph | undefined;
 
         // use the correct parsing function based on schema version
         try {
@@ -1236,6 +1236,8 @@ export class Eagle {
                 Utils.showUserMessage("Error", "This is not a graph file!");
                 return false;
             }
+
+            graphBeforeLoad = this.logicalGraph().clone();
 
             // attempt to determine schema version from FileInfo; use V4 validation
             // for graph-shaped documents whose malformed modelData hides the version.
@@ -1272,7 +1274,9 @@ export class Eagle {
             // a parse/load failure mid-way must not leave the graph half-loaded
             // (the parse builds the full graph object before any mutation, so abort here)
             console.error("Error loading graph file:", error);
-            this.logicalGraph(graphBeforeLoad);
+            if (graphBeforeLoad) {
+                this.logicalGraph(graphBeforeLoad);
+            }
             errorsWarnings.errors.push(Errors.Message("Failed to load graph file: " + Errors.UnknownToError(error)));
             loaded = false;
         }
