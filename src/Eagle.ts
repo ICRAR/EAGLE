@@ -1191,6 +1191,24 @@ export class Eagle {
         return canLoad;
     }
 
+    // A V4 graph with missing or malformed modelData is still recognizable
+    // from its nodes container or malformed modelData, allowing schema
+    // validation to report structural errors instead of rejecting it as unknown.
+    private _isV4GraphCandidate(data: unknown): boolean {
+        if (typeof data !== 'object' || data === null) {
+            return false;
+        }
+        const obj = data as Record<string, unknown>;
+        if ('nodes' in obj) {
+            return true;
+        }
+        if ('modelData' in obj) {
+            const md = obj.modelData;
+            return md === null || typeof md !== 'object' || Array.isArray(md);
+        }
+        return false;
+    }
+
     private _loadGraphJSON = async (data: string, fileFullPath: string, loadFunc: (lg: LogicalGraph, errorsWarnings: ErrorsWarnings) => void | Promise<void>) : Promise<boolean> => {
         let dataObject: unknown;
 
@@ -1209,11 +1227,7 @@ export class Eagle {
         // use the correct parsing function based on schema version
         try {
             const fileType: EagleFileType = Utils.determineFileType(dataObject);
-            const isV4GraphCandidate = typeof dataObject === 'object' && dataObject !== null && (
-                'nodes' in dataObject || ('modelData' in dataObject && (
-                    dataObject.modelData === null || typeof dataObject.modelData !== 'object' || Array.isArray(dataObject.modelData)
-                ))
-            );
+            const isV4GraphCandidate = this._isV4GraphCandidate(dataObject);
 
             // A V4 graph with missing or malformed modelData is still recognizable
             // from its nodes container or malformed modelData, allowing schema
