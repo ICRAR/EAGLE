@@ -1769,7 +1769,6 @@ export class Utils {
     static determineSchemaVersion(data: unknown): SchemaVersion {
         const dataObject = asObjectRecord(data);
         const modelData = asObjectRecord(dataObject?.modelData);
-        const isV4Graph = typeof modelData?.type === "string" && modelData.type.toLowerCase() === "graph";
 
         if (typeof modelData?.schemaVersion !== 'undefined'){
             // check whether the value of data.modelData.schemaVersion is a valid SchemaVersion enum value
@@ -1779,13 +1778,6 @@ export class Utils {
             }
             console.warn("Unknown schema version:", modelData.schemaVersion);
             return SchemaVersion.Unknown;
-        }
-
-        // Older V4 graph documents may omit schemaVersion. Their explicit V4
-        // modelData.type and graph container shape are sufficient to route them
-        // through the backwards-compatible V4 parser (rather than the OJS parser).
-        if (isV4Graph){
-            return SchemaVersion.V4;
         }
 
         return SchemaVersion.Unknown;
@@ -1798,13 +1790,16 @@ export class Utils {
         const dataObject = asObjectRecord(data);
         const modelData = asObjectRecord(dataObject?.modelData);
         const schemaVersion = Utils.determineSchemaVersion(data);
-        if (schemaVersion !== SchemaVersion.Unknown || typeof modelData?.schemaVersion === 'undefined'){
+
+        if (schemaVersion !== SchemaVersion.Unknown) {
             return schemaVersion;
         }
 
-        const hasKnownSchemaVersion = Object.values(SchemaVersion).some((value) => value === modelData.schemaVersion);
-        const isV4Graph = typeof modelData.type === "string" && modelData.type.toLowerCase() === "graph";
-        return isV4Graph && !hasKnownSchemaVersion ? SchemaVersion.V4 : schemaVersion;
+        // determineSchemaVersion returned Unknown: either schemaVersion was
+        // missing entirely or present but not a valid enum value. For V4 graph
+        // documents, route through V4 validation instead of the OJS parser.
+        const isV4Graph = typeof modelData?.type === "string" && modelData.type.toLowerCase() === "graph";
+        return isV4Graph ? SchemaVersion.V4 : SchemaVersion.Unknown;
     }
 
     static portsMatch(port0: Field, port1: Field){
