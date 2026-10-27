@@ -1185,7 +1185,9 @@ export class Eagle {
         // attributes are warned about and removed so parser defaults/skip behavior apply.
         // See SchemaLoadClassifier for the classification rules (ajv path semantics).
         const canLoad = appendV4ValidationIssues(validatorResult.errors, errorsWarnings, Errors.Message);
-        sanitizeRecoverableV4Errors(dataObject, validatorResult.errors);
+        if (canLoad) {
+            sanitizeRecoverableV4Errors(dataObject, validatorResult.errors);
+        }
         return canLoad;
     }
 
