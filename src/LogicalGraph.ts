@@ -505,7 +505,7 @@ export class LogicalGraph {
         }
 
         // add edges
-        const edgesData = Utils.asObjectMap(dataObject.edges, "edges", errorsWarnings);
+        const edgesData = Utils.asObjectMap(dataObject.edges, "edges", errorsWarnings, true);
         for (const [edgeId, edgeData] of Object.entries(edgesData)){
             if (edgeData === null || typeof edgeData !== 'object' || Array.isArray(edgeData)){
                 errorsWarnings.errors.push(Errors.Message("Edge (" + edgeId + ") has invalid JSON (not an object), skipping"));
@@ -526,7 +526,7 @@ export class LogicalGraph {
         }
 
         // add visuals
-        const visualsData = Utils.asObjectMap(dataObject.visuals, "visuals", errorsWarnings);
+        const visualsData = Utils.asObjectMap(dataObject.visuals, "visuals", errorsWarnings, true);
         for (const [visualId, visualData] of Object.entries(visualsData)){
             if (visualData === null || typeof visualData !== 'object' || Array.isArray(visualData)){
                 errorsWarnings.errors.push(Errors.Message("Visual (" + visualId + ") has invalid JSON (not an object), skipping"));
@@ -539,7 +539,7 @@ export class LogicalGraph {
         }
 
         // load configs
-        const graphConfigsData = Utils.asObjectMap(dataObject.graphConfigurations, "graphConfigurations", errorsWarnings);
+        const graphConfigsData = Utils.asObjectMap(dataObject.graphConfigurations, "graphConfigurations", errorsWarnings, true);
         for (const [gcId, gcData] of Object.entries(graphConfigsData)){
             if (gcData === null || typeof gcData !== 'object' || Array.isArray(gcData)){
                 errorsWarnings.errors.push(Errors.Message("GraphConfig (" + gcId + ") has invalid JSON (not an object), skipping"));
