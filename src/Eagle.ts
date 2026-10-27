@@ -1223,6 +1223,7 @@ export class Eagle {
         const errorsWarnings: ErrorsWarnings = {errors: [], warnings: []};
         let loaded = false;
         let graphBeforeLoad: LogicalGraph | undefined;
+        let graphAtSnapshot: LogicalGraph | undefined;
 
         // use the correct parsing function based on schema version
         try {
@@ -1237,7 +1238,8 @@ export class Eagle {
                 return false;
             }
 
-            graphBeforeLoad = this.logicalGraph().clone();
+            graphAtSnapshot = this.logicalGraph();
+            graphBeforeLoad = graphAtSnapshot.clone();
 
             // attempt to determine schema version from FileInfo; use V4 validation
             // for graph-shaped documents whose malformed modelData hides the version.
@@ -1274,7 +1276,7 @@ export class Eagle {
             // a parse/load failure mid-way must not leave the graph half-loaded
             // (the parse builds the full graph object before any mutation, so abort here)
             console.error("Error loading graph file:", error);
-            if (graphBeforeLoad) {
+            if (graphBeforeLoad && this.logicalGraph() === graphAtSnapshot) {
                 this.logicalGraph(graphBeforeLoad);
             }
             errorsWarnings.errors.push(Errors.Message("Failed to load graph file: " + Errors.UnknownToError(error)));
@@ -1394,7 +1396,8 @@ export class Eagle {
 
     // NOTE: parentNode would be null if we are duplicating a selection of objects
     insertGraph = async (nodes: Node[], edges: Edge[], parentNode: Node | null, errorsWarnings: ErrorsWarnings) => {
-        const graphBeforeInsert = this.logicalGraph().clone();
+        const graphAtInsert = this.logicalGraph();
+        const graphBeforeInsert = graphAtInsert.clone();
         try {
         // create map of inserted graph keys to final graph nodes, and of inserted port ids to final graph ports
         const nodeMap: Map<NodeId, Node> = new Map<NodeId, Node>();
@@ -1578,7 +1581,9 @@ export class Eagle {
             }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT)
         }
         } catch (error){
-            this.logicalGraph(graphBeforeInsert);
+            if (this.logicalGraph() === graphAtInsert) {
+                this.logicalGraph(graphBeforeInsert);
+            }
             throw error;
         }
     }
