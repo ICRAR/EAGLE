@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { TestHelpers } from '../TestHelpers';
 
 const NODE_ID = '00000000-0000-4000-8000-000000000001';
 const FIELD_ID = '00000000-0000-4000-8000-000000000002';
@@ -52,6 +53,7 @@ const createGraphData = (changeable?: unknown): TestGraphData => {
 
 test('A V4 field without changeable loads and defaults to changeable', async ({ page }) => {
     await page.goto('http://localhost:8888/?tutorial=none');
+    await TestHelpers.waitForV4GraphSchema(page);
 
     const result = await page.evaluate(async (data: TestGraphData) => {
         const eagle = (window as unknown as {eagle: TestEagle}).eagle;
@@ -83,6 +85,7 @@ test('A V4 field without changeable loads and defaults to changeable', async ({ 
 
 test('A wrong-typed V4 field attribute warns and uses its parser default', async ({ page }) => {
     await page.goto('http://localhost:8888/?tutorial=none');
+    await TestHelpers.waitForV4GraphSchema(page);
 
     const result = await page.evaluate(async (data: TestGraphData) => {
         const eagle = (window as unknown as {eagle: TestEagle}).eagle;

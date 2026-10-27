@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { TestHelpers } from '../TestHelpers';
 
 type TestIssue = {message: string};
 type TestGraph = {
@@ -30,6 +31,7 @@ type InvalidLoadResult = {loaded: boolean, errors: string[]};
 
 const loadInvalidGraph = async (page: Page, graphData: unknown): Promise<InvalidLoadResult> => {
     await page.goto('http://localhost:8888/?tutorial=none');
+    await TestHelpers.waitForV4GraphSchema(page);
 
     return page.evaluate(async (data: unknown) => {
         const eagle = (window as unknown as {eagle: TestEagle}).eagle;
@@ -43,6 +45,7 @@ const loadInvalidGraph = async (page: Page, graphData: unknown): Promise<Invalid
 
 test('Malformed optional V4 top-level values warn and use parser defaults', async ({ page }) => {
     await page.goto('http://localhost:8888/?tutorial=none');
+    await TestHelpers.waitForV4GraphSchema(page);
 
     const cases = [
         { key: 'edges', value: [] },
