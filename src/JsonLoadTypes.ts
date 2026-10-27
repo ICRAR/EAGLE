@@ -32,13 +32,17 @@ export const v4GraphLoadSchema = lgGraphV4Schema;
 
 export type V4GraphJson = FromSchema<typeof v4GraphLoadSchema>;
 
-export type V4NodeJson = V4GraphJson["nodes"][string];
-export type V4FieldJson = V4NodeJson["fields"][string];
-export type V4EdgeJson = V4GraphJson["edges"][string];
-export type V4VisualLoadJson = V4GraphJson["visuals"][string];
-export type V4GraphConfigJson = V4GraphJson["graphConfigurations"][string];
-export type V4GraphConfigNodeJson = V4GraphConfigJson["nodes"][string];
-export type V4GraphConfigFieldJson = V4GraphConfigNodeJson["fields"][string];
+// NOTE: these types represent the per-object shapes of valid V4 graphs. The top-level
+// containers are optional in the load schema (older files may omit edges/visuals/etc),
+// so the element types are asserted non-undefined here.
+export type V4NodeJson = NonNullable<V4GraphJson["nodes"]>[string];
+type V4FieldSchemaJson = NonNullable<V4NodeJson["fields"]>[string];
+export type V4FieldJson = Omit<V4FieldSchemaJson, "changeable"> & {changeable?: boolean};
+export type V4EdgeJson = NonNullable<V4GraphJson["edges"]>[string];
+export type V4VisualLoadJson = NonNullable<V4GraphJson["visuals"]>[string];
+export type V4GraphConfigJson = NonNullable<V4GraphJson["graphConfigurations"]>[string];
+export type V4GraphConfigNodeJson = NonNullable<V4GraphConfigJson["nodes"]>[string];
+export type V4GraphConfigFieldJson = NonNullable<V4GraphConfigNodeJson["fields"]>[string];
 export type V4FileInfoJson = V4GraphJson["modelData"];
 export type V4FileLocationJson = V4FileInfoJson["location"];
 

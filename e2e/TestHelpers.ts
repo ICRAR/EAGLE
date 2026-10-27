@@ -55,6 +55,19 @@ export class TestHelpers {
         Condition: "Condition",
     } as const;
 
+    // The V4 graph schema is fetched asynchronously at startup; validation is a no-op
+    // until it lands, so wait for it before loading V4 graphs to keep diagnostics/defaults
+    // from being timing-dependent.
+    static async waitForV4GraphSchema(page: Page): Promise<void> {
+        await page.waitForFunction(
+            () => {
+                const utils = (window as unknown as {Utils?: {v4GraphSchema?: {properties?: {nodes?: unknown}}}}).Utils;
+                return Boolean(utils?.v4GraphSchema?.properties?.nodes);
+            },
+            { timeout: TestHelpers.LONG_TIMEOUT },
+        );
+    }
+
     // Set the specified UI mode
     static async setUIMode(page: Page, mode: 'Student' | 'Minimal' | 'Graph' | 'Component' | 'Expert') {
         // open settings modal

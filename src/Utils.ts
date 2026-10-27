@@ -81,7 +81,27 @@ export type ValidationResult = {
     message?: string;
 };
 
+const asObjectRecord = (value: unknown): Record<string, unknown> | null => {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)){
+        return null;
+    }
+    return value as Record<string, unknown>;
+};
 
+const normalizeAjvDataPath = (path: string): string => {
+    if (path === "" || path.startsWith("/")){
+        return path;
+    }
+
+    const segments: string[] = [];
+    const segmentPattern = /\.([^.[\]]+)|\[['"]([^'"]+)['"]\]|\[(\d+)\]/g;
+    let match: RegExpExecArray | null;
+    while ((match = segmentPattern.exec(path)) !== null){
+        const segment = match[1] || match[2] || match[3];
+        segments.push(segment.replace(/~/g, "~0").replace(/\//g, "~1"));
+    }
+    return segments.length > 0 ? "/" + segments.join("/") : path;
+};
 
 export class Utils {
     // Allowed file extensions
@@ -284,6 +304,23 @@ export class Utils {
         }
 
         return EagleFileType.Unknown;
+    }
+
+    // helper for V4 JSON loading: returns the given container as an object map,
+    // or an empty object if it is missing/null/not an object.
+    // Missing containers are a known case in older files, so this is a non-fatal warning.
+    static asObjectMap(data: any, attributeName: string, errorsWarnings: ErrorsWarnings, suppressWarning: boolean = false) : Record<string, any> {
+        if (data === null || typeof data !== 'object' || Array.isArray(data)){
+            if (!suppressWarning){
+                if (data === undefined || data === null){
+                    errorsWarnings.warnings.push(Errors.Message("Missing attribute: '" + attributeName + "'. Treating as empty."));
+                } else {
+                    errorsWarnings.warnings.push(Errors.Message("Attribute '" + attributeName + "' is not an object (" + typeof data + "). Treating as empty."));
+                }
+            }
+            return {};
+        }
+        return data as Record<string, any>;
     }
 
     static dataTypePrefix(dataType: string): string {
@@ -1648,20 +1685,27 @@ export class Utils {
         return result;
     }
 
-    static determineFileType(data: any): EagleFileType {
-        if (typeof data.modelData !== 'undefined'){
+    static determineFileType(data: unknown): EagleFileType {
+        const dataObject = asObjectRecord(data);
+        if (dataObject === null){
+            console.warn("Can't determine filetype");
+            return EagleFileType.Unknown;
+        }
+
+        const modelData = asObjectRecord(dataObject.modelData);
+        if (modelData !== null){
             // find type of OJS files
-            if (typeof data.modelData.fileType !== 'undefined'){
-                return Utils.translateStringToFileType(data.modelData.fileType);
+            if (typeof modelData.fileType !== 'undefined'){
+                return Utils.translateStringToFileType(typeof modelData.fileType === 'string' ? modelData.fileType : undefined);
             }
 
             // find type of V4 files
-            if (typeof data.modelData.type !== 'undefined'){
-                return Utils.translateStringToFileType(data.modelData.type);
+            if (typeof modelData.type !== 'undefined'){
+                return Utils.translateStringToFileType(typeof modelData.type === 'string' ? modelData.type : undefined);
             }
         }
 
-        if (typeof data.DALiuGEGraph !== 'undefined'){
+        if (typeof dataObject.DALiuGEGraph !== 'undefined'){
             return EagleFileType.Graph;
         }
 
@@ -1724,21 +1768,40 @@ export class Utils {
         )
     }
 
-    static determineSchemaVersion(data: any): SchemaVersion {
-        if (typeof data.modelData !== 'undefined'){
-            if (typeof data.modelData.schemaVersion !== 'undefined'){
-                // check whether the value of data.modelData.schemaVersion is a valid SchemaVersion enum value
-                const schemaVersion = data.modelData.schemaVersion as SchemaVersion;
-                if (Object.values(SchemaVersion).includes(schemaVersion)){
-                    return schemaVersion;
-                } else {
-                    console.warn("Unknown schema version:", data.modelData.schemaVersion);
-                    return SchemaVersion.Unknown;
-                }
+    static determineSchemaVersion(data: unknown): SchemaVersion {
+        const dataObject = asObjectRecord(data);
+        const modelData = asObjectRecord(dataObject?.modelData);
+
+        if (typeof modelData?.schemaVersion !== 'undefined'){
+            // check whether the value of data.modelData.schemaVersion is a valid SchemaVersion enum value
+            const schemaVersion = modelData.schemaVersion as SchemaVersion;
+            if (Object.values(SchemaVersion).includes(schemaVersion)){
+                return schemaVersion;
             }
+            console.warn("Unknown schema version:", modelData.schemaVersion);
+            return SchemaVersion.Unknown;
         }
 
         return SchemaVersion.Unknown;
+    }
+
+    // Graph loading has a strict validator that can report an invalid schemaVersion.
+    // Preserve Unknown for generic callers, but route malformed V4 graph metadata
+    // through that validator instead of allowing the OJS parser to receive it.
+    static determineGraphSchemaVersion(data: unknown): SchemaVersion {
+        const dataObject = asObjectRecord(data);
+        const modelData = asObjectRecord(dataObject?.modelData);
+        const schemaVersion = Utils.determineSchemaVersion(data);
+
+        if (schemaVersion !== SchemaVersion.Unknown) {
+            return schemaVersion;
+        }
+
+        // determineSchemaVersion returned Unknown: either schemaVersion was
+        // missing entirely or present but not a valid enum value. For V4 graph
+        // documents, route through V4 validation instead of the OJS parser.
+        const isV4Graph = typeof modelData?.type === "string" && modelData.type.toLowerCase() === "graph";
+        return isV4Graph ? SchemaVersion.V4 : SchemaVersion.Unknown;
     }
 
     static portsMatch(port0: Field, port1: Field){
@@ -2075,6 +2138,68 @@ export class Utils {
         }
 
         return {valid: valid, errors: ajv.errorsText(ajv.errors)};
+    }
+
+    // like _validateJSON, but returns the individual validation errors (dataPath/message)
+    // so the caller can classify them (e.g. structural vs attribute-level)
+    static _validateJSONDetailed(json: any, version: SchemaVersion, fileType: EagleFileType) : {valid: boolean, errors: {dataPath: string, message: string, keyword?: string, params?: Record<string, unknown>, missingProperty?: string}[]} {
+        const ajv = new Ajv({allErrors: true});
+        let schema: object | null = null;
+
+        switch(version){
+            case SchemaVersion.OJS:
+                switch(fileType){
+                    case EagleFileType.Graph:
+                        schema = Utils.ojsGraphSchema;
+                        break;
+                    case EagleFileType.Palette:
+                        schema = Utils.ojsPaletteSchema;
+                        break;
+                    case EagleFileType.GraphConfig:
+                        schema = Utils.ojsGraphConfigSchema;
+                        break;
+                    default:
+                        console.warn("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");
+                        break;
+                }
+                break;
+            case SchemaVersion.V4:
+                switch(fileType){
+                    case EagleFileType.Graph:
+                        schema = Utils.v4GraphSchema;
+                        break;
+                    case EagleFileType.Palette:
+                        schema = Utils.v4PaletteSchema;
+                        break;
+                    case EagleFileType.GraphConfig:
+                        schema = Utils.v4GraphConfigSchema;
+                        break;
+                    default:
+                        console.warn("Unknown fileType:", fileType, "version:", version, "Unable to validate JSON");
+                        break;
+                }
+                break;
+            default:
+                console.warn("Unknown format for validation (" + version + ")");
+                break;
+        }
+
+        if (schema === null){
+            return {valid: true, errors: []};
+        }
+
+        const valid = ajv.validate(schema, json) as boolean;
+        const errors = (ajv.errors ?? []).map((e) => ({
+            dataPath: normalizeAjvDataPath((e as {instancePath?: string}).instancePath ?? (e as {dataPath?: string}).dataPath ?? ""),
+            message: e.message ?? "",
+            keyword: e.keyword,
+            params: e.params as unknown as Record<string, unknown>,
+            // Keep the convenience property for existing classifier callers; the full Ajv
+            // params are also retained above (including additionalProperty).
+            missingProperty: (e.params as { missingProperty?: string }).missingProperty
+        }));
+
+        return {valid: valid, errors: errors};
     }
 
     static async downloadFile(data : string, fileName : string) : Promise<void> {
