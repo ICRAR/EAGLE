@@ -821,7 +821,13 @@ export class LogicalGraph {
      */
     createRollbackSnapshot = (): LogicalGraph => {
         const snapshot = new LogicalGraph();
-        snapshot.fileInfo(this.fileInfo().clone());
+        // FileInfo.clone() shares its graphLocation instance with the original (it
+        // deep-copies only `location`). A load callback can clear the live graph before
+        // throwing, which would clear that shared graph location and make the snapshot's
+        // metadata lossy, so capture an independent copy of it here.
+        const snapshotFileInfo = this.fileInfo().clone();
+        snapshotFileInfo.graphLocation = snapshotFileInfo.graphLocation.clone();
+        snapshot.fileInfo(snapshotFileInfo);
 
         for (const [id, node] of this.nodes()){
             snapshot.nodes().set(id, node);
