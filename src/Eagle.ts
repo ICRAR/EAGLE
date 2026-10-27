@@ -1202,7 +1202,8 @@ export class Eagle {
 
         const errorsWarnings: ErrorsWarnings = {errors: [], warnings: []};
         let loaded = false;
-        const graphBeforeLoad = this.logicalGraph().createRollbackSnapshot();
+        const graphAtSnapshot = this.logicalGraph();
+        const graphBeforeLoad = graphAtSnapshot.createRollbackSnapshot();
 
         // use the correct parsing function based on schema version
         try {
@@ -1256,7 +1257,9 @@ export class Eagle {
             // a parse/load failure mid-way must not leave the graph half-loaded
             // (the parse builds the full graph object before any mutation, so abort here)
             console.error("Error loading graph file:", error);
-            this.logicalGraph().restoreRollbackSnapshot(graphBeforeLoad);
+            if (this.logicalGraph() === graphAtSnapshot) {
+                this.logicalGraph().restoreRollbackSnapshot(graphBeforeLoad);
+            }
             errorsWarnings.errors.push(Errors.Message("Failed to load graph file: " + Errors.UnknownToError(error)));
             loaded = false;
         }
@@ -1374,7 +1377,8 @@ export class Eagle {
 
     // NOTE: parentNode would be null if we are duplicating a selection of objects
     insertGraph = async (nodes: Node[], edges: Edge[], parentNode: Node | null, errorsWarnings: ErrorsWarnings) => {
-        const graphBeforeInsert = this.logicalGraph().createRollbackSnapshot();
+        const graphAtInsert = this.logicalGraph();
+        const graphBeforeInsert = graphAtInsert.createRollbackSnapshot();
         try {
         // create map of inserted graph keys to final graph nodes, and of inserted port ids to final graph ports
         const nodeMap: Map<NodeId, Node> = new Map<NodeId, Node>();
@@ -1548,7 +1552,9 @@ export class Eagle {
             }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT)
         }
         } catch (error){
-            this.logicalGraph().restoreRollbackSnapshot(graphBeforeInsert);
+            if (this.logicalGraph() === graphAtInsert) {
+                this.logicalGraph().restoreRollbackSnapshot(graphBeforeInsert);
+            }
             throw error;
         }
     }
