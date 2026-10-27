@@ -1406,6 +1406,8 @@ export class Eagle {
     insertGraph = async (nodes: Node[], edges: Edge[], parentNode: Node | null, errorsWarnings: ErrorsWarnings) => {
         const graphAtInsert = this.logicalGraph();
         const graphBeforeInsert = graphAtInsert.clone();
+        const undoCurrentAtInsert = this.undo().current();
+        const undoFrontAtInsert = this.undo().front();
         try {
         // create map of inserted graph keys to final graph nodes, and of inserted port ids to final graph ports
         const nodeMap: Map<NodeId, Node> = new Map<NodeId, Node>();
@@ -1592,6 +1594,9 @@ export class Eagle {
             if (this.logicalGraph() === graphAtInsert) {
                 this.logicalGraph(graphBeforeInsert);
             }
+            // roll back undo history to prevent failed partial insertion from being restorable
+            this.undo().current(undoCurrentAtInsert);
+            this.undo().front(undoFrontAtInsert);
             throw error;
         }
     }
