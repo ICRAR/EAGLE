@@ -32,7 +32,7 @@ import { Errors, type ErrorsWarnings } from './Errors';
 import { FileInfo } from './FileInfo';
 import { FileLocation } from "./FileLocation";
 import { Node } from './Node';
-import type { JsonObject } from './JsonLoadTypes';
+import type { JsonObject, V4NodeJson } from './JsonLoadTypes';
 import type { RepositoryFile } from './RepositoryFile';
 import { SchemaVersion, Setting } from "./Setting";
 import { Utils } from './Utils';
@@ -124,7 +124,7 @@ export class Palette {
 
         // add nodes
         for (const [nodeId, nodeData] of Object.entries(dataObject.nodes)){
-            const node = Node.fromV4Json(nodeData as any, errorsWarnings, true);
+            const node = Node.fromV4Json(nodeData as V4NodeJson, errorsWarnings, true);
 
             result.nodes().set(nodeId as NodeId, node);
             result.nodes.valueHasMutated();
@@ -133,10 +133,10 @@ export class Palette {
         // second pass through the nodes
         // used to set parent, embed, subject, inputApplication, outputApplication
         for (const [nodeId, nodeData] of Object.entries(dataObject.nodes)){
-            const embed = result.getNodeById((<any>nodeData).embedId);
-            const parent = result.getNodeById((<any>nodeData).parentId);
-            const inputApplication = result.getNodeById((<any>nodeData).inputApplicationId);
-            const outputApplication = result.getNodeById((<any>nodeData).outputApplicationId);
+            const embed = result.getNodeById(nodeData.embedId as NodeId);
+            const parent = result.getNodeById(nodeData.parentId as NodeId);
+            const inputApplication = result.getNodeById(nodeData.inputApplicationId as NodeId);
+            const outputApplication = result.getNodeById(nodeData.outputApplicationId as NodeId);
             const node = result.getNodeById(nodeId as NodeId);
 
             if (typeof node === 'undefined'){

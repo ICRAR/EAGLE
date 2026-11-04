@@ -628,7 +628,7 @@ export class RightClick {
                     $('#customContextMenu').append(searchbar)
     
                     $('#customContextMenu').append('<div id="rightClickPaletteList"></div>')
-                    const paletteList = RightClick.createHtmlEdgeDragList(data)
+                    const paletteList = RightClick.createHtmlEdgeDragList(data as Node[])
                     $('#rightClickPaletteList').append(paletteList)
     
                     Eagle.selectedRightClickLocation(EagleFileType.Graph)

@@ -2697,10 +2697,10 @@ export class Eagle {
                 const index = i;
                 const postData = {url: paletteList[i].filename};
 
-                let data: any;
+                let data: string | null = null;
                 let fetchFailed = false;
                 try {
-                    data = await Utils.httpPostJSON("/openRemoteUrlFile", postData);
+                    data = await Utils.httpPostText("/openRemoteUrlFile", postData);
                 } catch (error){
                     fetchFailed = true;
                     // an error occurred when fetching the palette
@@ -2739,7 +2739,7 @@ export class Eagle {
                     destinationPalettes[index].expanded(paletteList[index].expanded);
                 }
 
-                if (fetchFailed){
+                if (fetchFailed || data === null){
                     _checkAllPalettesComplete();
                     continue;
                 }
@@ -3344,7 +3344,7 @@ export class Eagle {
             // validate json
             Utils.validateJSON(jsonString, EagleFileType.Palette, version);
 
-            let data: any;
+            let data: string;
             try {
                 data = await Utils.httpPostJSONString('/saveFileToLocal', jsonString);
             } catch (error){
@@ -3406,7 +3406,7 @@ export class Eagle {
             // validate json
             Utils.validateJSON(jsonString, EagleFileType.Graph, version);
 
-            let data: any;
+            let data: string;
             try {
                 data = await Utils.httpPostJSONString('/saveFileToLocal', jsonString);
             } catch (error){

@@ -882,7 +882,7 @@ export class TestHelpers {
         for (const i in obj2) {
         rett = {};
         if (obj2[i] != null && typeof obj2[i] === 'object') {
-            rett = TestHelpers.compareObj(obj1[i], obj2[i]);
+            rett = TestHelpers.compareObj(obj1[i] as Record<string, any>, obj2[i] as Record<string, any>);
             if (TestHelpers.isEmpty(rett) === false) {
             ret[i] = rett;
             }

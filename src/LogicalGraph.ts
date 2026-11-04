@@ -399,7 +399,7 @@ export class LogicalGraph {
             if(typeof dataObject.activeGraphConfigId === 'undefined' || dataObject.activeGraphConfigId === ''){
                 result.activeGraphConfigId(null);
             }else{
-                result.activeGraphConfigId(dataObject.activeGraphConfigId);
+                result.activeGraphConfigId(dataObject.activeGraphConfigId as GraphConfigId);
             }
         }
 

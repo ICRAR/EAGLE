@@ -112,7 +112,7 @@ ko.bindingHandlers.eagleTooltip = {
             jQueryElement.attr("data-bs-original-title", result);
 
             // get a reference to the tooltip, if it already exists, and update its content, if not create a new tooltip
-            const bootstrapTooltip = Tooltip.getOrCreateInstance(element, {
+            const bootstrapTooltip = Tooltip.getOrCreateInstance(element as Element, {
                 html: true,
                 boundary: document.body,
                 trigger: 'manual',
@@ -162,7 +162,7 @@ ko.bindingHandlers.eagleTooltip = {
         jQueryElement.on('mouseleave', function(){
             stillHovering = false
 
-            const bootstrapTooltip = Tooltip.getOrCreateInstance(element);
+            const bootstrapTooltip = Tooltip.getOrCreateInstance(element as Element);
 
             //we need to give the user a little bit of time to move from the element to to tooltip
             setTimeout(function(){
