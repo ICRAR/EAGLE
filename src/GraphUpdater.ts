@@ -177,20 +177,20 @@ export class GraphUpdater {
         for (const node of graphObject["nodeDataArray"]){
             const newId = Id.generateNodeId();
 
-            keyToId.set(node.key, newId);
+            keyToId.set(node.key as number, newId);
             node.id = newId;
             delete node.key; // remove key attribute
 
             // input app
             if (node.inputApplicationKey !== null){
                 const inputAppId = Id.generateNodeId();
-                keyToId.set(node.inputApplicationKey, inputAppId);
+                keyToId.set(node.inputApplicationKey as number, inputAppId);
                 node.inputApplicationId = inputAppId;
             }
             // output app
             if (node.outputApplicationKey !== null){
                 const outputAppId = Id.generateNodeId();
-                keyToId.set(node.outputApplicationKey, outputAppId);
+                keyToId.set(node.outputApplicationKey as number, outputAppId);
                 node.outputApplicationId = outputAppId;
             }
         }
@@ -198,7 +198,7 @@ export class GraphUpdater {
         // use map to update parentKeys
         for (const node of graphObject["nodeDataArray"]){
             if (typeof node.group !== "undefined"){
-                node.parentId = keyToId.get(node.group);
+                node.parentId = keyToId.get(node.group as number);
             } else {
                 node.parentId = null;
             }
@@ -208,7 +208,7 @@ export class GraphUpdater {
         // use map to update subject
         for (const node of graphObject["nodeDataArray"]){
             if (typeof node.subject !== "undefined" && node.subject !== null){
-                node.subject = keyToId.get(node.subject);
+                node.subject = keyToId.get(node.subject as number);
             } else {
                 node.subjectId = null;
             }
@@ -216,15 +216,15 @@ export class GraphUpdater {
 
         // use map to update edges
         for (const edge of graphObject["linkDataArray"]){
-            if (!keyToId.has(edge.from)){
+            if (!keyToId.has(edge.from as number)){
                 console.warn("GraphUpdater.updateKeysToIds() : Can't find Id for from key", edge.from, edge);
             }
-            if (!keyToId.has(edge.to)){
+            if (!keyToId.has(edge.to as number)){
                 console.warn("GraphUpdater.updateKeysToIds() : Can't find Id for to key", edge.to, edge);
             }
 
-            edge.from = keyToId.get(edge.from);
-            edge.to = keyToId.get(edge.to);
+            edge.from = keyToId.get(edge.from as number);
+            edge.to = keyToId.get(edge.to as number);
         }
     }
     

@@ -10,7 +10,7 @@ import { TutorialSystem } from './Tutorial';
 import { UiModeSystem } from './UiModes';
 import { Utils, type ValidationResult } from './Utils';
 
-declare const CodeMirror: any;
+declare const CodeMirror: (element: Element, config: unknown) => CodeMirrorTypes.Editor;
 
 export type UserStringCallback = (completed: boolean, userString: string) => void;
 export type UserStringValidator = (userString: string) => ValidationResult;
@@ -580,7 +580,7 @@ export class Modals {
             return;
         }
 
-        const value: any = $(eventTarget).val();
+        const value = $(eventTarget).val() as string;
         const realType: string = Utils.translateStringToDataType(Utils.dataTypePrefix(type));
 
         // only validate Json fields

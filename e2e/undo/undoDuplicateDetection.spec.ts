@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { TestHelpers } from '../TestHelpers';
+import type { Eagle } from '../../src/Eagle';
 
 test('Undo duplicate snapshot detection', async ({ page }) => {
     let frontAfterAdd: number;
@@ -13,15 +14,21 @@ test('Undo duplicate snapshot detection', async ({ page }) => {
         await page.waitForTimeout(500);
         await page.getByRole('button', { name: 'OK' }).click();
         await page.waitForTimeout(500);
-        frontAfterAdd = await page.evaluate<number>(() => (window as any).eagle.undo().front() as number);
+        frontAfterAdd = await page.evaluate<number>(() => {
+            const eagle = (window as any).eagle as Eagle;
+            return eagle.undo().front();
+        });
     });
 
     await test.step('Reject a duplicate snapshot', async () => {
         await page.evaluate(() => {
-            const eagle = (window as any).eagle as { undo: () => { pushSnapshot: (e: unknown, name: string) => void } };
+            const eagle = (window as any).eagle as Eagle;
             eagle.undo().pushSnapshot(eagle, 'duplicate push attempt');
         });
-        const frontAfterDuplicatePush = await page.evaluate<number>(() => (window as any).eagle.undo().front() as number);
+        const frontAfterDuplicatePush = await page.evaluate<number>(() => {
+            const eagle = (window as any).eagle as Eagle;
+            return eagle.undo().front();
+        });
         expect(frontAfterDuplicatePush).toBe(frontAfterAdd);
     });
 
@@ -29,7 +36,10 @@ test('Undo duplicate snapshot detection', async ({ page }) => {
         await page.locator('#palette_0_File').scrollIntoViewIfNeeded();
         await page.locator('#addPaletteNodeFile').click();
         await page.waitForTimeout(500);
-        const frontAfterFileAdd = await page.evaluate<number>(() => (window as any).eagle.undo().front() as number);
+        const frontAfterFileAdd = await page.evaluate<number>(() => {
+            const eagle = (window as any).eagle as Eagle;
+            return eagle.undo().front();
+        });
         expect(frontAfterFileAdd).not.toBe(frontAfterAdd);
     });
 

@@ -292,7 +292,7 @@ export class GraphRenderer {
     static nodeDragElement : any = null
     static dragStartPosition: position2d = null;
     static dragCurrentPosition : position2d = null;
-    static dragSelectionHandled : any = ko.observable(true)
+    static dragSelectionHandled : ko.Observable<boolean> = ko.observable(true)
     static dragSelectionDoubleClick :boolean = false;
 
     static findParent : boolean = false;
@@ -1865,7 +1865,7 @@ export class GraphRenderer {
 
     // TODO: can we use the FieldUsage type here for the 'usage' parameter?
     static portDragStart(usage: "input" | "output" | "textVisual", visual?:Visual, port?:Field) : void {
-        const e:any = event; //somehow the event here will always log in the console as a mouseevent. this allows the following line to access the button attribute.
+        const e: MouseEvent = event as MouseEvent; //somehow the event here will always log in the console as a mouseevent. this allows the following line to access the button attribute.
         //further down we are calling stopPropagation on the same event object and it works, even though stopPropagation shouldn't exist on a mouseEvent. this is why i created a constant of type any. its working as it should but i don't know how.
         if(e.button === 1){
             //we return if the button pressed is a middle mouse button, and allow the other drag events to handle this event. middle mouse is used for panning the canvas.

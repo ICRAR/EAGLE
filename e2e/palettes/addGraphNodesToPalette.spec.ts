@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { TestHelpers } from '../TestHelpers';
+import type { Eagle } from '../../src/Eagle';
 
 test('Add graph nodes to a new custom palette', async ({ page }) => {
 
@@ -22,7 +23,7 @@ test('Add graph nodes to a new custom palette', async ({ page }) => {
     await test.step('Verify the custom palette', async () => {
         await expect(page.locator('#userMessageModal')).not.toBeVisible();
         const newPaletteNodeCount = await page.evaluate(() => {
-            const eagle = (window as any).eagle as { palettes: () => { fileInfo: () => { name: string }; getNumNodes: () => number }[] };
+            const eagle = (window as any).eagle as Eagle;
             for (const palette of eagle.palettes()) {
                 if (palette.fileInfo().name === 'myTestPalette.palette') {
                     return palette.getNumNodes() as number;

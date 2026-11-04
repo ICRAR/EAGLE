@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { TestHelpers } from '../TestHelpers';
+import type { Eagle, EagleFileType } from '../../src/Eagle';
+import type { LogicalGraph } from '../../src/LogicalGraph';
 
 // Regression test for: fix all issues, do other actions, undo — previously fixed
 // errors/warnings must NOT reappear.
@@ -45,16 +47,16 @@ test('Undo after fixAll does not reintroduce fixed errors', async ({ page }) => 
     await test.step('Delete two nodes', async () => {
         nodeCount = await TestHelpers.getNodeCount(page);
         expect(nodeCount).toBeGreaterThan(1);
-        const nodeIds: string[] = await page.evaluate(() => {
-            const eagle = (window as any).eagle as { logicalGraph: () => { nodes: () => Map<string, unknown> } };
-            return Array.from(eagle.logicalGraph().nodes().keys()) as string[];
+        const nodeIds = await page.evaluate<string[]>(() => {
+            const eagle = (window as any).eagle as Eagle;
+            return Array.from(eagle.logicalGraph().getNodes(), (node) => String(node.getId()));
         });
         for (const nodeId of nodeIds.slice(0, 2)) {
             await page.evaluate(async (id: string) => {
-                const eagle = (window as any).eagle as { logicalGraph: () => { getNodeById: (id: string) => { toString: () => string } | null }; setSelection: (n: unknown, t: unknown) => void; deleteSelection: (a: boolean, b: boolean, c: boolean) => Promise<void> };
-                const node = eagle.logicalGraph().getNodeById(id);
+                const eagle = (window as any).eagle as Eagle;
+                const node = eagle.logicalGraph().getNodeById(id as Parameters<LogicalGraph['getNodeById']>[0]);
                 if (node != null) {
-                    eagle.setSelection(node, (window as any).EagleFileType.Graph);
+                    eagle.setSelection(node, (window as any).EagleFileType.Graph as EagleFileType);
                     await eagle.deleteSelection(false, true, false);
                 }
             }, nodeId);

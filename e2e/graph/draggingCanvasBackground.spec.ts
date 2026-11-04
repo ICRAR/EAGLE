@@ -1,10 +1,12 @@
 import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { TestHelpers } from '../TestHelpers';
+import type { Eagle } from '../../src/Eagle';
 
 async function firstNodePosition(page: Page): Promise<{ x: number; y: number }> {
   return page.evaluate(() => {
-    const nodes = (window as any).eagle.logicalGraph().nodes().values() as Iterable<{ getPosition(): { x: number; y: number } }>;
+    const eagle = (window as any).eagle as Eagle;
+    const nodes = eagle.logicalGraph().getNodes();
     const [node] = nodes;
     return node.getPosition();
   });
@@ -37,10 +39,13 @@ test('Dragging the Canvas Background', async ({ page }) => {
       throw new Error('graph canvas is not visible');
     }
 
-    const offsetBefore = await page.evaluate(() => ({
-      x: (window as any).eagle.globalOffsetX() as number,
-      y: (window as any).eagle.globalOffsetY() as number,
-    }));
+    const offsetBefore = await page.evaluate(() => {
+      const eagle = (window as any).eagle as Eagle;
+      return {
+        x: eagle.globalOffsetX(),
+        y: eagle.globalOffsetY(),
+      };
+    });
     const transformBefore = await page.locator('#logicalGraph').getAttribute('style');
 
     const nodePositionBefore = await firstNodePosition(page);
@@ -55,10 +60,13 @@ test('Dragging the Canvas Background', async ({ page }) => {
     await page.mouse.up();
     await page.waitForTimeout(500);
 
-    const offsetAfter = await page.evaluate(() => ({
-      x: (window as any).eagle.globalOffsetX() as number,
-      y: (window as any).eagle.globalOffsetY() as number,
-    }));
+    const offsetAfter = await page.evaluate(() => {
+      const eagle = (window as any).eagle as Eagle;
+      return {
+        x: eagle.globalOffsetX(),
+        y: eagle.globalOffsetY(),
+      };
+    });
 
     // the canvas moved in the drag direction
     expect(offsetAfter.x - offsetBefore.x).toBeGreaterThan(0);
@@ -78,7 +86,10 @@ test('Dragging the Canvas Background', async ({ page }) => {
     // select the node by clicking its body, as a user would
     await page.locator('.node .body').first().click();
     await page.waitForTimeout(300);
-    const selectedBefore = await page.evaluate(() => (window as any).eagle.selectedObjects().length as number);
+    const selectedBefore = await page.evaluate(() => {
+      const eagle = (window as any).eagle as Eagle;
+      return eagle.selectedObjects().length as number;
+    });
     expect(selectedBefore).toBe(1);
 
     const box = await page.locator('#logicalGraphParent').boundingBox();
@@ -88,7 +99,10 @@ test('Dragging the Canvas Background', async ({ page }) => {
     await page.mouse.click(box.x + box.width * 0.7, box.y + box.height * 0.75);
     await page.waitForTimeout(300);
 
-    const selectedAfter = await page.evaluate(() => (window as any).eagle.selectedObjects().length as number);
+    const selectedAfter = await page.evaluate(() => {
+      const eagle = (window as any).eagle as Eagle;
+      return eagle.selectedObjects().length as number;
+    });
     expect(selectedAfter).toBe(0);
     expect(consoleErrors).toHaveLength(0);
   });

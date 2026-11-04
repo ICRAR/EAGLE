@@ -99,7 +99,7 @@ export class DockerHubBrowser {
         this.isValid(false);
 
         // request eagle server to fetch a list of docker hub images
-        let data: any;
+        let data: { results: { namespace: string; name: string }[] } = { results: [] };
         try {
             data = await Utils.httpPostJSON("/getDockerImages", {username:this.username()});
         } catch (error) {
@@ -115,7 +115,7 @@ export class DockerHubBrowser {
         // build list of image strings
         this.images([]);
         for (let i = 0; i < data.results.length ; i++){
-            const result = data.results[i] as {namespace: string, name: string};
+            const result = data.results[i];
             const imageName = result.namespace + "/" + result.name;
             this.images.push(imageName);
 
@@ -153,7 +153,7 @@ export class DockerHubBrowser {
         this.isValid(false);
 
         // request eagle server to fetch a list of tags for the given docker image
-        let data: any;
+        let data: { results: { name: string; images: { digest: string }[] }[] } = { results: [] };
         try {
             data = await Utils.httpPostJSON("/getDockerImageTags", {imagename:this.selectedImage()});
         } catch (error) {
@@ -170,7 +170,7 @@ export class DockerHubBrowser {
         this.tags([]);
         this.digests([]);
         for (let i = 0 ; i < data.results.length ; i++){
-            const result = data.results[i] as {name: string, images: {digest: string}[]};
+            const result = data.results[i];
             this.tags.push(result.name);
             this.digests.push(result.images[0].digest);
 

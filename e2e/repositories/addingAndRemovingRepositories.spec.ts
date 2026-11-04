@@ -45,7 +45,8 @@ async function addCustomRepository(page: Page, name: string, branch: string): Pr
 async function finalizeInputModalAffirmative(page: Page): Promise<void> {
   if (await page.locator('#inputModal').isVisible()) {
     await page.evaluate(() => {
-      const modal = (window as any).$('#inputModal') as { data: (k: string, v: unknown) => void; modal: (m: string) => void };
+      const $ = (window as any).$ as (sel: string) => { data: (k: string, v: unknown) => void; modal: (m: string) => void };
+      const modal = $('#inputModal');
       modal.data('completed', true);
       modal.modal('hide');
     });
@@ -71,7 +72,8 @@ async function finalizeInputModalAffirmative(page: Page): Promise<void> {
 async function finalizeConfirmModalAffirmative(page: Page): Promise<void> {
   if (await page.locator('#confirmModal').isVisible()) {
     await page.evaluate(() => {
-      const modal = (window as any).$('#confirmModal') as { data: (k: string, v: unknown) => void; modal: (m: string) => void };
+      const $ = (window as any).$ as (sel: string) => { data: (k: string, v: unknown) => void; modal: (m: string) => void };
+      const modal = $('#confirmModal');
       modal.data('completed', true);
       modal.data('confirmed', true);
       modal.modal('hide');
