@@ -1230,8 +1230,8 @@ export class Eagle {
 
         const errorsWarnings: ErrorsWarnings = {errors: [], warnings: []};
         let loaded = false;
-        let graphBeforeLoad: LogicalGraph | undefined;
-        let graphAtSnapshot: LogicalGraph | undefined;
+        const graphAtSnapshot = this.logicalGraph();
+        const graphBeforeLoad = graphAtSnapshot.createRollbackSnapshot();
 
         // use the correct parsing function based on schema version
         try {
@@ -1245,9 +1245,6 @@ export class Eagle {
                 Utils.showUserMessage("Error", "This is not a graph file!");
                 return false;
             }
-
-            graphAtSnapshot = this.logicalGraph();
-            graphBeforeLoad = graphAtSnapshot.clone();
 
             // attempt to determine schema version from FileInfo; use V4 validation
             // for graph-shaped documents whose malformed modelData hides the version.
@@ -1284,8 +1281,14 @@ export class Eagle {
             // a parse/load failure mid-way must not leave the graph half-loaded
             // (the parse builds the full graph object before any mutation, so abort here)
             console.error("Error loading graph file:", error);
-            if (graphBeforeLoad && this.logicalGraph() === graphAtSnapshot) {
-                this.logicalGraph(graphBeforeLoad);
+            // only restore when the active graph is still the one snapshotted; if it was
+            // replaced while we awaited, the snapshot is stale and the new graph is left as-is
+            if (this.logicalGraph() === graphAtSnapshot) {
+                this.logicalGraph().restoreRollbackSnapshot(graphBeforeLoad);
+                // re-derive diagnostics (per-object issue lists and the aggregate
+                // graphErrors/graphWarnings) for the restored graph, since validation during
+                // the failed load mutated them in place
+                this.checkEagle();
             }
             errorsWarnings.errors.push(Errors.Message("Failed to load graph file: " + Errors.UnknownToError(error)));
             loaded = false;
@@ -1405,10 +1408,24 @@ export class Eagle {
     // NOTE: parentNode would be null if we are duplicating a selection of objects
     insertGraph = async (nodes: Node[], edges: Edge[], parentNode: Node | null, errorsWarnings: ErrorsWarnings) => {
         const graphAtInsert = this.logicalGraph();
-        const graphBeforeInsert = graphAtInsert.clone();
+        const graphBeforeInsert = graphAtInsert.createRollbackSnapshot();
         const undoCurrentAtInsert = this.undo().current();
         const undoFrontAtInsert = this.undo().front();
         try {
+        // ensure graph initialization up front (this is the only await in this method
+        // before and during the mutation span); everything from here on runs synchronously,
+        // so no other operation can interleave with the insert.
+        try {
+            await Utils.ensureGraphIsInitialized(graphAtInsert);
+        } catch (error){
+            console.warn(error);
+        }
+        if (this.logicalGraph() !== graphAtInsert){
+            // the graph was replaced while we awaited; the snapshot belongs to the old
+            // graph, so the catch block must not restore it into the new one
+            throw new Error("Graph was replaced while awaiting initialization; aborting insert");
+        }
+
         // create map of inserted graph keys to final graph nodes, and of inserted port ids to final graph ports
         const nodeMap: Map<NodeId, Node> = new Map<NodeId, Node>();
         const portMap: Map<FieldId, Field> = new Map<FieldId, Field>();
@@ -1416,7 +1433,7 @@ export class Eagle {
 
         // add the parent node to the logical graph
         if (parentNode !== null){
-            this.logicalGraph().addNodeComplete(parentNode);
+            graphAtInsert.addNodeComplete(parentNode);
 
             // we need to know the required width for the new parentNode, which will be a bounding box for all nodes in nodes[]
             const bbSize = LogicalGraph.normaliseNodes(nodes);
@@ -1432,7 +1449,7 @@ export class Eagle {
 
         // insert nodes from lg into the existing logicalGraph
         for (const node of nodes){
-            const insertedNode: Node = await this.addNode(node, parentNodePosition.x + node.getPosition().x, parentNodePosition.y + node.getPosition().y); // NOTE: addNode does not add embedded apps
+            const insertedNode: Node = this.addNodeToGraph(graphAtInsert, node, parentNodePosition.x + node.getPosition().x, parentNodePosition.y + node.getPosition().y); // NOTE: addNode does not add embedded apps
 
             // save mapping for node itself
             nodeMap.set(node.getId(), insertedNode);
@@ -1495,11 +1512,6 @@ export class Eagle {
                 for (let j = 0 ; j < oldInputApplication.getOutputPorts().length; j++){
                     portMap.set(oldInputApplication.getOutputPorts()[j].getId(), newInputApplication.getOutputPorts()[j]);
                 }
-
-                // clear edge lists within fields of the old input application
-                for (const field of oldInputApplication.getFields()){
-                    field.clearEdges();
-                }
             }
 
 
@@ -1525,11 +1537,6 @@ export class Eagle {
                 // save mapping for output ports
                 for (let j = 0 ; j < oldOutputApplication.getOutputPorts().length; j++){
                     portMap.set(oldOutputApplication.getOutputPorts()[j].getId(), newOutputApplication.getOutputPorts()[j]);
-                }
-
-                // clear edge lists within fields of the old output application
-                for (const field of oldOutputApplication.getFields()){
-                    field.clearEdges();
                 }
             }
         }
@@ -1581,7 +1588,7 @@ export class Eagle {
 
             // add new edge
             const newEdge : Edge = new Edge('', srcNode, srcPort, destNode, destPort, loopAware, closesLoop, false);
-            this.logicalGraph().addEdgeComplete(newEdge);
+            graphAtInsert.addEdgeComplete(newEdge);
         }
 
         //used if we cant find space on the canvas, we then extend the search area for space and center the graph after adding to bring new nodes into view
@@ -1592,7 +1599,11 @@ export class Eagle {
         }
         } catch (error){
             if (this.logicalGraph() === graphAtInsert) {
-                this.logicalGraph(graphBeforeInsert);
+                this.logicalGraph().restoreRollbackSnapshot(graphBeforeInsert);
+                // re-derive diagnostics (per-object issue lists and the aggregate
+                // graphErrors/graphWarnings) for the restored graph, since validation during
+                // the failed insert mutated them in place
+                this.checkEagle();
             }
             // roll back undo history to prevent failed partial insertion from being restorable
             this.undo().current(undoCurrentAtInsert);
@@ -5649,10 +5660,6 @@ export class Eagle {
     // NOTE: clones the node internally
     // NOTE: does not add the node's input or output applications to the logical graph
     addNode = async (node : Node, x: number, y: number): Promise<Node> => {
-        // copy node
-        // TODO: could replace with node.copy() ?
-        const newNode: Node = Utils.duplicateNode(node);
-
         // check if node will be added to an empty graph, if so prompt user to specify graph name
         try {
             await Utils.ensureGraphIsInitialized(this.logicalGraph());
@@ -5660,12 +5667,23 @@ export class Eagle {
             console.warn(error);
         }
 
+        return this.addNodeToGraph(this.logicalGraph(), node, x, y);
+    }
+
+    // Synchronous core of addNode. insertGraph runs its node/edge loops through this
+    // method (without awaiting) so that no other operation can interleave with the
+    // partially built graph state mid-insert.
+    private addNodeToGraph = (graph: LogicalGraph, node : Node, x: number, y: number): Node => {
+        // copy node
+        // TODO: could replace with node.copy() ?
+        const newNode: Node = Utils.duplicateNode(node);
+
         newNode.setPosition(x, y);
-        this.logicalGraph().addNodeComplete(newNode);
+        graph.addNodeComplete(newNode);
 
         // flag that the logical graph has been modified
-        this.logicalGraph().fileInfo().modified = true;
-        this.logicalGraph().fileInfo.valueHasMutated();
+        graph.fileInfo().modified = true;
+        graph.fileInfo.valueHasMutated();
 
         return newNode;
     }

@@ -266,6 +266,7 @@ export class Visual {
     static isValid = (visual:Visual) : Validity => {
 
         const eagle: Eagle = Eagle.getInstance();
+        visual.issues([]);
 
         //if visual is text but has no content
         if(visual.isText() && visual.content() === ''){
