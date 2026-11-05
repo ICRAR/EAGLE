@@ -10,7 +10,18 @@ test('Load/Save JSON Match', async ({ page }) => {
 
   await test.step('Load and save the graph', async () => {
     await page.goto('http://localhost:8888/?tutorial=none');
-    await TestHelpers.loadGraphFromString(page, graphJSON);
+    const loaded = await page.evaluate(async (json: string) => {
+      type TestGraph = object;
+      type TestEagle = {
+        _loadGraphJSON: (data: string, fileName: string, loadCallback: (graph: TestGraph) => void) => Promise<boolean>;
+        logicalGraph: (graph: TestGraph) => void;
+      };
+      const eagle = (window as unknown as {eagle: TestEagle}).eagle;
+      return eagle._loadGraphJSON(json, 'round-trip.graph', (graph) => {
+        eagle.logicalGraph(graph);
+      });
+    }, graphJSON);
+    expect(loaded).toBe(true);
     outputJSON = await TestHelpers.saveGraphToString(page);
   });
 
