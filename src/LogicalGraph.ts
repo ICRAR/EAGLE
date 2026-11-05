@@ -815,9 +815,14 @@ export class LogicalGraph {
     }
 
     /**
-     * Capture the current graph collections for transactional rollback. Unlike clone(),
-     * this keeps the original graph objects so their parent/embed/config references stay
-     * wired to the graph they belong to.
+     * Capture the current graph collections for transactional rollback.
+     *
+     * Each node, edge, visual and graph configuration is deep-cloned, and their
+     * cross-references (parent/embed/input-output applications, edge endpoints,
+     * visual targets) are re-pointed at the clones, so the snapshot is self-contained.
+     * This is required because a failing load/insert can mutate objects already in the
+     * graph in place (e.g. normalising a live node); reinstating the original objects
+     * would let that partial mutation survive the rollback.
      */
     createRollbackSnapshot = (): LogicalGraph => {
         const snapshot = new LogicalGraph();
@@ -829,17 +834,90 @@ export class LogicalGraph {
         snapshotFileInfo.graphLocation = snapshotFileInfo.graphLocation.clone();
         snapshot.fileInfo(snapshotFileInfo);
 
+        // clone the nodes, keeping original -> clone lookups for the reference remapping below
+        const nodeCloneByObject = new Map<Node, Node>();
+        const portCloneById = new Map<FieldId, Field>();
         for (const [id, node] of this.nodes()){
-            snapshot.nodes().set(id, node);
+            const clone = node.clone();
+            nodeCloneByObject.set(node, clone);
+            snapshot.nodes().set(id, clone);
+            for (const port of clone.getFields()){
+                portCloneById.set(port.getId(), port);
+            }
         }
+
+        // re-point node cross-references at the clones so the snapshot is self-contained
+        const clonedNode = (node: Node | null): Node | undefined =>
+            (node === null ? undefined : nodeCloneByObject.get(node));
+        for (const [original, clone] of nodeCloneByObject){
+            const parent = clonedNode(original.getParent());
+            if (typeof parent !== 'undefined'){
+                clone.setParent(parent);
+            }
+            const embed = clonedNode(original.getEmbed());
+            if (typeof embed !== 'undefined'){
+                clone.setEmbed(embed);
+            }
+            const inputApplication = clonedNode(original.getInputApplication());
+            if (typeof inputApplication !== 'undefined'){
+                clone.setInputApplication(inputApplication);
+            }
+            const outputApplication = clonedNode(original.getOutputApplication());
+            if (typeof outputApplication !== 'undefined'){
+                clone.setOutputApplication(outputApplication);
+            }
+        }
+
+        // clone the edges, re-pointing endpoints at the cloned nodes and ports
+        const edgeCloneById = new Map<EdgeId, Edge>();
         for (const [id, edge] of this.edges()){
-            snapshot.edges().set(id, edge);
+            const srcNode = nodeCloneByObject.get(edge.getSrcNode());
+            const destNode = nodeCloneByObject.get(edge.getDestNode());
+            const srcPort = portCloneById.get(edge.getSrcPort().getId());
+            const destPort = portCloneById.get(edge.getDestPort().getId());
+            if (typeof srcNode === 'undefined' || typeof destNode === 'undefined'
+                || typeof srcPort === 'undefined' || typeof destPort === 'undefined'){
+                // an endpoint lives outside the nodes collection (should not happen for a
+                // consistent graph); keep the original clone so references stay wired
+                const clone = edge.clone();
+                edgeCloneById.set(id, clone);
+                snapshot.edges().set(id, clone);
+                continue;
+            }
+            const clone = new Edge(edge.getComment(), srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop(), false);
+            clone.setId(id);
+            edgeCloneById.set(id, clone);
+            snapshot.edges().set(id, clone);
         }
+
+        // clone the visuals, re-pointing targets at the cloned nodes, edges or visuals
+        const visualCloneById = new Map<VisualId, Visual>();
         for (const [id, visual] of this.visuals()){
-            snapshot.visuals().set(id, visual);
+            const clone = visual.clone();
+            // re-point node/edge targets at their clones; visual targets keep the
+            // clone's own reference, since the target visual's clone may not exist yet
+            const target = visual.getTarget();
+            const remappedTarget =
+                (target instanceof Node) ? nodeCloneByObject.get(target) :
+                (target instanceof Edge) ? edgeCloneById.get(target.getId()) :
+                undefined;
+            if (typeof remappedTarget !== 'undefined'){
+                clone.setTarget(remappedTarget);
+            }
+            visualCloneById.set(id, clone);
+            snapshot.visuals().set(id, clone);
         }
+
+        // clone the graph configs, re-pointing their node references at the cloned nodes
         for (const [id, graphConfig] of this.graphConfigs()){
-            snapshot.graphConfigs().set(id, graphConfig);
+            const clone = graphConfig.clone();
+            for (const configNode of clone.getNodes()){
+                const remappedNode = nodeCloneByObject.get(configNode.getNode());
+                if (typeof remappedNode !== 'undefined'){
+                    configNode.setNode(remappedNode);
+                }
+            }
+            snapshot.graphConfigs().set(id, clone);
         }
         snapshot.activeGraphConfigId(this.activeGraphConfigId());
 
