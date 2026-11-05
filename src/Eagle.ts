@@ -1176,6 +1176,14 @@ export class Eagle {
             return true;
         }
 
+        // The V4 schema is fetched asynchronously; while it is still empty,
+        // validation would accept any document. Block the load rather than
+        // silently skipping classification and sanitization.
+        if (Object.keys(Utils.v4GraphSchema).length === 0) {
+            errorsWarnings.errors.push(Errors.Message("Schema validation: V4 graph schema not yet loaded; cannot validate."));
+            return false;
+        }
+
         const validatorResult = Utils._validateJSONDetailed(dataObject, SchemaVersion.V4, EagleFileType.Graph);
         if (validatorResult.valid) {
             return true;
@@ -1185,8 +1193,28 @@ export class Eagle {
         // attributes are warned about and removed so parser defaults/skip behavior apply.
         // See SchemaLoadClassifier for the classification rules (ajv path semantics).
         const canLoad = appendV4ValidationIssues(validatorResult.errors, errorsWarnings, Errors.Message);
-        sanitizeRecoverableV4Errors(dataObject, validatorResult.errors);
+        if (canLoad) {
+            sanitizeRecoverableV4Errors(dataObject, validatorResult.errors);
+        }
         return canLoad;
+    }
+
+    // A V4 graph with missing or malformed modelData is still recognizable
+    // from its nodes container or malformed modelData, allowing schema
+    // validation to report structural errors instead of rejecting it as unknown.
+    private _isV4GraphCandidate(data: unknown): boolean {
+        if (typeof data !== 'object' || data === null) {
+            return false;
+        }
+        const obj = data as Record<string, unknown>;
+        if ('nodes' in obj) {
+            return true;
+        }
+        if ('modelData' in obj) {
+            const md = obj.modelData;
+            return md === null || typeof md !== 'object' || Array.isArray(md);
+        }
+        return false;
     }
 
     private _loadGraphJSON = async (data: string, fileFullPath: string, loadFunc: (lg: LogicalGraph, errorsWarnings: ErrorsWarnings) => void | Promise<void>) : Promise<boolean> => {
@@ -1208,11 +1236,7 @@ export class Eagle {
         // use the correct parsing function based on schema version
         try {
             const fileType: EagleFileType = Utils.determineFileType(dataObject);
-            const isV4GraphCandidate = typeof dataObject === 'object' && dataObject !== null && (
-                'nodes' in dataObject || ('modelData' in dataObject && (
-                    dataObject.modelData === null || typeof dataObject.modelData !== 'object' || Array.isArray(dataObject.modelData)
-                ))
-            );
+            const isV4GraphCandidate = this._isV4GraphCandidate(dataObject);
 
             // A V4 graph with missing or malformed modelData is still recognizable
             // from its nodes container or malformed modelData, allowing schema
@@ -1383,6 +1407,8 @@ export class Eagle {
     insertGraph = async (nodes: Node[], edges: Edge[], parentNode: Node | null, errorsWarnings: ErrorsWarnings) => {
         const graphAtInsert = this.logicalGraph();
         const graphBeforeInsert = graphAtInsert.createRollbackSnapshot();
+        const undoCurrentAtInsert = this.undo().current();
+        const undoFrontAtInsert = this.undo().front();
         try {
         // create map of inserted graph keys to final graph nodes, and of inserted port ids to final graph ports
         const nodeMap: Map<NodeId, Node> = new Map<NodeId, Node>();
@@ -1563,6 +1589,9 @@ export class Eagle {
                 // the failed insert mutated them in place
                 this.checkEagle();
             }
+            // roll back undo history to prevent failed partial insertion from being restorable
+            this.undo().current(undoCurrentAtInsert);
+            this.undo().front(undoFrontAtInsert);
             throw error;
         }
     }

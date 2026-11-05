@@ -957,7 +957,7 @@ export class Field {
         let encoding: Encoding = Encoding.Pickle;
         let fieldChangeable: boolean = changeable;
 
-        if (typeof data.id !== 'undefined') { id = data.id as FieldId; } else if (typeof fallbackId !== 'undefined') { id = fallbackId; }
+        if (data.id != null) { id = data.id as FieldId; } else if (typeof fallbackId !== 'undefined') { id = fallbackId; }
         if (typeof data.name !== 'undefined') { name = data.name; }
         if (typeof data.value !== 'undefined') {
             if (data.value !== null){
