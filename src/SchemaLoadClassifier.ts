@@ -40,6 +40,11 @@ export type SchemaValidationError = {
 // makes a V4 graph un-loadable.
 export const STRUCTURAL_KEYS: string[] = ["modelData", "nodes"];
 
+// JSON pointer prefixes for the graph object maps. Violations AT these paths
+// (wrong container type, malformed map keys) or DEEPER (within a map entry)
+// are recoverable: the value/property is removed and parsing continues.
+const RECOVERABLE_MAP_PREFIXES: string[] = ["/nodes/", "/edges/", "/visuals/", "/graphConfigurations/"];
+
 // ajv reports an (empty-leading-slash) JSON pointer as the dataPath, e.g. "/modelData",
 // "/nodes", or "" for the root.
 //
@@ -47,7 +52,9 @@ export const STRUCTURAL_KEYS: string[] = ["modelData", "nodes"];
 //  - Missing/wrong-type structural top-level keys ("modelData", "nodes"). Missing
 //    keys are reported at the ROOT with params.missingProperty; wrong types are
 //    reported at their own paths.
-//  - Unsupported keys (the schema's additionalProperties violations).
+//  - Unsupported keys (the schema's additionalProperties violations), except extra
+//    attributes inside a graph object map entry, which are attribute-level
+//    violations (warnings) like any other malformed value in that map.
 //  - Invalid modelData attributes, which define graph identity and metadata.
 //
 // Missing optional top-level keys/attributes and malformed values within graph
@@ -60,17 +67,21 @@ export function isStructuralV4Error(error: SchemaValidationError): boolean {
     const path = error.dataPath;
     const missing = error.missingProperty ?? (error.params?.missingProperty as string | undefined);
 
-    // Unexpected keys are structural even at the root, where Ajv reports an empty
-    // dataPath and no missingProperty. Keep the keyword/params so this does not rely
-    // on interpreting Ajv's human-readable message.
+    // Unexpected keys are structural at the root (Ajv reports an empty dataPath
+    // and no missingProperty), on "modelData", and on map keys that do not match
+    // the expected shape (e.g. a node id that is not a UUID). Keep the keyword so
+    // this does not rely on interpreting Ajv's human-readable message. Extra
+    // attributes inside a map entry (a node/edge/visual/graphConfig, or a nested
+    // field) are recoverable attribute-level violations: the property is stripped
+    // and loading continues with a warning.
     if (error.keyword === "additionalProperties"){
-        return true;
+        return !RECOVERABLE_MAP_PREFIXES.some((prefix) => path.startsWith(prefix));
     }
 
     // These optional top-level containers/selector have parser fallbacks: malformed
     // containers become empty maps and an invalid active id becomes null.
     if (["/edges", "/visuals", "/graphConfigurations", "/activeGraphConfigId"].includes(path)
-        || ["/nodes/", "/edges/", "/visuals/", "/graphConfigurations/"].some((prefix) => path.startsWith(prefix))){
+        || RECOVERABLE_MAP_PREFIXES.some((prefix) => path.startsWith(prefix))){
         return false;
     }
     if (path !== "" || typeof missing === "undefined"){
@@ -85,13 +96,21 @@ export function isStructuralV4Error(error: SchemaValidationError): boolean {
 // Strip malformed values reported at recoverable paths so parser defaults and
 // skip behavior remain safe. Array entries are replaced with null; supported V4
 // array fields accept null or otherwise normalize it to their empty/default value.
+// AdditionalProperties errors on a map entry report the entry's path, so only the
+// extra attribute named by params.additionalProperty is removed, never the entry.
 export function sanitizeRecoverableV4Errors(dataObject: Record<string, unknown>, errors: SchemaValidationError[]): void {
     for (const error of errors){
         if (isStructuralV4Error(error) || error.keyword === "required" || error.dataPath === ""){
             continue;
         }
 
-        const segments = error.dataPath.split("/").slice(1).map((segment) => segment.replace(/~1/g, "/").replace(/~0/g, "~"));
+        let pathToStrip = error.dataPath;
+        if (error.keyword === "additionalProperties"
+            && typeof error.params?.additionalProperty === "string"){
+            pathToStrip += "/" + (error.params.additionalProperty as string).replace(/~/g, "~0").replace(/\//g, "~1");
+        }
+
+        const segments = pathToStrip.split("/").slice(1).map((segment) => segment.replace(/~1/g, "/").replace(/~0/g, "~"));
         if (segments.length === 0){
             continue;
         }

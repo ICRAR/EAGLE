@@ -150,6 +150,30 @@ function run() {
         keyword: "additionalProperties",
         params: { additionalProperty: "unexpected" },
     }));
+    check("modelData additionalProperties is structural", isStructuralV4Error({
+        dataPath: "/modelData",
+        message: "must NOT have additional properties",
+        keyword: "additionalProperties",
+        params: { additionalProperty: "bogus" },
+    }));
+    check("nodes map-key additionalProperties (non-UUID key) is structural", isStructuralV4Error({
+        dataPath: "/nodes",
+        message: "must NOT have additional properties",
+        keyword: "additionalProperties",
+        params: { additionalProperty: "not-a-uuid" },
+    }));
+    check("node attribute additionalProperties is recoverable", !isStructuralV4Error({
+        dataPath: "/nodes/aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee",
+        message: "must NOT have additional properties",
+        keyword: "additionalProperties",
+        params: { additionalProperty: "bogus" },
+    }));
+    check("field attribute additionalProperties is recoverable", !isStructuralV4Error({
+        dataPath: "/nodes/aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee/fields/11111111-2222-4333-8444-555555555555",
+        message: "must NOT have additional properties",
+        keyword: "additionalProperties",
+        params: { additionalProperty: "bogus" },
+    }));
     check("hasStructuralError true when one structural", hasStructuralError([{ dataPath: "" }, { dataPath: "", missingProperty: "nodes" }]));
     check("hasStructuralError false when none", !hasStructuralError([{ dataPath: "", missingProperty: "visuals" }]));
 
@@ -208,6 +232,33 @@ function run() {
         r.validationErrors.some((error) => error.dataPath === ""
             && error.keyword === "additionalProperties"
             && error.params.additionalProperty === "unknownTopLevelKey"), JSON.stringify(r.validationErrors));
+
+    // Unknown keys INSIDE a map entry are attribute-level violations: they warn
+    // and the property is removed before parsing, without blocking the load.
+    const nodeA = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
+    const fieldA = "11111111-2222-4333-8444-555555555555";
+
+    m = clone(sampleGraph);
+    m.nodes[nodeA].bogusNodeAttribute = "extra";
+    r = classify(m);
+    check("unknown node attribute -> warning and recoverable", !r.valid && !r.structural && r.warnings > 0, JSON.stringify(r));
+    check("unknown node attribute is stripped before parsing",
+        r.validationErrors.some((error) => error.keyword === "additionalProperties"
+            && error.dataPath === "/nodes/" + nodeA), JSON.stringify(r.validationErrors));
+    sanitizeRecoverableV4Errors(m, r.validationErrors);
+    check("unknown node attribute is removed for parser", typeof m.nodes[nodeA].bogusNodeAttribute === "undefined", JSON.stringify(m.nodes[nodeA]));
+
+    m = clone(sampleGraph);
+    m.nodes[nodeA].fields[fieldA].bogusFieldAttribute = true;
+    r = classify(m);
+    check("unknown field attribute -> warning and recoverable", !r.valid && !r.structural && r.warnings > 0, JSON.stringify(r));
+    sanitizeRecoverableV4Errors(m, r.validationErrors);
+    check("unknown field attribute is removed for parser", typeof m.nodes[nodeA].fields[fieldA].bogusFieldAttribute === "undefined", JSON.stringify(m.nodes[nodeA].fields[fieldA]));
+
+    m = clone(sampleGraph);
+    m.nodes["not-a-uuid"] = { name: "stray node" };
+    r = classify(m);
+    check("unknown node map key (non-UUID) -> structural (blocks)", !r.valid && r.structural, JSON.stringify(r));
 
     // These checks cover only schema/classifier behavior. The actual parser default
     // and load result for an omitted changeable property are covered by
