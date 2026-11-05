@@ -1259,6 +1259,10 @@ export class Eagle {
             console.error("Error loading graph file:", error);
             if (this.logicalGraph() === graphAtSnapshot) {
                 this.logicalGraph().restoreRollbackSnapshot(graphBeforeLoad);
+                // re-derive diagnostics (per-object issue lists and the aggregate
+                // graphErrors/graphWarnings) for the restored graph, since validation during
+                // the failed load mutated them in place
+                this.checkEagle();
             }
             errorsWarnings.errors.push(Errors.Message("Failed to load graph file: " + Errors.UnknownToError(error)));
             loaded = false;
@@ -1554,6 +1558,10 @@ export class Eagle {
         } catch (error){
             if (this.logicalGraph() === graphAtInsert) {
                 this.logicalGraph().restoreRollbackSnapshot(graphBeforeInsert);
+                // re-derive diagnostics (per-object issue lists and the aggregate
+                // graphErrors/graphWarnings) for the restored graph, since validation during
+                // the failed insert mutated them in place
+                this.checkEagle();
             }
             throw error;
         }
