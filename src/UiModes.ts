@@ -1,6 +1,6 @@
 import { EagleConfig } from './EagleConfig';
 import { ParameterTable } from './ParameterTable';
-import { Setting } from './Setting';
+import { Setting, type validValueTypes } from './Setting';
 import * as ko from "knockout";
 
 type StoredUiMode = {
@@ -53,7 +53,7 @@ export class UiModeSystem {
 
         //setting up the settings array with the selected ui mode
         UiModeSystem.getActiveUiMode().getSettings().forEach(function(setting){
-            Setting.setValue(setting.getKey(),setting.getValue())
+            Setting.setValue(setting.getKey(),setting.getValue() as validValueTypes)
         })
 
         ParameterTable.setActiveColumnVisibility()
@@ -147,7 +147,7 @@ export class UiModeSystem {
                 destUiMode = new UiMode(uiModeObj.name, uiModeObj.description, settings, false)
             }
             uiModeObj.settingValues.forEach(function(settingObj:any){
-                destUiMode.setSettingByKey(settingObj.key,settingObj.value)
+                destUiMode.setSettingByKey(settingObj.key as string,settingObj.value)
             } )
         })
     }

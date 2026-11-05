@@ -373,7 +373,7 @@ export class Utils {
                 reject(Utils.parseAjaxError(xhr, textStatus));
             })
             .done((data) => {
-                resolve(data);
+                resolve(data as string);
             });
         });
     }
@@ -390,7 +390,7 @@ export class Utils {
                 reject(Utils.parseAjaxError(xhr, textStatus));
             })
             .done((data) => {
-                resolve(data);
+                resolve(data as object);
             });
         });
     }
@@ -408,12 +408,16 @@ export class Utils {
                 reject(Utils.parseAjaxError(xhr, textStatus));
             })
             .done((data) => {
-                resolve(data);
+                resolve(data as string);
             });
         });
     }
 
-    static async httpPostJSON(url : string, json : object): Promise<string> {
+    /**
+     * POSTs a JSON body to an endpoint that responds with raw text (e.g. file contents).
+     * The response body is returned verbatim as a string.
+     */
+    static async httpPostText(url : string, json : object): Promise<string> {
         return new Promise((resolve, reject) => {
             $.ajax({
                 url: url,
@@ -425,7 +429,29 @@ export class Utils {
                 reject(Utils.parseAjaxError(xhr, textStatus));
             })
             .done((data) => {
-                resolve(data);
+                resolve(data as string);
+            });
+        });
+    }
+
+    /**
+     * POSTs a JSON body to an endpoint that responds with a JSON object.
+     * The caller declares the response shape via the type parameter, so the parsed
+     * object is returned already typed instead of as `any`/`string`.
+     */
+    static async httpPostJSON<T>(url : string, json : object): Promise<T> {
+        return new Promise<T>((resolve, reject) => {
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: JSON.stringify(json),
+                contentType: 'application/json'
+            })
+            .fail((xhr, textStatus) => {
+                reject(Utils.parseAjaxError(xhr, textStatus));
+            })
+            .done((data) => {
+                resolve(data as T);
             });
         });
     }
@@ -451,7 +477,7 @@ export class Utils {
                 reject(Utils.parseAjaxError(xhr, textStatus));
             })
             .done((data) => {
-                resolve(data);
+                resolve(data as string);
             });
         });
     }
@@ -469,7 +495,7 @@ export class Utils {
                 reject(Utils.parseAjaxError(xhr, textStatus));
             })
             .done((data) => {
-                resolve(data);
+                resolve(data as string);
             });
         });
     }
@@ -2254,10 +2280,10 @@ export class Utils {
         }
 
         // write the header row
-        s += Object.keys(table[0]).join(",") + "\n";
+        s += Object.keys(table[0] as object).join(",") + "\n";
 
         for (const row of table){
-            s += Object.values(row).join(",") + "\n";
+            s += Object.values(row as Record<string, unknown>).join(",") + "\n";
         }
         return s;
     }
@@ -3329,7 +3355,8 @@ export class Utils {
 
             // HACK: we modify the palette schema from the graph schema!
             for (const notRequired of ["isGroup", "color", "drawOrderHint", "x", "y", "subject"]){
-                (<any>Utils.ojsPaletteSchema).properties.nodeDataArray.items.required.splice((<any>Utils.ojsPaletteSchema).properties.nodeDataArray.items.required.indexOf(notRequired), 1);
+                const required = (<any>Utils.ojsPaletteSchema).properties.nodeDataArray.items.required as unknown as string[];
+                required.splice(required.indexOf(notRequired), 1);
             }
         }
 

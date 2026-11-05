@@ -781,7 +781,11 @@ export class KeyboardShortcut {
 
     static detectPlatform(): KeyboardShortcutPlatform {
         // if a browser has no support for navigator.userAgentData.platform use platform as fallback
-        let userAgent = (<any>navigator)?.userAgentData?.platform?.toLowerCase() as string | undefined;
+        let userAgent: string | undefined;
+        const platform = (<any>navigator)?.userAgentData?.platform as unknown as string | undefined;
+        if (typeof platform === "string"){
+            userAgent = platform.toLowerCase();
+        }
         if (typeof userAgent === "undefined"){
             userAgent = navigator.platform.toLowerCase();
         }

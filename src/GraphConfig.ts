@@ -365,7 +365,7 @@ export class GraphConfigNode {
                 continue;
             }
 
-            const newField: GraphConfigField = GraphConfigField.fromV4GraphJson(fieldData, lgField, errorsWarnings);
+            const newField: GraphConfigField = GraphConfigField.fromV4GraphJson(fieldData as V4GraphConfigFieldJson, lgField, errorsWarnings);
             newField.setField(lgField);
             result.fields().set(lgField.getId(), newField);
             result.fields.valueHasMutated();

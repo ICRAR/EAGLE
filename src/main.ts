@@ -70,7 +70,7 @@ $(function(){
     //Check if the user is a first time visitor to the site
     const firstTimeVisit = localStorage.getItem('activeUiMode') === null;
     const lastSeenVersion = localStorage.getItem('lastSeenVersion') ?? "0.0.0";
-    const showWhatsNew = Utils.compareVersions((<any>window).version, lastSeenVersion) > 0;
+    const showWhatsNew = Utils.compareVersions((<any>window).version as string, lastSeenVersion) > 0;
 
     // Global variables.
     eagle = new Eagle();
@@ -196,7 +196,7 @@ $(function(){
     if (!firstTimeVisit && showWhatsNew && !skipTutorial && !tutorialRequested){
         eagle.showWhatsNew();
         // set the last seen version
-        localStorage.setItem('lastSeenVersion', (<any>window).version);
+        localStorage.setItem('lastSeenVersion', (<any>window).version as string);
     }
 
     //increased click bubble for edit modal flag booleans
@@ -205,11 +205,13 @@ $(function(){
     })
 
     $('#editFieldModalValueInputCheckbox').on("change",function(event: JQuery.TriggeredEvent){
-        $(event.target).parent().find("span").text($(event.target).prop('checked'))
+        const target = event.target as HTMLElement;
+        $(target).parent().find("span").text($(target).prop('checked') as boolean)
     })
 
     $('#editFieldModalDefaultValueInputCheckbox').on("change",function(event: JQuery.TriggeredEvent){
-        $(event.target).parent().find("span").text($(event.target).prop('checked'))
+        const target = event.target as HTMLElement;
+        $(target).parent().find("span").text($(target).prop('checked') as boolean)
     })
 
     $('#componentDefaultValueCheckbox').on('click',function(event: JQuery.TriggeredEvent){

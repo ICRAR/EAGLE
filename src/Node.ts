@@ -1448,8 +1448,9 @@ export class Node {
         let x = 0;
         let y = 0;
         if (typeof nodeData.loc !== 'undefined'){
-            x = parseInt(nodeData.loc.substring(0, nodeData.loc.indexOf(' ')), 10);
-            y = parseInt(nodeData.loc.substring(nodeData.loc.indexOf(' ')), 10);
+            const loc = nodeData.loc as string;
+            x = parseInt(loc.substring(0, loc.indexOf(' ')), 10);
+            y = parseInt(loc.substring(loc.indexOf(' ')), 10);
         }
         if (typeof nodeData.x !== 'undefined'){
             x = nodeData.x as number;
@@ -1479,17 +1480,17 @@ export class Node {
 
         // get description (if exists)
         if (typeof nodeData.description !== 'undefined'){
-            node.description(nodeData.description);
+            node.description(nodeData.description as string);
         }
 
         // get comment (if exists)
         if (typeof nodeData.comment !== 'undefined'){
-            node.comment(nodeData.comment);
+            node.comment(nodeData.comment as string);
         }
 
         // drawOrderHint
         if (typeof nodeData.drawOrderHint !== 'undefined'){
-            node.drawOrderHint(nodeData.drawOrderHint);
+            node.drawOrderHint(nodeData.drawOrderHint as number);
         }
 
         // read embedded application data from node
@@ -1570,7 +1571,7 @@ export class Node {
                 errorsWarnings.errors.push(Errors.Message("Attempt to add inputApplication to unsuitable node: " + category));
             } else {
                 // TODO: should this use node.setInputApplication() instead?
-                node.inputApplication(Node.createEmbeddedApplicationNode(nodeData.application, category, "", "", node));
+                node.inputApplication(Node.createEmbeddedApplicationNode(nodeData.application as string, category, "", "", node));
             }
         }
 
@@ -1592,13 +1593,13 @@ export class Node {
 
         // handle obsolete 'precious' attribute, add it as a 'persist' field
         if (typeof nodeData.precious !== 'undefined'){
-            const persistField = Daliuge.persistField.clone().setId(Id.generateFieldId()).setValue(nodeData.precious.toString());
+            const persistField = Daliuge.persistField.clone().setId(Id.generateFieldId()).setValue(String(nodeData.precious));
             node.addField(persistField);
         }
 
         // handle obsolete 'streaming' attribute, add it as a 'streaming' field
         if (typeof nodeData.streaming !== 'undefined'){
-            const streamingField = Daliuge.streamingField.clone().setId(Id.generateFieldId()).setValue(nodeData.streaming.toString());
+            const streamingField = Daliuge.streamingField.clone().setId(Id.generateFieldId()).setValue(String(nodeData.streaming));
             node.addField(streamingField);
         }
 
@@ -1728,16 +1729,16 @@ export class Node {
 
         // add git url and hash
         if (typeof nodeData.repositoryUrl !== 'undefined'){
-            node.repositoryUrl(nodeData.repositoryUrl);
+            node.repositoryUrl(nodeData.repositoryUrl as string);
         }
         if (typeof nodeData.commitHash !== 'undefined'){
-            node.commitHash(nodeData.commitHash);
+            node.commitHash(nodeData.commitHash as string);
         }
         if (typeof nodeData.paletteDownloadUrl != 'undefined'){
-            node.paletteDownloadUrl(nodeData.paletteDownloadUrl);
+            node.paletteDownloadUrl(nodeData.paletteDownloadUrl as string);
         }
         if (typeof nodeData.dataHash !== 'undefined'){
-            node.dataHash(nodeData.dataHash);
+            node.dataHash(nodeData.dataHash as string);
         }
 
         return node;
@@ -1862,29 +1863,32 @@ export class Node {
         }
 
         // add fields
-        result.fields = [];
+        const fields : object[] = [];
         for (const field of node.fields().values()){
-            result.fields.push(Field.toOJSJson(field));
+            fields.push(Field.toOJSJson(field));
         }
+        result.fields = fields;
 
         const inputApplication = node.inputApplication();
         const outputApplication = node.outputApplication();
 
         // add fields from inputApplication
-        result.inputAppFields = [];
+        const inputAppFields : object[] = [];
         if (inputApplication !== null){
             for (const field of inputApplication.fields().values()){
-                result.inputAppFields.push(Field.toOJSJson(field));
+                inputAppFields.push(Field.toOJSJson(field));
             }
         }
+        result.inputAppFields = inputAppFields;
 
         // add fields from outputApplication
-        result.outputAppFields = [];
+        const outputAppFields : object[] = [];
         if (outputApplication !== null){
             for (const field of outputApplication.fields().values()){
-                result.outputAppFields.push(Field.toOJSJson(field));
+                outputAppFields.push(Field.toOJSJson(field));
             }
         }
+        result.outputAppFields = outputAppFields;
 
         // write application names and types
         if (inputApplication !== null){
@@ -1949,29 +1953,32 @@ export class Node {
         }
 
         // add fields
-        result.fields = [];
+        const fields : object[] = [];
         for (const field of node.fields().values()){
-            result.fields.push(Field.toOJSJson(field));
+            fields.push(Field.toOJSJson(field));
         }
+        result.fields = fields;
 
         const inputApplication = node.inputApplication();
         const outputApplication = node.outputApplication();
 
         // add fields from inputApplication
-        result.inputAppFields = [];
+        const inputAppFields : object[] = [];
         if (inputApplication !== null){
             for (const field of inputApplication.fields().values()){
-                result.inputAppFields.push(Field.toOJSJson(field));
+                inputAppFields.push(Field.toOJSJson(field));
             }
         }
+        result.inputAppFields = inputAppFields;
 
         // add fields from outputApplication
-        result.outputAppFields = [];
+        const outputAppFields : object[] = [];
         if (outputApplication !== null){
             for (const field of outputApplication.fields().values()){
-                result.outputAppFields.push(Field.toOJSJson(field));
+                outputAppFields.push(Field.toOJSJson(field));
             }
         }
+        result.outputAppFields = outputAppFields;
 
         // write application names and types
         if (inputApplication !== null){

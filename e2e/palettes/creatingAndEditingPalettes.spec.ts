@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { TestHelpers } from '../TestHelpers';
+import type { Eagle } from '../../src/Eagle';
+import type { Utils } from '../../src/Utils';
 
 test('Creating and editing Palettes', async ({ page }) => {
   await test.step('Open the palette editing workflow', async () => {
@@ -24,12 +26,18 @@ test('Palette loading continues after an unavailable palette', async ({ page }) 
     await expect(page).toHaveTitle(/EAGLE/);
   });
 
-  const result = await test.step('Load palettes with a failed request', async () => page.evaluate(async () => {
-    const eagle = (window as any).eagle as { loadPalettes: (paletteList: {name:string, filename:string, readonly:boolean, expanded:boolean}[]) => Promise<{palettes: {fileInfo: () => {name: string}}[], errorsWarnings: unknown}> };
-    const utils = (window as any).Utils as { httpPostJSON: (url: string, request: { url: string }) => Promise<string> };
+  // the fixture palette data that the mock serves for the 'second.palette' request
+  const paletteJson = JSON.stringify({
+    modelData: { filePath: 'second.palette', fileType: 'Palette' },
+    nodeDataArray: []
+  });
 
-    // keep track of the original httpPostJSON so we can restore it later
-    const originalHttpPostJSON = utils.httpPostJSON;
+  const result = await test.step('Load palettes with a failed request', async () => page.evaluate(async () => {
+    const eagle = (window as any).eagle as Eagle;
+    const utils = (window as any).Utils as typeof Utils;
+
+    // keep track of the original httpPostText so we can restore it later
+    const originalHttpPostText = utils.httpPostText;
 
     // define a minimal fake palette to return for the second palette request
     const paletteJson = JSON.stringify({
@@ -37,9 +45,9 @@ test('Palette loading continues after an unavailable palette', async ({ page }) 
       nodeDataArray: []
     });
 
-    // overwrite httpPostJSON to simulate a failed fetch for the first palette and a successful fetch for the second
-    utils.httpPostJSON = async (_url: string, request: { url: string }) => {
-      if (request.url === 'missing.palette') {
+    // overwrite httpPostText to simulate a failed fetch for the first palette and a successful fetch for the second
+    utils.httpPostText = async (_url: string, request: object) => {
+      if (Reflect.get(request, 'url') === 'missing.palette') {
         // failed fetch with no localStorage fallback.
         throw new Error('palette unavailable');
       }
@@ -49,12 +57,12 @@ test('Palette loading continues after an unavailable palette', async ({ page }) 
     try {
       // Race palette loading against a timeout so a pending loader is
       // observable instead of allowing the test to hang indefinitely.
-      const loadWithTimeout = (paletteList: any[]) => Promise.race([
+      const loadWithTimeout = (paletteList: Parameters<Eagle['loadPalettes']>[0]) => Promise.race([
         eagle.loadPalettes(paletteList),
         new Promise((_, reject) => {
           setTimeout(() => reject(new Error('palette loading timed out')), 1000);
         })
-      ]) as Promise<{palettes: {fileInfo: () => {name: string}}[], errorsWarnings: unknown}>;
+      ]) as Promise<Awaited<ReturnType<Eagle['loadPalettes']>>>;
 
       // The failed first request must not prevent the later palette from loading.
       const firstFailureResult = await loadWithTimeout([
@@ -70,20 +78,29 @@ test('Palette loading continues after an unavailable palette', async ({ page }) 
       ]);
 
       // both placeholders should be present once each load is complete
+      // the cached localStorage data for the fixture proves the successful-load
+      // path ran (it is only written after the fixture palette was loaded)
+      const secondPaletteCache = localStorage.getItem('second.palette');
+      localStorage.removeItem('second.palette');
+
       return {
-        firstFailure: firstFailureResult.palettes.map((palette: any) => palette.fileInfo().name as string),
-        finalFailure: finalFailureResult.palettes.map((palette: any) => palette.fileInfo().name as string)
+        firstFailure: firstFailureResult.palettes.map((palette) => palette.fileInfo().name),
+        finalFailure: finalFailureResult.palettes.map((palette) => palette.fileInfo().name),
+        secondPaletteCache
       };
     } finally {
-      // restore the original httpPostJSON so other tests are not affected
-      utils.httpPostJSON = originalHttpPostJSON;
+      // restore the original httpPostText so other tests are not affected
+      utils.httpPostText = originalHttpPostText;
     }
   }));
 
   await test.step('Verify later palettes still load', async () => {
     expect(result).toEqual({
       firstFailure: ['Missing Palette', 'Second Palette'],
-      finalFailure: ['First Palette', 'Final Missing Palette']
+      finalFailure: ['First Palette', 'Final Missing Palette'],
+      // the fixture palette data was fetched via the mock and cached, proving
+      // the successful-load path was exercised
+      secondPaletteCache: paletteJson
     });
   });
 

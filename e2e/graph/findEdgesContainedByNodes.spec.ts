@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { TestHelpers } from '../TestHelpers';
+import type { Eagle, EagleFileType } from '../../src/Eagle';
+import type { GraphRenderer } from '../../src/GraphRenderer';
 
 test('findEdgesContainedByNodes handles graph iterators and partial selections', async ({ page }) => {
     await page.goto('http://localhost:8888/?tutorial=none');
@@ -18,24 +20,24 @@ test('findEdgesContainedByNodes handles graph iterators and partial selections',
     await TestHelpers.dragEdge(page, 'HelloWorldApp', 'File');
 
     const result = await page.evaluate(() => {
-        const eagle = (window as any).eagle as { logicalGraph: () => { getNodes: () => Map<string, unknown>; getEdges: () => unknown[] } };
+        const eagle = (window as any).eagle as Eagle;
         const graph = eagle.logicalGraph();
         const nodes = Array.from(graph.getNodes());
         const edges = Array.from(graph.getEdges());
-        const graphRenderer = (window as any).GraphRenderer as { findEdgesContainedByNodes: (edges: unknown[], nodes: unknown[] | unknown[]) => { getId: () => string }[] };
+        const graphRenderer = (window as any).GraphRenderer as typeof GraphRenderer;
 
         const allSelected = graphRenderer.findEdgesContainedByNodes(
-            graph.getEdges() as unknown[],
-            graph.getNodes() as unknown[],
+            graph.getEdges(),
+            graph.getNodes(),
         );
         const oneSelected = graphRenderer.findEdgesContainedByNodes(
-            graph.getEdges() as unknown[],
-            [nodes[0]] as unknown[],
+            graph.getEdges(),
+            [nodes[0]],
         );
 
         return {
             graphEdgeCount: edges.length,
-            allSelectedIds: allSelected.map((edge) => edge.getId()),
+            allSelectedIds: allSelected.map((edge) => String(edge.getId())),
             oneSelectedCount: oneSelected.length,
         };
     });
@@ -66,13 +68,14 @@ test('findDepthOfNode follows nested parents', async ({ page }) => {
     await page.waitForTimeout(500);
 
     const depth = await page.evaluate(() => {
-        const eagle = (window as any).eagle as { logicalGraph: () => { getNodes: () => Map<string, unknown>; getNodeByIndex: (i: number) => { setParent: (n: unknown) => void; getDrawOrderHint: () => number } }; setSelection: (a: null, b: string) => void };
+        const graphRenderer = (window as any).GraphRenderer as typeof GraphRenderer;
+        const eagle = (window as any).eagle as Eagle;
         const graph = eagle.logicalGraph();
-        eagle.setSelection(null, 'Graph');
+        eagle.setSelection(null, (window as any).EagleFileType.Graph as EagleFileType);
         const nodes = Array.from(graph.getNodes());
-        const child = graph.getNodeByIndex(0);
-        const parent = graph.getNodeByIndex(1);
-        const grandparent = graph.getNodeByIndex(2);
+        const child = graph.getNodeByIndex(0)!;
+        const parent = graph.getNodeByIndex(1)!;
+        const grandparent = graph.getNodeByIndex(2)!;
 
         child.setParent(parent);
         parent.setParent(grandparent);
@@ -84,7 +87,7 @@ test('findDepthOfNode follows nested parents', async ({ page }) => {
         ) / 10;
 
         return {
-            actual: (window as any).GraphRenderer.findDepthOfNode(0, nodes) as number,
+            actual: graphRenderer.findDepthOfNode(0, nodes),
             expected: expectedDepth,
         };
     });

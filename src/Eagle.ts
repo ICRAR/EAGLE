@@ -1349,8 +1349,10 @@ export class Eagle {
         this.logicalGraph.valueHasMutated();
     }
 
-    checkErrorModalShowError = (data:any) :void =>{
-        data.show()
+    checkErrorModalShowError = (data:Issue) :void =>{
+        if (data.show !== null){
+            data.show();
+        }
     }
 
     createConstructFromSelection = async () => {
@@ -2796,10 +2798,10 @@ export class Eagle {
                 const index = i;
                 const postData = {url: paletteList[i].filename};
 
-                let data: any;
+                let data: string | null = null;
                 let fetchFailed = false;
                 try {
-                    data = await Utils.httpPostJSON("/openRemoteUrlFile", postData);
+                    data = await Utils.httpPostText("/openRemoteUrlFile", postData);
                 } catch (error){
                     fetchFailed = true;
                     // an error occurred when fetching the palette
@@ -2838,7 +2840,7 @@ export class Eagle {
                     destinationPalettes[index].expanded(paletteList[index].expanded);
                 }
 
-                if (fetchFailed){
+                if (fetchFailed || data === null){
                     _checkAllPalettesComplete();
                     continue;
                 }
@@ -3443,7 +3445,7 @@ export class Eagle {
             // validate json
             Utils.validateJSON(jsonString, EagleFileType.Palette, version);
 
-            let data: any;
+            let data: string;
             try {
                 data = await Utils.httpPostJSONString('/saveFileToLocal', jsonString);
             } catch (error){
@@ -3505,7 +3507,7 @@ export class Eagle {
             // validate json
             Utils.validateJSON(jsonString, EagleFileType.Graph, version);
 
-            let data: any;
+            let data: string;
             try {
                 data = await Utils.httpPostJSONString('/saveFileToLocal', jsonString);
             } catch (error){
@@ -3850,7 +3852,7 @@ export class Eagle {
         window.open("https://github.com/ICRAR/EAGLE/issues/new?body="+bodyText, "_blank");
     }
 
-    statusBarScroll = (_data:any, e:any) : void => {
+    statusBarScroll = (_data:any, e:{ preventDefault: () => void; originalEvent: { deltaY: number } }) : void => {
         e.preventDefault();
         const leftPos = Utils.getUIValue('#statusBar', 'scrollLeft', 0);
         $('#statusBar').scrollLeft(leftPos + e.originalEvent.deltaY)
