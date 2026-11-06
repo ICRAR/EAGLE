@@ -35,7 +35,7 @@ import { FileInfo } from './FileInfo';
 import { FileLocation } from "./FileLocation";
 import { GraphConfig } from './GraphConfig';
 import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
-import type { JsonObject, V4GraphJson, V4FileInfoJson } from './JsonLoadTypes';
+import type { JsonObject, V4GraphJson, V4FileInfoJson, V4NodeJson, V4EdgeJson, V4VisualLoadJson, V4GraphConfigJson } from './JsonLoadTypes';
 import { Node } from './Node';
 import { SchemaVersion, Setting } from './Setting';
 import { Utils } from './Utils';
@@ -183,18 +183,18 @@ export class LogicalGraph {
         // NOTE: we do not skip close loop edges
         for (const [id, edge] of graph.edges()){
             const edgeData = Edge.toV4Json(edge);
-            result.edges[id] = edgeData;
+            result.edges![id] = edgeData;
         }
 
         // visuals
         for (const [id, visual] of graph.visuals()){
             const visualData = Visual.toJson(visual);
-            result.visuals[id] = visualData;
+            result.visuals![id] = visualData;
         }
 
         // add graph configurations
         for (const gc of graph.graphConfigs().values()){
-            result.graphConfigurations[gc.getId()] = GraphConfig.toJson(gc);
+            result.graphConfigurations![gc.getId()] = GraphConfig.toJson(gc);
         }
 
         // saving the id of the active graph configuration
@@ -458,8 +458,18 @@ export class LogicalGraph {
         result.fileInfo(FileInfo.fromV4Json(dataObject.modelData, errorsWarnings));
 
         // add nodes
-        for (const [nodeId, nodeData] of Object.entries(dataObject.nodes)){
-            const node = Node.fromV4Json(nodeData, errorsWarnings, false);
+        const nodesData = Utils.asObjectMap(dataObject.nodes, "nodes", errorsWarnings);
+        const nodesContainer: unknown = (dataObject as {nodes?: unknown}).nodes;
+        if (nodesContainer !== null && typeof nodesContainer === 'object'
+            && !Array.isArray(nodesContainer) && Object.keys(nodesData).length === 0){
+            errorsWarnings.warnings.push(Errors.Message("The graph contains no nodes."));
+        }
+        for (const [nodeId, nodeData] of Object.entries(nodesData)){
+            if (nodeData === null || typeof nodeData !== 'object' || Array.isArray(nodeData)){
+                errorsWarnings.errors.push(Errors.Message("Node (" + nodeId + ") has invalid JSON (not an object), skipping"));
+                continue;
+            }
+            const node = Node.fromV4Json(nodeData as V4NodeJson, errorsWarnings, false, nodeId as NodeId);
 
             result.nodes().set(nodeId as NodeId, node);
             result.nodes.valueHasMutated();
@@ -467,7 +477,10 @@ export class LogicalGraph {
 
         // second pass through the nodes
         // used to set parent, embed, subject, inputApplication, outputApplication
-        for (const [nodeId, nodeData] of Object.entries(dataObject.nodes)){
+        for (const [nodeId, nodeData] of Object.entries(nodesData)){
+            if (nodeData === null || typeof nodeData !== 'object' || Array.isArray(nodeData)){
+                continue;
+            }
             const embed = result.getNodeById(nodeData.embedId as NodeId);
             const parent = result.getNodeById(nodeData.parentId as NodeId);
             const inputApplication = result.getNodeById(nodeData.inputApplicationId as NodeId);
@@ -495,8 +508,13 @@ export class LogicalGraph {
         }
 
         // add edges
-        for (const [edgeId, edgeData] of Object.entries(dataObject.edges)){
-            const edge = Edge.fromV4Json(edgeData, result, errorsWarnings);
+        const edgesData = Utils.asObjectMap(dataObject.edges, "edges", errorsWarnings, true);
+        for (const [edgeId, edgeData] of Object.entries(edgesData)){
+            if (edgeData === null || typeof edgeData !== 'object' || Array.isArray(edgeData)){
+                errorsWarnings.errors.push(Errors.Message("Edge (" + edgeId + ") has invalid JSON (not an object), skipping"));
+                continue;
+            }
+            const edge = Edge.fromV4Json(edgeData as V4EdgeJson, result, errorsWarnings, edgeId as EdgeId);
 
             if (edge === null){
                 continue;
@@ -511,18 +529,26 @@ export class LogicalGraph {
         }
 
         // add visuals
-        if (typeof dataObject.visuals !== 'undefined'){
-            for (const [visualId, visualData] of Object.entries(dataObject.visuals)){
-                const visual = Visual.fromV4GraphJson(visualData, result, errorsWarnings);
-
-                result.visuals().set(visualId as VisualId, visual);
-                result.visuals.valueHasMutated();
+        const visualsData = Utils.asObjectMap(dataObject.visuals, "visuals", errorsWarnings, true);
+        for (const [visualId, visualData] of Object.entries(visualsData)){
+            if (visualData === null || typeof visualData !== 'object' || Array.isArray(visualData)){
+                errorsWarnings.errors.push(Errors.Message("Visual (" + visualId + ") has invalid JSON (not an object), skipping"));
+                continue;
             }
+            const visual = Visual.fromV4GraphJson(visualData as V4VisualLoadJson, result, errorsWarnings, visualId as VisualId);
+
+            result.visuals().set(visualId as VisualId, visual);
+            result.visuals.valueHasMutated();
         }
 
         // load configs
-        for (const [gcId, gcData] of Object.entries(dataObject.graphConfigurations)){
-            const gc = GraphConfig.fromV4GraphJson(gcData, result, errorsWarnings);
+        const graphConfigsData = Utils.asObjectMap(dataObject.graphConfigurations, "graphConfigurations", errorsWarnings, true);
+        for (const [gcId, gcData] of Object.entries(graphConfigsData)){
+            if (gcData === null || typeof gcData !== 'object' || Array.isArray(gcData)){
+                errorsWarnings.errors.push(Errors.Message("GraphConfig (" + gcId + ") has invalid JSON (not an object), skipping"));
+                continue;
+            }
+            const gc = GraphConfig.fromV4GraphJson(gcData as V4GraphConfigJson, result, errorsWarnings);
             gc.setId(gcId as GraphConfigId);
             result.graphConfigs().set(gcId as GraphConfigId, gc);
         }
@@ -537,11 +563,20 @@ export class LogicalGraph {
             result.fileInfo().location.repositoryFileName(filename);
         }
 
-        //if the saved 'activeGraphConfigId' is empty or missing, we use the last one in the array, else we set the saved one as active                
-        if(typeof dataObject.activeGraphConfigId === 'undefined' || dataObject.activeGraphConfigId === ''){
+        const activeGraphConfigId = dataObject.activeGraphConfigId;
+        if (typeof activeGraphConfigId === 'string' && activeGraphConfigId !== ''){
+            if (result.graphConfigs().has(activeGraphConfigId as GraphConfigId)){
+                result.activeGraphConfigId(activeGraphConfigId as GraphConfigId);
+            } else {
+                // a dangling id: the file asks for an active configuration that does not exist, so
+                // the request would otherwise be silently unmet — surface it rather than drop it
+                // quietly
+                errorsWarnings.warnings.push(Errors.Message("activeGraphConfigId ('" + activeGraphConfigId
+                    + "') does not match any graph configuration; no active configuration set."));
+                result.activeGraphConfigId(null);
+            }
+        } else {
             result.activeGraphConfigId(null);
-        }else{
-            result.activeGraphConfigId(dataObject.activeGraphConfigId as GraphConfigId);
         }
 
         return result;
@@ -787,6 +822,157 @@ export class LogicalGraph {
         this.graphConfigs.valueHasMutated();
 
         this.activeGraphConfigId(null)
+    }
+
+    /**
+     * Capture the current graph collections for transactional rollback.
+     *
+     * Each node, edge, visual and graph configuration is deep-cloned, and their
+     * cross-references (parent/embed/input-output applications, edge endpoints,
+     * visual targets) are re-pointed at the clones, so the snapshot is self-contained.
+     * This is required because a failing load/insert can mutate objects already in the
+     * graph in place (e.g. normalising a live node); reinstating the original objects
+     * would let that partial mutation survive the rollback.
+     */
+    createRollbackSnapshot = (): LogicalGraph => {
+        const snapshot = new LogicalGraph();
+        // FileInfo.clone() shares its graphLocation instance with the original (it
+        // deep-copies only `location`). A load callback can clear the live graph before
+        // throwing, which would clear that shared graph location and make the snapshot's
+        // metadata lossy, so capture an independent copy of it here.
+        const snapshotFileInfo = this.fileInfo().clone();
+        snapshotFileInfo.graphLocation = snapshotFileInfo.graphLocation.clone();
+        snapshot.fileInfo(snapshotFileInfo);
+
+        // clone the nodes, keeping original -> clone lookups for the reference remapping below
+        const nodeCloneByObject = new Map<Node, Node>();
+        for (const [id, node] of this.nodes()){
+            const clone = node.clone();
+            nodeCloneByObject.set(node, clone);
+            snapshot.nodes().set(id, clone);
+            for (const port of clone.getFields()){
+                // re-point the cloned field at its cloned owner node, and drop the
+                // stale edges Field.clone carried over (they reference the discarded
+                // originals); the correct snapshot edges are wired up in the edge pass
+                port.setNode(clone);
+                for (const staleEdgeId of Array.from(port.getEdges()).map((stale) => stale.getId())){
+                    port.removeEdge(staleEdgeId);
+                }
+            }
+        }
+
+        // re-point node cross-references at the clones so the snapshot is self-contained
+        const clonedNode = (node: Node | null): Node | undefined =>
+            (node === null ? undefined : nodeCloneByObject.get(node));
+        for (const [original, clone] of nodeCloneByObject){
+            const parent = clonedNode(original.getParent());
+            if (typeof parent !== 'undefined'){
+                clone.setParent(parent);
+            }
+            const embed = clonedNode(original.getEmbed());
+            if (typeof embed !== 'undefined'){
+                clone.setEmbed(embed);
+            }
+            const inputApplication = clonedNode(original.getInputApplication());
+            if (typeof inputApplication !== 'undefined'){
+                clone.setInputApplication(inputApplication);
+            }
+            const outputApplication = clonedNode(original.getOutputApplication());
+            if (typeof outputApplication !== 'undefined'){
+                clone.setOutputApplication(outputApplication);
+            }
+        }
+
+        // clone the edges, re-pointing endpoints at the cloned nodes and ports
+        const edgeCloneById = new Map<EdgeId, Edge>();
+        for (const [id, edge] of this.edges()){
+            const srcNode = nodeCloneByObject.get(edge.getSrcNode());
+            const destNode = nodeCloneByObject.get(edge.getDestNode());
+            // resolve each endpoint's port through its cloned owning node (node-scoped), not
+            // a graph-wide field-ID map: field IDs are only unique within a node, so a
+            // graph-wide map would let duplicate IDs on different nodes wire an endpoint to
+            // the wrong node's cloned field after rollback
+            const srcPort = (srcNode === undefined) ? undefined : srcNode.getFieldById(edge.getSrcPort().getId());
+            const destPort = (destNode === undefined) ? undefined : destNode.getFieldById(edge.getDestPort().getId());
+            if (typeof srcNode === 'undefined' || typeof destNode === 'undefined'
+                || typeof srcPort === 'undefined' || typeof destPort === 'undefined'){
+                // an endpoint lives outside the nodes collection (should not happen for a
+                // consistent graph); keep the original clone so references stay wired
+                const clone = edge.clone();
+                edgeCloneById.set(id, clone);
+                snapshot.edges().set(id, clone);
+                continue;
+            }
+            const clone = new Edge(edge.getComment(), srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop(), false);
+            clone.setId(id);
+            // re-point the clone ports' edge lists at this snapshot edge so the port
+            // and the graph agree on which edge objects are connected
+            srcPort.addEdge(clone);
+            destPort.addEdge(clone);
+            edgeCloneById.set(id, clone);
+            snapshot.edges().set(id, clone);
+        }
+
+        // clone the visuals; pass 1 creates every clone (so visual-to-visual target
+        // clones are guaranteed to exist), pass 2 re-points each target at its clone
+        const visualCloneById = new Map<VisualId, Visual>();
+        for (const [id, visual] of this.visuals()){
+            const clone = visual.clone();
+            visualCloneById.set(id, clone);
+            snapshot.visuals().set(id, clone);
+        }
+        for (const [id, visual] of this.visuals()){
+            const clone = visualCloneById.get(id);
+            if (typeof clone === 'undefined'){
+                continue;
+            }
+            const target = visual.getTarget();
+            const remappedTarget =
+                (target instanceof Node) ? nodeCloneByObject.get(target) :
+                (target instanceof Edge) ? edgeCloneById.get(target.getId()) :
+                (target instanceof Visual) ? visualCloneById.get(target.getId()) :
+                undefined;
+            if (typeof remappedTarget !== 'undefined'){
+                clone.setTarget(remappedTarget);
+            }
+        }
+
+        // clone the graph configs, re-pointing their node references at the cloned nodes
+        for (const [id, graphConfig] of this.graphConfigs()){
+            const clone = graphConfig.clone();
+            for (const configNode of clone.getNodes()){
+                const remappedNode = nodeCloneByObject.get(configNode.getNode());
+                if (typeof remappedNode !== 'undefined'){
+                    configNode.setNode(remappedNode);
+                }
+            }
+            snapshot.graphConfigs().set(id, clone);
+        }
+        snapshot.activeGraphConfigId(this.activeGraphConfigId());
+
+        return snapshot;
+    }
+
+    /** Restore a rollback snapshot without replacing this graph or its observable maps. */
+    restoreRollbackSnapshot = (snapshot: LogicalGraph): void => {
+        this.fileInfo(snapshot.fileInfo().clone());
+
+        const restoreMap = <K, V>(target: Map<K, V>, source: Map<K, V>): void => {
+            target.clear();
+            for (const [key, value] of source){
+                target.set(key, value);
+            }
+        };
+
+        restoreMap(this.nodes(), snapshot.nodes());
+        this.nodes.valueHasMutated();
+        restoreMap(this.edges(), snapshot.edges());
+        this.edges.valueHasMutated();
+        restoreMap(this.visuals(), snapshot.visuals());
+        this.visuals.valueHasMutated();
+        restoreMap(this.graphConfigs(), snapshot.graphConfigs());
+        this.graphConfigs.valueHasMutated();
+        this.activeGraphConfigId(snapshot.activeGraphConfigId());
     }
 
     clone = () : LogicalGraph => {

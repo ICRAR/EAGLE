@@ -14,7 +14,8 @@
     "test": "npx playwright test",
     "lint": "eslint \"src/**/*.ts\" \"e2e/**/*.ts\" \"playwright.config.ts\" \"playwrightHelpers.ts\" --max-warnings=0",
     "generate:lgGraphV4Schema": "node tools/generateLgGraphV4Schema.mjs",
-    "check:lgGraphV4Schema": "node tools/generateLgGraphV4Schema.mjs --check"
+    "check:lgGraphV4Schema": "node tools/generateLgGraphV4Schema.mjs --check",
+    "test:v4schema": "node tools/testV4SchemaLoad.mjs"
   },
   "repository": {
     "type": "git",

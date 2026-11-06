@@ -50,6 +50,7 @@ import { LogicalGraph } from './LogicalGraph';
 import { Modals } from "./Modals";
 import { Node } from './Node';
 import { Palette } from './Palette';
+import { appendV4ValidationIssues, sanitizeRecoverableV4Errors } from './SchemaLoadClassifier';
 import { ParameterTable } from './ParameterTable';
 import { Repositories } from './Repositories';
 import { Repository, type RepositoryCommit, RepositoryService } from './Repository';
@@ -1132,22 +1133,40 @@ export class Eagle {
         graphFileToInsertInputElement.value = "";
     }
 
-    private _handleLoadingErrors = (errorsWarnings: ErrorsWarnings, fileName: string, service: RepositoryService) : void => {
+    private _handleLoadingErrors = (errorsWarnings: ErrorsWarnings, fileName: string, service: RepositoryService, loadSucceeded: boolean = false) : void => {
         const showIssues: boolean = Setting.findValue<boolean>(Setting.SHOW_FILE_LOADING_WARNINGS, false);
         this.hideEagleIsLoading()
 
-        // errors are always shown in the issues modal; the setting only controls warnings
-        const hasErrors: boolean = Errors.hasErrors(errorsWarnings);
-        const hasWarnings: boolean = showIssues && Errors.hasWarnings(errorsWarnings);
+        // Parser diagnostics may be stored as errors even when malformed individual
+        // entries were safely skipped and the graph was successfully loaded.
+        const displayedIssues: ErrorsWarnings = loadSucceeded ? {
+            errors: [],
+            warnings: [...errorsWarnings.warnings, ...errorsWarnings.errors]
+        } : errorsWarnings;
+        const hasErrors: boolean = Errors.hasErrors(displayedIssues);
+        const hasWarnings: boolean = showIssues && Errors.hasWarnings(displayedIssues);
 
-        if (hasErrors || hasWarnings){
-            // add errors/warnings to the arrays (warnings only if the setting is on)
-            this.loadingErrors(hasErrors ? errorsWarnings.errors : []);
-            this.loadingWarnings(hasWarnings ? errorsWarnings.warnings : []);
+        if (hasErrors){
+            // load failed (errors) -> show the issues modal; no "loaded" notification
+            this.loadingErrors(displayedIssues.errors);
+            this.loadingWarnings(hasWarnings ? displayedIssues.warnings : []);
 
             this.errorsMode(Mode.Loading);
             Utils.showErrorsModal("Loading File");
+        } else if (hasWarnings){
+            // loaded with warnings (setting on) -> show modal and an honest notification
+            this.loadingErrors([]);
+            this.loadingWarnings(displayedIssues.warnings);
+
+            this.errorsMode(Mode.Loading);
+            Utils.showErrorsModal("Loading File");
+
+            Utils.showNotification("Success", fileName + " has been loaded from " + service + " with " + displayedIssues.warnings.length + " warning(s).", "success");
+        } else if (Errors.hasWarnings(displayedIssues)){
+            // loaded with warnings (setting off) -> no modal, but still say so
+            Utils.showNotification("Success", fileName + " has been loaded from " + service + " with " + displayedIssues.warnings.length + " warning(s).", "success");
         } else {
+            // clean load, no issues
             Utils.showNotification("Success", fileName + " has been loaded from " + service + ".", "success");
         }
     }
@@ -1157,65 +1176,136 @@ export class Eagle {
             return true;
         }
 
-        const validatorResult = Utils._validateJSON(dataObject, SchemaVersion.V4, EagleFileType.Graph);
+        // The V4 schema is fetched asynchronously; while it is still empty,
+        // validation would accept any document. Block the load rather than
+        // silently skipping classification and sanitization.
+        if (Object.keys(Utils.v4GraphSchema).length === 0) {
+            errorsWarnings.errors.push(Errors.Message("Schema validation: V4 graph schema not yet loaded; cannot validate."));
+            return false;
+        }
+
+        const validatorResult = Utils._validateJSONDetailed(dataObject, SchemaVersion.V4, EagleFileType.Graph);
         if (validatorResult.valid) {
             return true;
         }
 
-        errorsWarnings.errors.push(Errors.Message("V4 graph JSON failed schema validation: " + validatorResult.errors));
+        // Classify structural failures as blocking errors. Recoverable invalid object
+        // attributes are warned about and removed so parser defaults/skip behavior apply.
+        // See SchemaLoadClassifier for the classification rules (ajv path semantics).
+        const canLoad = appendV4ValidationIssues(validatorResult.errors, errorsWarnings, Errors.Message);
+        if (canLoad) {
+            sanitizeRecoverableV4Errors(dataObject, validatorResult.errors);
+        }
+        return canLoad;
+    }
+
+    // A V4 graph with missing or malformed modelData is still recognizable
+    // from its nodes container or malformed modelData, allowing schema
+    // validation to report structural errors instead of rejecting it as unknown.
+    private _isV4GraphCandidate(data: unknown): boolean {
+        if (typeof data !== 'object' || data === null) {
+            return false;
+        }
+        const obj = data as Record<string, unknown>;
+        if ('nodes' in obj) {
+            return true;
+        }
+        if ('modelData' in obj) {
+            const md = obj.modelData;
+            return md === null || typeof md !== 'object' || Array.isArray(md);
+        }
         return false;
     }
 
     private _loadGraphJSON = async (data: string, fileFullPath: string, loadFunc: (lg: LogicalGraph, errorsWarnings: ErrorsWarnings) => void | Promise<void>) : Promise<boolean> => {
-        let dataObject: JsonObject;
+        let dataObject: unknown;
 
         // attempt to parse the JSON
         try {
-            dataObject = JSON.parse(data) as JsonObject;
+            dataObject = JSON.parse(data);
         } catch(err){
             Utils.showUserMessage("Error parsing file JSON", Errors.UnknownToError(err));
             return false;
         }
 
-        const fileType : EagleFileType = Utils.determineFileType(dataObject);
-
-        // Only load graph files.
-        if (fileType !== EagleFileType.Graph) {
-            Utils.showUserMessage("Error", "This is not a graph file!");
-            return false;
-        }
-
-        // attempt to determine schema version from FileInfo
-        const schemaVersion: SchemaVersion = Utils.determineSchemaVersion(dataObject);
-
         const errorsWarnings: ErrorsWarnings = {errors: [], warnings: []};
         let loaded = false;
 
+        // No rollback snapshot is taken here: every rejection path above only mutates the
+        // parsed JSON, never the live graph, and loadFunc always runs against a freshly
+        // built graph object, so a failure can never leave the live graph half-loaded.
+        //
+        // Contract on loadFunc — it must do exactly one of:
+        //   (a) replace path: swap the active graph with a single atomic assignment
+        //       (this.logicalGraph(graph)), so a throw before the swap leaves the live
+        //       graph untouched and a throw after the swap is already the final state; or
+        //   (b) insert path: delegate all live-graph mutation to insertGraph, which owns
+        //       the one snapshot that can protect a partially-modified live graph.
+        // A loadFunc that mutates the live graph itself and then throws is NOT supported:
+        // this method would catch the throw and return false, but no rollback happens
+        // here, so the live graph could be left half-modified. All four current callers
+        // satisfy the contract (two insert-path, two replace-path).
         // use the correct parsing function based on schema version
-        switch (schemaVersion){
-            case SchemaVersion.OJS:
-            case SchemaVersion.Unknown:
-                // check if we need to update the graph from keys to ids
-                if (GraphUpdater.usesNodeKeys(dataObject)){
-                    GraphUpdater.updateKeysToIds(dataObject);
-                }
+        try {
+            const fileType: EagleFileType = Utils.determineFileType(dataObject);
+            const isV4GraphCandidate = this._isV4GraphCandidate(dataObject);
 
-                await loadFunc(LogicalGraph.fromOJSJson(dataObject, "", errorsWarnings), errorsWarnings);
-                loaded = true;
-                break;
-            case SchemaVersion.V4:
-                if (!this._validateV4GraphLoadJSON(dataObject as JsonObject, errorsWarnings)) {
+            // A V4 graph with missing or malformed modelData is still recognizable
+            // from its nodes container or malformed modelData, allowing schema
+            // validation to report structural errors instead of rejecting it as unknown.
+            if (fileType !== EagleFileType.Graph && !(fileType === EagleFileType.Unknown && isV4GraphCandidate)) {
+                Utils.showUserMessage("Error", "This is not a graph file!");
+                return false;
+            }
+
+            // attempt to determine schema version from FileInfo; use V4 validation
+            // for graph-shaped documents whose malformed modelData hides the version.
+            const schemaVersion: SchemaVersion = fileType === EagleFileType.Unknown && isV4GraphCandidate
+                ? SchemaVersion.V4
+                : Utils.determineGraphSchemaVersion(dataObject);
+
+            switch (schemaVersion){
+                case SchemaVersion.OJS:
+                case SchemaVersion.Unknown:
+                    // check if we need to update the graph from keys to ids
+                    if (GraphUpdater.usesNodeKeys(dataObject)){
+                        GraphUpdater.updateKeysToIds(dataObject);
+                    }
+
+                    const graph = LogicalGraph.fromOJSJson(dataObject, "", errorsWarnings);
+                    await loadFunc(graph, errorsWarnings);
+                    loaded = true;
+                    break;
+                case SchemaVersion.V4: {
+                    if (!this._validateV4GraphLoadJSON(dataObject as JsonObject, errorsWarnings)) {
+                        break;
+                    }
+                    const graph = LogicalGraph.fromV4Json(dataObject as V4GraphJson, "", errorsWarnings);
+                    graph.fileInfo().type = EagleFileType.Graph;
+                    await loadFunc(graph, errorsWarnings);
+                    loaded = true;
                     break;
                 }
-                await loadFunc(LogicalGraph.fromV4Json(dataObject as V4GraphJson, "", errorsWarnings), errorsWarnings);
-                loaded = true;
-                break;
-            default:
-                errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
-                break;
+                default:
+                    errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
+                    break;
+            }
+        } catch (error){
+            // This catch handles two distinct failure classes, neither of which needs a
+            // rollback here:
+            //   - a parse/parse-validation error thrown by the code above (determineFileType,
+            //     _isV4GraphCandidate, _validateV4GraphLoadJSON, fromOJSJson/fromV4Json); and
+            //   - an error re-thrown by loadFunc itself. On the insert path that is insertGraph
+            //     re-throwing after it has already rolled back; on the replace path it is a
+            //     non-atomic loadFunc, which violates the contract documented above.
+            // In neither case does this layer own a snapshot, so it logs the error and
+            // returns false without touching the live graph.
+            console.error("Error loading graph file:", error);
+            errorsWarnings.errors.push(Errors.Message("Failed to load graph file: " + Errors.UnknownToError(error)));
+            loaded = false;
         }
 
-        this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), RepositoryService.File);
+        this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), RepositoryService.File, loaded);
         return loaded;
     }
 
@@ -1330,6 +1420,38 @@ export class Eagle {
 
     // NOTE: parentNode would be null if we are duplicating a selection of objects
     insertGraph = async (nodes: Node[], edges: Edge[], parentNode: Node | null, errorsWarnings: ErrorsWarnings) => {
+        const graphAtInsert = this.logicalGraph();
+        // The rollback snapshot deep-clones the active graph, so it is taken only once we are
+        // about to mutate (after the initialization await and the graph-replacement check),
+        // rather than up front. It stays null if the insert aborts before any mutation.
+        let graphBeforeInsert: LogicalGraph | null = null;
+        let undoCurrentAtInsert: number = this.undo().current();
+        let undoFrontAtInsert: number = this.undo().front();
+        try {
+        // ensure graph initialization up front (this is the only await in this method
+        // before and during the mutation span); everything from here on runs synchronously,
+        // so no other operation can interleave with the insert.
+        try {
+            await Utils.ensureGraphIsInitialized(graphAtInsert);
+        } catch (error){
+            console.warn(error);
+        }
+        if (this.logicalGraph() !== graphAtInsert){
+            // the graph was replaced while we awaited; the snapshot belongs to the old
+            // graph, so the catch block must not restore it into the new one
+            throw new Error("Graph was replaced while awaiting initialization; aborting insert");
+        }
+
+        // Everything from here on runs synchronously (no further awaits), so it is safe to
+        // take the rollback snapshot now, just before the first mutation. The undo state is
+        // captured at the same point, after initialization: if the insert later fails, the
+        // graph and undo history both restore to this post-init state, so any initialization
+        // change that survives (e.g. the user-named graph) remains undoable instead of being
+        // silently dropped from undo.
+        undoCurrentAtInsert = this.undo().current();
+        undoFrontAtInsert = this.undo().front();
+        graphBeforeInsert = graphAtInsert.createRollbackSnapshot();
+
         // create map of inserted graph keys to final graph nodes, and of inserted port ids to final graph ports
         const nodeMap: Map<NodeId, Node> = new Map<NodeId, Node>();
         const portMap: Map<FieldId, Field> = new Map<FieldId, Field>();
@@ -1337,7 +1459,7 @@ export class Eagle {
 
         // add the parent node to the logical graph
         if (parentNode !== null){
-            this.logicalGraph().addNodeComplete(parentNode);
+            graphAtInsert.addNodeComplete(parentNode);
 
             // we need to know the required width for the new parentNode, which will be a bounding box for all nodes in nodes[]
             const bbSize = LogicalGraph.normaliseNodes(nodes);
@@ -1353,7 +1475,7 @@ export class Eagle {
 
         // insert nodes from lg into the existing logicalGraph
         for (const node of nodes){
-            const insertedNode: Node = await this.addNode(node, parentNodePosition.x + node.getPosition().x, parentNodePosition.y + node.getPosition().y); // NOTE: addNode does not add embedded apps
+            const insertedNode: Node = this.addNodeToGraph(graphAtInsert, node, parentNodePosition.x + node.getPosition().x, parentNodePosition.y + node.getPosition().y); // NOTE: addNode does not add embedded apps
 
             // save mapping for node itself
             nodeMap.set(node.getId(), insertedNode);
@@ -1416,11 +1538,6 @@ export class Eagle {
                 for (let j = 0 ; j < oldInputApplication.getOutputPorts().length; j++){
                     portMap.set(oldInputApplication.getOutputPorts()[j].getId(), newInputApplication.getOutputPorts()[j]);
                 }
-
-                // clear edge lists within fields of the old input application
-                for (const field of oldInputApplication.getFields()){
-                    field.clearEdges();
-                }
             }
 
 
@@ -1446,11 +1563,6 @@ export class Eagle {
                 // save mapping for output ports
                 for (let j = 0 ; j < oldOutputApplication.getOutputPorts().length; j++){
                     portMap.set(oldOutputApplication.getOutputPorts()[j].getId(), newOutputApplication.getOutputPorts()[j]);
-                }
-
-                // clear edge lists within fields of the old output application
-                for (const field of oldOutputApplication.getFields()){
-                    field.clearEdges();
                 }
             }
         }
@@ -1502,7 +1614,7 @@ export class Eagle {
 
             // add new edge
             const newEdge : Edge = new Edge('', srcNode, srcPort, destNode, destPort, loopAware, closesLoop, false);
-            this.logicalGraph().addEdgeComplete(newEdge);
+            graphAtInsert.addEdgeComplete(newEdge);
         }
 
         //used if we cant find space on the canvas, we then extend the search area for space and center the graph after adding to bring new nodes into view
@@ -1510,6 +1622,19 @@ export class Eagle {
             setTimeout(function(){
                 Eagle.getInstance().centerGraph()
             }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT)
+        }
+        } catch (error){
+            if (graphBeforeInsert !== null && this.logicalGraph() === graphAtInsert) {
+                this.logicalGraph().restoreRollbackSnapshot(graphBeforeInsert);
+                // re-derive diagnostics (per-object issue lists and the aggregate
+                // graphErrors/graphWarnings) for the restored graph, since validation during
+                // the failed insert mutated them in place
+                this.checkEagle();
+            }
+            // roll back undo history to prevent failed partial insertion from being restorable
+            this.undo().current(undoCurrentAtInsert);
+            this.undo().front(undoFrontAtInsert);
+            throw error;
         }
     }
 
@@ -2959,6 +3084,12 @@ export class Eagle {
                 errorsWarnings
             );
 
+            // Post-insert bookkeeping. These run after insertGraph's mutation span, so if
+            // one throws it is caught by _loadGraphJSON (which returns false, per the
+            // contract documented there) but is NOT rolled back by insertGraph. The likely
+            // outcome is at worst a stale UI/undo snapshot, not a half-modified graph; the
+            // three statements are low-risk and adding a second snapshot/try here for them
+            // would be over-engineering, so the gap is accepted and documented.
             this.checkEagle();
             this.undo().pushSnapshot(this, "Insert Logical Graph");
             this.logicalGraph.valueHasMutated();
@@ -3065,7 +3196,7 @@ export class Eagle {
         }
 
         // show errors/warnings
-        this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
+        this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service, true);
     }
 
     insertRemoteFile = async (file : RepositoryFile): Promise<void> => {
@@ -3118,7 +3249,7 @@ export class Eagle {
         }
 
         // attempt to determine schema version from FileInfo
-        const schemaVersion: SchemaVersion = Utils.determineSchemaVersion(dataObject);
+        const schemaVersion: SchemaVersion = Utils.determineGraphSchemaVersion(dataObject);
 
         // check if we need to update the graph from keys to ids
         if (GraphUpdater.usesNodeKeys(dataObject)){
@@ -3161,7 +3292,7 @@ export class Eagle {
         this.checkEagle();
 
         // show errors/warnings
-        this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
+        this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service, true);
     };
 
     deleteRemoteFile = async (file : RepositoryFile): Promise<void> => {
@@ -5561,10 +5692,6 @@ export class Eagle {
     // NOTE: clones the node internally
     // NOTE: does not add the node's input or output applications to the logical graph
     addNode = async (node : Node, x: number, y: number): Promise<Node> => {
-        // copy node
-        // TODO: could replace with node.copy() ?
-        const newNode: Node = Utils.duplicateNode(node);
-
         // check if node will be added to an empty graph, if so prompt user to specify graph name
         try {
             await Utils.ensureGraphIsInitialized(this.logicalGraph());
@@ -5572,12 +5699,23 @@ export class Eagle {
             console.warn(error);
         }
 
+        return this.addNodeToGraph(this.logicalGraph(), node, x, y);
+    }
+
+    // Synchronous core of addNode. insertGraph runs its node/edge loops through this
+    // method (without awaiting) so that no other operation can interleave with the
+    // partially built graph state mid-insert.
+    private addNodeToGraph = (graph: LogicalGraph, node : Node, x: number, y: number): Node => {
+        // copy node
+        // TODO: could replace with node.copy() ?
+        const newNode: Node = Utils.duplicateNode(node);
+
         newNode.setPosition(x, y);
-        this.logicalGraph().addNodeComplete(newNode);
+        graph.addNodeComplete(newNode);
 
         // flag that the logical graph has been modified
-        this.logicalGraph().fileInfo().modified = true;
-        this.logicalGraph().fileInfo.valueHasMutated();
+        graph.fileInfo().modified = true;
+        graph.fileInfo.valueHasMutated();
 
         return newNode;
     }

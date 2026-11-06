@@ -113,13 +113,14 @@ export class FileLocation {
     static fromJson(data: V4FileLocationJson, _errorsWarnings: ErrorsWarnings): FileLocation {
         const result: FileLocation = new FileLocation();
 
-        result.repositoryService((data.repositoryService as RepositoryService | undefined) ?? RepositoryService.Unknown);
-        result.repositoryBranch(data.repositoryBranch ?? "");
-        result.repositoryName(data.repositoryName ?? "");
-        result.repositoryPath(data.repositoryPath ?? "");
-        result.repositoryFileName(data.repositoryFileName ?? "");
-        result.commitHash(data.commitHash ?? "");
-        result.downloadUrl(data.downloadUrl ?? "");
+        // NOTE: data may be partially undefined for older files; defaults applied below
+        result.repositoryService(((data?.repositoryService) as RepositoryService | undefined) ?? RepositoryService.Unknown);
+        result.repositoryBranch(data?.repositoryBranch ?? "");
+        result.repositoryName(data?.repositoryName ?? "");
+        result.repositoryPath(data?.repositoryPath ?? "");
+        result.repositoryFileName(data?.repositoryFileName ?? "");
+        result.commitHash(data?.commitHash ?? "");
+        result.downloadUrl(data?.downloadUrl ?? "");
 
         return result;
     }
