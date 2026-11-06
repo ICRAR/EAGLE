@@ -133,3 +133,93 @@ test('A rollback snapshot re-points cloned fields, edges and visual targets', as
 
     await page.close();
 });
+
+// Two different nodes share the same field ID (DUP). A rollback snapshot must resolve each
+// edge endpoint through its owning node (node-scoped), not a graph-wide field-ID map —
+// otherwise the source endpoint on NODE1 would be miswired to NODE2's cloned field.
+const DUP = '33333333-aaaa-4bbb-8ccc-dddddddddddd';
+const PORT_B = '44444444-aaaa-4bbb-8ccc-dddddddddddd';
+const EDGE_DUP = '55555555-aaaa-4bbb-8ccc-dddddddddddd';
+
+test('A rollback snapshot resolves edge ports by owning node when field IDs collide', async ({ page }) => {
+    await page.goto('http://localhost:8888/?tutorial=none');
+    await TestHelpers.waitForV4GraphSchema(page);
+
+    const graphData = {
+        modelData: {type: 'Graph', schemaVersion: 'V4', name: 'duplicate field ids'},
+        nodes: {
+            // NODE1 owns a field with the duplicate id DUP.
+            [NODE1]: {id: NODE1, category: 'Data', name: 'node-1', fields: {[DUP]: {id: DUP, name: 'dup-on-1', type: 'string'}}},
+            // NODE2 has its own port plus a field that reuses the same id DUP.
+            [NODE2]: {id: NODE2, category: 'Data', name: 'node-2', fields: {[PORT_B]: {id: PORT_B, name: 'pb', type: 'string'}, [DUP]: {id: DUP, name: 'dup-on-2', type: 'string'}}},
+        },
+        edges: {
+            // source port is NODE1's duplicate-id field; dest port is NODE2's unique port
+            [EDGE_DUP]: {id: EDGE_DUP, srcNodeId: NODE1, srcPortId: DUP, destNodeId: NODE2, destPortId: PORT_B},
+        },
+        graphConfigurations: {},
+        activeGraphConfigId: null,
+    };
+
+    type EvalArg = {data: object, node1: string, node2: string, edge: string};
+    const result = await page.evaluate(async (arg: EvalArg) => {
+        const {data, node1, node2, edge: edgeId} = arg;
+        const eagle = (window as unknown as {eagle: TestEagle}).eagle;
+        const captured: {outcome: unknown} = {outcome: null};
+        const loaded = await eagle._loadGraphJSON(JSON.stringify(data), 'dup-ids.graph', (graph) => {
+            // exercise the snapshot/restore round-trip in place on the loaded graph
+            graph.restoreRollbackSnapshot(graph.createRollbackSnapshot());
+            const restored = graph;
+
+            const restoredEdge = Array.from(restored.getEdges()).find((edge) => edge.getId() === edgeId);
+            const restoredNode1 = restored.getNodeById(node1);
+            const restoredNode2 = restored.getNodeById(node2);
+
+            if (typeof restoredEdge === 'undefined' || typeof restoredNode1 === 'undefined' || typeof restoredNode2 === 'undefined'){
+                captured.outcome = {
+                    loaded: true,
+                    error: 'expected object missing from restored graph',
+                    diag: {
+                        nodeCount: Array.from(restored.getNodes()).length,
+                        edgeCount: Array.from(restored.getEdges()).length,
+                        hasEdge: typeof restoredEdge !== 'undefined',
+                        hasNode1: typeof restoredNode1 !== 'undefined',
+                        hasNode2: typeof restoredNode2 !== 'undefined',
+                    },
+                };
+                return;
+            }
+
+            const srcPort = restoredEdge.getSrcPort();
+            const destPort = restoredEdge.getDestPort();
+
+            captured.outcome = {
+                loaded: true,
+                // the regression assertion: the source endpoint must resolve to the field
+                // owned by NODE1's clone, not NODE2's (the last duplicate-id field seen)
+                srcPortOwnedByNode1: srcPort.getNode() === restoredNode1,
+                destPortOwnedByNode2: destPort.getNode() === restoredNode2,
+                srcPortId: srcPort.getId(),
+                destPortId: destPort.getId(),
+                edgeInSrcPort: Array.from(srcPort.getEdges()).some((edge) => edge === restoredEdge),
+                edgeInDestPort: Array.from(destPort.getEdges()).some((edge) => edge === restoredEdge),
+            };
+        });
+        if (!loaded){
+            return {loaded, error: 'graph did not load'} as const;
+        }
+        return captured.outcome;
+    }, {data: graphData, node1: NODE1, node2: NODE2, edge: EDGE_DUP});
+
+    expect(result).toEqual({
+        loaded: true,
+        srcPortOwnedByNode1: true,
+        destPortOwnedByNode2: true,
+        srcPortId: DUP,
+        destPortId: PORT_B,
+        edgeInSrcPort: true,
+        edgeInDestPort: true,
+    });
+
+    await page.close();
+});

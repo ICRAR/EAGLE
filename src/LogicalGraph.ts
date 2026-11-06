@@ -839,7 +839,6 @@ export class LogicalGraph {
 
         // clone the nodes, keeping original -> clone lookups for the reference remapping below
         const nodeCloneByObject = new Map<Node, Node>();
-        const portCloneById = new Map<FieldId, Field>();
         for (const [id, node] of this.nodes()){
             const clone = node.clone();
             nodeCloneByObject.set(node, clone);
@@ -852,7 +851,6 @@ export class LogicalGraph {
                 for (const staleEdgeId of Array.from(port.getEdges()).map((stale) => stale.getId())){
                     port.removeEdge(staleEdgeId);
                 }
-                portCloneById.set(port.getId(), port);
             }
         }
 
@@ -883,8 +881,12 @@ export class LogicalGraph {
         for (const [id, edge] of this.edges()){
             const srcNode = nodeCloneByObject.get(edge.getSrcNode());
             const destNode = nodeCloneByObject.get(edge.getDestNode());
-            const srcPort = portCloneById.get(edge.getSrcPort().getId());
-            const destPort = portCloneById.get(edge.getDestPort().getId());
+            // resolve each endpoint's port through its cloned owning node (node-scoped), not
+            // a graph-wide field-ID map: field IDs are only unique within a node, so a
+            // graph-wide map would let duplicate IDs on different nodes wire an endpoint to
+            // the wrong node's cloned field after rollback
+            const srcPort = (srcNode === undefined) ? undefined : srcNode.getFieldById(edge.getSrcPort().getId());
+            const destPort = (destNode === undefined) ? undefined : destNode.getFieldById(edge.getDestPort().getId());
             if (typeof srcNode === 'undefined' || typeof destNode === 'undefined'
                 || typeof srcPort === 'undefined' || typeof destPort === 'undefined'){
                 // an endpoint lives outside the nodes collection (should not happen for a
