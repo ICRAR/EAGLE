@@ -564,10 +564,17 @@ export class LogicalGraph {
         }
 
         const activeGraphConfigId = dataObject.activeGraphConfigId;
-        if (typeof activeGraphConfigId === 'string'
-            && activeGraphConfigId !== ''
-            && result.graphConfigs().has(activeGraphConfigId as GraphConfigId)) {
-            result.activeGraphConfigId(activeGraphConfigId as GraphConfigId);
+        if (typeof activeGraphConfigId === 'string' && activeGraphConfigId !== ''){
+            if (result.graphConfigs().has(activeGraphConfigId as GraphConfigId)){
+                result.activeGraphConfigId(activeGraphConfigId as GraphConfigId);
+            } else {
+                // a dangling id: the file asks for an active configuration that does not exist, so
+                // the request would otherwise be silently unmet — surface it rather than drop it
+                // quietly
+                errorsWarnings.warnings.push(Errors.Message("activeGraphConfigId ('" + activeGraphConfigId
+                    + "') does not match any graph configuration; no active configuration set."));
+                result.activeGraphConfigId(null);
+            }
         } else {
             result.activeGraphConfigId(null);
         }
