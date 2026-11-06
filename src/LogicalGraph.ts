@@ -845,6 +845,13 @@ export class LogicalGraph {
             nodeCloneByObject.set(node, clone);
             snapshot.nodes().set(id, clone);
             for (const port of clone.getFields()){
+                // re-point the cloned field at its cloned owner node, and drop the
+                // stale edges Field.clone carried over (they reference the discarded
+                // originals); the correct snapshot edges are wired up in the edge pass
+                port.setNode(clone);
+                for (const staleEdgeId of Array.from(port.getEdges()).map((stale) => stale.getId())){
+                    port.removeEdge(staleEdgeId);
+                }
                 portCloneById.set(port.getId(), port);
             }
         }
@@ -889,26 +896,36 @@ export class LogicalGraph {
             }
             const clone = new Edge(edge.getComment(), srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop(), false);
             clone.setId(id);
+            // re-point the clone ports' edge lists at this snapshot edge so the port
+            // and the graph agree on which edge objects are connected
+            srcPort.addEdge(clone);
+            destPort.addEdge(clone);
             edgeCloneById.set(id, clone);
             snapshot.edges().set(id, clone);
         }
 
-        // clone the visuals, re-pointing targets at the cloned nodes, edges or visuals
+        // clone the visuals; pass 1 creates every clone (so visual-to-visual target
+        // clones are guaranteed to exist), pass 2 re-points each target at its clone
         const visualCloneById = new Map<VisualId, Visual>();
         for (const [id, visual] of this.visuals()){
             const clone = visual.clone();
-            // re-point node/edge targets at their clones; visual targets keep the
-            // clone's own reference, since the target visual's clone may not exist yet
+            visualCloneById.set(id, clone);
+            snapshot.visuals().set(id, clone);
+        }
+        for (const [id, visual] of this.visuals()){
+            const clone = visualCloneById.get(id);
+            if (typeof clone === 'undefined'){
+                continue;
+            }
             const target = visual.getTarget();
             const remappedTarget =
                 (target instanceof Node) ? nodeCloneByObject.get(target) :
                 (target instanceof Edge) ? edgeCloneById.get(target.getId()) :
+                (target instanceof Visual) ? visualCloneById.get(target.getId()) :
                 undefined;
             if (typeof remappedTarget !== 'undefined'){
                 clone.setTarget(remappedTarget);
             }
-            visualCloneById.set(id, clone);
-            snapshot.visuals().set(id, clone);
         }
 
         // clone the graph configs, re-pointing their node references at the cloned nodes
