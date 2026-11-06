@@ -1230,9 +1230,21 @@ export class Eagle {
 
         const errorsWarnings: ErrorsWarnings = {errors: [], warnings: []};
         let loaded = false;
-        const graphAtSnapshot = this.logicalGraph();
-        const graphBeforeLoad = graphAtSnapshot.createRollbackSnapshot();
 
+        // No rollback snapshot is taken here: every rejection path above only mutates the
+        // parsed JSON, never the live graph, and loadFunc always runs against a freshly
+        // built graph object, so a failure can never leave the live graph half-loaded.
+        //
+        // Contract on loadFunc — it must do exactly one of:
+        //   (a) replace path: swap the active graph with a single atomic assignment
+        //       (this.logicalGraph(graph)), so a throw before the swap leaves the live
+        //       graph untouched and a throw after the swap is already the final state; or
+        //   (b) insert path: delegate all live-graph mutation to insertGraph, which owns
+        //       the one snapshot that can protect a partially-modified live graph.
+        // A loadFunc that mutates the live graph itself and then throws is NOT supported:
+        // this method would catch the throw and return false, but no rollback happens
+        // here, so the live graph could be left half-modified. All four current callers
+        // satisfy the contract (two insert-path, two replace-path).
         // use the correct parsing function based on schema version
         try {
             const fileType: EagleFileType = Utils.determineFileType(dataObject);
@@ -1260,7 +1272,8 @@ export class Eagle {
                         GraphUpdater.updateKeysToIds(dataObject);
                     }
 
-                    await loadFunc(LogicalGraph.fromOJSJson(dataObject, "", errorsWarnings), errorsWarnings);
+                    const graph = LogicalGraph.fromOJSJson(dataObject, "", errorsWarnings);
+                    await loadFunc(graph, errorsWarnings);
                     loaded = true;
                     break;
                 case SchemaVersion.V4: {
@@ -1278,18 +1291,16 @@ export class Eagle {
                     break;
             }
         } catch (error){
-            // a parse/load failure mid-way must not leave the graph half-loaded
-            // (the parse builds the full graph object before any mutation, so abort here)
+            // This catch handles two distinct failure classes, neither of which needs a
+            // rollback here:
+            //   - a parse/parse-validation error thrown by the code above (determineFileType,
+            //     _isV4GraphCandidate, _validateV4GraphLoadJSON, fromOJSJson/fromV4Json); and
+            //   - an error re-thrown by loadFunc itself. On the insert path that is insertGraph
+            //     re-throwing after it has already rolled back; on the replace path it is a
+            //     non-atomic loadFunc, which violates the contract documented above.
+            // In neither case does this layer own a snapshot, so it logs the error and
+            // returns false without touching the live graph.
             console.error("Error loading graph file:", error);
-            // only restore when the active graph is still the one snapshotted; if it was
-            // replaced while we awaited, the snapshot is stale and the new graph is left as-is
-            if (this.logicalGraph() === graphAtSnapshot) {
-                this.logicalGraph().restoreRollbackSnapshot(graphBeforeLoad);
-                // re-derive diagnostics (per-object issue lists and the aggregate
-                // graphErrors/graphWarnings) for the restored graph, since validation during
-                // the failed load mutated them in place
-                this.checkEagle();
-            }
             errorsWarnings.errors.push(Errors.Message("Failed to load graph file: " + Errors.UnknownToError(error)));
             loaded = false;
         }
@@ -1410,9 +1421,12 @@ export class Eagle {
     // NOTE: parentNode would be null if we are duplicating a selection of objects
     insertGraph = async (nodes: Node[], edges: Edge[], parentNode: Node | null, errorsWarnings: ErrorsWarnings) => {
         const graphAtInsert = this.logicalGraph();
-        const graphBeforeInsert = graphAtInsert.createRollbackSnapshot();
-        const undoCurrentAtInsert = this.undo().current();
-        const undoFrontAtInsert = this.undo().front();
+        // The rollback snapshot deep-clones the active graph, so it is taken only once we are
+        // about to mutate (after the initialization await and the graph-replacement check),
+        // rather than up front. It stays null if the insert aborts before any mutation.
+        let graphBeforeInsert: LogicalGraph | null = null;
+        let undoCurrentAtInsert: number = this.undo().current();
+        let undoFrontAtInsert: number = this.undo().front();
         try {
         // ensure graph initialization up front (this is the only await in this method
         // before and during the mutation span); everything from here on runs synchronously,
@@ -1427,6 +1441,16 @@ export class Eagle {
             // graph, so the catch block must not restore it into the new one
             throw new Error("Graph was replaced while awaiting initialization; aborting insert");
         }
+
+        // Everything from here on runs synchronously (no further awaits), so it is safe to
+        // take the rollback snapshot now, just before the first mutation. The undo state is
+        // captured at the same point, after initialization: if the insert later fails, the
+        // graph and undo history both restore to this post-init state, so any initialization
+        // change that survives (e.g. the user-named graph) remains undoable instead of being
+        // silently dropped from undo.
+        undoCurrentAtInsert = this.undo().current();
+        undoFrontAtInsert = this.undo().front();
+        graphBeforeInsert = graphAtInsert.createRollbackSnapshot();
 
         // create map of inserted graph keys to final graph nodes, and of inserted port ids to final graph ports
         const nodeMap: Map<NodeId, Node> = new Map<NodeId, Node>();
@@ -1600,7 +1624,7 @@ export class Eagle {
             }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT)
         }
         } catch (error){
-            if (this.logicalGraph() === graphAtInsert) {
+            if (graphBeforeInsert !== null && this.logicalGraph() === graphAtInsert) {
                 this.logicalGraph().restoreRollbackSnapshot(graphBeforeInsert);
                 // re-derive diagnostics (per-object issue lists and the aggregate
                 // graphErrors/graphWarnings) for the restored graph, since validation during
@@ -3060,6 +3084,12 @@ export class Eagle {
                 errorsWarnings
             );
 
+            // Post-insert bookkeeping. These run after insertGraph's mutation span, so if
+            // one throws it is caught by _loadGraphJSON (which returns false, per the
+            // contract documented there) but is NOT rolled back by insertGraph. The likely
+            // outcome is at worst a stale UI/undo snapshot, not a half-modified graph; the
+            // three statements are low-risk and adding a second snapshot/try here for them
+            // would be over-engineering, so the gap is accepted and documented.
             this.checkEagle();
             this.undo().pushSnapshot(this, "Insert Logical Graph");
             this.logicalGraph.valueHasMutated();
