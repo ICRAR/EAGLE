@@ -9,12 +9,27 @@ const PORT2 = '44444444-aaaa-4bbb-8ccc-dddddddddddd';
 const EDGE = '55555555-aaaa-4bbb-8ccc-dddddddddddd';
 const VIS_A = '66666666-aaaa-4bbb-8ccc-dddddddddddd';
 const VIS_B = '77777777-aaaa-4bbb-8ccc-dddddddddddd';
+const GRAPH_CONFIG = '88888888-aaaa-4bbb-8ccc-dddddddddddd';
 
 type TestRef = {getId: () => string};
+type TestNode = TestRef & {
+    getFieldById: (id: string) => TestField | undefined;
+    getParent: () => TestNode | null;
+};
 type TestField = {
     getId: () => string;
     getNode: () => TestRef;
     getEdges: () => Iterable<TestRef>;
+};
+type TestGraphConfigField = {getField: () => TestField};
+type TestGraphConfigNode = {
+    getNode: () => TestNode;
+    getFieldById: (id: string) => TestGraphConfigField | undefined;
+};
+type TestGraphConfig = {
+    getId: () => string;
+    getNodeById: (id: string) => TestGraphConfigNode | undefined;
+    fileInfo: () => {graphLocation: object};
 };
 type TestEdge = {
     getId: () => string;
@@ -28,8 +43,11 @@ type TestVisual = {
 type TestGraph = {
     getNodes: () => Iterable<TestRef>;
     getEdges: () => Iterable<TestEdge>;
-    getNodeById: (id: string) => TestRef | undefined;
+    getNodeById: (id: string) => TestNode | undefined;
+    getEdgeById: (id: string) => TestEdge | undefined;
     getVisualById: (id: string) => TestVisual | undefined;
+    getGraphConfigs: () => Iterable<TestGraphConfig>;
+    fileInfo: () => {graphLocation: object};
     createRollbackSnapshot: () => TestGraph;
     restoreRollbackSnapshot: (snapshot: TestGraph) => void;
 };
@@ -60,18 +78,35 @@ test('A rollback snapshot re-points cloned fields, edges and visual targets', as
             [VIS_A]: {id: VIS_A, type: 'Group', content: '', targetId: NODE1},
             [VIS_B]: {id: VIS_B, type: 'Label', content: 'label', targetId: VIS_A},
         },
-        graphConfigurations: {},
-        activeGraphConfigId: null,
+        graphConfigurations: {
+            [GRAPH_CONFIG]: {
+                id: GRAPH_CONFIG,
+                modelData: {type: 'GraphConfig', schemaVersion: 'V4', name: 'snapshot config'},
+                nodes: {[NODE1]: {fields: {[PORT1]: {value: 'configured'}}}},
+            },
+        },
+        activeGraphConfigId: GRAPH_CONFIG,
     };
 
-    type EvalArg = {data: object, node1: string, node2: string, edge: string, visA: string, visB: string};
+    type EvalArg = {
+        data: object;
+        node1: string;
+        node2: string;
+        edge: string;
+        visA: string;
+        visB: string;
+        graphConfigId: string;
+        port1: string;
+    };
     const result = await page.evaluate(async (arg: EvalArg) => {
-        const {data, node1, node2, edge: edgeId, visA, visB} = arg;
+        const {data, node1, node2, edge: edgeId, visA, visB, graphConfigId, port1} = arg;
         const eagle = (window as unknown as {eagle: TestEagle}).eagle;
         const captured: {outcome: unknown} = {outcome: null};
         const loaded = await eagle._loadGraphJSON(JSON.stringify(data), 'rollback-refs.graph', (graph) => {
             // exercise the snapshot/restore round-trip in place on the loaded graph
-            graph.restoreRollbackSnapshot(graph.createRollbackSnapshot());
+            const snapshot = graph.createRollbackSnapshot();
+            const originalConfigField = graph.getNodeById(node1)?.getFieldById(port1);
+            graph.restoreRollbackSnapshot(snapshot);
             const restored = graph;
 
             const restoredEdge = Array.from(restored.getEdges()).find((edge) => edge.getId() === edgeId);
@@ -79,9 +114,16 @@ test('A rollback snapshot re-points cloned fields, edges and visual targets', as
             const restoredNode2 = restored.getNodeById(node2);
             const restoredVisualA = restored.getVisualById(visA);
             const restoredVisualB = restored.getVisualById(visB);
+            const restoredGraphConfig = Array.from(restored.getGraphConfigs()).find((config) => config.getId() === graphConfigId);
+            const restoredConfigField = restoredGraphConfig?.getNodeById(node1)?.getFieldById(port1)?.getField();
+            const restoredGraphConfigLocation = restoredGraphConfig?.fileInfo().graphLocation;
+            const snapshotGraphConfig = Array.from(snapshot.getGraphConfigs()).find((config) => config.getId() === graphConfigId);
 
             if (typeof restoredEdge === 'undefined' || typeof restoredNode1 === 'undefined' || typeof restoredNode2 === 'undefined'
-                || typeof restoredVisualA === 'undefined' || typeof restoredVisualB === 'undefined'){
+                || typeof restoredVisualA === 'undefined' || typeof restoredVisualB === 'undefined'
+                || typeof restoredGraphConfig === 'undefined' || typeof restoredConfigField === 'undefined'
+                || typeof originalConfigField === 'undefined' || typeof restoredGraphConfigLocation === 'undefined'
+                || typeof snapshotGraphConfig === 'undefined'){
                 captured.outcome = {
                     loaded: true,
                     error: 'expected object missing from restored graph',
@@ -104,6 +146,11 @@ test('A rollback snapshot re-points cloned fields, edges and visual targets', as
             const destPortOwnsRestoredNode = restoredEdge.getDestPort().getNode() === restoredNode2;
             const nodeVisualTargetsRestoredNode = restoredVisualA.getTarget() === restoredNode1;
             const visualToVisualTargetsRestoredVisual = restoredVisualB.getTarget() === restoredVisualA;
+            const visualIdsMatchMapKeys = restoredVisualA.getId() === visA && restoredVisualB.getId() === visB;
+            const graphConfigFieldReferencesRestoredField = restoredConfigField.getNode() === restoredNode1
+                && restoredConfigField !== originalConfigField;
+            const graphLocationsAreIndependent = restored.fileInfo().graphLocation !== snapshot.fileInfo().graphLocation
+                && restoredGraphConfigLocation !== snapshotGraphConfig.fileInfo().graphLocation;
 
             captured.outcome = {
                 loaded: true,
@@ -113,13 +160,25 @@ test('A rollback snapshot re-points cloned fields, edges and visual targets', as
                 destPortOwnsRestoredNode,
                 nodeVisualTargetsRestoredNode,
                 visualToVisualTargetsRestoredVisual,
+                visualIdsMatchMapKeys,
+                graphConfigFieldReferencesRestoredField,
+                graphLocationsAreIndependent,
             };
         });
         if (!loaded){
             return {loaded, error: 'graph did not load'} as const;
         }
         return captured.outcome;
-    }, {data: graphData, node1: NODE1, node2: NODE2, edge: EDGE, visA: VIS_A, visB: VIS_B});
+    }, {
+    data: graphData,
+    node1: NODE1,
+    node2: NODE2,
+    edge: EDGE,
+    visA: VIS_A,
+    visB: VIS_B,
+    graphConfigId: GRAPH_CONFIG,
+    port1: PORT1,
+    });
 
     expect(result).toEqual({
         loaded: true,
@@ -129,6 +188,9 @@ test('A rollback snapshot re-points cloned fields, edges and visual targets', as
         destPortOwnsRestoredNode: true,
         nodeVisualTargetsRestoredNode: true,
         visualToVisualTargetsRestoredVisual: true,
+        visualIdsMatchMapKeys: true,
+        graphConfigFieldReferencesRestoredField: true,
+        graphLocationsAreIndependent: true,
     });
 
     await page.close();
@@ -221,5 +283,47 @@ test('A rollback snapshot resolves edge ports by owning node when field IDs coll
         edgeInDestPort: true,
     });
 
+    await page.close();
+});
+
+test('V4 objects are indexed by their IDs rather than container keys', async ({ page }) => {
+    await page.goto('http://localhost:8888/?tutorial=none');
+    await TestHelpers.waitForV4GraphSchema(page);
+
+    const nodeKey1 = 'aaaaaaaa-aaaa-4bbb-8ccc-dddddddddddd';
+    const nodeKey2 = 'bbbbbbbb-aaaa-4bbb-8ccc-dddddddddddd';
+    const edgeKey = 'cccccccc-aaaa-4bbb-8ccc-dddddddddddd';
+    const visualKey = 'dddddddd-aaaa-4bbb-8ccc-dddddddddddd';
+    const graphData = {
+        modelData: {type: 'Graph', schemaVersion: 'V4', name: 'map key mismatch'},
+        nodes: {
+            [nodeKey1]: {id: NODE1, category: 'Data', name: 'node-1', fields: {[PORT1]: {id: PORT1, name: 'p1', type: 'string'}}},
+            [nodeKey2]: {id: NODE2, parentId: NODE1, category: 'Data', name: 'node-2', fields: {[PORT2]: {id: PORT2, name: 'p2', type: 'string'}}},
+        },
+        edges: {
+            [edgeKey]: {id: EDGE, srcNodeId: NODE1, srcPortId: PORT1, destNodeId: NODE2, destPortId: PORT2},
+        },
+        visuals: {
+            [visualKey]: {id: VIS_A, type: 'Group', content: '', targetId: NODE1},
+        },
+    };
+
+    const result = await page.evaluate(async (data: object) => {
+        const eagle = (window as unknown as {eagle: TestEagle}).eagle;
+        let found = {node: false, child: false, edge: false, visual: false};
+        const loaded = await eagle._loadGraphJSON(JSON.stringify(data), 'map-key-mismatch.graph', (graph) => {
+            const node1 = graph.getNodeById('11111111-aaaa-4bbb-8ccc-dddddddddddd');
+            const node2 = graph.getNodeById('22222222-aaaa-4bbb-8ccc-dddddddddddd');
+            found = {
+                node: typeof node1 !== 'undefined',
+                child: node2?.getParent() === node1,
+                edge: graph.getEdgeById('55555555-aaaa-4bbb-8ccc-dddddddddddd')?.getId() === '55555555-aaaa-4bbb-8ccc-dddddddddddd',
+                visual: graph.getVisualById('66666666-aaaa-4bbb-8ccc-dddddddddddd')?.getId() === '66666666-aaaa-4bbb-8ccc-dddddddddddd',
+            };
+        });
+        return {loaded, found};
+    }, graphData);
+
+    expect(result).toEqual({loaded: true, found: {node: true, child: true, edge: true, visual: true}});
     await page.close();
 });

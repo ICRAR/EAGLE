@@ -138,3 +138,15 @@ test('An invalid schemaVersion on a V4 graph reaches V4 schema validation', asyn
 
     await page.close();
 });
+
+test('An unknown string schemaVersion is rejected by V4 schema validation', async ({ page }) => {
+    const result = await loadInvalidGraph(page, {
+        modelData: {type: 'Graph', schemaVersion: 'V5', name: 'invalid schema version'},
+        nodes: {},
+    });
+
+    expect(result.loaded, JSON.stringify(result)).toBe(false);
+    expect(result.errors.some((error) => error.startsWith('Schema validation:') && error.includes('schemaVersion'))).toBe(true);
+
+    await page.close();
+});

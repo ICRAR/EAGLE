@@ -10,9 +10,12 @@ type TestNode = {
     getInputApplication: () => TestNode | null;
     getOutputApplication: () => TestNode | null;
     getId: () => string;
+    getFields: () => Iterable<TestField>;
+    getFieldById: (id: string) => TestField | undefined;
     clone: () => TestNode;
     setId: (id: string) => TestNode;
 };
+type TestField = {getId: () => string, getNode: () => TestNode};
 
 type TestEdge = {
     getId: () => string;
@@ -34,12 +37,17 @@ type TestGraph = {
     getGraphConfigs: () => Iterable<TestGraphConfig>;
     addGraphConfig: (config: TestGraphConfig, markChanged: boolean) => void;
     getNodeById: (id: string) => TestNode | undefined;
+    clone: () => TestGraph;
 };
 
 type TestEagle = {
     logicalGraph: {
         (): TestGraph;
         (graph: TestGraph): void;
+    };
+    undo: () => {
+        current: TestObservable<number>;
+        front: TestObservable<number>;
     };
     _loadGraphJSON: (
         json: string,
@@ -52,6 +60,19 @@ type TestEagle = {
         parent: TestNode | null,
         errorsWarnings: {errors: unknown[], warnings: unknown[]}
     ) => Promise<void>;
+    selectedObjects: () => (TestNode | TestEdge)[];
+    currentField: {
+        (): TestField | null;
+        (field: TestField | null): void;
+    };
+    setSelection: (object: TestNode | null, location: string) => void;
+};
+type TestObservable<T> = {
+    (): T;
+    (value: T): void;
+};
+type TestUtils = {
+    ensureGraphIsInitialized: (graph: TestGraph) => Promise<void>;
 };
 
 test('Failed graph insertion preserves existing graph relationships', async ({ page }) => {
@@ -69,6 +90,7 @@ test('Failed graph insertion preserves existing graph relationships', async ({ p
         const testWindow = window as unknown as {
             eagle: TestEagle;
             GraphConfig: new () => TestGraphConfig;
+            Eagle: {selectedRightClickObject: TestObservable<TestNode | null>};
         };
         const eagle = testWindow.eagle;
         const graph = eagle.logicalGraph();
@@ -82,6 +104,15 @@ test('Failed graph insertion preserves existing graph relationships', async ({ p
         if (child === undefined) {
             throw new Error('Fixture parent does not contain a child');
         }
+        const nodeWithField = nodes.find((node) => Array.from(node.getFields()).length > 0);
+        const selectedField = nodeWithField === undefined ? undefined : Array.from(nodeWithField.getFields())[0];
+        if (typeof selectedField === 'undefined'){
+            throw new Error('Fixture does not contain a field for selection restoration');
+        }
+
+        eagle.setSelection(parent, 'Graph');
+        eagle.currentField(selectedField);
+        testWindow.Eagle.selectedRightClickObject(parent);
 
         const graphConfig = new testWindow.GraphConfig();
         graphConfig.addNode(parent);
@@ -133,6 +164,10 @@ test('Failed graph insertion preserves existing graph relationships', async ({ p
         const restoredChild = restoredNodes.find((node) => node.getId() === child.getId());
         const restoredConfig = restoredConfigs.find((config) => config.getId() === graphConfig.getId());
         const restoredConfigNode = restoredConfig?.getNodeById(parent.getId());
+        const restoredFieldNode = restoredNodes.find((node) => node.getId() === nodeWithField?.getId());
+        const restoredField = restoredFieldNode?.getFieldById(selectedField.getId());
+        const selectedAfterRollback = eagle.selectedObjects();
+        const rightClickAfterRollback = testWindow.Eagle.selectedRightClickObject();
 
         // The rollback snapshot is a deep copy: restored objects are clones of the
         // pre-insert objects, so object identity is intentionally NOT preserved — what
@@ -152,6 +187,10 @@ test('Failed graph insertion preserves existing graph relationships', async ({ p
             restoredChildReferencesRestoredParent: restoredChild?.getParent() === restoredParent,
             configNodeStillReferencesOriginalNode: configNode.getNode() === parent,
             restoredConfigNodeReferencesRestoredNode: restoredConfigNode?.getNode() === restoredParent,
+            selectedObjectRebound: selectedAfterRollback.length === 1 && selectedAfterRollback[0] === restoredParent,
+            currentFieldRebound: restoredFieldNode !== undefined && restoredField !== undefined
+                && eagle.currentField() === restoredField && restoredField.getNode() === restoredFieldNode,
+            rightClickObjectRebound: rightClickAfterRollback === restoredParent,
         };
     });
 
@@ -166,7 +205,54 @@ test('Failed graph insertion preserves existing graph relationships', async ({ p
         restoredChildReferencesRestoredParent: true,
         configNodeStillReferencesOriginalNode: true,
         restoredConfigNodeReferencesRestoredNode: true,
+        selectedObjectRebound: true,
+        currentFieldRebound: true,
+        rightClickObjectRebound: true,
     });
 
+    await page.close();
+});
+
+test('A graph replaced during initialization keeps its undo state', async ({ page }) => {
+    await page.goto('http://localhost:8888/?tutorial=none');
+    const result = await page.evaluate(async () => {
+        const testWindow = window as unknown as {eagle: TestEagle, Utils: TestUtils};
+        const eagle = testWindow.eagle;
+        const utils = testWindow.Utils;
+        const originalGraph = eagle.logicalGraph();
+        const replacementGraph = originalGraph.clone();
+        const undo = eagle.undo();
+        const nextCurrent = undo.current() + 1;
+        const nextFront = undo.front() + 1;
+        const originalEnsure = utils.ensureGraphIsInitialized;
+        let insertionFailed = false;
+
+        utils.ensureGraphIsInitialized = async () => {
+            undo.current(nextCurrent);
+            undo.front(nextFront);
+            eagle.logicalGraph(replacementGraph);
+        };
+        try {
+            await eagle.insertGraph([], [], null, {errors: [], warnings: []});
+        } catch {
+            insertionFailed = true;
+        } finally {
+            utils.ensureGraphIsInitialized = originalEnsure;
+        }
+
+        return {
+            insertionFailed,
+            replacementPreserved: eagle.logicalGraph() === replacementGraph,
+            undoCurrentPreserved: undo.current() === nextCurrent,
+            undoFrontPreserved: undo.front() === nextFront,
+        };
+    });
+
+    expect(result).toEqual({
+        insertionFailed: true,
+        replacementPreserved: true,
+        undoCurrentPreserved: true,
+        undoFrontPreserved: true,
+    });
     await page.close();
 });

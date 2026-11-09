@@ -43,7 +43,6 @@ import { readFileSync, writeFileSync, mkdtempSync, rmSync } from "fs";
 import { tmpdir } from "os";
 import path from "path";
 import { fileURLToPath } from "url";
-import assert from "node:assert";
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(scriptDir, "..");
@@ -70,7 +69,7 @@ function run() {
     // Run the production warning/error collector with detailed Ajv output, just as
     // Eagle._validateV4GraphLoadJSON does after Utils._validateJSONDetailed.
     function classify(dataObject) {
-        const ajv = new Ajv({ strict: false, logger: false, allErrors: true });
+        const ajv = new Ajv({ logger: false, allErrors: true });
         const valid = ajv.validate(schema, dataObject);
         const errors = (ajv.errors ?? []).map((e) => ({
             dataPath: e.instancePath ?? "",
@@ -162,6 +161,12 @@ function run() {
         keyword: "additionalProperties",
         params: { additionalProperty: "not-a-uuid" },
     }));
+    check("nested graph-config node map-key additionalProperties is recoverable", !isStructuralV4Error({
+        dataPath: "/graphConfigurations/aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee/nodes",
+        message: "must NOT have additional properties",
+        keyword: "additionalProperties",
+        params: { additionalProperty: "not-a-uuid" },
+    }));
     check("node attribute additionalProperties is recoverable", !isStructuralV4Error({
         dataPath: "/nodes/aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee",
         message: "must NOT have additional properties",
@@ -205,6 +210,11 @@ function run() {
     m = clone(sampleGraph); m.modelData = 5;
     r = classify(m);
     check("modelData wrong type -> structural (blocks)", !r.valid && r.structural, JSON.stringify(r));
+
+    m = clone(sampleGraph); m.modelData.schemaVersion = "V5";
+    r = classify(m);
+    check("invalid string schemaVersion -> structural (blocks)", !r.valid && r.structural
+        && r.validationErrors.some((error) => error.dataPath === "/modelData/schemaVersion"), JSON.stringify(r));
 
     // Recoverable violations are reported as warnings by the same classification
     // function used by Eagle's real load-validation path. Malformed graph object
@@ -259,6 +269,14 @@ function run() {
     m.nodes["not-a-uuid"] = { name: "stray node" };
     r = classify(m);
     check("unknown node map key (non-UUID) -> structural (blocks)", !r.valid && r.structural, JSON.stringify(r));
+
+    const graphConfigId = "bbbbbbbb-cccc-4ddd-8eee-ffffffffffff";
+    m = clone(sampleGraph);
+    m.graphConfigurations = {[graphConfigId]: {nodes: {"not-a-uuid": {}}}};
+    r = classify(m);
+    check("nested graph-config node map key -> warning and recoverable", !r.valid && !r.structural && r.warnings > 0, JSON.stringify(r));
+    sanitizeRecoverableV4Errors(m, r.validationErrors);
+    check("nested graph-config node map key is removed", Object.keys(m.graphConfigurations[graphConfigId].nodes).length === 0, JSON.stringify(m.graphConfigurations));
 
     // These checks cover only schema/classifier behavior. The actual parser default
     // and load result for an omitted changeable property are covered by

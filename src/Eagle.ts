@@ -1624,16 +1624,66 @@ export class Eagle {
             }, EagleConfig.STANDARD_UI_SHORT_TIMEOUT)
         }
         } catch (error){
-            if (graphBeforeInsert !== null && this.logicalGraph() === graphAtInsert) {
+            const graphWasRestored = graphBeforeInsert !== null && this.logicalGraph() === graphAtInsert;
+            if (graphBeforeInsert !== null && graphWasRestored) {
+                type GraphObjectRef =
+                    | {type: "node", id: NodeId}
+                    | {type: "edge", id: EdgeId}
+                    | {type: "visual", id: VisualId};
+                const getObjectRef = (object: Node | Edge | Visual): GraphObjectRef => {
+                    if (object instanceof Node){
+                        return {type: "node", id: object.getId()};
+                    }
+                    if (object instanceof Edge){
+                        return {type: "edge", id: object.getId()};
+                    }
+                    return {type: "visual", id: object.getId()};
+                };
+                const selectedObjectRefs = this.selectedObjects().map(getObjectRef);
+                const currentField = this.currentField();
+                const currentFieldRef = currentField === null ? null : {
+                    nodeId: currentField.getNode().getId(),
+                    fieldId: currentField.getId(),
+                };
+                const rightClickObject = Eagle.selectedRightClickObject();
+                const rightClickObjectRef = rightClickObject === null ? null : getObjectRef(rightClickObject);
+
                 this.logicalGraph().restoreRollbackSnapshot(graphBeforeInsert);
+                const restoredGraph = this.logicalGraph();
+                const resolveObject = (objectRef: GraphObjectRef): Node | Edge | Visual | undefined => {
+                    switch (objectRef.type){
+                        case "node":
+                            return restoredGraph.getNodeById(objectRef.id);
+                        case "edge":
+                            return restoredGraph.getEdgeById(objectRef.id);
+                        case "visual":
+                            return restoredGraph.getVisualById(objectRef.id);
+                    }
+                };
+                this.setSelection(null, Eagle.selectedLocation());
+                for (const objectRef of selectedObjectRefs){
+                    const object = resolveObject(objectRef);
+                    if (typeof object !== "undefined"){
+                        this.editSelection(object, Eagle.selectedLocation());
+                    }
+                }
+                const restoredCurrentField = currentFieldRef === null
+                    ? undefined
+                    : restoredGraph.getNodeById(currentFieldRef.nodeId)?.getFieldById(currentFieldRef.fieldId);
+                this.currentField(restoredCurrentField ?? null);
+                Eagle.selectedRightClickObject(rightClickObjectRef === null
+                    ? null
+                    : resolveObject(rightClickObjectRef) ?? null);
                 // re-derive diagnostics (per-object issue lists and the aggregate
                 // graphErrors/graphWarnings) for the restored graph, since validation during
                 // the failed insert mutated them in place
                 this.checkEagle();
             }
-            // roll back undo history to prevent failed partial insertion from being restorable
-            this.undo().current(undoCurrentAtInsert);
-            this.undo().front(undoFrontAtInsert);
+            if (graphWasRestored){
+                // Roll back undo history only for the graph whose snapshot was restored.
+                this.undo().current(undoCurrentAtInsert);
+                this.undo().front(undoFrontAtInsert);
+            }
             throw error;
         }
     }
@@ -3284,7 +3334,13 @@ export class Eagle {
         const parentNode: Node = new Node(lg.fileInfo().name, lg.fileInfo().location.getText(), "", CategoryName.SubGraph);
 
         // perform insert
-        await this.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges()), parentNode, errorsWarnings);
+        try {
+            await this.insertGraph(Array.from(lg.getNodes()), Array.from(lg.getEdges()), parentNode, errorsWarnings);
+        } catch (error){
+            errorsWarnings.errors.push(Errors.Message(Errors.UnknownToError(error)));
+            this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service, false);
+            return;
+        }
 
         // trigger re-render
         this.logicalGraph.valueHasMutated();

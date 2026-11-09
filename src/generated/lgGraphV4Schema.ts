@@ -364,7 +364,11 @@ export const lgGraphV4Schema = {
                     "type": "string"
                 },
                 "schemaVersion": {
-                    "type": "string"
+                    "enum": [
+                        "OJS",
+                        "V4",
+                        "Unknown"
+                    ]
                 },
                 "lastModifiedName": {
                     "type": "string"

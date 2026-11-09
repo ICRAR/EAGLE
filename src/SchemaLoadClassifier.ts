@@ -42,7 +42,8 @@ export const STRUCTURAL_KEYS: string[] = ["modelData", "nodes"];
 
 // JSON pointer prefixes for the graph object maps. Violations AT these paths
 // (wrong container type, malformed map keys) or DEEPER (within a map entry)
-// are recoverable: the value/property is removed and parsing continues.
+// are recoverable: the value/property is removed and parsing continues. This
+// also applies to nested node/field maps inside graph configurations.
 const RECOVERABLE_MAP_PREFIXES: string[] = ["/nodes/", "/edges/", "/visuals/", "/graphConfigurations/"];
 
 // ajv reports an (empty-leading-slash) JSON pointer as the dataPath, e.g. "/modelData",

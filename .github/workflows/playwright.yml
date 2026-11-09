@@ -44,6 +44,8 @@ jobs:
         # Runs after `pip install .`, whose setup.py build step reinstalls node_modules with --only=production,
         # stripping devDependencies (e.g. @playwright/test); reinstall with devDependencies afterwards.
         run: npm ci --include=dev
+      - name: Test V4 schema loading
+        run: npm run -s test:v4schema
       - name: Compile Typescript
         # Invoke the script directly rather than via npx, which can otherwise fetch a mismatched copy from the registry.
         run: |
