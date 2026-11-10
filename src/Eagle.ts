@@ -1186,9 +1186,8 @@ export class Eagle {
             return true;
         }
 
-        // The V4 schema is fetched asynchronously; while it is still empty,
-        // validation would accept any document. Block the load rather than
-        // silently skipping classification and sanitization.
+        // Defensive check: the bundled fallback normally makes the schema non-empty,
+        // but an empty fetched schema must not silently skip validation.
         if (Object.keys(Utils.v4GraphSchema).length === 0) {
             errorsWarnings.errors.push(Errors.Message("Schema validation: V4 graph schema not yet loaded; cannot validate."));
             return false;
@@ -1209,6 +1208,28 @@ export class Eagle {
         return canLoad;
     }
 
+    private _validateV4GraphConfigJSON = (dataObject: JsonObject, errorsWarnings: ErrorsWarnings): void => {
+        if (Setting.findValue<boolean>(Setting.DISABLE_JSON_VALIDATION, false)) {
+            return;
+        }
+        if (Utils.determineGraphConfigSchemaVersion(dataObject) !== SchemaVersion.V4) {
+            return;
+        }
+
+        const validatorResult = Utils._validateJSONDetailed(dataObject, SchemaVersion.V4, EagleFileType.GraphConfig);
+        if (validatorResult.valid) {
+            return;
+        }
+
+        // Graph-config metadata and entries are recoverable: the parser applies defaults
+        // and skips malformed entries, so report these as warnings rather than blocking.
+        for (const error of validatorResult.errors) {
+            const displayPath = error.dataPath === "" ? "<root>" : (error.dataPath.startsWith("/") ? error.dataPath.slice(1) : error.dataPath);
+            errorsWarnings.warnings.push(Errors.Message("Schema validation: " + displayPath + " " + error.message +
+                (typeof error.missingProperty !== "undefined" ? " (" + error.missingProperty + ")" : "")));
+        }
+    };
+
     // A V4 graph with missing or malformed modelData is still recognizable
     // from its nodes container or malformed modelData, allowing schema
     // validation to report structural errors instead of rejecting it as unknown.
@@ -1226,6 +1247,55 @@ export class Eagle {
         }
         return false;
     }
+
+    private _parseGraphData = (dataObject: unknown, graphFileName: string, errorsWarnings: ErrorsWarnings): {graph: LogicalGraph | null, notGraph: boolean} => {
+        try {
+            const fileType: EagleFileType = Utils.determineFileType(dataObject);
+            const isV4GraphCandidate = this._isV4GraphCandidate(dataObject);
+
+            // A V4 graph with missing or malformed modelData is still recognizable
+            // from its nodes container or malformed modelData, allowing schema
+            // validation to report structural errors instead of rejecting it as unknown.
+            if (fileType !== EagleFileType.Graph && !(fileType === EagleFileType.Unknown && isV4GraphCandidate)) {
+                return {graph: null, notGraph: true};
+            }
+
+            // attempt to determine schema version from FileInfo; use V4 validation
+            // for graph-shaped documents whose malformed modelData hides the version.
+            const schemaVersion: SchemaVersion = fileType === EagleFileType.Unknown && isV4GraphCandidate
+                ? SchemaVersion.V4
+                : Utils.determineGraphSchemaVersion(dataObject);
+
+            switch (schemaVersion){
+                case SchemaVersion.OJS:
+                case SchemaVersion.Unknown: {
+                    // check if we need to update the graph from keys to ids
+                    if (GraphUpdater.usesNodeKeys(dataObject)){
+                        GraphUpdater.updateKeysToIds(dataObject);
+                    }
+
+                    const graph = LogicalGraph.fromOJSJson(dataObject, graphFileName, errorsWarnings);
+                    graph.fileInfo().type = EagleFileType.Graph;
+                    return {graph, notGraph: false};
+                }
+                case SchemaVersion.V4: {
+                    if (!this._validateV4GraphLoadJSON(dataObject as JsonObject, errorsWarnings)) {
+                        return {graph: null, notGraph: false};
+                    }
+                    const graph = LogicalGraph.fromV4Json(dataObject as V4GraphJson, graphFileName, errorsWarnings);
+                    graph.fileInfo().type = EagleFileType.Graph;
+                    return {graph, notGraph: false};
+                }
+                default:
+                    errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
+                    return {graph: null, notGraph: false};
+            }
+        } catch (error) {
+            console.error("Error parsing graph file:", error);
+            errorsWarnings.errors.push(Errors.Message("Failed to load graph file: " + Errors.UnknownToError(error)));
+            return {graph: null, notGraph: false};
+        }
+    };
 
     private _loadGraphJSON = async (data: string, fileFullPath: string, loadFunc: (lg: LogicalGraph, errorsWarnings: ErrorsWarnings) => void | Promise<void>) : Promise<boolean> => {
         let dataObject: unknown;
@@ -1255,61 +1325,27 @@ export class Eagle {
         // this method would catch the throw and return false, but no rollback happens
         // here, so the live graph could be left half-modified. All four current callers
         // satisfy the contract (two insert-path, two replace-path).
-        // use the correct parsing function based on schema version
+        const parseResult = this._parseGraphData(dataObject, "", errorsWarnings);
+        if (parseResult.notGraph) {
+            Utils.showUserMessage("Error", "This is not a graph file!");
+            return false;
+        }
+
+        if (parseResult.graph === null) {
+            this._handleLoadingErrors(errorsWarnings, Utils.getFileNameFromFullPath(fileFullPath), RepositoryService.File, false);
+            return false;
+        }
+
         try {
-            const fileType: EagleFileType = Utils.determineFileType(dataObject);
-            const isV4GraphCandidate = this._isV4GraphCandidate(dataObject);
-
-            // A V4 graph with missing or malformed modelData is still recognizable
-            // from its nodes container or malformed modelData, allowing schema
-            // validation to report structural errors instead of rejecting it as unknown.
-            if (fileType !== EagleFileType.Graph && !(fileType === EagleFileType.Unknown && isV4GraphCandidate)) {
-                Utils.showUserMessage("Error", "This is not a graph file!");
-                return false;
-            }
-
-            // attempt to determine schema version from FileInfo; use V4 validation
-            // for graph-shaped documents whose malformed modelData hides the version.
-            const schemaVersion: SchemaVersion = fileType === EagleFileType.Unknown && isV4GraphCandidate
-                ? SchemaVersion.V4
-                : Utils.determineGraphSchemaVersion(dataObject);
-
-            switch (schemaVersion){
-                case SchemaVersion.OJS:
-                case SchemaVersion.Unknown:
-                    // check if we need to update the graph from keys to ids
-                    if (GraphUpdater.usesNodeKeys(dataObject)){
-                        GraphUpdater.updateKeysToIds(dataObject);
-                    }
-
-                    const graph = LogicalGraph.fromOJSJson(dataObject, "", errorsWarnings);
-                    await loadFunc(graph, errorsWarnings);
-                    loaded = true;
-                    break;
-                case SchemaVersion.V4: {
-                    if (!this._validateV4GraphLoadJSON(dataObject as JsonObject, errorsWarnings)) {
-                        break;
-                    }
-                    const graph = LogicalGraph.fromV4Json(dataObject as V4GraphJson, "", errorsWarnings);
-                    graph.fileInfo().type = EagleFileType.Graph;
-                    await loadFunc(graph, errorsWarnings);
-                    loaded = true;
-                    break;
-                }
-                default:
-                    errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
-                    break;
-            }
+            await loadFunc(parseResult.graph, errorsWarnings);
+            loaded = true;
         } catch (error){
-            // This catch handles two distinct failure classes, neither of which needs a
-            // rollback here:
-            //   - a parse/parse-validation error thrown by the code above (determineFileType,
-            //     _isV4GraphCandidate, _validateV4GraphLoadJSON, fromOJSJson/fromV4Json); and
-            //   - an error re-thrown by loadFunc itself. On the insert path that is insertGraph
-            //     re-throwing after it has already rolled back; on the replace path it is a
-            //     non-atomic loadFunc, which violates the contract documented above.
-            // In neither case does this layer own a snapshot, so it logs the error and
-            // returns false without touching the live graph.
+            // Parsing and validation failures are handled by _parseGraphData above. This
+            // catch covers an error thrown by loadFunc itself: on the insert path that is
+            // insertGraph re-throwing after it has already rolled back, and on the replace
+            // path it is a non-atomic loadFunc, which violates the contract documented above.
+            // This layer owns no snapshot, so it logs the error and returns false without
+            // touching the live graph.
             console.error("Error loading graph file:", error);
             errorsWarnings.errors.push(Errors.Message("Failed to load graph file: " + Errors.UnknownToError(error)));
             loaded = false;
@@ -3245,6 +3281,7 @@ export class Eagle {
     _loadGraphConfig = async (dataObject: JsonObject, file: RepositoryFile): Promise<void> => {
         const errorsWarnings: ErrorsWarnings = {"errors":[], "warnings":[]};
 
+        this._validateV4GraphConfigJSON(dataObject, errorsWarnings);
         let graphConfig = GraphConfig.fromJson(dataObject, this.logicalGraph(), errorsWarnings);
 
         // A malformed config with no valid nodes is unusable; do not load its associated
@@ -3294,6 +3331,7 @@ export class Eagle {
             // Rebind configuration nodes to the graph that was just loaded.
             errorsWarnings.errors = [];
             errorsWarnings.warnings = [];
+            this._validateV4GraphConfigJSON(dataObject, errorsWarnings);
             graphConfig = GraphConfig.fromJson(dataObject, this.logicalGraph(), errorsWarnings);
 
             if (Errors.hasErrors(errorsWarnings) && Array.from(graphConfig.getNodes()).length === 0){
@@ -3371,56 +3409,20 @@ export class Eagle {
             return;
         }
 
-        const fileTypeLoaded: EagleFileType = Utils.determineFileType(dataObject);
-        const isV4GraphCandidate = this._isV4GraphCandidate(dataObject);
+        const errorsWarnings: ErrorsWarnings = {"errors":[], "warnings":[]};
 
-        // only do this for graphs at the moment; malformed V4 graph metadata is still a graph
-        if (fileTypeLoaded !== EagleFileType.Graph &&
-            !(fileTypeLoaded === EagleFileType.Unknown && isV4GraphCandidate)){
+        const parseResult = this._parseGraphData(dataObject, file.name, errorsWarnings);
+        if (parseResult.notGraph) {
             Utils.showUserMessage("Error", "Unable to insert non-graph!");
             console.error("Unable to insert non-graph!");
             return;
         }
-
-        // attempt to determine schema version from FileInfo; malformed V4 metadata is routed to V4
-        const schemaVersion: SchemaVersion = fileTypeLoaded === EagleFileType.Unknown && isV4GraphCandidate
-            ? SchemaVersion.V4
-            : Utils.determineGraphSchemaVersion(dataObject);
-
-        const errorsWarnings: ErrorsWarnings = {"errors":[], "warnings":[]};
-
-        // use the correct parsing function based on schema version
-        let lg: LogicalGraph;
-        try {
-            // check if we need to update the graph from keys to ids
-            if (GraphUpdater.usesNodeKeys(dataObject)){
-                GraphUpdater.updateKeysToIds(dataObject);
-            }
-
-            switch (schemaVersion){
-                case SchemaVersion.OJS:
-                case SchemaVersion.Unknown:
-                    lg = LogicalGraph.fromOJSJson(dataObject, file.name, errorsWarnings);
-                    break;
-                case SchemaVersion.V4:
-                    if (!this._validateV4GraphLoadJSON(dataObject as JsonObject, errorsWarnings)) {
-                        this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service, false);
-                        return;
-                    }
-                    lg = LogicalGraph.fromV4Json(dataObject as V4GraphJson, file.name, errorsWarnings);
-                    break;
-                default:
-                    errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
-                    this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service, false);
-                    return;
-            }
-        } catch (error) {
-            errorsWarnings.errors.push(Errors.Message(Errors.UnknownToError(error)));
+        if (parseResult.graph === null) {
             this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service, false);
             return;
         }
 
-        lg.fileInfo().type = EagleFileType.Graph;
+        const lg: LogicalGraph = parseResult.graph;
 
         // check that graph has been named, if not, name the graph before inserting
         await Utils.ensureGraphIsInitialized(this.logicalGraph());

@@ -916,12 +916,9 @@ export class LogicalGraph {
             const destPort = (destNode === undefined) ? undefined : destNode.getFieldById(edge.getDestPort().getId());
             if (typeof srcNode === 'undefined' || typeof destNode === 'undefined'
                 || typeof srcPort === 'undefined' || typeof destPort === 'undefined'){
-                // Retain a dangling edge as a defensive fallback for malformed graphs.
-                // Valid graph endpoints always take the remapped, self-contained path below.
-                const clone = edge.clone();
-                clone.setPosition(edge.getPosition().x, edge.getPosition().y);
-                edgeCloneById.set(id, clone);
-                snapshot.edges().set(id, clone);
+                // Do not retain dangling edges: cloning them would leave references to
+                // live original nodes/ports, making the snapshot non-self-contained.
+                console.warn("Rollback snapshot: skipping dangling edge", id);
                 continue;
             }
             const clone = new Edge(edge.getComment(), srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop(), edge.getSelectionRelative());
@@ -956,6 +953,9 @@ export class LogicalGraph {
                 undefined;
             if (typeof remappedTarget !== 'undefined'){
                 clone.setTarget(remappedTarget);
+            } else {
+                // unresolved targets must not retain references to the live graph
+                clone.setTarget(null);
             }
         }
 

@@ -66,6 +66,7 @@ export class Palette {
 
         // copy modelData into fileInfo
         result.fileInfo(FileInfo.fromOJSJson(dataObject.modelData, errorsWarnings));
+        result.fileInfo().type = EagleFileType.Palette;
 
         // add nodes
         for (let i = 0 ; i < dataObject.nodeDataArray.length ; i++){
@@ -135,8 +136,10 @@ export class Palette {
 
         // copy modelData into fileInfo
         result.fileInfo(FileInfo.fromV4Json(dataObject.modelData, errorsWarnings));
+        result.fileInfo().type = EagleFileType.Palette;
 
         const nodesData = Utils.asObjectMap(dataObject.nodes, "nodes", errorsWarnings);
+        const nodeIds = new Set<NodeId>();
 
         // add nodes
         for (const [nodeId, nodeData] of Object.entries(nodesData)){
@@ -145,6 +148,12 @@ export class Palette {
                 continue;
             }
             const node = Node.fromV4Json(nodeData as V4NodeJson, errorsWarnings, true, nodeId as NodeId);
+
+            if (nodeIds.has(node.getId())){
+                errorsWarnings.warnings.push(Errors.Message("Palette has duplicate node id (" + node.getId() + "); skipping duplicate node (" + nodeId + ")"));
+                continue;
+            }
+            nodeIds.add(node.getId());
 
             result.nodes().set(nodeId as NodeId, node);
             result.nodes.valueHasMutated();

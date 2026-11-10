@@ -144,7 +144,7 @@ export class GraphConfig {
     static fromJson(data: JsonObject, lg: LogicalGraph, errorsWarnings: ErrorsWarnings) : GraphConfig {
         // Route V4 graph configs through the hardened V4 parser. Legacy/OJS graph configs
         // continue through the old-style parser below.
-        if (Utils.determineSchemaVersion(data) === SchemaVersion.V4){
+        if (Utils.determineGraphConfigSchemaVersion(data) === SchemaVersion.V4){
             return GraphConfig.fromV4GraphJson(data as V4GraphConfigJson, lg, errorsWarnings);
         }
 

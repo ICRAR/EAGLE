@@ -5,7 +5,10 @@ const FIELD = '22222222-aaaa-4bbb-8ccc-dddddddddddd';
 
 type TestIssue = {message: string};
 type TestErrorsWarnings = {errors: TestIssue[], warnings: TestIssue[]};
-type TestPalette = {getNumNodes: () => number};
+type TestPalette = {
+    getNumNodes: () => number;
+    fileInfo: () => {type: string};
+};
 type TestEagle = {
     loadPalettes: (paletteList: {name: string, filename: string, readonly: boolean, expanded: boolean}[]) =>
         Promise<{palettes: TestPalette[], errorsWarnings: TestErrorsWarnings}>;
@@ -43,6 +46,7 @@ test('A V4 palette fetched by loadPalettes uses the V4 parser', async ({ page })
             ]);
             return {
                 nodeCount: palettes[0].getNumNodes(),
+                fileType: palettes[0].fileInfo().type,
                 errors: errorsWarnings.errors.map((issue) => issue.message),
                 warnings: errorsWarnings.warnings.map((issue) => issue.message),
             };
@@ -53,6 +57,7 @@ test('A V4 palette fetched by loadPalettes uses the V4 parser', async ({ page })
     }, {paletteData: PALETTE_DATA});
 
     expect(result.nodeCount).toBe(1);
+    expect(result.fileType).toBe('Palette');
     await page.close();
 });
 
@@ -75,6 +80,7 @@ test('A cached V4 palette fallback uses the V4 parser', async ({ page }) => {
             ]);
             return {
                 nodeCount: palettes[0].getNumNodes(),
+                fileType: palettes[0].fileInfo().type,
                 errors: errorsWarnings.errors.map((issue) => issue.message),
                 warnings: errorsWarnings.warnings.map((issue) => issue.message),
             };
@@ -85,5 +91,6 @@ test('A cached V4 palette fallback uses the V4 parser', async ({ page }) => {
     }, {paletteData: PALETTE_DATA});
 
     expect(result.nodeCount).toBe(1);
+    expect(result.fileType).toBe('Palette');
     await page.close();
 });

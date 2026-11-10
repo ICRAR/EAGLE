@@ -124,7 +124,10 @@ export class Utils {
     // localStorage are both unavailable.
     static v4GraphSchema : object = lgGraphV4Schema;
     static v4PaletteSchema : object = lgGraphV4Schema;
-    static v4GraphConfigSchema : object = {};
+    static v4GraphConfigSchema : object = (() => {
+        const defs = (lgGraphV4Schema as { $defs?: Record<string, object> }).$defs;
+        return defs?.graphConfig ? { $defs: defs, $ref: "#/$defs/graphConfig" } : {};
+    })();
 
     static padStart(input: number, length: number): string {
         let result: string = input.toString();
@@ -1834,6 +1837,21 @@ export class Utils {
         return isV4Graph ? SchemaVersion.V4 : SchemaVersion.Unknown;
     }
 
+    // Graph-config loading mirrors graph loading: a V4 graph config may omit or
+    // corrupt schemaVersion but still carry a GraphConfig modelData type.
+    static determineGraphConfigSchemaVersion(data: unknown): SchemaVersion {
+        const dataObject = asObjectRecord(data);
+        const modelData = asObjectRecord(dataObject?.modelData);
+        const schemaVersion = Utils.determineSchemaVersion(data);
+
+        if (schemaVersion !== SchemaVersion.Unknown) {
+            return schemaVersion;
+        }
+
+        const isV4GraphConfig = typeof modelData?.type === "string" && modelData.type.toLowerCase() === "graphconfig";
+        return isV4GraphConfig ? SchemaVersion.V4 : SchemaVersion.Unknown;
+    }
+
     // Palette loading has the same malformed-metadata problem as graph loading:
     // a V4 palette may omit or corrupt modelData and still have a valid nodes map.
     static determinePaletteSchemaVersion(data: unknown): SchemaVersion {
@@ -3390,9 +3408,12 @@ export class Utils {
 
             // TODO: hack to introduce difference between palette and graph schemas
 
-            // TODO: use the 'graphConfig' part of the schema for graphConfigs
-            //Utils.v4GraphConfigSchema = (<any>schema).properties.graphConfigurations.patternProperties["[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"];
-            Utils.v4GraphConfigSchema = {};
+            // use the canonical graphConfig definition for graph-config validation.
+            // Keep $defs on the root so internal #/$defs/... references still resolve.
+            const defs = (schema as { $defs?: Record<string, object> }).$defs;
+            Utils.v4GraphConfigSchema = defs?.graphConfig
+                ? { $defs: defs, $ref: "#/$defs/graphConfig" }
+                : {};
         }
 
         const _fetchSchema = async function(url: string, localStorageKey: string, setFunc: (schema: object) => void, fallbackSchema?: object){
@@ -3403,37 +3424,29 @@ export class Utils {
                 data = await Utils.httpGet(url);
                 dataObject = JSON.parse(data) as object;
             } catch (error) {
-                const schemaData = localStorage.getItem(localStorageKey);
-
-                if (schemaData === null){
-                    if (typeof fallbackSchema !== 'undefined'){
-                        console.warn("Unable to fetch graph schema (" + url + "). Error:" + error + ". Schema also unavailable from localStorage (" + localStorageKey + "). Using bundled fallback schema.");
-                        setFunc(fallbackSchema);
-                    } else {
-                        console.warn("Unable to fetch graph schema (" + url + "). Error:" + error + ". Schema also unavailable from localStorage (" + localStorageKey + ").");
-                    }
+                // Prefer the bundled canonical schema when a fallback exists. A cached
+                // schema may be stale and should not silently override the code's schema.
+                if (typeof fallbackSchema !== 'undefined'){
+                    console.warn("Unable to fetch graph schema (" + url + "). Error:" + error + ". Using bundled fallback schema.");
+                    setFunc(fallbackSchema);
                 } else {
-                    let cachedSchema: unknown;
-                    try {
-                        cachedSchema = JSON.parse(schemaData);
-                    } catch (parseError) {
-                        cachedSchema = undefined;
-                        if (typeof fallbackSchema !== 'undefined'){
-                            console.warn("Unable to fetch graph schema (" + url + "). Error:" + error + ". Stored schema is invalid (" + parseError + "). Using bundled fallback schema.");
-                            setFunc(fallbackSchema);
-                        } else {
+                    const schemaData = localStorage.getItem(localStorageKey);
+
+                    if (schemaData === null){
+                        console.warn("Unable to fetch graph schema (" + url + "). Error:" + error + ". Schema also unavailable from localStorage (" + localStorageKey + ").");
+                    } else {
+                        let cachedSchema: unknown;
+                        try {
+                            cachedSchema = JSON.parse(schemaData);
+                        } catch (parseError) {
+                            cachedSchema = undefined;
                             console.warn("Unable to fetch graph schema (" + url + "). Error:" + error + ". Stored schema is invalid (" + parseError + ").");
                         }
-                    }
 
-                    if (typeof cachedSchema !== 'undefined'){
                         if (typeof cachedSchema === 'object' && cachedSchema !== null && Object.keys(cachedSchema).length > 0){
                             console.warn("Unable to fetch graph schema (" + url + "). Error:" + error + ". Schema loaded from localStorage (" + localStorageKey + ").");
                             setFunc(cachedSchema);
-                        } else if (typeof fallbackSchema !== 'undefined'){
-                            console.warn("Unable to fetch graph schema (" + url + "). Error:" + error + ". Stored schema is empty. Using bundled fallback schema.");
-                            setFunc(fallbackSchema);
-                        } else {
+                        } else if (typeof cachedSchema !== 'undefined'){
                             console.warn("Unable to fetch graph schema (" + url + "). Error:" + error + ". Stored schema is empty.");
                         }
                     }
