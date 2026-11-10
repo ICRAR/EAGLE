@@ -1773,12 +1773,18 @@ export class Node {
 
         // add fields
         const fieldsData = Utils.asObjectMap(nodeData.fields, "fields (in node " + name + ")", errorsWarnings);
+        const fieldIds = new Set<FieldId>();
         for (const [fieldId, fieldData] of Object.entries(fieldsData)){
             if (fieldData === null || typeof fieldData !== 'object' || Array.isArray(fieldData)){
                 errorsWarnings.errors.push(Errors.Message("Node (" + name + ") field (" + fieldId + ") has invalid JSON (not an object), skipping"));
                 continue;
             }
             const field = Field.fromV4Json(fieldData as V4FieldJson, node, !isPaletteNode, fieldId as FieldId);
+            if (fieldIds.has(field.getId())){
+                errorsWarnings.warnings.push(Errors.Message("Node (" + name + ") has duplicate field id (" + field.getId() + "); skipping duplicate field (" + fieldId + ")"));
+                continue;
+            }
+            fieldIds.add(field.getId());
             node.addField(field);
         }
 

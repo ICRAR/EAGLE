@@ -115,9 +115,23 @@ export class Palette {
     }
 
     static fromV4Json(data: string, file: RepositoryFile, errorsWarnings: ErrorsWarnings): Palette {
-        // parse the JSON first
-        const dataObject = JSON.parse(data) as { modelData: JsonObject; nodes: Record<string, JsonObject> };
         const result : Palette = new Palette();
+
+        // parse the JSON first
+        let parsed: unknown;
+        try {
+            parsed = JSON.parse(data);
+        } catch (error) {
+            errorsWarnings.errors.push(Errors.Message("Unable to parse palette JSON: " + Errors.UnknownToError(error)));
+            return result;
+        }
+
+        if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)){
+            errorsWarnings.errors.push(Errors.Message("Palette JSON is not an object, skipping"));
+            return result;
+        }
+
+        const dataObject = parsed as { modelData: JsonObject; nodes: Record<string, JsonObject> };
 
         // copy modelData into fileInfo
         result.fileInfo(FileInfo.fromV4Json(dataObject.modelData, errorsWarnings));

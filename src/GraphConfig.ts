@@ -215,12 +215,20 @@ export class GraphConfig {
     static fromV4GraphJson(data: V4GraphConfigJson, lg: LogicalGraph, errorsWarnings: ErrorsWarnings) : GraphConfig {
         const result: GraphConfig = new GraphConfig();
 
-        result.fileInfo(FileInfo.fromV4Json(data.modelData, errorsWarnings));
+        const dataObject: unknown = data;
+        if (typeof dataObject !== 'object' || dataObject === null || Array.isArray(dataObject)){
+            errorsWarnings.errors.push(Errors.Message("GraphConfig JSON is not an object, skipping"));
+            return result;
+        }
+
+        const typedData = dataObject as V4GraphConfigJson;
+
+        result.fileInfo(FileInfo.fromV4Json(typedData.modelData, errorsWarnings));
         result.fileInfo().type = EagleFileType.GraphConfig;
-        result.id((data.id as GraphConfigId | undefined) ?? Id.generateGraphConfigId());
+        result.id((typedData.id as GraphConfigId | undefined) ?? Id.generateGraphConfigId());
 
         // guard against missing attributes (older files may omit them; defaults applied below)
-        const nodesData = Utils.asObjectMap(data.nodes, "nodes (in graph config " + data.id + ")", errorsWarnings);
+        const nodesData = Utils.asObjectMap(typedData.nodes, "nodes (in graph config " + typedData.id + ")", errorsWarnings);
         for (const [nodeId, nodeData] of Object.entries(nodesData)){
             if (nodeData === null || typeof nodeData !== 'object' || Array.isArray(nodeData)){
                 console.warn("GraphConfig.fromV4GraphJson(): invalid node data (not an object), skipping", nodeId);

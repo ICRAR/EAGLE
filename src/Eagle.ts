@@ -1133,7 +1133,7 @@ export class Eagle {
         graphFileToInsertInputElement.value = "";
     }
 
-    private _handleLoadingErrors = (errorsWarnings: ErrorsWarnings, fileName: string, service: RepositoryService, loadSucceeded: boolean = false) : void => {
+    private _handleLoadingErrors = (errorsWarnings: ErrorsWarnings, fileName: string, service: RepositoryService, loadSucceeded: boolean) : void => {
         const showIssues: boolean = Setting.findValue<boolean>(Setting.SHOW_FILE_LOADING_WARNINGS, false);
         this.hideEagleIsLoading()
 
@@ -2908,24 +2908,42 @@ export class Eagle {
                     } else {
                         console.warn("Unable to fetch palette '" + paletteList[i].name + "'. Palette loaded from localStorage.");
 
-                        // attempt to determine schema version from FileInfo
-                        const schemaVersion: SchemaVersion = Utils.determineSchemaVersion(paletteData);
-                        let palette: Palette;
-                        const file = new RepositoryFile(new Repository(RepositoryService.Url, "", "", false), "", paletteList[i].name);
-                        file.type = EagleFileType.Palette;
-                        switch (schemaVersion){
-                            case SchemaVersion.OJS:
-                            case SchemaVersion.Unknown:
-                                palette = Palette.fromOJSJson(paletteData, file, errorsWarnings);
-                                break;
-                            case SchemaVersion.V4:
-                                palette = Palette.fromV4Json(paletteData, file, errorsWarnings);
-                                break;
+                        let cachedPaletteObject: unknown;
+                        try {
+                            cachedPaletteObject = JSON.parse(paletteData);
+                        } catch (error) {
+                            errorsWarnings.errors.push(Errors.Message("Unable to parse cached palette '" + paletteList[i].name + "': " + Errors.UnknownToError(error)));
+                            cachedPaletteObject = undefined;
                         }
-                        
-                        Utils.preparePalette(palette, paletteList[i]);
 
-                        destinationPalettes[index].copy(palette);
+                        if (typeof cachedPaletteObject !== 'undefined') {
+                            const schemaVersion: SchemaVersion = Utils.determinePaletteSchemaVersion(cachedPaletteObject);
+                            const file = new RepositoryFile(new Repository(RepositoryService.Url, "", "", false), "", paletteList[i].name);
+                            file.type = EagleFileType.Palette;
+
+                            let palette: Palette | null = null;
+                            try {
+                                switch (schemaVersion){
+                                    case SchemaVersion.OJS:
+                                    case SchemaVersion.Unknown:
+                                        palette = Palette.fromOJSJson(paletteData, file, errorsWarnings);
+                                        break;
+                                    case SchemaVersion.V4:
+                                        palette = Palette.fromV4Json(paletteData, file, errorsWarnings);
+                                        break;
+                                    default:
+                                        errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
+                                        break;
+                                }
+                            } catch (error) {
+                                errorsWarnings.errors.push(Errors.Message("Unable to parse cached palette '" + paletteList[i].name + "': " + Errors.UnknownToError(error)));
+                            }
+
+                            if (palette !== null) {
+                                Utils.preparePalette(palette, paletteList[i]);
+                                destinationPalettes[index].copy(palette);
+                            }
+                        }
                     }
 
                 } finally {
@@ -2940,7 +2958,40 @@ export class Eagle {
 
                 // palette fetched successfully
                 const repositoryFile = new RepositoryFile(new Repository(RepositoryService.Url, "", "", false), "", paletteList[i].name);
-                const palette: Palette = Palette.fromOJSJson(data, repositoryFile, errorsWarnings);
+
+                let fetchedPaletteObject: unknown;
+                try {
+                    fetchedPaletteObject = JSON.parse(data);
+                } catch (error) {
+                    errorsWarnings.errors.push(Errors.Message("Unable to parse palette '" + paletteList[i].name + "': " + Errors.UnknownToError(error)));
+                    _checkAllPalettesComplete();
+                    continue;
+                }
+
+                const schemaVersion: SchemaVersion = Utils.determinePaletteSchemaVersion(fetchedPaletteObject);
+                let palette: Palette | null = null;
+                try {
+                    switch (schemaVersion){
+                        case SchemaVersion.OJS:
+                        case SchemaVersion.Unknown:
+                            palette = Palette.fromOJSJson(data, repositoryFile, errorsWarnings);
+                            break;
+                        case SchemaVersion.V4:
+                            palette = Palette.fromV4Json(data, repositoryFile, errorsWarnings);
+                            break;
+                        default:
+                            errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
+                            break;
+                    }
+                } catch (error) {
+                    errorsWarnings.errors.push(Errors.Message("Unable to parse palette '" + paletteList[i].name + "': " + Errors.UnknownToError(error)));
+                }
+
+                if (palette === null) {
+                    _checkAllPalettesComplete();
+                    continue;
+                }
+
                 Utils.preparePalette(palette, paletteList[index]);
 
                 // copy loaded palette into the destination palette that is already in the list of palettes
@@ -3196,6 +3247,13 @@ export class Eagle {
 
         let graphConfig = GraphConfig.fromJson(dataObject, this.logicalGraph(), errorsWarnings);
 
+        // A malformed config with no valid nodes is unusable; do not load its associated
+        // graph or add an empty configuration. Recoverable errors with valid nodes can continue.
+        if (Errors.hasErrors(errorsWarnings) && Array.from(graphConfig.getNodes()).length === 0){
+            this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service, false);
+            return;
+        }
+
         const graphModified: boolean = this.logicalGraph().fileInfo().modified;
         let someGraphAlreadyLoaded: boolean = this.logicalGraph().fileInfo().name !== ""; // true if there is already a graph loaded
         let graphAutoLoaded = false;
@@ -3237,6 +3295,11 @@ export class Eagle {
             errorsWarnings.errors = [];
             errorsWarnings.warnings = [];
             graphConfig = GraphConfig.fromJson(dataObject, this.logicalGraph(), errorsWarnings);
+
+            if (Errors.hasErrors(errorsWarnings) && Array.from(graphConfig.getNodes()).length === 0){
+                this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service, false);
+                return;
+            }
         }
 
         // check if graphConfig already exists in this graph
@@ -3309,42 +3372,55 @@ export class Eagle {
         }
 
         const fileTypeLoaded: EagleFileType = Utils.determineFileType(dataObject);
+        const isV4GraphCandidate = this._isV4GraphCandidate(dataObject);
 
-        // only do this for graphs at the moment
-        if (fileTypeLoaded !== EagleFileType.Graph){
+        // only do this for graphs at the moment; malformed V4 graph metadata is still a graph
+        if (fileTypeLoaded !== EagleFileType.Graph &&
+            !(fileTypeLoaded === EagleFileType.Unknown && isV4GraphCandidate)){
             Utils.showUserMessage("Error", "Unable to insert non-graph!");
             console.error("Unable to insert non-graph!");
             return;
         }
 
-        // attempt to determine schema version from FileInfo
-        const schemaVersion: SchemaVersion = Utils.determineGraphSchemaVersion(dataObject);
-
-        // check if we need to update the graph from keys to ids
-        if (GraphUpdater.usesNodeKeys(dataObject)){
-            GraphUpdater.updateKeysToIds(dataObject);
-        }
+        // attempt to determine schema version from FileInfo; malformed V4 metadata is routed to V4
+        const schemaVersion: SchemaVersion = fileTypeLoaded === EagleFileType.Unknown && isV4GraphCandidate
+            ? SchemaVersion.V4
+            : Utils.determineGraphSchemaVersion(dataObject);
 
         const errorsWarnings: ErrorsWarnings = {"errors":[], "warnings":[]};
 
         // use the correct parsing function based on schema version
         let lg: LogicalGraph;
-        switch (schemaVersion){
-            case SchemaVersion.OJS:
-            case SchemaVersion.Unknown:
-                lg = LogicalGraph.fromOJSJson(dataObject, file.name, errorsWarnings);
-                break;
-            case SchemaVersion.V4:
-                if (!this._validateV4GraphLoadJSON(dataObject as JsonObject, errorsWarnings)) {
-                    this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
+        try {
+            // check if we need to update the graph from keys to ids
+            if (GraphUpdater.usesNodeKeys(dataObject)){
+                GraphUpdater.updateKeysToIds(dataObject);
+            }
+
+            switch (schemaVersion){
+                case SchemaVersion.OJS:
+                case SchemaVersion.Unknown:
+                    lg = LogicalGraph.fromOJSJson(dataObject, file.name, errorsWarnings);
+                    break;
+                case SchemaVersion.V4:
+                    if (!this._validateV4GraphLoadJSON(dataObject as JsonObject, errorsWarnings)) {
+                        this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service, false);
+                        return;
+                    }
+                    lg = LogicalGraph.fromV4Json(dataObject as V4GraphJson, file.name, errorsWarnings);
+                    break;
+                default:
+                    errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
+                    this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service, false);
                     return;
-                }
-                lg = LogicalGraph.fromV4Json(dataObject as V4GraphJson, file.name, errorsWarnings);
-                break;
-            default:
-                errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
-                return;
+            }
+        } catch (error) {
+            errorsWarnings.errors.push(Errors.Message(Errors.UnknownToError(error)));
+            this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service, false);
+            return;
         }
+
+        lg.fileInfo().type = EagleFileType.Graph;
 
         // check that graph has been named, if not, name the graph before inserting
         await Utils.ensureGraphIsInitialized(this.logicalGraph());
@@ -3420,23 +3496,42 @@ export class Eagle {
             void this.closePalette(palette);
         }
 
-        // determine schema version from FileInfo
-        const schemaVersion: SchemaVersion = Utils.determineSchemaVersion(JSON.parse(data));
+        const errorsWarnings: ErrorsWarnings = {"errors":[], "warnings":[]};
+
+        let parsedData: unknown;
+        try {
+            parsedData = JSON.parse(data);
+        } catch (error) {
+            errorsWarnings.errors.push(Errors.Message("Unable to parse palette JSON: " + Errors.UnknownToError(error)));
+            this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service, false);
+            return;
+        }
+
+        // determine schema version from FileInfo, including malformed V4 palette metadata
+        const schemaVersion: SchemaVersion = Utils.determinePaletteSchemaVersion(parsedData);
 
         // load the new palette
-        const errorsWarnings: ErrorsWarnings = {"errors":[], "warnings":[]};
-        let newPalette: Palette;
-        switch (schemaVersion){
-            case SchemaVersion.OJS:
-            case SchemaVersion.Unknown:
-                newPalette = Palette.fromOJSJson(data, file, errorsWarnings);
-                break;
-            case SchemaVersion.V4:
-                newPalette = Palette.fromV4Json(data, file, errorsWarnings);
-                break;
-            default:
-                errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
-                return;
+        let newPalette: Palette | null = null;
+        try {
+            switch (schemaVersion){
+                case SchemaVersion.OJS:
+                case SchemaVersion.Unknown:
+                    newPalette = Palette.fromOJSJson(data, file, errorsWarnings);
+                    break;
+                case SchemaVersion.V4:
+                    newPalette = Palette.fromV4Json(data, file, errorsWarnings);
+                    break;
+                default:
+                    errorsWarnings.errors.push(Errors.Message("Unknown schemaVersion: " + schemaVersion));
+                    break;
+            }
+        } catch (error) {
+            errorsWarnings.errors.push(Errors.Message("Unable to parse palette '" + file.name + "': " + Errors.UnknownToError(error)));
+        }
+
+        if (newPalette === null){
+            this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service, false);
+            return;
         }
 
         if (file.repository.service === RepositoryService.Url){
@@ -3452,7 +3547,7 @@ export class Eagle {
         palette.copy(newPalette);
 
         // show errors/warnings
-        this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
+        this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service, true);
 
         // check EAGLE
         this.checkEagle();

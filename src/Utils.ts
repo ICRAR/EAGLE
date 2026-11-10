@@ -1834,6 +1834,26 @@ export class Utils {
         return isV4Graph ? SchemaVersion.V4 : SchemaVersion.Unknown;
     }
 
+    // Palette loading has the same malformed-metadata problem as graph loading:
+    // a V4 palette may omit or corrupt modelData and still have a valid nodes map.
+    static determinePaletteSchemaVersion(data: unknown): SchemaVersion {
+        const dataObject = asObjectRecord(data);
+        if (dataObject === null) {
+            return SchemaVersion.Unknown;
+        }
+
+        const modelData = asObjectRecord(dataObject.modelData);
+        const schemaVersion = Utils.determineSchemaVersion(data);
+
+        if (schemaVersion !== SchemaVersion.Unknown) {
+            return schemaVersion;
+        }
+
+        const isV4Palette = (typeof modelData?.type === "string" && modelData.type.toLowerCase() === "palette")
+            || ("nodes" in dataObject);
+        return isV4Palette ? SchemaVersion.V4 : SchemaVersion.Unknown;
+    }
+
     static portsMatch(port0: Field, port1: Field){
         return Utils.typesMatch(port0.getType(), port1.getType());
     }
@@ -3393,8 +3413,30 @@ export class Utils {
                         console.warn("Unable to fetch graph schema (" + url + "). Error:" + error + ". Schema also unavailable from localStorage (" + localStorageKey + ").");
                     }
                 } else {
-                    console.warn("Unable to fetch graph schema (" + url + "). Error:" + error + ". Schema loaded from localStorage (" + localStorageKey + ").");
-                    setFunc(JSON.parse(schemaData) as object);
+                    let cachedSchema: unknown;
+                    try {
+                        cachedSchema = JSON.parse(schemaData);
+                    } catch (parseError) {
+                        cachedSchema = undefined;
+                        if (typeof fallbackSchema !== 'undefined'){
+                            console.warn("Unable to fetch graph schema (" + url + "). Error:" + error + ". Stored schema is invalid (" + parseError + "). Using bundled fallback schema.");
+                            setFunc(fallbackSchema);
+                        } else {
+                            console.warn("Unable to fetch graph schema (" + url + "). Error:" + error + ". Stored schema is invalid (" + parseError + ").");
+                        }
+                    }
+
+                    if (typeof cachedSchema !== 'undefined'){
+                        if (typeof cachedSchema === 'object' && cachedSchema !== null && Object.keys(cachedSchema).length > 0){
+                            console.warn("Unable to fetch graph schema (" + url + "). Error:" + error + ". Schema loaded from localStorage (" + localStorageKey + ").");
+                            setFunc(cachedSchema);
+                        } else if (typeof fallbackSchema !== 'undefined'){
+                            console.warn("Unable to fetch graph schema (" + url + "). Error:" + error + ". Stored schema is empty. Using bundled fallback schema.");
+                            setFunc(fallbackSchema);
+                        } else {
+                            console.warn("Unable to fetch graph schema (" + url + "). Error:" + error + ". Stored schema is empty.");
+                        }
+                    }
                 }
             }
 
