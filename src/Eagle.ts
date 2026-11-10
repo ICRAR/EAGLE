@@ -1153,6 +1153,16 @@ export class Eagle {
 
             this.errorsMode(Mode.Loading);
             Utils.showErrorsModal("Loading File");
+        } else if (!loadSucceeded){
+            // A failed load with only warnings must not be reported as a success.
+            this.loadingErrors([]);
+            this.loadingWarnings(hasWarnings ? displayedIssues.warnings : []);
+
+            if (hasWarnings){
+                this.errorsMode(Mode.Loading);
+                Utils.showErrorsModal("Loading File");
+            }
+            Utils.showNotification("Error", fileName + " could not be loaded from " + service + ".", "danger");
         } else if (hasWarnings){
             // loaded with warnings (setting on) -> show modal and an honest notification
             this.loadingErrors([]);
@@ -1454,7 +1464,11 @@ export class Eagle {
 
         // create map of inserted graph keys to final graph nodes, and of inserted port ids to final graph ports
         const nodeMap: Map<NodeId, Node> = new Map<NodeId, Node>();
-        const portMap: Map<FieldId, Field> = new Map<FieldId, Field>();
+        // Field IDs are only unique within a node, so key the port map by both the
+        // owning node and the field ID. A graph-wide FieldId map would let duplicate
+        // field IDs on different nodes overwrite one another during insertion.
+        const portMap: Map<string, Field> = new Map<string, Field>();
+        const portKey = (nodeId: NodeId, fieldId: FieldId): string => nodeId + ":" + fieldId;
         let parentNodePosition;
 
         // add the parent node to the logical graph
@@ -1487,12 +1501,14 @@ export class Eagle {
 
             // save mapping for input ports
             for (let j = 0 ; j < node.getInputPorts().length; j++){
-                portMap.set(node.getInputPorts()[j].getId(), insertedNode.getInputPorts()[j]);
+                const oldPort = node.getInputPorts()[j];
+                portMap.set(portKey(node.getId(), oldPort.getId()), insertedNode.getInputPorts()[j]);
             }
 
             // save mapping for output ports
             for (let j = 0 ; j < node.getOutputPorts().length; j++){
-                portMap.set(node.getOutputPorts()[j].getId(), insertedNode.getOutputPorts()[j]);
+                const oldPort = node.getOutputPorts()[j];
+                portMap.set(portKey(node.getId(), oldPort.getId()), insertedNode.getOutputPorts()[j]);
             }
 
             // clear edge lists within fields of inserted node
@@ -1530,13 +1546,14 @@ export class Eagle {
 
                 // save mapping for input ports
                 for (let j = 0 ; j < oldInputApplication.getInputPorts().length; j++ ){
-                    portMap.set(oldInputApplication.getInputPorts()[j].getId(), newInputApplication.getInputPorts()[j]);
-                    
+                    const oldPort = oldInputApplication.getInputPorts()[j];
+                    portMap.set(portKey(oldInputApplication.getId(), oldPort.getId()), newInputApplication.getInputPorts()[j]);
                 }
 
                 // save mapping for output ports
                 for (let j = 0 ; j < oldInputApplication.getOutputPorts().length; j++){
-                    portMap.set(oldInputApplication.getOutputPorts()[j].getId(), newInputApplication.getOutputPorts()[j]);
+                    const oldPort = oldInputApplication.getOutputPorts()[j];
+                    portMap.set(portKey(oldInputApplication.getId(), oldPort.getId()), newInputApplication.getOutputPorts()[j]);
                 }
             }
 
@@ -1557,12 +1574,14 @@ export class Eagle {
                 
                 // save mapping for input ports
                 for (let j = 0 ; j < oldOutputApplication.getInputPorts().length; j++){
-                    portMap.set(oldOutputApplication.getInputPorts()[j].getId(), newOutputApplication.getInputPorts()[j]);
+                    const oldPort = oldOutputApplication.getInputPorts()[j];
+                    portMap.set(portKey(oldOutputApplication.getId(), oldPort.getId()), newOutputApplication.getInputPorts()[j]);
                 }
 
                 // save mapping for output ports
                 for (let j = 0 ; j < oldOutputApplication.getOutputPorts().length; j++){
-                    portMap.set(oldOutputApplication.getOutputPorts()[j].getId(), newOutputApplication.getOutputPorts()[j]);
+                    const oldPort = oldOutputApplication.getOutputPorts()[j];
+                    portMap.set(portKey(oldOutputApplication.getId(), oldPort.getId()), newOutputApplication.getOutputPorts()[j]);
                 }
             }
         }
@@ -1602,8 +1621,8 @@ export class Eagle {
         for (const edge of edges){
             const srcNode = nodeMap.get(edge.getSrcNode().getId());
             const destNode = nodeMap.get(edge.getDestNode().getId());
-            const srcPort = portMap.get(edge.getSrcPort().getId());
-            const destPort = portMap.get(edge.getDestPort().getId());
+            const srcPort = portMap.get(portKey(edge.getSrcNode().getId(), edge.getSrcPort().getId()));
+            const destPort = portMap.get(portKey(edge.getDestNode().getId(), edge.getDestPort().getId()));
             const loopAware = edge.isLoopAware();
             const closesLoop = edge.isClosesLoop();
 

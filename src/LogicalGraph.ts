@@ -472,6 +472,11 @@ export class LogicalGraph {
             }
             const node = Node.fromV4Json(nodeData as V4NodeJson, errorsWarnings, false, nodeId as NodeId);
 
+            if (result.nodes().has(node.getId())){
+                errorsWarnings.warnings.push(Errors.Message("Node id (" + node.getId() + ") is duplicated; skipping duplicate node (" + nodeId + ")"));
+                continue;
+            }
+
             result.nodes().set(node.getId(), node);
             nodeByMapKey.set(nodeId, node);
             result.nodes.valueHasMutated();
@@ -522,6 +527,11 @@ export class LogicalGraph {
                 continue;
             }
 
+            if (result.edges().has(edge.getId())){
+                errorsWarnings.warnings.push(Errors.Message("Edge id (" + edge.getId() + ") is duplicated; skipping duplicate edge (" + edgeId + ")"));
+                continue;
+            }
+
             result.edges().set(edge.getId(), edge);
             result.edges.valueHasMutated();
 
@@ -538,6 +548,11 @@ export class LogicalGraph {
                 continue;
             }
             const visual = Visual.fromV4GraphJson(visualData as V4VisualLoadJson, result, errorsWarnings, visualId as VisualId);
+
+            if (result.visuals().has(visual.getId())){
+                errorsWarnings.warnings.push(Errors.Message("Visual id (" + visual.getId() + ") is duplicated; skipping duplicate visual (" + visualId + ")"));
+                continue;
+            }
 
             result.visuals().set(visual.getId(), visual);
             result.visuals.valueHasMutated();
@@ -850,6 +865,9 @@ export class LogicalGraph {
         const nodeCloneByObject = new Map<Node, Node>();
         for (const [id, node] of this.nodes()){
             const clone = node.clone();
+            clone.setExpanded(node.getExpanded());
+            clone.setKeepExpanded(node.getKeepExpanded());
+            clone.setRadius(node.getRadius());
             nodeCloneByObject.set(node, clone);
             snapshot.nodes().set(id, clone);
             for (const port of clone.getFields()){
@@ -901,12 +919,14 @@ export class LogicalGraph {
                 // Retain a dangling edge as a defensive fallback for malformed graphs.
                 // Valid graph endpoints always take the remapped, self-contained path below.
                 const clone = edge.clone();
+                clone.setPosition(edge.getPosition().x, edge.getPosition().y);
                 edgeCloneById.set(id, clone);
                 snapshot.edges().set(id, clone);
                 continue;
             }
-            const clone = new Edge(edge.getComment(), srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop(), false);
+            const clone = new Edge(edge.getComment(), srcNode, srcPort, destNode, destPort, edge.isLoopAware(), edge.isClosesLoop(), edge.getSelectionRelative());
             clone.setId(id);
+            clone.setPosition(edge.getPosition().x, edge.getPosition().y);
             // re-point the clone ports' edge lists at this snapshot edge so the port
             // and the graph agree on which edge objects are connected
             srcPort.addEdge(clone);

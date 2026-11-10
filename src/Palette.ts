@@ -122,8 +122,14 @@ export class Palette {
         // copy modelData into fileInfo
         result.fileInfo(FileInfo.fromV4Json(dataObject.modelData, errorsWarnings));
 
+        const nodesData = Utils.asObjectMap(dataObject.nodes, "nodes", errorsWarnings);
+
         // add nodes
-        for (const [nodeId, nodeData] of Object.entries(dataObject.nodes)){
+        for (const [nodeId, nodeData] of Object.entries(nodesData)){
+            if (nodeData === null || typeof nodeData !== 'object' || Array.isArray(nodeData)){
+                errorsWarnings.errors.push(Errors.Message("Palette node (" + nodeId + ") has invalid JSON (not an object), skipping"));
+                continue;
+            }
             const node = Node.fromV4Json(nodeData as V4NodeJson, errorsWarnings, true, nodeId as NodeId);
 
             result.nodes().set(nodeId as NodeId, node);
@@ -132,7 +138,10 @@ export class Palette {
 
         // second pass through the nodes
         // used to set parent, embed, subject, inputApplication, outputApplication
-        for (const [nodeId, nodeData] of Object.entries(dataObject.nodes)){
+        for (const [nodeId, nodeData] of Object.entries(nodesData)){
+            if (nodeData === null || typeof nodeData !== 'object' || Array.isArray(nodeData)){
+                continue;
+            }
             const embed = result.getNodeById(nodeData.embedId as NodeId);
             const parent = result.getNodeById(nodeData.parentId as NodeId);
             const inputApplication = result.getNodeById(nodeData.inputApplicationId as NodeId);

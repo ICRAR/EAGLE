@@ -375,10 +375,10 @@ export class Edge {
         const destNode: Node | undefined = lg.getNodeById(edgeData.destNodeId as NodeId);
 
         if (typeof srcNode === 'undefined'){
-            errorsWarnings.errors.push(Errors.Message("edge (" + edgeData.id + ") source node (" + edgeData.srcNodeId + ") could not be found, skipping"));
+            errorsWarnings.errors.push(Errors.Message("edge (" + edgeId + ") source node (" + edgeData.srcNodeId + ") could not be found, skipping"));
         }
         if (typeof destNode === 'undefined'){
-            errorsWarnings.errors.push(Errors.Message("edge (" + edgeData.id + ") destination node (" + edgeData.destNodeId + ") could not be found, skipping"));
+            errorsWarnings.errors.push(Errors.Message("edge (" + edgeId + ") destination node (" + edgeData.destNodeId + ") could not be found, skipping"));
         }
         if (typeof srcNode === 'undefined' || typeof destNode === 'undefined'){
             return null;
@@ -388,10 +388,10 @@ export class Edge {
         const destPort: Field | undefined = destNode.getFieldById(edgeData.destPortId as FieldId);
 
         if (typeof srcPort === 'undefined'){
-            errorsWarnings.errors.push(Errors.Message("edge (" + edgeData.id + ") source port (" + edgeData.srcPortId + ") could not be found, skipping"));
+            errorsWarnings.errors.push(Errors.Message("edge (" + edgeId + ") source port (" + edgeData.srcPortId + ") could not be found, skipping"));
         }
         if (typeof destPort === 'undefined'){
-            errorsWarnings.errors.push(Errors.Message("edge (" + edgeData.id + ") destination port (" + edgeData.destPortId + ") could not be found, skipping"));
+            errorsWarnings.errors.push(Errors.Message("edge (" + edgeId + ") destination port (" + edgeData.destPortId + ") could not be found, skipping"));
         }
         if (typeof srcPort === 'undefined' || typeof destPort === 'undefined'){
             return null;

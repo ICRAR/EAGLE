@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { TestHelpers } from '../TestHelpers';
 
 type TestVisual = {getColor: () => string};
 type TestGraph = {getVisualById: (id: string) => TestVisual | undefined};
@@ -12,6 +13,7 @@ type TestEagle = {
 
 test('A V4 group visual without color keeps the configured background default', async ({ page }) => {
     await page.goto('http://localhost:8888/?tutorial=none');
+    await TestHelpers.waitForV4GraphSchema(page);
 
     const result = await page.evaluate(async () => {
         const eagle = (window as unknown as {eagle: TestEagle}).eagle;

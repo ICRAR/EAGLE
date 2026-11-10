@@ -51,6 +51,7 @@ import { GraphConfigurationsTable } from "./GraphConfigurationsTable";
 import { GraphRenderer } from "./GraphRenderer";
 import { Id } from "./Id";
 import type { JsonScalar } from "./JsonLoadTypes";
+import { lgGraphV4Schema } from './generated/lgGraphV4Schema';
 import { KeyboardShortcut } from './KeyboardShortcut';
 import { LogicalGraph } from './LogicalGraph';
 import {
@@ -118,8 +119,11 @@ export class Utils {
     static ojsGraphSchema : object = {};
     static ojsPaletteSchema : object = {};
     static ojsGraphConfigSchema : object = {};
-    static v4GraphSchema : object = {};
-    static v4PaletteSchema : object = {};
+    // Bundled snapshot of the canonical V4 schema. This is used until the
+    // asynchronously fetched schema arrives, and as a fallback when fetching and
+    // localStorage are both unavailable.
+    static v4GraphSchema : object = lgGraphV4Schema;
+    static v4PaletteSchema : object = lgGraphV4Schema;
     static v4GraphConfigSchema : object = {};
 
     static padStart(input: number, length: number): string {
@@ -3371,7 +3375,7 @@ export class Utils {
             Utils.v4GraphConfigSchema = {};
         }
 
-        const _fetchSchema = async function(url: string, localStorageKey: string, setFunc: (schema: object) => void){
+        const _fetchSchema = async function(url: string, localStorageKey: string, setFunc: (schema: object) => void, fallbackSchema?: object){
             let data: string;
             let dataObject: object | undefined;
 
@@ -3382,7 +3386,12 @@ export class Utils {
                 const schemaData = localStorage.getItem(localStorageKey);
 
                 if (schemaData === null){
-                    console.warn("Unable to fetch graph schema (" + url + "). Error:" + error + ". Schema also unavailable from localStorage (" + localStorageKey + ").");
+                    if (typeof fallbackSchema !== 'undefined'){
+                        console.warn("Unable to fetch graph schema (" + url + "). Error:" + error + ". Schema also unavailable from localStorage (" + localStorageKey + "). Using bundled fallback schema.");
+                        setFunc(fallbackSchema);
+                    } else {
+                        console.warn("Unable to fetch graph schema (" + url + "). Error:" + error + ". Schema also unavailable from localStorage (" + localStorageKey + ").");
+                    }
                 } else {
                     console.warn("Unable to fetch graph schema (" + url + "). Error:" + error + ". Schema loaded from localStorage (" + localStorageKey + ").");
                     setFunc(JSON.parse(schemaData) as object);
@@ -3400,7 +3409,7 @@ export class Utils {
 
         // try to fetch the schema
         void _fetchSchema(Daliuge.OJS_GRAPH_SCHEMA_URL, 'ojsGraphSchema', _setOJSSchemas);
-        void _fetchSchema(Daliuge.V4_GRAPH_SCHEMA_URL, 'v4GraphSchema', _setV4Schemas);
+        void _fetchSchema(Daliuge.V4_GRAPH_SCHEMA_URL, 'v4GraphSchema', _setV4Schemas, lgGraphV4Schema);
     }
 
     static snapToGrid(coord: number, offset: number) : number {

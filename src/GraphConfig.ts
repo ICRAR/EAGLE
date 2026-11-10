@@ -10,6 +10,7 @@ import { Id } from "./Id";
 import type { LogicalGraph } from "./LogicalGraph";
 import type { Node } from "./Node";
 import { Utils } from "./Utils";
+import { SchemaVersion } from './Setting';
 import type { LegacyGraphConfigFieldJson, LegacyGraphConfigJson, LegacyGraphConfigNodeJson, JsonObject, V4GraphConfigFieldJson, V4GraphConfigJson, V4GraphConfigNodeJson } from "./JsonLoadTypes";
 
 export class GraphConfig {
@@ -141,8 +142,20 @@ export class GraphConfig {
     }, this); 
 
     static fromJson(data: JsonObject, lg: LogicalGraph, errorsWarnings: ErrorsWarnings) : GraphConfig {
-        const graphConfigData = data as LegacyGraphConfigJson;
+        // Route V4 graph configs through the hardened V4 parser. Legacy/OJS graph configs
+        // continue through the old-style parser below.
+        if (Utils.determineSchemaVersion(data) === SchemaVersion.V4){
+            return GraphConfig.fromV4GraphJson(data as V4GraphConfigJson, lg, errorsWarnings);
+        }
+
         const result: GraphConfig = new GraphConfig();
+        const dataObject: unknown = data;
+        if (typeof dataObject !== 'object' || dataObject === null || Array.isArray(dataObject)){
+            errorsWarnings.errors.push(Errors.Message("GraphConfig JSON is not an object, skipping"));
+            return result;
+        }
+
+        const graphConfigData = dataObject as LegacyGraphConfigJson;
 
         // copy modelData into fileInfo
         if (typeof graphConfigData.modelData === 'undefined'){
@@ -175,21 +188,25 @@ export class GraphConfig {
             result.id(graphConfigData.id as GraphConfigId);
         }
 
-        if (typeof graphConfigData.nodes !== 'undefined'){
-            for (const nodeId in graphConfigData.nodes){
-                const nodeData = graphConfigData.nodes[nodeId];
-                const lgNode = lg.getNodeById(nodeId as NodeId);
-                if (typeof lgNode === 'undefined'){
-                    console.warn("GraphConfig.fromJson(): Could not find node", nodeId);
-                    errorsWarnings.errors.push(Errors.Message("GraphConfig.fromJson(): Could not find node " + nodeId));
-                    continue;
-                }
-
-                const newNode: GraphConfigNode = GraphConfigNode.fromJson(nodeData, lgNode, errorsWarnings);
-                newNode.setNode(lgNode);
-                result.nodes().set(nodeId as NodeId, newNode);
-                result.nodes.valueHasMutated();
+        const nodesData = Utils.asObjectMap(graphConfigData.nodes, "nodes", errorsWarnings, true);
+        for (const [nodeId, nodeData] of Object.entries(nodesData)){
+            if (nodeData === null || typeof nodeData !== 'object' || Array.isArray(nodeData)){
+                console.warn("GraphConfig.fromJson(): invalid node data (not an object), skipping", nodeId);
+                errorsWarnings.errors.push(Errors.Message("GraphConfig.fromJson(): invalid node data for node " + nodeId + ", skipping"));
+                continue;
             }
+
+            const lgNode = lg.getNodeById(nodeId as NodeId);
+            if (typeof lgNode === 'undefined'){
+                console.warn("GraphConfig.fromJson(): Could not find node", nodeId);
+                errorsWarnings.errors.push(Errors.Message("GraphConfig.fromJson(): Could not find node " + nodeId));
+                continue;
+            }
+
+            const newNode: GraphConfigNode = GraphConfigNode.fromJson(nodeData as JsonObject, lgNode, errorsWarnings);
+            newNode.setNode(lgNode);
+            result.nodes().set(nodeId as NodeId, newNode);
+            result.nodes.valueHasMutated();
         }
 
         return result;
@@ -321,26 +338,36 @@ export class GraphConfigNode {
     }
 
     static fromJson(data: JsonObject, node: Node, errorsWarnings: ErrorsWarnings): GraphConfigNode {
-        const nodeData = data as LegacyGraphConfigNodeJson;
         const result = new GraphConfigNode(node);
+        const dataObject: unknown = data;
+        if (typeof dataObject !== 'object' || dataObject === null || Array.isArray(dataObject)){
+            console.warn("GraphConfigNode.fromJson(): invalid node data (not an object), skipping");
+            errorsWarnings.errors.push(Errors.Message("GraphConfigNode.fromJson(): invalid node data, skipping"));
+            return result;
+        }
 
-        if (nodeData.fields !== undefined){
-            for (const fieldId in nodeData.fields){
-                const fieldData = nodeData.fields[fieldId];
-                const lgField = node.getFieldById(fieldId as FieldId);
-
-                if (typeof lgField === 'undefined'){
-                    console.warn("GraphConfigNode.fromJson(): Could not find field", fieldId, "in node", node.getName());
-                    errorsWarnings.errors.push(Errors.Message("GraphConfigNode.fromJson(): Could not find field " + fieldId + " in node " + node.getName()));
-                    continue;
-                }
-
-                const newField: GraphConfigField = GraphConfigField.fromJson(fieldData, lgField, errorsWarnings);
-                // TODO: required? probably better to set this in GraphConfigField.fromJson()
-                newField.setField(lgField);
-                result.fields().set(lgField.getId(), newField);
-                result.fields.valueHasMutated();
+        const nodeData = dataObject as LegacyGraphConfigNodeJson;
+        const fieldsData = Utils.asObjectMap(nodeData.fields, "fields (in graph config for node " + node.getName() + ")", errorsWarnings, true);
+        for (const [fieldId, fieldData] of Object.entries(fieldsData)){
+            if (fieldData === null || typeof fieldData !== 'object' || Array.isArray(fieldData)){
+                console.warn("GraphConfigNode.fromJson(): invalid field data (not an object), skipping", fieldId);
+                errorsWarnings.errors.push(Errors.Message("GraphConfigNode.fromJson(): invalid field data for field " + fieldId + ", skipping"));
+                continue;
             }
+
+            const lgField = node.getFieldById(fieldId as FieldId);
+
+            if (typeof lgField === 'undefined'){
+                console.warn("GraphConfigNode.fromJson(): Could not find field", fieldId, "in node", node.getName());
+                errorsWarnings.errors.push(Errors.Message("GraphConfigNode.fromJson(): Could not find field " + fieldId + " in node " + node.getName()));
+                continue;
+            }
+
+            const newField: GraphConfigField = GraphConfigField.fromJson(fieldData as JsonObject, lgField, errorsWarnings);
+            // TODO: required? probably better to set this in GraphConfigField.fromJson()
+            newField.setField(lgField);
+            result.fields().set(lgField.getId(), newField);
+            result.fields.valueHasMutated();
         }
 
         return result;

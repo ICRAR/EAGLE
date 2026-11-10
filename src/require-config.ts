@@ -64,7 +64,8 @@ require.config({
         "ParameterTable": "./static/built/ParameterTable",
         "GraphConfigurationsTable": "./static/built/GraphConfigurationsTable",
         "FileLocation": "./static/built/FileLocation",
-        "SchemaLoadClassifier": "./static/built/SchemaLoadClassifier"
+        "SchemaLoadClassifier": "./static/built/SchemaLoadClassifier",
+        "generated/lgGraphV4Schema": "./static/built/generated/lgGraphV4Schema"
     },
     shim: {
         "bootstrap": {
