@@ -17,10 +17,10 @@ test('V4 Format JSON Match', async ({ page }) => {
   });
 
   await test.step('Round-trip the graph through V4', async () => {
-    await TestHelpers.setSchemaVersion(page, 'V4');
+    await TestHelpers.setGraphSchema(page, 'V4');
     const outputV4 = await TestHelpers.saveGraphToString(page);
     await TestHelpers.loadGraphFromString(page, outputV4);
-    await TestHelpers.setSchemaVersion(page, 'OJS');
+    await TestHelpers.setGraphSchema(page, 'OJS');
     outputOJS = await TestHelpers.saveGraphToString(page);
   });
 

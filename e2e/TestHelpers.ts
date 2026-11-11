@@ -771,6 +771,25 @@ export class TestHelpers {
         });
     }
 
+    static async setGraphSchema(page: Page, schema: 'OJS' | 'V4') {
+        await TestHelpers.setUIMode(page, 'Expert');
+
+        // open the settings modal
+        await page.locator('#settings').click();
+        await page.locator('#settingsModal').waitFor({ state: 'visible' });
+
+        // switch to the 'Developer' tab in the settings modal
+        const developerTab = page.locator('#settingCategoryDeveloper');
+        await developerTab.waitFor({ state: 'visible' });
+        await developerTab.click();
+
+        // set the graph schema
+        await page.selectOption('#settingDaliugeSchemaVersionSaveValue', schema);
+        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
+        await page.getByRole('button', { name: 'OK' }).click();
+        await page.locator('#settingsModal').waitFor({ state: 'hidden' });
+    }
+
     // Load a graph from a string into the app via the modal
     static async loadGraphFromString(page: Page, s: string) {
         // click 'create new graph from JSON' from the 'Graph' menu
@@ -835,15 +854,6 @@ export class TestHelpers {
         return outputOJS;
     }
 
-    // Set the schema version in the app (OJS or V4)
-    static async setSchemaVersion(page: Page, format: 'OJS' | 'V4') {
-        await page.locator('#settings').click();
-        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
-        await page.locator('#settingCategoryDeveloper').click();
-        await page.locator('#settingDaliugeSchemaVersionValue').selectOption({value: format});
-        await page.locator('#settingsModalAffirmativeAnswer').click();
-        await page.waitForTimeout(TestHelpers.UI_SETTLE_TIMEOUT);
-    }
 
     static async getNodeCount(page: Page): Promise<number> {
         return page.evaluate<number>(() => {
