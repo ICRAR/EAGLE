@@ -1162,8 +1162,8 @@ export class Eagle {
             return true;
         }
 
-        errorsWarnings.errors.push(Errors.Message("V4 graph JSON failed schema validation: " + validatorResult.errors));
-        return false;
+        errorsWarnings.warnings.push(Errors.Message("V4 graph JSON failed schema validation: " + validatorResult.errors));
+        return true;
     }
 
     private _loadGraphJSON = async (data: string, fileFullPath: string, loadFunc: (lg: LogicalGraph, errorsWarnings: ErrorsWarnings) => void | Promise<void>) : Promise<boolean> => {
