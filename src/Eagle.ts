@@ -1834,7 +1834,7 @@ export class Eagle {
 
     displayObjectAsJson = (fileType: EagleFileType, object: LogicalGraph | Palette | GraphConfig) : void => {
         let jsonString: string;
-        const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, SchemaVersion.Unknown);
+        const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION_SAVE, SchemaVersion.Unknown);
         
         switch(fileType){
             case EagleFileType.Graph:
@@ -1856,7 +1856,7 @@ export class Eagle {
 
     displayNodeAsJson = (node: Node) : void => {
         let jsonString: string;
-        const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, SchemaVersion.Unknown);
+        const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION_SAVE, SchemaVersion.Unknown);
 
         switch(version){
             case SchemaVersion.OJS:
@@ -2562,7 +2562,7 @@ export class Eagle {
             console.log("saveDiagramToGit() repositoryName", file.repository.name, "fileType", file.type, "filePath", file.path, "fileName", file.name, "commitMessage", commitMessage);
 
             // get version (hoisted for OJS format check)
-            const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, SchemaVersion.Unknown);
+            const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION_SAVE, SchemaVersion.Unknown);
 
             // warn if saving in older OJS format (not applicable to GraphConfig which has no version-dependent serialization)
             if (file.type !== EagleFileType.GraphConfig) {
@@ -3328,7 +3328,7 @@ export class Eagle {
             }
 
             // get version (hoisted for OJS format check)
-            const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, SchemaVersion.Unknown);
+            const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION_SAVE, SchemaVersion.Unknown);
 
             // warn if saving in older OJS format
             if (!await Eagle.confirmOjsSave(version)) { resolve(); return; }
@@ -3390,7 +3390,7 @@ export class Eagle {
             }
 
             // get version (hoisted for OJS format check)
-            const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, SchemaVersion.Unknown);
+            const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION_SAVE, SchemaVersion.Unknown);
 
             // warn if saving in older OJS format
             if (!await Eagle.confirmOjsSave(version)) { resolve(); return; }
@@ -3440,7 +3440,7 @@ export class Eagle {
             console.log("saveGraphConfigToDisk()", fileName);
 
             // get version
-            const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, SchemaVersion.Unknown);
+            const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION_SAVE, SchemaVersion.Unknown);
 
             // convert to json
             const jsonString: string = GraphConfig.toJsonString(graphConfig);
@@ -3508,7 +3508,7 @@ export class Eagle {
         console.log("savePaletteToGit()", palette.fileInfo().name, palette.fileInfo().type);
 
         // get version (hoisted for OJS format check)
-        const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, SchemaVersion.Unknown);
+        const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION_SAVE, SchemaVersion.Unknown);
 
         // warn if saving in older OJS format
         if (!await Eagle.confirmOjsSave(version)) { return; }
@@ -3570,7 +3570,7 @@ export class Eagle {
         const lg: LogicalGraph = Eagle.getInstance().logicalGraph();
 
         // get schema version
-        const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, SchemaVersion.Unknown);
+        const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION_SAVE, SchemaVersion.Unknown);
 
         // get json for logical graph
         const jsonString: string = LogicalGraph.toJsonString(lg, true, version);

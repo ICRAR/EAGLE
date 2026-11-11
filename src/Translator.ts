@@ -168,7 +168,7 @@ export class Translator {
         const lgClone: LogicalGraph = eagle.logicalGraph().clone();
 
         // get the version of JSON we are using
-        const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION, SchemaVersion.Unknown);
+        const version: SchemaVersion = Setting.findValue<SchemaVersion>(Setting.DALIUGE_SCHEMA_VERSION_TRANSLATE, SchemaVersion.Unknown);
 
         // convert to JSON
         const jsonString: string = LogicalGraph.toJsonString(lgClone, true, version);
