@@ -1430,7 +1430,7 @@ export class Node {
         let id = Node.determineNodeId(nodeData);
 
         if (id === null){
-            errorsWarnings.warnings.push(Errors.Message("Node has undefined id, generating new id"));
+            errorsWarnings.warnings.push(Errors.Message("Node (" + nodeData.category + ") has undefined id, generating new id"));
             id = Id.generateNodeId();
         }
 
@@ -2214,7 +2214,8 @@ export class Node {
         }
 
         // check that Memory and SharedMemory nodes have at least one input OR have a pydata field with a non-"None" value
-        if (node.category() === CategoryName.Memory || node.category() === CategoryName.SharedMemory){
+        // only check this if the component has been selected in the graph. If it was selected from the palette, it doesn't make sense to complain that it is not connected.
+        if ((node.category() === CategoryName.Memory || node.category() === CategoryName.SharedMemory) && location === EagleFileType.Graph){
             const pydataField = node.findFieldByDisplayText(FieldName.PYDATA);
             const hasPydataValue: boolean = typeof pydataField !== 'undefined' && pydataField.getValue() !== Daliuge.DEFAULT_PYDATA_VALUE;
 
