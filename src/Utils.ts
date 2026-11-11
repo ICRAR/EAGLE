@@ -38,7 +38,7 @@ marked.use(markedHighlight({
 
 import { CategoryName, CategoryType } from './Category';
 import { CategoryData } from "./CategoryData";
-import { Daliuge, DataType, FieldName, FieldType, FieldUsage } from './Daliuge';
+import { Daliuge, DataType, Encoding, FieldName, FieldType, FieldUsage } from './Daliuge';
 import { Eagle, EagleFileType } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { Edge } from './Edge';
@@ -2540,6 +2540,10 @@ export class Utils {
                 field.addEdge(edge);
             }
         }
+    }
+
+    static fixFieldEncoding(_eagle: Eagle, field: Field){
+        field.setEncoding(Encoding.Dill);
     }
 
     static addSourcePortToSourceNode(_eagle: Eagle, edge: Edge | undefined){
