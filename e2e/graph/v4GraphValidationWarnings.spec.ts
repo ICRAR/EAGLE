@@ -21,7 +21,7 @@ test('Load V4 graph with schema validation warnings', async ({ page }) => {
   await TestHelpers.loadGraphFromString(page, await TestHelpers.readGraph('data/LoopWithBranch.graph'));
 
   await TestHelpers.setUIMode(page, 'Expert');
-  await TestHelpers.setSchemaVersion(page, 'V4');
+  await TestHelpers.setGraphSchema(page, 'V4');
   const graph = JSON.parse(await TestHelpers.saveGraphToString(page)) as TestV4Graph;
   const [nodeId, node] = Object.entries(graph.nodes).find(([, candidate]) => Object.keys(candidate.fields).length > 0) ?? [];
   expect(nodeId).toBeDefined();

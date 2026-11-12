@@ -20,7 +20,7 @@ test('V4 schema violations are separate non-blocking loading warnings', async ({
   await page.goto('http://localhost:8888/?tutorial=none');
   await TestHelpers.setUIMode(page, 'Expert');
   await TestHelpers.loadGraphFromString(page, await TestHelpers.readGraph('data/LoopWithBranch.graph'));
-  await TestHelpers.setSchemaVersion(page, 'V4');
+  await TestHelpers.setGraphSchema(page, 'V4');
 
   const graph = JSON.parse(await TestHelpers.saveGraphToString(page)) as TestGraph;
   const fields = Object.values(graph.nodes).flatMap(node => Object.values(node.fields));
