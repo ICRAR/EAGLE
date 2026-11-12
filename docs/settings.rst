@@ -41,7 +41,7 @@ User Options
 - **Confirm OJS Format Save**: warn before saving in the older OJS format.
 - **Open Builtin Palette on Startup**: open the built-in palette automatically when EAGLE starts.
 - **Open Template Palette on Startup**: open the template palette automatically when EAGLE starts.
-- **Disable JSON Validation**: allow loading, saving, and translating JSON that fails schema checks.
+- **Disable JSON Validation**: skip schema validation when loading V4 graphs, saving, or translating.
 - **Overwrite Existing Translator Tab**: reuse an open translator tab on each translation.
 - **Test Translate Mode**: remove the requirement to save before translating.
 - **Markdown Editing Enabled**: enable edit mode in the markdown editor modal.
@@ -92,7 +92,7 @@ Developer
 """""""""
 
 - **Show Developer Notifications**: show internal diagnostic messages.
-- **Show File Loading Warnings**: display file issues encountered on load.
+- **Show File Loading Warnings**: display file issues encountered on load, including individual V4 graph schema violations. Schema warnings do not prevent a graph from loading.
 - **Open Translator In Current Tab**: reuse the current tab for translator output.
 - **Create Applications for Construct Ports**: migrate legacy construct-node port behavior.
 - **Skip 'closes loop' edges in JSON output**: omit translator-incompatible loop-closing edges.

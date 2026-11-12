@@ -1152,18 +1152,15 @@ export class Eagle {
         }
     }
 
-    private _validateV4GraphLoadJSON = (dataObject: JsonObject, errorsWarnings: ErrorsWarnings): boolean => {
+    private _validateV4GraphLoadJSON = (dataObject: JsonObject, errorsWarnings: ErrorsWarnings): void => {
         if (Setting.findValue<boolean>(Setting.DISABLE_JSON_VALIDATION, false)) {
-            return true;
+            return;
         }
 
         const validatorResult = Utils._validateJSON(dataObject, SchemaVersion.V4, EagleFileType.Graph);
-        if (validatorResult.valid) {
-            return true;
+        for (const error of validatorResult.errors) {
+            errorsWarnings.warnings.push(Errors.Message("V4 graph JSON failed schema validation: " + error));
         }
-
-        errorsWarnings.errors.push(Errors.Message("V4 graph JSON failed schema validation: " + validatorResult.errors));
-        return false;
     }
 
     private _loadGraphJSON = async (data: string, fileFullPath: string, loadFunc: (lg: LogicalGraph, errorsWarnings: ErrorsWarnings) => void | Promise<void>) : Promise<boolean> => {
@@ -1204,9 +1201,7 @@ export class Eagle {
                 loaded = true;
                 break;
             case SchemaVersion.V4:
-                if (!this._validateV4GraphLoadJSON(dataObject as JsonObject, errorsWarnings)) {
-                    break;
-                }
+                this._validateV4GraphLoadJSON(dataObject, errorsWarnings);
                 await loadFunc(LogicalGraph.fromV4Json(dataObject as V4GraphJson, "", errorsWarnings), errorsWarnings);
                 loaded = true;
                 break;
@@ -3135,10 +3130,7 @@ export class Eagle {
                 lg = LogicalGraph.fromOJSJson(dataObject, file.name, errorsWarnings);
                 break;
             case SchemaVersion.V4:
-                if (!this._validateV4GraphLoadJSON(dataObject as JsonObject, errorsWarnings)) {
-                    this._handleLoadingErrors(errorsWarnings, file.name, file.repository.service);
-                    return;
-                }
+                this._validateV4GraphLoadJSON(dataObject, errorsWarnings);
                 lg = LogicalGraph.fromV4Json(dataObject as V4GraphJson, file.name, errorsWarnings);
                 break;
             default:
@@ -3586,11 +3578,11 @@ export class Eagle {
         }
 
         // validate object
-        const validatorResult : {valid: boolean, errors: string} = Utils._validateJSON(jsonObject, version, EagleFileType.Graph);
+        const validatorResult = Utils._validateJSON(jsonObject, version, EagleFileType.Graph);
         if (validatorResult.valid){
             Utils.showNotification("Success",  "JSON Output valid against internal JSON schema (" + version + ")", "success");
         } else {
-            Utils.showNotification("Error",  "JSON Output failed validation against internal JSON schema (" + version + "): " + validatorResult.errors, "danger");
+            Utils.showNotification("Error",  "JSON Output failed validation against internal JSON schema (" + version + "): " + validatorResult.errors.join(", "), "danger");
         }
     }
 

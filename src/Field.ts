@@ -1076,6 +1076,11 @@ export class Field {
                 field.issues().push({issue:issue,validity:Validity.Warning})
         }
 
+        if (!Object.values(Encoding).includes(field.getEncoding())) {
+            const issue = Errors.ShowFix("Node (" + node.getName() + ") has field (" + field.getDisplayText() + ") with invalid encoding (" + field.getEncoding() + ")", function(){Utils.showField(eagle, location, node, field)}, function(){Utils.fixFieldEncoding(eagle, field)}, "Set default encoding for field");
+            field.issues().push({issue:issue, validity:Validity.Warning});
+        }
+
         // check that the fields "key" is the same as the key of the node it belongs to
         if (field.getNode().getId() !== node.getId()) {
             const issue = Errors.ShowFix("Node (" + node.getName() + ") has a field (" + field.getDisplayText() + ") whose node id (" + field.getNode().getId() + ") doesn't match the node (" + node.getId() + ")", function(){Utils.showField(eagle, location, node, field)}, function(){Utils.fixFieldNodeId(eagle, node, field)}, "Set field node id correctly");

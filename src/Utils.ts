@@ -38,7 +38,7 @@ marked.use(markedHighlight({
 
 import { CategoryName, CategoryType } from './Category';
 import { CategoryData } from "./CategoryData";
-import { Daliuge, DataType, FieldName, FieldType, FieldUsage } from './Daliuge';
+import { Daliuge, DataType, Encoding, FieldName, FieldType, FieldUsage } from './Daliuge';
 import { Eagle, EagleFileType } from './Eagle';
 import { EagleConfig } from "./EagleConfig";
 import { Edge } from './Edge';
@@ -2049,14 +2049,14 @@ export class Utils {
         }
 
         const jsonObject: unknown = JSON.parse(jsonString);
-        const validatorResult : {valid: boolean, errors: string} = Utils._validateJSON(jsonObject, version, fileType);
+        const validatorResult = Utils._validateJSON(jsonObject, version, fileType);
         if (!validatorResult.valid){
-            Utils.showNotification("Error",  "JSON Output failed validation against internal JSON schema, saving anyway<br/>" + validatorResult.errors, "danger", true);
+            Utils.showNotification("Error",  "JSON Output failed validation against internal JSON schema, saving anyway<br/>" + validatorResult.errors.join(", "), "danger", true);
         }
     }
 
-    static _validateJSON(json: any, version: SchemaVersion, fileType: EagleFileType) : {valid: boolean, errors: string} {
-        const ajv = new Ajv();
+    static _validateJSON(json: any, version: SchemaVersion, fileType: EagleFileType) : {valid: boolean, errors: string[]} {
+        const ajv = new Ajv({allErrors: true});
         let valid : boolean;
 
         switch(version){
@@ -2100,7 +2100,10 @@ export class Utils {
                 break;
         }
 
-        return {valid: valid, errors: ajv.errorsText(ajv.errors)};
+        if (!valid && (!ajv.errors || ajv.errors.length === 0)) {
+            throw new Error("JSON validation failed without reporting errors");
+        }
+        return {valid: valid, errors: (ajv.errors ?? []).map(error => ajv.errorsText([error]))};
     }
 
     static async downloadFile(data : string, fileName : string) : Promise<void> {
@@ -2540,6 +2543,10 @@ export class Utils {
                 field.addEdge(edge);
             }
         }
+    }
+
+    static fixFieldEncoding(_eagle: Eagle, field: Field){
+        field.setEncoding(Encoding.Dill);
     }
 
     static addSourcePortToSourceNode(_eagle: Eagle, edge: Edge | undefined){
