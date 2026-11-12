@@ -1606,7 +1606,7 @@ export class Node {
         // add fields
         if (typeof nodeData.fields !== 'undefined'){
             for (const fieldData of nodeData.fields){
-                const field = Field.fromOJSJson(fieldData, node, !isPaletteNode);
+                const field = Field.fromOJSJson(fieldData, node, !isPaletteNode, errorsWarnings);
 
                 // if the parameter type is not specified, assume it is a ComponentParameter
                 if (field.getParameterType() === FieldType.Unknown){
@@ -1621,7 +1621,7 @@ export class Node {
         // add application params
         if (typeof nodeData.applicationArgs !== 'undefined'){
             for (const paramData of nodeData.applicationArgs){
-                const field = Field.fromOJSJson(paramData, node, !isPaletteNode);
+                const field = Field.fromOJSJson(paramData, node, !isPaletteNode, errorsWarnings);
                 field.setParameterType(FieldType.Application);
                 node.addField(field);
             }
@@ -1633,7 +1633,7 @@ export class Node {
                 const inputApplication = node.inputApplication();
 
                 if (inputApplication !== null){
-                    const field = Field.fromOJSJson(fieldData, inputApplication, !isPaletteNode);
+                    const field = Field.fromOJSJson(fieldData, inputApplication, !isPaletteNode, errorsWarnings);
                     inputApplication.addField(field);
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Can't add input app field " + fieldData.text + " to node " + node.getName() + ". No input application."));
@@ -1647,7 +1647,7 @@ export class Node {
                 const outputApplication = node.outputApplication();
 
                 if (outputApplication !== null){
-                    const field = Field.fromOJSJson(fieldData, outputApplication, !isPaletteNode);
+                    const field = Field.fromOJSJson(fieldData, outputApplication, !isPaletteNode, errorsWarnings);
                     outputApplication.addField(field);
                 } else {
                     errorsWarnings.errors.push(Errors.Message("Can't add output app field " + fieldData.text + " to node " + node.getName() + ". No output application."));
@@ -1769,7 +1769,7 @@ export class Node {
 
         // add fields
         for (const [_id, fieldData] of Object.entries(nodeData.fields)){
-            const field = Field.fromV4Json(fieldData, node, !isPaletteNode);
+            const field = Field.fromV4Json(fieldData, node, !isPaletteNode, errorsWarnings);
             node.addField(field);
         }
 

@@ -302,6 +302,41 @@ export class Field {
         return this.options();
     }
 
+    private ensureSelectOptions = (addEmptyOption: boolean = false): string[] => {
+        const options = [...this.options()];
+        const addedOptions: string[] = [];
+        const value = this.value() === null && options.length === 0 ? "" : this.value();
+
+        if (addEmptyOption && !options.includes("")) {
+            options.push("");
+            addedOptions.push("");
+        }
+        for (const option of [value, this.defaultValue()]) {
+            if (option !== null && !options.includes(option)) {
+                options.push(option);
+                addedOptions.push(option);
+            }
+        }
+
+        this.options(options);
+        this.value(value);
+        return addedOptions;
+    }
+
+    private ensureLoadedSelectOptions = (errorsWarnings: ErrorsWarnings): void => {
+        if (!this.isSelectValueType()) {
+            return;
+        }
+
+        const addedOptions = this.ensureSelectOptions();
+        if (addedOptions.length > 0) {
+            errorsWarnings.warnings.push(Errors.Message(
+                "Node (" + this.node().getName() + ") select field (" + this.displayText() + ", " + this.id() +
+                ") was missing options; added " + addedOptions.map((option) => JSON.stringify(option)).join(", ") + " during loading."
+            ));
+        }
+    }
+
     editOption = (optionIndex: number, newVal: string) : Field => {
         //if the option we are editing is selected well update the value or default value
         if(this.options()[optionIndex] === this.value()){
@@ -828,7 +863,7 @@ export class Field {
         };
     }
 
-    static fromOJSJson(data : any, node: Node, changeable: boolean) : Field {
+    static fromOJSJson(data : any, node: Node, changeable: boolean, errorsWarnings: ErrorsWarnings) : Field {
         let id: FieldId = Id.generateFieldId();
         let name: string = "";
         let description: string = "";
@@ -865,7 +900,7 @@ export class Field {
             defaultValue = (data.defaultValue as { toString: () => string }).toString();
         }
         if (typeof data.precious !== 'undefined') { precious = data.precious as boolean; }
-        if (typeof data.options !== 'undefined') { options = data.options as string[]; }
+        if (typeof data.options !== 'undefined' && data.options !== null) { options = data.options as string[]; }
         if (typeof data.positional !== 'undefined') { positional = data.positional as boolean; }
         if (typeof data.changeable !== 'undefined') { fieldChangeable = data.changeable as boolean; }
 
@@ -908,6 +943,7 @@ export class Field {
         if (typeof data.event !== 'undefined') { isEvent = data.event as boolean; }
         if (typeof data.encoding !== 'undefined') { encoding = data.encoding as Encoding; }
         const result = new Field(node, id, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage);
+        result.ensureLoadedSelectOptions(errorsWarnings);
         result.isEvent(isEvent);
         result.encoding(encoding);
         result.changeable(fieldChangeable);
@@ -939,7 +975,7 @@ export class Field {
         return f;
     }
 
-    static fromV4Json(data: V4FieldJson, node: Node, changeable: boolean): Field {
+    static fromV4Json(data: V4FieldJson, node: Node, changeable: boolean, errorsWarnings: ErrorsWarnings): Field {
         let id: FieldId = Id.generateFieldId();
         let name: string = "";
         let value: string | null = "";
@@ -1006,6 +1042,7 @@ export class Field {
         }
 
         const f = new Field(node, id, name, value, defaultValue, description, readonly, type, precious, options, positional, parameterType, usage);
+        f.ensureLoadedSelectOptions(errorsWarnings);
         f.isEvent(event);
         f.encoding(encoding);
         f.changeable(fieldChangeable);
@@ -1015,6 +1052,16 @@ export class Field {
     static isValid(graph: LogicalGraph, node:Node, field:Field, location:EagleFileType){
         const eagle = Eagle.getInstance()
         field.issues([]) //clear old issues
+
+        if (field.isSelectValueType() && field.getOptions().length === 0) {
+            const issue = Errors.ShowFix(
+                "Node (" + node.getName() + ") has select field (" + field.getDisplayText() + ") with no options",
+                function(){Utils.showField(eagle, location, node, field);},
+                function(){field.ensureSelectOptions(true);},
+                "Add an empty option"
+            );
+            field.issues().push({issue:issue, validity:Validity.Warning});
+        }
     
         //checks for input ports
         if(field.isInputPort()){
