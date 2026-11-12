@@ -425,6 +425,16 @@ export const lgGraphV4Schema = {
                 "generatorCommitHash": {
                     "type": "string"
                 },
+                "eagleVersion": {
+                    "type": "string",
+                    "deprecated": true,
+                    "description": "Legacy generator version field; use generatorVersion instead."
+                },
+                "eagleCommitHash": {
+                    "type": "string",
+                    "deprecated": true,
+                    "description": "Legacy generator commit field; use generatorCommitHash instead."
+                },
                 "generatorName": {
                     "type": "string"
                 },
@@ -460,6 +470,36 @@ export const lgGraphV4Schema = {
                 },
                 "numLGNodes": {
                     "type": "number"
+                },
+                "repo": {
+                    "type": "string",
+                    "deprecated": true,
+                    "description": "Legacy location field; use location.repositoryName instead."
+                },
+                "repoBranch": {
+                    "type": "string",
+                    "deprecated": true,
+                    "description": "Legacy location field; use location.repositoryBranch instead."
+                },
+                "repoService": {
+                    "type": "string",
+                    "deprecated": true,
+                    "description": "Legacy location field; use location.repositoryService instead."
+                },
+                "filePath": {
+                    "type": "string",
+                    "deprecated": true,
+                    "description": "Legacy location field; use location.repositoryPath and location.repositoryFileName instead."
+                },
+                "commitHash": {
+                    "type": "string",
+                    "deprecated": true,
+                    "description": "Legacy location field; use location.commitHash instead."
+                },
+                "downloadUrl": {
+                    "type": "string",
+                    "deprecated": true,
+                    "description": "Legacy location field; use location.downloadUrl instead."
                 }
             },
             "required": [
