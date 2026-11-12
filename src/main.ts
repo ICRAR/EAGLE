@@ -273,7 +273,11 @@ $(function(){
     eagle.eagleIsReady(true);
 
     //applying html ko bindings
-    ko.applyBindings(eagle, document.getElementById("tabTitle"));
+    const tabTitle = document.getElementById("tabTitle");
+    if (tabTitle === null) {
+        throw new Error("Cannot initialize EAGLE: tabTitle element is missing");
+    }
+    ko.applyBindings(eagle, tabTitle);
     ko.applyBindings(eagle);
     
     //changing errors mode from loading to graph as eagle is now ready and finished loading
