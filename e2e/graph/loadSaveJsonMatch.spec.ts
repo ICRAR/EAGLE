@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { TestHelpers } from '../TestHelpers';
 
 const INPUT_GRAPH_LOCATION: string = "data/LoopWithBranch.graph";
+const INPUT_GRAPH_SCHEMA = "OJS";
 //const INPUT_GRAPH_LOCATION: string = "https://raw.githubusercontent.com/ICRAR/EAGLE-graph-repo/refs/heads/master/graph_patterns/LoopWithBranch.graph";
 
 test('Load/Save JSON Match', async ({ page }) => {
@@ -10,6 +11,7 @@ test('Load/Save JSON Match', async ({ page }) => {
 
   await test.step('Load and save the graph', async () => {
     await page.goto('http://localhost:8888/?tutorial=none');
+    await TestHelpers.setGraphSchema(page, INPUT_GRAPH_SCHEMA);
     await TestHelpers.loadGraphFromString(page, graphJSON);
     outputJSON = await TestHelpers.saveGraphToString(page);
   });

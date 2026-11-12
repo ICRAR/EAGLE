@@ -102,4 +102,5 @@ Developer
 - **Allow modified graph translation**: translate even if a graph is unsaved or uncommitted.
 - **Fetch repository for URLs**: auto-fetch repository content when a URL-specified graph or palette is loaded.
 - **Keep Old Fields during Category Change**: preserve old fields when changing a node category.
-- **DALiuGE Schema Version**: select the JSON schema version used for saving and translation.
+- **DALiuGE Schema Version (Save)**: select the JSON schema version used when saving graphs. Defaults to ``V4``.
+- **DALiuGE Schema Version (Translate)**: select the JSON schema version used when translating graphs. Defaults to ``OJS``.
