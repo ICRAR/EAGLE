@@ -765,7 +765,6 @@ export class Eagle {
     setSelection = (selection : Node | Edge | Visual | null, selectedLocation: EagleFileType) : void => {
         Eagle.selectedLocation(selectedLocation);
         GraphRenderer.clearPortPeek()
-
         if (selection === null){
             this.selectedObjects([]);
         } else {
@@ -775,7 +774,6 @@ export class Eagle {
             if(selection instanceof Edge){
                 GraphRenderer.setPortPeekForEdge(selection,true)
             }
-
             //trigger redraw of parameter table
             if(selection instanceof Node){
                 ParameterTable.updateContent(selection);
@@ -815,6 +813,14 @@ export class Eagle {
 
         if( selection instanceof Edge){
             GraphRenderer.setPortPeekForEdge(selection,!alreadySelected)
+        }
+
+        // update the parameter table if exactly one node is selected
+        if(this.selectedObjects().length === 1){
+            const firstSelectedObject = this.selectedObjects()[0]
+            if(firstSelectedObject instanceof Node){
+                ParameterTable.updateContent(firstSelectedObject);
+            }
         }
     }
 

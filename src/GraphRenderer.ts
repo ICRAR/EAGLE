@@ -1583,8 +1583,7 @@ export class GraphRenderer {
 
         //if shift is not clicked, we first clear the selection
         if(!additive){
-            eagle.setSelection(null, EagleFileType.Graph);
-            eagle.editSelection(node, EagleFileType.Graph);
+            eagle.setSelection(node, EagleFileType.Graph);
         }
 
         //getting all children, including children of child constructs etc..
