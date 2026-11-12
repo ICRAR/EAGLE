@@ -1,4 +1,18 @@
 export const versions = [
+    {
+    version: 'v7.2.0',
+    date: new Date("2026-11-12"),
+    changes: [
+      `Split the 'DALiuGE Schema Version' setting into two separate settings. One for saved files, one for output to the translator.`,
+      `Allow graphs with minor schema validation issues to be loaded`,
+      `V4 JSON Schema improvements`,
+      `Fixed issue where selecting a node would modify the value of a select field under certain circumstances`,
+      `Minor dependency updates`,
+      `Stricter code linting`,
+      `Fixed an issue where shift-clicking could add empty objects to selectedObjects`,
+      `Fixed graph dragging issues`
+    ]
+  },
   {
     version: 'v7.1.0',
     date: new Date("2026-10-15"),
